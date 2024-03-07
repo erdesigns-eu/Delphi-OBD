@@ -136,6 +136,7 @@
         <DCCReference Include="OBD.Adapter.ELM327.pas"/>
         <DCCReference Include="OBD.Adapter.ATCommands.pas"/>
         <DCCReference Include="OBD.Adapter.STCommands.pas"/>
+        <DCCReference Include="OBD.Adapter.OBDLink.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -170,12 +171,6 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\OBD.bpl" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>OBD.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

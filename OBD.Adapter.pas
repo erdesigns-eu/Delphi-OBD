@@ -276,7 +276,7 @@ type
     /// <summary>
     ///   Constructor
     /// <summary>
-    constructor Create; virtual;
+    constructor Create; override;
     /// <summary>
     ///   Destructor
     /// <summary>
@@ -294,6 +294,28 @@ type
     ///   Get the connected status of the adapter
     /// </summary>
     function Connected: Boolean; override;
+
+    /// <summary>
+    ///   Write AT Command
+    /// </summary>
+    /// <param name="ATCommand">
+    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
+    /// </param>
+    function WriteATCommand(const ATCommand: string): Boolean;
+    /// <summary>
+    ///   Write ST Command
+    /// </summary>
+    /// <param name="STCommand">
+    ///   The AT command string (STDI, STI, STFMR, ..)
+    /// </param>
+    function WriteSTCommand(const STCommand: string): Boolean;
+    /// <summary>
+    ///   Write OBD Command
+    /// </summary>
+    /// <param name="OBDCommand">
+    ///   The OBD command string (01 00, 01 1C, ..)
+    /// </param>
+    function WriteOBDCommand(const OBDCommand: string): Boolean;
 
     /// <summary>
     ///   Serial (COM PORT) settings
@@ -315,6 +337,10 @@ type
     ///   Connection Type (Unknown/Serial/Bluetooth/Wifi/FTDI)
     /// </summary>
     property ConnectionType: TOBDConnectionType read FConnectionType write SetConnectionType;
+    /// <summary>
+    ///   OBD Protocol
+    /// </summary>
+    property Protocol: IOBDProtocol read FProtocol write FProtocol;
   end;
 
 
@@ -493,7 +519,7 @@ begin
       // Create the connection class
       FConnection := TSerialOBDConnection.Create;
       // Setup params
-      Params.COMPort := Serial.COMPort;
+      Params.COMPort := ShortString(Serial.COMPort);
       Params.BaudRate := Serial.BaudRate;
     end;
 
@@ -503,7 +529,7 @@ begin
       FConnection := TBluetoothOBDConnection.Create;
       // Setup params
       Params.Manager := Bluetooth.Manager;
-      Params.Address := Bluetooth.Address;
+      Params.Address := ShortString(Bluetooth.Address);
     end;
 
     ctWiFi:
@@ -511,7 +537,7 @@ begin
       // Create the connection class
       FConnection := TWifiOBDConnection.Create;
       // Setup params
-      Params.IPAddress := Wifi.IPAddress;
+      Params.IPAddress := ShortString(Wifi.IPAddress);
       Params.Port := Wifi.Port;
     end;
 
@@ -520,7 +546,7 @@ begin
       // Create the connection class
       FConnection := TFTDIOBDConnection.Create;
       // Setup params
-      Params.SerialNumber := FTDI.SerialNumber;
+      Params.SerialNumber := ShortString(FTDI.SerialNumber);
     end;
   end;
 
@@ -556,6 +582,45 @@ end;
 function TELMAdapter.Connected: Boolean;
 begin
   Result := Assigned(FConnection) and FConnection.Connected;
+end;
+
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TELMAdapter.WriteATCommand(const ATCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := FConnection.WriteATCommand(ATCommand);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE ST COMMAND
+//------------------------------------------------------------------------------
+function TELMAdapter.WriteSTCommand(const STCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := FConnection.WriteSTCommand(STCommand);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TELMAdapter.WriteOBDCommand(const OBDCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write OBD command
+  Result := FConnection.WriteOBDCommand(OBDCommand);
 end;
 
 end.

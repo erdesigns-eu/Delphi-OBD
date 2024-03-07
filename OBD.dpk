@@ -45,6 +45,7 @@ contains
   OBD.Protocol.Types in 'OBD.Protocol.Types.pas',
   OBD.Adapter.ELM327 in 'OBD.Adapter.ELM327.pas',
   OBD.Adapter.ATCommands in 'OBD.Adapter.ATCommands.pas',
-  OBD.Adapter.STCommands in 'OBD.Adapter.STCommands.pas';
+  OBD.Adapter.STCommands in 'OBD.Adapter.STCommands.pas',
+  OBD.Adapter.OBDLink in 'OBD.Adapter.OBDLink.pas';
 
 end.
