@@ -20,11 +20,14 @@ uses
 //------------------------------------------------------------------------------
 type
   /// <summary>
+  ///   ELM327 Adapter Exception
+  /// </summary>
+  TELM327AdapterException = class(TOBDAdapterException);
+
+  /// <summary>
   ///   ELM327 OBD Adapter Class
   /// </summary>
   TELM327Adapter = class(TELMAdapter)
-  private
-
   protected
     /// <summary>
     ///   Initialize connection
@@ -39,6 +42,21 @@ type
     ///   Destructor
     /// <summary>
     destructor Destroy; override;
+
+    /// <summary>
+    ///   Write AT Command
+    /// </summary>
+    /// <param name="ATCommand">
+    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
+    /// </param>
+    function WriteATCommand(const ATCommand: string): Boolean; virtual;
+    /// <summary>
+    ///   Write OBD Command
+    /// </summary>
+    /// <param name="OBDCommand">
+    ///   The OBD command string (01 00, 01 1C, ..)
+    /// </param>
+    function WriteOBDCommand(const OBDCommand: string): Boolean; virtual;
   end;
 
 implementation
@@ -73,6 +91,30 @@ begin
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TELM327Adapter.WriteATCommand(const ATCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := Connection.WriteATCommand(ATCommand);
+end;
 
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TELM327Adapter.WriteOBDCommand(const OBDCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write OBD command
+  Result := Connection.WriteOBDCommand(OBDCommand);
+end;
 
 end.

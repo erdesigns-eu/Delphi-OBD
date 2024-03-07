@@ -20,11 +20,14 @@ uses
 //------------------------------------------------------------------------------
 type
   /// <summary>
+  ///   OBDLink Adapter Exception
+  /// </summary>
+  TOBDLinkAdapterException = class(TOBDAdapterException);
+
+  /// <summary>
   ///   OBDLink OBD Adapter Class
   /// </summary>
   TOBDLinkAdapter = class(TELMAdapter)
-  private
-
   protected
     /// <summary>
     ///   Initialize connection
@@ -39,6 +42,28 @@ type
     ///   Destructor
     /// <summary>
     destructor Destroy; override;
+
+    /// <summary>
+    ///   Write AT Command
+    /// </summary>
+    /// <param name="ATCommand">
+    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
+    /// </param>
+    function WriteATCommand(const ATCommand: string): Boolean; virtual;
+    /// <summary>
+    ///   Write ST Command
+    /// </summary>
+    /// <param name="STCommand">
+    ///   The AT command string (STDI, STI, STFMR, ..)
+    /// </param>
+    function WriteSTCommand(const STCommand: string): Boolean; virtual;
+    /// <summary>
+    ///   Write OBD Command
+    /// </summary>
+    /// <param name="OBDCommand">
+    ///   The OBD command string (01 00, 01 1C, ..)
+    /// </param>
+    function WriteOBDCommand(const OBDCommand: string): Boolean; virtual;
   end;
 
 implementation
@@ -73,6 +98,43 @@ begin
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteATCommand(const ATCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := Connection.WriteATCommand(ATCommand);
+end;
 
+//------------------------------------------------------------------------------
+// WRITE ST COMMAND
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteSTCommand(const STCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write ST command
+  Result := Connection.WriteSTCommand(STCommand);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteOBDCommand(const OBDCommand: string): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write OBD command
+  Result := Connection.WriteOBDCommand(OBDCommand);
+end;
 
 end.

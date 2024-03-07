@@ -13,7 +13,7 @@ unit OBD.Adapter;
 interface
 
 uses
-  Winapi.Windows, System.Bluetooth,
+  System.SysUtils, Winapi.Windows, System.Bluetooth,
 
   OBD.Connection, OBD.Connection.Serial, OBD.Connection.Bluetooth,
   OBD.Connection.Wifi, OBD.Connection.FTDI, OBD.Protocol;
@@ -54,6 +54,11 @@ type
 // CLASSES
 //------------------------------------------------------------------------------
 type
+  /// <summary>
+  ///   OBD Adapter Exception
+  /// </summary>
+  TOBDAdapterException = class(Exception);
+
   /// <summary>
   ///   OBD Adapter (CLASS)
   /// </summary>
@@ -272,6 +277,10 @@ type
     ///   Initialize connection
     /// </summary>
     procedure Init; virtual; abstract;
+    /// <summary>
+    ///   OBD Connection
+    /// </summary>
+    property Connection: IOBDConnection read FConnection;
   public
     /// <summary>
     ///   Constructor
@@ -294,28 +303,6 @@ type
     ///   Get the connected status of the adapter
     /// </summary>
     function Connected: Boolean; override;
-
-    /// <summary>
-    ///   Write AT Command
-    /// </summary>
-    /// <param name="ATCommand">
-    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
-    /// </param>
-    function WriteATCommand(const ATCommand: string): Boolean;
-    /// <summary>
-    ///   Write ST Command
-    /// </summary>
-    /// <param name="STCommand">
-    ///   The AT command string (STDI, STI, STFMR, ..)
-    /// </param>
-    function WriteSTCommand(const STCommand: string): Boolean;
-    /// <summary>
-    ///   Write OBD Command
-    /// </summary>
-    /// <param name="OBDCommand">
-    ///   The OBD command string (01 00, 01 1C, ..)
-    /// </param>
-    function WriteOBDCommand(const OBDCommand: string): Boolean;
 
     /// <summary>
     ///   Serial (COM PORT) settings
@@ -582,45 +569,6 @@ end;
 function TELMAdapter.Connected: Boolean;
 begin
   Result := Assigned(FConnection) and FConnection.Connected;
-end;
-
-//------------------------------------------------------------------------------
-// WRITE AT COMMAND
-//------------------------------------------------------------------------------
-function TELMAdapter.WriteATCommand(const ATCommand: string): Boolean;
-begin
-  // initialize result
-  Result := False;
-  // Exit here if we're not connected
-  if not Connected then Exit;
-  // Write AT command
-  Result := FConnection.WriteATCommand(ATCommand);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE ST COMMAND
-//------------------------------------------------------------------------------
-function TELMAdapter.WriteSTCommand(const STCommand: string): Boolean;
-begin
-  // initialize result
-  Result := False;
-  // Exit here if we're not connected
-  if not Connected then Exit;
-  // Write AT command
-  Result := FConnection.WriteSTCommand(STCommand);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE AT COMMAND
-//------------------------------------------------------------------------------
-function TELMAdapter.WriteOBDCommand(const OBDCommand: string): Boolean;
-begin
-  // initialize result
-  Result := False;
-  // Exit here if we're not connected
-  if not Connected then Exit;
-  // Write OBD command
-  Result := FConnection.WriteOBDCommand(OBDCommand);
 end;
 
 end.
