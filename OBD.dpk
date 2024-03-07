@@ -1,0 +1,50 @@
+﻿package OBD;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl;
+
+contains
+  OBD.Adapter in 'OBD.Adapter.pas',
+  OBD.Connection.Bluetooth in 'OBD.Connection.Bluetooth.pas',
+  OBD.Connection.Constants in 'OBD.Connection.Constants.pas',
+  OBD.Connection.FTDI in 'OBD.Connection.FTDI.pas',
+  OBD.Connection in 'OBD.Connection.pas',
+  OBD.Connection.Serial in 'OBD.Connection.Serial.pas',
+  OBD.Connection.Types in 'OBD.Connection.Types.pas',
+  OBD.Connection.Wifi in 'OBD.Connection.Wifi.pas',
+  OBD.Protocol.CAN in 'OBD.Protocol.CAN.pas',
+  OBD.Protocol.Legacy in 'OBD.Protocol.Legacy.pas',
+  OBD.Protocol in 'OBD.Protocol.pas',
+  OBD.Protocol.Types in 'OBD.Protocol.Types.pas',
+  OBD.Adapter.ELM327 in 'OBD.Adapter.ELM327.pas',
+  OBD.Adapter.ATCommands in 'OBD.Adapter.ATCommands.pas',
+  OBD.Adapter.STCommands in 'OBD.Adapter.STCommands.pas';
+
+end.
