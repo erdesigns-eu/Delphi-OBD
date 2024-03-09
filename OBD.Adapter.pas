@@ -13,19 +13,11 @@ unit OBD.Adapter;
 interface
 
 uses
-  System.SysUtils, Winapi.Windows, System.Bluetooth,
+  System.Classes, System.SysUtils, Winapi.Windows, System.Bluetooth,
 
-  OBD.Connection, OBD.Connection.Serial, OBD.Connection.Bluetooth,
-  OBD.Connection.Wifi, OBD.Connection.FTDI, OBD.Protocol;
-
-//------------------------------------------------------------------------------
-// OTHER
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   OBD Adapter Status
-  /// </summary>
-  TOBDAdapterStatus = (asNotConnected, asAdapterConnected, asOBDConnected, asCarConnected);
+  OBD.Connection, OBD.Connection.Types, OBD.Connection.Serial,
+  OBD.Connection.Bluetooth, OBD.Connection.Wifi, OBD.Connection.FTDI,
+  OBD.Protocol, OBD.Protocol.Types, OBD.Adapter.Types, OBD.Adapter.Constants;
 
 //------------------------------------------------------------------------------
 // INTERFACES
@@ -68,6 +60,22 @@ type
     ///   Adapter status
     /// </summary>
     FStatus: TOBDAdapterStatus;
+    /// <summary>
+    ///   Receive Data Messages Event
+    /// </summary>
+    FOnReceiveDataMessages: TReceiveDataMessagesEvent;
+    /// <summary>
+    ///   Receive Data Event
+    /// </summary>
+    FOnReceiveData: TReceiveDataEvent;
+    /// <summary>
+    ///   Status Change Event
+    /// </summary>
+    FOnStatusChange: TAdapterStatusChangeEvent;
+    /// <summary>
+    ///   Connection Change Event
+    /// </summary>
+    FOnConnectionChange: TAdapterConnectionChangeEvent;
   public
     /// <summary>
     ///   Constructor
@@ -91,6 +99,23 @@ type
     ///   Adapter status
     /// </summary>
     property Status: TOBDAdapterStatus read FStatus write FStatus;
+
+    /// <summary>
+    ///   Receive Data Message Event
+    /// </summary>
+    property OnReceiveDataMessages: TReceiveDataMessagesEvent read FOnReceiveDataMessages write FOnReceiveDataMessages;
+    /// <summary>
+    ///   Receive Data Event
+    /// </summary>
+    property OnReceiveData: TReceiveDataEvent read FOnReceiveData write FOnReceiveData;
+    /// <summary>
+    ///   Status Change Event
+    /// </summary>
+    property OnStatusChange: TAdapterStatusChangeEvent read FOnStatusChange write FOnStatusChange;
+    /// <summary>
+    ///   Connection Change Event
+    /// </summary>
+    property OnConnectionChange: TAdapterConnectionChangeEvent read FOnConnectionChange write FOnConnectionChange;
   end;
 
   /// <summary>
@@ -126,7 +151,7 @@ type
     /// <summary>
     ///   COM Baudrate
     /// </summary>
-    FBaudRate: Integer;
+    FBaudRate: TBaudRate;
 
     /// <summary>
     ///   Set COM port
@@ -135,7 +160,7 @@ type
     /// <summary>
     ///   Set COM Baudrate
     /// </summary>
-    procedure SetBaudRate(Value: Integer);
+    procedure SetBaudRate(Value: TBaudRate);
   public
     /// <summary>
     ///   COM port
@@ -144,7 +169,7 @@ type
     /// <summary>
     ///   COM Baudrate
     /// </summary>
-    property BaudRate: Integer read FBaudRate write SetBaudRate;
+    property BaudRate: TBaudRate read FBaudRate write SetBaudRate;
   end;
 
   /// <summary>
@@ -240,6 +265,15 @@ type
   TELMAdapter = class(TOBDAdapter)
   private
     /// <summary>
+    ///   Incoming data buffer for accumulating the incoming data
+    ///   until we get the '>' character.
+    /// </summary>
+    FDataBuffer: AnsiString;
+    /// <summary>
+    ///   List containing received data
+    /// </summary>
+    FDataLines: TStringList;
+    /// <summary>
     ///   Serial (COM PORT) settings
     /// </summary>
     FSerial: TOBDAdapterSerial;
@@ -269,9 +303,22 @@ type
     FProtocol: IOBDProtocol;
 
     /// <summary>
+    ///   Adapter error event
+    /// </summary>
+    FOnAdapterError: TELMAdapterErrorEvent;
+    /// <summary>
+    ///   OBDLink adapter error event
+    /// </summary>
+    FOnOBDLinkError: TOBDLinkAdapterErrorEvent;
+
+    /// <summary>
     ///   Set connection type
     /// </summary>
     procedure SetConnectionType(Value: TOBDConnectionType);
+    /// <summary>
+    ///   Handle data received event
+    /// </summary>
+    procedure HandleDataReceived(Sender: TObject; DataPtr: Pointer; DataSize: DWORD);
   protected
     /// <summary>
     ///   Initialize connection
@@ -328,6 +375,15 @@ type
     ///   OBD Protocol
     /// </summary>
     property Protocol: IOBDProtocol read FProtocol write FProtocol;
+
+    /// <summary>
+    ///   Adapter error event
+    /// </summary>
+    property OnAdapterError: TELMAdapterErrorEvent read FOnAdapterError write FOnAdapterError;
+    /// <summary>
+    ///   OBDLink adapter error event
+    /// </summary>
+    property OnOBDLinkError: TOBDLinkAdapterErrorEvent read FOnOBDLinkError write FOnOBDLinkError;
   end;
 
 
@@ -369,7 +425,7 @@ end;
 //------------------------------------------------------------------------------
 // SET COM BAUDRATE
 //------------------------------------------------------------------------------
-procedure TOBDAdapterSerial.SetBaudRate(Value: Integer);
+procedure TOBDAdapterSerial.SetBaudRate(Value: TBaudRate);
 begin
   // Exit here if we're connected
   if Adapter.Connected then Exit;
@@ -448,6 +504,9 @@ begin
   FWifi := TOBDAdapterWifi.Create(Self);
   // FTDI settings
   FFTDI := TOBDAdapterFTDI.Create(Self);
+
+  // Create stringlist for holding incoming data
+  FDataLines := TStringList.Create;
 end;
 
 //------------------------------------------------------------------------------
@@ -464,6 +523,9 @@ begin
   // Free FTDI settings
   FFTDI.Free;
 
+  // Free stringlist
+  FDataLines.Free;
+
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -479,6 +541,180 @@ begin
   if Value <> FConnectionType then
   begin
     FConnectionType := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE DATA RECEIVED EVENT
+//------------------------------------------------------------------------------
+procedure TELMAdapter.HandleDataReceived(Sender: TObject; DataPtr: Pointer; DataSize: DWORD);
+var
+  S: AnsiString;
+  T: AnsiString;
+  E: TELMAdapterError;
+  O: TOBDLinkAdapterError;
+
+  function HasELMError: Boolean;
+  begin
+    // Initialize result
+    Result := False;
+    // Check for unsupported command
+    if Pos(ELM_UNSUPPORTED_COMMAND, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeUnsupportedCommand;
+    end else
+    // Check for no data error
+    if Pos(ELM_NO_DATA, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeNoData;
+    end else
+    if Pos(ELM_DATA_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeDataError;
+    end;
+    // Check for bus init error
+    if Pos(ELM_BUS_INIT_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeBusInit;
+    end else
+    // Check for bus busy
+    if Pos(ELM_BUS_BUSY, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeBusBusy;
+    end else
+    // Check for bus error
+    if Pos(ELM_BUS_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeBusError;
+    end else
+    // Check for can error
+    if Pos(ELM_CAN_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeCanError;
+    end else
+    // Check for unable to connect error
+    if Pos(ELM_UNABLE_TO_CONNECT, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeUnableToConnect;
+    end else
+    // Check for other errors
+    if Pos(ELM_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeError;
+    end else
+    // Check for stopped message
+    if Pos(ELM_STOPPED, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeStopped;
+    end else
+    // Check for buffer full error
+    if Pos(ELM_BUFFER_FULL, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      E := aeBufferFull;
+    end;
+  end;
+
+  function HasOBDLinkError: Boolean;
+  begin
+    // Initialize result
+    Result := False;
+    // Check for ACT Alert
+    if Pos(OBDLINK_ACT_ALERT, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeActAlert;
+    end else
+    // Check for FB Error
+    if Pos(OBDLINK_FB_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeFbError;
+    end else
+    // Check for FC RX Timeout
+    if Pos(OBDLINK_FC_RX_TIMEOUT, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeFcRxTimeout;
+    end else
+    // Check for LP Alert
+    if Pos(OBDLINK_LP_ALERT, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeLpAlert;
+    end else
+    // Check for LV Reset
+    if Pos(OBDLINK_LV_RESET, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeLvReset;
+    end else
+    // Check for out of memory
+    if Pos(OBDLINK_OUT_OF_MEMORY, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeOutOfMemory;
+    end else
+    // Check for RX Error
+    if Pos(OBDLINK_RX_ERROR, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeRxError;
+    end else
+    // Check for UART RX Overflow
+    if Pos(OBDLINK_UART_RX_OVERFLOW, String(FDataBuffer)) > 0 then
+    begin
+      Result := True;
+      O := aeUartRxOverflow;
+    end;
+  end;
+
+var
+  ParsedMessages: TArray<IOBDDataMessage>;
+begin
+  // Allocate memory for the data
+  S := AnsiString(StringOfChar(' ', DataSize));
+  // Move the data to the buffer
+  Move(DataPtr^, PAnsiChar(S)^, DataSize);
+  // Accumulate the incoming data until we find the '>' character.
+  FDataBuffer := FDataBuffer + S;
+  // Check for the '>' character
+  if Pos(ELM_MESSAGE_DELIMITER, String(FDataBuffer)) > 0 then
+  begin
+    // Remove the delimiter
+    T := Copy(FDataBuffer, 1, Length(FDataBuffer) -  Length(ELM_MESSAGE_DELIMITER));
+    // Check for ELM errors, and notify if there is
+    if HasELMError and Assigned(OnAdapterError) then OnAdapterError(Self, E);
+    // Check for OBDLink errors, and notify if there is
+    if HasOBDLinkError and Assigned(OnOBDLinkError) then OnOBDLinkError(Self, O);
+    // Notify we received data
+    if Assigned(OnReceiveData) then OnReceiveData(Self, T);
+
+    // If the protocol is assigned, then send the data to the protocol for parsing
+    if Assigned(Protocol) then
+    begin
+      // Clear the list
+      FDataLines.Clear;
+      // Assign the data
+      FDataLines.Text := String(T);
+      // Send the data to the protocol for parsing
+      ParsedMessages := Protocol.Invoke(FDataLines);
+      // Notify we have parsed messages
+      if Assigned(OnReceiveDataMessages) then OnReceiveDataMessages(Self, ParsedMessages);
+    end;
+
+    // Clear buffer for next data
+    FDataBuffer := '';
   end;
 end;
 
@@ -539,11 +775,29 @@ begin
 
   // Try to connect and return success status
   Result := FConnection.Connect(Params);
+  // Exit here if we're not connected
+  if not Result then
+  begin
+    // Remove connection
+    FConnection := nil;
+    // Exit here
+    Exit;
+  end;
+
+  // Notify we connected
+  if Assigned(OnConnectionChange) then OnConnectionChange(Self, True);
+  // Clear input buffer
+  FDataBuffer := '';
 
   // Update the status
-  if Result then FStatus := asAdapterConnected;
-  // If we are connected, then init the adapter.
-  if Result then Init;
+  FStatus := asAdapterConnected;
+  // Notify the status change
+  if Assigned(OnStatusChange) then OnStatusChange(Self, FStatus);
+
+  // If we succeeded until here, lets assign the data received handler
+  FConnection.OnDataReceived := HandleDataReceived;
+  // Init the adapter.
+  Init;
 end;
 
 //------------------------------------------------------------------------------
@@ -561,6 +815,10 @@ begin
   if Result then FConnection := nil;
   // Update the status
   if Result then FStatus := asNotConnected;
+  // Notify we connected
+  if Result and Assigned(OnConnectionChange) then OnConnectionChange(Self, False);
+  // Clear input buffer
+  FDataBuffer := '';
 end;
 
 //------------------------------------------------------------------------------

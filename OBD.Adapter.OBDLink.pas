@@ -68,6 +68,8 @@ type
 
 implementation
 
+uses System.StrUtils;
+
 //------------------------------------------------------------------------------
 // INIT CONNECTION
 //------------------------------------------------------------------------------
@@ -108,7 +110,7 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write AT command
-  Result := Connection.WriteATCommand(ATCommand);
+  Result := Connection.WriteATCommand(IfThen(Pos(#13, ATCommand) = 0, ATCommand + #13, ATCommand));
 end;
 
 //------------------------------------------------------------------------------
@@ -121,7 +123,7 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write ST command
-  Result := Connection.WriteSTCommand(STCommand);
+  Result := Connection.WriteSTCommand(IfThen(Pos(#13, STCommand) = 0, STCommand + #13, STCommand));
 end;
 
 //------------------------------------------------------------------------------
@@ -134,7 +136,7 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write OBD command
-  Result := Connection.WriteOBDCommand(OBDCommand);
+  Result := Connection.WriteOBDCommand(IfThen(Pos(#13, OBDCommand) = 0, OBDCommand + #13, OBDCommand));
 end;
 
 end.

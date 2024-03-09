@@ -79,6 +79,14 @@ type
   TOBDProtocol = class(TInterfacedObject, IOBDProtocol)
   private
     /// <summary>
+    ///   Used in the invoke function
+    /// </summary>
+    FOBDLines: TStringList;
+    /// <summary>
+    ///   Used in the invoke function
+    /// </summary>
+    FNonOBDLines: TStringList;
+    /// <summary>
     ///   List of available ECU's
     /// </summary>
     FECUList: TStringList;
@@ -171,7 +179,6 @@ function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
   end;
 
 var
-  OBDLines, NonOBDLines: TStringList;
   Line: string;
   LineNoSpaces: string;
   Frame: IOBDDataFrame;
@@ -180,73 +187,69 @@ var
   ECU: Integer;
   Msg: IOBDDataMessage;
 begin
-  // Create temp stringlists for lines
-  OBDLines := TStringList.Create;
-  NonOBDLines := TStringList.Create;
+  // Clear lists
+  FOBDLines.Clear;
+  FNonOBDLines.Clear;
+
+  // Loop over lines
+  for Line in Lines do
+  begin
+    // Remove spaces
+    LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
+    // If the string is valid HEX add it to the OBD lines stringlist
+    if IsHex(LineNoSpaces) then
+      FOBDLines.Add(Line)
+    // Otherwise add it to the non OBD lines stringlist
+    else
+      FNonOBDLines.Add(Line);
+  end;
+
+  // Initialize frames length
+  SetLength(Frames, 0);
+
+  // Loop over OBD lines
+  for Line in FOBDLines do
+  begin
+    // Create frame from line
+    Frame := TOBDDataFrame.Create(Line);
+    // Parse lines into frames, and drop lines that couldn't be parsed
+    if ParseFrame(Frame) then Frames := Frames + [Frame];
+  end;
+
+  // Map frames by ECU
+  FramesByECU := TDictionary<Integer, TArray<IOBDDataFrame>>.Create;
   try
-    // Loop over lines
-    for Line in Lines do
+    // Loop over frames
+    for Frame in Frames do
     begin
-      // Remove spaces
-      LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
-      // If the string is valid HEX add it to the OBD lines stringlist
-      if IsHex(LineNoSpaces) then
-        OBDLines.Add(Line)
-      // Otherwise add it to the non OBD lines stringlist
+      if not FramesByECU.ContainsKey(Frame.TxId) then
+        FramesByECU.Add(Frame.TxId, [Frame])
       else
-        NonOBDLines.Add(Line);
+        FramesByECU[Frame.TxId] := FramesByECU[Frame.TxId] + [Frame];
     end;
 
-    // Initialize frames length
-    SetLength(Frames, 0);
-
-    // Loop over OBD lines
-    for Line in ObdLines do
+    // Parse frames into whole messages
+    for ECU in FramesByECU.Keys do
     begin
-      // Create frame from line
-      Frame := TOBDDataFrame.Create(Line);
-      // Parse lines into frames, and drop lines that couldn't be parsed
-      if ParseFrame(Frame) then Frames := Frames + [Frame];
+      Msg := TOBDDataMessage.Create(FramesByECU[ECU]);
+
+      // Assemble frames into Messages
+      if ParseMessage(Msg) then
+      begin
+        // Mark with the appropriate ECU ID
+        Msg.ECU := IntToHex(ECU, 2);
+        Result := Result + [Msg];
+      end;
     end;
 
-    // Map frames by ECU
-    FramesByECU := TDictionary<Integer, TArray<IOBDDataFrame>>.Create;
-    try
-      // Loop over frames
-      for Frame in Frames do
-      begin
-        if not FramesByECU.ContainsKey(Frame.TxId) then
-          FramesByECU.Add(Frame.TxId, [Frame])
-        else
-          FramesByECU[Frame.TxId] := FramesByECU[Frame.TxId] + [Frame];
-      end;
-
-      // Parse frames into whole messages
-      for ECU in FramesByECU.Keys do
-      begin
-        Msg := TOBDDataMessage.Create(FramesByECU[ECU]);
-
-        // Assemble frames into Messages
-        if ParseMessage(Msg) then
-        begin
-          // Mark with the appropriate ECU ID
-          Msg.ECU := IntToHex(ECU, 2);
-          Result := Result + [Msg];
-        end;
-      end;
-
-      // Handle invalid lines (probably from the ELM)
-      for Line in NonObdLines do
-      begin
-        // Give each line its own message object
-        Result := Result + [TOBDDataMessage.Create([TOBDDataFrame.Create(Line)])];
-      end;
-    finally
-      FramesByECU.Free;
+    // Handle invalid lines (probably from the ELM)
+    for Line in FNonOBDLines do
+    begin
+      // Give each line its own message object
+      Result := Result + [TOBDDataMessage.Create([TOBDDataFrame.Create(Line)])];
     end;
   finally
-    OBDLines.Free;
-    NonOBDLines.Free;
+    FramesByECU.Free;
   end;
 end;
 
@@ -284,6 +287,9 @@ begin
   Messages := Invoke(Lines);
   // Load ECU list
   LoadECUList(Messages);
+  // Create lists
+  FOBDLines := TStringList.Create;
+  FNonOBDLines := TStringList.Create;
 end;
 
 //------------------------------------------------------------------------------
@@ -293,6 +299,9 @@ destructor TOBDProtocol.Destroy;
 begin
   // Free ECU list
   FECUList.Free;
+  // Free lists
+  FOBDLines.Free;
+  FNonOBDLines.Free;
   // Call inherited Destructor
   inherited;
 end;

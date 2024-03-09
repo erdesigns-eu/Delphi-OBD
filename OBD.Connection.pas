@@ -27,7 +27,7 @@ type
 type
   TOBDConnectionParams = record
     case ConnectionType: TOBDConnectionType of
-      ctSerial    : (COMPort: string[255]; BaudRate: Integer);          // For Serial (COM PORT)
+      ctSerial    : (COMPort: string[255]; BaudRate: TBaudRate);        // For Serial (COM PORT)
       ctBluetooth : (Manager: TBluetoothManager; Address: string[255]); // For Bluetooth
       ctWiFi      : (IPAddress: string[255]; Port: Integer);            // For WiFi
       ctFTDI      : (SerialNumber: string[255]);                        // For FTDI (USB)

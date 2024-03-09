@@ -19,10 +19,10 @@ uses WinApi.Windows;
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   RX/receive event (packed mode enabled)
+  ///   RX/receive event (packet mode enabled)
   /// </summary>
   /// <param name="Sender">
-  ///   Object calling this eventhandler
+  ///   Object calling this event
   /// </param>
   /// <param name="Packet">
   ///   Pointer to the received data packet
@@ -30,13 +30,13 @@ type
   /// <param name="DataSize">
   ///   Number of bytes received
   /// </param>
-  TReceivePacketEvent = procedure(Sender: TObject; Packet: pointer; DataSize: DWORD) of object;
+  TPacketReceivedEvent = procedure(Sender: TObject; Packet: pointer; DataSize: DWORD) of object;
 
   /// <summary>
   ///   TX/send event
   /// </summary>
   /// <param name="Sender">
-  ///   Object calling this eventhandler
+  ///   Object calling this event
   /// </param>
   /// <param name="DataPtr">
   ///   Pointer to the send data
@@ -50,7 +50,7 @@ type
   ///   RX/received event
   /// </summary>
   /// <param name="Sender">
-  ///   Object calling this eventhandler
+  ///   Object calling this event
   /// </param>
   /// <param name="DataPtr">
   ///   Pointer to the received data

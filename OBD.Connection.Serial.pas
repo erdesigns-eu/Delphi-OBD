@@ -88,7 +88,7 @@ type
     /// <summary>
     ///   Event to raise on packet reception (asynchronous)
     /// </summary>
-    FOnReceivePacket: TReceivePacketEvent;
+    FOnReceivePacket: TPacketReceivedEvent;
     /// <summary>
     ///   Event to raise on data send (asynchronous)
     /// </summary>
@@ -572,7 +572,7 @@ type
     /// <summary>
     ///   Event to raise when there is data packet available (called only if PacketSize > 0)
     /// </summary>
-    property OnReceivePacket: TReceivePacketEvent read FOnReceivePacket write FOnReceivePacket;
+    property OnReceivePacket: TPacketReceivedEvent read FOnReceivePacket write FOnReceivePacket;
     /// <summary>
     ///   Event to raise when data is send
     /// </summary>
@@ -947,6 +947,7 @@ procedure TSerialPort.TimerWndProc(var Msg: TMessage);
 var
   BytesRead, BytesToRead, BytesToReadBuf, Dummy: DWORD;
   ComStat: TComStat;
+  S: string;
 begin
   if (Msg.Msg = WM_TIMER) and Connected and (not FIsInOnTimer) then
   begin
@@ -1048,8 +1049,8 @@ begin
   FStopBits := sb1BITS;
   // Set the COMPORT Parity to none
   FParity := ptNONE;
-  // No Hardware Flow Control but RTS on
-  FHwFlow := hfNONERTSON;
+  // No Hardware Flow Control
+  FHwFlow := hfNONE;
   // No Software Flow Control
   FSwFlow := sfNONE;
   // Input and output buffer of 2048 bytes
@@ -1569,14 +1570,7 @@ end;
 // SERIAL PORT RECEIVE DATA EVENT HANDLER
 //------------------------------------------------------------------------------
 procedure TSerialOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-var
-  S: string;
 begin
-  // Allocate memory for the data
-  // S := stringOfChar(' ', DataSize);
-  // Move the data to the buffer
-  // Move(DataPtr^, PChar(S)^, DataSize);
-  // Call event
   if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
 end;
 
@@ -1584,14 +1578,7 @@ end;
 // SERIAL PORT SEND DATA EVENT HANDLER
 //------------------------------------------------------------------------------
 procedure TSerialOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-var
-  S: string;
 begin
-  // Allocate memory for the data
-  // S := stringOfChar(' ', DataSize);
-  // Move the data to the buffer
-  // Move(DataPtr^, PChar(S)^, DataSize);
-  // Call event
   if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
 end;
 
@@ -1615,8 +1602,10 @@ begin
   if Params.ConnectionType <> ctSerial then Exit;
   // Set the port
   FSerialPort.Port := String(Params.COMPort);
+  // Set the baudrate
+  FSerialPort.BaudRate := Params.BaudRate;
   // Connect to the serial port
-  FSerialPort.Connect;
+  Result := FSerialPort.Connect;
 end;
 
 //------------------------------------------------------------------------------
