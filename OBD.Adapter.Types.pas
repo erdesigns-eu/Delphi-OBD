@@ -20,9 +20,9 @@ uses
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   OBD Adapter Status (Not connected .. Car connected)
+  ///   OBD Adapter Status (Not connected .. OBD connected)
   /// </summary>
-  TOBDAdapterStatus = (asNotConnected, asAdapterConnected, asOBDConnected, asCarConnected);
+  TOBDAdapterStatus = (asNotConnected, asAdapterConnected, asCarConnected, asOBDConnected);
   /// <summary>
   ///   ELM Adapter Error (Unsupported Command .. Buffer Full)
   /// </summary>
@@ -31,6 +31,25 @@ type
   ///   OBDLink Adapter Error (ACT Alert .. UART Rx overflow)
   /// </summary>
   TOBDLinkAdapterError = (aeActAlert, aeFbError, aeFcRxTimeout, aeLpAlert, aeLvReset, aeOutOfMemory, aeRxError, aeUartRxOverflow);
+
+//------------------------------------------------------------------------------
+// PROTOCOLS SUPPORTED BY ELM (327/329)
+//------------------------------------------------------------------------------
+type
+  TELMProtocol = (
+    epAutomatic,
+    epSAE_J1850_PWM,
+    epSAE_J1850_VPW,
+    epISO_9141_2,
+    epISO_14230_4_SLOW,
+    epISO_14230_4_FAST,
+    epISO_15765_4_11_500,
+    epISO_15765_4_29_500,
+    epISO_15765_4_11_250,
+    epISO_15765_4_29_250,
+    epSAE_J1939_29_250,
+    epSAE_J1939_29_500
+  );
 
 //------------------------------------------------------------------------------
 // EVENT TYPES

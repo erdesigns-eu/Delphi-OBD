@@ -283,13 +283,13 @@ begin
   inherited Create;
   // Create ECU list
   FECUList := TStringList.Create;
+  // Create lists
+  FOBDLines := TStringList.Create;
+  FNonOBDLines := TStringList.Create;
   // Parse the 0100 data into messages
   Messages := Invoke(Lines);
   // Load ECU list
   LoadECUList(Messages);
-  // Create lists
-  FOBDLines := TStringList.Create;
-  FNonOBDLines := TStringList.Create;
 end;
 
 //------------------------------------------------------------------------------

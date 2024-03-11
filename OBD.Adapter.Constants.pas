@@ -22,6 +22,11 @@ const
   /// </summary>
   ELM_MESSAGE_DELIMITER = '>';
   /// <summary>
+  ///   ELM Command Terminator: This character indicates the end of the command
+  ///   we are sending to the adapter.
+  /// </summary>
+  ELM_COMMAND_TERMINATOR = #13;
+  /// <summary>
   ///   Unsupported command: This character indicates that the request failed,
   ///   this can be due to an incorrectly formattes message, or unrecognized
   ///   or unsupported command.
@@ -33,6 +38,12 @@ const
   ///   is not supported or if the engine is off.
   /// </summary>
   ELM_NO_DATA = 'NO DATA';
+  /// <summary>
+  ///   No Response: The vehicle's ECU (Engine Control Unit) did not respond to the
+  ///   request for data. This can happen if the requested PID (Parameter ID)
+  ///   is not supported or if the engine is off.
+  /// </summary>
+  ELM_NO_RESPONSE = 'NO RESPONSE';
   /// <summary>
   ///   Data Error: Too few bytes received, incorrect header format,
   ///   symbol timing, or framing error.
@@ -73,6 +84,13 @@ const
   /// </summary>
   ELM_UNABLE_TO_CONNECT = 'UNABLE TO CONNECT';
   /// <summary>
+  ///   Connection Failed: The adapter could not establish a connection with
+  ///   the vehicle's ECU. This might occur for several reasons, including
+  ///   issues with the vehicle's OBD-II port, compatibility problems,
+  ///   or the vehicle not being OBD-II compliant.
+  /// </summary>
+  ELM_CONNECTION_FAILED = 'CONNECTION FAILED';
+  /// <summary>
   ///   Error: A general error message indicating that the adapter encountered
   ///   an unspecified problem.
   /// </summary>
@@ -88,6 +106,11 @@ const
   ///   with commands that return large amounts of data.
   /// </summary>
   ELM_BUFFER_FULL = 'BUFFER FULL';
+  /// <summary>
+  ///   Acknowledge: This message indicates that the adapter acknowledges the
+  ///   command.
+  /// </summary>
+  ELM_ACKNOWLEDGE = 'OK';
 
 //------------------------------------------------------------------------------
 // CONSTANTS (ADAPTER: OBDLINK)

@@ -1613,11 +1613,11 @@ end;
 //------------------------------------------------------------------------------
 function TSerialOBDConnection.Disconnect: Boolean;
 begin
-  Result := Connected;
-  if Result then
+  Result := False;
+  if Connected then
   begin
     FSerialPort.Disconnect;
-    Result := FSerialPort.Connected;
+    Result := True;
   end;
 end;
 

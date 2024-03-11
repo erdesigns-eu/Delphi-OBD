@@ -13,6 +13,18 @@ unit OBD.Adapter.ATCommands;
 
 interface
 
+uses
+  System.SysUtils;
+
+//------------------------------------------------------------------------------
+// CLASSES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   AT Command Exception
+  /// </summary>
+  TATCommandException = class(Exception);
+
 //------------------------------------------------------------------------------
 // RECORDS
 //------------------------------------------------------------------------------
@@ -345,14 +357,14 @@ const
     Group       : 'OBD';
     Params      : 0;
   );
-  SET_SPACES_OFF: ATCommand = (
+  SPACES_OFF: ATCommand = (
     Version     : '1.3';
     Command     : 'S0';
     Description : 'Printing spaces off';
     Group       : 'OBD';
     Params      : 0;
   );
-  SET_SPACES_ON: ATCommand = (
+  SPACES_ON: ATCommand = (
     Version     : '1.3';
     Command     : 'S1';
     Description : 'Printing spaces on';
@@ -369,7 +381,7 @@ const
   );
   SET_PROTOCOL_AUTO_H: ATCommand = (
     Version     : '1.0';
-    Command     : 'SP A%d';
+    Command     : 'SP A%s';
     Description : 'Set protocol to Auto, H and save it';
     Group       : 'OBD';
     Params      : 1;
@@ -377,7 +389,7 @@ const
   );
   SET_PROTOCOL: ATCommand = (
     Version     : '1.0';
-    Command     : 'SP %d';
+    Command     : 'SP %s';
     Description : 'Set protocol and save it';
     Group       : 'OBD';
     Params      : 1;
@@ -430,7 +442,7 @@ const
   );
   TRY_PROTOCOL_AUTO: ATCommand = (
     Version     : '1.0';
-    Command     : 'TP A%d';
+    Command     : 'TP A%s';
     Description : 'Try protocol with Auto search';
     Group       : 'OBD';
     Params      : 1;
@@ -438,7 +450,7 @@ const
   );
   TRY_PROTOCOL: ATCommand = (
     Version     : '1.0';
-    Command     : 'TP %d';
+    Command     : 'TP %s';
     Description : 'Try protocol';
     Group       : 'OBD';
     Params      : 1;
@@ -907,6 +919,61 @@ const
     Params      : 0;
   );
 
+function FormatATCommand(Command: ATCommand; Params: Array of const): string;
+
 implementation
+
+function FormatATCommand(Command: ATCommand; Params: Array of const): string;
+var
+  ExpectedParamCount, I, C: Integer;
+  ParamType: TVarType;
+  Placeholders: TArray<string>;
+begin
+  // Extract the placeholders
+  SetLength(PlaceHolders, Length(Command.Command) div 2);
+  C := 0;
+  I := 1;
+  while I <= Length(Command.Command) do
+  begin
+    if Command.Command[I] = '%' then
+    begin
+      if (i < Length(Command.Command)) and ((Command.Command[I + 1] = 's') or (Command.Command[I + 1] = 'd')  or (Command.Command[I + 1] = 'x')) then
+      begin
+        Placeholders[C] := Command.Command[I] + Command.Command[I + 1];
+        Inc(C);
+        Inc(I);
+      end;
+    end;
+    Inc(I);
+  end;
+  SetLength(Placeholders, C);
+
+  // Check if parameter count matches
+  ExpectedParamCount := Command.Params;
+  if (ExpectedParamCount <> Length(Params)) or (ExpectedParamCount <> Length(Placeholders)) then
+    raise TATCommandException.Create(Format('Mismatch: %d expected, got %d.', [ExpectedParamCount, Length(Params)]));
+
+  // Loop over params, and make sure they match the expected types.
+  (*for I := 0 to High(Params) do
+  begin
+    case Params[I].VType of
+      vtInteger:
+      begin
+        if (PlaceHolders[I] <> '%d') and (PlaceHolders[I] <> '%x') then
+          raise TATCommandException.Create('Type mismatch: Expected number.');
+      end;
+      vtString, vtAnsiString, vtChar, vtWideChar, vtWideString:
+      begin
+        if (PlaceHolders[I] <> '%s') then
+          raise TATCommandException.Create('Type mismatch: Expected string.');
+      end;
+
+      else raise TATCommandException.Create('Unsupported type.');
+    end;
+  end;*)
+
+  // Return formatted AT Command
+  Result := Format(Command.Command, Params);
+end;
 
 end.

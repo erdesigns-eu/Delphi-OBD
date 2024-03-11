@@ -13,7 +13,7 @@ unit OBD.Adapter.OBDLink;
 interface
 
 uses
-  OBD.Adapter, OBD.Connection;
+  OBD.Adapter, OBD.Adapter.Constants, OBD.Connection;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -32,7 +32,7 @@ type
     /// <summary>
     ///   Initialize connection
     /// </summary>
-    procedure Init; override;
+    function Init: Boolean; override;
   public
     /// <summary>
     ///   Constructor
@@ -44,26 +44,47 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Write AT Command
+    ///   Write AT Command (ASYNC)
     /// </summary>
     /// <param name="ATCommand">
     ///   The AT command string (AT Z, AT SP 0, AT R, ..)
     /// </param>
     function WriteATCommand(const ATCommand: string): Boolean; virtual;
     /// <summary>
-    ///   Write ST Command
+    ///   Write AT Command (SYNC)
+    /// </summary>
+    /// <param name="ATCommand">
+    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
+    /// </param>
+    function WriteATCommandSync(const ATCommand: string; const Timeout: Integer = 5000): string; virtual;
+    /// <summary>
+    ///   Write ST Command (ASYNC)
     /// </summary>
     /// <param name="STCommand">
     ///   The AT command string (STDI, STI, STFMR, ..)
     /// </param>
     function WriteSTCommand(const STCommand: string): Boolean; virtual;
     /// <summary>
-    ///   Write OBD Command
+    ///   Write ST Command (SYNC)
+    /// </summary>
+    /// <param name="STCommand">
+    ///   The AT command string (STDI, STI, STFMR, ..)
+    /// </param>
+    function WriteSTCommandSync(const STCommand: string; const Timeout: Integer = 5000): string; virtual;
+    /// <summary>
+    ///   Write OBD Command (ASYNC)
     /// </summary>
     /// <param name="OBDCommand">
     ///   The OBD command string (01 00, 01 1C, ..)
     /// </param>
     function WriteOBDCommand(const OBDCommand: string): Boolean; virtual;
+    /// <summary>
+    ///   Write OBD Command (SYNC)
+    /// </summary>
+    /// <param name="OBDCommand">
+    ///   The OBD command string (01 00, 01 1C, ..)
+    /// </param>
+    function WriteOBDCommandSync(const OBDCommand: string; const Timeout: Integer = 5000): string; virtual;
   end;
 
 implementation
@@ -73,13 +94,10 @@ uses System.StrUtils;
 //------------------------------------------------------------------------------
 // INIT CONNECTION
 //------------------------------------------------------------------------------
-procedure TOBDLinkAdapter.Init;
+function TOBDLinkAdapter.Init: Boolean;
 begin
-  // RESET_ALL     - ATZ
-  // ECHO_OFF      - ATE0
-  // HEADERS_ON    - ATH1
-  // LINEFEEDS_OFF - ATL0
-  // READ_VOLTAGE  - ATRV
+  // initialize result
+  Result := inherited Init;
 end;
 
 //------------------------------------------------------------------------------
@@ -101,7 +119,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// WRITE AT COMMAND
+// WRITE AT COMMAND (ASYNC)
 //------------------------------------------------------------------------------
 function TOBDLinkAdapter.WriteATCommand(const ATCommand: string): Boolean;
 begin
@@ -110,11 +128,24 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write AT command
-  Result := Connection.WriteATCommand(IfThen(Pos(#13, ATCommand) = 0, ATCommand + #13, ATCommand));
+  Result := Connection.WriteATCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, ATCommand) = 0, ATCommand + ELM_COMMAND_TERMINATOR, ATCommand));
 end;
 
 //------------------------------------------------------------------------------
-// WRITE ST COMMAND
+// WRITE AT COMMAND (SYNC)
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteATCommandSync(const ATCommand: string; const Timeout: Integer = 5000): string;
+begin
+  // initialize result
+  Result := '';
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := WriteCommandSync(ctATCommand, IfThen(Pos(ELM_COMMAND_TERMINATOR, ATCommand) = 0, ATCommand + ELM_COMMAND_TERMINATOR, ATCommand), Timeout);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE ST COMMAND (ASYNC)
 //------------------------------------------------------------------------------
 function TOBDLinkAdapter.WriteSTCommand(const STCommand: string): Boolean;
 begin
@@ -123,11 +154,24 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write ST command
-  Result := Connection.WriteSTCommand(IfThen(Pos(#13, STCommand) = 0, STCommand + #13, STCommand));
+  Result := Connection.WriteSTCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, STCommand) = 0, STCommand + ELM_COMMAND_TERMINATOR, STCommand));
 end;
 
 //------------------------------------------------------------------------------
-// WRITE AT COMMAND
+// WRITE ST COMMAND (SYNC)
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteSTCommandSync(const STCommand: string; const Timeout: Integer = 5000): string;
+begin
+  // initialize result
+  Result := '';
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := WriteCommandSync(ctSTCommand, IfThen(Pos(ELM_COMMAND_TERMINATOR, STCommand) = 0, STCommand + ELM_COMMAND_TERMINATOR, STCommand), Timeout);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND (ASYNC)
 //------------------------------------------------------------------------------
 function TOBDLinkAdapter.WriteOBDCommand(const OBDCommand: string): Boolean;
 begin
@@ -136,7 +180,20 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Write OBD command
-  Result := Connection.WriteOBDCommand(IfThen(Pos(#13, OBDCommand) = 0, OBDCommand + #13, OBDCommand));
+  Result := Connection.WriteOBDCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, OBDCommand) = 0, OBDCommand + ELM_COMMAND_TERMINATOR, OBDCommand));
+end;
+
+//------------------------------------------------------------------------------
+// WRITE AT COMMAND (SYNC)
+//------------------------------------------------------------------------------
+function TOBDLinkAdapter.WriteOBDCommandSync(const OBDCommand: string; const Timeout: Integer = 5000): string;
+begin
+  // initialize result
+  Result := '';
+  // Exit here if we're not connected
+  if not Connected then Exit;
+  // Write AT command
+  Result := WriteCommandSync(ctOBDCommand, IfThen(Pos(ELM_COMMAND_TERMINATOR, OBDCommand) = 0, OBDCommand + ELM_COMMAND_TERMINATOR, OBDCommand), Timeout);
 end;
 
 end.

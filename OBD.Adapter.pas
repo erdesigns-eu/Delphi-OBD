@@ -13,11 +13,12 @@ unit OBD.Adapter;
 interface
 
 uses
-  System.Classes, System.SysUtils, Winapi.Windows, System.Bluetooth,
+  System.Classes, System.SysUtils, System.SyncObjs, Winapi.Windows, System.Bluetooth,
 
   OBD.Connection, OBD.Connection.Types, OBD.Connection.Serial,
   OBD.Connection.Bluetooth, OBD.Connection.Wifi, OBD.Connection.FTDI,
-  OBD.Protocol, OBD.Protocol.Types, OBD.Adapter.Types, OBD.Adapter.Constants;
+  OBD.Protocol, OBD.Protocol.Types, OBD.Protocol.Legacy, OBD.Protocol.CAN,
+  OBD.Adapter.Types, OBD.Adapter.Constants, OBD.Adapter.ATCommands;
 
 //------------------------------------------------------------------------------
 // INTERFACES
@@ -263,6 +264,19 @@ type
   ///   Base ELM OBD Adapter Class
   /// </summary>
   TELMAdapter = class(TOBDAdapter)
+  private type
+    TSyncCommandType = (ctATCommand, ctSTCommand, ctOBDCommand);
+  private
+    /// <summary>
+    ///   Flag indicating we are waiting for a SYNC response.
+    ///   This is used for the WriteCommandSync function.
+    /// </summary>
+    FSyncResponseWaiting: Boolean;
+    /// <summary>
+    ///   Response data.
+    ///   This is used for the WriteCommandSync function.
+    /// </summary>
+    FSyncResponseData: AnsiString;
   private
     /// <summary>
     ///   Incoming data buffer for accumulating the incoming data
@@ -301,6 +315,31 @@ type
     ///   Protocol (Legacy/Can)
     /// </summary>
     FProtocol: IOBDProtocol;
+    /// <summary>
+    ///   ELM Protocol
+    /// </summary>
+    FELMProtocol: TELMProtocol;
+
+    /// <summary>
+    ///   Adapter Identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
+    /// </summary>
+    FIdentifier: string;
+    /// <summary>
+    ///   Device Descriptor (e.g. OBDII to RS232 Interpreter)
+    /// </summary>
+    FDeviceDescriptor: string;
+    /// <summary>
+    ///   Device Identifier (e.g. SCANTOOL.NET)
+    /// </summary>
+    FDeviceIdentifier: string;
+    /// <summary>
+    ///   Voltage present at pin 2 (e.g. 12.3V)
+    /// </summary>
+    FVoltage: string;
+    /// <summary>
+    ///   Protocol descriptor from ELM
+    /// </summary>
+    FProtocolDescriptor: string;
 
     /// <summary>
     ///   Adapter error event
@@ -316,14 +355,27 @@ type
     /// </summary>
     procedure SetConnectionType(Value: TOBDConnectionType);
     /// <summary>
+    ///   Set ELM protocol
+    /// </summary>
+    procedure SetELMProtocol(Value: TELMProtocol);
+    /// <summary>
     ///   Handle data received event
     /// </summary>
     procedure HandleDataReceived(Sender: TObject; DataPtr: Pointer; DataSize: DWORD);
   protected
     /// <summary>
+    ///   Write command to the adapter and return the response. (SYNC)
+    /// </summary>
+    function WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): string; virtual;
+    /// <summary>
+    ///   Write command to the adapter. (SYNC)
+    ///   And return true if the adapter acknowledges.
+    /// </summary>
+    function WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): Boolean; virtual;
+    /// <summary>
     ///   Initialize connection
     /// </summary>
-    procedure Init; virtual; abstract;
+    function Init: Boolean; virtual;
     /// <summary>
     ///   OBD Connection
     /// </summary>
@@ -352,6 +404,19 @@ type
     function Connected: Boolean; override;
 
     /// <summary>
+    ///   Set the ELM Adapter protocol
+    /// </summary>
+    function SetProtocol(Value: TELMProtocol): Boolean; virtual;
+    /// <summary>
+    ///   Try the ELM Adapter protocol
+    /// </summary>
+    function TryProtocol(Value: TELMProtocol): Boolean; virtual;
+    /// <summary>
+    ///   Test the protocol by asking for data
+    /// </summary>
+    function TestProtocol: Boolean; virtual;
+
+    /// <summary>
     ///   Serial (COM PORT) settings
     /// </summary>
     property Serial: TOBDAdapterSerial read FSerial;
@@ -375,6 +440,31 @@ type
     ///   OBD Protocol
     /// </summary>
     property Protocol: IOBDProtocol read FProtocol write FProtocol;
+    /// <summary>
+    ///   ELM Protocol
+    /// </summary>
+    property ELMProtocol: TELMProtocol read FELMProtocol write SetELMProtocol;
+
+    /// <summary>
+    ///   Adapter identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
+    /// </summary>
+    property Identifier: string read FIdentifier;
+    /// <summary>
+    ///   Device Descriptor (e.g. OBDII to RS232 Interpreter)
+    /// </summary>
+    property DeviceDescriptor: string read FDeviceDescriptor;
+    /// <summary>
+    ///   Device Identifier (e.g. SCANTOOL.NET)
+    /// </summary>
+    property DeviceIdentifier: string read FDeviceIdentifier;
+    /// <summary>
+    ///   Voltage present at pin 2 (e.g. 12.3V)
+    /// </summary>
+    property Voltage: string read FVoltage;
+    /// <summary>
+    ///   Protocol descriptor from ELM
+    /// </summary>
+    property ProtocolDescriptor: string read FProtocolDescriptor;
 
     /// <summary>
     ///   Adapter error event
@@ -388,6 +478,8 @@ type
 
 
 implementation
+
+uses System.StrUtils, Vcl.Forms;
 
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
@@ -541,6 +633,23 @@ begin
   if Value <> FConnectionType then
   begin
     FConnectionType := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ELM PROTOCOL
+//------------------------------------------------------------------------------
+procedure TELMAdapter.SetELMProtocol(Value: TELMProtocol);
+begin
+  // Exit here if we're connected
+  // We dont want users to change this while connected, then the try protocol
+  // or set protocol methods should be used, and the ELM protocol will be
+  // updated if successfull.
+  if Connected then Exit;
+  // Set ELM Protocol
+  if Value <> FELMProtocol then
+  begin
+    FELMProtocol := Value;
   end;
 end;
 
@@ -700,6 +809,15 @@ begin
     // Notify we received data
     if Assigned(OnReceiveData) then OnReceiveData(Self, T);
 
+    // Are we waiting for a SYNC response?
+    if FSyncResponseWaiting then
+    begin
+      // Assign the SYNC response data
+      FSyncResponseData := T;
+      // Reset flag
+      FSyncResponseWaiting := False;
+    end;
+
     // If the protocol is assigned, then send the data to the protocol for parsing
     if Assigned(Protocol) then
     begin
@@ -716,6 +834,175 @@ begin
     // Clear buffer for next data
     FDataBuffer := '';
   end;
+end;
+
+
+//------------------------------------------------------------------------------
+// WRITE COMMAND AND RETURN RESPONSE (SYNC)
+//------------------------------------------------------------------------------
+function TELMAdapter.WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): string;
+var
+  StartTime, Elapsed: Cardinal;
+  DidTimeOut: Boolean;
+begin
+  // initialize result
+  Result := '';
+  // Exit here if we're not connected
+  if not Connected then Exit;
+
+  // Clear the response data
+  FSyncResponseData := '';
+  // Update flag to indicate we are waiting for SYNC data
+  FSyncResponseWaiting := True;
+
+  // Write command based on type of command
+  case CommandType of
+    ctATCommand  : FConnection.WriteATCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, Command) = 0, Command + ELM_COMMAND_TERMINATOR, Command));
+    ctSTCommand  : FConnection.WriteSTCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, Command) = 0, Command + ELM_COMMAND_TERMINATOR, Command));
+    ctOBDCommand : FConnection.WriteOBDCommand(IfThen(Pos(ELM_COMMAND_TERMINATOR, Command) = 0, Command + ELM_COMMAND_TERMINATOR, Command));
+  end;
+
+  // Get the start time for timeout tracking
+  StartTime := GetTickCount;
+  // Reset did timeout flag
+  DidTimeOut := False;
+
+  // Wait for the response with a loop
+  repeat
+    // Calculate elapsed time to handle timeout
+    Elapsed := GetTickCount - StartTime;
+    // Exit the loop if the response has been received
+    if FSyncResponseWaiting = False then Break;
+    // Handle timeout (exit loop if exceeded)
+    if Integer(Elapsed) >= Timeout then
+    begin
+      DidTimeOut := True;
+      Break;
+    end;
+    // Sleep a bit to reduce CPU usage
+    Sleep(100);
+    // Optionally, process messages to keep the UI responsive
+    Application.ProcessMessages;
+  until False;
+
+  // If the loop didnt timeout, return the response data
+  if not DidTimeOut then Result := String(FSyncResponseData);
+end;
+
+//------------------------------------------------------------------------------
+// WRITE COMMAND (SYNC) AND RETURN TRUE IF ADAPTER ACKNOWLEDGES
+//------------------------------------------------------------------------------
+function TELMAdapter.WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): Boolean;
+var
+  S: string;
+begin
+  // Write command sync
+  S := WriteCommandSync(CommandType, Command, Timeout);
+  // Check if the adapter returned with OK
+  Result := EndsText(ELM_ACKNOWLEDGE, Trim(S));
+end;
+
+//------------------------------------------------------------------------------
+// INIT CONNECTION
+//------------------------------------------------------------------------------
+function TELMAdapter.Init: Boolean;
+var
+  S: string;
+  P: Integer;
+  L: TStringList;
+begin
+  // Initialize result
+  Result := False;
+
+  // Only do this if we are connected over Serial (COM) Port.
+  if FConnection is TSerialOBDConnection then
+  // Send a '?' character, if the ELM adapter responds with '?' we know we
+  // are using the correct baudrate.
+  S := WriteCommandSync(ctOBDCommand, ELM_UNSUPPORTED_COMMAND);
+  if not EndsText(ELM_UNSUPPORTED_COMMAND, Trim(S)) then Exit;
+
+  // Lets send a reset:
+  S := WriteCommandSync(ctATCommand, FormatATCommand(RESET_ALL, []));
+
+  // Then turn echo off
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(ECHO_OFF, [])) then Exit;
+
+  // Then turn linefeeds on (should be on by default) because we use it in the
+  // protocols for parsing.
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(LINEFEEDS_ON, [])) then Exit;
+
+  // Then turn off spaces, because we are removing them anyway.
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(SPACES_OFF, [])) then Exit;
+
+  // Turn on headers
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(HEADERS_ON, [])) then Exit;
+
+  // Lets get the identifier
+  FIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(PRINT_ID, [])));
+
+  // Then lets get the voltage
+  FVoltage := Trim(WriteCommandSync(ctATCommand, FormatATCommand(READ_VOLTAGE, [])));
+
+  // Then get the device descriptor
+  FDeviceDescriptor := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_DESCRIPTOR, [])));
+
+  // And then the device identifier
+  FDeviceIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_IDENTIFIER, [])));
+
+  // Try to set the protocol
+  if not SetProtocol(ELMProtocol) then Exit;
+
+  // Update the status
+  FStatus := asCarConnected;
+  // Notify the status change
+  if Assigned(OnStatusChange) then OnStatusChange(Self, FStatus);
+
+  // Get protocol index number
+  S := UpperCase(WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_PROTOCOL_NUMBER, [])));
+  if StartsText('A', S) then S := Copy(S, 2, Length(S) - 1);
+  // Convert hex to dec, if this fails set the protocol to auto
+  if not TryStrToInt('$' + Trim(S), P) then P := 0;
+  // Update the current protocol
+  FELMProtocol := TELMProtocol(P);
+
+  // Get the protocol description
+  FProtocolDescriptor := WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_CURRENT_PROTOCOL, []));
+
+  // Create temp list for storing 0100 lines
+  try
+    L := TStringList.Create;
+    // Get initial data (0100)
+    L.Text := WriteCommandSync(ctOBDCommand, '0100');
+    // Create the protocol object (if not set to auto)
+    case FELMProtocol of
+      epAutomatic          : FProtocol := nil;
+      epSAE_J1850_PWM      : FProtocol := TSAE_J1850_PWM_OBDProtocol.Create(L);
+      epSAE_J1850_VPW      : FProtocol := TSAE_J1850_VPW_OBDProtocol.Create(L);
+      epISO_9141_2         : FProtocol := TISO_9141_2_OBDProtocol.Create(L);
+      epISO_14230_4_SLOW   : FProtocol := TISO_14230_4_5BAUD_OBDProtocol.Create(L);
+      epISO_14230_4_FAST   : FProtocol := TISO_14230_4_FAST_OBDProtocol.Create(L);
+      epISO_15765_4_11_500 : FProtocol := TISO_15765_4_11BIT_500K_OBDProtocol.Create(L);
+      epISO_15765_4_29_500 : FProtocol := TISO_15765_4_29BIT_500K_OBDProtocol.Create(L);
+      epISO_15765_4_11_250 : FProtocol := TISO_15765_4_11BIT_250K_OBDProtocol.Create(L);
+      epISO_15765_4_29_250 : FProtocol := TISO_15765_4_29BIT_250K_OBDProtocol.Create(L);
+      epSAE_J1939_29_250   : FProtocol := TSAE_J1939_250K_OBDProtocol.Create(L);
+      epSAE_J1939_29_500   : FProtocol := TSAE_J1939_500K_OBDProtocol.Create(L);
+    end;
+  finally
+    L.Free;
+  end;
+
+  // Check if we created the protocol
+  if Assigned(FProtocol) then
+  begin
+    // Update the status
+    FStatus := asOBDConnected;
+    // Notify the status change
+    if Assigned(OnStatusChange) then OnStatusChange(Self, FStatus);
+  end;
+
+  // If we get till here, everything went fine
+  Result := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -796,8 +1083,11 @@ begin
 
   // If we succeeded until here, lets assign the data received handler
   FConnection.OnDataReceived := HandleDataReceived;
-  // Init the adapter.
-  Init;
+  // Initialize the adapter.
+  Result := Init;
+
+  // If the initialization failed, disconnect
+  if not Result then Disconnect;
 end;
 
 //------------------------------------------------------------------------------
@@ -809,14 +1099,38 @@ begin
   Result := False;
   // Exit here if we aren't connected
   if not Connected then Exit;
+
+  // Send close protocol
+  WriteCommandSync(ctATCommand, FormatATCommand(PROTOCOL_CLOSE, []));
+  // Send low power
+  // WriteCommandSync(ctATCommand, FormatATCommand(LOW_POWER_MODE, []));
+  // Reset adapter
+  WriteCommandSync(ctATCommand, FormatATCommand(RESET_ALL, []));
+
   // Disconnect the connection
   Result := FConnection.Disconnect;
+  // Exit here if the disconnection failed
+  if not Result then Exit;
+
+  // Clear the identifier
+  FIdentifier := '';
+  // Clear the voltage
+  FVoltage := '';
+  // Clear the device descriptor
+  FDeviceDescriptor := '';
+  // Clear the device identifier
+  FDeviceIdentifier := '';
+  // Clear the protocol description
+  FProtocolDescriptor := '';
+
   // Remove the connection
-  if Result then FConnection := nil;
+  FConnection := nil;
   // Update the status
-  if Result then FStatus := asNotConnected;
-  // Notify we connected
-  if Result and Assigned(OnConnectionChange) then OnConnectionChange(Self, False);
+  FStatus := asNotConnected;
+  // Notify the status change
+  if Assigned(OnStatusChange) then OnStatusChange(Self, FStatus);
+  // Notify we disconnected
+  if Assigned(OnConnectionChange) then OnConnectionChange(Self, False);
   // Clear input buffer
   FDataBuffer := '';
 end;
@@ -827,6 +1141,65 @@ end;
 function TELMAdapter.Connected: Boolean;
 begin
   Result := Assigned(FConnection) and FConnection.Connected;
+end;
+
+//------------------------------------------------------------------------------
+// SET ELM ADAPTER PROTOCOL
+//------------------------------------------------------------------------------
+function TELMAdapter.SetProtocol(Value: TELMProtocol): Boolean;
+var
+  S: string;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we aren't connected
+  if not Connected then Exit;
+
+  // Set protocol
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(SET_PROTOCOL, [IntToHex(Ord(ELMProtocol), 1)])) then Exit;
+  // Test the protocol and return the result
+  Result := TestProtocol;
+end;
+
+//------------------------------------------------------------------------------
+// TRY ELM ADAPTER PROTOCOL
+//------------------------------------------------------------------------------
+function TELMAdapter.TryProtocol(Value: TELMProtocol): Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we aren't connected
+  if not Connected then Exit;
+
+  // Try protocol
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(TRY_PROTOCOL, [IntToHex(Ord(ELMProtocol), 1)])) then Exit;
+  // Test the protocol and return the result
+  Result := TestProtocol;
+end;
+
+//------------------------------------------------------------------------------
+// TEST ELM ADAPTER PROTOCOL
+//------------------------------------------------------------------------------
+function TELMAdapter.TestProtocol: Boolean;
+var
+  S, E: string;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if we aren't connected
+  if not Connected then Exit;
+  // Request data
+  S := WriteCommandSync(ctOBDCommand, '0100');
+  // Check if we received a response, otherwise we exit here
+  if Length(Trim(S)) = 0 then Exit;
+  // Test if the response contains any of these error messages
+  for E in [ELM_NO_DATA, ELM_NO_RESPONSE, ELM_DATA_ERROR, ELM_BUS_INIT_ERROR, ELM_BUS_ERROR, ELM_CAN_ERROR, ELM_UNABLE_TO_CONNECT, ELM_CONNECTION_FAILED] do
+  begin
+    // If we found the message, exit here
+    if Pos(E, S) > 0 then Exit;
+  end;
+  // If we make it till here, then the protocol test succeeded
+  Result := True;
 end;
 
 end.

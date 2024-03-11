@@ -13,6 +13,18 @@ unit OBD.Adapter.STCommands;
 
 interface
 
+uses
+  System.SysUtils;
+
+//------------------------------------------------------------------------------
+// CLASSES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   ST Command Exception
+  /// </summary>
+  TSTCommandException = class(Exception);
+
 //------------------------------------------------------------------------------
 // RECORDS
 //------------------------------------------------------------------------------
@@ -806,6 +818,61 @@ const
     Param1      : (Param: 'Handle'; Description: 'Handle returned when adding periodic message.');
   );
 
+function FormatSTCommand(Command: STCommand; Params: Array of const): string;
+
 implementation
+
+function FormatSTCommand(Command: STCommand; Params: Array of const): string;
+var
+  ExpectedParamCount, I, C: Integer;
+  ParamType: TVarType;
+  Placeholders: TArray<string>;
+begin
+  // Extract the placeholders
+  SetLength(PlaceHolders, Length(Command.Command) div 2);
+  C := 0;
+  I := 1;
+  while I <= Length(Command.Command) do
+  begin
+    if Command.Command[I] = '%' then
+    begin
+      if (i < Length(Command.Command)) and ((Command.Command[I + 1] = 's') or (Command.Command[I + 1] = 'd')  or (Command.Command[I + 1] = 'x')) then
+      begin
+        Placeholders[C] := Command.Command[I] + Command.Command[I + 1];
+        Inc(C);
+        Inc(I);
+      end;
+    end;
+    Inc(I);
+  end;
+  SetLength(Placeholders, C);
+
+  // Check if parameter count matches
+  ExpectedParamCount := Command.Params;
+  if (ExpectedParamCount <> Length(Params)) or (ExpectedParamCount <> Length(Placeholders)) then
+    raise TSTCommandException.Create(Format('Mismatch: %d expected, got %d.', [ExpectedParamCount, Length(Params)]));
+
+  // Loop over params, and make sure they match the expected types.
+  for I := 0 to High(Params) do
+  begin
+    case Params[I].VType of
+      vtInteger:
+      begin
+        if (PlaceHolders[I] <> '%d') and (PlaceHolders[I] <> '%x') then
+          raise TSTCommandException.Create('Type mismatch: Expected number.');
+      end;
+      vtString, vtAnsiString, vtChar, vtWideChar, vtWideString:
+      begin
+        if (PlaceHolders[I] <> '%s') then
+          raise TSTCommandException.Create('Type mismatch: Expected string.');
+      end;
+
+      else raise TSTCommandException.Create('Unsupported type.');
+    end;
+  end;
+
+  // Return formatted AT Command
+  Result := Format(Command.Command, Params);
+end;
 
 end.
