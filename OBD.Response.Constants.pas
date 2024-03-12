@@ -306,6 +306,56 @@ const
   OBD_CONTROL_DTC_SETTING = $85;
 
 //------------------------------------------------------------------------------
+// SERVICE 01 PID 03 - FUEL SYSTEM STATUS
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   The motor is off
+  /// </summary>
+  OBD_ENGINE_STATUS_OFF = $00;
+  /// <summary>
+  ///   Open loop due to insufficient engine temperature
+  /// </summary>
+  OBD_ENGINE_STATUS_OPEN_LOOP_INSUFFICIENT_TEMP = $01;
+  /// <summary>
+  ///   Closed loop, using oxygen sensor feedback to determine fuel mix
+  /// </summary>
+  OBD_ENGINE_STATUS_CLOSED_LOOP = $02;
+  /// <summary>
+  ///   Open loop due to engine load OR fuel cut due to deceleration
+  /// </summary>
+  OBD_ENGINE_STATUS_OPEN_LOOP_LOAD_OR_FUEL_CUT = $04;
+  /// <summary>
+  ///   Open loop due to system failure
+  /// </summary>
+  OBD_ENGINE_STATUS_OPEN_LOOP_FAILURE = $08;
+  /// <summary>
+  ///   Closed loop, using at least one oxygen sensor but there is a fault in the feedback system
+  /// </summary>
+  OBD_ENGINE_STATUS_CLOSED_LOOP_FAULT = $10;
+
+//------------------------------------------------------------------------------
+// SERVICE 01 PID 12 - COMMANDED SECONDARY AIR STATUS
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   Upstream
+  /// </summary>
+  OBD_AIR_STATUS_UPSTREAM = $01;
+  /// <summary>
+  ///   Downstream of catalytic converter
+  /// </summary>
+  OBD_AIR_STATUS_DOWNSTREAM_OF_CATALYTIC_CONVERTER = $02;
+  /// <summary>
+  ///   From the outside atmosphere or off
+  /// </summary>
+  OBD_AIR_STATUS_OUTSIDE_ATMOSPHERE_OR_OFF = $04;
+  /// <summary>
+  ///   Pump commanded on for diagnostics
+  /// </summary>
+  OBD_AIR_STATUS_PUMP_COMMAND_ON_FOR_DIAGNOSTICS = $08;
+
+//------------------------------------------------------------------------------
 // SERVICE 01 PID 1C - OBD STANDARDS THIS VEHICLE CONFORMS TO
 //------------------------------------------------------------------------------
 const

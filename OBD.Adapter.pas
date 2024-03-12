@@ -319,6 +319,10 @@ type
     ///   ELM Protocol
     /// </summary>
     FELMProtocol: TELMProtocol;
+    /// <summary>
+    ///   Initialization timeout
+    /// </summary>
+    FInitializationTimeout: Integer;
 
     /// <summary>
     ///   Adapter Identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
@@ -444,6 +448,10 @@ type
     ///   ELM Protocol
     /// </summary>
     property ELMProtocol: TELMProtocol read FELMProtocol write SetELMProtocol;
+    /// <summary>
+    ///   Initialization timeout
+    /// </summary>
+    property InitializationTimeout: Integer read FInitializationTimeout write FInitializationTimeout;
 
     /// <summary>
     ///   Adapter identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
@@ -599,6 +607,8 @@ begin
 
   // Create stringlist for holding incoming data
   FDataLines := TStringList.Create;
+  // Set initial initialization timeout
+  FInitializationTimeout := 5000;
 end;
 
 //------------------------------------------------------------------------------
@@ -918,36 +928,37 @@ begin
   if FConnection is TSerialOBDConnection then
   // Send a '?' character, if the ELM adapter responds with '?' we know we
   // are using the correct baudrate.
-  S := WriteCommandSync(ctOBDCommand, ELM_UNSUPPORTED_COMMAND);
+  S := WriteCommandSync(ctOBDCommand, ELM_UNSUPPORTED_COMMAND, FInitializationTimeout);
   if not EndsText(ELM_UNSUPPORTED_COMMAND, Trim(S)) then Exit;
 
   // Lets send a reset:
-  S := WriteCommandSync(ctATCommand, FormatATCommand(RESET_ALL, []));
+  S := WriteCommandSync(ctATCommand, FormatATCommand(RESET_ALL, []), FInitializationTimeout);
+  if Length(Trim(S)) = 0 then Exit;
 
   // Then turn echo off
-  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(ECHO_OFF, [])) then Exit;
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(ECHO_OFF, []), FInitializationTimeout) then Exit;
 
   // Then turn linefeeds on (should be on by default) because we use it in the
   // protocols for parsing.
-  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(LINEFEEDS_ON, [])) then Exit;
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(LINEFEEDS_ON, []), FInitializationTimeout) then Exit;
 
   // Then turn off spaces, because we are removing them anyway.
-  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(SPACES_OFF, [])) then Exit;
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(SPACES_OFF, []), FInitializationTimeout) then Exit;
 
   // Turn on headers
-  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(HEADERS_ON, [])) then Exit;
+  if not WriteCommandSyncExpectOK(ctATCommand, FormatATCommand(HEADERS_ON, []), FInitializationTimeout) then Exit;
 
   // Lets get the identifier
-  FIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(PRINT_ID, [])));
+  FIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(PRINT_ID, []), FInitializationTimeout));
 
   // Then lets get the voltage
-  FVoltage := Trim(WriteCommandSync(ctATCommand, FormatATCommand(READ_VOLTAGE, [])));
+  FVoltage := Trim(WriteCommandSync(ctATCommand, FormatATCommand(READ_VOLTAGE, []), FInitializationTimeout));
 
   // Then get the device descriptor
-  FDeviceDescriptor := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_DESCRIPTOR, [])));
+  FDeviceDescriptor := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_DESCRIPTOR, []), FInitializationTimeout));
 
   // And then the device identifier
-  FDeviceIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_IDENTIFIER, [])));
+  FDeviceIdentifier := Trim(WriteCommandSync(ctATCommand, FormatATCommand(DISPLAY_DEVICE_IDENTIFIER, []), FInitializationTimeout));
 
   // Try to set the protocol
   if not SetProtocol(ELMProtocol) then Exit;
@@ -958,7 +969,7 @@ begin
   if Assigned(OnStatusChange) then OnStatusChange(Self, FStatus);
 
   // Get protocol index number
-  S := UpperCase(WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_PROTOCOL_NUMBER, [])));
+  S := UpperCase(WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_PROTOCOL_NUMBER, []), FInitializationTimeout));
   if StartsText('A', S) then S := Copy(S, 2, Length(S) - 1);
   // Convert hex to dec, if this fails set the protocol to auto
   if not TryStrToInt('$' + Trim(S), P) then P := 0;
@@ -966,11 +977,11 @@ begin
   FELMProtocol := TELMProtocol(P);
 
   // Get the protocol description
-  FProtocolDescriptor := WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_CURRENT_PROTOCOL, []));
+  FProtocolDescriptor := WriteCommandSync(ctATCommand, FormatATCommand(DESCRIBE_CURRENT_PROTOCOL, []), FInitializationTimeout);
 
   // Create temp list for storing 0100 lines
+  L := TStringList.Create;
   try
-    L := TStringList.Create;
     // Get initial data (0100)
     L.Text := WriteCommandSync(ctOBDCommand, '0100');
     // Create the protocol object (if not set to auto)
@@ -1147,8 +1158,6 @@ end;
 // SET ELM ADAPTER PROTOCOL
 //------------------------------------------------------------------------------
 function TELMAdapter.SetProtocol(Value: TELMProtocol): Boolean;
-var
-  S: string;
 begin
   // initialize result
   Result := False;
