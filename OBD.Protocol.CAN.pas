@@ -156,16 +156,6 @@ const
   FRAME_TYPE_FF = $10; // First frame of multi-frame message
   FRAME_TYPE_CF = $20; // Consecutive frame(s) of multi-frame message
 
-function BytesToHexString(const Bytes: TBytes): string;
-var
-  I: Integer;
-begin
-  Result := '';
-  for I := Low(Bytes) to High(Bytes) do
-    Result := Result + IntToHex(Bytes[I], 2) + ' ';
-  Result := Trim(Result); // Optional: Removes the trailing space
-end;
-
 //------------------------------------------------------------------------------
 // PARSE FRAME
 //------------------------------------------------------------------------------
