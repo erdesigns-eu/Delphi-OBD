@@ -343,130 +343,6 @@ const
   /// </summary>
   OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S2 = $3F;
   /// <summary>
-  ///   Distance traveled with malfunction indicator lamp (MIL) on
-  /// </summary>
-  OBD_SERVICE_01_DISTANCE_TRAVELED_MIL_ON = $21;
-  /// <summary>
-  ///   Fuel Rail Pressure (relative to manifold vacuum)
-  /// </summary>
-  OBD_SERVICE_01_FUEL_RAIL_PRESSURE_VACUUM = $22;
-  /// <summary>
-  ///   Fuel Rail Pressure (diesel, or gasoline direct inject)
-  /// </summary>
-  OBD_SERVICE_01_FUEL_RAIL_PRESSURE_DIRECT = $23;
-  /// <summary>
-  ///   O2S1_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $24;
-  /// <summary>
-  ///   O2S2_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $25;
-  /// <summary>
-  ///   O2S3_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $26;
-  /// <summary>
-  ///   O2S4_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $27;
-  /// <summary>
-  ///   O2S5_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $28;
-  /// <summary>
-  ///   O2S6_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $29;
-  /// <summary>
-  ///   O2S7_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $2A;
-  /// <summary>
-  ///   O2S8_WR_lambda(1): Equivalence Ratio, Voltage
-  /// </summary>
-  OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE = $2B;
-  /// <summary>
-  ///   Commanded EGR
-  /// </summary>
-  OBD_SERVICE_01_COMMANDED_EGR = $2C;
-  /// <summary>
-  ///   EGR Error
-  /// </summary>
-  OBD_SERVICE_01_EGR_ERROR = $2D;
-  /// <summary>
-  ///   Commanded evaporative purge
-  /// </summary>
-  OBD_SERVICE_01_COMMANDED_EVAPORATIVE_PURGE = $2E;
-  /// <summary>
-  ///   Fuel Level Input
-  /// </summary>
-  OBD_SERVICE_01_FUEL_LEVEL_INPUT = $2F;
-  /// <summary>
-  ///   Number of warm-ups since codes cleared
-  /// </summary>
-  OBD_SERVICE_01_WARMUPS_SINCE_CODES_CLEARED = $30;
-  /// <summary>
-  ///   Distance traveled since codes cleared
-  /// </summary>
-  OBD_SERVICE_01_DISTANCE_TRAVELED_CODES_CLEARED = $31;
-  /// <summary>
-  ///   Evap. System Vapor Pressure
-  /// </summary>
-  OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE = $32;
-  /// <summary>
-  ///   Barometric pressure
-  /// </summary>
-  OBD_SERVICE_01_BAROMETRIC_PRESSURE = $33;
-  /// <summary>
-  ///   O2S1_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $34;
-  /// <summary>
-  ///   O2S2_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $35;
-  /// <summary>
-  ///   O2S3_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $36;
-  /// <summary>
-  ///   O2S4_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $37;
-  /// <summary>
-  ///   O2S5_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $38;
-  /// <summary>
-  ///   O2S6_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $39;
-  /// <summary>
-  ///   O2S7_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $3A;
-  /// <summary>
-  ///   O2S8_WR_lambda(1): Equivalence Ratio, Current
-  /// </summary>
-  OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_CURRENT = $3B;
-  /// <summary>
-  ///   Catalyst Temperature Bank 1, Sensor 1
-  /// </summary>
-  OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S1 = $3C;
-  /// <summary>
-  ///   Catalyst Temperature Bank 2, Sensor 1
-  /// </summary>
-  OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S1 = $3D;
-  /// <summary>
-  ///   Catalyst Temperature Bank 1, Sensor 2
-  /// </summary>
-  OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S2 = $3E;
-  /// <summary>
-  ///   Catalyst Temperature Bank 2, Sensor 2
-  /// </summary>
-  OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S2 = $3F;
-  /// <summary>
   ///   Monitor status this drive cycle
   /// </summary>
   OBD_SERVICE_01_MONITOR_STATUS_DRIVE_CYCLE = $41;
@@ -545,7 +421,7 @@ const
   /// <summary>
   ///   Evap system vapor pressure
   /// </summary>
-  OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE = $54;
+  OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_ = $54;
   /// <summary>
   ///   Short term secondary oxygen sensor trim bank 1 and bank 3
   /// </summary>
@@ -617,7 +493,7 @@ const
   /// <summary>
   ///   Engine coolant temperature
   /// </summary>
-  OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE = $67;
+  OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE_ = $67;
   /// <summary>
   ///   Intake air temperature sensor
   /// </summary>
@@ -713,7 +589,7 @@ const
   /// <summary>
   ///   Engine run time
   /// </summary>
-  OBD_SERVICE_01_ENGINE_RUN_TIME = $7F;
+  OBD_SERVICE_01_ENGINE_RUN_TIME_ = $7F;
   /// <summary>
   ///   Engine run time for AECD
   /// </summary>

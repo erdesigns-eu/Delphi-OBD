@@ -305,6 +305,244 @@ const
   /// </summary>
   OBD_CONTROL_DTC_SETTING = $85;
 
+//------------------------------------------------------------------------------
+// SERVICE 01 PID 1C - OBD STANDARDS THIS VEHICLE CONFORMS TO
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   OBD-II as defined by the CARB
+  /// </summary>
+  OBD_STANDARDS_CARB = $01;
+  /// <summary>
+  ///   OBD as defined by the EPA
+  /// </summary>
+  OBD_STANDARDS_EPA = $02;
+  /// <summary>
+  ///   OBD and OBD-II
+  /// </summary>
+  OBD_STANDARDS_OBD_OBDII = $03;
+  /// <summary>
+  ///   OBD-I
+  /// </summary>
+  OBD_STANDARDS_OBDI = $04;
+  /// <summary>
+  ///   Not OBD compliant
+  /// </summary>
+  OBD_STANDARDS_NOT_OBD_COMPLIANT = $05;
+  /// <summary>
+  ///   EOBD (Europe)
+  /// </summary>
+  OBD_STANDARDS_EOBD = $06;
+  /// <summary>
+  ///   EOBD and OBD-II
+  /// </summary>
+  OBD_STANDARDS_EOBD_OBDII = $07;
+  /// <summary>
+  ///   EOBD and OBD
+  /// </summary>
+  OBD_STANDARDS_EOBD_OBD = $08;
+  /// <summary>
+  ///   EOBD, OBD and OBD II
+  /// </summary>
+  OBD_STANDARDS_EOBD_OBD_OBDII = $09;
+  /// <summary>
+  ///   JOBD (Japan)
+  /// </summary>
+  OBD_STANDARDS_JOBD = $0A;
+  /// <summary>
+  ///   JOBD and OBD II
+  /// </summary>
+  OBD_STANDARDS_JOBD_OBDII = $0B;
+  /// <summary>
+  ///   JOBD and EOBD
+  /// </summary>
+  OBD_STANDARDS_JOBD_EOBD = $0C;
+  /// <summary>
+  ///   JOBD, EOBD, and OBD II
+  /// </summary>
+  OBD_STANDARDS_JOBD_EOBD_OBDII = $0D;
+  /// <summary>
+  ///   Reserved
+  /// </summary>
+  OBD_STANDARDS_RESERVED_14 = $0E;
+  /// <summary>
+  ///   Reserved
+  /// </summary>
+  OBD_STANDARDS_RESERVED_15 = $0F;
+  /// <summary>
+  ///   Reserved
+  /// </summary>
+  OBD_STANDARDS_RESERVED_16 = $10;
+  /// <summary>
+  ///   Engine Manufacturer Diagnostics (EMD)
+  /// </summary>
+  OBD_STANDARDS_EMD = $11;
+  /// <summary>
+  ///   Engine Manufacturer Diagnostics Enhanced (EMD+)
+  /// </summary>
+  OBD_STANDARDS_EMD_PLUS = $12;
+  /// <summary>
+  ///   Heavy Duty On-Board Diagnostics (Child/Partial) (HD OBD-C)
+  /// </summary>
+  OBD_STANDARDS_HD_OBD_C = $13;
+  /// <summary>
+  ///   Heavy Duty On-Board Diagnostics (HD OBD)
+  /// </summary>
+  OBD_STANDARDS_HD_OBD = $14;
+  /// <summary>
+  ///   World Wide Harmonized OBD (WWH OBD)
+  /// </summary>
+  OBD_STANDARDS_WWH_OBD = $15;
+  /// <summary>
+  ///   Reserved
+  /// </summary>
+  OBD_STANDARDS_RESERVED_22 = $16;
+  /// <summary>
+  ///   Heavy Duty Euro OBD Stage I without NOx control (HD EOBD-I)
+  /// </summary>
+  OBD_STANDARDS_HD_EOBD_I = $17;
+  /// <summary>
+  ///   Heavy Duty Euro OBD Stage I with NOx control (HD EOBD-I N)
+  /// </summary>
+  OBD_STANDARDS_HD_EOBD_I_N = $18;
+  /// <summary>
+  ///   Heavy Duty Euro OBD Stage II without NOx control (HD EOBD-II)
+  /// </summary>
+  OBD_STANDARDS_HD_EOBD_II = $19;
+  /// <summary>
+  ///   Heavy Duty Euro OBD Stage II with NOx control (HD EOBD-II N)
+  /// </summary>
+  OBD_STANDARDS_HD_EOBD_II_N = $1A;
+  /// <summary>
+  ///   Reserved
+  /// </summary>
+  OBD_STANDARDS_RESERVED_27 = $1B;
+  /// <summary>
+  ///   Brazil OBD Phase 1 (OBDBr-1)
+  /// </summary>
+  OBD_STANDARDS_OBDBR_1 = $1C;
+  /// <summary>
+  ///   Brazil OBD Phase 2 (OBDBr-2)
+  /// </summary>
+  OBD_STANDARDS_OBDBR_2 = $1D;
+  /// <summary>
+  ///   Korean OBD (KOBD)
+  /// </summary>
+  OBD_STANDARDS_KOBD = $1E;
+  /// <summary>
+  ///   India OBD I (IOBD I)
+  /// </summary>
+  OBD_STANDARDS_IOBD_I = $1F;
+  /// <summary>
+  ///   India OBD II (IOBD II)
+  /// </summary>
+  OBD_STANDARDS_IOBD_II = $20;
+  /// <summary>
+  ///   Heavy Duty Euro OBD Stage VI (HD EOBD-IV)
+  /// </summary>
+  OBD_STANDARDS_HD_EOBD_IV = $21;
+
+//------------------------------------------------------------------------------
+// SERVICE 01 PID 51 - FUEL TYPE CODING
+//------------------------------------------------------------------------------
+const
+    /// <summary>
+  ///   Not available
+  /// </summary>
+  FUEL_TYPE_NOT_AVAILABLE = $00;
+  /// <summary>
+  ///   Gasoline
+  /// </summary>
+  FUEL_TYPE_GASOLINE = $01;
+  /// <summary>
+  ///   Methanol
+  /// </summary>
+  FUEL_TYPE_METHANOL = $02;
+  /// <summary>
+  ///   Ethanol
+  /// </summary>
+  FUEL_TYPE_ETHANOL = $03;
+  /// <summary>
+  ///   Diesel
+  /// </summary>
+  FUEL_TYPE_DIESEL = $04;
+  /// <summary>
+  ///   LPG
+  /// </summary>
+  FUEL_TYPE_LPG = $05;
+  /// <summary>
+  ///   CNG
+  /// </summary>
+  FUEL_TYPE_CNG = $06;
+  /// <summary>
+  ///   Propane
+  /// </summary>
+  FUEL_TYPE_PROPANE = $07;
+  /// <summary>
+  ///   Electric
+  /// </summary>
+  FUEL_TYPE_ELECTRIC = $08;
+  /// <summary>
+  ///   Bifuel running Gasoline
+  /// </summary>
+  FUEL_TYPE_BIFUEL_GASOLINE = $09;
+  /// <summary>
+  ///   Bifuel running Methanol
+  /// </summary>
+  FUEL_TYPE_BIFUEL_METHANOL = $0A;
+  /// <summary>
+  ///   Bifuel running Ethanol
+  /// </summary>
+  FUEL_TYPE_BIFUEL_ETHANOL = $0B;
+  /// <summary>
+  ///   Bifuel running LPG
+  /// </summary>
+  FUEL_TYPE_BIFUEL_LPG = $0C;
+  /// <summary>
+  ///   Bifuel running CNG
+  /// </summary>
+  FUEL_TYPE_BIFUEL_CNG = $0D;
+  /// <summary>
+  ///   Bifuel running Propane
+  /// </summary>
+  FUEL_TYPE_BIFUEL_PROPANE = $0E;
+  /// <summary>
+  ///   Bifuel running Electricity
+  /// </summary>
+  FUEL_TYPE_BIFUEL_ELECTRICITY = $0F;
+  /// <summary>
+  ///   Bifuel running electric and combustion engine
+  /// </summary>
+  OBD_FUEL_BIFUEL_ELECTRIC_COMBUSTION = $10;
+  /// <summary>
+  ///   Hybrid gasoline
+  /// </summary>
+  OBD_FUEL_HYBRID_GASOLINE = $11;
+  /// <summary>
+  ///   Hybrid Ethanol
+  /// </summary>
+  OBD_FUEL_HYBRID_ETHANOL = $12;
+  /// <summary>
+  ///   Hybrid Diesel
+  /// </summary>
+  OBD_FUEL_HYBRID_DIESEL = $13;
+  /// <summary>
+  ///   Hybrid Electric
+  /// </summary>
+  OBD_FUEL_HYBRID_ELECTRIC = $14;
+  /// <summary>
+  ///   Hybrid running electric and combustion engine
+  /// </summary>
+  OBD_FUEL_HYBRID_ELECTRIC_COMBUSTION = $15;
+  /// <summary>
+  ///   Hybrid Regenerative
+  /// </summary>
+  OBD_FUEL_HYBRID_REGENERATIVE = $16;
+  /// <summary>
+  ///   Bifuel running diesel
+  /// </summary>
+  OBD_FUEL_BIFUEL_DIESEL = $17;
+
 implementation
 
 end.
