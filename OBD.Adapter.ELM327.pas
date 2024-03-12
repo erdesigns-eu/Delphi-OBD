@@ -13,6 +13,8 @@ unit OBD.Adapter.ELM327;
 interface
 
 uses
+  System.Classes,
+
   OBD.Adapter, OBD.Adapter.Constants, OBD.Connection;
 
 //------------------------------------------------------------------------------
@@ -28,6 +30,11 @@ type
   ///   ELM327 OBD Adapter Class
   /// </summary>
   TELM327Adapter = class(TELMAdapter)
+  private
+    /// <summary>
+    ///   List with initialization commands (One command per line)
+    /// </summary>
+    FInitializationCommands: TStringList;
   protected
     /// <summary>
     ///   Initialize connection
@@ -71,6 +78,11 @@ type
     ///   The OBD command string (01 00, 01 1C, ..)
     /// </param>
     function WriteOBDCommandSync(const OBDCommand: string; const Timeout: Integer = 5000): string; virtual;
+
+    /// <summary>
+    ///   List with initialization commands (One command per line)
+    /// </summary>
+    property InitializationCommands: TStringList read FInitializationCommands write FInitializationCommands;
   end;
 
 implementation
@@ -81,9 +93,15 @@ uses System.StrUtils;
 // INIT CONNECTION
 //------------------------------------------------------------------------------
 function TELM327Adapter.Init: Boolean;
+var
+  I: Integer;
 begin
   // initialize result
   Result := inherited Init;
+  // Check if there are other initialization commands we need to execute
+  if InitializationCommands.Count > 0 then
+  for I := 0 to InitializationCommands.Count -1 do
+  WriteCommandSync(ctOBDCommand, InitializationCommands[I] + ELM_COMMAND_TERMINATOR);
 end;
 
 //------------------------------------------------------------------------------
@@ -93,6 +111,8 @@ constructor TELM327Adapter.Create;
 begin
   // Call inherited constructor
   inherited Create;
+  // Create list for initialization commands
+  FInitializationCommands := TStringList.Create;
 end;
 
 //------------------------------------------------------------------------------
@@ -100,6 +120,8 @@ end;
 //------------------------------------------------------------------------------
 destructor TELM327Adapter.Destroy;
 begin
+  // Free list with initialization commands
+  FInitializationCommands.Free;
   // Call inherited destructor
   inherited Destroy;
 end;

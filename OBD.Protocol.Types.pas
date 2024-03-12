@@ -245,6 +245,10 @@ type
     ///   Sequence index of the frame.
     /// </summary>
     FSeqIndex: Integer;
+    /// <summary>
+    ///   Length of the data.
+    /// </summary>
+    FDataLength: Integer;
   protected
     /// <summary>
     ///   Gets the raw data of the frame.
@@ -607,7 +611,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDDataFrame.GetDataLength: Integer;
 begin
-  Result := Length(FData);
+  Result := FDataLength;
 end;
 
 //------------------------------------------------------------------------------
@@ -615,7 +619,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDDataFrame.SetDataLength(Value: Integer);
 begin
-  SetLength(FData, Value);
+  FDataLength := Value;
 end;
 
 //------------------------------------------------------------------------------

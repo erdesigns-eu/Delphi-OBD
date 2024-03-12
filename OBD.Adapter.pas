@@ -366,12 +366,12 @@ type
     /// <summary>
     ///   Write command to the adapter and return the response. (SYNC)
     /// </summary>
-    function WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): string; virtual;
+    function WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 50000): string; virtual;
     /// <summary>
     ///   Write command to the adapter. (SYNC)
     ///   And return true if the adapter acknowledges.
     /// </summary>
-    function WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): Boolean; virtual;
+    function WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 50000): Boolean; virtual;
     /// <summary>
     ///   Initialize connection
     /// </summary>
@@ -840,7 +840,7 @@ end;
 //------------------------------------------------------------------------------
 // WRITE COMMAND AND RETURN RESPONSE (SYNC)
 //------------------------------------------------------------------------------
-function TELMAdapter.WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): string;
+function TELMAdapter.WriteCommandSync(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 50000): string;
 var
   StartTime, Elapsed: Cardinal;
   DidTimeOut: Boolean;
@@ -892,7 +892,7 @@ end;
 //------------------------------------------------------------------------------
 // WRITE COMMAND (SYNC) AND RETURN TRUE IF ADAPTER ACKNOWLEDGES
 //------------------------------------------------------------------------------
-function TELMAdapter.WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 5000): Boolean;
+function TELMAdapter.WriteCommandSyncExpectOK(const CommandType: TSyncCommandType; const Command: string; const Timeout: Integer = 50000): Boolean;
 var
   S: string;
 begin

@@ -156,6 +156,16 @@ const
   FRAME_TYPE_FF = $10; // First frame of multi-frame message
   FRAME_TYPE_CF = $20; // Consecutive frame(s) of multi-frame message
 
+function BytesToHexString(const Bytes: TBytes): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := Low(Bytes) to High(Bytes) do
+    Result := Result + IntToHex(Bytes[I], 2) + ' ';
+  Result := Trim(Result); // Optional: Removes the trailing space
+end;
+
 //------------------------------------------------------------------------------
 // PARSE FRAME
 //------------------------------------------------------------------------------
@@ -180,7 +190,7 @@ begin
   if Length(Raw) mod 2 <> 0 then Exit;
 
   // Convert to bytes
-  RawBytes := TEncoding.UTF8.GetBytes(Raw);
+  RawBytes := HexStringToBytes(Raw);
 
   // If the frame length is too short, drop the frame
   if Length(RawBytes) < 6 then Exit;
@@ -194,13 +204,14 @@ begin
   begin
     // Always 7
     Frame.Priority := RawBytes[2] and $0F;
+
     // 0xD0 = functional, 0xE0 = physical
     Frame.AddrMode := RawBytes[3] and $F0;
 
     if Frame.AddrMode = $D0 then
     begin
       // Usually (always?) 0x0F for broadcast
-      Frame.RxId := RawBytes[3] and $0F;
+      Frame.RxId := RawBytes[3];
       // Made-up to mimic all other protocols
       Frame.TxId := $F1;
     end
@@ -208,13 +219,13 @@ begin
     begin
       // Made-up to mimic all other protocols
       Frame.RxId := $F1;
-      Frame.TxId := RawBytes[3] and $07;
+      Frame.TxId := RawBytes[3];
     end
     else
     begin
       // made-up to mimic all other protocols
       Frame.TxId := $F1;
-      Frame.RxId := RawBytes[3] and $07;
+      Frame.RxId := RawBytes[3];
     end;
   end;
 
@@ -256,7 +267,7 @@ begin
   begin
     // First frames have 12 bit length codes
     Frame.DataLength := (Frame.Data[0] and $0F) shl 8;
-    Frame.DataLength := Frame.DataLength or Frame.Data[1];
+    Frame.DataLength := Frame.DataLength + Frame.Data[1];
     // Drop frames with no data
     if Frame.DataLength = 0 then Exit
   end;
@@ -318,6 +329,8 @@ begin
 
   // Set frames
   Frames := Msg.Frames;
+  // Set message TxId
+  Msg.TxId := Frames[0].TxId;
 
   // Single frame
   if Length(Frames) = 1 then
@@ -326,7 +339,7 @@ begin
     // Exit here when received frame is not marked as single frame
     if Frame.FrameType <> FRAME_TYPE_SF then Exit;
     // Extract data, ignore PCI byte and anything after the marked length
-    Msg.Data := Copy(Frame.Data, 2, Frame.DataLength);
+    Msg.Data := Copy(Frame.Data, 1, Frame.DataLength);
   end;
 
   // Multiple frames

@@ -146,7 +146,7 @@ begin
   if Length(Frame.Raw) mod 2 <> 0 then Exit;
 
   // Convert to bytes
-  RawBytes := TEncoding.UTF8.GetBytes(Frame.Raw);
+  RawBytes := HexStringToBytes(Frame.Raw);
 
   // If the frame length is too short, drop the frame
   if Length(RawBytes) < 6 then Exit;
@@ -155,7 +155,7 @@ begin
   if Length(RawBytes) > 11 then Exit;
 
   // Exclude header and trailing checksum (handled by ELM adapter)
-  Frame.Data := Copy(RawBytes, 4, Length(RawBytes) - 4);
+  Frame.Data := Copy(RawBytes, 3, Length(RawBytes) - 4);
 
   // Read header information
   Frame.Priority := RawBytes[0];
@@ -183,6 +183,8 @@ begin
 
   // Set frames
   Frames := Msg.Frames;
+  // Set message TxId
+  Msg.TxId := Frames[0].TxId;
 
   // Set the mode
   Mode := Frames[0].Data[0];

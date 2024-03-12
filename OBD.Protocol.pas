@@ -100,6 +100,10 @@ type
     procedure LoadECUList(Messages: TArray<IOBDDataMessage>);
   protected
     /// <summary>
+    ///   Convert a hex string to TBytes
+    /// </summary>
+    function HexStringToBytes(const HexString: string): TBytes;
+    /// <summary>
     ///   Get the OBD Protocol friendlyname
     /// </summary>
     function GetName: string; virtual; abstract;
@@ -171,12 +175,23 @@ implementation
 //------------------------------------------------------------------------------
 function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
 
-  function IsHex(Line: string): Boolean;
+ function IsHex(const Line: string): Boolean;
   var
-    Hex: Integer;
+    I: Integer;
   begin
-    Result := TryStrToInt('$' + Line, Hex);
+    // initialize result
+    Result := False;
+    // Exit here if the line is empty
+    if Line = '' then Exit;
+
+    // Loop over all characters, and check if they are valid hex characters
+    for I := 1 to Length(Line) do
+    if not CharInSet(Line[I], ['0'..'9', 'A'..'F', 'a'..'f']) then Exit;
+
+    // If we make it here, the string contains valid hex characters.
+    Result := True;
   end;
+
 
 var
   Line: string;
@@ -254,6 +269,25 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// HEX STRING TO BYTES
+//------------------------------------------------------------------------------
+function TOBDProtocol.HexStringToBytes(const HexString: string): TBytes;
+var
+  I, Value: Integer;
+begin
+  // Exit here if the length is odd
+  if Length(HexString) mod 2 <> 0 then Exit;
+  // Set length of result
+  SetLength(Result, Length(HexString) div 2);
+  // Loop over hex string and convert to bytes
+  for I := 0 to Length(Result) - 1 do
+  begin
+    Value := StrToInt('$' + Copy(HexString, I * 2 + 1, 2));
+    Result[I] := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // LOAD ECU LIST
 //------------------------------------------------------------------------------
 procedure TOBDProtocol.LoadECUList(Messages: TArray<IOBDDataMessage>);
@@ -268,7 +302,7 @@ begin
     // If the message doesnt contain any data, continue
     if not Msg.Parsed then Continue;
     // Convert the TxId to hexadecimal string and add to the ECU list
-    FECUList.Add(IntToHex(Msg.TxId, 2));
+    FECUList.Add(Msg.ECU);
   end;
 end;
 
