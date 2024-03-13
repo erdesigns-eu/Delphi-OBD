@@ -13,7 +13,9 @@ unit OBD.Adapter.Enumerator;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Bluetooth, System.Win.Registry, Winapi.Windows,
+  System.Classes, System.SysUtils, System.Bluetooth, System.Win.Registry,
+  Winapi.Windows, WinApi.Messages, Vcl.Forms, System.Generics.Defaults,
+  System.Generics.Collections,
 
   OBD.Adapter.Types, OBD.Adapter.Constants, OBD.Connection.Constants, OBD.Connection.Types;
 
@@ -72,6 +74,14 @@ type
     ///   Port friendlyname (e.g. USB Serial Port)
     /// </summary>
     property FriendlyName: string read FFriendlyName;
+  end;
+
+  /// <summary>
+  ///   Comparer for sorting Serial (COM) ports
+  /// </summary>
+  TSerialOBDAdapterEnumComparer = class(TInterfacedObject, IComparer<TSerialOBDAdapterEnum>)
+  public
+    function Compare(const Left, Right: TSerialOBDAdapterEnum): Integer;
   end;
 
   /// <summary>
@@ -138,6 +148,24 @@ type
   TOBDAdapterEnumerator = class(TInterfacedObject, IOBDAdapterEnumerator)
   private
     /// <summary>
+    ///   Handle for a hidden window. We need this to be able to
+    ///   listen to usb device insert/removal events.
+    /// </summary>
+    FUSBHandle: HWND;
+    /// <summary>
+    ///   Event when new USB devices is added
+    /// </summary>
+    FOnUSBArrival: TNotifyEvent;
+    /// <summary>
+    ///   Event when USB device is removed
+    /// </summary>
+    FOnUSBRemoval: TNotifyEvent;
+    /// <summary>
+    ///   Event for both arrival/removal
+    /// </summary>
+    FOnUSBChanged: TNotifyEvent;
+
+    /// <summary>
     ///   Bluetooth manager
     /// </summary>
     FBluetoothManager: TBluetoothManager;
@@ -153,6 +181,11 @@ type
     ///   Bluetooth adapters
     /// </summary>
     FBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+
+    /// <summary>
+    ///   Hidden window message handler
+    /// </summary>
+    procedure USBWndProc(var Msg: TMessage);
   protected
     /// <summary>
     ///   Enumerate serial (COM) ports
@@ -171,11 +204,28 @@ type
     ///   Constructor
     /// </summary>
     constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
 
     /// <summary>
     ///   Refresh the lists
     /// </summary>
     function Refresh: Boolean;
+
+    /// <summary>
+    ///   Event when new USB devices is added
+    /// </summary>
+    property OnUSBArrival: TNotifyEvent read FOnUSBArrival write FOnUSBArrival;
+    /// <summary>
+    ///   Event when USB device is removed
+    /// </summary>
+    property OnUSBRemoval: TNotifyEvent read FOnUSBRemoval write FOnUSBRemoval;
+    /// <summary>
+    ///   Event for both arrival/removal
+    /// </summary>
+    property OnUSBChanged: TNotifyEvent read FOnUSBChanged write FOnUSBChanged;
 
     /// <summary>
     ///   Serial (COM) port adapters
@@ -197,8 +247,10 @@ type
 
 implementation
 
+uses System.Math;
+
 //------------------------------------------------------------------------------
-// SERIAL (COM) PORT
+// SERIAL
 //------------------------------------------------------------------------------
 function SetupDiGetClassDevs(const ClassGuid: PGUID; Enumerator: PChar; hwndParent: HWND; Flags: DWORD): HDEVINFO; stdcall; external SETUP_API_DLL name 'SetupDiGetClassDevsA';
 function SetupDiEnumDeviceInfo(DeviceInfoSet: HDEVINFO; MemberIndex: DWORD; var DeviceInfoData: SP_DEVINFO_DATA): BOOL; stdcall; external SETUP_API_DLL name 'SetupDiEnumDeviceInfo';
@@ -222,6 +274,39 @@ begin
   FCOMPort := COMPort;
   // Set friendly name
   FFriendlyName := FriendlyName;
+end;
+
+//------------------------------------------------------------------------------
+// COMPARE SERIAL PORTS
+//------------------------------------------------------------------------------
+function TSerialOBDAdapterEnumComparer.Compare(const Left, Right: TSerialOBDAdapterEnum): Integer;
+
+  function ExtractNumber(const Port: string): Integer;
+  var
+    I: Integer;
+    S: string;
+  begin
+    // initialize string for holding the numbers
+    S := '';
+    // Loop over characters
+    for I := 1 to Length(Port) do
+    // If we have a number, add it to the result string
+    if CharInSet(Port[I], ['0'..'9']) then S := S + Port[I];
+    // Try to convert to a number, or default to zero
+    Result := StrToIntDef(S, 0);
+  end;
+
+var
+  LeftNum, RightNum: Integer;
+begin
+  // Try to extract the numeric part
+  LeftNum := ExtractNumber(Left.COMPort);
+  // Try to extract the numeric part
+  RightNum := ExtractNumber(Right.COMPort);
+  // Compare the numbers
+  Result := CompareValue(LeftNum, RightNum);
+  // If numerical parts are equal, compare the full port name to maintain consistent ordering
+  if Result = 0 then Result := CompareStr(Left.COMPort, Right.COMPort);
 end;
 
 //------------------------------------------------------------------------------
@@ -251,6 +336,50 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// USB WND PROC
+//------------------------------------------------------------------------------
+procedure TOBDAdapterEnumerator.USBWndProc(var Msg: TMessage);
+var
+  DeviceType: Integer;
+  Data: PDevBroadcastHdr;
+begin
+  // Only handle device change messages
+  if (Msg.Msg = WM_DEVICECHANGE) then
+  begin
+    try
+      // Handle device arrival and removal
+      if (Msg.wParam = DBT_DEVICEARRIVAL) or (Msg.wParam = DBT_DEVICEREMOVECOMPLETE) then
+      begin
+        // Get Data
+        Data := PDevBroadcastHdr(Msg.lParam);
+        // Get device type
+        DeviceType := Data^.dbch_devicetype;
+        // Make sure we are handling events for the right device type (USB) only
+        if (DeviceType = DBT_DEVTYP_DEVICEINTERFACE) then
+        begin
+          // Arrival
+          if Msg.wParam = DBT_DEVICEARRIVAL then
+          begin
+            if Assigned(OnUSBArrival) then OnUSBArrival(Self);
+          end else
+          // Removal
+          begin
+            if Assigned(OnUSBRemoval) then OnUSBRemoval(Self);
+          end;
+          // Both
+          if Assigned(OnUSBChanged) then OnUSBChanged(Self);
+        end;
+      end;
+    except
+      // When an error occurs, let the application handle the exception
+      Application.HandleException(Self);
+    end;
+  end else
+  // Let Windows handle other messages.
+  Msg.Result := DefWindowProc(FUSBHandle, Msg.Msg, Msg.wParam, Msg.lParam);
+end;
+
+//------------------------------------------------------------------------------
 // ENUMERATE SERIAL (COM) PORTS
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.EnumerateSerial: Boolean;
@@ -262,7 +391,7 @@ function TOBDAdapterEnumerator.EnumerateSerial: Boolean;
     // initialize result
     Result := '';
     // Find the start position
-    StartPos := Pos('(COM', S);
+    StartPos :=  LastDelimiter('(', S);
     // Find the end position
     EndPos := Pos(')', S, StartPos);
     // Make sure we found the start and end positions
@@ -281,7 +410,7 @@ var
   RequiredSize: DWORD;
   RegDataType: DWORD;
   Buffer: array[0..1023] of Byte;
-
+  Comparer: IComparer<TSerialOBDAdapterEnum>;
 begin
   // initialize result
   Result := False;
@@ -321,6 +450,11 @@ begin
   finally
     SetupDiDestroyDeviceInfoList(DeviceInfoSet);
   end;
+
+  // Create an instance of the comparer
+  Comparer := TSerialOBDAdapterEnumComparer.Create;
+  // Sort the ports ascending
+  TArray.Sort<TSerialOBDAdapterEnum>(FSerialAdapters, Comparer);
 
   // If we make it here, we succeeded
   Result := True;
@@ -391,11 +525,37 @@ end;
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
 constructor TOBDAdapterEnumerator.Create;
+var
+  DBI: DEV_BROADCAST_DEVICEINTERFACE;
+  Size: Integer;
+  R: Pointer;
 begin
   // Call inherited constructor
   inherited Create;
   // Load the bluetooth manager
   FBluetoothManager := TBluetoothManager.Current;
+  // Create the hidden window for USB arrival/removal
+  FUSBHandle := AllocateHWnd(USBWndProc);
+  // Register the USB listener
+  Size := SizeOf(DEV_BROADCAST_DEVICEINTERFACE);
+  ZeroMemory(@DBI, Size);
+  DBI.dbcc_size := Size;
+  DBI.dbcc_devicetype := DBT_DEVTYP_DEVICEINTERFACE;
+  DBI.dbcc_reserved := 0;
+  DBI.dbcc_classguid  := GUID_DEVINTERFACE_USB_DEVICE;
+  DBI.dbcc_name := 0;
+  R := RegisterDeviceNotification(FUSBHandle, @DBI, DEVICE_NOTIFY_WINDOW_HANDLE);
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDAdapterEnumerator.Destroy;
+begin
+  // Free hidden window
+  DeallocateHWnd(FUSBHandle);
+  // Call inherited destructor
+  inherited Destroy;
 end;
 
 //------------------------------------------------------------------------------

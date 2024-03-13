@@ -220,11 +220,9 @@ begin
     // Remove spaces
     LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
     // If the string is valid HEX add it to the OBD lines stringlist
-    if IsHex(LineNoSpaces) then
-      FOBDLines.Add(Line)
+    if IsHex(LineNoSpaces) then FOBDLines.Add(Line)
     // Otherwise add it to the non OBD lines stringlist
-    else
-      FNonOBDLines.Add(Line);
+    else FNonOBDLines.Add(Line);
   end;
 
   // Initialize frames length

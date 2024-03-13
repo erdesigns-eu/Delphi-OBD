@@ -201,6 +201,70 @@ type
   end;
   PFTDIDeviceNode = ^FTDIDeviceNode;
 
+//------------------------------------------------------------------------------
+// USB DEVICE ARRIVE/REMOVE TYPES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  /// Pointer to a DEV_BROADCAST_HDR structure.
+  /// </summary>
+  PDevBroadcastHdr = ^DEV_BROADCAST_HDR;
+
+  /// <summary>
+  /// Structure used to receive device event notifications. This header is part
+  /// of a larger structure that varies depending on the type of event being reported.
+  /// </summary>
+  DEV_BROADCAST_HDR = packed record
+    /// <summary>
+    /// Size of this structure, in bytes. This size includes the size of the
+    /// header and any additional data that follows the header.
+    /// </summary>
+    dbch_size: DWORD;
+    /// <summary>
+    /// The type of device being described.
+    /// </summary>
+    dbch_devicetype: DWORD;
+    /// <summary>
+    /// Reserved; do not use.
+    /// </summary>
+    dbch_reserved: DWORD;
+  end;
+
+  /// <summary>
+  /// Pointer to a DEV_BROADCAST_DEVICEINTERFACE structure.
+  /// </summary>
+  PDevBroadcastDeviceInterface = ^DEV_BROADCAST_DEVICEINTERFACE;
+
+  /// <summary>
+  /// Structure that defines a device interface class notification filter.
+  /// It specifies the class of device interfaces that an application wants
+  /// to receive notifications for.
+  /// </summary>
+  DEV_BROADCAST_DEVICEINTERFACE = record
+    /// <summary>
+    /// Size of this structure, in bytes. This size includes this header and
+    /// the device interface name that follows the header.
+    /// </summary>
+    dbcc_size: DWORD;
+    /// <summary>
+    /// Set to DBT_DEVTYP_DEVICEINTERFACE.
+    /// </summary>
+    dbcc_devicetype: DWORD;
+    /// <summary>
+    /// Reserved; do not use.
+    /// </summary>
+    dbcc_reserved: DWORD;
+    /// <summary>
+    /// The GUID for the interface device class.
+    /// </summary>
+    dbcc_classguid: TGUID;
+    /// <summary>
+    /// The first character of the device interface name. This is a variable-length
+    /// field that specifies the null-terminated name of the device interface.
+    /// </summary>
+    dbcc_name: short;
+  end;
+
 implementation
 
 end.

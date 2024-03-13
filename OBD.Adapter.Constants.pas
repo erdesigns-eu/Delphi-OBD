@@ -193,6 +193,27 @@ const
   /// </summary>
   GUID_DEVINTERFACE_COMPORT: TGUID = '{86E0D1E0-8089-11D0-9CE4-08003E301F73}';
 
+//------------------------------------------------------------------------------
+// USB DEVICE ARRIVE/REMOVE CONSTANTS
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  /// The GUID for USB device interface class notifications.
+  /// </summary>
+  GUID_DEVINTERFACE_USB_DEVICE: TGUID = '{A5DCBF10-6530-11D2-901F-00C04FB951ED}';
+  /// <summary>
+  /// System detected a new device.
+  /// </summary>
+  DBT_DEVICEARRIVAL = $8000;
+  /// <summary>
+  /// Device is gone.
+  /// </summary>
+  DBT_DEVICEREMOVECOMPLETE = $8004;
+  /// <summary>
+  /// Device interface class. Used with DEV_BROADCAST_DEVICEINTERFACE.
+  /// </summary>
+  DBT_DEVTYP_DEVICEINTERFACE = $00000005;
+
 
 implementation
 
