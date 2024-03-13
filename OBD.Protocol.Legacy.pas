@@ -152,10 +152,11 @@ begin
   if Length(RawBytes) < 6 then Exit;
 
   // If the frame length is too long, drop the frame
+  if not AllowLongMesssages then
   if Length(RawBytes) > 11 then Exit;
 
   // Exclude header and trailing checksum (handled by ELM adapter)
-  Frame.Data := Copy(RawBytes, 3, Length(RawBytes) - 4);
+  Frame.Data := Copy(RawBytes, 3, Length(RawBytes));
 
   // Read header information
   Frame.Priority := RawBytes[0];

@@ -13,7 +13,7 @@ unit OBD.Adapter.Types;
 interface
 
 uses
-  OBD.Protocol.Types;
+  WinApi.Windows, OBD.Protocol.Types;
 
 //------------------------------------------------------------------------------
 // OTHER
@@ -120,6 +120,86 @@ type
   ///   OBDLink Adapter Error type
   /// </param>
   TOBDLinkAdapterErrorEvent = procedure(Sender: TObject; Error: TOBDLinkAdapterError) of object;
+
+//------------------------------------------------------------------------------
+// ENUMERATE SERIAL (COM) PORT TYPES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   Handle to a device information set that contains requested device
+  ///   information elements for a local machine.
+  /// </summary>
+  HDEVINFO = Pointer;
+
+  /// <summary>
+  ///   Contains device information data for a device information set.
+  /// </summary>
+  SP_DEVINFO_DATA = packed record
+    /// <summary>
+    ///   The size, in bytes, of the SP_DEVINFO_DATA structure.
+    /// </summary>
+    cbSize: DWORD;
+    /// <summary>
+    ///   The GUID of the setup class for the device
+    ///   represented by this structure.
+    /// </summary>
+    ClassGuid: TGUID;
+    /// <summary>
+    ///   An opaque handle to the device instance
+    ///   (also known as a handle to the devnode).
+    /// </summary>
+    DevInst: DWORD;
+    /// <summary>
+    ///   Reserved; do not use.
+    /// </summary>
+    Reserved: ULONG_PTR;
+  end;
+
+  /// <summary>
+  ///   Pointer to SP_DEVINFO_DATA structure.
+  /// </summary>
+  PSpDevInfoData = ^SP_DEVINFO_DATA;
+
+//------------------------------------------------------------------------------
+// ENUMERATE FTDI TYPES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   Contains device information for FTDI devices.
+  /// </summary>
+  FTDIDeviceNode = packed record
+    /// <summary>
+    /// Flags to provide additional information about the device.
+    /// This could include status information like whether the device is open or not.
+    /// </summary>
+    Flags: DWORD;
+    /// <summary>
+    /// The type of the device. This can be used to identify the specific model or capabilities of the FTDI device.
+    /// </summary>
+    DeviceType: DWORD;
+    /// <summary>
+    /// The identifier of the device. This can be used to distinguish between different devices of the same model.
+    /// </summary>
+    ID: DWORD;
+    /// <summary>
+    /// The location identifier for the device. This can help identify the physical connection location, such as a USB port number.
+    /// </summary>
+    LocationID: DWORD;
+    /// <summary>
+    /// The serial number of the device. This is typically a unique identifier for each device.
+    /// </summary>
+    SerialNumber: array[0..15] of AnsiChar;
+    /// <summary>
+    /// A description of the device. This often includes the product name and might include other details such as the version.
+    /// </summary>
+    Description: array[0..63] of AnsiChar;
+    /// <summary>
+    /// A handle to the device. This can be used for further API calls to interact with the device.
+    /// Note: This field may not be immediately relevant for device enumeration but is included for completeness.
+    /// </summary>
+    FTHandle: DWORD;
+  end;
+  PFTDIDeviceNode = ^FTDIDeviceNode;
 
 implementation
 

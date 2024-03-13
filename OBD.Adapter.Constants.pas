@@ -164,6 +164,36 @@ const
   /// </summary>
   OBDLINK_UART_RX_OVERFLOW = 'UART RX OVERFLOW';
 
+//------------------------------------------------------------------------------
+// ENUMERATE SERIAL (COM) PORT CONSTANTS
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   SetupAPI DLL
+  /// </summary>
+  SETUP_API_DLL = 'SetupApi.dll';
+  /// <summary>
+  ///   Return only devices that are currently present in a system.
+  /// </summary>
+  DIGCF_PRESENT = $00000002;
+  /// <summary>
+  ///   Return devices that support device interfaces for the specified
+  ///   device interface classes. This flag must be set in the Flags parameter
+  ///   if the Enumerator parameter specifies a device instance ID.
+  /// </summary>
+  DIGCF_DEVICEINTERFACE = $00000010;
+  /// <summary>
+  ///   Specifies that the function retrieves the device's friendly name.
+  /// </summary>
+  SPDRP_FRIENDLYNAME = $0000000C;
+  /// <summary>
+  ///   Represents the GUID (Globally Unique Identifier) for the device
+  ///   interface class of serial (COM) ports. This GUID is used to identify
+  ///   all serial port devices on a system.
+  /// </summary>
+  GUID_DEVINTERFACE_COMPORT: TGUID = '{86E0D1E0-8089-11D0-9CE4-08003E301F73}';
+
+
 implementation
 
 end.

@@ -91,6 +91,10 @@ type
     /// </summary>
     FECUList: TStringList;
     /// <summary>
+    ///   Allow long messages (> 7 bytes)
+    /// </summary>
+    FAllowLongMessages: Boolean;
+    /// <summary>
     ///   Invoke
     /// </summary>
     function Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
@@ -119,7 +123,7 @@ type
     /// <summary>
     ///   Constructor
     /// </summary>
-    constructor Create(Lines: TStrings); virtual;
+    constructor Create(Lines: TStrings; AllowLongMessages: Boolean); virtual;
     /// <summary>
     ///   Destructor
     /// </summary>
@@ -138,6 +142,10 @@ type
     ///   List of available ECU's
     /// </summary>
     property ECUList: TStringList read FECUList;
+    /// <summary>
+    ///   Allow long messages (> 7 bytes)
+    /// </summary>
+    property AllowLongMesssages: Boolean read FAllowLongMessages write FAllowLongMessages;
     /// <summary>
     ///   OBD Protocol name
     /// </summary>
@@ -309,7 +317,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDProtocol.Create(Lines: TStrings);
+constructor TOBDProtocol.Create(Lines: TStrings; AllowLongMessages: Boolean);
 var
   Messages: TArray<IOBDDataMessage>;
 begin
@@ -320,6 +328,8 @@ begin
   // Create lists
   FOBDLines := TStringList.Create;
   FNonOBDLines := TStringList.Create;
+  // Set allow long messages
+  FAllowLongMessages := AllowLongMessages;
   // Parse the 0100 data into messages
   Messages := Invoke(Lines);
   // Load ECU list

@@ -13,7 +13,7 @@ unit OBD.Adapter;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.SyncObjs, Winapi.Windows, System.Bluetooth,
+  System.Classes, System.SysUtils, Winapi.Windows, System.Bluetooth,
 
   OBD.Connection, OBD.Connection.Types, OBD.Connection.Serial,
   OBD.Connection.Bluetooth, OBD.Connection.Wifi, OBD.Connection.FTDI,
@@ -323,6 +323,10 @@ type
     ///   Initialization timeout
     /// </summary>
     FInitializationTimeout: Integer;
+    /// <summary>
+    ///   Allow long messages (> 7 bytes)
+    /// </summary>
+    FAllowLongMessages: Boolean;
 
     /// <summary>
     ///   Adapter Identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
@@ -362,6 +366,10 @@ type
     ///   Set ELM protocol
     /// </summary>
     procedure SetELMProtocol(Value: TELMProtocol);
+    /// <summary>
+    ///   Set allow long messages
+    /// </summary>
+    procedure SetAllowLongMessages(Value: Boolean);
     /// <summary>
     ///   Handle data received event
     /// </summary>
@@ -452,6 +460,10 @@ type
     ///   Initialization timeout
     /// </summary>
     property InitializationTimeout: Integer read FInitializationTimeout write FInitializationTimeout;
+    /// <summary>
+    ///   Allow long messages (> 7 bytes)
+    /// </summary>
+    property AllowLongMessages: Boolean read FAllowLongMessages write SetAllowLongMessages;
 
     /// <summary>
     ///   Adapter identifier (e.g. ELM327 v1.2, v1.3, v1.4b, v1.5, v2.1)
@@ -609,6 +621,8 @@ begin
   FDataLines := TStringList.Create;
   // Set initial initialization timeout
   FInitializationTimeout := 5000;
+  // Set initial allow long messages
+  FAllowLongMessages := False;
 end;
 
 //------------------------------------------------------------------------------
@@ -660,6 +674,18 @@ begin
   if Value <> FELMProtocol then
   begin
     FELMProtocol := Value;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ALLOW LONG MESSAGES
+//------------------------------------------------------------------------------
+procedure TELMAdapter.SetAllowLongMessages(Value: Boolean);
+begin
+  FAllowLongMessages := Value;
+  if Assigned(FProtocol) then
+  begin
+    (FProtocol as TOBDProtocol).AllowLongMesssages := Value;
   end;
 end;
 
@@ -987,17 +1013,17 @@ begin
     // Create the protocol object (if not set to auto)
     case FELMProtocol of
       epAutomatic          : FProtocol := nil;
-      epSAE_J1850_PWM      : FProtocol := TSAE_J1850_PWM_OBDProtocol.Create(L);
-      epSAE_J1850_VPW      : FProtocol := TSAE_J1850_VPW_OBDProtocol.Create(L);
-      epISO_9141_2         : FProtocol := TISO_9141_2_OBDProtocol.Create(L);
-      epISO_14230_4_SLOW   : FProtocol := TISO_14230_4_5BAUD_OBDProtocol.Create(L);
-      epISO_14230_4_FAST   : FProtocol := TISO_14230_4_FAST_OBDProtocol.Create(L);
-      epISO_15765_4_11_500 : FProtocol := TISO_15765_4_11BIT_500K_OBDProtocol.Create(L);
-      epISO_15765_4_29_500 : FProtocol := TISO_15765_4_29BIT_500K_OBDProtocol.Create(L);
-      epISO_15765_4_11_250 : FProtocol := TISO_15765_4_11BIT_250K_OBDProtocol.Create(L);
-      epISO_15765_4_29_250 : FProtocol := TISO_15765_4_29BIT_250K_OBDProtocol.Create(L);
-      epSAE_J1939_29_250   : FProtocol := TSAE_J1939_250K_OBDProtocol.Create(L);
-      epSAE_J1939_29_500   : FProtocol := TSAE_J1939_500K_OBDProtocol.Create(L);
+      epSAE_J1850_PWM      : FProtocol := TSAE_J1850_PWM_OBDProtocol.Create(L, AllowLongMessages);
+      epSAE_J1850_VPW      : FProtocol := TSAE_J1850_VPW_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_9141_2         : FProtocol := TISO_9141_2_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_14230_4_SLOW   : FProtocol := TISO_14230_4_5BAUD_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_14230_4_FAST   : FProtocol := TISO_14230_4_FAST_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_15765_4_11_500 : FProtocol := TISO_15765_4_11BIT_500K_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_15765_4_29_500 : FProtocol := TISO_15765_4_29BIT_500K_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_15765_4_11_250 : FProtocol := TISO_15765_4_11BIT_250K_OBDProtocol.Create(L, AllowLongMessages);
+      epISO_15765_4_29_250 : FProtocol := TISO_15765_4_29BIT_250K_OBDProtocol.Create(L, AllowLongMessages);
+      epSAE_J1939_29_250   : FProtocol := TSAE_J1939_250K_OBDProtocol.Create(L, AllowLongMessages);
+      epSAE_J1939_29_500   : FProtocol := TSAE_J1939_500K_OBDProtocol.Create(L, AllowLongMessages);
     end;
   finally
     L.Free;

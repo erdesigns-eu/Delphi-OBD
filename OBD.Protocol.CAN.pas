@@ -186,6 +186,7 @@ begin
   if Length(RawBytes) < 6 then Exit;
 
   // If the frame length is too long, drop the frame
+  if not AllowLongMesssages then
   if Length(RawBytes) > 12 then Exit;
 
   // Read header information (11 Bits)
@@ -236,7 +237,7 @@ begin
   end;
 
   // Extract the frame data
-  Frame.Data := Copy(RawBytes, 4, Length(RawBytes) - 3);
+  Frame.Data := Copy(RawBytes, 4, Length(RawBytes));
 
   // Read PCI byte (always first byte in the data section)
   Frame.FrameType := Frame.Data[0] and $F0;
