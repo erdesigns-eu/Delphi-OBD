@@ -14,6 +14,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Win.ScktComp,
+  Vcl.Forms,
 
   OBD.Connection,
   OBD.Connection.Types,
@@ -33,6 +34,10 @@ type
     ///    Connected flag
     /// </summary>
     FConnected: Boolean;
+    /// <summary>
+    ///    Connection timeout
+    /// </summary>
+    FConnectionTimeout: Integer;
     /// <summary>
     ///   Event to emit on data reception
     /// </summary>
@@ -129,6 +134,10 @@ type
     /// </param>
     function SendCString(S: PAnsiChar): Boolean;
 
+    /// <summary>
+    ///    Connection timeout
+    /// </summary>
+    property ConnectionTimeout: Integer read FConnectionTimeout write FConnectionTimeout;
     /// <summary>
     ///   Event to emit when there is data available (input buffer has data)
     ///   (called only if PacketSize <= 0)
@@ -240,10 +249,14 @@ end;
 //------------------------------------------------------------------------------
 procedure TWifi.OnSocketRead(Sender: TObject; Socket: TCustomWinSocket);
 var
-  S: AnsiString;
+  Buffer: array[0..1023] of Byte;
+  BytesRead: Integer;
 begin
-  S := FTCPSocket.Socket.ReceiveText;
-  if Assigned(OnReceiveData) then OnReceiveData(Self, @S, Length(S));
+  BytesRead := Socket.ReceiveBuf(Buffer, SizeOf(Buffer));
+  if BytesRead > 0 then
+  begin
+    if Assigned(FOnReceiveData) then FOnReceiveData(Self, @Buffer, BytesRead);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -286,6 +299,8 @@ begin
   FTCPSocket.OnDisconnect := OnSocketDisconnect;
   FTCPSocket.OnRead := OnSocketRead;
   FTCPSocket.OnError := OnSocketError;
+  // Set default connection timeout
+  FConnectionTimeout := 5000;
 end;
 
 //------------------------------------------------------------------------------
@@ -305,16 +320,54 @@ end;
 // CONNECT
 //------------------------------------------------------------------------------
 function TWifi.Connect(Host: string; Port: Integer): Boolean;
+var
+  StartTime, Elapsed: Cardinal;
+  DidTimeOut: Boolean;
 begin
-  Result := Connected;
+  // initialize result
+  Result := False;
   // Exit here when we're already connected
-  if Result then Exit;
+  if Connected then Exit;
   // Set host and port
   FTCPSocket.Host := Host;
   FTCPSocket.Port := Port;
-  // Open socket
-  FTCPSocket.Open;
-  Result := True;
+  // Set to non-blocking (ASYNC) communication
+  FTCPSocket.ClientType := ctNonBlocking;
+
+  // Try to open the socket
+  try
+    FTCPSocket.Active := True;
+  except
+    // If we encounter an error, like when the ip-address is not correct
+    // the port is not correct, or any other kind - exit here.
+    Exit;
+  end;
+
+  // Get the start time for timeout tracking
+  StartTime := GetTickCount;
+  // Reset did timeout flag
+  DidTimeOut := False;
+
+  // Wait for the connection with a loop
+  repeat
+    // Calculate elapsed time to handle timeout
+    Elapsed := GetTickCount - StartTime;
+    // Exit the loop if the response has been received
+    if FTCPSocket.Active then Break;
+    // Handle timeout (exit loop if exceeded)
+    if Integer(Elapsed) >= ConnectionTimeout then
+    begin
+      DidTimeOut := True;
+      Break;
+    end;
+    // Sleep a bit to reduce CPU usage
+    Sleep(100);
+    // Optionally, process messages to keep the UI responsive
+    Application.ProcessMessages;
+  until False;
+
+  // If the loop didnt timeout, then we have successfully connected
+  if not DidTimeOut then Result := True;
 end;
 
 //------------------------------------------------------------------------------
@@ -324,7 +377,7 @@ procedure TWifi.Disconnect;
 begin
   if Connected then
   begin
-    FTCPSocket.Close;
+    FTCPSocket.Active := False;
   end;
 end;
 
@@ -332,13 +385,18 @@ end;
 // SEND DATA
 //------------------------------------------------------------------------------
 function TWifi.SendData(DataPtr: Pointer; DataSize: Cardinal): Cardinal;
+var
+  DataString: AnsiString;
 begin
   Result := 0;
   // Exit here when we're not connected
   if not Connected then Exit;
-  // Send data
+  // Convert pointer data to AnsiString
+  SetString(DataString, PAnsiChar(DataPtr), DataSize);
+  // Optionally, handle OnSendData event if needed
   if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
-  Result := FTCPSocket.Socket.SendBuf(DataPtr, DataSize);
+  // Send data as string
+  Result := FTCPSocket.Socket.SendText(DataString);
 end;
 
 //------------------------------------------------------------------------------
@@ -447,7 +505,7 @@ begin
   // Exit here if the connection type is incorrect
   if Params.ConnectionType <> ctWiFi then Exit;
   // Connect to the Wifi (TCP) Socket
-  FWifi.Connect(string(Params.IPAddress), Params.Port);
+  Result := FWifi.Connect(string(Params.IPAddress), Params.Port);
 end;
 
 //------------------------------------------------------------------------------

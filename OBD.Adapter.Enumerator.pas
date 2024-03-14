@@ -453,7 +453,7 @@ begin
 
   // Create an instance of the comparer
   Comparer := TSerialOBDAdapterEnumComparer.Create;
-  // Sort the ports ascending
+  // Sort the ports ascending by port number
   TArray.Sort<TSerialOBDAdapterEnum>(FSerialAdapters, Comparer);
 
   // If we make it here, we succeeded
@@ -499,7 +499,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.EnumerateBluetooth: Boolean;
 var
-  PairedDevices: TBluetoothDeviceList;
+  PairedDevices, DisoveredDevices: TBluetoothDeviceList;
   I: Integer;
 begin
   // Clear list

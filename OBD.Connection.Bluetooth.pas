@@ -256,15 +256,29 @@ uses System.StrUtils;
 procedure TBluetoothThread.Execute;
 var
   ReceivedData: TBytes;
+  DataPtr: Pointer;
 begin
   while not Terminated do
   begin
     if FBluetoothSocket.Connected then
     begin
+      // Get the received data from the Bluetooth socket
       ReceivedData := FBluetoothSocket.ReceiveData;
       if Length(ReceivedData) > 0 then
       begin
-        PostMessage(FWindowHandle, WM_BLUETOOTH_EVENT, WPARAM(Length(ReceivedData)), LPARAM(@ReceivedData[0]));
+        // Allocate memory for the data copy
+        GetMem(DataPtr, Length(ReceivedData));
+        try
+          // Ensure the data is copied into the newly allocated memory
+          Move(ReceivedData[0], DataPtr^, Length(ReceivedData));
+          // Post the message with the allocated memory pointer
+          // The main thread will be responsible for freeing this memory
+          PostMessage(FWindowHandle, WM_BLUETOOTH_EVENT, WPARAM(Length(ReceivedData)), LPARAM(DataPtr));
+        except
+          // In case of any exception, free the allocated memory to avoid leaks
+          FreeMem(DataPtr);
+          raise;
+        end;
       end;
     end;
     Sleep(10);
@@ -289,6 +303,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TBluetooth.ThreadWndProc(var msg: TMessage);
 var
+  DataPtr: PByte;
   DataSize: Integer;
 begin
   // Data received notification
@@ -296,20 +311,23 @@ begin
   begin
     // Get data length from message
     DataSize := Msg.WParam;
-
+    // Get the pointer to the data from LPARAM
+    DataPtr := PByte(Msg.LParam);
+    // Ensure we don't read beyond the input buffer's size
+    if DataSize > Length(FInputBuffer) then DataSize := Length(FInputBuffer);
     // Copy the received data from LPARAM to the temporary buffer
     if DataSize > 0 then
     begin
-      // Limit to max length of buffer
-      if DataSize > BT_In_Buffer_Size then DataSize := BT_In_Buffer_Size;
       // Move the data to the input buffer
-      Move(Pointer(Msg.LParam)^, FInputBuffer[0], DataSize);
-      // If read is successfull emit event that we have new data
+      Move(DataPtr^, FInputBuffer[0], DataSize);
+      // If read is successful, emit event that we have new data
       if Assigned(OnReceiveData) then OnReceiveData(Self, @FInputBuffer, DataSize);
     end;
+    // Important: Free the allocated memory
+    FreeMem(DataPtr);
   end else
-  // Let Windows handle other messages.
-  Msg.Result := DefWindowProc(FNotifyWnd, Msg.Msg, Msg.wParam, Msg.lParam);
+    // Let Windows handle other messages.
+    Msg.Result := DefWindowProc(FNotifyWnd, Msg.Msg, Msg.wParam, Msg.lParam);
 end;
 
 //------------------------------------------------------------------------------
@@ -358,10 +376,11 @@ function TBluetooth.Connect(Manager: TBluetoothManager; Address: AnsiString): Bo
 var
   PairedDevices: TBluetoothDeviceList;
   I: Integer;
+  S: string;
 begin
   Result := Connected;
   // Exit here when we're already connected
-  if Result then Exit;
+  if Connected then Exit;
   // Get paired devices
   PairedDevices := Manager.GetPairedDevices;
   // Try to connect to the bluetooth device
@@ -399,6 +418,8 @@ begin
   begin
     // Terminate thread
     FEventThread.Terminate;
+    // Wait for the thread to finish
+    FEventThread.WaitFor;
     // Close bluetooth socket
     FBluetoothSocket.Close;
     // Free thread
@@ -529,8 +550,8 @@ begin
   if Result then Exit;
   // Exit here if the connection type is incorrect
   if Params.ConnectionType <> ctBluetooth then Exit;
-  // Connect to the Wifi (TCP) Socket
-  FBluetooth.Connect(Params.Manager, AnsiString(Params.SerialNumber));
+  // Connect to the Bluetooth Device
+  Result := FBluetooth.Connect(Params.Manager, AnsiString(Params.Address));
 end;
 
 //------------------------------------------------------------------------------

@@ -191,11 +191,9 @@ function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
     Result := False;
     // Exit here if the line is empty
     if Line = '' then Exit;
-
     // Loop over all characters, and check if they are valid hex characters
     for I := 1 to Length(Line) do
     if not CharInSet(Line[I], ['0'..'9', 'A'..'F', 'a'..'f']) then Exit;
-
     // If we make it here, the string contains valid hex characters.
     Result := True;
   end;

@@ -950,8 +950,9 @@ begin
   // Initialize result
   Result := False;
 
-  // Only do this if we are connected over Serial (COM) Port.
-  if FConnection is TSerialOBDConnection then
+  // First send a Cariage Return character to "wake-up" the adapter
+  WriteCommandSync(ctOBDCommand, '', FInitializationTimeout);
+
   // Send a '?' character, if the ELM adapter responds with '?' we know we
   // are using the correct baudrate.
   S := WriteCommandSync(ctOBDCommand, ELM_UNSUPPORTED_COMMAND, FInitializationTimeout);
@@ -1099,6 +1100,7 @@ begin
 
   // Try to connect and return success status
   Result := FConnection.Connect(Params);
+
   // Exit here if we're not connected
   if not Result then
   begin

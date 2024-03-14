@@ -303,7 +303,7 @@ function FT_OpenEx(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Resul
 function FT_Close(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_Close';
 function FT_ResetDevice(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ResetDevice';
 
-(*function FT_GetNumDevices(pvArg1: Pointer; pvArg2: Pointer; dwFlags: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ListDevices';
+function FT_GetNumDevices(pvArg1: Pointer; pvArg2: Pointer; dwFlags: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ListDevices';
 function FT_ListDevices(pvArg1: DWORD; pvArg2: Pointer; dwFlags: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ListDevices';
 function FT_Open(Index: Integer; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_Open';
 function FT_OpenByLocation(pvArg1: DWORD; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_OpenEx';
@@ -329,7 +329,7 @@ function FT_CreateDeviceInfoList(NumDevs: Pointer): FT_Result; stdcall; external
 function FT_GetDeviceInfoList(pFT_Device_Info_List: Pointer; NumDevs: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfoList';
 function FT_GetDeviceInfoDetail(Index: DWORD; Flags, DevType, ID, LocID, SerialNumber, Description, DevHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfoDetail';
 function FT_GetDriverVersion(ftHandle: DWORD; DrVersion: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDriverVersion';
-function FT_GetLibraryVersion(LbVersion: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetLibraryVersion'; *)
+function FT_GetLibraryVersion(LbVersion: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetLibraryVersion';
 
 //------------------------------------------------------------------------------
 // THREAD EXECUTE
@@ -352,10 +352,10 @@ begin
       begin
         // Notify FTDI class there is a modem event
         if (EventStatus and FT_EVENT_MODEM_STATUS) <> 0 then
-          PostMessage(FWindowHandle, FT_EVENT_MODEM_STATUS, WaitResult, 0);
+          PostMessage(FWindowHandle, WM_FTDI_MODEM_STATUS, 0, 0);
         // Notify FTDI class there is data to be read
         if RxBytes > 0 then
-          PostMessage(FWindowHandle, FT_EVENT_RXCHAR, WaitResult, 0);
+          PostMessage(FWindowHandle, WM_FTDI_RX_CHAR, 0, 0);
       end;
     end else Break;
   end;
@@ -412,14 +412,35 @@ end;
 // APPLY FTDI SETTINGS
 //------------------------------------------------------------------------------
 function TFTDI.ApplyFTDISettings: Boolean;
+var
+  Status: FT_Result;
 begin
-  Result := True;
+  // Default result to false to indicate failure unless all settings are applied successfully
+  Result := False;
+
   // Exit here if we're not connected
   if not Connected then Exit;
+
   // Set the READ/WRITE timeouts
-  FT_SetTimeouts(FFTDIHandle, FReadTimeout, FWriteTimeout);
-  // Others
+  Status := FT_SetTimeouts(FFTDIHandle, FReadTimeout, FWriteTimeout);
+  if Status <> FT_OK then Exit;
+
+  // Set the baud rate
+  //Status := FT_SetBaudRate(FFTDIHandle, 115200); // Example baud rate of 9600
+  //if Status <> FT_OK then Exit;
+
+  // Set data characteristics - 8 data bits, 1 stop bit, no parity
+  Status := FT_SetDataCharacteristics(FFTDIHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
+  if Status <> FT_OK then Exit;
+
+  // Disable flow control
+  Status := FT_SetFlowControl(FFTDIHandle, FT_FLOW_NONE, 0, 0);
+  if Status <> FT_OK then Exit;
+
+  // If we make it until here, applying the settings succeeded
+  Result := True;
 end;
+
 
 //------------------------------------------------------------------------------
 // FTDI PORT THREAD PROC
@@ -432,7 +453,7 @@ var
   Status: FT_Result;
 begin
   // Modem status change notification
-  if (Msg.Msg = FT_EVENT_MODEM_STATUS) and Connected then
+  if (Msg.Msg = WM_FTDI_MODEM_STATUS) and Connected then
   begin
     Status := FT_GetModemStatus(FFTDIHandle, @ModemStatus);
     if (Status = FT_OK) then
@@ -456,7 +477,7 @@ begin
     end;
   end else
   // RX Data notification
-  if (Msg.Msg = FT_EVENT_RXCHAR) and Connected then
+  if (Msg.Msg = WM_FTDI_RX_CHAR) and Connected then
   begin
     // Check how many bytes are waiting to be read
     Status := FT_GetQueueStatus(FFTDIHandle, @RxBytes);
@@ -503,22 +524,20 @@ end;
 //------------------------------------------------------------------------------
 destructor TFTDI.Destroy;
 begin
-  // Disconnect if there is still an open connection
-  if Connected then Disconnect;
+  // Ensure connection is closed and resources are released
+  Disconnect;
   // Release the thread's Window HANDLE
   DeallocateHWnd(FNotifyWnd);
-  //
-  if FEventThread <> nil then
+  // Close the event handle (necessary for cleanup)
+  if FEventHandle <> 0 then
   begin
-    FEventThread.Terminate;
-    FEventThread.WaitFor;
-    FreeAndNil(FEventThread);
+    CloseHandle(FEventHandle);
+    FEventHandle := 0;
   end;
-  // Close the event handle (hidden window)
-  CloseHandle(FEventHandle);
   // Call inherited destructor
   inherited Destroy;
 end;
+
 
 //------------------------------------------------------------------------------
 // CONNECT
@@ -531,12 +550,11 @@ var
   var
     I, L: Integer;
   begin
-    L := Min(Length(SerialNumber), 49);
-    // Exit here if the serialnumber is empty
-    if L = 0 then Exit;
-    SerialNumberBuffer[1] := Chr(0);
+    // Initialize the buffer to zeros
+    FillChar(SerialNumberBuffer, SizeOf(SerialNumberBuffer), #0);
+    // Leave space for null terminator
+    L := Min(Length(SerialNumber), SizeOf(SerialNumberBuffer) - 2);
     for I := 1 to L do SerialNumberBuffer[I] := SerialNumber[I];
-    SerialNumberBuffer[L + 1] := Chr(0);
   end;
 
   function SetupEventNotification: Boolean;
@@ -553,21 +571,31 @@ var
   end;
 
 begin
-  Result := Connected;
+  // initialize result
+  Result := False;
   // Exit here when we're already connected
-  if Result then Exit;
-  // Fill the buffer
+  if Connected then Exit;
+  // Fill the serial number buffer with the provided serial number
   SetSerialNumberBuffer;
-  // Connect to the FTDI interface
-  Result := FT_OpenEx(@SerialNumberBuffer, FT_OPEN_BY_SERIAL_NUMBER, @FFTDIHandle) = FT_OK;
-  // If the connection succeeded, then create the event listening thread,
-  // setup the event notification and apply the FTDI settings
-  if Result then
+  // Attempt to open the FTDI device by its serial number
+  if FT_OpenEx(@SerialNumberBuffer, FT_OPEN_BY_SERIAL_NUMBER, @FFTDIHandle) = FT_OK then
   begin
-    SetupEventNotification;
-    FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle);
-    FEventThread.OnTerminate := EventThreadTerminate;
-    ApplyFTDISettings;
+    // Successfully opened the device, now set up event notification
+    if SetupEventNotification then
+    begin
+      // Successfully set up event notifications, now proceed to create the event listening thread
+      FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle);
+      FEventThread.OnTerminate := EventThreadTerminate;
+      // Apply FTDI device settings
+      ApplyFTDISettings;
+      // Connection and setup successfu
+      Result := True;
+    end
+    else
+    begin
+      // Failed to set up event notification, close the FTDI handle
+      FT_Close(FFTDIHandle);
+    end;
   end;
 end;
 
@@ -578,18 +606,22 @@ procedure TFTDI.Disconnect;
 begin
   if Connected then
   begin
-    if FT_Close(FFTDIHandle) = FT_OK then
+    // Signal the event to ensure the thread is not stuck waiting
+    SetEvent(FEventHandle);
+    // Ensure the thread is terminated
+    if Assigned(FEventThread) then
     begin
-      // Reset the handle
-      FFTDIHandle := INVALID_HANDLE_VALUE;
-      // Terminate and free the event listening thread
-      if FEventThread <> nil then
-      begin
-        FEventThread.Terminate;
-        FEventThread.WaitFor;
-        FreeAndNil(FEventThread);
-      end;
+      // Signal termination
+      FEventThread.Terminate;
+      // Wait for the thread to finish
+      FEventThread.WaitFor;
+      // Free the thread
+      FreeAndNil(FEventThread);
     end;
+    // Close the FTDI device handle
+    FT_Close(FFTDIHandle);
+    // Reset the handle
+    FFTDIHandle := INVALID_HANDLE_VALUE;
   end;
 end;
 
@@ -735,7 +767,7 @@ begin
   // Exit here if the connection type is incorrect
   if Params.ConnectionType <> ctFTDI then Exit;
   // Connect to the FTDI port
-  FFTDI.Connect(Params.SerialNumber);
+  Result := FFTDI.Connect(Params.SerialNumber);
 end;
 
 //------------------------------------------------------------------------------

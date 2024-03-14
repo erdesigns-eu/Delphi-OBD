@@ -262,6 +262,17 @@ const
   /// </summary>
   FT_LIST_ALL = $20000000;
 
+  /// <summary>
+  ///   Represents the number of bits per character in FTDI communication.
+  ///   This constant is set for 8 bits per character, which is standard for many serial communications.
+  /// </summary>
+  const FT_BITS_8 = 8;
+  /// <summary>
+  ///   Represents the number of stop bits used in FTDI communication.
+  ///   This constant is set for 1 stop bit, which is common for serial communications.
+  /// </summary>
+  const FT_STOP_BITS_1 = 0;
+
   /// <sumary>
   ///   Parity Selection: None
   /// </summary>
@@ -384,7 +395,7 @@ const
   /// <summary>
   ///   Bluetooth Service GUID (COM PORT)
   /// </summary>
-  BT_SERVICE_GUID = '00001101-0000-1000-8000-00805F9B34FB';
+  BT_SERVICE_GUID: TGUID = '{00001101-0000-1000-8000-00805F9B34FB}';
 
 
 implementation
