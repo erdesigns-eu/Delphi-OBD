@@ -415,14 +415,22 @@ type
     /// </summary>
     FFuelSystem2Status: TOBDServiceFuelSystemStatus;
     /// <summary>
-    ///   Engine Load
+    ///   Calculated Engine Load
     /// </summary>
-    FEngineLoad: Double;
+    FCalculatedEngineLoad: Double;
+    /// <summary>
+    ///   Engine coolant temperature
+    /// </summary>
+    FEngineCoolantTemperature: Integer;
 
     /// <summary>
     ///   Monitor status changed event
     /// </summary>
     FOnMonitorStatus: TNotifyEvent;
+    /// <summary>
+    ///   Live data changed event
+    /// </summary>
+    FOnLiveData: TOBDLiveDataEvent;
   protected
     /// <summary>
     ///   Parse response with supported PID's
@@ -492,14 +500,22 @@ type
     /// </summary>
     property FuelSystem2Status: TOBDServiceFuelSystemStatus read FFuelSystem2Status;
     /// <summary>
-    ///   Engine Load
+    ///   Calculated Engine Load
     /// </summary>
-    property EngineLoad: Double read FEngineLoad;
+    property CalculatedEngineLoad: Double read FCalculatedEngineLoad;
+    /// <summary>
+    ///   Engine coolant temperature
+    /// </summary>
+    property EngineCoolantTemperature: Integer read FEngineCoolantTemperature;
 
     /// <summary>
     ///   Monitor status changed event
     /// </summary>
     property OnMonitorStatus: TNotifyEvent read FOnMonitorStatus write FOnMonitorStatus;
+    /// <summary>
+    ///   Live data changed event
+    /// </summary>
+    property OnLiveData: TOBDLiveDataEvent read FOnLiveData write FOnLiveData;
   end;
 
 implementation
@@ -711,12 +727,14 @@ begin
   // Reset fuel systems status
   FFuelSystem1Status := fsUnknown;
   FFuelSystem2Status := fsUnknown;
-  // Reset engine load
-  FEngineLoad := 0;
+  // Reset calculated engine load
+  FCalculatedEngineLoad := 0;
+  // Reset engine coolant temperature
+  FEngineCoolantTemperature := 0;
 end;
 
 //------------------------------------------------------------------------------
-// SERVICE 01: PARSE SERVICE RESPONSE
+// SERVICE 01: PARSE RESPONSE
 //------------------------------------------------------------------------------
 procedure TOBDService01.ParseResponse(Response: TBytes);
 var
@@ -769,13 +787,23 @@ begin
   begin
     ResponseDecoder := TOBDFuelSystemStatusDecoder.Create;
     (ResponseDecoder as TOBDFuelSystemStatusDecoder).Parse(Data, FFuelSystem1Status, FFuelSystem2Status);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_SYSTEM_STATUS);
   end;
 
   // Parse engine load (PID 04)
   if PID = OBD_SERVICE_01_CALCULATED_ENGINE_LOAD then
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
-    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FEngineLoad);
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCalculatedEngineLoad);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CALCULATED_ENGINE_LOAD);
+  end;
+
+  // Parse engine coolant temperature (PID 05)
+  if PID = OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE then
+  begin
+    ResponseDecoder := TOBDTemperatureDecoder.Create;
+    (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FEngineCoolantTemperature);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE);
   end;
 end;
 

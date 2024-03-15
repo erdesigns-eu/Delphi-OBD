@@ -16,7 +16,7 @@ uses
   System.SysUtils, System.Classes, System.Generics.Defaults, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
-// OTHER
+// COMPARERS
 //------------------------------------------------------------------------------
 type
   /// <summary>
@@ -27,6 +27,18 @@ type
     function Compare(const Left, Right: Byte): Integer;
   end;
 
+//------------------------------------------------------------------------------
+// OTHER
+//------------------------------------------------------------------------------
+  /// <summary>
+  ///   OBD Service 01 Parameter 03 (Fuel system status)
+  /// </summary>
+  TOBDServiceFuelSystemStatus = (fsUnknown, fssMotorOff, fssOpenLoopInsufficientTemp, fssClosedLoop, fssOpenLoopEngineLoad, fssOpenLoopSystemFailure, fssClosedLoopFault);
+
+//------------------------------------------------------------------------------
+// EVENTS
+//------------------------------------------------------------------------------
+type
   /// <summary>
   ///   Service Error Response event
   /// </summary>
@@ -42,9 +54,18 @@ type
   TOBDServiceErrorResponseEvent = procedure(Sender: TObject; Error: Byte; AdditionalData: TBytes) of object;
 
   /// <summary>
-  ///   OBD Service 01 Parameter 03 (Fuel system status)
+  ///   Service Live Data event
   /// </summary>
-  TOBDServiceFuelSystemStatus = (fsUnknown, fssMotorOff, fssOpenLoopInsufficientTemp, fssClosedLoop, fssOpenLoopEngineLoad, fssOpenLoopSystemFailure, fssClosedLoopFault);
+  /// <param name="Sender">
+  ///   Object calling this event
+  /// </param>
+  /// <param name="SID">
+  ///   Live data Service ID
+  /// </param>
+  /// <param name="PID">
+  ///   Live data Parameter ID
+  /// </param>
+  TOBDLiveDataEvent = procedure(Sender: TObject; SID: Byte; PID: Byte) of object;
 
 implementation
 

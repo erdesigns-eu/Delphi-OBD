@@ -101,7 +101,18 @@ type
     /// <summary>
     ///   Parse the value to a scale of 0-100%
     /// </summary>
-    function Parse(Data: TBytes; var Percent: Double): Boolean;  //Result := (Response[0] / 255) * 100;
+    function Parse(Data: TBytes; var Percent: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Temperature Decoder (Degree Celcius)
+  /// </summary>
+  TOBDTemperatureDecoder = class(TOBDResponseDecoder)
+  public
+    /// <summary>
+    ///   Parse the value to a degree celcius
+    /// </summary>
+    function Parse(Data: TBytes; var Temperature: Integer): Boolean;
   end;
 
 implementation
@@ -252,6 +263,23 @@ begin
   if Length(Data) < 1 then Exit;
   // Get the percentage
   Percent := (Data[0] / 255) * 100;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// TEMPERATURE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDTemperatureDecoder.Parse(Data: TBytes; var Temperature: Integer): Boolean; //Result :=
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 1 byte
+  if Length(Data) < 1 then Exit;
+  // Get the temperature in degrees
+  Temperature := Data[0] - 40;
 
   // If we make it until here, parsing succeeded
   Result := True;
