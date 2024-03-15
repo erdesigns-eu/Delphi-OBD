@@ -101,7 +101,7 @@ const
   /// <summary>
   ///   Freeze DTC
   /// </summary>
-  OBD_SERVICE_01_FREEZE_DTC = $02;
+  OBD_SERVICE_02_FREEZE_DTC = $02;
   /// <summary>
   ///   Fuel system status
   /// </summary>

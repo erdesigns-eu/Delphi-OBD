@@ -1,0 +1,64 @@
+﻿//------------------------------------------------------------------------------
+// UNIT           : OBD.Service.Types.pas
+// CONTENTS       : OBD Service Types
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 15/03/2024
+//------------------------------------------------------------------------------
+unit OBD.Service.Types;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, System.Generics.Defaults, System.Generics.Collections;
+
+//------------------------------------------------------------------------------
+// OTHER
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   Comparer for supported PID's
+  /// </summary>
+  TSupportedPIDComparer = class(TInterfacedObject, IComparer<Byte>)
+  public
+    function Compare(const Left, Right: Byte): Integer;
+  end;
+
+  /// <summary>
+  ///   Service Error Response event
+  /// </summary>
+  /// <param name="Sender">
+  ///   Object calling this event
+  /// </param>
+  /// <param name="Error">
+  ///   Error (NSC) Byte.
+  /// </param>
+  /// <param name="AdditionalData">
+  ///   Additional data bytes (optional) - Manufacturer specific
+  /// </param>
+  TOBDServiceErrorResponseEvent = procedure(Sender: TObject; Error: Byte; AdditionalData: TBytes) of object;
+
+  /// <summary>
+  ///   OBD Service 01 Parameter 03 (Fuel system status)
+  /// </summary>
+  TOBDServiceFuelSystemStatus = (fsUnknown, fssMotorOff, fssOpenLoopInsufficientTemp, fssClosedLoop, fssOpenLoopEngineLoad, fssOpenLoopSystemFailure, fssClosedLoopFault);
+
+implementation
+
+//------------------------------------------------------------------------------
+// COMPARE SUPPORTED PID
+//------------------------------------------------------------------------------
+function TSupportedPIDComparer.Compare(const Left, Right: Byte): Integer;
+begin
+  if Left < Right then
+    Result := -1
+  else if Left > Right then
+    Result := 1
+  else
+    Result := 0;
+end;
+
+end.

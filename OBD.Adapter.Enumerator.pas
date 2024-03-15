@@ -188,6 +188,14 @@ type
     procedure USBWndProc(var Msg: TMessage);
   protected
     /// <summary>
+    ///   Is bluetooth available on the system?
+    /// </summary>
+    function BluetoothAvailable: Boolean;
+    /// <summary>
+    ///   Is bluetooth enabled on the system?
+    /// </summary>
+    function BluetoothEnabled: Boolean;
+    /// <summary>
     ///   Enumerate serial (COM) ports
     /// </summary>
     function EnumerateSerial: Boolean; virtual;
@@ -380,6 +388,33 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// IS BLUETOOTH AVAILABLE
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.BluetoothAvailable: Boolean;
+begin
+  try
+    // Try to get the current adapter
+    Result := Assigned(FBluetoothManager.CurrentAdapter);
+  except
+    // If we get a exception, return false
+    Result := False;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// IS BLUETOOTH ENABLED
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.BluetoothEnabled: Boolean;
+begin
+  // initialize result
+  Result := False;
+  // Exit here if there is no bluetooth available
+  if not BluetoothAvailable then Exit;
+  // Check if adapter is on
+  Result := FBluetoothManager.CurrentAdapter.State = TBluetoothAdapterState.On;
+end;
+
+//------------------------------------------------------------------------------
 // ENUMERATE SERIAL (COM) PORTS
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.EnumerateSerial: Boolean;
@@ -499,11 +534,14 @@ end;
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.EnumerateBluetooth: Boolean;
 var
-  PairedDevices, DisoveredDevices: TBluetoothDeviceList;
+  PairedDevices: TBluetoothDeviceList;
   I: Integer;
 begin
+  // initialize result
+  Result := False;
   // Clear list
   SetLength(FBluetoothAdapters, 0);
+  if BluetoothAvailable and BluetoothEnabled then
   try
     // Get the list of paired devices
     PairedDevices := BluetoothManager.LastPairedDevices;
@@ -528,7 +566,6 @@ constructor TOBDAdapterEnumerator.Create;
 var
   DBI: DEV_BROADCAST_DEVICEINTERFACE;
   Size: Integer;
-  R: Pointer;
 begin
   // Call inherited constructor
   inherited Create;
@@ -544,7 +581,7 @@ begin
   DBI.dbcc_reserved := 0;
   DBI.dbcc_classguid  := GUID_DEVINTERFACE_USB_DEVICE;
   DBI.dbcc_name := 0;
-  R := RegisterDeviceNotification(FUSBHandle, @DBI, DEVICE_NOTIFY_WINDOW_HANDLE);
+  RegisterDeviceNotification(FUSBHandle, @DBI, DEVICE_NOTIFY_WINDOW_HANDLE);
 end;
 
 //------------------------------------------------------------------------------

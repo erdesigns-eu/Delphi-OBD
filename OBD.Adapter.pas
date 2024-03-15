@@ -248,16 +248,28 @@ type
     ///   Serial Number
     /// </summary>
     FSerialNumber: string;
+    /// <summary>
+    ///   COM Baudrate
+    /// </summary>
+    FBaudRate: TBaudRate;
 
     /// <summary>
     ///   Set Serial Number
     /// </summary>
     procedure SetSerialNumber(Value: string);
+    /// <summary>
+    ///   Set COM Baudrate
+    /// </summary>
+    procedure SetBaudRate(Value: TBaudRate);
   public
     /// <summary>
     ///   Serial Number
     /// </summary>
     property SerialNumber: string read FSerialNumber write SetSerialNumber;
+    /// <summary>
+    ///   COM Baudrate
+    /// </summary>
+    property BaudRate: TBaudRate read FBaudRate write SetBaudRate;
   end;
 
   /// <summary>
@@ -598,6 +610,17 @@ begin
   if Adapter.Connected then Exit;
   // Set Serial Number
   if FSerialNumber <> Value then FSerialNumber := Value;
+end;
+
+//------------------------------------------------------------------------------
+// SET COM BAUDRATE
+//------------------------------------------------------------------------------
+procedure TOBDAdapterFTDI.SetBaudRate(Value: TBaudRate);
+begin
+  // Exit here if we're connected
+  if Adapter.Connected then Exit;
+  // Set COM Port
+  if FBaudRate <> Value then FBaudRate := Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1068,7 +1091,7 @@ begin
       FConnection := TSerialOBDConnection.Create;
       // Setup params
       Params.COMPort := ShortString(Serial.COMPort);
-      Params.BaudRate := Serial.BaudRate;
+      Params.COMBaudRate := Serial.BaudRate;
     end;
 
     ctBluetooth:
@@ -1095,6 +1118,7 @@ begin
       FConnection := TFTDIOBDConnection.Create;
       // Setup params
       Params.SerialNumber := ShortString(FTDI.SerialNumber);
+      Params.FTDIBaudRate := FTDI.BaudRate;
     end;
   end;
 

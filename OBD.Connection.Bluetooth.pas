@@ -376,9 +376,9 @@ function TBluetooth.Connect(Manager: TBluetoothManager; Address: AnsiString): Bo
 var
   PairedDevices: TBluetoothDeviceList;
   I: Integer;
-  S: string;
 begin
-  Result := Connected;
+  // initialize result
+  Result := False;
   // Exit here when we're already connected
   if Connected then Exit;
   // Get paired devices
@@ -393,17 +393,24 @@ begin
       FBluetoothSocket := PairedDevices[I].CreateClientSocket(TBluetoothUUID.Create(BT_SERVICE_GUID), True);
       if Assigned(FBluetoothSocket) then
       begin
-        // Connect the socket
-        FBluetoothSocket.Connect;
-        // Create the thread for listening to incoming data
-        FEventThread := TBluetoothThread.Create(True, FBluetoothSocket, FNotifyWnd);
-        FEventThread.OnTerminate := EventThreadTerminate;
-        FEventThread.Start;
-        // Set connected flag
-        FConnected := True;
-        Result := True;
-        // Break the loop because we find and connected the device
-        Break;
+        // Try to connect, if we fail then exit.
+        try
+          // Connect
+          FBluetoothSocket.Connect;
+          // Create the thread for listening to incoming data
+          FEventThread := TBluetoothThread.Create(True, FBluetoothSocket, FNotifyWnd);
+          FEventThread.OnTerminate := EventThreadTerminate;
+          FEventThread.Start;
+          // Set connected flag
+          FConnected := True;
+          Result := True;
+          // Break the loop because we find and connected the device
+          Break;
+        except
+          // If we encounter an error, like when the address is incorrect
+          // or the device with the address can not be found, exit here.
+          Break;
+        end;
       end;
     end;
   end;

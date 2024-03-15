@@ -38,10 +38,6 @@ type
     /// </summary>
     FBaudRate: TBaudRate;
     /// <summary>
-    ///   Baud rate (actual numeric value)
-    /// </summary>
-    FBaudRateValue: DWORD;
-    /// <summary>
     ///   Data bits size (dbXXX)
     /// </summary>
     FDataBits: TDataBits;
@@ -162,14 +158,6 @@ type
     ///   Be aware to not exceed the maximum baudrate supported by the equipment used.
     /// </param>
     procedure SetBaudRate(Value: TBaudRate);
-    /// <summary>
-    ///   Selects the baud rate (actual baud rate value)
-    /// </summary>
-    /// <param name="Value">
-    ///   Freely defines a baudrate. Be aware to not exceed the maximum baudrate
-    ///   supported by the equipment used.
-    /// </param>
-    procedure SetBaudRateValue(Value: DWORD);
     /// <summary>
     ///   Selects the number of data bits
     /// </summary>
@@ -491,10 +479,6 @@ type
     /// </summary>
     property BaudRate: TBaudRate read FBaudRate write SetBaudRate default br9600;
     /// <summary>
-    ///   Speed (Actual Baud Rate value) if not an enumeration value is used
-    /// </summary>
-    property BaudRateValue: DWORD read FBaudRateValue write SetBaudRateValue default 9600;
-    /// <summary>
     ///   Data bits to use (5..8, for the 8250 the use of 5 data bits with 2 stop
     ///   bits is an invalid combination, as is 6, 7, or 8 data bits with 1.5 stop
     ///   bits)
@@ -721,21 +705,6 @@ procedure TSerialPort.SetBaudRate(Value: TBaudRate);
 begin
   // Set new COM PORT Baud Rate
   FBaudRate := Value;
-  // Set the Baud Rate Value
-  if FBaudRate <> brCustom then FBaudRateValue := BaudRateOf(FBaudRate);
-  // Apply changes
-  if Connected then ApplyCOMSettings;
-end;
-
-//------------------------------------------------------------------------------
-// SET THE COM PORT BAUD RATE VALUE
-//------------------------------------------------------------------------------
-procedure TSerialPort.SetBaudRateValue(Value: Cardinal);
-begin
-  // Set the COM PORT Baud Rate to custom
-  FBaudRate := brCustom;
-  // Set the COM PORT Baud Rate Value
-  FBaudRateValue := Value;
   // Apply changes
   if Connected then ApplyCOMSettings;
 end;
@@ -891,7 +860,7 @@ begin
   // DCB structure size
   DCB.DCBLength := sizeof(DCB);
   // Baud rate
-  DCB.BaudRate := FBaudRateValue;
+  DCB.BaudRate := BaudRateOf(FBaudRate);
   // Set fBinary: Win32 does not support non binary mode transfers (also disable EOF check)
   DCB.Flags := DCB_Binary;
   // Enables the DTR line when the device is opened and leaves it on
@@ -1042,7 +1011,6 @@ begin
   FPort     := 'COM1'; (* \\.\COM1 *)
   // Set the COMPORT Baud Rate
   FBaudRate      := br9600;
-  FBaudRateValue := BaudRateOf(br9600);
   // Set the COMPORT Data Bits to 8
   FDataBits  := db8BITS;
   // Set the COMPORT Stop Bits to 1
@@ -1507,7 +1475,7 @@ end;
 //------------------------------------------------------------------------------
 function TSerialPort.BaudRateOf(Rate: TBaudRate): Cardinal;
 begin
-  if Rate = brCustom then Result := 0 else Result := Win32BaudRates[Rate];
+  Result := Win32BaudRates[Rate];
 end;
 
 //------------------------------------------------------------------------------
@@ -1516,8 +1484,10 @@ end;
 function TSerialPort.DelayForRX(DataSize: Cardinal): Cardinal;
 var
   BitsForByte: Single;
+  BaudRateValue: Integer;
 begin
   BitsForByte := 10;
+  BaudRateValue := BaudRateOf(FBaudRate);
   case FStopBits of
     sb1HALFBITS : BitsForByte := BitsForByte + 1.5;
     sb2BITS     : BitsForByte := BitsForByte + 2;
@@ -1528,7 +1498,7 @@ begin
     db6BITS: BitsForByte := BitsForByte - 2;
     db7BITS: BitsForByte := BitsForByte - 1;
   end;
-  Result := Round(DataSize / (FBaudRateValue / BitsForByte) * 1000);
+  Result := Round(DataSize / (BaudRateValue / BitsForByte) * 1000);
 end;
 
 //------------------------------------------------------------------------------
@@ -1603,7 +1573,7 @@ begin
   // Set the port
   FSerialPort.Port := String(Params.COMPort);
   // Set the baudrate
-  FSerialPort.BaudRate := Params.BaudRate;
+  FSerialPort.BaudRate := Params.COMBaudRate;
   // Connect to the serial port
   Result := FSerialPort.Connect;
 end;

@@ -79,9 +79,9 @@ type
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Baud Rates (custom or 9600...1.2m bauds)
+  ///   Baud Rates (9600...1.2m bauds)
   /// </summary>
-  TBaudRate = (brCustom, br9600, br14400, br19200, br38400, br56000, br57600, br115200, br230400, br460800, br500000, br921600, br1000000, br2000000, br8000000, br10000000, br12000000);
+  TBaudRate = (br9600, br14400, br19200, br38400, br56000, br57600, br115200, br230400, br460800, br500000, br921600, br1000000, br2000000, br8000000, br10000000, br12000000);
   /// <summary>
   ///   Data bits (5, 6, 7, 8)
   /// </summary>

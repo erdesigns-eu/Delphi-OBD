@@ -79,6 +79,10 @@ type
     /// </summary>
     FWriteTimeout: DWORD;
     /// <summary>
+    ///   COM Port speed (brXXX)
+    /// </summary>
+    FBaudRate: TBaudRate;
+    /// <summary>
     ///   Event to emit on data reception (asynchronous)
     /// </summary>
     FOnReceiveData: TDataReceivedEvent;
@@ -102,6 +106,14 @@ type
     ///   Set Write Timeout
     /// </summary>
     procedure SetWriteTimeout(Value: DWORD);
+    /// <summary>
+    ///   Selects the baud rate
+    /// </summary>
+    /// <param name="Baudrate">
+    ///   Changes the baudrate to one of the fixed baudrates of this enum.
+    ///   Be aware to not exceed the maximum baudrate supported by the equipment used.
+    /// </param>
+    procedure SetBaudRate(Value: TBaudRate);
   protected
     /// <summary>
     ///    Returns true if FTDI port has been opened
@@ -135,6 +147,18 @@ type
     ///   Close existing connection and free internal ressources
     /// </summary>
     destructor Destroy; override;
+
+    /// <summary>
+    ///   Delivers the Windows API baudrate constant value for a given TBaudrate
+    ///   enumeration value.
+    /// </summary>
+    /// <param name="bRate">
+    ///   Enumeration value for which to return the Windows API constant value
+    /// </param>
+    /// <returns>
+    ///   Windows API constant value or 0 if bRate = brCustom
+    /// </returns>
+    function BaudRateOf(Rate: TBaudRate): DWORD;
 
     /// <summary>
     ///   Opens the FTDI port. Returns false if something goes wrong
@@ -199,6 +223,11 @@ type
     ///   Write Time-Out
     /// </summary>
     property WriteTimeout: DWORD read FWriteTimeout write SetWriteTimeout;
+
+    /// <summary>
+    //    Speed (Baud Rate) in form of an enumberation value
+    /// </summary>
+    property BaudRate: TBaudRate read FBaudRate write SetBaudRate default br38400;
     /// <summary>
     ///   Event to emit when there is data available (input buffer has data)
     ///   (called only if PacketSize <= 0)
@@ -290,7 +319,7 @@ implementation
 uses System.Math, System.StrUtils;
 
 //------------------------------------------------------------------------------
-// EXTERNAL - FTD2XX.DLL: Classic functions
+// EXTERNAL - FTD2XX.DLL
 //------------------------------------------------------------------------------
 function FT_GetStatus(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetStatus';
 function FT_SetTimeouts(ftHandle: DWORD; ReadTimeout, WriteTimeout: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetTimeouts';
@@ -302,34 +331,9 @@ function FT_SetEventNotification(ftHandle: DWORD; EventMask: DWORD; pvArgs: DWOR
 function FT_OpenEx(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_OpenEx';
 function FT_Close(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_Close';
 function FT_ResetDevice(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ResetDevice';
-
-function FT_GetNumDevices(pvArg1: Pointer; pvArg2: Pointer; dwFlags: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ListDevices';
-function FT_ListDevices(pvArg1: DWORD; pvArg2: Pointer; dwFlags: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ListDevices';
-function FT_Open(Index: Integer; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_Open';
-function FT_OpenByLocation(pvArg1: DWORD; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_OpenEx';
 function FT_SetBaudRate(ftHandle: DWORD; BaudRate: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetBaudRate';
-function FT_SetDivisor(ftHandle: DWORD; Divisor: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetDivisor';
 function FT_SetDataCharacteristics(ftHandle: DWORD; WordLength, StopBits, Parity: Byte): FT_Result; stdcall; external FTDI_DLL name 'FT_SetDataCharacteristics';
 function FT_SetFlowControl(ftHandle: DWORD; FlowControl: Word; XonChar, XoffChar: Byte): FT_Result; stdcall; external FTDI_DLL name 'FT_SetFlowControl';
-function FT_SetDtr(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetDtr';
-function FT_ClrDtr(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ClrDtr';
-function FT_SetRts(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetRts';
-function FT_ClrRts(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ClrRts';
-function FT_SetChars(ftHandle: DWORD; EventChar, EventCharEnabled, ErrorChar, ErrorCharEnabled: Byte): FT_Result; stdcall; external FTDI_DLL name 'FT_SetChars';
-function FT_Purge(ftHandle: DWORD; Mask: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_Purge';
-function FT_SetBreakOn(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetBreakOn';
-function FT_SetBreakOff(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetBreakOff';
-function FT_GetDeviceInfo(ftHandle: DWORD; DevType, ID, SerNum, Desc, pvDummy: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfo';
-function FT_SetResetPipeRetryCount(ftHandle: DWORD; RetryCount: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetResetPipeRetryCount';
-function FT_StopInTask(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_StopInTask';
-function FT_RestartInTask(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_RestartInTask';
-function FT_ResetPort(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ResetPort';
-function FT_CyclePort(ftHandle: DWORD): FT_Result; stdcall; external 'FTD2XX.DLL' name 'FT_CyclePort';
-function FT_CreateDeviceInfoList(NumDevs: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_CreateDeviceInfoList';
-function FT_GetDeviceInfoList(pFT_Device_Info_List: Pointer; NumDevs: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfoList';
-function FT_GetDeviceInfoDetail(Index: DWORD; Flags, DevType, ID, LocID, SerialNumber, Description, DevHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfoDetail';
-function FT_GetDriverVersion(ftHandle: DWORD; DrVersion: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDriverVersion';
-function FT_GetLibraryVersion(LbVersion: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetLibraryVersion';
 
 //------------------------------------------------------------------------------
 // THREAD EXECUTE
@@ -401,6 +405,17 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET THE FTDI (COM) BAUD RATE
+//------------------------------------------------------------------------------
+procedure TFTDI.SetBaudRate(Value: TBaudRate);
+begin
+  // Set new COM PORT Baud Rate
+  FBaudRate := Value;
+  // Apply changes
+  if Connected then ApplyFTDISettings;
+end;
+
+//------------------------------------------------------------------------------
 // GET CONNECTED STATUS
 //------------------------------------------------------------------------------
 function TFTDI.Connected: Boolean;
@@ -426,8 +441,8 @@ begin
   if Status <> FT_OK then Exit;
 
   // Set the baud rate
-  //Status := FT_SetBaudRate(FFTDIHandle, 115200); // Example baud rate of 9600
-  //if Status <> FT_OK then Exit;
+  Status := FT_SetBaudRate(FFTDIHandle, BaudRateOf(BaudRate));
+  if Status <> FT_OK then Exit;
 
   // Set data characteristics - 8 data bits, 1 stop bit, no parity
   Status := FT_SetDataCharacteristics(FFTDIHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
@@ -517,6 +532,8 @@ begin
   FNotifyWnd := AllocateHWnd(ThreadWndProc);
   // Create the event handle (create a hidden window)
   FEventHandle := CreateEvent(nil, False, False, nil);
+  // Set default baudrate
+  FBaudrate := br38400;
 end;
 
 //------------------------------------------------------------------------------
@@ -538,6 +555,13 @@ begin
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// GET BAUDRATE VALUE FROM BAUDRATE TYPE
+//------------------------------------------------------------------------------
+function TFTDI.BaudRateOf(Rate: TBaudRate): Cardinal;
+begin
+  Result := Win32BaudRates[Rate];
+end;
 
 //------------------------------------------------------------------------------
 // CONNECT
@@ -767,6 +791,7 @@ begin
   // Exit here if the connection type is incorrect
   if Params.ConnectionType <> ctFTDI then Exit;
   // Connect to the FTDI port
+  FFTDI.BaudRate := Params.FTDIBaudRate;
   Result := FFTDI.Connect(Params.SerialNumber);
 end;
 
@@ -791,7 +816,7 @@ var
   S: string;
 begin
   S := IfThen(Pos('AT', ATCommand) = 1, ATCommand, Format(IfThen(Pos(' ', ATCommand) > 0, 'AT %s', 'AT%s'), [ATCommand]));
-  Result := FFTDI.Sendstring(S);
+  Result := FFTDI.Sendstring(AnsiString(S));
 end;
 
 //------------------------------------------------------------------------------
@@ -802,7 +827,7 @@ var
   S: string;
 begin
   S := IfThen(Pos('ST', STCommand) = 1, STCommand, Format(IfThen(Pos(' ', STCommand) > 0, 'ST %s', 'ST%s'), [STCommand]));
-  Result := FFTDI.Sendstring(S);
+  Result := FFTDI.Sendstring(AnsiString(S));
 end;
 
 //------------------------------------------------------------------------------
@@ -810,7 +835,7 @@ end;
 //------------------------------------------------------------------------------
 function TFTDIOBDConnection.WriteOBDCommand(const OBDCommand: string): Boolean;
 begin
-  Result := FFTDI.Sendstring(OBDCommand);
+  Result := FFTDI.Sendstring(AnsiString(OBDCommand));
 end;
 
 end.

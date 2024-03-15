@@ -32,6 +32,10 @@ const
 //------------------------------------------------------------------------------
 const
   /// <summary>
+  ///   Unknown error (If none of the below)
+  /// </summary>
+  OBD_UNKNOWN_ERROR = $0;
+  /// <summary>
   ///   General reject
   /// </summary>
   OBD_GENERAL_REJECT = $10;
