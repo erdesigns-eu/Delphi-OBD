@@ -34,6 +34,14 @@ type
   ///   OBD Service 01 Parameter 03 (Fuel system status)
   /// </summary>
   TOBDServiceFuelSystemStatus = (fsUnknown, fssMotorOff, fssOpenLoopInsufficientTemp, fssClosedLoop, fssOpenLoopEngineLoad, fssOpenLoopSystemFailure, fssClosedLoopFault);
+  /// <summary>
+  ///   OBD Service 01 Parameter 12 (Commanded secondary air status)
+  /// </summary>
+  TOBDServiceCommandedSecondaryAirStatus = (sasUnknown, sasUpstream, sasDownstream, sasAtmosphereOff, sasDiagnostics);
+  /// <summary>
+  ///   OBD Service 01 Parameter 1E (Auxiliary input status)
+  /// </summary>
+  TOBDServiceAuxilaryInputStatus = (aisUnknown, aisPowerTakeOff, aisActive);
 
 //------------------------------------------------------------------------------
 // EVENTS

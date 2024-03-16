@@ -171,7 +171,7 @@ const
   /// </summary>
   OBD_SERVICE_01_OXYGEN_SENSORS_PRESENT_1 = $13;
   /// <summary>
-  ///   Bank 1, Sensor 1: Oxygen sensor voltage, Short term fuel trim
+  ///   Sensor 1: Oxygen sensor voltage, Short term fuel trim
   /// </summary>
   OBD_SERVICE_01_O2_SENSOR1_BANK1 = $14;
   /// <summary>
