@@ -6,7 +6,7 @@
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 15/03/2024
+// RELEASE DATE   : 16/03/2024
 //------------------------------------------------------------------------------
 unit OBD.Service01;
 
@@ -885,6 +885,22 @@ type
     ///   Absolute throttle position C (Percentage)
     /// </summary>
     FAbsoluteThrottlePositionC: Double;
+    /// <summary>
+    ///   Accelerator pedal position D (Percentage)
+    /// </summary>
+    FAcceleratorPedalPositionD: Double;
+    /// <summary>
+    ///   Accelerator pedal position E (Percentage)
+    /// </summary>
+    FAcceleratorPedalPositionE: Double;
+    /// <summary>
+    ///   Accelerator pedal position F (Percentage)
+    /// </summary>
+    FAcceleratorPedalPositionF: Double;
+    /// <summary>
+    ///   Commanded throttle actuator (Percentage)
+    /// </summary>
+    FCommandedThrottleActuator: Double;
 
     /// <summary>
     ///   Live data changed event
@@ -1214,6 +1230,22 @@ type
     ///   Ambient air temperature (Degree Celcius)
     /// </summary>
     property AmbientAirTemperature: Integer read FAmbientAirTemperature;
+    /// <summary>
+    ///   Accelerator pedal position D (Percentage)
+    /// </summary>
+    property AcceleratorPedalPositionD: Double read FAcceleratorPedalPositionD;
+    /// <summary>
+    ///   Accelerator pedal position E (Percentage)
+    /// </summary>
+    property AcceleratorPedalPositionE: Double read FAcceleratorPedalPositionE;
+    /// <summary>
+    ///   Accelerator pedal position F (Percentage)
+    /// </summary>
+    property AcceleratorPedalPositionF: Double read FAcceleratorPedalPositionF;
+    /// <summary>
+    ///   Commanded throttle actuator (Percentage)
+    /// </summary>
+    property CommandedThrottleActuator: Double read FCommandedThrottleActuator;
 
     /// <summary>
     ///   Live data changed event
@@ -1656,6 +1688,14 @@ begin
   FAbsoluteThrottlePositionB := 0;
   // Reset absolute throttle position C
   FAbsoluteThrottlePositionC := 0;
+  // Reset accelerator pedal position D
+  FAcceleratorPedalPositionD := 0;
+  // Reset accelerator pedal position E
+  FAcceleratorPedalPositionE := 0;
+  // Reset accelerator pedal position F
+  FAcceleratorPedalPositionF := 0;
+  // Reset commanded throttle actuator
+  FCommandedThrottleActuator := 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -2343,6 +2383,42 @@ begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAbsoluteThrottlePositionC);
     if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_THROTTLE_POSITION_C);
+    Exit;
+  end;
+
+  // Parse Accelerator pedal position D (PID 49)
+  if ParameterID = OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_D then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionD);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_D);
+    Exit;
+  end;
+
+  // Parse Accelerator pedal position E (PID 4A)
+  if ParameterID = OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_E then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionE);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_E);
+    Exit;
+  end;
+
+  // Parse Accelerator pedal position F (PID 4B)
+  if ParameterID = OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_F then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionF);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_F);
+    Exit;
+  end;
+
+  // Parse Commanded throttle actuator (PID 4C)
+  if ParameterID = OBD_SERVICE_01_COMMANDED_THROTTLE_ACTUATOR then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCommandedThrottleActuator);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_THROTTLE_ACTUATOR);
     Exit;
   end;
 end;
