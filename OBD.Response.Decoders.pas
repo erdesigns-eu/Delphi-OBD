@@ -257,6 +257,66 @@ type
     function Parse(Data: TBytes; var Distance: Integer): Boolean;
   end;
 
+  /// <summary>
+  ///   OBD Evap. System Vapor Pressure Decoder
+  /// </summary>
+  TOBDServiceEvapSystemVaporPressureDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Evap. System Vapor Pressure (Pa)
+    /// </summary>
+    function Parse(Data: TBytes; var Pressure: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Oxygen Sensor reading Decoder
+  /// </summary>
+  TOBDServiceOxygenSensorReadingRCDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse the oxygen sensor reading (Air-Fuel Equivalence Ratio and Current)
+    /// </summary>
+    function Parse(Data: TBytes; var Ratio: Double; var Current: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Catalyst temperature Decoder
+  /// </summary>
+  TOBDServiceCatalystTemperatureDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse the Catalyst temperature (Degree Celcius)
+    /// </summary>
+    function Parse(Data: TBytes; var Temperature: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Control Module voltage Decoder
+  /// </summary>
+  TOBDServiceControlModuleVoltageDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Control Module voltage
+    /// </summary>
+    function Parse(Data: TBytes; var Voltage: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Absolute Load value Decoder
+  /// </summary>
+  TOBDServiceAbsoluteLoadValueDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Absolute load value (Percentage)
+    /// </summary>
+    function Parse(Data: TBytes; var Percent: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Commanded Air-Fuel Equivalence Ratio Decoder
+  /// </summary>
+  TOBDServiceCommandedAirFuelEQRatioDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Commanded Air-Fuel Equivalence Ratio (Ratio)
+    /// </summary>
+    function Parse(Data: TBytes; var Ratio: Double): Boolean;
+  end;
+
 implementation
 
 //------------------------------------------------------------------------------
@@ -672,6 +732,118 @@ begin
   if Length(Data) < 2 then Exit;
   // Get the distance
   Distance := (Data[0] * 256) + Data[1];
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// EVAP. SYSTEM VAPOR PRESSURE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEvapSystemVaporPressureDecoder.Parse(Data: TBytes; var Pressure: Double): Boolean;
+var
+  RawValue: Integer;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+
+  // Combine the two bytes into a single integer
+  RawValue := (Data[0] * 256) + Data[1];
+  // Adjust for the value being a signed 16-bit integer
+  if RawValue >= 32768 then RawValue := RawValue - 65536;
+  // Calculate the EVAP system vapor pressure in Pascals
+  Pressure := RawValue / 4;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// OXYGEN SENSOR AIR-FUEL EQ RATIO AND CURRENT DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceOxygenSensorReadingRCDecoder.Parse(Data: TBytes; var Ratio: Double; var Current: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 4 bytes
+  if Length(Data) < 4 then Exit;
+
+  // Lambda calculation
+  Ratio := ((Data[0] * 256) + Data[1]) / 32768;
+  // Current calculation
+  Current := (((Data[2] * 256) + Data[3]) - 32768) / 256;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// CATALYST TEMPERATURE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceCatalystTemperatureDecoder.Parse(Data: TBytes; var Temperature: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the temperature
+  Temperature := ((Data[0] * 256) + Data[1]) / 10 - 40;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// CONTROL MODULE VOLTAGE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceControlModuleVoltageDecoder.Parse(Data: TBytes; var Voltage: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the voltage
+  Voltage := ((Data[0] * 256) + Data[1]) / 1000;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ABSOLUTE LOAD VALUE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceAbsoluteLoadValueDecoder.Parse(Data: TBytes; var Percent: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the percentage
+  Percent := (Data[0] * 256) + Data[1]) * 100 / 255;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+//  COMMANDED AIR-FUEL EQUIVALENCE RATIO DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceCommandedAirFuelEQRatioDecoder.Parse(Data: TBytes; var Ratio: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the ratio
+  Ratio := ((Data[0] * 256) + Data[1]) / 32768;
 
   // If we make it until here, parsing succeeded
   Result := True;
