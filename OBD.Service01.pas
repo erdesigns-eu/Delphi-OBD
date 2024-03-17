@@ -583,6 +583,119 @@ type
       /// </summary>
       property Current: Double read FCurrent;
     end;
+
+    /// <summary>
+    ///   OBD Service 01 Parameter 4F, 50 (Maximum value for Fuel–Air equivalence ratio,
+    ///   oxygen sensor voltage, oxygen sensor current, and intake manifold absolute pressure,
+    ///   air flow rate from mass air flow sensor)
+    /// </summary>
+    TOBDServiceMaxSensorValues = class
+    private
+      /// <summary>
+      ///   Air-fuel Equivalence Ratio (Lambda)
+      /// </summary>
+      FAirFuelEquivalenceRatio: Double;
+      /// <summary>
+      ///   Oxygen Sensor voltage
+      /// </summary>
+      FOxygenSensorVoltage: Double;
+      /// <summary>
+      ///   Oxygen Sensor current
+      /// </summary>
+      FOxygenSensorCurrent: Double;
+      /// <summary>
+      ///   Intake manifold pressure
+      /// </summary>
+      FIntakeManifoldPressure: Integer;
+      /// <summary>
+      ///   Air flow rate from MAF sensor
+      /// </summary>
+      FAirFlowRate: Double;
+    public
+      /// <summary>
+      ///   Reset (Clear all tests)
+      /// </summary>
+      procedure Reset;
+
+      /// <summary>
+      ///   Air-fuel Equivalence Ratio (Lambda)
+      /// </summary>
+      property AirFuelEquivalenceRatio: Double read FAirFuelEquivalenceRatio;
+      /// <summary>
+      ///   Oxygen Sensor voltage
+      /// </summary>
+      property OxygenSensorVoltage: Double read FOxygenSensorVoltage;
+      /// <summary>
+      ///   Oxygen Sensor current
+      /// </summary>
+      property OxygenSensorCurrent: Double read FOxygenSensorCurrent;
+      /// <summary>
+      ///   Intake manifold pressure
+      /// </summary>
+      property IntakeManifoldPressure: Integer read FIntakeManifoldPressure;
+      /// <summary>
+      ///   Air flow rate from MAF sensor
+      /// </summary>
+      property AirFlowRate: Double read FAirFlowRate;
+    end;
+
+    /// <summary>
+    ///   OBD Service 01 Parameter 55 and 56 (Short/Long term oxygen sensor trim)
+    /// </summary>
+    TOBDServiceOxygenSensorTrimBank1Bank3 = class
+    private
+      /// <summary>
+      ///   Bank 1
+      /// </summary>
+      FBank1: Double;
+      /// <summary>
+      ///   Bank 3
+      /// </summary>
+      FBank3: Double;
+    public
+      /// <summary>
+      ///   Reset (Clear all tests)
+      /// </summary>
+      procedure Reset;
+
+      /// <summary>
+      ///   Bank 1
+      /// </summary>
+      property Bank1: Double read FBank1;
+      /// <summary>
+      ///   Bank 3
+      /// </summary>
+      property Bank3: Double read FBank3;
+    end;
+
+    /// <summary>
+    ///   OBD Service 01 Parameter 57 - 58 (Short/Long term oxygen sensor trim)
+    /// </summary>
+    TOBDServiceOxygenSensorTrimBank2Bank4 = class
+    private
+      /// <summary>
+      ///   Bank 2
+      /// </summary>
+      FBank2: Double;
+      /// <summary>
+      ///   Bank 4
+      /// </summary>
+      FBank4: Double;
+    public
+      /// <summary>
+      ///   Reset (Clear all tests)
+      /// </summary>
+      procedure Reset;
+
+      /// <summary>
+      ///   Bank 2
+      /// </summary>
+      property Bank2: Double read FBank2;
+      /// <summary>
+      ///   Bank 4
+      /// </summary>
+      property Bank4: Double read FBank4;
+    end;
   private
     /// <summary>
     ///   Array with supported PID's
@@ -744,7 +857,6 @@ type
     ///   Fuel Rail Gauge Pressure (diesel, or gasoline direct injection)
     /// </summary>
     FFuelRailGaugePressure: Double;
-
     /// <summary>
     ///   Oxygen sensor 1 bank 1 reading (Air-fuel EQ ratio, Voltage)
     /// </summary>
@@ -901,6 +1013,76 @@ type
     ///   Commanded throttle actuator (Percentage)
     /// </summary>
     FCommandedThrottleActuator: Double;
+    /// <summary>
+    ///   Time run with MIL on (Minutes)
+    /// </summary>
+    FTimeRunWithMILOn: Integer;
+    /// <summary>
+    ///   Time since trouble codes cleared (Minutes)
+    /// </summary>
+    FTimeSinceTroubleCodesCleared: Integer;
+    /// <summary>
+    ///   Max sensor values (Maximum value for Fuel–Air equivalence ratio,
+    ///   oxygen sensor voltage, oxygen sensor current, intake manifold absolute pressure,
+    ///   and maximum value for air flow rate from mass air flow sensor)
+    /// </summary>
+    FMaxSensorValues: TOBDServiceMaxSensorValues;
+    /// <summary>
+    ///   Fuel Type
+    /// </summary>
+    FFuelType: Byte;
+    /// <summary>
+    ///   Ethanol Fuel (Percentage)
+    /// </summary>
+    FEthanolFuel: Double;
+    /// <summary>
+    ///   Absolute Evap system Vapor Pressure (kPa)
+    /// </summary>
+    FAbsoluteEvapSystemVaporPressure: Double;
+    /// <summary>
+    ///   Evap system Vapor Pressure (Pa)
+    /// </summary>
+    FEvapSystemVaporPressure2: Double;
+    /// <summary>
+    ///   Short-term Oxygen sensor trim Bank 1 and 3
+    /// </summary>
+    FShortTermOxygenSensorTrimBank1Bank3: TOBDServiceOxygenSensorTrimBank1Bank3;
+    /// <summary>
+    ///   Long-term Oxygen sensor trim Bank 1 and 3
+    /// </summary>
+    FLongTermOxygenSensorTrimBank1Bank3: TOBDServiceOxygenSensorTrimBank1Bank3;
+    /// <summary>
+    ///   Short-term Oxygen sensor trim Bank 2 and 4
+    /// </summary>
+    FShortTermOxygenSensorTrimBank2Bank4: TOBDServiceOxygenSensorTrimBank2Bank4;
+    /// <summary>
+    ///   Long-term Oxygen sensor trim Bank 2 and 4
+    /// </summary>
+    FLongTermOxygenSensorTrimBank2Bank4: TOBDServiceOxygenSensorTrimBank2Bank4;
+    /// <summary>
+    ///   Fuel rail absolute pressure
+    /// </summary>
+    FFuelRailAbsolutePressure: Double;
+    /// <summary>
+    ///   Relative accelerator pedal position (Percentage)
+    /// </summary>
+    FRelativeAcceleratorPedalPosition: Double;
+    /// <summary>
+    ///   Hybrid battery pack remaining life (Percentage)
+    /// </summary>
+    FHybridBatteryPackRemainingLife: Double;
+    /// <summary>
+    ///   Engine oil temperature (Degree Celcius)
+    /// </summary>
+    FEngineOilTemperature: Integer;
+    /// <summary>
+    ///   Fuel injection timing (Degree to/from Top Dead Center)
+    /// </summary>
+    FFuelInjectionTiming: Double;
+    /// <summary>
+    ///   Engine fuel rate (Liters/hour)
+    /// </summary>
+    FEngineFuelRate: Double;
 
     /// <summary>
     ///   Live data changed event
@@ -1246,6 +1428,76 @@ type
     ///   Commanded throttle actuator (Percentage)
     /// </summary>
     property CommandedThrottleActuator: Double read FCommandedThrottleActuator;
+    /// <summary>
+    ///   Time run with MIL on (Minutes)
+    /// </summary>
+    property TimeRunWithMILOn: Integer read FTimeRunWithMILOn;
+    /// <summary>
+    ///   Time since trouble codes cleared (Minutes)
+    /// </summary>
+    property TimeSinceTroubleCodesCleared: Integer read FTimeSinceTroubleCodesCleared;
+    /// <summary>
+    ///   Max sensor values (Maximum value for Fuel–Air equivalence ratio,
+    ///   oxygen sensor voltage, oxygen sensor current, intake manifold absolute pressure,
+    ///   and maximum value for air flow rate from mass air flow sensor)
+    /// </summary>
+    property MaxSensorValues: TOBDServiceMaxSensorValues read FMaxSensorValues;
+    /// <summary>
+    ///   Fuel Type
+    /// </summary>
+    property FuelType: Byte read FFuelType;
+    /// <summary>
+    ///   Ethanol Fuel (Percentage)
+    /// </summary>
+    property EthanolFuel: Double read FEthanolFuel;
+    /// <summary>
+    ///   Absolute Evap system Vapor Pressure (kPa)
+    /// </summary>
+    property AbsoluteEvapSystemVaporPressure: Double read FAbsoluteEvapSystemVaporPressure;
+    /// <summary>
+    ///   Evap system Vapor Pressure (Pa)
+    /// </summary>
+    property EvapSystemVaporPressure2: Double read FEvapSystemVaporPressure2;
+    /// <summary>
+    ///   Short-term Oxygen sensor trim Bank 1 and 3
+    /// </summary>
+    property ShortTermOxygenSensorTrimBank1Bank3: TOBDServiceOxygenSensorTrimBank1Bank3 read FShortTermOxygenSensorTrimBank1Bank3;
+    /// <summary>
+    ///   Long-term Oxygen sensor trim Bank 1 and 3
+    /// </summary>
+    property LongTermOxygenSensorTrimBank1Bank3: TOBDServiceOxygenSensorTrimBank1Bank3 read FLongTermOxygenSensorTrimBank1Bank3;
+    /// <summary>
+    ///   Short-term Oxygen sensor trim Bank 2 and 4
+    /// </summary>
+    property ShortTermOxygenSensorTrimBank2Bank4: TOBDServiceOxygenSensorTrimBank2Bank4 read FShortTermOxygenSensorTrimBank2Bank4;
+    /// <summary>
+    ///   Long-term Oxygen sensor trim Bank 2 and 4
+    /// </summary>
+    property LongTermOxygenSensorTrimBank2Bank4: TOBDServiceOxygenSensorTrimBank2Bank4 read FLongTermOxygenSensorTrimBank2Bank4;
+    /// <summary>
+    ///   Fuel rail absolute pressure
+    /// </summary>
+    property FuelRailAbsolutePressure: Double read FFuelRailAbsolutePressure;
+    /// <summary>
+    ///   Relative accelerator pedal position (Percentage)
+    /// </summary>
+    property RelativeAcceleratorPedalPosition: Double read FRelativeAcceleratorPedalPosition;
+    /// <summary>
+    ///   Hybrid battery pack remaining life (Percentage)
+    /// </summary>
+    property HybridBatteryPackRemainingLife: Double read FHybridBatteryPackRemainingLife;
+    /// <summary>
+    ///   Engine oil temperature (Degree Celcius)
+    /// </summary>
+    property EngineOilTemperature: Integer read FEngineOilTemperature;
+    /// <summary>
+    ///   Fuel injection timing (Degree to/from Top Dead Center)
+    /// </summary>
+    property FuelInjectionTiming: Double read FFuelInjectionTiming;
+    /// <summary>
+    ///   Engine fuel rate (Liters/hour)
+    /// </summary>
+    property EngineFuelRate: Double read FEngineFuelRate;
 
     /// <summary>
     ///   Live data changed event
@@ -1466,6 +1718,36 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SERVICE 01: MAXIMUM SENSOR VALUES - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService01.TOBDServiceMaxSensorValues.Reset;
+begin
+  FAirFuelEquivalenceRatio := 0;
+  FOxygenSensorVoltage := 0;
+  FOxygenSensorCurrent := 0;
+  FIntakeManifoldPressure := 0;
+  FAirFlowRate := 0;
+end;
+
+//------------------------------------------------------------------------------
+// SERVICE 01: OXYGEN SENSOR TRIM - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService01.TOBDServiceOxygenSensorTrimBank1Bank3.Reset;
+begin
+  FBank1 := 0;
+  FBank3 := 0;
+end;
+
+//------------------------------------------------------------------------------
+// SERVICE 01: OXYGEN SENSOR TRIM - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService01.TOBDServiceOxygenSensorTrimBank2Bank4.Reset;
+begin
+  FBank2 := 0;
+  FBank4 := 0;
+end;
+
+//------------------------------------------------------------------------------
 // SERVICE 01: CONSTRUCTOR
 //------------------------------------------------------------------------------
 constructor TOBDService01.Create;
@@ -1509,6 +1791,13 @@ begin
   FOxygenSensor2Bank2AirFuelEQRatioCurrent := TOBDServiceOxygenSensorAirFuelEQRatioCurrent.Create;
   FOxygenSensor3Bank2AirFuelEQRatioCurrent := TOBDServiceOxygenSensorAirFuelEQRatioCurrent.Create;
   FOxygenSensor4Bank2AirFuelEQRatioCurrent := TOBDServiceOxygenSensorAirFuelEQRatioCurrent.Create;
+  // Create maximum sensor values
+  FMaxSensorValues := TOBDServiceMaxSensorValues.Create;
+  // Create oxygen sensors trim
+  FShortTermOxygenSensorTrimBank1Bank3 := TOBDServiceOxygenSensorTrimBank1Bank3.Create;
+  FLongTermOxygenSensorTrimBank1Bank3 := TOBDServiceOxygenSensorTrimBank1Bank3.Create;
+  FShortTermOxygenSensorTrimBank2Bank4 := TOBDServiceOxygenSensorTrimBank2Bank4.Create;
+  FLongTermOxygenSensorTrimBank2Bank4 := TOBDServiceOxygenSensorTrimBank2Bank4.Create;
   // Clear all data and set to defaults
   Reset;
 end;
@@ -1555,6 +1844,13 @@ begin
   FOxygenSensor2Bank2AirFuelEQRatioCurrent.Free;
   FOxygenSensor3Bank2AirFuelEQRatioCurrent.Free;
   FOxygenSensor4Bank2AirFuelEQRatioCurrent.Free;
+  // Free maximum sensor values
+  FMaxSensorValues.Free;
+  // Create oxygen sensors trim
+  FShortTermOxygenSensorTrimBank1Bank3.Free;
+  FLongTermOxygenSensorTrimBank1Bank3.Free;
+  FShortTermOxygenSensorTrimBank2Bank4.Free;
+  FLongTermOxygenSensorTrimBank2Bank4.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1696,6 +1992,37 @@ begin
   FAcceleratorPedalPositionF := 0;
   // Reset commanded throttle actuator
   FCommandedThrottleActuator := 0;
+  // Reset time run with MIL on
+  FTimeRunWithMILOn := 0;
+  // Reset time since trouble codes cleared
+  FTimeSinceTroubleCodesCleared := 0;
+  // Reset maximum sensor values
+  FMaxSensorValues.Reset;
+  // Reset fuel-type
+  FFuelType := $00;
+  // Reset ethanol fuel percentage
+  FEthanolFuel := 0;
+  // Reset absolute evap system vapor pressure
+  FAbsoluteEvapSystemVaporPressure := 0;
+  // Reset evap system vapor pressure 2
+  FEvapSystemVaporPressure2 := 0;
+  // Reset oxygen sensors trim
+  FShortTermOxygenSensorTrimBank1Bank3.Reset;
+  FLongTermOxygenSensorTrimBank1Bank3.Reset;
+  FShortTermOxygenSensorTrimBank2Bank4.Reset;
+  FLongTermOxygenSensorTrimBank2Bank4.Reset;
+  // Reset fuel rail absolute pressure
+  FFuelRailAbsolutePressure := 0;
+  // Reset relative accelerator pedal position
+  FRelativeAcceleratorPedalPosition := 0;
+  // Reset hybrid battery pack remaining life
+  FHybridBatteryPackRemainingLife := 0;
+  // Reset engine oil temperature
+  FEngineOilTemperature := 0;
+  // Reset fuel injection timing
+  FFuelInjectionTiming := 0;
+  // Reset engine fuel rate
+  FEngineFuelRate := 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -2419,6 +2746,168 @@ begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCommandedThrottleActuator);
     if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_THROTTLE_ACTUATOR);
+    Exit;
+  end;
+
+  // Parse Time run with MIL on (PID 4D)
+  if ParameterID = OBD_SERVICE_01_TIME_RUN_WITH_MIL_ON then
+  begin
+    ResponseDecoder := TOBDServiceMinuteDecoder.Create;
+    (ResponseDecoder as TOBDServiceMinuteDecoder).Parse(Data, FTimeRunWithMILOn);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_TIME_RUN_WITH_MIL_ON);
+    Exit;
+  end;
+
+  // Parse Time run with MIL on (PID 4E)
+  if ParameterID = OBD_SERVICE_01_TIME_SINCE_TROUBLE_CODES_CLEARED then
+  begin
+    ResponseDecoder := TOBDServiceMinuteDecoder.Create;
+    (ResponseDecoder as TOBDServiceMinuteDecoder).Parse(Data, FTimeSinceTroubleCodesCleared);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_TIME_SINCE_TROUBLE_CODES_CLEARED);
+    Exit;
+  end;
+
+  // Parse maximum value for Fuel–Air equivalence ratio, oxygen sensor voltage, oxygen sensor current, and intake manifold absolute pressure (PID 4F)
+  if ParameterID = OBD_SERVICE_01_MAX_VALUES_EQUIV_RATIO_O2S_VOLTAGE then
+  begin
+    ResponseDecoder := TOBDServiceMaxSensorValuesDecoder.Create;
+    (ResponseDecoder as TOBDServiceMaxSensorValuesDecoder).Parse(Data, FMaxSensorValues.FAirFuelEquivalenceRatio, FMaxSensorValues.FOxygenSensorVoltage, FMaxSensorValues.FOxygenSensorCurrent, FMaxSensorValues.FIntakeManifoldPressure);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MAX_VALUES_EQUIV_RATIO_O2S_VOLTAGE);
+    Exit;
+  end;
+
+  // Parse maximum value for air flow rate from mass air flow sensor (PID 50)
+  if ParameterID = OBD_SERVICE_01_MAX_VALUE_AIR_FLOW_RATE_FROM_MAF_SENSOR then
+  begin
+    if Length(Data) < 1 then Exit;
+    FMaxSensorValues.FAirFlowRate := Data[0] * 10;
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MAX_VALUE_AIR_FLOW_RATE_FROM_MAF_SENSOR);
+    Exit;
+  end;
+
+  // Parse Fuel Type (PID 51)
+  if ParameterID = OBD_SERVICE_01_FUEL_TYPE then
+  begin
+    if Length(Data) < 1 then Exit;
+    FFuelType := Data[0];
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_TYPE);
+    Exit;
+  end;
+
+  // Parse Ethanol Fuel (Percentage) (PID 52)
+  if ParameterID = OBD_SERVICE_01_ETHANOL_FUEL_PERCENT then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FEthanolFuel);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ETHANOL_FUEL_PERCENT);
+    Exit;
+  end;
+
+  // Parse Absolute Evap System Vapor Pressure (PID 53)
+  if ParameterID = OBD_SERVICE_01_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE then
+  begin
+    ResponseDecoder := TOBDServiceAbsoluteEvapSystemVaporPressureDecoder.Create;
+    (ResponseDecoder as TOBDServiceAbsoluteEvapSystemVaporPressureDecoder).Parse(Data, FAbsoluteEvapSystemVaporPressure);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE);
+    Exit;
+  end;
+
+  // Parse Evap. System Vapor Pressure 2 (PID 54)
+  if ParameterID = OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_2 then
+  begin
+    ResponseDecoder := TOBDServiceEvapSystemVaporPressure2Decoder.Create;
+    (ResponseDecoder as TOBDServiceEvapSystemVaporPressure2Decoder).Parse(Data, FEvapSystemVaporPressure2);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_2);
+    Exit;
+  end;
+
+  // Parse Short-term Oxygen sensor trim Bank 1 and 3 (PID 55)
+  if ParameterID = OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3 then
+  begin
+    ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
+    (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FShortTermOxygenSensorTrimBank1Bank3.FBank1, FShortTermOxygenSensorTrimBank1Bank3.FBank3);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
+    Exit;
+  end;
+
+  // Parse Long-term Oxygen sensor trim Bank 1 and 3 (PID 56)
+  if ParameterID = OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3 then
+  begin
+    ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
+    (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FLongTermOxygenSensorTrimBank1Bank3.FBank1, FLongTermOxygenSensorTrimBank1Bank3.FBank3);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
+    Exit;
+  end;
+
+  // Parse Short-term Oxygen sensor trim Bank 2 and 4 (PID 57)
+  if ParameterID = OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4 then
+  begin
+    ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
+    (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FShortTermOxygenSensorTrimBank2Bank4.FBank2, FShortTermOxygenSensorTrimBank2Bank4.FBank4);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
+    Exit;
+  end;
+
+  // Parse Long-term Oxygen sensor trim Bank 2 and 4 (PID 58)
+  if ParameterID = OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4 then
+  begin
+    ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
+    (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FLongTermOxygenSensorTrimBank2Bank4.FBank2, FLongTermOxygenSensorTrimBank2Bank4.FBank4);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
+    Exit;
+  end;
+
+  // Parse Fuel rail absolute pressure (PID 59)
+  if ParameterID = OBD_SERVICE_01_FUEL_RAIL_PRESSURE_ABSOLUTE then
+  begin
+    ResponseDecoder := TOBDServiceFuelRailAbsolutePressureDecoder.Create;
+    (ResponseDecoder as TOBDServiceFuelRailAbsolutePressureDecoder).Parse(Data, FFuelRailAbsolutePressure);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_ABSOLUTE);
+    Exit;
+  end;
+
+  // Parse Relative accelerator pedal position (PID 5A)
+  if ParameterID = OBD_SERVICE_01_RELATIVE_ACCELERATOR_PEDAL_POSITION then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FRelativeAcceleratorPedalPosition);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_RELATIVE_ACCELERATOR_PEDAL_POSITION);
+    Exit;
+  end;
+
+  // Parse Hybrid battery pack remaining life (PID 5B)
+  if ParameterID = OBD_SERVICE_01_HYBRID_BATTERY_PACK_REMAINING_LIFE then
+  begin
+    ResponseDecoder := TOBDPercentageDecoder.Create;
+    (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FHybridBatteryPackRemainingLife);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_HYBRID_BATTERY_PACK_REMAINING_LIFE);
+    Exit;
+  end;
+
+  // Parse Engine oil temperature (PID 5C)
+  if ParameterID = OBD_SERVICE_01_ENGINE_OIL_TEMPERATURE then
+  begin
+    ResponseDecoder := TOBDTemperatureDecoder.Create;
+    (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FEngineOilTemperature);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_OIL_TEMPERATURE);
+    Exit;
+  end;
+
+  // Parse Fuel injection timing (PID 5D)
+  if ParameterID = OBD_SERVICE_01_FUEL_INJECTION_TIMING then
+  begin
+    ResponseDecoder := TOBDServiceFuelInjectionTimingDecoder.Create;
+    (ResponseDecoder as TOBDServiceFuelInjectionTimingDecoder).Parse(Data, FFuelInjectionTiming);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_INJECTION_TIMING);
+    Exit;
+  end;
+
+  // Parse engine fuel rate (PID 5E)
+  if ParameterID = OBD_SERVICE_01_ENGINE_FUEL_RATE then
+  begin
+    ResponseDecoder := TOBDServiceEngineFuelRateDecoder.Create;
+    (ResponseDecoder as TOBDServiceEngineFuelRateDecoder).Parse(Data, FEngineFuelRate);
+    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_FUEL_RATE);
     Exit;
   end;
 end;

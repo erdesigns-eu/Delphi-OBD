@@ -419,9 +419,9 @@ const
   /// </summary>
   OBD_SERVICE_01_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE = $53;
   /// <summary>
-  ///   Evap system vapor pressure
+  ///   Evap system vapor pressure 2
   /// </summary>
-  OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_ = $54;
+  OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_2 = $54;
   /// <summary>
   ///   Short term secondary oxygen sensor trim bank 1 and bank 3
   /// </summary>

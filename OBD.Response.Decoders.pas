@@ -317,6 +317,86 @@ type
     function Parse(Data: TBytes; var Ratio: Double): Boolean;
   end;
 
+  /// <summary>
+  ///   OBD Minute Decoder
+  /// </summary>
+  TOBDServiceMinuteDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse time in minutes
+    /// </summary>
+    function Parse(Data: TBytes; var Time: Integer): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Max sensor values Decoder
+  /// </summary>
+  TOBDServiceMaxSensorValuesDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse time in minutes
+    /// </summary>
+    function Parse(Data: TBytes; var FuelAirEQRatio: Double; var OxygenSensorVoltage: Double; var OxygenSensorCurrent: Double; var IntakeManifoldPressure: Integer): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Absolute Evap System Vapor Pressure Decoder
+  /// </summary>
+  TOBDServiceAbsoluteEvapSystemVaporPressureDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse the absolute evap system vapor pressure (kPa)
+    /// </summary>
+    function Parse(Data: TBytes; var Pressure: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Evap. System Vapor Pressure 2 Decoder
+  /// </summary>
+  TOBDServiceEvapSystemVaporPressure2Decoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Evap. System Vapor Pressure 2 (Pa)
+    /// </summary>
+    function Parse(Data: TBytes; var Pressure: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Oxygen Sensor Trim Decoder
+  /// </summary>
+  TOBDServiceOxygenSensorTrimDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse oxygen sensor trim
+    /// </summary>
+    function Parse(Data: TBytes; var BankA: Double; var BankB: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Fuel rail absolute pressure Decoder
+  /// </summary>
+  TOBDServiceFuelRailAbsolutePressureDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse fuel rail absolute pressure (kPa)
+    /// </summary>
+    function Parse(Data: TBytes; var Pressure: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Fuel injection timer Decoder
+  /// </summary>
+  TOBDServiceFuelInjectionTimingDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse fuel injection timing (degree to/from Top Dead Center)
+    /// </summary>
+    function Parse(Data: TBytes; var Percent: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Engine fuel rate Decoder
+  /// </summary>
+  TOBDServiceEngineFuelRateDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse engine fuel rate (L/h)
+    /// </summary>
+    function Parse(Data: TBytes; var Rate: Double): Boolean; // TOBDServiceEngineFuelRateDecoder Result := ((Response[0] * 256) + Response[1]) / 20;
+  end;
+
 implementation
 
 //------------------------------------------------------------------------------
@@ -826,7 +906,7 @@ begin
   // Make sure we have at least 2 bytes
   if Length(Data) < 2 then Exit;
   // Get the percentage
-  Percent := (Data[0] * 256) + Data[1]) * 100 / 255;
+  Percent := ((Data[0] * 256) + Data[1]) * 100 / 255;
 
   // If we make it until here, parsing succeeded
   Result := True;
@@ -844,6 +924,159 @@ begin
   if Length(Data) < 2 then Exit;
   // Get the ratio
   Ratio := ((Data[0] * 256) + Data[1]) / 32768;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+//  TIME IN MINUTES DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceMinuteDecoder.Parse(Data: TBytes; var Time: Integer): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the time in minutes
+  Time := (Data[0] * 256) + Data[1];
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+//  MAXIMUM SENSOR VALUES DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceMaxSensorValuesDecoder.Parse(Data: TBytes; var FuelAirEQRatio: Double; var OxygenSensorVoltage: Double; var OxygenSensorCurrent: Double; var IntakeManifoldPressure: Integer): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 4 bytes
+  if Length(Data) < 4 then Exit;
+
+  // Get the fuel-air equivalence ratio
+  FuelAirEQRatio := Data[0] / 256;
+  // Get the oxygen sensor voltage
+  OxygenSensorVoltage := Data[1] / 10;
+  // Get the oxygen sensor current
+  OxygenSensorCurrent := Data[2];
+  // Get the intake manifold pressure
+  IntakeManifoldPressure := Data[3];
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+//  ABSOLUTE EEVAP SYSTEM VAPOR PRESSURE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceAbsoluteEvapSystemVaporPressureDecoder.Parse(Data: TBytes; var Pressure: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get the pressure
+  Pressure := ((Data[0] * 256) + Data[1]) / 200;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// EVAP. SYSTEM VAPOR PRESSURE 2 DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEvapSystemVaporPressure2Decoder.Parse(Data: TBytes; var Pressure: Double): Boolean;
+var
+  RawValue: Integer;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+
+  // Combine the two bytes into a single integer
+  RawValue := (Data[0] * 256) + Data[1];
+  // Adjust for the value being a signed 16-bit integer
+  if RawValue >= 32768 then RawValue := RawValue - 65536;
+  // Calculate the EVAP system vapor pressure in Pascals
+  Pressure := RawValue;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// OXYGEN SENSOR TRIM DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceOxygenSensorTrimDecoder.Parse(Data: TBytes; var BankA: Double; var BankB: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+
+  // Get Bank A
+  BankA := (Data[0] - 128) / 1.28;
+  // Get Bank B
+  BankB := (Data[1] - 128) / 1.28;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// FUEL RAIL ABSOLUTE PRESSURE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceFuelRailAbsolutePressureDecoder.Parse(Data: TBytes; var Pressure: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get pressure
+  Pressure := ((Data[0] * 256) + Data[1]) * 10;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// FUEL INJECTION TIMING DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceFuelInjectionTimingDecoder.Parse(Data: TBytes; var Percent: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get timing
+  Percent := ((Data[0] * 256) + Data[1] - 26880) / 128;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ENGINE FUEL RATE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEngineFuelRateDecoder.Parse(Data: TBytes; var Rate: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get rate
+  Rate := ((Data[0] * 256) + Data[1]) / 20;
 
   // If we make it until here, parsing succeeded
   Result := True;
