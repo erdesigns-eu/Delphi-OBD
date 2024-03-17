@@ -394,7 +394,57 @@ type
     /// <summary>
     ///   Parse engine fuel rate (L/h)
     /// </summary>
-    function Parse(Data: TBytes; var Rate: Double): Boolean; // TOBDServiceEngineFuelRateDecoder Result := ((Response[0] * 256) + Response[1]) / 20;
+    function Parse(Data: TBytes; var Rate: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Engine torque Decoder
+  /// </summary>
+  TOBDServiceEngineTorqueDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse engine torque (percentage)
+    /// </summary>
+    function Parse(Data: TBytes; var Percent: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Engine reference torque Decoder
+  /// </summary>
+  TOBDServiceEngineReferenceTorqueDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse engine reference torque (Nm)
+    /// </summary>
+    function Parse(Data: TBytes; var Torque: Integer): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Engine percent torque data Decoder
+  /// </summary>
+  TOBDServiceEnginePercentTorqueDataDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse engine percent torque data (Percentages)
+    /// </summary>
+    function Parse(Data: TBytes; var Idle: Integer; var Point1: Integer; var Point2: Integer; var Point3: Integer; var Point4: Integer): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Mass airflow sensor Decoder
+  /// </summary>
+  TOBDServiceMassAirflowSensorDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse mass airflow sensor data
+    /// </summary>
+    function Parse(Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorARate: Double; var SensorBRate: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Sensor Temperature data Decoder
+  /// </summary>
+  TOBDServiceSensorTemperatureDataDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse sensor temperature data
+    /// </summary>
+    function Parse(Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorATemperature: Integer; var SensorBTemperature: Integer): Boolean;
   end;
 
 implementation
@@ -1077,6 +1127,101 @@ begin
   if Length(Data) < 2 then Exit;
   // Get rate
   Rate := ((Data[0] * 256) + Data[1]) / 20;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ENGINE TORQUE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEngineTorqueDecoder.Parse(Data: TBytes; var Percent: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 1 byte
+  if Length(Data) < 1 then Exit;
+  // Get torque percentage
+  Percent := Data[0] - 125;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ENGINE REFERENCE TORQUE DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEngineReferenceTorqueDecoder.Parse(Data: TBytes; var Torque: Integer): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Get torque
+  Torque := (Data[0] * 256) + Data[1];
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ENGINE PERCENT TORQUE DATA DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceEnginePercentTorqueDataDecoder.Parse(Data: TBytes; var Idle: Integer; var Point1: Integer; var Point2: Integer; var Point3: Integer; var Point4: Integer): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 5 bytes
+  if Length(Data) < 5 then Exit;
+  // Get torque
+  Idle := Data[0] - 125;
+  Point1 := Data[1] - 125;
+  Point2 := Data[2] - 125;
+  Point3 := Data[3] - 125;
+  Point4 := Data[4] - 125;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// MASS AIRFLOW SENSOR DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceMassAirflowSensorDecoder.Parse(Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorARate: Double; var SensorBRate: Double): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 5 bytes
+  if Length(Data) < 5 then Exit;
+  // Decode data
+  SensorASupported := (Data[0] and $01) <> 0;
+  SensorBSupported := (Data[0] and $02) <> 0;
+  SensorARate := ((Data[1] * 256 + Data[2]) / 32);
+  SensorBRate := ((Data[3] * 256 + Data[4]) / 32);
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// SENSOR TEMPERATURE DATA DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceSensorTemperatureDataDecoder.Parse(Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorATemperature: Integer; var SensorBTemperature: Integer): Boolean;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 3 bytes
+  if Length(Data) < 3 then Exit;
+  // Decode data
+  SensorASupported := (Data[0] and $01) <> 0;
+  SensorBSupported := (Data[0] and $02) <> 0;
+  SensorATemperature := Data[1] - 40;
+  SensorBTemperature := Data[2] - 40;
 
   // If we make it until here, parsing succeeded
   Result := True;
