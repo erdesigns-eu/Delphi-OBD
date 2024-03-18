@@ -178,6 +178,7 @@ var
   I: Integer;
   FrameData: TBytes;
   Comparer: IComparer<IOBDDataFrame>;
+  FirstFrame: Boolean;
 begin
   // initialize result
   Result := False;
@@ -196,17 +197,23 @@ begin
     for I := 1 to High(Frames) do if Mode <> Frames[I].Data[0] then Exit;
   end;
 
-  // Mode 03 contains a single command GET_DTC which requests all diagnostic
-  // trouble codes from the vehicle.
-  if Mode = $43 then
+  // Service 03, 07 and 0A contains a single command GET_DTC which requests all
+  // diagnostic trouble codes from the vehicle.
+  if (Mode = $43) or (Mode = $47) or (Mode = $4A) then
   begin
-    // Forge the mode byte and CAN's DTC_count byte
-    Msg.SetDataLength(2);
+    FirstFrame := True;
     // Loop over frames
     for Frame in Frames do
     begin
-      // Exclude mode byte
-      FrameData := Copy(Frame.Data, 1, Length(Frame.Data) - 1);
+      // If this is the first frame, include the mode byte because we need
+      // it in the OBD Service Response Decoder.
+      if FirstFrame then
+      begin
+        FrameData := Copy(Frame.Data, 0, Length(Frame.Data) - 1);
+        FirstFrame := False;
+      end else
+        // Exclude mode byte and checksum
+        FrameData := Copy(Frame.Data, 1, Length(Frame.Data) - 2);
       // Append frame to data
       Msg.Data := Msg.Data + FrameData;
     end;

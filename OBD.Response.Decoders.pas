@@ -474,10 +474,23 @@ begin
 
   // Get the service PID
   ServiceID := Response[0] - $40;
-  // Get the PID
-  PID := Response[1];
-  // Get the data (if there is any)
-  if Length(Response) > 2 then Data := Copy(Response, 2, Length(Response) - 2);
+
+  // Handle service 03, 07 and 0A different, because they return DTC's
+  // So there is no PID.
+  if ServiceID in [$03, $07, $0A] then
+  begin
+    // Not used in these cases
+    PID := 0;
+    // Get the data
+    if Length(Response) > 3 then Data := Copy(Response, 1, Length(Response) -1);
+  end else
+  // Handle other services
+  begin
+    // Get the PID
+    PID := Response[1];
+    // Get the data (if there is any)
+    if Length(Response) > 2 then Data := Copy(Response, 2, Length(Response) - 2);
+  end;
 
   // If we make it until here, decoding succeeded
   Result := True;

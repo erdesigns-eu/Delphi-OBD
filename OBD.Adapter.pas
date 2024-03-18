@@ -291,6 +291,12 @@ type
     FSyncResponseData: AnsiString;
   private
     /// <summary>
+    ///   Use protocol handler, if set to false the protocol class will not
+    ///   be used, and the user needs to parse the messages themselves.
+    ///   This can be usefull when using the ELM for NON-OBD commands.
+    /// </summary>
+    FUseProtocolHandler: Boolean;
+    /// <summary>
     ///   Incoming data buffer for accumulating the incoming data
     ///   until we get the '>' character.
     /// </summary>
@@ -371,6 +377,10 @@ type
     FOnOBDLinkError: TOBDLinkAdapterErrorEvent;
 
     /// <summary>
+    ///   Set use protocol handler
+    /// </summary>
+    procedure SetUseProtocolHandler(Value: Boolean);
+    /// <summary>
     ///   Set connection type
     /// </summary>
     procedure SetConnectionType(Value: TOBDConnectionType);
@@ -440,6 +450,12 @@ type
     /// </summary>
     function TestProtocol: Boolean; virtual;
 
+    /// <summary>
+    ///   Use protocol handler, if set to false the protocol class will not
+    ///   be used, and the user needs to parse the messages themselves.
+    ///   This can be usefull when using the ELM for NON-OBD commands.
+    /// </summary>
+    property UseProtocolHandler: Boolean read FUseProtocolHandler write SetUseProtocolHandler;
     /// <summary>
     ///   Serial (COM PORT) settings
     /// </summary>
@@ -642,6 +658,8 @@ begin
 
   // Create stringlist for holding incoming data
   FDataLines := TStringList.Create;
+  // Set initial use protocol handler
+  FUseProtocolHandler := True;
   // Set initial initialization timeout
   FInitializationTimeout := 5000;
   // Set initial allow long messages
@@ -667,6 +685,17 @@ begin
 
   // Call inherited destructor
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// SET USE PROTOCOL HANDLER
+//------------------------------------------------------------------------------
+procedure TELMAdapter.SetUseProtocolHandler(Value: Boolean);
+begin
+  // Exit here if we're connected
+  if Connected then Exit;
+  // Set use protocol handler
+  FUseProtocolHandler := Value;
 end;
 
 //------------------------------------------------------------------------------
@@ -1034,7 +1063,8 @@ begin
   try
     // Get initial data (0100)
     L.Text := WriteCommandSync(ctOBDCommand, '0100');
-    // Create the protocol object (if not set to auto)
+    // Create the protocol object (If use protocol handler is set to 'True')
+    if UseProtocolHandler then
     case FELMProtocol of
       epAutomatic          : FProtocol := nil;
       epSAE_J1850_PWM      : FProtocol := TSAE_J1850_PWM_OBDProtocol.Create(L, AllowLongMessages);

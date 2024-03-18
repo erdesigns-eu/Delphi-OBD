@@ -379,19 +379,37 @@ begin
     for I := 0 to High(CF) do Indices[I] := CF[I].SeqIndex;
     if not Contiguous(Indices, 1, Length(CF)) then Exit;
 
-    // On the first frame, skip PCI byte AND length code
-    Msg.Data := Copy(FF[0].Data, 3, Length(FF[0].Data) - 2);
+    // Service 03, 07 and 0A are handled different than the other services
+    if (FF[0].Data[2] = $43) or (FF[0].Data[2] = $47) or (FF[0].Data[2] = $4A) then
+    begin
+      // Copy the service id and the rest of the data
+      Msg.Data := Copy(FF[0].Data, 2, 1) + Copy(FF[0].Data, 4, Length(FF[0].Data) - 2);
+    end else
+    begin
+      // NOTE:
+      // This might need to be updated in the future, not sure if this will
+      // keep the service ID and Parameter ID from the first frame..
+
+      // On the first frame, skip PCI byte AND length code
+      Msg.Data := Copy(FF[0].Data, 3, Length(FF[0].Data) - 2);
+    end;
 
     // Now that they're in order, load/accumulate the data from each CF frame
-    for F in CF do Msg.Data := Msg.Data + Copy(F.Data, 2, Length(F.Data) - 1);
+    for F in CF do Msg.Data := Msg.Data + Copy(F.Data, 1, Length(F.Data) - 1);
     // Chop to the correct size (as specified in the first frame)
-    Msg.Data := Copy(Msg.Data, 1, FF[0].DataLength);
+    Msg.Data := Copy(Msg.Data, 0, FF[0].DataLength);
 
-    // Mode 03
-    if Msg.Data[1] = $43 then
+    // Service 03, 07 and 0A
+    if (Msg.Data[0] = $43) or (Msg.Data[0] = $47) or (Msg.Data[0] = $4A) then
     begin
-      NumDtcBytes := Msg.Data[2] * 2;
-      Msg.Data := Copy(Msg.Data, 1, NumDtcBytes + 2);
+      // The number of DTC bytes are in the first frame, after the service id
+      // and we multiply by two because we use 2 bytes per DTC.
+      NumDtcBytes := FF[0].Data[3] * 2;
+      // Copy the number of bytes needed for the DTC's + 1 byte for the service id
+      Msg.Data := Copy(Msg.Data, 0, NumDtcBytes + 1);
+      // If for some reason we are missing data (Like when using the Diamex ECUSIM)
+      // then add trailing 00 so we have a partial response we can parse.
+      if Odd(Length(Msg.Data) -1) then Msg.Data := Msg.Data + [$00];
     end;
   end;
 

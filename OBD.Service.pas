@@ -27,6 +27,10 @@ type
   IOBDService = interface
     ['{E76AAF33-A74D-4224-ACA1-4D63E5003793}']
     /// <summary>
+    ///   Get the service id (e.g. $01, $02, ...)
+    /// </summary>
+    function GetServiceID: Byte;
+    /// <summary>
     ///   Parse service response
     /// </summary>
     procedure ParseResponse(Response: TBytes);
@@ -45,6 +49,11 @@ type
     ///   Error response event
     /// </summary>
     FOnErrorResponse: TOBDServiceErrorResponseEvent;
+  protected
+    /// <summary>
+    ///   Get the service id (e.g. $01, $02, ...)
+    /// </summary>
+    function GetServiceID: Byte; virtual; abstract;
   public
     /// <summary>
     ///   Parse service response

@@ -986,6 +986,10 @@ type
     /// </summary>
     FSupportedPID: TBytes;
     /// <summary>
+    ///   DTC that caused freeze frame to be stored
+    /// </summary>
+    FStoredFreezeFrameDTC: string;
+    /// <summary>
     ///   Array with supported PID's
     /// </summary>
     FMIL: Boolean;
@@ -1405,10 +1409,14 @@ type
     FEngineIntakeAirTemperatureData: TOBDServiceSensorTemperatureData;
 
     /// <summary>
-    ///   Live data changed event
+    ///   Data changed event
     /// </summary>
-    FOnLiveData: TOBDLiveDataEvent;
+    FOnData: TOBDServiceDataEvent;
   protected
+    /// <summary>
+    ///   Get the service id
+    /// </summary>
+    function GetServiceID: Byte; override;
     /// <summary>
     ///   Parse response with supported PID's
     /// </summary>
@@ -1444,6 +1452,10 @@ type
     ///   Array with supported PID's
     /// </summary>
     property SupportedPID: TBytes read FSupportedPID;
+    /// <summary>
+    ///   DTC that caused freeze frame to be stored
+    /// </summary>
+    property StoredFreezeFrameDTC: string read FStoredFreezeFrameDTC;
     /// <summary>
     ///   MIL (Malfunction Indicator Light) status
     /// </summary>
@@ -1858,10 +1870,18 @@ type
     /// <summary>
     ///   Live data changed event
     /// </summary>
-    property OnLiveData: TOBDLiveDataEvent read FOnLiveData write FOnLiveData;
+    property OnData: TOBDServiceDataEvent read FOnData write FOnData;
   end;
 
 implementation
+
+//------------------------------------------------------------------------------
+// SERVICE 01: GET SERVIVE ID
+//------------------------------------------------------------------------------
+function TOBDService01.GetServiceID: Byte;
+begin
+  Result := OBD_SERVICE_01;
+end;
 
 //------------------------------------------------------------------------------
 // SERVICE 01: PARSE SUPPORTED PID
@@ -1890,7 +1910,7 @@ begin
   end;
 
   // Create an instance of the comparer
-  Comparer := TSupportedPIDComparer.Create;
+  Comparer := TOBDServiceSupportedPIDComparer.Create;
   // Sort the PID's ascending
   TArray.Sort<Byte>(FSupportedPID, Comparer);
 end;
@@ -2509,7 +2529,7 @@ begin
   end;
 
   // If this response is not for this service, exit here
-  if ServiceID <> OBD_SERVICE_01 then Exit;
+  if ServiceID <> GetServiceID then Exit;
 
   // Parse supported PID's
   if ParameterID in [
@@ -2530,7 +2550,30 @@ begin
   if ParameterID = OBD_SERVICE_01_MONITOR_STATUS then
   begin
     ParseMonitorStatus(Data);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MONITOR_STATUS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MONITOR_STATUS);
+    Exit;
+  end;
+
+  // Parse stored DTC from freeze frame
+  if ParameterID = OBD_SERVICE_02_FREEZE_DTC then
+  begin
+    if Length(Data) < 2 then Exit;
+    //
+    var DTCFirstChar, DTCSecondChar: AnsiChar;
+    // Decode the first character based on the most significant nibble of the first byte
+    case (Data[0] shr 4) of
+      0: DTCFirstChar := 'P';
+      1: DTCFirstChar := 'C';
+      2: DTCFirstChar := 'B';
+      3: DTCFirstChar := 'U';
+    else
+      DTCFirstChar := '?';
+    end;
+    // Decode the second character, which is a numeric value represented by the least significant nibble of the first byte
+    DTCSecondChar := AnsiChar((Data[0] and $0F) + Ord('0'));
+    // Get the DTC
+    FStoredFreezeFrameDTC := Format('%s%c%02d', [DTCFirstChar, DTCSecondChar, Data[1]]);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_02_FREEZE_DTC);
     Exit;
   end;
 
@@ -2539,7 +2582,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelSystemStatusDecoder.Create;
     (ResponseDecoder as TOBDFuelSystemStatusDecoder).Parse(Data, FFuelSystem1Status, FFuelSystem2Status);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_SYSTEM_STATUS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_SYSTEM_STATUS);
     Exit;
   end;
 
@@ -2548,7 +2591,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCalculatedEngineLoad);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CALCULATED_ENGINE_LOAD);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CALCULATED_ENGINE_LOAD);
     Exit;
   end;
 
@@ -2557,7 +2600,7 @@ begin
   begin
     ResponseDecoder := TOBDTemperatureDecoder.Create;
     (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FEngineCoolantTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE);
     Exit;
   end;
 
@@ -2566,7 +2609,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelTrimDecoder.Create;
     (ResponseDecoder as TOBDFuelTrimDecoder).Parse(Data, FShortTermFuelTrimBank1);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_FUEL_TRIM_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_SHORT_TERM_FUEL_TRIM_BANK1);
     Exit;
   end;
 
@@ -2575,7 +2618,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelTrimDecoder.Create;
     (ResponseDecoder as TOBDFuelTrimDecoder).Parse(Data, FLongTermFuelTrimBank1);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_FUEL_TRIM_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_LONG_TERM_FUEL_TRIM_BANK1);
     Exit;
   end;
 
@@ -2584,7 +2627,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelTrimDecoder.Create;
     (ResponseDecoder as TOBDFuelTrimDecoder).Parse(Data, FShortTermFuelTrimBank2);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_FUEL_TRIM_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_SHORT_TERM_FUEL_TRIM_BANK2);
     Exit;
   end;
 
@@ -2593,7 +2636,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelTrimDecoder.Create;
     (ResponseDecoder as TOBDFuelTrimDecoder).Parse(Data, FLongTermFuelTrimBank2);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_FUEL_TRIM_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_LONG_TERM_FUEL_TRIM_BANK2);
     Exit;
   end;
 
@@ -2602,7 +2645,7 @@ begin
   begin
     ResponseDecoder := TOBDFuelPressureDecoder.Create;
     (ResponseDecoder as TOBDFuelPressureDecoder).Parse(Data, FFuelPressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_PRESSURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_PRESSURE);
     Exit;
   end;
 
@@ -2610,7 +2653,7 @@ begin
   if ParameterID = OBD_SERVICE_01_INTAKE_MANIFOLD_PRESSURE then
   begin
     FIntakeManifoldAbsolutePressure := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_INTAKE_MANIFOLD_PRESSURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_INTAKE_MANIFOLD_PRESSURE);
     Exit;
   end;
 
@@ -2619,7 +2662,7 @@ begin
   begin
     ResponseDecoder := TOBDEngineRPMDecoder.Create;
     (ResponseDecoder as TOBDEngineRPMDecoder).Parse(Data, FEngineRPM);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_RPM);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_RPM);
     Exit;
   end;
 
@@ -2627,7 +2670,7 @@ begin
   if ParameterID = OBD_SERVICE_01_VEHICLE_SPEED then
   begin
     FVehicleSpeed := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_VEHICLE_SPEED);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_VEHICLE_SPEED);
     Exit;
   end;
 
@@ -2636,7 +2679,7 @@ begin
   begin
     ResponseDecoder := TOBDTimingAdvanceDecoder.Create;
     (ResponseDecoder as TOBDTimingAdvanceDecoder).Parse(Data, FTimingAdvance);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_TIMING_ADVANCE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_TIMING_ADVANCE);
     Exit;
   end;
 
@@ -2645,7 +2688,7 @@ begin
   begin
     ResponseDecoder := TOBDTemperatureDecoder.Create;
     (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FIntakeAirTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_INTAKE_AIR_TEMPERATURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_INTAKE_AIR_TEMPERATURE);
     Exit;
   end;
 
@@ -2654,7 +2697,7 @@ begin
   begin
     ResponseDecoder := TOBDMassAirFlowRateDecoder.Create;
     (ResponseDecoder as TOBDMassAirFlowRateDecoder).Parse(Data, FMassAirFlowRate);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MAF_AIR_FLOW_RATE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MAF_AIR_FLOW_RATE);
     Exit;
   end;
 
@@ -2663,7 +2706,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FThrottlePosition);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_THROTTLE_POSITION);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_THROTTLE_POSITION);
     Exit;
   end;
 
@@ -2672,7 +2715,7 @@ begin
   begin
     ResponseDecoder := TOBDCommandedSecondaryAirStatusDecoder.Create;
     (ResponseDecoder as TOBDCommandedSecondaryAirStatusDecoder).Parse(Data, FCommandedSecondaryAirStatus);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_SECONDARY_AIR_STATUS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_COMMANDED_SECONDARY_AIR_STATUS);
     Exit;
   end;
 
@@ -2688,7 +2731,7 @@ begin
     FOxygenSensorPresent2Banks.FBank2Sensor2 := (Data[0] and $20) <> 0;
     FOxygenSensorPresent2Banks.FBank2Sensor3 := (Data[0] and $40) <> 0;
     FOxygenSensorPresent2Banks.FBank2Sensor4 := (Data[0] and $80) <> 0;
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_OXYGEN_SENSORS_PRESENT_1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_OXYGEN_SENSORS_PRESENT_1);
     Exit;
   end;
 
@@ -2697,7 +2740,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor1Bank1VoltageFuelTrim.FVoltage, FOxygenSensor1Bank1VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR1_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR1_BANK1);
     Exit;
   end;
 
@@ -2706,7 +2749,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor2Bank1VoltageFuelTrim.FVoltage, FOxygenSensor2Bank1VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR2_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR2_BANK1);
     Exit;
   end;
 
@@ -2715,7 +2758,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor3Bank1VoltageFuelTrim.FVoltage, FOxygenSensor3Bank1VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR3_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR3_BANK1);
     Exit;
   end;
 
@@ -2724,7 +2767,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor4Bank1VoltageFuelTrim.FVoltage, FOxygenSensor4Bank1VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR4_BANK1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR4_BANK1);
     Exit;
   end;
 
@@ -2733,7 +2776,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor1Bank2VoltageFuelTrim.FVoltage, FOxygenSensor1Bank2VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR1_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR1_BANK2);
     Exit;
   end;
 
@@ -2742,7 +2785,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor2Bank2VoltageFuelTrim.FVoltage, FOxygenSensor2Bank2VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR2_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR2_BANK2);
     Exit;
   end;
 
@@ -2751,7 +2794,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor3Bank2VoltageFuelTrim.FVoltage, FOxygenSensor3Bank2VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR3_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR3_BANK2);
     Exit;
   end;
 
@@ -2760,7 +2803,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingDecoder).Parse(Data, FOxygenSensor4Bank2VoltageFuelTrim.FVoltage, FOxygenSensor4Bank2VoltageFuelTrim.FFuelTrim);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2_SENSOR4_BANK2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2_SENSOR4_BANK2);
     Exit;
   end;
 
@@ -2769,7 +2812,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FOBDStandard := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_OBD_STANDARDS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_OBD_STANDARDS);
     Exit;
   end;
 
@@ -2785,7 +2828,7 @@ begin
     FOxygenSensorPresent4Banks.FBank3Sensor2 := (Data[0] and $20) <> 0;
     FOxygenSensorPresent4Banks.FBank4Sensor1 := (Data[0] and $40) <> 0;
     FOxygenSensorPresent4Banks.FBank4Sensor2 := (Data[0] and $80) <> 0;
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_OXYGEN_SENSORS_PRESENT_2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_OXYGEN_SENSORS_PRESENT_2);
     Exit;
   end;
 
@@ -2801,7 +2844,7 @@ begin
       FAuxilaryInputStatus := aisActive
     else
       FAuxilaryInputStatus := aisPowerTakeOff;
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_AUXILIARY_INPUT_STATUS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_AUXILIARY_INPUT_STATUS);
     Exit;
   end;
 
@@ -2810,7 +2853,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEngineRuntimeDecoder.Create;
     (ResponseDecoder as TOBDServiceEngineRuntimeDecoder).Parse(Data, FRuntimeSinceEngineStart);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_RUN_TIME);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_RUN_TIME);
     Exit;
   end;
 
@@ -2819,7 +2862,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceDistanceTraveledWithMILOnDecoder.Create;
     (ResponseDecoder as TOBDServiceDistanceTraveledWithMILOnDecoder).Parse(Data, FDistanceTraveledWithMILOn);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_DISTANCE_TRAVELED_MIL_ON);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_DISTANCE_TRAVELED_MIL_ON);
     Exit;
   end;
 
@@ -2828,7 +2871,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceFuelRailPressureDecoder.Create;
     (ResponseDecoder as TOBDServiceFuelRailPressureDecoder).Parse(Data, FFuelRailPressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_VACUUM);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_VACUUM);
     Exit;
   end;
 
@@ -2837,7 +2880,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceFuelRailGaugePressureDecoder.Create;
     (ResponseDecoder as TOBDServiceFuelRailGaugePressureDecoder).Parse(Data, FFuelRailGaugePressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_DIRECT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_DIRECT);
     Exit;
   end;
 
@@ -2846,7 +2889,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor1Bank1AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor1Bank1AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2855,7 +2898,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor2Bank1AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor2Bank1AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2864,7 +2907,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor3Bank1AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor3Bank1AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2873,7 +2916,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor4Bank1AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor4Bank1AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2882,7 +2925,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor1Bank2AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor1Bank2AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2891,7 +2934,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor2Bank2AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor2Bank2AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2900,7 +2943,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor3Bank2AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor3Bank2AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2909,7 +2952,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRVDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRVDecoder).Parse(Data, FOxygenSensor4Bank2AirFuelEQRatioVoltage.FAirFuelEquivalenceRatio, FOxygenSensor4Bank2AirFuelEQRatioVoltage.FVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_VOLTAGE);
     Exit;
   end;
 
@@ -2918,7 +2961,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCommandedEGR);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_EGR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_COMMANDED_EGR);
     Exit;
   end;
 
@@ -2927,7 +2970,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEGRErrorDecoder.Create;
     (ResponseDecoder as TOBDServiceEGRErrorDecoder).Parse(Data, FEGRError);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_EGR_ERROR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_EGR_ERROR);
     Exit;
   end;
 
@@ -2936,7 +2979,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCommandedEvaportativePurge);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_EVAPORATIVE_PURGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_COMMANDED_EVAPORATIVE_PURGE);
     Exit;
   end;
 
@@ -2945,7 +2988,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FFuelLevel);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_LEVEL_INPUT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_LEVEL_INPUT);
     Exit;
   end;
 
@@ -2954,7 +2997,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FWarmUpsSinceCodesCleared := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_WARMUPS_SINCE_CODES_CLEARED);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_WARMUPS_SINCE_CODES_CLEARED);
     Exit;
   end;
 
@@ -2963,7 +3006,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceDistanceSinceCodesClearedDecoder.Create;
     (ResponseDecoder as TOBDServiceDistanceSinceCodesClearedDecoder).Parse(Data, FDistanceSinceCodesCleared);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_DISTANCE_TRAVELED_CODES_CLEARED);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_DISTANCE_TRAVELED_CODES_CLEARED);
     Exit;
   end;
 
@@ -2972,7 +3015,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEvapSystemVaporPressureDecoder.Create;
     (ResponseDecoder as TOBDServiceEvapSystemVaporPressureDecoder).Parse(Data, FEvapSystemVaporPressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE);
     Exit;
   end;
 
@@ -2981,7 +3024,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FAbsoluteBarometricPressure := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_BAROMETRIC_PRESSURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_BAROMETRIC_PRESSURE);
     Exit;
   end;
 
@@ -2990,7 +3033,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor1Bank1AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor1Bank1AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S1_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -2999,7 +3042,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor2Bank1AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor2Bank1AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S2_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3008,7 +3051,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor3Bank1AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor3Bank1AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S3_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3017,7 +3060,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor4Bank1AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor4Bank1AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S4_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3026,7 +3069,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor1Bank2AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor1Bank2AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S5_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3035,7 +3078,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor2Bank2AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor2Bank2AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S6_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3044,7 +3087,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor3Bank2AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor3Bank2AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S7_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3053,7 +3096,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorReadingRCDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorReadingRCDecoder).Parse(Data, FOxygenSensor4Bank2AirFuelEQRatioCurrent.FAirFuelEquivalenceRatio, FOxygenSensor4Bank2AirFuelEQRatioCurrent.FCurrent);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_O2S8_WR_LAMBDA_1_EQUIV_RATIO_CURRENT);
     Exit;
   end;
 
@@ -3062,7 +3105,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceCatalystTemperatureDecoder.Create;
     (ResponseDecoder as TOBDServiceCatalystTemperatureDecoder).Parse(Data, FCatalystTemperatureSensor1Bank1);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S1);
     Exit;
   end;
 
@@ -3071,7 +3114,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceCatalystTemperatureDecoder.Create;
     (ResponseDecoder as TOBDServiceCatalystTemperatureDecoder).Parse(Data, FCatalystTemperatureSensor1Bank2);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S1);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S1);
     Exit;
   end;
 
@@ -3080,7 +3123,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceCatalystTemperatureDecoder.Create;
     (ResponseDecoder as TOBDServiceCatalystTemperatureDecoder).Parse(Data, FCatalystTemperatureSensor2Bank1);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CATALYST_TEMPERATURE_B1S2);
     Exit;
   end;
 
@@ -3089,7 +3132,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceCatalystTemperatureDecoder.Create;
     (ResponseDecoder as TOBDServiceCatalystTemperatureDecoder).Parse(Data, FCatalystTemperatureSensor2Bank2);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CATALYST_TEMPERATURE_B2S2);
     Exit;
   end;
 
@@ -3097,7 +3140,7 @@ begin
   if ParameterID = OBD_SERVICE_01_MONITOR_STATUS_DRIVE_CYCLE then
   begin
     ParseMonitorStatus(Data);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MONITOR_STATUS_DRIVE_CYCLE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MONITOR_STATUS_DRIVE_CYCLE);
     Exit;
   end;
 
@@ -3106,7 +3149,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceControlModuleVoltageDecoder.Create;
     (ResponseDecoder as TOBDServiceControlModuleVoltageDecoder).Parse(Data, FControlModuleVoltage);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_CONTROL_MODULE_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_CONTROL_MODULE_VOLTAGE);
     Exit;
   end;
 
@@ -3115,7 +3158,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceAbsoluteLoadValueDecoder.Create;
     (ResponseDecoder as TOBDServiceAbsoluteLoadValueDecoder).Parse(Data, FAbsoluteLoadValue);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_LOAD_VALUE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ABSOLUTE_LOAD_VALUE);
     Exit;
   end;
 
@@ -3124,7 +3167,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceCommandedAirFuelEQRatioDecoder.Create;
     (ResponseDecoder as TOBDServiceCommandedAirFuelEQRatioDecoder).Parse(Data, FCommandedAirFuelEquivalenceRatio);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_EQUIVALENCE_RATIO);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_COMMANDED_EQUIVALENCE_RATIO);
     Exit;
   end;
 
@@ -3133,7 +3176,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FRelativeThrottlePosition);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_RELATIVE_THROTTLE_POSITION);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_RELATIVE_THROTTLE_POSITION);
     Exit;
   end;
 
@@ -3142,7 +3185,7 @@ begin
   begin
     ResponseDecoder := TOBDTemperatureDecoder.Create;
     (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FAmbientAirTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_AMBIENT_AIR_TEMPERATURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_AMBIENT_AIR_TEMPERATURE);
     Exit;
   end;
 
@@ -3151,7 +3194,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAbsoluteThrottlePositionB);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_THROTTLE_POSITION_B);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ABSOLUTE_THROTTLE_POSITION_B);
     Exit;
   end;
 
@@ -3160,7 +3203,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAbsoluteThrottlePositionC);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_THROTTLE_POSITION_C);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ABSOLUTE_THROTTLE_POSITION_C);
     Exit;
   end;
 
@@ -3169,7 +3212,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionD);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_D);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_D);
     Exit;
   end;
 
@@ -3178,7 +3221,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionE);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_E);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_E);
     Exit;
   end;
 
@@ -3187,7 +3230,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FAcceleratorPedalPositionF);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_F);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ACCELERATOR_PEDAL_POSITION_F);
     Exit;
   end;
 
@@ -3196,7 +3239,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FCommandedThrottleActuator);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_COMMANDED_THROTTLE_ACTUATOR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_COMMANDED_THROTTLE_ACTUATOR);
     Exit;
   end;
 
@@ -3205,7 +3248,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceMinuteDecoder.Create;
     (ResponseDecoder as TOBDServiceMinuteDecoder).Parse(Data, FTimeRunWithMILOn);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_TIME_RUN_WITH_MIL_ON);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_TIME_RUN_WITH_MIL_ON);
     Exit;
   end;
 
@@ -3214,7 +3257,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceMinuteDecoder.Create;
     (ResponseDecoder as TOBDServiceMinuteDecoder).Parse(Data, FTimeSinceTroubleCodesCleared);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_TIME_SINCE_TROUBLE_CODES_CLEARED);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_TIME_SINCE_TROUBLE_CODES_CLEARED);
     Exit;
   end;
 
@@ -3223,7 +3266,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceMaxSensorValuesDecoder.Create;
     (ResponseDecoder as TOBDServiceMaxSensorValuesDecoder).Parse(Data, FMaxSensorValues.FAirFuelEquivalenceRatio, FMaxSensorValues.FOxygenSensorVoltage, FMaxSensorValues.FOxygenSensorCurrent, FMaxSensorValues.FIntakeManifoldPressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MAX_VALUES_EQUIV_RATIO_O2S_VOLTAGE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MAX_VALUES_EQUIV_RATIO_O2S_VOLTAGE);
     Exit;
   end;
 
@@ -3232,7 +3275,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FMaxSensorValues.FAirFlowRate := Data[0] * 10;
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MAX_VALUE_AIR_FLOW_RATE_FROM_MAF_SENSOR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MAX_VALUE_AIR_FLOW_RATE_FROM_MAF_SENSOR);
     Exit;
   end;
 
@@ -3241,7 +3284,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FFuelType := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_TYPE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_TYPE);
     Exit;
   end;
 
@@ -3250,7 +3293,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FEthanolFuel);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ETHANOL_FUEL_PERCENT);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ETHANOL_FUEL_PERCENT);
     Exit;
   end;
 
@@ -3259,7 +3302,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceAbsoluteEvapSystemVaporPressureDecoder.Create;
     (ResponseDecoder as TOBDServiceAbsoluteEvapSystemVaporPressureDecoder).Parse(Data, FAbsoluteEvapSystemVaporPressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE);
     Exit;
   end;
 
@@ -3268,7 +3311,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEvapSystemVaporPressure2Decoder.Create;
     (ResponseDecoder as TOBDServiceEvapSystemVaporPressure2Decoder).Parse(Data, FEvapSystemVaporPressure2);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_2);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_EVAP_SYSTEM_VAPOR_PRESSURE_2);
     Exit;
   end;
 
@@ -3277,7 +3320,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FShortTermOxygenSensorTrimBank1Bank3.FBank1, FShortTermOxygenSensorTrimBank1Bank3.FBank3);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
     Exit;
   end;
 
@@ -3286,7 +3329,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FLongTermOxygenSensorTrimBank1Bank3.FBank1, FLongTermOxygenSensorTrimBank1Bank3.FBank3);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B1_B3);
     Exit;
   end;
 
@@ -3295,7 +3338,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FShortTermOxygenSensorTrimBank2Bank4.FBank2, FShortTermOxygenSensorTrimBank2Bank4.FBank4);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_SHORT_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
     Exit;
   end;
 
@@ -3304,7 +3347,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceOxygenSensorTrimDecoder.Create;
     (ResponseDecoder as TOBDServiceOxygenSensorTrimDecoder).Parse(Data, FLongTermOxygenSensorTrimBank2Bank4.FBank2, FLongTermOxygenSensorTrimBank2Bank4.FBank4);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_LONG_TERM_SECONDARY_O2_SENSOR_TRIM_B2_B4);
     Exit;
   end;
 
@@ -3313,7 +3356,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceFuelRailAbsolutePressureDecoder.Create;
     (ResponseDecoder as TOBDServiceFuelRailAbsolutePressureDecoder).Parse(Data, FFuelRailAbsolutePressure);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_ABSOLUTE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_RAIL_PRESSURE_ABSOLUTE);
     Exit;
   end;
 
@@ -3322,7 +3365,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FRelativeAcceleratorPedalPosition);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_RELATIVE_ACCELERATOR_PEDAL_POSITION);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_RELATIVE_ACCELERATOR_PEDAL_POSITION);
     Exit;
   end;
 
@@ -3331,7 +3374,7 @@ begin
   begin
     ResponseDecoder := TOBDPercentageDecoder.Create;
     (ResponseDecoder as TOBDPercentageDecoder).Parse(Data, FHybridBatteryPackRemainingLife);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_HYBRID_BATTERY_PACK_REMAINING_LIFE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_HYBRID_BATTERY_PACK_REMAINING_LIFE);
     Exit;
   end;
 
@@ -3340,7 +3383,7 @@ begin
   begin
     ResponseDecoder := TOBDTemperatureDecoder.Create;
     (ResponseDecoder as TOBDTemperatureDecoder).Parse(Data, FEngineOilTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_OIL_TEMPERATURE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_OIL_TEMPERATURE);
     Exit;
   end;
 
@@ -3349,7 +3392,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceFuelInjectionTimingDecoder.Create;
     (ResponseDecoder as TOBDServiceFuelInjectionTimingDecoder).Parse(Data, FFuelInjectionTiming);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_FUEL_INJECTION_TIMING);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_FUEL_INJECTION_TIMING);
     Exit;
   end;
 
@@ -3358,7 +3401,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEngineFuelRateDecoder.Create;
     (ResponseDecoder as TOBDServiceEngineFuelRateDecoder).Parse(Data, FEngineFuelRate);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_FUEL_RATE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_FUEL_RATE);
     Exit;
   end;
 
@@ -3367,7 +3410,7 @@ begin
   begin
     if Length(Data) < 1 then Exit;
     FEmissionRequirements := Data[0];
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_EMISSION_REQUIREMENTS);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_EMISSION_REQUIREMENTS);
     Exit;
   end;
 
@@ -3376,7 +3419,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEngineTorqueDecoder.Create;
     (ResponseDecoder as TOBDServiceEngineTorqueDecoder).Parse(Data, FDriversDemandEnginePercentTorque);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_DRIVERS_DEMAND_ENGINE_PERCENT_TORQUE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_DRIVERS_DEMAND_ENGINE_PERCENT_TORQUE);
     Exit;
   end;
 
@@ -3385,7 +3428,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEngineTorqueDecoder.Create;
     (ResponseDecoder as TOBDServiceEngineTorqueDecoder).Parse(Data, FActualEnginePercentTorque);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ACTUAL_ENGINE_PERCENT_TORQUE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ACTUAL_ENGINE_PERCENT_TORQUE);
     Exit;
   end;
 
@@ -3394,7 +3437,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEngineReferenceTorqueDecoder.Create;
     (ResponseDecoder as TOBDServiceEngineReferenceTorqueDecoder).Parse(Data, FEngineReferenceTorque);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_REFERENCE_TORQUE);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_REFERENCE_TORQUE);
     Exit;
   end;
 
@@ -3403,7 +3446,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceEnginePercentTorqueDataDecoder.Create;
     (ResponseDecoder as TOBDServiceEnginePercentTorqueDataDecoder).Parse(Data, FEnginePercentTorqueData.FIdle, FEnginePercentTorqueData.FPoint1, FEnginePercentTorqueData.FPoint2, FEnginePercentTorqueData.FPoint3, FEnginePercentTorqueData.FPoint4);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_PERCENT_TORQUE_DATA);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_PERCENT_TORQUE_DATA);
     Exit;
   end;
 
@@ -3429,7 +3472,7 @@ begin
     FAuxiliaryInputOutputSupported.FOutput7 := (Data[1] and $20) <> 0;
     FAuxiliaryInputOutputSupported.FInput8 := (Data[1] and $40) <> 0;
     FAuxiliaryInputOutputSupported.FOutput8 := (Data[1] and $80) <> 0;
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_AUXILIARY_INPUT_OUTPUT_SUPPORTED);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_AUXILIARY_INPUT_OUTPUT_SUPPORTED);
     Exit;
   end;
 
@@ -3438,7 +3481,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceMassAirflowSensorDecoder.Create;
     (ResponseDecoder as TOBDServiceMassAirflowSensorDecoder).Parse(Data, FMassAirFlowSensor.FSensorASupported, FMassAirFlowSensor.FSensorBSupported, FMassAirFlowSensor.FSensorARate, FMassAirFlowSensor.FSensorBRate);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_MASS_AIR_FLOW_SENSOR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_MASS_AIR_FLOW_SENSOR);
     Exit;
   end;
 
@@ -3447,7 +3490,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceSensorTemperatureDataDecoder.Create;
     (ResponseDecoder as TOBDServiceSensorTemperatureDataDecoder).Parse(Data, FEngineCoolantTemperatureData.FSensorASupported, FEngineCoolantTemperatureData.FSensorBSupported, FEngineCoolantTemperatureData.FSensorATemperature, FEngineCoolantTemperatureData.FSensorBTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE_);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_ENGINE_COOLANT_TEMPERATURE_);
     Exit;
   end;
 
@@ -3456,7 +3499,7 @@ begin
   begin
     ResponseDecoder := TOBDServiceSensorTemperatureDataDecoder.Create;
     (ResponseDecoder as TOBDServiceSensorTemperatureDataDecoder).Parse(Data, FEngineIntakeAirTemperatureData.FSensorASupported, FEngineIntakeAirTemperatureData.FSensorBSupported, FEngineIntakeAirTemperatureData.FSensorATemperature, FEngineIntakeAirTemperatureData.FSensorBTemperature);
-    if Assigned(OnLiveData) then OnLiveData(Self, OBD_SERVICE_01, OBD_SERVICE_01_INTAKE_AIR_TEMPERATURE_SENSOR);
+    if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_INTAKE_AIR_TEMPERATURE_SENSOR);
     Exit;
   end;
 
