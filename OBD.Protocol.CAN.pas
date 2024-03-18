@@ -129,9 +129,28 @@ type
   end;
 
   /// <summary>
-  ///   SAE J1939 (CAN 29/500) OBD Protocol
+  ///   USER CAN (CAN 11/125) OBD Protocol
   /// </summary>
-  TSAE_J1939_500K_OBDProtocol = class(TCANOBDProtocol)
+  TUSER_CAN_125K_OBDProtocol = class(TCANOBDProtocol)
+  protected
+    /// <summary>
+    ///   Get the OBD Protocol name
+    /// </summary>
+    function GetName: string; override;
+    /// <summary>
+    ///   Get the OBD Protocol name with aditional data
+    /// </summary>
+    function GetDisplayName: string; override;
+    /// <summary>
+    ///   Get the OBD Protocol ID (for ELM compatible interfaces)
+    /// </summary>
+    function GetELMID: string; override;
+  end;
+
+  /// <summary>
+  ///   USER CAN (CAN 11/50) OBD Protocol
+  /// </summary>
+  TUSER_CAN_50K_OBDProtocol = class(TCANOBDProtocol)
   protected
     /// <summary>
     ///   Get the OBD Protocol name
@@ -191,7 +210,9 @@ begin
 
   // Read header information (11 Bits)
   if (Self is TISO_15765_4_11BIT_500K_OBDProtocol) or
-     (Self is TISO_15765_4_11BIT_250K_OBDProtocol) then
+     (Self is TISO_15765_4_11BIT_250K_OBDProtocol) or
+     (Self is TUSER_CAN_125K_OBDProtocol) or
+     (Self is TUSER_CAN_50K_OBDProtocol) then
   begin
     // Always 7
     Frame.Priority := RawBytes[2] and $0F;
@@ -222,9 +243,7 @@ begin
 
   // Read header information (29 Bits)
   if (Self is TISO_15765_4_29BIT_500K_OBDProtocol) or
-     (Self is TISO_15765_4_29BIT_250K_OBDProtocol) or
-     (Self is TSAE_J1939_250K_OBDProtocol) or
-     (Self is TSAE_J1939_500K_OBDProtocol) then
+     (Self is TISO_15765_4_29BIT_250K_OBDProtocol) then
   begin
     // Usually (always?) 0x18
     Frame.Priority := RawBytes[0];
@@ -538,27 +557,53 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// SAE J1939 (CAN 29/500): GET PROTOCOL NAME
+// USER CAN (CAN 11/125): GET PROTOCOL NAME
 //------------------------------------------------------------------------------
-function TSAE_J1939_500K_OBDProtocol.GetName: string;
+function TUSER_CAN_125K_OBDProtocol.GetName: string;
 begin
-  Result := 'SAE J1939 (CAN 29/500)';
+  Result := 'USER CAN 11/125';
 end;
 
 //------------------------------------------------------------------------------
-// SAE J1939 (CAN 29/500): GET PROTOCOL NAME WITH ADDITIONAL DATA
+// USER CAN (CAN 11/125): GET PROTOCOL NAME WITH ADDITIONAL DATA
 //------------------------------------------------------------------------------
-function TSAE_J1939_500K_OBDProtocol.GetDisplayName: string;
+function TUSER_CAN_125K_OBDProtocol.GetDisplayName: string;
 begin
-  Result := 'SAE J1939 (2 Wire CANH + CANL) - 29 bit identifier / 500 kbit/s - CAN 2.0B';
+  Result := 'USER 1 (2 Wire CANH + CANL) - 11 bit identifier / 125 kbit/s - CAN 2.0B';
 end;
 
 //------------------------------------------------------------------------------
-// SAE J1939 (CAN 29/500): GET ELM ID
+// USER CAN (CAN 11/125): GET ELM ID
 //------------------------------------------------------------------------------
-function TSAE_J1939_500K_OBDProtocol.GetELMID: string;
+function TUSER_CAN_125K_OBDProtocol.GetELMID: string;
 begin
   Result := 'B';
 end;
 
+//------------------------------------------------------------------------------
+// USER CAN (CAN 11/50): GET PROTOCOL NAME
+//------------------------------------------------------------------------------
+function TUSER_CAN_50K_OBDProtocol.GetName: string;
+begin
+  Result := 'USER CAN 11/50';
+end;
+
+//------------------------------------------------------------------------------
+// USER CAN (CAN 11/50): GET PROTOCOL NAME WITH ADDITIONAL DATA
+//------------------------------------------------------------------------------
+function TUSER_CAN_50K_OBDProtocol.GetDisplayName: string;
+begin
+  Result := 'USER 2 (2 Wire CANH + CANL) - 11 bit identifier / 50 kbit/s - CAN 2.0B';
+end;
+
+//------------------------------------------------------------------------------
+// USER CAN (CAN 11/50): GET ELM ID
+//------------------------------------------------------------------------------
+function TUSER_CAN_50K_OBDProtocol.GetELMID: string;
+begin
+  Result := 'C';
+end;
+
 end.
+
+
