@@ -907,7 +907,7 @@ begin
     end;
 
     // If the protocol is assigned, then send the data to the protocol for parsing
-    if Assigned(Protocol) then
+    if Assigned(Protocol) and UseProtocolHandler then
     begin
       // Clear the list
       FDataLines.Clear;
@@ -1077,7 +1077,8 @@ begin
       epISO_15765_4_11_250 : FProtocol := TISO_15765_4_11BIT_250K_OBDProtocol.Create(L, AllowLongMessages);
       epISO_15765_4_29_250 : FProtocol := TISO_15765_4_29BIT_250K_OBDProtocol.Create(L, AllowLongMessages);
       epSAE_J1939_29_250   : FProtocol := TSAE_J1939_250K_OBDProtocol.Create(L, AllowLongMessages);
-      epSAE_J1939_29_500   : FProtocol := TSAE_J1939_500K_OBDProtocol.Create(L, AllowLongMessages);
+      epUSER_CAN_1_11_125  : FProtocol := TUSER_CAN_125K_OBDProtocol.Create(L, AllowLongMessages);
+      epUSER_CAN_2_11_50   : FProtocol := TUSER_CAN_50K_OBDProtocol.Create(L, AllowLongMessages);
     end;
   finally
     L.Free;
