@@ -46,7 +46,11 @@ type
   /// <summary>
   ///   OBD Service 03 (Diagnostic Trouble Codes) Category
   /// </summary>
-  TOBDServiceDTCCategory = (dtcUnknown, dtcPowerTrain, dtcChassis, dtcBody, dtcNetwork);
+  TOBDServiceDTCCategory = (ccUnknown, ccPowerTrain, ccChassis, ccBody, ccNetwork);
+  /// <summary>
+  ///   OBD Service 03 (Diagnostic Trouble Codes) Origin
+  /// </summary>
+  TOBDServiceDTCOrigin = (coUnknown, coGeneric, coManufacturer);
 
 //------------------------------------------------------------------------------
 // EVENTS
@@ -94,6 +98,10 @@ type
     /// </summary>
     function GetCategory: TOBDServiceDTCCategory;
     /// <summary>
+    ///   Get the origin
+    /// </summary>
+    function GetOrigin: TOBDServiceDTCOrigin;
+    /// <summary>
     ///   Get the Diagnostic Trouble Code String
     /// </summary>
     function GetDTC: string;
@@ -102,6 +110,10 @@ type
     ///   DTC category
     /// </summary>
     property Category: TOBDServiceDTCCategory read GetCategory;
+    /// <summary>
+    ///   DTC origin
+    /// </summary>
+    property Origin: TOBDServiceDTCOrigin read GetOrigin;
     /// <summary>
     ///   DTC string
     /// </summary>
@@ -122,6 +134,10 @@ type
     /// </summary>
     FCategory: TOBDServiceDTCCategory;
     /// <summary>
+    ///   Origin
+    /// </summary>
+    FOrigin: TOBDServiceDTCOrigin;
+    /// <summary>
     ///   DTC string
     /// </summary>
     FDTC: string;
@@ -130,6 +146,10 @@ type
     ///   Get the category
     /// </summary>
     function GetCategory: TOBDServiceDTCCategory;
+    /// <summary>
+    ///   Get the origin
+    /// </summary>
+    function GetOrigin: TOBDServiceDTCOrigin;
     /// <summary>
     ///   Get the Diagnostic Trouble Code String
     /// </summary>
@@ -144,6 +164,10 @@ type
     ///   DTC category
     /// </summary>
     property Category: TOBDServiceDTCCategory read GetCategory;
+    /// <summary>
+    ///   DTC origin
+    /// </summary>
+    property Origin: TOBDServiceDTCOrigin read GetOrigin;
     /// <summary>
     ///   DTC string
     /// </summary>
@@ -174,6 +198,14 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// DTC: GET ORIGIN
+//------------------------------------------------------------------------------
+function TOBDServiceDiagnosticTroubleCode.GetOrigin: TOBDServiceDTCOrigin;
+begin
+  Result := FOrigin;
+end;
+
+//------------------------------------------------------------------------------
 // DTC: GET DTC STRING
 //------------------------------------------------------------------------------
 function TOBDServiceDiagnosticTroubleCode.GetDTC: string;
@@ -188,15 +220,21 @@ constructor TOBDServiceDiagnosticTroubleCode.Create(DTC: string);
 begin
   // Call inherited constructor
   inherited Create;
-  // Set DTC
+  // Set DTC string
   FDTC := DTC;
   // Set category
   case DTC[1] of
-    'P': FCategory := dtcPowerTrain;
-    'C': FCategory := dtcChassis;
-    'B': FCategory := dtcBody;
-    'U': FCategory := dtcNetwork;
-    else FCategory := dtcUnknown;
+    'P': FCategory := ccPowerTrain;
+    'C': FCategory := ccChassis;
+    'B': FCategory := ccBody;
+    'U': FCategory := ccNetwork;
+    else FCategory := ccUnknown;
+  end;
+  // Set origin
+  case DTC[2] of
+    '0': FOrigin := coGeneric;
+    '1': FOrigin := coManufacturer;
+    else FOrigin := coUnknown;
   end;
 end;
 

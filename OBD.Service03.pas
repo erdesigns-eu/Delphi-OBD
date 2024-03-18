@@ -63,6 +63,8 @@ type
 
 implementation
 
+uses windows;
+
 //------------------------------------------------------------------------------
 // SERVICE 03: GET SERVIVE ID
 //------------------------------------------------------------------------------
@@ -112,10 +114,10 @@ var
   ServiceDecoder: IOBDServiceResponseDecoder;
   ErrorDecoder: IOBDResponseDecoder;
   Error: Boolean;
-  I: Integer;
+  I, DTCNumber: Integer;
   ServiceID, ParameterID, E: Byte;
   Data, Additional: TBytes;
-  DTCFirstChar: AnsiChar;
+  DTCFirstChar: Char;
 begin
   // Create decoder
   ServiceDecoder := TOBDServiceResponseDecoder.Create;
@@ -150,17 +152,19 @@ begin
   while I < Length(Data) do
   begin
     // Determine the first character based on the most significant nibble of the first byte
-    case (Data[I] shr 4) of
-      0: DTCFirstChar := 'P'; // Powertrain
-      1: DTCFirstChar := 'C'; // Chassis
-      2: DTCFirstChar := 'B'; // Body
-      3: DTCFirstChar := 'U'; // Network
+    case (Data[I] shr 6) of
+      0 : DTCFirstChar := 'P'; // Powertrain
+      1 : DTCFirstChar := 'C'; // Chassis
+      2 : DTCFirstChar := 'B'; // Body
+      3 : DTCFirstChar := 'U'; // Network
     else
       DTCFirstChar := '?';
     end;
+    // Combine the remaining bits of the first byte with the second byte to form the DTC number
+    DTCNumber := ((Data[I] and $3F) shl 8) + Data[I + 1];
     // Construct the DTC code string and add it to the list
     SetLength(FDTC, Length(FDTC) + 1);
-    FDTC[Length(FDTC) -1] := TOBDServiceDiagnosticTroubleCode.Create(Format('%s%s%s', [DTCFirstChar, IntToHex(Data[I], 2), IntToHex(Data[I +1], 2)]));
+    FDTC[Length(FDTC) -1] := TOBDServiceDiagnosticTroubleCode.Create(Format('%s%04X', [DTCFirstChar, DTCNumber]));
     // Move to the next DTC (skip the next two bytes)
     Inc(I, 2);
   end;
