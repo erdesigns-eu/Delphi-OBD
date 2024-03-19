@@ -954,7 +954,7 @@ begin
     raise TATCommandException.Create(Format('Mismatch: %d expected, got %d.', [ExpectedParamCount, Length(Params)]));
 
   // Loop over params, and make sure they match the expected types.
-  (*for I := 0 to High(Params) do
+  for I := 0 to High(Params) do
   begin
     case Params[I].VType of
       vtInteger:
@@ -970,7 +970,7 @@ begin
 
       else raise TATCommandException.Create('Unsupported type.');
     end;
-  end;*)
+  end;
 
   // Return formatted AT Command
   Result := Format(Command.Command, Params);

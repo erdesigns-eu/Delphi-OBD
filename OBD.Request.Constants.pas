@@ -628,6 +628,143 @@ const
   /// </summary>
   OBD_SERVICE_02_FREEZE_FRAME_TROUBLE_CODE_BCD = $02;
 
+//------------------------------------------------------------------------------
+// OBD-II (SAE J1979) SERVICE 05 (SUPPORTED PID'S)
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   PIDs supported [01 - 20]
+  /// </summary>
+  OBD_SERVICE_05_SUPPORTED_PID_0120 = $0100;
+  /// <summary>
+  ///   Bank 1 Sensor 1 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S1_RICH_TO_LEAN = $0101;
+  /// <summary>
+  ///   Bank 1 Sensor 2 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S2_RICH_TO_LEAN = $0102;
+  /// <summary>
+  ///   Bank 1 Sensor 3 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S3_RICH_TO_LEAN = $0103;
+  /// <summary>
+  ///   Bank 1 Sensor 4 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S4_RICH_TO_LEAN = $0104;
+  /// <summary>
+  ///   Bank 2 Sensor 1 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S1_RICH_TO_LEAN = $0105;
+  /// <summary>
+  ///   Bank 2 Sensor 2 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S2_RICH_TO_LEAN = $0106;
+  /// <summary>
+  ///   Bank 2 Sensor 3 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S3_RICH_TO_LEAN = $0107;
+  /// <summary>
+  ///   Bank 2 Sensor 4 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S4_RICH_TO_LEAN = $0108;
+  /// <summary>
+  ///   Bank 3 Sensor 1 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S1_RICH_TO_LEAN = $0109;
+  /// <summary>
+  ///   Bank 3 Sensor 2 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S2_RICH_TO_LEAN = $010A;
+  /// <summary>
+  ///   Bank 3 Sensor 3 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S3_RICH_TO_LEAN = $010B;
+  /// <summary>
+  ///   Bank 3 Sensor 4 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S4_RICH_TO_LEAN = $010C;
+  /// <summary>
+  ///   Bank 4 Sensor 1 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S1_RICH_TO_LEAN = $010D;
+  /// <summary>
+  ///   Bank 4 Sensor 2 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S2_RICH_TO_LEAN = $010E;
+  /// <summary>
+  ///   Bank 4 Sensor 3 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S3_RICH_TO_LEAN = $010F;
+  /// <summary>
+  ///   Bank 4 Sensor 4 - Rich to lean sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S4_RICH_TO_LEAN = $0110;
+  /// <summary>
+  ///   Bank 1 Sensor 1 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S1_LEAN_TO_RICH = $0201;
+  /// <summary>
+  ///   Bank 1 Sensor 2 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S2_LEAN_TO_RICH = $0202;
+  /// <summary>
+  ///   Bank 1 Sensor 3 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S3_LEAN_TO_RICH = $0203;
+  /// <summary>
+  ///   Bank 1 Sensor 4 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B1S4_LEAN_TO_RICH = $0204;
+  /// <summary>
+  ///   Bank 2 Sensor 1 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S1_LEAN_TO_RICH = $0205;
+  /// <summary>
+  ///   Bank 2 Sensor 2 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S2_LEAN_TO_RICH = $0206;
+  /// <summary>
+  ///   Bank 2 Sensor 3 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S3_LEAN_TO_RICH = $0207;
+  /// <summary>
+  ///   Bank 2 Sensor 4 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B2S4_LEAN_TO_RICH = $0208;
+  /// <summary>
+  ///   Bank 3 Sensor 1 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S1_LEAN_TO_RICH = $0209;
+  /// <summary>
+  ///   Bank 3 Sensor 2 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S2_LEAN_TO_RICH = $020A;
+  /// <summary>
+  ///   Bank 3 Sensor 3 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S3_LEAN_TO_RICH = $020B;
+  /// <summary>
+  ///   Bank 3 Sensor 4 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B3S4_LEAN_TO_RICH = $020C;
+  /// <summary>
+  ///   Bank 4 Sensor 1 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S1_LEAN_TO_RICH = $020D;
+  /// <summary>
+  ///   Bank 4 Sensor 2 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S2_LEAN_TO_RICH = $020E;
+  /// <summary>
+  ///   Bank 4 Sensor 3 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S3_LEAN_TO_RICH = $020F;
+  /// <summary>
+  ///   Bank 4 Sensor 4 - Lean to Rich sensor threshold voltage
+  /// </summary>
+  OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S4_LEAN_TO_RICH = $0210;
+
 implementation
 
 end.

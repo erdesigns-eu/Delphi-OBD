@@ -32,6 +32,10 @@ type
 //------------------------------------------------------------------------------
 type
   /// <summary>
+  ///   OBD Service 01 Parameter 01 (Engine Type)
+  /// </summary>
+  TOBDServiceEngineType = (etUnknown, etSparkIgnition, etCompressionIgnition);
+  /// <summary>
   ///   OBD Service 01 Parameter 03 (Fuel system status)
   /// </summary>
   TOBDServiceFuelSystemStatus = (fsUnknown, fssMotorOff, fssOpenLoopInsufficientTemp, fssClosedLoop, fssOpenLoopEngineLoad, fssOpenLoopSystemFailure, fssClosedLoopFault);
@@ -82,7 +86,7 @@ type
   /// <param name="PID">
   ///   Parameter ID
   /// </param>
-  TOBDServiceDataEvent = procedure(Sender: TObject; SID: Byte; PID: Byte) of object;
+  TOBDServiceDataEvent = procedure(Sender: TObject; SID: Byte; PID: Integer) of object;
 
 //------------------------------------------------------------------------------
 // INTERFACES

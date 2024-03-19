@@ -29,7 +29,7 @@ type
     /// <summary>
     ///   Decode service response
     /// </summary>
-    function DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Byte; var PID: Byte; var Data: TBytes): Boolean;
+    function DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Integer; var PID: Integer; var Data: TBytes): Boolean;
   end;
 
   /// <summary>
@@ -51,7 +51,7 @@ type
     /// <summary>
     ///   Decode service response
     /// </summary>
-    function DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Byte; var PID: Byte; var Data: TBytes): Boolean; virtual;
+    function DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Integer; var PID: Integer; var Data: TBytes): Boolean; virtual;
   end;
 
   /// <summary>
@@ -68,7 +68,7 @@ type
     /// <summary>
     ///   Parse the error from the response data
     /// </summary>
-    function Parse(Data: TBytes; var ServiceID: Byte; var Error: Byte; var AdditionalData: TBytes): Boolean;
+    function Parse(Data: TBytes; var ServiceID: Integer; var Error: Byte; var AdditionalData: TBytes): Boolean;
   end;
 
   /// <summary>
@@ -79,7 +79,7 @@ type
     /// <summary>
     ///   Parse the supported PID's from the response data
     /// </summary>
-    function Parse(PID: Byte; Data: TBytes; var SupportedPID: TBytes): Boolean;
+    function Parse(PID: Integer; Data: TBytes; var SupportedPID: TBytes): Boolean;
   end;
 
   /// <summary>
@@ -447,12 +447,22 @@ type
     function Parse(Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorATemperature: Integer; var SensorBTemperature: Integer): Boolean;
   end;
 
+  /// <summary>
+  ///   OBD Oxygen Sensor Monitoring Test Results Decoder
+  /// </summary>
+  TOBDServiceOxygenSensorMonitoringTestResultsDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse oxygen sensor monitoring test results
+    /// </summary>
+    function Parse(Data: TBytes; var Voltage: Double): Boolean;
+  end;
+
 implementation
 
 //------------------------------------------------------------------------------
 // DECODE SERVICE RESPONSE
 //------------------------------------------------------------------------------
-function TOBDServiceResponseDecoder.DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Byte; var PID: Byte; var Data: TBytes): Boolean;
+function TOBDServiceResponseDecoder.DecodeServiceResponse(Response: TBytes; var Error: Boolean; var ServiceID: Integer; var PID: Integer; var Data: TBytes): Boolean;
 begin
   // initialize result
   Result := False;
@@ -484,6 +494,16 @@ begin
     // Get the data
     if Length(Response) > 3 then Data := Copy(Response, 1, Length(Response) -1);
   end else
+
+  // Handle service 05 different, because they return PID's with two bytes
+  if ServiceID = $05 then
+  begin
+    // Get the PID (2 bytes)
+    PID := Integer(Copy(Response, 1, 2));
+    // Get the data
+    if Length(Response) > 3 then Data := Copy(Response, 3, Length(Response) - 3);
+  end else
+
   // Handle other services
   begin
     // Get the PID
@@ -499,7 +519,7 @@ end;
 //------------------------------------------------------------------------------
 // ERROR DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDErrorDecoder.Parse(Data: TBytes; var ServiceID: Byte; var Error: Byte; var AdditionalData: TBytes): Boolean;
+function TOBDErrorDecoder.Parse(Data: TBytes; var ServiceID: Integer; var Error: Byte; var AdditionalData: TBytes): Boolean;
 begin
   // initialize result
   Result := False;
@@ -523,7 +543,7 @@ end;
 //------------------------------------------------------------------------------
 // PID DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDSupportedPIDDecoder.Parse(PID: Byte; Data: TBytes; var SupportedPID: TBytes): Boolean;
+function TOBDSupportedPIDDecoder.Parse(PID: Integer; Data: TBytes; var SupportedPID: TBytes): Boolean;
 var
   I, BitPos, StartPID, Index: Integer;
 begin
@@ -1235,6 +1255,26 @@ begin
   SensorBSupported := (Data[0] and $02) <> 0;
   SensorATemperature := Data[1] - 40;
   SensorBTemperature := Data[2] - 40;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// OXYGEN SENSOR MONITORING TEST RESULTS DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceOxygenSensorMonitoringTestResultsDecoder.Parse(Data: TBytes; var Voltage: Double): Boolean;
+const
+  VoltageResolution = 0.005;
+  MaxValue = $FF;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 2 bytes
+  if Length(Data) < 2 then Exit;
+  // Calculate the voltage
+  Voltage := ((Data[0] shl 8) + Data[1]) * VoltageResolution;
 
   // If we make it until here, parsing succeeded
   Result := True;

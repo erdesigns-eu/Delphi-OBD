@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.Service01.pas
-// CONTENTS       : OBD Service 01
+// CONTENTS       : OBD Service 01 (Show current data)
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
@@ -87,11 +87,6 @@ type
       /// </summary>
       property MisfireCompleteness: Boolean read FMisfireCompleteness;
     end;
-
-    /// <summary>
-    ///   OBD Service 01 Parameter 01 (Engine Type)
-    /// </summary>
-    TOBDServiceEngineType = (etUnknown, etSparkIgnition, etCompressionIgnition);
 
     /// <summary>
     ///   OBD Service 01 Parameter 01 (Engine Tests - Spark ignition - Otto/Wankel)
@@ -2505,7 +2500,8 @@ var
   ErrorDecoder: IOBDResponseDecoder;
   ResponseDecoder: TOBDResponseDecoder;
   Error: Boolean;
-  ServiceID, ParameterID, E: Byte;
+  E: Byte;
+  ServiceID, ParameterID: Integer;
   Data, Additional: TBytes;
 begin
   // Create decoder

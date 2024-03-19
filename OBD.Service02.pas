@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.Service02.pas
-// CONTENTS       : OBD Service 02
+// CONTENTS       : OBD Service 02 (Show freeze frame data)
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
