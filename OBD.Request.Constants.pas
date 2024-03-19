@@ -765,6 +765,40 @@ const
   /// </summary>
   OBD_SERVICE_05_O2_SENSOR_MONITOR_B4S4_LEAN_TO_RICH = $0210;
 
+//------------------------------------------------------------------------------
+// OBD-II (SAE J1979) SERVICE 09 (SUPPORTED PID'S)
+//------------------------------------------------------------------------------
+const
+  /// <summary>
+  ///   PIDs supported [01 - 20]
+  /// </summary>
+  OBD_SERVICE_09_SUPPORTED_PID_0120 = $00;
+  /// <summary>
+  ///   Vehicle Identification Number (VIN)
+  /// </summary>
+  OBD_SERVICE_09_VEHICLE_IDENTIFICATION_NUMBER = $02;
+  /// <summary>
+  ///   Calibration ID
+  /// </summary>
+  OBD_SERVICE_09_CALIBRATION_ID = $04;
+  /// <summary>
+  ///   Calibration Verification Numbers
+  /// </summary>
+  OBD_SERVICE_09_CALIBRATION_VERIFICATION_NUMBERS = $06;
+  /// <summary>
+  ///   In-use performance tracking for spark ignition vehicles
+  /// </summary>
+  OBD_SERVICE_09_INUSEPERFORMANCE_SPARK_IGNITION = $08;
+  /// <summary>
+  ///   ECU name
+  /// </summary>
+  OBD_SERVICE_09_ECU_NAME = $0A;
+  /// <summary>
+  ///   In-use performance tracking for compression ignition vehicles
+  /// </summary>
+  OBD_SERVICE_09_INUSEPERFORMANCE_COMPRESSION_IGNITION = $0B;
+
+
 implementation
 
 end.

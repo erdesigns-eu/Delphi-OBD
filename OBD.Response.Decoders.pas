@@ -13,7 +13,7 @@ unit OBD.Response.Decoders;
 interface
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes,
 
   OBD.Request.Constants, OBD.Response.Constants, OBD.Service.Types;
 
@@ -455,6 +455,46 @@ type
     ///   Parse oxygen sensor monitoring test results
     /// </summary>
     function Parse(Data: TBytes; var Voltage: Double): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Vehicle Identification Number Decoder
+  /// </summary>
+  TOBDServiceVehicleIdentificationNumberDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Vehicle Identification Number (VIN)
+    /// </summary>
+    function Parse(Data: TBytes; var VIN: string): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Calibration ID Decoder
+  /// </summary>
+  TOBDServiceCalibrationIdDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Calibration ID (CalID)
+    /// </summary>
+    function Parse(Data: TBytes; var List: TStrings): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD Calibration Verification Number Decoder
+  /// </summary>
+  TOBDServiceCalibrationVerificationNumberDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse Calibration Verification Number (CVN)
+    /// </summary>
+    function Parse(Data: TBytes; var List: TStrings): Boolean;
+  end;
+
+  /// <summary>
+  ///   OBD ECU Name Decoder
+  /// </summary>
+  TOBDServiceECUNameDecoder = class(TOBDResponseDecoder)
+    /// <summary>
+    ///   Parse ECU Name
+    /// </summary>
+    function Parse(Data: TBytes; var Name: string): Boolean; //TOBDServiceECUNameDecoder
   end;
 
 implementation
@@ -1275,6 +1315,131 @@ begin
   if Length(Data) < 2 then Exit;
   // Calculate the voltage
   Voltage := ((Data[0] shl 8) + Data[1]) * VoltageResolution;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// VEHICLE IDENTIFICATION NUMBER DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceVehicleIdentificationNumberDecoder.Parse(Data: TBytes; var VIN: string): Boolean;
+var
+  I: Integer;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 17 bytes
+  if Length(Data) < 17 then Exit;
+  // Loop over the data bytes
+  for I := Low(Data) to High(Data) do
+  begin
+    // Check if the byte is a padding zero. If so, skip it.
+    if Data[I] = 0 then Continue;
+    // Otherwise, convert the byte to a character and add it to the VIN string
+    VIN := VIN + AnsiChar(Data[I]);
+  end;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// CALIBRATION ID DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceCalibrationIdDecoder.Parse(Data: TBytes; var List: TStrings): Boolean;
+var
+  I, J: Integer;
+  S: string;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 16 bytes
+  if Length(Data) < 16 then Exit;
+  // Make sure the length is a multiple of 16 (16 bytes per CalID)
+  if Length(Data) mod 16 <> 0 then Exit;
+
+  I := 0;
+  while I < Length(Data) do
+  begin
+    // Initialize a empty string for the CalID
+    S := '';
+
+    // Loop over the data bytes
+    for J := I to I + 15 do
+    begin
+      // Data bytes not used will be reported as null bytes (0x00)
+      // so we stop when we encounter a 0x00 byte.
+      if Data[j] = $00 then break;
+      // Add the character to the CalID
+      S := S + AnsiChar(Data[J]);
+    end;
+
+    // We processed all bytes for the CalID, so add it to the list if not empty
+    if S <> '' then List.Add(S);
+    // Move to the next CalID (if any)
+    I := I + 16;
+  end;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// CALIBRATION VERIFICATION NUMBER DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceCalibrationVerificationNumberDecoder.Parse(Data: TBytes; var List: TStrings): Boolean;
+var
+  I: Integer;
+  C: Cardinal;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 4 bytes (One CVN)
+  if Length(Data) < 4 then Exit;
+  // Process each CVN
+  for I := 0 to (Length(Data) div 4) - 1 do
+  begin
+    // Convert 4 bytes into a Cardinal, assuming big-endian format
+    C := (Data[I * 4] shl 24) or (Data[I * 4 + 1] shl 16) or (Data[I * 4 + 2] shl 8) or Data[I * 4 + 3];
+    // Add the CVN to the list
+    List.Add(IntToHex(C, 8));
+  end;
+
+  // If we make it until here, parsing succeeded
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// ECU NAME DECODER: PARSE
+//------------------------------------------------------------------------------
+function TOBDServiceECUNameDecoder.Parse(Data: TBytes; var Name: string): Boolean;
+var
+  I: Integer;
+  S: string;
+begin
+  // initialize result
+  Result := False;
+
+  // Make sure we have at least 20 bytes
+  if Length(Data) < 20 then Exit;
+
+  // Initialize a empty string for the ECU name
+  S := '';
+  // Loop over the data bytes
+  for I := Low(Data) to High(Data) do
+  begin
+    // Stop when we encounter a null character (0x00)
+    if Data[I] = $00 then Break;
+    // Convert the byte to a character and add it to the ECU name string
+    S := S + AnsiChar(Data[I]);
+  end;
+
+  // Assign the string to the ECU name
+  if S <> '' then Name := S;
 
   // If we make it until here, parsing succeeded
   Result := True;

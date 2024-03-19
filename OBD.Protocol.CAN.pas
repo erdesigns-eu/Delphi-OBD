@@ -410,7 +410,7 @@ begin
       // keep the service ID and Parameter ID from the first frame..
 
       // On the first frame, skip PCI byte AND length code
-      Msg.Data := Copy(FF[0].Data, 3, Length(FF[0].Data) - 2);
+      Msg.Data := Copy(FF[0].Data, 2, 2) + Copy(FF[0].Data, 5, Length(FF[0].Data) - 4);
     end;
 
     // Now that they're in order, load/accumulate the data from each CF frame

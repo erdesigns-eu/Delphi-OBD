@@ -242,19 +242,19 @@ begin
         if Frames[I].Data[2] <> Frames[I - 1].Data[2] + 1 then Exit;
       end;
 
-      // Frames are now in order, so lets accumulate the data from each frame.
-      // Preserve the first frame's mode and PID bytes (for consistency with CAN)
+      // Exclude the frame id and checksum
+      Msg.SetDataLength(Length(Frames[0].Data) -2);
 
-      // Exclude mode byte
-      Msg.SetDataLength(Length(Frames[0].Data) - 1);
-      // Copy the data
-      Move(Frames[0].Data[1], Msg.Data[0], Length(Msg.Data));
+      // Copy the mode and pid
+      Move(Frames[0].Data[0], Msg.Data[0], 2);
+      // Then copy the rest of the data without the frame id
+      Move(Frames[0].Data[3], Msg.Data[2], Length(Msg.Data) - 2);
 
       // Add the data from the remaining frames
       for I := 1 to High(Frames) do
       begin
-        // Exclude mode/pid bytes
-        FrameData := Copy(Frames[I].Data, 3, Length(Frames[I].Data) - 2);
+        // Exclude mode/pid/frame id
+        FrameData := Copy(Frames[I].Data, 3, Length(Frames[I].Data) - 4);
         // Append frame to data
         Msg.Data := Msg.Data + FrameData;
       end;
