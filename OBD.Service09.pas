@@ -26,6 +26,243 @@ type
   ///   OBD Service 09
   /// </summary>
   TOBDService09 = class(TOBDService)
+  private type
+    /// <summary>
+    ///   OBD Service 09 Parameter 08 and 0B Entry
+    /// </summary>
+    TOBDServiceInUsePerformanceTrackingEntry = class
+    private
+      /// <summary>
+      ///  Number of times that all conditions necessary for a specific monitor
+      ///  to detect a malfunction have been encountered.
+      /// </summary>
+      FConditionCounter: Integer;
+      /// <summary>
+      ///   Number of times that the vehicle has been operated in the
+      ///   specified conditions.
+      /// </summary>
+      FOperatedCounter: Integer;
+    public
+      /// <summary>
+      ///   Reset (Clear all counters)
+      /// </summary>
+      procedure Reset;
+
+      /// <summary>
+      ///  Number of times that all conditions necessary for a specific monitor
+      ///  to detect a malfunction have been encountered.
+      /// </summary>
+      property ConditionCounter: Integer read FConditionCounter;
+      /// <summary>
+      ///   Number of times that the vehicle has been operated in the
+      ///   specified conditions.
+      /// </summary>
+      property OperatedCounter: Integer read FOperatedCounter;
+    end;
+
+    /// <summary>
+    ///   OBD Service 09 Parameter 08
+    /// </summary>
+    TOBDServiceInUsePerformanceTrackingSpark = class
+    private
+      /// <summary>
+      ///   OBD Monitoring Conditions Encountered Counts
+      /// </summary>
+      FOBDCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Ignition Counters
+      /// </summary>
+      FIGNCNTR: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Catalyst Monitor Completion Counts Bank 1
+      /// </summary>
+      FCATCOMP1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Catalyst Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      FCATCOND1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Catalyst Monitor Completion Counts Bank 2
+      /// </summary>
+      FCATCOMP2: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Catalyst Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      FCATCOND2: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   O2 Sensor Monitor Completion Counts Bank 1
+      /// </summary>
+      FO2SCOMP1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   O2 Sensor Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      FO2SCOND1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   O2 Sensor Monitor Completion Counts Bank 2
+      /// </summary>
+      FO2SCOMP2: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   O2 Sensor Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      FO2SCOND2: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EGR Monitor Completion Condition Counts
+      /// </summary>
+      FEGRCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EGR Monitor Conditions Encountered Counts
+      /// </summary>
+      FEGRCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   AIR Monitor Completion Condition Counts (Secondary Air)
+      /// </summary>
+      FAIRCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   AIR Monitor Conditions Encountered Counts (Secondary Air)
+      /// </summary>
+      FAIRCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EVAP Monitor Completion Condition Counts
+      /// </summary>
+      FEVAPCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EVAP Monitor Conditions Encountered Counts
+      /// </summary>
+      FEVAPCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Completion Counts Bank 1
+      /// </summary>
+      FSO2SCOMP1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      FSO2SCOND1: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Completion Counts Bank 2
+      /// </summary>
+      FSO2SCOMP2: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      FSO2SCOND2: TOBDServiceInUsePerformanceTrackingEntry;
+    public
+      /// <summary>
+      ///   Constructor
+      /// </summary>
+      constructor Create; virtual;
+      /// <summary>
+      ///   Destructor
+      /// </summary>
+      destructor Destroy; override;
+
+      /// <summary>
+      ///   Reset (Clear all counters)
+      /// </summary>
+      procedure Reset;
+
+      /// <summary>
+      ///   OBD Monitoring Conditions Encountered Counts
+      /// </summary>
+      property OBDCOND: TOBDServiceInUsePerformanceTrackingEntry read FOBDCOND;
+      /// <summary>
+      ///   Ignition Counters
+      /// </summary>
+      property IGNCNTR: TOBDServiceInUsePerformanceTrackingEntry read FIGNCNTR;
+      /// <summary>
+      ///   Catalyst Monitor Completion Counts Bank 1
+      /// </summary>
+      property CATCOMP1: TOBDServiceInUsePerformanceTrackingEntry read FCATCOMP1;
+      /// <summary>
+      ///   Catalyst Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      property CATCOND1: TOBDServiceInUsePerformanceTrackingEntry read FCATCOND1;
+      /// <summary>
+      ///   Catalyst Monitor Completion Counts Bank 2
+      /// </summary>
+      property CATCOMP2: TOBDServiceInUsePerformanceTrackingEntry read FCATCOMP2;
+      /// <summary>
+      ///   Catalyst Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      property CATCOND2: TOBDServiceInUsePerformanceTrackingEntry read FCATCOND2;
+      /// <summary>
+      ///   O2 Sensor Monitor Completion Counts Bank 1
+      /// </summary>
+      property O2SCOMP1: TOBDServiceInUsePerformanceTrackingEntry read FO2SCOMP1;
+      /// <summary>
+      ///   O2 Sensor Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      property O2SCOND1: TOBDServiceInUsePerformanceTrackingEntry read FO2SCOND1;
+      /// <summary>
+      ///   O2 Sensor Monitor Completion Counts Bank 2
+      /// </summary>
+      property O2SCOMP2: TOBDServiceInUsePerformanceTrackingEntry read FO2SCOMP2;
+      /// <summary>
+      ///   O2 Sensor Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      property O2SCOND2: TOBDServiceInUsePerformanceTrackingEntry read FO2SCOND2;
+      /// <summary>
+      ///   EGR Monitor Completion Condition Counts
+      /// </summary>
+      property EGRCOMP: TOBDServiceInUsePerformanceTrackingEntry read FEGRCOMP;
+      /// <summary>
+      ///   EGR Monitor Conditions Encountered Counts
+      /// </summary>
+      property EGRCOND: TOBDServiceInUsePerformanceTrackingEntry read FEGRCOND;
+      /// <summary>
+      ///   AIR Monitor Completion Condition Counts (Secondary Air)
+      /// </summary>
+      property AIRCOMP: TOBDServiceInUsePerformanceTrackingEntry read FAIRCOMP;
+      /// <summary>
+      ///   AIR Monitor Conditions Encountered Counts (Secondary Air)
+      /// </summary>
+      property AIRCOND: TOBDServiceInUsePerformanceTrackingEntry read FAIRCOND;
+      /// <summary>
+      ///   EVAP Monitor Completion Condition Counts
+      /// </summary>
+      property EVAPCOMP: TOBDServiceInUsePerformanceTrackingEntry read FEVAPCOMP;
+      /// <summary>
+      ///   EVAP Monitor Conditions Encountered Counts
+      /// </summary>
+      property EVAPCOND: TOBDServiceInUsePerformanceTrackingEntry read FEVAPCOND;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Completion Counts Bank 1
+      /// </summary>
+      property SO2SCOMP1: TOBDServiceInUsePerformanceTrackingEntry read FSO2SCOMP1;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 1
+      /// </summary>
+      property SO2SCOND1: TOBDServiceInUsePerformanceTrackingEntry read FSO2SCOND1;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Completion Counts Bank 2
+      /// </summary>
+      property SO2SCOMP2: TOBDServiceInUsePerformanceTrackingEntry read FSO2SCOMP2;
+      /// <summary>
+      ///   Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 2
+      /// </summary>
+      property SO2SCOND2: TOBDServiceInUsePerformanceTrackingEntry read FSO2SCOND2;
+    end;
+
+    /// <summary>
+    ///   OBD Service 09 Parameter 0B
+    /// </summary>
+    TOBDServiceInUsePerformanceTrackingCompression = class
+    private
+
+    public
+      /// <summary>
+      ///   Constructor
+      /// </summary>
+      constructor Create; virtual;
+      /// <summary>
+      ///   Destructor
+      /// </summary>
+      destructor Destroy; override;
+
+      /// <summary>
+      ///   Reset (Clear all counters)
+      /// </summary>
+      procedure Reset;
+    end;
   private
     /// <summary>
     ///   Array with supported PID's
@@ -47,6 +284,10 @@ type
     ///   ECU Name
     /// </summary>
     FECUName: string;
+    /// <summary>
+    ///    In-use performance tracking for spark ignition engines
+    /// </summary>
+    FInPerformanceTrackingSparkEngine: TOBDServiceInUsePerformanceTrackingSpark;
 
     /// <summary>
     ///   Data changed event
@@ -104,6 +345,10 @@ type
     ///   ECU Name
     /// </summary>
     property ECUName: string read FECUName;
+    /// <summary>
+    ///    In-use performance tracking for spark ignition engines
+    /// </summary>
+    property InPerformanceTrackingSparkEngine: TOBDServiceInUsePerformanceTrackingSpark read FInPerformanceTrackingSparkEngine;
 
     /// <summary>
     ///   Sensor data changed event
@@ -112,6 +357,105 @@ type
   end;
 
 implementation
+
+//------------------------------------------------------------------------------
+// SERVICE 09: IN USE PERFORMANCE TRACKING ENTRY - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService09.TOBDServiceInUsePerformanceTrackingEntry.Reset;
+begin
+  // Reset condition counter
+  FConditionCounter := 0;
+  // Reset operated counter
+  FOperatedCounter := 0;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDService09.TOBDServiceInUsePerformanceTrackingSpark.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create entries
+  FOBDCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FIGNCNTR := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FCATCOMP1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FCATCOND1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FCATCOMP2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FCATCOND2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FO2SCOMP1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FO2SCOND1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FO2SCOMP2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FO2SCOND2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGRCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGRCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FAIRCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FAIRCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEVAPCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEVAPCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FSO2SCOMP1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FSO2SCOND1 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FSO2SCOMP2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FSO2SCOND2 := TOBDServiceInUsePerformanceTrackingEntry.Create;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDService09.TOBDServiceInUsePerformanceTrackingSpark.Destroy;
+begin
+  // Free entries
+  FOBDCOND.Free;
+  FIGNCNTR.Free;
+  FCATCOMP1.Free;
+  FCATCOND1.Free;
+  FCATCOMP2.Free;
+  FCATCOND2.Free;
+  FO2SCOMP1.Free;
+  FO2SCOND1.Free;
+  FO2SCOMP2.Free;
+  FO2SCOND2.Free;
+  FEGRCOMP.Free;
+  FEGRCOND.Free;
+  FAIRCOMP.Free;
+  FAIRCOND.Free;
+  FEVAPCOMP.Free;
+  FEVAPCOND.Free;
+  FSO2SCOMP1.Free;
+  FSO2SCOND1.Free;
+  FSO2SCOMP2.Free;
+  FSO2SCOND2.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// SERVICE 09: IN USE PERFORMANCE TRACKING SPARK - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService09.TOBDServiceInUsePerformanceTrackingSpark.Reset;
+begin
+  // Reset entries
+  FOBDCOND.Reset;
+  FIGNCNTR.Reset;
+  FCATCOMP1.Reset;
+  FCATCOND1.Reset;
+  FCATCOMP2.Reset;
+  FCATCOND2.Reset;
+  FO2SCOMP1.Reset;
+  FO2SCOND1.Reset;
+  FO2SCOMP2.Reset;
+  FO2SCOND2.Reset;
+  FEGRCOMP.Reset;
+  FEGRCOND.Reset;
+  FAIRCOMP.Reset;
+  FAIRCOND.Reset;
+  FEVAPCOMP.Reset;
+  FEVAPCOND.Reset;
+  FSO2SCOMP1.Reset;
+  FSO2SCOND1.Reset;
+  FSO2SCOMP2.Reset;
+  FSO2SCOND2.Reset;
+end;
 
 //------------------------------------------------------------------------------
 // SERVICE 09: GET SERVIVE ID
@@ -164,6 +508,8 @@ begin
   FCalibrationId := TStringList.Create;
   // Create calibration verification number list
   FCalibrationVerificationNumber := TStringList.Create;
+  // Create in-performance tracking for spark ignition engines
+  FInPerformanceTrackingSparkEngine := TOBDServiceInUsePerformanceTrackingSpark.Create;
   // Clear all data and set to defaults
   Reset;
 end;
@@ -177,6 +523,8 @@ begin
   FCalibrationId.Free;
   // Free calibration verification number list
   FCalibrationVerificationNumber.Free;
+  // Free in-performance tracking for spark ignition engines
+  FInPerformanceTrackingSparkEngine.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
