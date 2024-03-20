@@ -861,6 +861,8 @@ begin
   // Parse In-use performance tracking for spark ignition vehicles (PID 08)
   if ParameterID = OBD_SERVICE_09_INUSEPERFORMANCE_SPARK_IGNITION then
   begin
+    // Make sure the data is at least 8 bytes
+    if Length(Data) < 8 then Exit;
     // Initialize DataIndex to start after the data item count byte
     DataIndex := 1;
     // Loop over data bytes
@@ -987,7 +989,109 @@ begin
   // Parse In-use performance tracking for compression ignition vehicles (PID 0B)
   if ParameterID = OBD_SERVICE_09_INUSEPERFORMANCE_COMPRESSION_IGNITION then
   begin
-    // TODO: Implement
+    // Make sure the data is at least 8 bytes
+    if Length(Data) < 8 then Exit;
+    // Initialize DataIndex to start after the data item count byte
+    DataIndex := 1;
+    // Loop over data bytes
+    for I := 0 to Data[0] - 1 do
+    begin
+      with FInPerformanceTrackingCompressionEngine do
+      case I of
+        0: // OBD Monitoring Conditions Encountered Counts
+        begin
+          FOBDCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FOBDCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        1: // Ignition Counters
+        begin
+         FIGNCNTR.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+         FIGNCNTR.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        2: // NMHC Catalyst Monitor Completion Condition Counts
+        begin
+          FHCCATCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FHCCATCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        3: // NMHC Catalyst Monitor Conditions Encountered Counts
+        begin
+          FHCCATCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FHCCATCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        4: // NOx/SCR Catalyst Monitor Completion Condition Counts
+        begin
+          FNCATCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FNCATCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        5: // NOx/SCR Catalyst Monitor Conditions Encountered Counts
+        begin
+          FNCATCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FNCATCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        6: // NOx Adsorber Monitor Completion Condition Counts
+        begin
+          FNADSCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FNADSCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        7: // NOx Adsorber Monitor Conditions Encountered Counts
+        begin
+          FNADSCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FNADSCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        8: // PM Filter Monitor Completion Condition Counts
+        begin
+          FPMCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FPMCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        9: // PM Filter Monitor Conditions Encountered Counts
+        begin
+          FPMCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FPMCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        10: // Exhaust Gas Sensor Monitor Completion Condition Counts
+        begin
+          FEGSCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGSCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        11: // Exhaust Gas Sensor Monitor Conditions Encountered Counts
+        begin
+          FEGSCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGSCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        12: // EGR and/or VVT Monitor Completion Condition Counts
+        begin
+          FEGRCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGRCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        13: // EGR and/or VVT Monitor Conditions Encountered Counts
+        begin
+          FEGRCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGRCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        14: // Boost Pressure Monitor Completion Condition Counts
+        begin
+          FBPCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FBPCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        15: // Boost Pressure Monitor Conditions Encountered Counts
+        begin
+          FBPCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FBPCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        16: // Fuel Monitor Completion Condition Counts
+        begin
+          FFUELCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FFUELCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        17: // Fuel Monitor Conditions Encountered Counts
+        begin
+          FFUELCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FFUELCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+      end;
+      // Increment DataIndex to the next set of values (skip 4 bytes for each iteration)
+      Inc(DataIndex, 4);
+    end;
     Exit;
   end;
 end;
