@@ -609,19 +609,6 @@ begin
   FSO2SCOND2.Reset;
 end;
 
-(*
-
-
-
-
-
-
-
-
-
-
-*)
-
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
@@ -703,21 +690,6 @@ begin
   FFUELCOMP.Reset;
   FFUELCOND.Reset;
 end;
-
-
-(*
-
-
-
-
-
-
-
-
-
-
-
-*)
 
 //------------------------------------------------------------------------------
 // SERVICE 09: GET SERVIVE ID
@@ -826,7 +798,7 @@ var
   ResponseDecoder: TOBDResponseDecoder;
   Error: Boolean;
   E: Byte;
-  ServiceID, ParameterID: Integer;
+  ServiceID, ParameterID, I, DataIndex: Integer;
   Data, Additional: TBytes;
 begin
   // Create decoder
@@ -889,7 +861,117 @@ begin
   // Parse In-use performance tracking for spark ignition vehicles (PID 08)
   if ParameterID = OBD_SERVICE_09_INUSEPERFORMANCE_SPARK_IGNITION then
   begin
-    // TODO: Implement
+    // Initialize DataIndex to start after the data item count byte
+    DataIndex := 1;
+    // Loop over data bytes
+    for I := 0 to Data[0] - 1 do
+    begin
+      with FInPerformanceTrackingSparkEngine do
+      case I of
+        0: // OBD Monitoring Conditions Encountered Counts
+        begin
+          FOBDCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FOBDCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        1: // Ignition Counters
+        begin
+         FIGNCNTR.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+         FIGNCNTR.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        2: // Catalyst Monitor Completion Counts Bank 1
+        begin
+          FCATCOMP1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FCATCOMP1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        3: // Catalyst Monitor Conditions Encountered Counts Bank 1
+        begin
+          FCATCOND1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FCATCOND1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        4: // Catalyst Monitor Completion Counts Bank 2
+        begin
+          FCATCOMP2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FCATCOMP2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        5: // Catalyst Monitor Conditions Encountered Counts Bank 2
+        begin
+          FCATCOND2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FCATCOND2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        6: // O2 Sensor Monitor Completion Counts Bank 1
+        begin
+          FO2SCOMP1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FO2SCOMP1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        7: // O2 Sensor Monitor Conditions Encountered Counts Bank 1
+        begin
+          FO2SCOND1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FO2SCOND1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        8: // O2 Sensor Monitor Completion Counts Bank 2
+        begin
+          FO2SCOMP2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FO2SCOMP2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        9: // O2 Sensor Monitor Conditions Encountered Counts Bank 2
+        begin
+          FO2SCOND2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FO2SCOND2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        10: // EGR Monitor Completion Condition Counts
+        begin
+          FEGRCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGRCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        11: // EGR Monitor Conditions Encountered Counts
+        begin
+          FEGRCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEGRCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        12: // AIR Monitor Completion Condition Counts (Secondary Air)
+        begin
+          FAIRCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FAIRCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        13: // AIR Monitor Conditions Encountered Counts (Secondary Air)
+        begin
+          FAIRCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FAIRCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        14: // EVAP Monitor Completion Condition Counts
+        begin
+          FEVAPCOMP.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEVAPCOMP.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        15: // EVAP Monitor Conditions Encountered Counts
+        begin
+          FEVAPCOND.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FEVAPCOND.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        16: // Secondary O2 Sensor Monitor Completion Counts Bank 1
+        begin
+          FSO2SCOMP1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FSO2SCOMP1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        17: // Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 1
+        begin
+          FSO2SCOND1.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FSO2SCOND1.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        18: // Secondary O2 Sensor Monitor Completion Counts Bank 2
+        begin
+          FSO2SCOMP2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FSO2SCOMP2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+        19: // Secondary O2 Sensor Monitor Conditions Encountered Counts Bank 2
+        begin
+          FSO2SCOND2.FConditionCounter := (Data[DataIndex] shl 8) + Data[DataIndex + 1];
+          FSO2SCOND2.FOperatedCounter := (Data[DataIndex + 2] shl 8) + Data[DataIndex + 3];
+        end;
+      end;
+      // Increment DataIndex to the next set of values (skip 4 bytes for each iteration)
+      Inc(DataIndex, 4);
+    end;
     Exit;
   end;
 
