@@ -1338,7 +1338,7 @@ begin
     // Check if the byte is a padding zero. If so, skip it.
     if Data[I] = 0 then Continue;
     // Otherwise, convert the byte to a character and add it to the VIN string
-    VIN := VIN + AnsiChar(Data[I]);
+    VIN := VIN + Char(Data[I]);
   end;
 
   // If we make it until here, parsing succeeded
@@ -1374,7 +1374,7 @@ begin
       // so we stop when we encounter a 0x00 byte.
       if Data[j] = $00 then break;
       // Add the character to the CalID
-      S := S + AnsiChar(Data[J]);
+      S := S + Char(Data[J]);
     end;
 
     // We processed all bytes for the CalID, so add it to the list if not empty
@@ -1435,7 +1435,7 @@ begin
     // Stop when we encounter a null character (0x00)
     if Data[I] = $00 then Break;
     // Convert the byte to a character and add it to the ECU name string
-    S := S + AnsiChar(Data[I]);
+    S := S + Char(Data[I]);
   end;
 
   // Assign the string to the ECU name

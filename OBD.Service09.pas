@@ -247,7 +247,78 @@ type
     /// </summary>
     TOBDServiceInUsePerformanceTrackingCompression = class
     private
-
+      /// <summary>
+      ///   OBD Monitoring Conditions Encountered Counts
+      /// </summary>
+      FOBDCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Ignition Counter
+      /// </summary>
+      FIGNCNTR: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NMHC Catalyst Monitor Completion Condition Counts
+      /// </summary>
+      FHCCATCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NMHC Catalyst Monitor Conditions Encountered Counts
+      /// </summary>
+      FHCCATCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NOx/SCR Catalyst Monitor Completion Condition Counts
+      /// </summary>
+      FNCATCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NOx/SCR Catalyst Monitor Conditions Encountered Counts
+      /// </summary>
+      FNCATCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NOx Adsorber Monitor Completion Condition Counts
+      /// </summary>
+      FNADSCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   NOx Adsorber Monitor Conditions Encountered Counts
+      /// </summary>
+      FNADSCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   PM Filter Monitor Completion Condition Counts
+      /// </summary>
+      FPMCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   PM Filter Monitor Conditions Encountered Counts
+      /// </summary>
+      FPMCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Exhaust Gas Sensor Monitor Completion Condition Counts
+      /// </summary>
+      FEGSCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Exhaust Gas Sensor Monitor Conditions Encountered Counts
+      /// </summary>
+      FEGSCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EGR and/or VVT Monitor Completion Condition Counts
+      /// </summary>
+      FEGRCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   EGR and/or VVT Monitor Conditions Encountered Counts
+      /// </summary>
+      FEGRCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Boost Pressure Monitor Completion Condition Counts
+      /// </summary>
+      FBPCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Boost Pressure Monitor Conditions Encountered Counts
+      /// </summary>
+      FBPCOND: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Fuel Monitor Completion Condition Counts
+      /// </summary>
+      FFUELCOMP: TOBDServiceInUsePerformanceTrackingEntry;
+      /// <summary>
+      ///   Fuel Monitor Conditions Encountered Counts
+      /// </summary>
+      FFUELCOND: TOBDServiceInUsePerformanceTrackingEntry;
     public
       /// <summary>
       ///   Constructor
@@ -262,6 +333,79 @@ type
       ///   Reset (Clear all counters)
       /// </summary>
       procedure Reset;
+
+      /// <summary>
+      ///   OBD Monitoring Conditions Encountered Counts
+      /// </summary>
+      property OBDCOND: TOBDServiceInUsePerformanceTrackingEntry read FOBDCOND;
+      /// <summary>
+      ///   Ignition Counter
+      /// </summary>
+      property IGNCNTR: TOBDServiceInUsePerformanceTrackingEntry read FIGNCNTR;
+      /// <summary>
+      ///   NMHC Catalyst Monitor Completion Condition Counts
+      /// </summary>
+      property HCCATCOMP: TOBDServiceInUsePerformanceTrackingEntry read FHCCATCOMP;
+      /// <summary>
+      ///   NMHC Catalyst Monitor Conditions Encountered Counts
+      /// </summary>
+      property HCCATCOND: TOBDServiceInUsePerformanceTrackingEntry read FHCCATCOND;
+      /// <summary>
+      ///   NOx/SCR Catalyst Monitor Completion Condition Counts
+      /// </summary>
+      property NCATCOMP: TOBDServiceInUsePerformanceTrackingEntry read FNCATCOMP;
+      /// <summary>
+      ///   NOx/SCR Catalyst Monitor Conditions Encountered Counts
+      /// </summary>
+      property NCATCOND: TOBDServiceInUsePerformanceTrackingEntry read FNCATCOND;
+      /// <summary>
+      ///   NOx Adsorber Monitor Completion Condition Counts
+      /// </summary>
+      property NADSCOMP: TOBDServiceInUsePerformanceTrackingEntry read FNADSCOMP;
+      /// <summary>
+      ///   NOx Adsorber Monitor Conditions Encountered Counts
+      /// </summary>
+      property NADSCOND: TOBDServiceInUsePerformanceTrackingEntry read FNADSCOND;
+      /// <summary>
+      ///   PM Filter Monitor Completion Condition Counts
+      /// </summary>
+      property PMCOMP: TOBDServiceInUsePerformanceTrackingEntry read FPMCOMP;
+      /// <summary>
+      ///   PM Filter Monitor Conditions Encountered Counts
+      /// </summary>
+      property PMCOND: TOBDServiceInUsePerformanceTrackingEntry read FPMCOND;
+      /// <summary>
+      ///   Exhaust Gas Sensor Monitor Completion Condition Counts
+      /// </summary>
+      property EGSCOMP: TOBDServiceInUsePerformanceTrackingEntry read FEGSCOMP;
+      /// <summary>
+      ///   Exhaust Gas Sensor Monitor Conditions Encountered Counts
+      /// </summary>
+      property EGSCOND: TOBDServiceInUsePerformanceTrackingEntry read FEGSCOND;
+      /// <summary>
+      ///   EGR and/or VVT Monitor Completion Condition Counts
+      /// </summary>
+      property EGRCOMP: TOBDServiceInUsePerformanceTrackingEntry read FEGRCOMP;
+      /// <summary>
+      ///   EGR and/or VVT Monitor Conditions Encountered Counts
+      /// </summary>
+      property EGRCOND: TOBDServiceInUsePerformanceTrackingEntry read FEGRCOND;
+      /// <summary>
+      ///   Boost Pressure Monitor Completion Condition Counts
+      /// </summary>
+      property BPCOMP: TOBDServiceInUsePerformanceTrackingEntry read FBPCOMP;
+      /// <summary>
+      ///   Boost Pressure Monitor Conditions Encountered Counts
+      /// </summary>
+      property BPCOND: TOBDServiceInUsePerformanceTrackingEntry read FBPCOND;
+      /// <summary>
+      ///   Fuel Monitor Completion Condition Counts
+      /// </summary>
+      property FUELCOMP: TOBDServiceInUsePerformanceTrackingEntry read FFUELCOMP;
+      /// <summary>
+      ///   Fuel Monitor Conditions Encountered Counts
+      /// </summary>
+      property FUELCOND: TOBDServiceInUsePerformanceTrackingEntry read FFUELCOND;
     end;
   private
     /// <summary>
@@ -288,6 +432,10 @@ type
     ///    In-use performance tracking for spark ignition engines
     /// </summary>
     FInPerformanceTrackingSparkEngine: TOBDServiceInUsePerformanceTrackingSpark;
+    /// <summary>
+    ///    In-use performance tracking for compression ignition engines
+    /// </summary>
+    FInPerformanceTrackingCompressionEngine: TOBDServiceInUsePerformanceTrackingCompression;
 
     /// <summary>
     ///   Data changed event
@@ -349,6 +497,10 @@ type
     ///    In-use performance tracking for spark ignition engines
     /// </summary>
     property InPerformanceTrackingSparkEngine: TOBDServiceInUsePerformanceTrackingSpark read FInPerformanceTrackingSparkEngine;
+    /// <summary>
+    ///    In-use performance tracking for compression ignition engines
+    /// </summary>
+    property InPerformanceTrackingCompressionEngine: TOBDServiceInUsePerformanceTrackingCompression read FInPerformanceTrackingCompressionEngine;
 
     /// <summary>
     ///   Sensor data changed event
@@ -457,6 +609,116 @@ begin
   FSO2SCOND2.Reset;
 end;
 
+(*
+
+
+
+
+
+
+
+
+
+
+*)
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDService09.TOBDServiceInUsePerformanceTrackingCompression.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create entries
+  FOBDCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FIGNCNTR := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FHCCATCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FHCCATCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FNCATCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FNCATCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FNADSCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FNADSCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FPMCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FPMCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGSCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGSCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGRCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FEGRCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FBPCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FBPCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FFUELCOMP := TOBDServiceInUsePerformanceTrackingEntry.Create;
+  FFUELCOND := TOBDServiceInUsePerformanceTrackingEntry.Create;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDService09.TOBDServiceInUsePerformanceTrackingCompression.Destroy;
+begin
+  // Free entries
+  FOBDCOND.Free;
+  FIGNCNTR.Free;
+  FHCCATCOMP.Free;
+  FHCCATCOND.Free;
+  FNCATCOMP.Free;
+  FNCATCOND.Free;
+  FNADSCOMP.Free;
+  FNADSCOND.Free;
+  FPMCOMP.Free;
+  FPMCOND.Free;
+  FEGSCOMP.Free;
+  FEGSCOND.Free;
+  FEGRCOMP.Free;
+  FEGRCOND.Free;
+  FBPCOMP.Free;
+  FBPCOND.Free;
+  FFUELCOMP.Free;
+  FFUELCOND.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// SERVICE 09: IN USE PERFORMANCE TRACKING COMPRESSION - RESET
+//------------------------------------------------------------------------------
+procedure TOBDService09.TOBDServiceInUsePerformanceTrackingCompression.Reset;
+begin
+  // Reset entries
+  FOBDCOND.Reset;
+  FIGNCNTR.Reset;
+  FHCCATCOMP.Reset;
+  FHCCATCOND.Reset;
+  FNCATCOMP.Reset;
+  FNCATCOND.Reset;
+  FNADSCOMP.Reset;
+  FNADSCOND.Reset;
+  FPMCOMP.Reset;
+  FPMCOND.Reset;
+  FEGSCOMP.Reset;
+  FEGSCOND.Reset;
+  FEGRCOMP.Reset;
+  FEGRCOND.Reset;
+  FBPCOMP.Reset;
+  FBPCOND.Reset;
+  FFUELCOMP.Reset;
+  FFUELCOND.Reset;
+end;
+
+
+(*
+
+
+
+
+
+
+
+
+
+
+
+*)
+
 //------------------------------------------------------------------------------
 // SERVICE 09: GET SERVIVE ID
 //------------------------------------------------------------------------------
@@ -510,6 +772,8 @@ begin
   FCalibrationVerificationNumber := TStringList.Create;
   // Create in-performance tracking for spark ignition engines
   FInPerformanceTrackingSparkEngine := TOBDServiceInUsePerformanceTrackingSpark.Create;
+  // Create in-performance tracking for compression engines
+  FInPerformanceTrackingCompressionEngine := TOBDServiceInUsePerformanceTrackingCompression.Create;
   // Clear all data and set to defaults
   Reset;
 end;
@@ -525,6 +789,8 @@ begin
   FCalibrationVerificationNumber.Free;
   // Free in-performance tracking for spark ignition engines
   FInPerformanceTrackingSparkEngine.Free;
+  // Free in-performance tracking for compression engines
+  FInPerformanceTrackingCompressionEngine.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -542,6 +808,10 @@ begin
   FCalibrationId.Clear;
   // Clear calibration verification number list
   FCalibrationVerificationNumber.Clear;
+  // Reset in-performance tracking for spark ignition engines
+  FInPerformanceTrackingSparkEngine.Reset;
+  // Reset in-performance tracking for compression engines
+  FInPerformanceTrackingCompressionEngine.Reset;
   // Reset the ECU name
   FECUName := '';
 end;
