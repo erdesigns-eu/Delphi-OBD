@@ -17,7 +17,8 @@ unit OBD.CustomControl;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages, Vcl.Graphics;
+  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -32,7 +33,19 @@ const
 // CLASSES
 //------------------------------------------------------------------------------
 type
+  /// <summary>
+  ///   Base Custom Control Component
+  /// </summary>
   TOBDCustomControl = class(TCustomControl)
+  private
+    /// <summary>
+    ///   Class constructor
+    /// </summary>
+    class constructor Create;
+    /// <summary>
+    ///   Class destructor
+    /// </summary>
+    class destructor Destroy;
   private
     /// <summary>
     ///   Buffer (This is the canvas we draw on)
@@ -65,6 +78,10 @@ type
     ///   WM_PAINT message handler
     /// </summary>
     procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
+    /// <summary>
+    ///   WM_ERASEBKGND message handler
+    /// </summary>
+    procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
   protected
     /// <summary>
     ///   Buffer (This is the canvas we draw on)
@@ -83,11 +100,15 @@ type
     ///   Override Resize method
     /// </summary>
     procedure Resize; override;
+    /// <summary>
+    ///   Override UpdateStyleElements method
+    /// </summary>
+    procedure UpdateStyleElements; override;
   protected
     /// <summary>
     ///   Paint buffer
     /// </summary>
-    procedure PaintBuffer; virtual; abstract;
+    procedure PaintBuffer; virtual;
     /// <summary>
     ///   Invalidate buffer
     /// </summary>
@@ -96,19 +117,45 @@ type
     /// <summary>
     ///   Constructor
     /// </summary>
-    constructor Create(AOwner: TComponent); virtual;
+    constructor Create(AOwner: TComponent); override;
     /// <summary>
     ///   Destructor
     /// </summary>
     destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
   published
     /// <summary>
     ///   Frames per second
     /// </summary>
     property FramesPerSecond: Integer read FFramesPerSecond write SetFramesPerSecond default DEFAULT_FPS;
+  published
+    /// <summary>
+    ///   Component color (inherited)
+    /// </summary>
+    property Color;
   end;
 
 implementation
+
+//------------------------------------------------------------------------------
+// CLASS CONSTRUCTOR
+//------------------------------------------------------------------------------
+class constructor TOBDCustomControl.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TOBDCustomControl, TPanelStyleHook);
+end;
+
+//------------------------------------------------------------------------------
+// CLASS DESTRUCTOR
+//------------------------------------------------------------------------------
+class destructor TOBDCustomControl.Destroy;
+begin
+  TCustomStyleEngine.UnRegisterStyleHook(TOBDCustomControl, TPanelStyleHook);
+end;
 
 //------------------------------------------------------------------------------
 // SET FRAMES PER SECOND
@@ -148,10 +195,20 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// WM_ERASEBKGND MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
+begin
+  // Set the handled flag
+  Msg.Result := 1;
+end;
+
+//------------------------------------------------------------------------------
 // CREATE PARAMS
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.CreateParams(var Params: TCreateParams);
 begin
+  inherited;
   // Adjust window style to avoid unnecessary redraws on size changes,
   // optimizing performance for custom drawing.
   with Params do Style := Style and not (CS_HREDRAW or CS_VREDRAW);
@@ -164,6 +221,8 @@ procedure TOBDCustomControl.Paint;
 var
   X, Y, W, H: Integer;
 begin
+  // Call inherited Paint
+  inherited;
   // Draw the buffer to the component canvas
   X := FUpdateRect.Left;
   Y := FUpdateRect.Top;
@@ -174,7 +233,7 @@ begin
     BitBlt(Canvas.Handle, X, Y, W, H, FBuffer.Canvas.Handle, X,  Y, SRCCOPY)
   else
     // Repaint the whole buffer to the surface
-    BitBlt(Canvas.Handle, 0, 0, ClientWidth, ClientHeight, FBuffer.Canvas.Handle, X,  Y, SRCCOPY);
+    BitBlt(Canvas.Handle, 0, 0, Width, Height, FBuffer.Canvas.Handle, X,  Y, SRCCOPY);
 end;
 
 //------------------------------------------------------------------------------
@@ -182,12 +241,29 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.Resize;
 begin
-  // Call inherited resize method
-  inherited Resize;
+  // Call inherited Resize
+  inherited;
   // Update the size of the buffer
   FBuffer.SetSize(Width, Height);
-  // Invalidate the buffer
+end;
+
+//------------------------------------------------------------------------------
+// UPDATE STYLE ELEMENTS
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.UpdateStyleElements;
+begin
+  // Call inherited Loaded
+  inherited;
+  // Invalidate buffer
   InvalidateBuffer;
+end;
+
+//------------------------------------------------------------------------------
+// PAINT BUFFER
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.PaintBuffer;
+begin
+  // This is actually an abstract method, but for safety we add it like this.
 end;
 
 //------------------------------------------------------------------------------
@@ -233,6 +309,20 @@ begin
   if FTimerHandle <> 0 then KillTimer(Handle, FTimerHandle);
   // Call inherited destructor
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.Assign(Source: TPersistent);
+begin
+  // Call inherited assign
+  inherited;
+  // Assign custom properties
+  if (Source is TOBDCustomControl) then
+  begin
+    FFramesPerSecond := (Source as TOBDCustomControl).FramesPerSecond;
+  end;
 end;
 
 end.
