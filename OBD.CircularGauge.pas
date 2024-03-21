@@ -545,6 +545,80 @@ type
   end;
 
   /// <summary>
+  ///   Circular Gauge caption
+  /// </summary>
+  TOBDCircularGaugeCaption = class(TPersistent)
+  private
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    FCaption: string;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Offset
+    /// </summary>
+    FOffset: Single;
+
+    /// <summary>
+    ///   Set caption
+    /// </summary>
+    procedure SetCaption(Value: string);
+    /// <summary>
+    ///   Set font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set offset
+    /// </summary>
+    procedure SetOffset(Value: Single);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Font changed handler
+    /// </summary>
+    procedure FontChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    property Caption: string read FCaption write SetCaption;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Offset
+    /// </summary>
+    property Offset: Single read FOffset write SetOffset;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Circular Gauge Component
   /// </summary>
   TOBDCircularGauge = class(TOBDCustomControl)
@@ -594,6 +668,14 @@ type
     ///   Needle
     /// </summary>
     FNeedle: TOBDCircularGaugeNeedle;
+    /// <summary>
+    ///   Top caption
+    /// </summary>
+    FTopCaption: TOBDCircularGaugeCaption;
+    /// <summary>
+    ///   Bottom caption
+    /// </summary>
+    FBottomCaption: TOBDCircularGaugeCaption;
 
     /// <summary>
     ///   Set start angle
@@ -635,6 +717,14 @@ type
     ///   Set needle
     /// </summary>
     procedure SetNeedle(Value: TOBDCircularGaugeNeedle);
+    /// <summary>
+    ///   Set top caption
+    /// </summary>
+    procedure SetTopCaption(Value: TOBDCircularGaugeCaption);
+    /// <summary>
+    ///   Set bottom caption
+    /// </summary>
+    procedure SetBottomCaption(Value: TOBDCircularGaugeCaption);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -720,6 +810,14 @@ type
     ///   Needle
     /// </summary>
     property Needle: TOBDCircularGaugeNeedle read FNeedle write SetNeedle;
+    /// <summary>
+    ///   Top caption
+    /// </summary>
+    property TopCaption: TOBDCircularGaugeCaption read FTopCaption write SetTopCaption;
+    /// <summary>
+    ///   Bottom caption
+    /// </summary>
+    property BottomCaption: TOBDCircularGaugeCaption read FBottomCaption write SetBottomCaption;
   end;
 
 procedure Register;
@@ -1230,6 +1328,91 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeCaption.SetCaption(Value: string);
+begin
+  if (FCaption <> Value) then
+  begin
+    // Set new caption
+    FCaption := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeCaption.SetFont(Value: TFont);
+begin
+  // Assign font
+  FFont.Assign(Value);
+  // Notify change
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// SET OFFSET
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeCaption.SetOffset(Value: Single);
+begin
+  if (FOffset <> Value) then
+  begin
+    // Set new offset
+    FOffset := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// FONT CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeCaption.FontChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeCaption.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDCircularGaugeCaption.Destroy;
+begin
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeCaption.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDCircularGaugeCaption) then
+  begin
+    FCaption := (Source as TOBDCircularGaugeCaption).Caption;
+    FFont.Assign((Source as TOBDCircularGaugeCaption).Font);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // SET START ANGLE
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetStartAngle(Value: Single);
@@ -1350,6 +1533,22 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET TOP CAPTION
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetTopCaption(Value: TOBDCircularGaugeCaption);
+begin
+  FTopCaption.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET BOTTOM CAPTION
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetBottomCaption(Value: TOBDCircularGaugeCaption);
+begin
+  FBottomCaption.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // INVALIDATE BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
@@ -1357,14 +1556,12 @@ var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
   Size, X, Y: Single;
-  GaugeRect: TGPRectF;
+  GaugeRect, CaptionRect: TGPRectF;
   Brush: TGPBrush;
   Pen: TGPPen;
-
   TotalTicks, TickIndex: Integer;
   AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
   StartPoint, EndPoint: TGPPointF;
-
   NumberAngle, NumberRadius: Single;
   NumberStr: WideString;
   NumberPoint: TGPPointF;
@@ -1499,7 +1696,10 @@ begin
           NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
           NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
           // Convert tick value to string
-          NumberStr := WideString(FloatToStr(FMin + (FMinorTicks.Step * TickIndex)));
+          if (FMinorTicks.Divider > 0) then
+            NumberStr := WideString(FloatToStr((FMin + (FMinorTicks.Step * TickIndex)) / FMinorTicks.Divider))
+          else
+            NumberStr := WideString(FloatToStr(FMin + (FMinorTicks.Step * TickIndex)));
           // Draw the number at the calculated position
           Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
         end;
@@ -1563,10 +1763,53 @@ begin
           NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
           NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
           // Convert tick value to string
-          NumberStr := WideString(FloatToStr(FMin + (FMajorTicks.Step * TickIndex)));
+          if (FMajorTicks.Divider > 0) then
+            NumberStr := WideString(FloatToStr((FMin + (FMajorTicks.Step * TickIndex)) / FMajorTicks.Divider))
+          else
+            NumberStr := WideString(FloatToStr(FMin + (FMajorTicks.Step * TickIndex)));
           // Draw the number at the calculated position
           Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
         end;
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+
+    // Draw top caption
+    if (FTopCaption.Caption <> '') then
+    begin
+      FontFamily := TGPFontFamily.Create(FTopCaption.Font.Name);
+      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, FontStyleRegular, UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FTopCaption.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      try
+        CaptionRect := MakeRect(0, 0, Width, (Height / 2) + FTopCaption.Offset);
+        Graphics.DrawString(FTopCaption.Caption, -1, Font, CaptionRect, StringFormat, FontBrush);
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+
+    // Draw bottom caption
+    if (FBottomCaption.Caption <> '') then
+    begin
+      FontFamily := TGPFontFamily.Create(FBottomCaption.Font.Name);
+      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, FontStyleRegular, UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FBottomCaption.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      try
+        CaptionRect := MakeRect(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
+        Graphics.DrawString(FBottomCaption.Caption, -1, Font, CaptionRect, StringFormat, FontBrush);
       finally
         FontFamily.Free;
         Font.Free;
@@ -1681,8 +1924,9 @@ end;
 // PAINT BUFFER
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.PaintBuffer;
-
 begin
+  // Call inherited PaintBuffer
+  inherited;
   // Copy the background buffer to the main buffer, by buffering the background
   // and only updating the background buffer when the background is changed
   // allows us to just copy the background buffer, which speeds up our PaintBuffer
@@ -1772,6 +2016,12 @@ begin
   // Create needle properties
   FNeedle := TOBDCircularGaugeNeedle.Create;
   FNeedle.OnChange := NeedleSettingsChanged;
+  // Create top caption properties
+  FTopCaption := TOBDCircularGaugeCaption.Create;
+  FToPCaption.OnChange := SettingsChanged;
+  // Create bottom caption
+  FBottomCaption := TOBDCircularGaugeCaption.Create;
+  FBottomCaption.OnChange := SettingsChanged;
   // Set default dimensions
   Width := 201;
   Height := 201;
@@ -1794,6 +2044,10 @@ begin
   FMinorTicks.Free;
   // Free needle properties
   FNeedle.Free;
+  // Free top caption
+  FTopCaption.Free;
+  // Free bottom caption
+  FBottomCaption.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1815,6 +2069,8 @@ begin
     FMajorTicks.Assign((Source as TOBDCircularGauge).MajorTicks);
     FMinorTicks.Assign((Source as TOBDCircularGauge).MinorTicks);
     FNeedle.Assign((Source as TOBDCircularGauge).Needle);
+    FTopCaption.Assign((Source as TOBDCircularGauge).TopCaption);
+    FBottomCaption.Assign((Source as TOBDCircularGauge).BottomCaption);
   end;
 end;
 

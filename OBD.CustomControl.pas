@@ -228,6 +228,7 @@ var
 begin
   // Call inherited Paint
   inherited;
+
   // Draw the buffer to the component canvas
   X := FUpdateRect.Left;
   Y := FUpdateRect.Top;
