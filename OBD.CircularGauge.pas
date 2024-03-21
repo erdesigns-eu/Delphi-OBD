@@ -46,6 +46,32 @@ const
   MAX_END_ANGLE: Single = 360;
 
   /// <summary>
+  ///   Min value
+  /// </summary>
+  DEFAULT_MIN = 0;
+  /// <summary>
+  ///   Max value
+  /// </summary>
+  DEFAULT_MAX = 100;
+
+  /// <summary>
+  ///   Default minor tick step
+  /// </summary>
+  DEFAULT_MINOR_STEP = 1;
+  /// <summary>
+  ///   Default major tick step
+  /// </summary>
+  DEFAULT_MAJOR_STEP = 10;
+  /// <summary>
+  ///   Default minor tick length
+  /// </summary>
+  DEFAULT_MINOR_LENGTH = 5;
+  /// <summary>
+  ///   Default major tick length
+  /// </summary>
+  DEFAULT_MAJOR_LENGTH = 15;
+
+  /// <summary>
   ///   Default gauge background from color
   /// </summary>
   DEFAULT_BACKGROUND_FROM = $00E4E4E4;
@@ -190,6 +216,161 @@ type
   end;
 
   /// <summary>
+  ///   Circular Gauge tick properties
+  /// </summary>
+  TOBDCircularGaugeTick = class(TPersistent)
+  private
+    /// <summary>
+    ///   Tick step
+    /// </summary>
+    FStep: Single;
+    /// <summary>
+    ///   Tick line length
+    /// </summary>
+    FLength: Single;
+    /// <summary>
+    ///   Tick line width
+    /// </summary>
+    FWidth: Single;
+    /// <summary>
+    ///   Do we need to draw a label for this tick?
+    /// </summary>
+    FShowLabel: Boolean;
+    /// <summary>
+    ///   Tick line color
+    /// </summary>
+    FColor: TColor;
+    /// <summary>
+    ///   Tick label font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Tick value label divider
+    /// </summary>
+    FDivider: Single;
+    /// <summary>
+    ///   Tick offset (space from border)
+    /// </summary>
+    FOffset: Single;
+
+    /// <summary>
+    ///   Set tick step
+    /// </summary>
+    procedure SetStep(Value: Single);
+    /// <summary>
+    ///   Set tick line length
+    /// </summary>
+    procedure SetLength(Value: Single);
+    /// <summary>
+    ///   Set tick line width
+    /// </summary>
+    procedure SetWidth(Value: Single);
+    /// <summary>
+    ///   Set show tick label
+    /// </summary>
+    procedure SetShowLabel(Value: Boolean);
+    /// <summary>
+    ///   Set tick line color
+    /// </summary>
+    procedure SetColor(Value: TColor);
+    /// <summary>
+    ///   Set tick label font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set tick value label divider
+    /// </summary>
+    procedure SetDivider(Value: Single);
+    /// <summary>
+    ///   Set tick offset
+    /// </summary>
+    procedure SetOffset(Value: Single);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Font changed event handler
+    /// </summary>
+    procedure FontChanged(Sender: TObject);
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Tick step
+    /// </summary>
+    property Step: Single read FStep write SetStep;
+    /// <summary>
+    ///   Tick line length
+    /// </summary>
+    property Length: Single read FLength write SetLength;
+    /// <summary>
+    ///   Tick line width
+    /// </summary>
+    property Width: Single read FWidth write SetWidth;
+    /// <summary>
+    ///   Do we need to draw a label for this tick?
+    /// </summary>
+    property ShowLabel: Boolean read FShowLabel write SetShowLabel;
+    /// <summary>
+    ///   Tick line color
+    /// </summary>
+    property Color: TColor read FColor write SetColor;
+    /// <summary>
+    ///   Tick label font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Tick value label divider
+    /// </summary>
+    property Divider: Single read FDivider write SetDivider;
+    /// <summary>
+    ///   Tick offset (space from border)
+    /// </summary>
+    property Offset: Single read FOffset write SetOffset;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Circular Gauge major tick properties
+  /// </summary>
+  TOBDCircularGaugeMajorTicks = class(TOBDCircularGaugeTick)
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; override;
+  end;
+
+  /// <summary>
+  ///   Circular Gauge minor tick properties
+  /// </summary>
+  TOBDCircularGaugeMinorTicks = class(TOBDCircularGaugeTick)
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; override;
+  end;
+
+  /// <summary>
   ///   Circular Gauge Component
   /// </summary>
   TOBDCircularGauge = class(TOBDCustomControl)
@@ -208,6 +389,18 @@ type
     /// </summary>
     FEndAngle: Single;
     /// <summary>
+    ///   Min
+    /// </summary>
+    FMin: Single;
+    /// <summary>
+    ///   Max
+    /// </summary>
+    FMax: Single;
+    /// <summary>
+    ///   Value
+    /// </summary>
+    FValue: Single;
+    /// <summary>
     ///   Gauge background
     /// </summary>
     FBackground: TOBDCircularGaugeBackground;
@@ -215,6 +408,14 @@ type
     ///   Gauge border
     /// </summary>
     FBorder: TOBDCircularGaugeBorder;
+    /// <summary>
+    ///   Major ticks
+    /// </summary>
+    FMajorTicks: TOBDCircularGaugeMajorTicks;
+    /// <summary>
+    ///   Minor ticks
+    /// </summary>
+    FMinorTicks: TOBDCircularGaugeMinorTicks;
 
     /// <summary>
     ///   Set start angle
@@ -225,6 +426,18 @@ type
     /// </summary>
     procedure SetEndAngle(Value: Single);
     /// <summary>
+    ///   Set min
+    /// </summary>
+    procedure SetMin(Value: Single);
+    /// <summary>
+    ///   Set max
+    /// </summary>
+    procedure SetMax(Value: Single);
+    /// <summary>
+    ///   Set value
+    /// </summary>
+    procedure SetValue(Value: Single);
+    /// <summary>
     ///   Set background properties
     /// </summary>
     procedure SetBackground(Value: TOBDCircularGaugeBackground);
@@ -232,6 +445,14 @@ type
     ///   Set border properties
     /// </summary>
     procedure SetBorder(Value: TOBDCircularGaugeBorder);
+    /// <summary>
+    ///   Set major ticks
+    /// </summary>
+    procedure SetMajorTicks(Value: TOBDCircularGaugeMajorTicks);
+    /// <summary>
+    ///   Set minor ticks
+    /// </summary>
+    procedure SetMinorTicks(Value: TOBDCircularGaugeMinorTicks);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -278,6 +499,18 @@ type
     /// </summary>
     property EndAngle: Single read FEndAngle write SetEndAngle;
     /// <summary>
+    ///   Min
+    /// </summary>
+    property Min: Single read FMin write SetMin;
+    /// <summary>
+    ///   Max
+    /// </summary>
+    property Max: Single read FMax write SetMax;
+    /// <summary>
+    ///   Value
+    /// </summary>
+    property Value: Single read FValue write SetValue;
+    /// <summary>
     ///   Gauge background
     /// </summary>
     property Background: TOBDCircularGaugeBackground read FBackground write SetBackground;
@@ -285,6 +518,14 @@ type
     ///   Gauge border
     /// </summary>
     property Border: TOBDCircularGaugeBorder read FBorder write SetBorder;
+    /// <summary>
+    ///   Major ticks
+    /// </summary>
+    property MajorTicks: TOBDCircularGaugeMajorTicks read FMajorTicks write SetMajorTicks;
+    /// <summary>
+    ///   Minor ticks
+    /// </summary>
+    property MinorTicks: TOBDCircularGaugeMinorTicks read FMinorTicks write SetMinorTicks;
   end;
 
 procedure Register;
@@ -339,8 +580,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGaugeBackground.Assign(Source: TPersistent);
 begin
-  // Call inherited assign
-  inherited;
   // Assign properties
   if (Source is TOBDCircularGaugeBackground) then
   begin
@@ -348,7 +587,9 @@ begin
     FToColor := (Source as TOBDCircularGaugeBackground).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
-  end;
+  end else
+    // Call inherited assign
+    inherited;
 end;
 
 //------------------------------------------------------------------------------
@@ -411,8 +652,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGaugeBorder.Assign(Source: TPersistent);
 begin
-  // Call inherited assign
-  inherited;
   // Assign properties
   if (Source is TOBDCircularGaugeBorder) then
   begin
@@ -421,7 +660,198 @@ begin
     FWidth := (Source as TOBDCircularGaugeBorder).Width;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SET STEP
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetStep(Value: Single);
+begin
+  if (FStep <> Value) and (Value >= 1) then
+  begin
+    // Set new step
+    FStep := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
   end;
+end;
+
+//------------------------------------------------------------------------------
+// SET LENGTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetLength(Value: Single);
+begin
+  if (FLength <> Value) and (Value >= 2) then
+  begin
+    // Set new length
+    FLength := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetWidth(Value: Single);
+begin
+  if (FWidth <> Value) and (Value >= 2) then
+  begin
+    // Set new width
+    FWidth := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW LABEL
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetShowLabel(Value: Boolean);
+begin
+  if (FShowLabel <> Value) then
+  begin
+    // Set new show label
+    FShowLabel := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetColor(Value: TColor);
+begin
+  if (FColor <> Value) then
+  begin
+    // Set new color
+    FColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetFont(Value: TFont);
+begin
+  // Assign font
+  FFont.Assign(Font);
+  // Notify change
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// SET DIVIDER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.SetDivider(Value: Single);
+begin
+  if (FDivider <> Value) and (Value >= 0) then
+  begin
+    // Set new divider
+    FDivider := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+procedure TOBDCircularGaugeTick.SetOffset(Value: Single);
+begin
+  if (FOffset <> Value) and (Value >= 0) then
+  begin
+    // Set new offset
+    FOffset := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeTick.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create label font
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDCircularGaugeTick.Destroy;
+begin
+  // Free label font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// FONT CHANGED
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.FontChanged(Sender: TObject);
+begin
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeTick.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDCircularGaugeTick) then
+  begin
+    FStep := (Source as TOBDCircularGaugeTick).Step;
+    FLength := (Source as TOBDCircularGaugeTick).Length;
+    FWidth := (Source as TOBDCircularGaugeTick).Width;
+    FShowLabel := (Source as TOBDCircularGaugeTick).ShowLabel;
+    FColor := (Source as TOBDCircularGaugeTick).Color;
+    FFont.Assign((Source as TOBDCircularGaugeTick).Font);
+    FDivider := (Source as TOBDCircularGaugeTick).Divider;
+    FOffset := (Source as TOBDCircularGaugeTick).Offset;
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeMajorTicks.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Set defaults
+  FStep := DEFAULT_MAJOR_STEP;
+  FLength := DEFAULT_MAJOR_LENGTH;
+  FWidth := 1;
+  FShowLabel := True;
+  FColor := clBlack;
+  FDivider := 0;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeMinorTicks.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Set defaults
+  FStep := DEFAULT_MINOR_STEP;
+  FLength := DEFAULT_MINOR_LENGTH;
+  FWidth := 1;
+  FShowLabel := False;
+  FColor := clBlack;
+  FDivider := 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -457,6 +887,54 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET MIN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetMin(Value: Single);
+begin
+  if (FMin <> Value) and (Value <= FMax) then
+  begin
+    // Set new min
+    FMin := Value;
+    // Invalidate the background buffer
+    InvalidateBackground;
+    // Invalidate buffer
+    InvalidateBuffer;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetMax(Value: Single);
+begin
+  if (FMax <> Value) and (Value >= FMin) then
+  begin
+    // Set new max
+    FMax := Value;
+    // Invalidate the background buffer
+    InvalidateBackground;
+    // Invalidate buffer
+    InvalidateBuffer;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetValue(Value: Single);
+begin
+  if (FValue <> Value) then
+  begin
+    if (Value < FMin) then Value := FMin;
+    if (Value > FMax) then Value := FMax;
+    // Set value
+    FValue := Value;
+    // Invalidate buffer
+    InvalidateBuffer;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // SET BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetBackground(Value: TOBDCircularGaugeBackground);
@@ -473,6 +951,22 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET MAJOR TICKS
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetMajorTicks(Value: TOBDCircularGaugeMajorTicks);
+begin
+  FMajorTicks.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET MINOR TICKS
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetMinorTicks(Value: TOBDCircularGaugeMinorTicks);
+begin
+  FMinorTicks.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // INVALIDATE BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
@@ -483,6 +977,18 @@ var
   GaugeRect: TGPRectF;
   Brush: TGPBrush;
   Pen: TGPPen;
+
+  TotalTicks, TickIndex: Integer;
+  AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
+  StartPoint, EndPoint: TGPPointF;
+
+  NumberAngle, NumberRadius: Single;
+  NumberStr: WideString;
+  NumberPoint: TGPPointF;
+  Font: TGPFont;
+  FontBrush: TGPSolidBrush;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
 begin
   // Update the size of the background buffer
   FBackgroundBuffer.SetSize(Width, Height);
@@ -515,7 +1021,7 @@ begin
     Graphics.SetCompositingQuality(CompositingQualityHighQuality);
 
     // Calculate gauge size and position based on control's aspect ratio
-    Size := Min(ClientWidth, ClientHeight);
+    Size := System.Math.Min(ClientWidth, ClientHeight);
     X := (Width - Size) / 2;
     Y := (Height - Size) / 2;
 
@@ -546,8 +1052,117 @@ begin
       Pen.Free;
     end;
 
-    // Draw the ticks
-    // Draw the numbers?
+    // Calculate the amount of minor ticks we need to draw
+    TotalTicks := Round((FMax - FMin) / FMinorTicks.Step);
+    // Adjust the AnglePerTick calculation to account for the described angle definitions
+    AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
+    // Calculate inner radius
+    InnerRadius := (Size / 2) - FBorder.Width - FMinorTicks.Length - FMinorTicks.Offset;
+    // Calculate outer radius
+    OuterRadius := (Size / 2) - FBorder.Width - FMinorTicks.Offset;
+    // Create the pen for the minor ticks
+    Pen := TGPPen.Create(ColorRefToARGB(FMinorTicks.Color), FMinorTicks.Width);
+    try
+      for TickIndex := 0 to TotalTicks do
+      begin
+        // Skip if we need to draw a major tick here
+        if (TickIndex mod Round(FMajorTicks.Step)) = 0 then Continue;
+        // Calculate current angle
+        CurrentAngle := FStartAngle + (AnglePerTick * TickIndex);
+        // Convert degrees to radians for Sin and Cos functions
+        CurrentAngle := DegToRad(CurrentAngle);
+        // Calculate the start and end points
+        StartPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius);
+        StartPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius);
+        EndPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius);
+        EndPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius);
+        // Draw the tick
+        Graphics.DrawLine(Pen, StartPoint, EndPoint);
+      end;
+    finally
+      // Free the minor tick pen object
+      Pen.Free;
+    end;
+
+    // Calculate the amount of major ticks we need to draw
+    TotalTicks := Round((FMax - FMin) / FMajorTicks.Step);
+    // Adjust the AnglePerTick calculation to account for the described angle definitions
+    AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
+    // Calculate inner radius
+    InnerRadius := (Size / 2) - FBorder.Width - FMajorTicks.Length - FMajorTicks.Offset;
+    // Calculate outer radius
+    OuterRadius := (Size / 2) - FBorder.Width - FMajorTicks.Offset;
+    // Create the pen for the minor ticks
+    Pen := TGPPen.Create(ColorRefToARGB(FMajorTicks.Color), FMajorTicks.Width);
+    try
+      for TickIndex := 0 to TotalTicks do
+      begin
+        // Calculate current angle
+        CurrentAngle := FStartAngle + (AnglePerTick * TickIndex);
+        // Convert degrees to radians for Sin and Cos functions
+        CurrentAngle := DegToRad(CurrentAngle);
+        // Calculate the start and end points
+        StartPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius);
+        StartPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius);
+        EndPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius);
+        EndPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius);
+        // Draw the tick
+        Graphics.DrawLine(Pen, StartPoint, EndPoint);
+      end;
+    finally
+      // Free the minor tick pen object
+      Pen.Free;
+    end;
+
+    (*
+
+
+
+
+
+
+    *)
+
+
+
+    (*FontFamily := TGPFontFamily.Create('Arial');
+    Font := TGPFont.Create(FontFamily, 8, FontStyleRegular, UnitPoint);
+    FontBrush := TGPSolidBrush.Create(MakeColor(255, 0, 0, 0)); // Black color
+    StringFormat := TGPStringFormat.Create;
+    StringFormat.SetAlignment(StringAlignmentCenter);
+    StringFormat.SetLineAlignment(StringAlignmentCenter);
+
+    try
+      // Adjust the radius for number positioning based on your design needs
+      NumberRadius := OuterRadius - 20; // Position numbers outside the ticks
+
+      for TickIndex := 0 to TotalTicks do
+      begin
+        // Calculate the angle for the number
+        NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
+
+        // Convert degrees to radians for Sin and Cos functions
+        NumberAngle := DegToRad(NumberAngle);
+
+        // Determine the position for the number
+        NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
+        NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
+
+        // Convert tick value to string
+        NumberStr := WideString(FloatToStr(FMin + (FStep * TickIndex)));
+
+        // Draw the number at the calculated position
+        Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
+      end;
+    finally
+      FontFamily.Free;
+      Font.Free;
+      FontBrush.Free;
+      StringFormat.Free;
+    end;*)
+
+
+
 
   finally
     // Free the GDI+ Graphics object
@@ -619,12 +1234,22 @@ begin
   FStartAngle := DEFAULT_START_ANGLE;
   // Set default end angle
   FEndAngle := DEFAULT_END_ANGLE;
+  // Set min
+  FMin := DEFAULT_MIN;
+  // Set max
+  FMax := DEFAULT_MAX;
   // Create gauge background properties
   FBackground := TOBDCircularGaugeBackground.Create;
   FBackground.OnChange := SettingsChanged;
   // Create gauge border properties
   FBorder := TOBDCircularGaugeBorder.Create;
   FBorder.OnChange := SettingsChanged;
+  // Create major tick properties
+  FMajorTicks := TOBDCircularGaugeMajorTicks.Create;
+  FMajorTicks.OnChange := SettingsChanged;
+  // Create minor tick properties
+  FMinorTicks := TOBDCircularGaugeMinorTicks.Create;
+  FminorTicks.OnChange := SettingsChanged;
   // Set default dimensions
   Width := 201;
   Height := 201;
@@ -641,6 +1266,10 @@ begin
   FBackground.Free;
   // Free gauge border properties
   FBorder.Free;
+  // Free major tick properties
+  FMajorTicks.Free;
+  // Free minor tick properties
+  FMinorTicks.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -659,6 +1288,8 @@ begin
     FEndAngle   := (Source as TOBDCircularGauge).EndAngle;
     FBackground.Assign((Source as TOBDCircularGauge).Background);
     FBorder.Assign((Source as TOBDCircularGauge).Border);
+    FMajorTicks.Assign((Source as TOBDCircularGauge).MajorTicks);
+    FMinorTicks.Assign((Source as TOBDCircularGauge).MinorTicks);
   end;
 end;
 
