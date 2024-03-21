@@ -93,6 +93,43 @@ const
   /// </summary>
   DEFAULT_BORDER_WIDTH = 6;
 
+  /// <summary>
+  ///   Default needle length
+  /// </summary>
+  DEFAULT_NEEDLE_LENGTH = 0.7;
+  /// <summary>
+  ///   Default needle width
+  /// </summary>
+  DEFAULT_NEEDLE_WIDTH = 7;
+  /// <summary>
+  ///   Default needle color
+  /// </summary>
+  DEFAULT_NEEDLE_COLOR = clSkyBlue;
+  /// <summary>
+  ///   Default needle border width
+  /// </summary>
+  DEFAULT_NEEDLE_BORDER_WIDTH = 1;
+  /// <summary>
+  ///   Default needle border color
+  /// </summary>
+  DEFAULT_NEEDLE_BORDER_COLOR = $00575757;
+  /// <summary>
+  ///   Default needle center size
+  /// </summary>
+  DEFAULT_NEEDLE_CENTER_SIZE = 20;
+  /// <summary>
+  ///   Default needle center color
+  /// </summary>
+  DEFAULT_NEEDLE_CENTER_COLOR = $009D9D9D;
+  /// <summary>
+  ///   Default needle center border width
+  /// </summary>
+  DEFAULT_NEEDLE_CENTER_BORDER_WIDTH = 2;
+  /// <summary>
+  ///   Default needle center border color
+  /// </summary>
+  DEFAULT_NEEDLE_CENTER_BORDER_COLOR = $00575757;
+
 //------------------------------------------------------------------------------
 // CLASSES
 //------------------------------------------------------------------------------
@@ -371,6 +408,143 @@ type
   end;
 
   /// <summary>
+  ///   Circular Gauge needle properties
+  /// </summary>
+  TOBDCircularGaugeNeedle = class(TPersistent)
+  private
+    /// <summary>
+    ///   Length of the needle
+    /// </summary>
+    FLength: Single;
+    /// <summary>
+    ///   Width of the needle
+    /// </summary>
+    FWidth: Single;
+    /// <summary>
+    ///   Needle fill color
+    /// </summary>
+    FColor: TColor;
+    /// <summary>
+    ///   Needle border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Needle border width
+    /// </summary>
+    FBorderWidth: Single;
+    /// <summary>
+    ///   Center color
+    /// </summary>
+    FCenterColor: TColor;
+    /// <summary>
+    ///   Center size (Width/Height)
+    /// </summary>
+    FCenterSize: Single;
+    /// <summary>
+    ///   Center border color
+    /// </summary>
+    FCenterBorderColor: TColor;
+    /// <summary>
+    ///   Center border size
+    /// </summary>
+    FCenterBorderWidth: Single;
+
+    /// <summary>
+    ///   Set needle length
+    /// </summary>
+    procedure SetLength(Value: Single);
+    /// <summary>
+    ///   Set needle width
+    /// </summary>
+    procedure SetWidth(Value: Single);
+    /// <summary>
+    ///   Set needle color
+    /// </summary>
+    procedure SetColor(Value: TColor);
+    /// <summary>
+    ///   Set needle border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set needle border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set center color
+    /// </summary>
+    procedure SetCenterColor(Value: TColor);
+    /// <summary>
+    ///   Set center size
+    /// </summary>
+    procedure SetCenterSize(Value: Single);
+    /// <summary>
+    ///   Set center border color
+    /// </summary>
+    procedure SetCenterBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set center border width
+    /// </summary>
+    procedure SetCenterBorderWidth(Value: Single);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Length of the needle
+    /// </summary>
+    property Length: Single read FLength write SetLength;
+    /// <summary>
+    ///   Width of the needle
+    /// </summary>
+    property Width: Single read FWidth write SetWidth;
+    /// <summary>
+    ///   Needle fill color
+    /// </summary>
+    property Color: TColor read FColor write SetColor default DEFAULT_NEEDLE_COLOR;
+    /// <summary>
+    ///   Needle border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_NEEDLE_BORDER_COLOR;
+    /// <summary>
+    ///   Needle border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Center color
+    /// </summary>
+    property CenterColor: TColor read FCenterColor write SetCenterColor default DEFAULT_NEEDLE_CENTER_COLOR;
+    /// <summary>
+    ///   Center size (Width/Height)
+    /// </summary>
+    property CenterSize: Single read FCenterSize write SetCenterSize;
+    /// <summary>
+    ///   Center border color
+    /// </summary>
+    property CenterBorderColor: TColor read FCenterBorderColor write SetCenterBorderColor default DEFAULT_NEEDLE_CENTER_BORDER_COLOR;
+    /// <summary>
+    ///   Center border size
+    /// </summary>
+    property CenterBorderWidth: Single read FCenterBorderWidth write SetCenterBorderWidth;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Circular Gauge Component
   /// </summary>
   TOBDCircularGauge = class(TOBDCustomControl)
@@ -416,6 +590,10 @@ type
     ///   Minor ticks
     /// </summary>
     FMinorTicks: TOBDCircularGaugeMinorTicks;
+    /// <summary>
+    ///   Needle
+    /// </summary>
+    FNeedle: TOBDCircularGaugeNeedle;
 
     /// <summary>
     ///   Set start angle
@@ -453,11 +631,19 @@ type
     ///   Set minor ticks
     /// </summary>
     procedure SetMinorTicks(Value: TOBDCircularGaugeMinorTicks);
+    /// <summary>
+    ///   Set needle
+    /// </summary>
+    procedure SetNeedle(Value: TOBDCircularGaugeNeedle);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
     /// </summary>
     procedure InvalidateBackground; virtual;
+    /// <summary>
+    ///   Paint the needle
+    /// </summary>
+    procedure PaintNeedle; virtual;
     /// <summary>
     ///   Paint buffer
     /// </summary>
@@ -466,6 +652,10 @@ type
     ///   On change handler
     /// </summary>
     procedure SettingsChanged(Sender: TObject);
+    /// <summary>
+    ///   On needle change handler
+    /// </summary>
+    procedure NeedleSettingsChanged(Sender: TObject);
   protected
     /// <summary>
     ///   Override Resize method
@@ -526,6 +716,10 @@ type
     ///   Minor ticks
     /// </summary>
     property MinorTicks: TOBDCircularGaugeMinorTicks read FMinorTicks write SetMinorTicks;
+    /// <summary>
+    ///   Needle
+    /// </summary>
+    property Needle: TOBDCircularGaugeNeedle read FNeedle write SetNeedle;
   end;
 
 procedure Register;
@@ -534,6 +728,22 @@ implementation
 
 uses
   Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+
+//------------------------------------------------------------------------------
+// CONVERT COLOR TO GDI+ COLOR
+//------------------------------------------------------------------------------
+function SafeColorRefToARGB(Color: TColor): DWORD;
+var
+  RGBColor: COLORREF;
+begin
+  // Convert TColor to a RGB color if it's a system color
+  RGBColor := ColorToRGB(Color);
+  // Now convert the RGB color to ARGB format expected by GDI+
+  Result := (GetRValue(RGBColor) shl RedShift) or
+            (GetGValue(RGBColor) shl GreenShift) or
+            (GetBValue(RGBColor) shl BlueShift) or
+            (AlphaMask);
+end;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -698,7 +908,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGaugeTick.SetWidth(Value: Single);
 begin
-  if (FWidth <> Value) and (Value >= 2) then
+  if (FWidth <> Value) and (Value >= 1) then
   begin
     // Set new width
     FWidth := Value;
@@ -781,6 +991,11 @@ begin
   // Create label font
   FFont := TFont.Create;
   FFont.OnChange := FontChanged;
+  // Set defaults
+  FWidth := 1;
+  FColor := clBlack;
+  FDivider := 0;
+  FOffset := 2;
 end;
 
 //------------------------------------------------------------------------------
@@ -832,10 +1047,7 @@ begin
   // Set defaults
   FStep := DEFAULT_MAJOR_STEP;
   FLength := DEFAULT_MAJOR_LENGTH;
-  FWidth := 1;
   FShowLabel := True;
-  FColor := clBlack;
-  FDivider := 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -848,10 +1060,173 @@ begin
   // Set defaults
   FStep := DEFAULT_MINOR_STEP;
   FLength := DEFAULT_MINOR_LENGTH;
-  FWidth := 1;
   FShowLabel := False;
-  FColor := clBlack;
-  FDivider := 0;
+end;
+
+//------------------------------------------------------------------------------
+// SET NEEDLE LENGTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetLength(Value: Single);
+begin
+  if (FLength <> Value) and (Value >= 0.1) and (Value <= 1) then
+  begin
+    // Set new length
+    FLength := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET NEEDLE WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetWidth(Value: Single);
+begin
+  if (FWidth <> Value) and (Value >= 1) then
+  begin
+    // Set new width
+    FWidth := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET NEEDLE COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetColor(Value: TColor);
+begin
+  if (FColor <> Value) then
+  begin
+    // Set new color
+    FColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetBorderColor(Value: TColor);
+begin
+ if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetBorderWidth(Value: Single);
+begin
+  if (FBorderWidth <> Value) and (Value >= 0) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CENTER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetCenterColor(Value: TColor);
+begin
+  if (FCenterColor <> Value) then
+  begin
+    // Set new center color
+    FCenterColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CENTER SIZE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetCenterSize(Value: Single);
+begin
+  if (FCenterSize <> Value) and (Value >= 0) then
+  begin
+    // Set new center size
+    FCenterSize := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CENTER BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetCenterBorderColor(Value: TColor);
+begin
+  if (FCenterBorderColor <> Value) then
+  begin
+    // Set new center border color
+    FCenterBorderColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CENTER BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.SetCenterBorderWidth(Value: Single);
+begin
+  if (FCenterBorderWidth <> Value) and (Value >= 0) then
+  begin
+    // Set new center border width
+    FCenterBorderWidth := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeNeedle.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Set defaults
+  FLength := DEFAULT_NEEDLE_LENGTH;
+  FWidth := DEFAULT_NEEDLE_WIDTH;
+  FColor := DEFAULT_NEEDLE_COLOR;
+  FBorderColor := DEFAULT_NEEDLE_BORDER_COLOR;
+  FBorderWidth := DEFAULT_NEEDLE_BORDER_WIDTH;
+  FCenterColor := DEFAULT_NEEDLE_CENTER_COLOR;
+  FCenterSize  := DEFAULT_NEEDLE_CENTER_SIZE;
+  FCenterBorderColor := DEFAULT_NEEDLE_CENTER_BORDER_COLOR;
+  FCenterBorderWidth := DEFAULT_NEEDLE_CENTER_BORDER_WIDTH;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeNeedle.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDCircularGaugeNeedle) then
+  begin
+    Flength := (Source as TOBDCircularGaugeNeedle).Length;
+    FWidth := (Source as TOBDCircularGaugeNeedle).Width;
+    FColor := (Source as TOBDCircularGaugeNeedle).Color;
+    FBorderColor := (Source as TOBDCircularGaugeNeedle).BorderColor;
+    FBorderWidth := (Source as TOBDCircularGaugeNeedle).BorderWidth;
+    FCenterColor := (Source as TOBDCircularGaugeNeedle).CenterColor;
+    FCenterSize  := (Source as TOBDCircularGaugeNeedle).CenterSize;
+    FCenterBorderColor := (Source as TOBDCircularGaugeNeedle).CenterBorderColor;
+    FCenterBorderWidth := (Source as TOBDCircularGaugeNeedle).CenterBorderWidth;
+  end else
+    // Call inherited assign
+    inherited;
 end;
 
 //------------------------------------------------------------------------------
@@ -967,6 +1342,14 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET NEEDLE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetNeedle(Value: TOBDCircularGaugeNeedle);
+begin
+  FNeedle.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // INVALIDATE BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
@@ -1025,31 +1408,39 @@ begin
     X := (Width - Size) / 2;
     Y := (Height - Size) / 2;
 
-    // Get the rectangle for the gauge
-    GaugeRect := MakeRect(X, Y, Size, Size);
-    // Create the background brush
-    Brush := TGPLinearGradientBrush.Create(GaugeRect, ColorRefToARGB(Background.FromColor), ColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
-    try
-      // Fill the gauge background
-      Graphics.FillEllipse(Brush, GaugeRect);
-    finally
-      // Free the background brush object
-      Brush.Free;
+    // Draw the backround
+    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
+    begin
+      // Get the rectangle for the gauge
+      GaugeRect := MakeRect(X, Y, Size, Size);
+      // Create the background brush
+      Brush := TGPLinearGradientBrush.Create(GaugeRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
+      try
+        // Fill the gauge background
+        Graphics.FillEllipse(Brush, GaugeRect);
+      finally
+        // Free the background brush object
+        Brush.Free;
+      end;
     end;
 
-    // Create the border brush
-    Brush := TGPLinearGradientBrush.Create(GaugeRect, ColorRefToARGB(Border.FromColor), ColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-    // Create the border pen
-    Pen := TGPPen.Create(Brush, Border.Width);
-    Pen.SetAlignment(PenAlignmentInset);
-    try
-      // Draw the gauge border
-      Graphics.DrawEllipse(Pen, GaugeRect);
-    finally
-      // Free the background brush object
-      Brush.Free;
-      // Free the background pen object
-      Pen.Free;
+    // Draw the border
+    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
+    begin
+      // Create the border brush
+      Brush := TGPLinearGradientBrush.Create(GaugeRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
+      // Create the border pen
+      Pen := TGPPen.Create(Brush, Border.Width);
+      Pen.SetAlignment(PenAlignmentInset);
+      try
+        // Draw the gauge border
+        Graphics.DrawEllipse(Pen, GaugeRect);
+      finally
+        // Free the background brush object
+        Brush.Free;
+        // Free the background pen object
+        Pen.Free;
+      end;
     end;
 
     // Calculate the amount of minor ticks we need to draw
@@ -1061,7 +1452,7 @@ begin
     // Calculate outer radius
     OuterRadius := (Size / 2) - FBorder.Width - FMinorTicks.Offset;
     // Create the pen for the minor ticks
-    Pen := TGPPen.Create(ColorRefToARGB(FMinorTicks.Color), FMinorTicks.Width);
+    Pen := TGPPen.Create(SafeColorRefToARGB(FMinorTicks.Color), FMinorTicks.Width);
     try
       for TickIndex := 0 to TotalTicks do
       begin
@@ -1084,6 +1475,42 @@ begin
       Pen.Free;
     end;
 
+    // Draw labels for minor ticks
+    if FMinorTicks.ShowLabel then
+    begin
+      FontFamily := TGPFontFamily.Create(FMinorTicks.Font.Name);
+      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, FontStyleRegular, UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMinorTicks.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      try
+        // Adjust the radius for number positioning based on your design needs
+        NumberRadius := OuterRadius - FMinorTicks.Length - 10;
+        for TickIndex := 0 to TotalTicks do
+        begin
+          // Skip if we need to draw a major tick here
+          if (TickIndex mod Round(FMajorTicks.Step)) = 0 then Continue;
+          // Calculate the angle for the number
+          NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
+          // Convert degrees to radians for Sin and Cos functions
+          NumberAngle := DegToRad(NumberAngle);
+          // Determine the position for the number
+          NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
+          NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
+          // Convert tick value to string
+          NumberStr := WideString(FloatToStr(FMin + (FMinorTicks.Step * TickIndex)));
+          // Draw the number at the calculated position
+          Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
+        end;
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+
     // Calculate the amount of major ticks we need to draw
     TotalTicks := Round((FMax - FMin) / FMajorTicks.Step);
     // Adjust the AnglePerTick calculation to account for the described angle definitions
@@ -1093,7 +1520,7 @@ begin
     // Calculate outer radius
     OuterRadius := (Size / 2) - FBorder.Width - FMajorTicks.Offset;
     // Create the pen for the minor ticks
-    Pen := TGPPen.Create(ColorRefToARGB(FMajorTicks.Color), FMajorTicks.Width);
+    Pen := TGPPen.Create(SafeColorRefToARGB(FMajorTicks.Color), FMajorTicks.Width);
     try
       for TickIndex := 0 to TotalTicks do
       begin
@@ -1114,56 +1541,136 @@ begin
       Pen.Free;
     end;
 
-    (*
+    // Draw labels for major ticks
+    if FMajorTicks.ShowLabel then
+    begin
+      FontFamily := TGPFontFamily.Create(FMajorTicks.Font.Name);
+      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, FontStyleRegular, UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMajorTicks.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      try
+        // Adjust the radius for number positioning based on your design needs
+        NumberRadius := OuterRadius - FMajorTicks.Length - 10;
+        for TickIndex := 0 to TotalTicks do
+        begin
+          // Calculate the angle for the number
+          NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
+          // Convert degrees to radians for Sin and Cos functions
+          NumberAngle := DegToRad(NumberAngle);
+          // Determine the position for the number
+          NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
+          NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
+          // Convert tick value to string
+          NumberStr := WideString(FloatToStr(FMin + (FMajorTicks.Step * TickIndex)));
+          // Draw the number at the calculated position
+          Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
+        end;
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+  finally
+    // Free the GDI+ Graphics object
+    Graphics.Free;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// PAINT NEEDLE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.PaintNeedle;
+var
+  Graphics: TGPGraphics;
+  Brush: TGPBrush;
+  Pen: TGPPen;
+  BasePoint, LeftPoint, RightPoint, TipPoint: TGPPointF;
+  NeedleLength: Single;
+  ValueAngle, BaseAngleLeft, BaseAngleRight, X, Y, Size: Single;
+  NeedlePath: TGPGraphicsPath;
+  CenterRect: TGPRectF;
+begin
+  // Initialize GDI+ Graphics object
+  Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
+  try
+    // Set smoothing mode to high-quality
+    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
+    // Set compositing quality to high-quality
+    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
 
+    // Gauge's center position
+    Size := System.Math.Min(ClientWidth, ClientHeight);
+    X := (Width - Size) / 2;
+    Y := (Height - Size) / 2;
+    BasePoint.X := X + Size / 2;
+    BasePoint.Y := Y + Size / 2;
 
+    // Needle properties
+    NeedleLength := Size / 2 * FNeedle.Length;
 
+    // Calculate the needle's angle based on the current value
+    ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
+    ValueAngle := DegToRad(ValueAngle);
 
+    // Calculate points for the needle
+    TipPoint.X := BasePoint.X + Cos(ValueAngle) * NeedleLength;
+    TipPoint.Y := BasePoint.Y + Sin(ValueAngle) * NeedleLength;
 
-    *)
+    // Calculate base angles for a wider base
+    BaseAngleLeft := ValueAngle + Pi / 2;
+    BaseAngleRight := ValueAngle - Pi / 2;
 
+    LeftPoint.X := BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2);
+    LeftPoint.Y := BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2);
+    RightPoint.X := BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2);
+    RightPoint.Y := BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2);
 
-
-    (*FontFamily := TGPFontFamily.Create('Arial');
-    Font := TGPFont.Create(FontFamily, 8, FontStyleRegular, UnitPoint);
-    FontBrush := TGPSolidBrush.Create(MakeColor(255, 0, 0, 0)); // Black color
-    StringFormat := TGPStringFormat.Create;
-    StringFormat.SetAlignment(StringAlignmentCenter);
-    StringFormat.SetLineAlignment(StringAlignmentCenter);
-
+    // Create the needle shape (path)
+    NeedlePath := TGPGraphicsPath.Create;
     try
-      // Adjust the radius for number positioning based on your design needs
-      NumberRadius := OuterRadius - 20; // Position numbers outside the ticks
+      NeedlePath.StartFigure;
+      NeedlePath.AddLine(LeftPoint, TipPoint);
+      NeedlePath.AddLine(TipPoint, RightPoint);
+      NeedlePath.AddLine(RightPoint, LeftPoint);
+      NeedlePath.CloseFigure;
 
-      for TickIndex := 0 to TotalTicks do
-      begin
-        // Calculate the angle for the number
-        NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
-
-        // Convert degrees to radians for Sin and Cos functions
-        NumberAngle := DegToRad(NumberAngle);
-
-        // Determine the position for the number
-        NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
-        NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
-
-        // Convert tick value to string
-        NumberStr := WideString(FloatToStr(FMin + (FStep * TickIndex)));
-
-        // Draw the number at the calculated position
-        Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
+      // Create the brush for the needle
+      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(FNeedle.Color));
+      // Create the pen for the needle
+      Pen := TGPPen.Create(SafeColorRefToARGB(FNeedle.BorderColor), FNeedle.BorderWidth);
+      try
+        // Fill the needle shape
+        Graphics.FillPath(Brush, NeedlePath);
+        // Draw the border
+        if (FNeedle.BorderColor <> clNone) and (FNeedle.BorderWidth > 0) then
+        Graphics.DrawPath(Pen, NeedlePath);
+      finally
+        Brush.Free;
+        Pen.Free;
       end;
     finally
-      FontFamily.Free;
-      Font.Free;
-      FontBrush.Free;
-      StringFormat.Free;
-    end;*)
+      NeedlePath.Free;
+    end;
 
-
-
-
+    // Create the brush for the needle center
+    Brush := TGPSolidBrush.Create(SafeColorRefToARGB(Fneedle.CenterColor));
+    // Create the pen for the needle center
+    Pen := TGPPen.Create(SafeColorRefToARGB(FNeedle.CenterBorderColor), FNeedle.CenterBorderWidth);
+    try
+      CenterRect := MakeRect(BasePoint.X - FNeedle.CenterSize / 2, BasePoint.Y - FNeedle.CenterSize / 2, FNeedle.CenterSize, FNeedle.CenterSize);
+      // Fill the needle center
+      Graphics.FillEllipse(Brush, CenterRect);
+      // Draw the border
+      if (FNeedle.CenterBorderColor <> clNone) and (FNeedle.CenterBorderWidth > 0) then
+      Graphics.DrawEllipse(Pen, CenterRect);
+    finally
+      Brush.Free;
+      Pen.Free;
+    end;
   finally
     // Free the GDI+ Graphics object
     Graphics.Free;
@@ -1174,12 +1681,15 @@ end;
 // PAINT BUFFER
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.PaintBuffer;
+
 begin
   // Copy the background buffer to the main buffer, by buffering the background
   // and only updating the background buffer when the background is changed
   // allows us to just copy the background buffer, which speeds up our PaintBuffer
   // resulting in less CPU consumption and allowing higher framerates.
   BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
+  // Paint the needle on the buffer
+  PaintNeedle;
 end;
 
 //------------------------------------------------------------------------------
@@ -1189,6 +1699,15 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
+  // Invalidate the buffer
+  InvalidateBuffer;
+end;
+
+//------------------------------------------------------------------------------
+// ON NEEDLE CHANGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
+begin
   // Invalidate the buffer
   InvalidateBuffer;
 end;
@@ -1250,6 +1769,9 @@ begin
   // Create minor tick properties
   FMinorTicks := TOBDCircularGaugeMinorTicks.Create;
   FminorTicks.OnChange := SettingsChanged;
+  // Create needle properties
+  FNeedle := TOBDCircularGaugeNeedle.Create;
+  FNeedle.OnChange := NeedleSettingsChanged;
   // Set default dimensions
   Width := 201;
   Height := 201;
@@ -1270,6 +1792,8 @@ begin
   FMajorTicks.Free;
   // Free minor tick properties
   FMinorTicks.Free;
+  // Free needle properties
+  FNeedle.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1290,6 +1814,7 @@ begin
     FBorder.Assign((Source as TOBDCircularGauge).Border);
     FMajorTicks.Assign((Source as TOBDCircularGauge).MajorTicks);
     FMinorTicks.Assign((Source as TOBDCircularGauge).MinorTicks);
+    FNeedle.Assign((Source as TOBDCircularGauge).Needle);
   end;
 end;
 

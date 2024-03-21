@@ -48,6 +48,12 @@ type
     class destructor Destroy;
   private
     /// <summary>
+    ///   Handle needed for the timer
+    ///   Note: Using the components own handle throws an exception, so we need
+    ///   to allocate our own handle so we can manage its lifecycle.
+    /// </summary>
+    FWindowHandle: THandle;
+    /// <summary>
     ///   Buffer (This is the canvas we draw on)
     /// </summary>
     FBuffer: TBitmap;
@@ -58,7 +64,7 @@ type
     /// <summary>
     ///   Handle of the FPS timer
     /// </summary>
-    FTimerHandle: UINT_PTR;
+    FTimerHandle: THandle;
   private
     /// <summary>
     ///   Frames per second
@@ -70,10 +76,6 @@ type
     /// </summary>
     procedure SetFramesPerSecond(Value: Integer);
   private
-    /// <summary>
-    ///   WM_TIMER message handler
-    /// </summary>
-    procedure WMTimeStep(var Msg: TMessage); message WM_TIMER;
     /// <summary>
     ///   WM_PAINT message handler
     /// </summary>
@@ -101,10 +103,15 @@ type
     /// </summary>
     procedure Resize; override;
     /// <summary>
+    ///   Override Loaded method
+    /// </summary>
+    procedure Loaded; override;
+    /// <summary>
     ///   Override UpdateStyleElements method
     /// </summary>
     procedure UpdateStyleElements; override;
   protected
+    procedure TimerProc(var Msg: TMessage);
     /// <summary>
     ///   Paint buffer
     /// </summary>
@@ -133,6 +140,10 @@ type
     /// </summary>
     property FramesPerSecond: Integer read FFramesPerSecond write SetFramesPerSecond default DEFAULT_FPS;
   published
+    /// <summary>
+    ///   Component alignment (inherited)
+    /// </summary>
+    property Align;
     /// <summary>
     ///   Component color (inherited)
     /// </summary>
@@ -166,20 +177,14 @@ begin
   begin
     // Update the FPS
     FFramesPerSecond := Value;
-    // Kill the timer
-    if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
-    // Create new timer
-    if not (csDesigning in ComponentState) then FTimerHandle := SetTimer(Handle, 1, 1000 div FFramesPerSecond, nil);
+    if not (csDesigning in ComponentState) then
+    begin
+      // Kill the timer
+      if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
+      // Create new timer
+      FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
+    end;
   end;
-end;
-
-//------------------------------------------------------------------------------
-// WM_TIMER MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.WMTimeStep(var Msg: TMessage);
-begin
-  // Trigger a repaint
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -228,6 +233,7 @@ begin
   Y := FUpdateRect.Top;
   W := FUpdateRect.Right - FUpdateRect.Left;
   H := FUpdateRect.Bottom - FUpdateRect.Top;
+
   if (W <> 0) and (H <> 0) then
     // Only update invalidated part
     BitBlt(Canvas.Handle, X, Y, W, H, FBuffer.Canvas.Handle, X,  Y, SRCCOPY)
@@ -248,6 +254,18 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// LOADED
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.Loaded;
+begin
+  inherited;
+  // Update the size of the buffer
+  FBuffer.SetSize(Width, Height);
+  // Create new timer
+  if not (csDesigning in ComponentState) then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
+end;
+
+//------------------------------------------------------------------------------
 // UPDATE STYLE ELEMENTS
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.UpdateStyleElements;
@@ -256,6 +274,20 @@ begin
   inherited;
   // Invalidate buffer
   InvalidateBuffer;
+end;
+
+//------------------------------------------------------------------------------
+// TIMER MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.TimerProc(var Msg: TMessage);
+begin
+  if Msg.Msg = WM_TIMER then
+  begin
+    // Trigger a repaint
+    if (FTimerHandle <> 0) then Repaint;
+  end else
+    // Pass message to default message handler
+    Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
 end;
 
 //------------------------------------------------------------------------------
@@ -296,6 +328,8 @@ begin
   FBuffer.PixelFormat := pf32bit;
   // Set initial FPS
   FFramesPerSecond := DEFAULT_FPS;
+  // Allocate window handle for the timer
+  if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(TimerProc);
 end;
 
 //------------------------------------------------------------------------------
@@ -303,10 +337,15 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDCustomControl.Destroy;
 begin
+  if not (csDesigning in ComponentState) then
+  begin
+    // Kill the timer
+    if (FTimerHandle <> 0) then KillTimer(FWindowHandle, FTimerHandle);
+    // Deallocate window handle
+    DeallocateHWnd(FWindowHandle);
+  end;
   // Free buffer
   FBuffer.Free;
-  // Kill the timer
-  if FTimerHandle <> 0 then KillTimer(Handle, FTimerHandle);
   // Call inherited destructor
   inherited Destroy;
 end;
