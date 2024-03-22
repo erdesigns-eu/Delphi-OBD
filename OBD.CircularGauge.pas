@@ -130,6 +130,15 @@ const
   /// </summary>
   DEFAULT_NEEDLE_CENTER_BORDER_COLOR = $00575757;
 
+  /// <summary>
+  ///   Default animation enabled
+  /// </summary>
+  DEFAULT_ANIMATION_ENABLED = True;
+  /// <summary>
+  ///   Default animation duration
+  /// </summary>
+  DEFAULT_ANIMATION_DURATION = 1000;
+
 //------------------------------------------------------------------------------
 // CLASSES
 //------------------------------------------------------------------------------
@@ -619,6 +628,84 @@ type
   end;
 
   /// <summary>
+  ///   Circular Gauge animation
+  /// </summary>
+  TOBDCircularGaugeAnimation = class(TPersistent)
+  private
+    /// <summary>
+    ///   Is animation enabled
+    /// </summary>
+    FEnabled: Boolean;
+    /// <summary>
+    ///   Duration of the animation
+    /// </summary>
+    FDuration: Integer;
+
+    /// <summary>
+    ///   Set enabled
+    /// </summary>
+    procedure SetEnabled(Value: Boolean);
+    /// <summary>
+    ///   Set duration
+    /// </summary>
+    procedure SetDuration(Value: Integer);
+  private
+    /// <summary>
+    ///   Value used for animation
+    /// </summary>
+    FValue: Single;
+    /// <summary>
+    ///   Start time of the animation
+    /// </summary>
+    FStartTime: Cardinal;
+    /// <summary>
+    ///   Start value of the animation
+    /// </summary>
+    FStartValue: Single;
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Value used for animation
+    /// </summary>
+    property Value: Single read FValue write FValue;
+    /// <summary>
+    ///   Start time of the animation
+    /// </summary>
+    property StartTime: Cardinal read FStartTime write FStartTime;
+    /// <summary>
+    ///   Start value of the animation
+    /// </summary>
+    property StartValue: Single read FStartValue write FStartValue;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Is animation enabled
+    /// </summary>
+    property Enabled: Boolean read FEnabled write SetEnabled default DEFAULT_ANIMATION_ENABLED;
+    /// <summary>
+    ///   Animation duration
+    /// </summary>
+    property Duration: Integer read FDuration write SetDuration default DEFAULT_ANIMATION_DURATION;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Circular Gauge Component
   /// </summary>
   TOBDCircularGauge = class(TOBDCustomControl)
@@ -627,6 +714,14 @@ type
     ///   Background Buffer
     /// </summary>
     FBackgroundBuffer: TBitmap;
+    /// <summary>
+    ///   Window handle needed for the timer
+    /// </summary>
+    FWindowHandle: THandle;
+    /// <summary>
+    ///   Handle of the animation timer
+    /// </summary>
+    FTimerHandle: THandle;
   private
     /// <summary>
     ///   Start angle
@@ -676,6 +771,10 @@ type
     ///   Bottom caption
     /// </summary>
     FBottomCaption: TOBDCircularGaugeCaption;
+    /// <summary>
+    ///   Animation
+    /// </summary>
+    FAnimation: TOBDCircularGaugeAnimation;
 
     /// <summary>
     ///   Set start angle
@@ -725,6 +824,10 @@ type
     ///   Set bottom caption
     /// </summary>
     procedure SetBottomCaption(Value: TOBDCircularGaugeCaption);
+    /// <summary>
+    ///   Set animation
+    /// </summary>
+    procedure SetAnimation(Value: TOBDCircularGaugeAnimation);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -746,6 +849,14 @@ type
     ///   On needle change handler
     /// </summary>
     procedure NeedleSettingsChanged(Sender: TObject);
+    /// <summary>
+    ///   On animation changed handler
+    /// </summary>
+    procedure AnimationChanged(Sender: TObject);
+    /// <summary>
+    ///   Timer proc handler
+    /// </summary>
+    procedure AnimationTimerProc(var Msg: TMessage);
   protected
     /// <summary>
     ///   Override Resize method
@@ -818,6 +929,10 @@ type
     ///   Bottom caption
     /// </summary>
     property BottomCaption: TOBDCircularGaugeCaption read FBottomCaption write SetBottomCaption;
+    /// <summary>
+    ///   Animation
+    /// </summary>
+    property Animation: TOBDCircularGaugeAnimation read FAnimation write SetAnimation;
   end;
 
 procedure Register;
@@ -841,6 +956,29 @@ begin
             (GetGValue(RGBColor) shl GreenShift) or
             (GetBValue(RGBColor) shl BlueShift) or
             (AlphaMask);
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ FONTSTYLE FROM FONT
+//------------------------------------------------------------------------------
+function FontStyle(Font: TFont): TFontStyle;
+begin
+  if (fsBold in Font.Style) and (fsItalic in Font.Style) then
+    Result := FontStyleBoldItalic
+  else
+  if (fsBold in Font.Style) then
+    Result := FontStyleBold
+  else
+  if (fsItalic in Font.Style) then
+    Result := FontStyleItalic
+  else
+  if (fsUnderline in Font.Style) then
+    Result := FontStyleUnderline
+  else
+  if (fsStrikeOut in Font.Style) then
+    Result := FontStyleStrikeout
+  else
+    Result := FontStyleRegular;
 end;
 
 //------------------------------------------------------------------------------
@@ -1413,6 +1551,60 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET ENABLED
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeAnimation.SetEnabled(Value: Boolean);
+begin
+  if (FEnabled <> Value) then
+  begin
+    // Set enabled
+    FEnabled := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET DURATION
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeAnimation.SetDuration(Value: Integer);
+begin
+  if (FDuration <> Value) and (Value >= 0) then
+  begin
+    // Set duration
+    FDuration := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeAnimation.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Set defaults
+  FEnabled := DEFAULT_ANIMATION_ENABLED;
+  FDuration := DEFAULT_ANIMATION_DURATION;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeAnimation.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDCircularGaugeAnimation) then
+  begin
+    FEnabled := (Source as TOBDCircularGaugeAnimation).Enabled;
+    FDuration := (Source as TOBDCircularGaugeAnimation).Duration;
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // SET START ANGLE
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetStartAngle(Value: Single);
@@ -1485,8 +1677,12 @@ begin
   begin
     if (Value < FMin) then Value := FMin;
     if (Value > FMax) then Value := FMax;
+    // Set the start value (for animation
+    Animation.StartValue := FValue;
     // Set value
     FValue := Value;
+    // Set animation start time
+    Animation.StartTime := GetTickCount;
     // Invalidate buffer
     InvalidateBuffer;
   end;
@@ -1546,6 +1742,14 @@ end;
 procedure TOBDCircularGauge.SetBottomCaption(Value: TOBDCircularGaugeCaption);
 begin
   FBottomCaption.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET ANIMATION
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetAnimation(Value: TOBDCircularGaugeAnimation);
+begin
+  FAnimation.Assign(Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -1676,7 +1880,7 @@ begin
     if FMinorTicks.ShowLabel then
     begin
       FontFamily := TGPFontFamily.Create(FMinorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, FontStyleRegular, UnitPoint);
+      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, FontStyle(FMinorTicks.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMinorTicks.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -1745,7 +1949,7 @@ begin
     if FMajorTicks.ShowLabel then
     begin
       FontFamily := TGPFontFamily.Create(FMajorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, FontStyleRegular, UnitPoint);
+      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, FontStyle(FMajorTicks.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMajorTicks.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -1782,7 +1986,7 @@ begin
     if (FTopCaption.Caption <> '') then
     begin
       FontFamily := TGPFontFamily.Create(FTopCaption.Font.Name);
-      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, FontStyleRegular, UnitPoint);
+      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, FontStyle(FTopCaption.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FTopCaption.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -1802,7 +2006,8 @@ begin
     if (FBottomCaption.Caption <> '') then
     begin
       FontFamily := TGPFontFamily.Create(FBottomCaption.Font.Name);
-      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, FontStyleRegular, UnitPoint);
+      // TODO: update the font styles
+      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, FontStyle(FBottomCaption.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FBottomCaption.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -1856,7 +2061,10 @@ begin
     NeedleLength := Size / 2 * FNeedle.Length;
 
     // Calculate the needle's angle based on the current value
-    ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
+    if Animation.Enabled then
+      ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
+    else
+      ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
     ValueAngle := DegToRad(ValueAngle);
 
     // Calculate points for the needle
@@ -1957,6 +2165,55 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// ON ANIMATION CHANGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.AnimationChanged(Sender: TObject);
+begin
+  if not (csDesigning in ComponentState) then
+  begin
+    // Kill the timer
+    if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
+    // Create new timer
+    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
+  end;
+  // Invalidate the buffer
+  InvalidateBuffer;
+end;
+
+//------------------------------------------------------------------------------
+// ANIMATION TIMER MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.AnimationTimerProc(var Msg: TMessage);
+var
+  CurrentTime, Elapsed: Integer;
+  AnimationProgress: Single;
+begin
+  if Msg.Msg = WM_TIMER then
+  begin
+    // Set current time
+    CurrentTime := GetTickCount;
+    // Calculate elapsed time
+    Elapsed := CurrentTime - Animation.StartTime;
+
+    if Elapsed < Animation.Duration then
+    begin
+      AnimationProgress := Elapsed / Animation.Duration;
+      // Interpolate between the current animated value and the target value
+      Animation.Value := Animation.StartValue + (FValue - Animation.StartValue) * AnimationProgress;
+    end else
+    begin
+      // Ensure it ends exactly at the target value
+      Animation.Value := FValue;
+    end;
+
+    // Trigger a repaint to display the updated needle position
+    InvalidateBuffer;
+  end else
+    // Pass message to default message handler
+    Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
+end;
+
+//------------------------------------------------------------------------------
 // RESIZE
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.Resize;
@@ -1976,6 +2233,8 @@ procedure TOBDCircularGauge.Loaded;
 begin
   // Call inherited Loaded
   inherited;
+  // Create new timer
+  if not (csDesigning in ComponentState) and Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
@@ -2022,6 +2281,12 @@ begin
   // Create bottom caption
   FBottomCaption := TOBDCircularGaugeCaption.Create;
   FBottomCaption.OnChange := SettingsChanged;
+  // Create animation properties
+  FAnimation := TOBDCircularGaugeAnimation.Create;
+  FAnimation.OnChange := AnimationChanged;
+  FAnimation.Value := FValue;
+  // Allocate window handle for the timer
+  if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(AnimationTimerProc);
   // Set default dimensions
   Width := 201;
   Height := 201;
@@ -2032,6 +2297,13 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDCircularGauge.Destroy;
 begin
+  if not (csDesigning in ComponentState) then
+  begin
+    // Kill the timer
+    if (FTimerHandle <> 0) then KillTimer(FWindowHandle, FTimerHandle);
+    // Deallocate window handle
+    DeallocateHWnd(FWindowHandle);
+  end;
   // Free background buffer
   FBackgroundBuffer.Free;
   // Free gauge background properties
@@ -2048,6 +2320,8 @@ begin
   FTopCaption.Free;
   // Free bottom caption
   FBottomCaption.Free;
+  // Free animation properties
+  FAnimation.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -2071,6 +2345,7 @@ begin
     FNeedle.Assign((Source as TOBDCircularGauge).Needle);
     FTopCaption.Assign((Source as TOBDCircularGauge).TopCaption);
     FBottomCaption.Assign((Source as TOBDCircularGauge).BottomCaption);
+    FAnimation.Assign((Source as TOBDCircularGauge).Animation);
   end;
 end;
 

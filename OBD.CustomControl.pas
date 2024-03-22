@@ -111,6 +111,9 @@ type
     /// </summary>
     procedure UpdateStyleElements; override;
   protected
+    /// <summary>
+    ///   Timer proc handler
+    /// </summary>
     procedure TimerProc(var Msg: TMessage);
     /// <summary>
     ///   Paint buffer
@@ -285,7 +288,7 @@ begin
   if Msg.Msg = WM_TIMER then
   begin
     // Trigger a repaint
-    if (FTimerHandle <> 0) then Repaint;
+    if (FTimerHandle <> 0) then Invalidate;
   end else
     // Pass message to default message handler
     Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
