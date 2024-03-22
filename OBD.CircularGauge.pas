@@ -14,12 +14,19 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, OBD.CustomControl, OBD.CustomControl.Animation;
+  Vcl.Graphics, Vcl.Themes,
+
+  OBD.CustomControl, OBD.CustomControl.Common, OBD.CustomControl.Animation;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
 //------------------------------------------------------------------------------
 const
+  /// <summary>
+  ///   Margin from the border (Otherwise the gauge border is flattened on the side)
+  /// </summary>
+  MARGIN_FROM_BORDER = 2;
+
   /// <summary>
   ///   Default start angle: Starting from bottom left
   /// </summary>
@@ -142,6 +149,15 @@ const
   ///   Default animation type
   /// </summary>
   DEFAULT_ANIMATION_TYPE = anQuartEaseInOut;
+
+  /// <summary>
+  ///   Default gradient scale size
+  /// </summary>
+  DEFAULT_GRADIENT_SCALE_SIZE = 10;
+  /// <summary>
+  ///   Default gradient scale width
+  /// </summary>
+  DEFAULT_GRADIENT_SCALE_COLOR = clHighlight;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -718,6 +734,122 @@ type
   end;
 
   /// <summary>
+  ///   Circular Gauge gradient scale item
+  /// </summary>
+  TOBDCircularGaugeGradientScaleItem = class(TCollectionItem)
+  private
+    /// <summary>
+    ///   From value
+    /// </summary>
+    FFrom: Single;
+    /// <summary>
+    ///   To value
+    /// </summary>
+    FTo: Single;
+    /// <summary>
+    ///   Color
+    /// </summary>
+    FColor: TColor;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    FSize: Single;
+
+    /// <summary>
+    ///   Set from value
+    /// </summary>
+    procedure SetFrom(Value: Single);
+    /// <summary>
+    ///   Set to value
+    /// </summary>
+    procedure SetTo(Value: Single);
+    /// <summary>
+    ///   Set color
+    /// </summary>
+    procedure SetColor(Value: TColor);
+    /// <summary>
+    ///   Set size
+    /// </summary>
+    procedure SetSize(Value: Single);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(Collection: TCollection); override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   From value
+    /// </summary>
+    property From: Single read FFrom write SetFrom;
+    /// <summary>
+    ///   To value
+    /// </summary>
+    property &To: Single read FTo write SetTo;
+    /// <summary>
+    ///   Color
+    /// </summary>
+    property Color: TColor read FColor write SetColor default DEFAULT_GRADIENT_SCALE_COLOR;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    property Size: Single read FSize write SetSize;
+  end;
+
+  /// <summary>
+  ///   Circular Gauge gradient scale collection
+  /// </summary>
+  TOBDCircularGaugeGradientScaleItems = class(TOwnedCollection)
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+
+    /// <summary>
+    ///   Get Item
+    /// </summary>
+    function GetItem(Index: Integer): TOBDCircularGaugeGradientScaleItem;
+    /// <summary>
+    ///   Set Item
+    /// </summary>
+    procedure SetItem(Index: Integer; const Value: TOBDCircularGaugeGradientScaleItem);
+  protected
+    /// <summary>
+    ///   Item changed handler
+    /// </summary>
+    procedure Update(Item: TCollectionItem); override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(AOwner: TPersistent); virtual;
+
+    /// <summary>
+    ///   Add new item
+    /// </summary>
+    function Add: TOBDCircularGaugeGradientScaleItem;
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+
+    /// <summary>
+    ///   Items
+    /// </summary>
+    property Items[Index: Integer]: TOBDCircularGaugeGradientScaleItem read GetItem write SetItem;
+  published
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Circular Gauge Component
   /// </summary>
   TOBDCircularGauge = class(TOBDCustomControl)
@@ -787,6 +919,10 @@ type
     ///   Animation
     /// </summary>
     FAnimation: TOBDCircularGaugeAnimation;
+    /// <summary>
+    ///   Gradient scale items
+    /// </summary>
+    FGradientScaleItems: TOBDCircularGaugeGradientScaleItems;
 
     /// <summary>
     ///   Set start angle
@@ -840,6 +976,10 @@ type
     ///   Set animation
     /// </summary>
     procedure SetAnimation(Value: TOBDCircularGaugeAnimation);
+    /// <summary>
+    ///   Set gradient scale items
+    /// </summary>
+    procedure SetGradientScaleItems(Value: TOBDCircularGaugeGradientScaleItems);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -945,6 +1085,10 @@ type
     ///   Animation
     /// </summary>
     property Animation: TOBDCircularGaugeAnimation read FAnimation write SetAnimation;
+    /// <summary>
+    ///   Gradient scale items
+    /// </summary>
+    property GradientScale: TOBDCircularGaugeGradientScaleItems read FGradientScaleItems write SetGradientScaleItems;
   end;
 
 procedure Register;
@@ -953,45 +1097,6 @@ implementation
 
 uses
   Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
-
-//------------------------------------------------------------------------------
-// CONVERT COLOR TO GDI+ COLOR
-//------------------------------------------------------------------------------
-function SafeColorRefToARGB(Color: TColor): DWORD;
-var
-  RGBColor: COLORREF;
-begin
-  // Convert TColor to a RGB color if it's a system color
-  RGBColor := ColorToRGB(Color);
-  // Now convert the RGB color to ARGB format expected by GDI+
-  Result := (GetRValue(RGBColor) shl RedShift) or
-            (GetGValue(RGBColor) shl GreenShift) or
-            (GetBValue(RGBColor) shl BlueShift) or
-            (AlphaMask);
-end;
-
-//------------------------------------------------------------------------------
-// GET GDI+ FONTSTYLE FROM FONT
-//------------------------------------------------------------------------------
-function FontStyle(Font: TFont): TFontStyle;
-begin
-  if (fsBold in Font.Style) and (fsItalic in Font.Style) then
-    Result := FontStyleBoldItalic
-  else
-  if (fsBold in Font.Style) then
-    Result := FontStyleBold
-  else
-  if (fsItalic in Font.Style) then
-    Result := FontStyleItalic
-  else
-  if (fsUnderline in Font.Style) then
-    Result := FontStyleUnderline
-  else
-  if (fsStrikeOut in Font.Style) then
-    Result := FontStyleStrikeout
-  else
-    Result := FontStyleRegular;
-end;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -1618,6 +1723,156 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET FROM VALUE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItem.SetFrom(Value: Single);
+begin
+  if (FFrom <> Value) then
+  begin
+    // Set from value
+    FFrom := Value;
+    // Notify change
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TO VALUE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItem.SetTo(Value: Single);
+begin
+  if (FTo <> Value) then
+  begin
+    // Set to value
+    FTo := Value;
+    // Notify change
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItem.SetColor(Value: TColor);
+begin
+  if (FColor <> Value) then
+  begin
+    // Set color
+    FColor := Value;
+    // Notify change
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItem.SetSize(Value: Single);
+begin
+  if (FSize <> Value) then
+  begin
+    // Set size
+    FSize := Value;
+    // Notify change
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeGradientScaleItem.Create(Collection: TCollection);
+begin
+  // Call inherited constructor
+  inherited Create(Collection);
+  // Set defaults
+  FFrom := 0;
+  FTo := 0;
+  FColor := DEFAULT_GRADIENT_SCALE_COLOR;
+  FSize := DEFAULT_GRADIENT_SCALE_SIZE;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItem.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDCircularGaugeGradientScaleItem) then
+  begin
+    FFrom := (Source as TOBDCircularGaugeGradientScaleItem).From;
+    FTo := (Source as TOBDCircularGaugeGradientScaleItem).&To;
+    FColor := (Source as TOBDCircularGaugeGradientScaleItem).Color;
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// GET ITEM
+//------------------------------------------------------------------------------
+function TOBDCircularGaugeGradientScaleItems.GetItem(Index: Integer): TOBDCircularGaugeGradientScaleItem;
+begin
+  Result := TOBDCircularGaugeGradientScaleItem(inherited Items[Index]);
+end;
+
+//------------------------------------------------------------------------------
+// SET ITEM
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItems.SetItem(Index: Integer; const Value: TOBDCircularGaugeGradientScaleItem);
+begin
+  // Call inherited setitem
+  inherited SetItem(Index, Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// ITEM CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItems.Update(Item: TCollectionItem);
+begin
+  // Call inherited update
+  inherited Update(Item);
+  // Notify changes
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDCircularGaugeGradientScaleItems.Create(AOwner: TPersistent);
+begin
+  // Call inherited constructor
+  inherited Create(AOwner, TOBDCircularGaugeGradientScaleItem);
+end;
+
+//------------------------------------------------------------------------------
+// ADD ITEM
+//------------------------------------------------------------------------------
+function TOBDCircularGaugeGradientScaleItems.Add: TOBDCircularGaugeGradientScaleItem;
+begin
+  Result := TOBDCircularGaugeGradientScaleItem(inherited Add);
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDCircularGaugeGradientScaleItems.Assign(Source: TPersistent);
+var
+  Items: TOBDCircularGaugeGradientScaleItems;
+  I : Integer;
+begin
+  if (Source is TOBDCircularGaugeGradientScaleItems)  then
+  begin
+    Items := TOBDCircularGaugeGradientScaleItems(Source);
+    Clear;
+    for I := 0 to Items.Count - 1 do Add.Assign(Items.Items[I]);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // SET START ANGLE
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetStartAngle(Value: Single);
@@ -1766,17 +2021,25 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET GRADIENT SCALE ITEMS
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.SetGradientScaleItems(Value: TOBDCircularGaugeGradientScaleItems);
+begin
+  FGradientScaleItems.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // INVALIDATE BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
-  Size, X, Y: Single;
+  Size, X, Y, SweepAngle: Single;
   GaugeRect, CaptionRect: TGPRectF;
   Brush: TGPBrush;
   Pen: TGPPen;
-  TotalTicks, TickIndex: Integer;
+  TotalTicks, TickIndex, I: Integer;
   AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
   StartPoint, EndPoint: TGPPointF;
   NumberAngle, NumberRadius: Single;
@@ -1786,6 +2049,9 @@ var
   FontBrush: TGPSolidBrush;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
+  ArcPath: TGPGraphicsPath;
+  InnerArcRect, OuterArcRect: TGPRectF;
+  LowValueAngle, HighValueAngle: single;
 begin
   // Update the size of the background buffer
   FBackgroundBuffer.SetSize(Width, Height);
@@ -1818,7 +2084,7 @@ begin
     Graphics.SetCompositingQuality(CompositingQualityHighQuality);
 
     // Calculate gauge size and position based on control's aspect ratio
-    Size := System.Math.Min(ClientWidth, ClientHeight);
+    Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2));
     X := (Width - Size) / 2;
     Y := (Height - Size) / 2;
 
@@ -1838,8 +2104,50 @@ begin
       end;
     end;
 
+    // Draw gradient scale items
+    for I := 0 to GradientScale.Count -1 do
+    begin
+      // Calculate inner and outer radius
+      InnerRadius := Size / 2 - (GradientScale.Items[I].Size + Border.Width);
+      OuterRadius := Size / 2;
+
+      // Calculate arc rects
+      InnerArcRect := MakeRect(X + (GradientScale.Items[I].Size + Border.Width), Y + (GradientScale.Items[I].Size + Border.Width), InnerRadius * 2, InnerRadius * 2);
+      OuterArcRect := MakeRect(X, Y, OuterRadius * 2, OuterRadius * 2);
+
+      // Create the arc
+      ArcPath := TGPGraphicsPath.Create;
+      try
+        LowValueAngle := ((GradientScale.Items[I].From - FMin) / (FMax - FMin)) * ((EndAngle + 180) - StartAngle) + StartAngle;
+        HighValueAngle := ((GradientScale.Items[I].&To - FMin) / (FMax - FMin)) * ((FEndAngle + 180) - FStartAngle) + FStartAngle;
+
+        // Calculate sweep angle, which is the angle from LowValueAngle to HighValueAngle
+        SweepAngle := HighValueAngle - LowValueAngle;
+        // Ensure sweep angle is not negative
+        if SweepAngle < 0 then SweepAngle := SweepAngle + 360;
+
+        // Add the outer arc to the path
+        ArcPath.AddArc(OuterArcRect, LowValueAngle, SweepAngle);
+        // Since we're drawing the inner arc in the opposite direction,
+        // the start angle is the end angle of the outer arc,
+        // and the sweep angle is negative.
+        ArcPath.AddArc(InnerArcRect, LowValueAngle + SweepAngle, -SweepAngle);
+        // Close the figure
+        ArcPath.CloseFigure;
+
+        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(GradientScale.Items[I].Color));
+        try
+          Graphics.FillPath(Brush, ArcPath);
+        finally
+          Brush.Free;
+        end;
+      finally
+        ArcPath.Free;
+      end;
+    end;
+
     // Draw the border
-    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
+    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
     begin
       // Create the border brush
       Brush := TGPLinearGradientBrush.Create(GaugeRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
@@ -2087,7 +2395,6 @@ begin
     // Calculate base angles for a wider base
     BaseAngleLeft := ValueAngle + Pi / 2;
     BaseAngleRight := ValueAngle - Pi / 2;
-
     LeftPoint.X := BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2);
     LeftPoint.Y := BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2);
     RightPoint.X := BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2);
@@ -2153,7 +2460,7 @@ begin
   // allows us to just copy the background buffer, which speeds up our PaintBuffer
   // resulting in less CPU consumption and allowing higher framerates.
   BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
-  // Paint the needle on the buffer
+  // Paint the needle on the buffer.
   PaintNeedle;
 end;
 
@@ -2255,8 +2562,6 @@ procedure TOBDCircularGauge.Loaded;
 begin
   // Call inherited Loaded
   inherited;
-  // Create new timer
-  if not (csDesigning in ComponentState) and Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
@@ -2307,8 +2612,18 @@ begin
   FAnimation := TOBDCircularGaugeAnimation.Create;
   FAnimation.OnChange := AnimationChanged;
   FAnimation.Value := FValue;
-  // Allocate window handle for the timer
-  if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(AnimationTimerProc);
+  // Create gradient scale items
+  FGradientScaleItems := TOBDCircularGaugeGradientScaleItems.Create(Self);
+  FGradientScaleItems.OnChange := SettingsChanged;
+
+  if not (csDesigning in ComponentState) then
+  begin
+    // Allocate window handle for the timer
+    FWindowHandle := AllocateHWnd(AnimationTimerProc);
+    // Create new timer
+    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
+  end;
+
   // Set default dimensions
   Width := 201;
   Height := 201;
@@ -2344,6 +2659,8 @@ begin
   FBottomCaption.Free;
   // Free animation properties
   FAnimation.Free;
+  // Free gradient scale items
+  FGradientScaleItems.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -2368,6 +2685,7 @@ begin
     FTopCaption.Assign((Source as TOBDCircularGauge).TopCaption);
     FBottomCaption.Assign((Source as TOBDCircularGauge).BottomCaption);
     FAnimation.Assign((Source as TOBDCircularGauge).Animation);
+    FGradientScaleItems.Assign((Source as TOBDCircularGauge).GradientScale);
   end;
 end;
 

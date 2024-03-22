@@ -148,6 +148,10 @@ type
     /// </summary>
     property Align;
     /// <summary>
+    ///   Component anchors (inherited)
+    /// </summary>
+    property Anchors;
+    /// <summary>
     ///   Component color (inherited)
     /// </summary>
     property Color;
