@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, OBD.CustomControl;
+  Vcl.Graphics, Vcl.Themes, OBD.CustomControl, OBD.CustomControl.Animation;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -137,7 +137,11 @@ const
   /// <summary>
   ///   Default animation duration
   /// </summary>
-  DEFAULT_ANIMATION_DURATION = 1000;
+  DEFAULT_ANIMATION_DURATION = 1500;
+  /// <summary>
+  ///   Default animation type
+  /// </summary>
+  DEFAULT_ANIMATION_TYPE = anQuartEaseInOut;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -639,7 +643,11 @@ type
     /// <summary>
     ///   Duration of the animation
     /// </summary>
-    FDuration: Integer;
+    FDuration: Cardinal;
+    /// <summary>
+    ///   Type of animation
+    /// </summary>
+    FType: TOBDCustomControlAnimationType;
 
     /// <summary>
     ///   Set enabled
@@ -648,7 +656,7 @@ type
     /// <summary>
     ///   Set duration
     /// </summary>
-    procedure SetDuration(Value: Integer);
+    procedure SetDuration(Value: Cardinal);
   private
     /// <summary>
     ///   Value used for animation
@@ -697,7 +705,11 @@ type
     /// <summary>
     ///   Animation duration
     /// </summary>
-    property Duration: Integer read FDuration write SetDuration default DEFAULT_ANIMATION_DURATION;
+    property Duration: Cardinal read FDuration write SetDuration default DEFAULT_ANIMATION_DURATION;
+    /// <summary>
+    ///   Type of animation
+    /// </summary>
+    property &Type: TOBDCustomControlAnimationType read FType write FType default DEFAULT_ANIMATION_TYPE;
 
     /// <summary>
     ///   On change event
@@ -1567,9 +1579,9 @@ end;
 //------------------------------------------------------------------------------
 // SET DURATION
 //------------------------------------------------------------------------------
-procedure TOBDCircularGaugeAnimation.SetDuration(Value: Integer);
+procedure TOBDCircularGaugeAnimation.SetDuration(Value: Cardinal);
 begin
-  if (FDuration <> Value) and (Value >= 0) then
+  if (FDuration <> Value) and (Value >= 10) then
   begin
     // Set duration
     FDuration := Value;
@@ -1588,6 +1600,7 @@ begin
   // Set defaults
   FEnabled := DEFAULT_ANIMATION_ENABLED;
   FDuration := DEFAULT_ANIMATION_DURATION;
+  FType := DEFAULT_ANIMATION_TYPE;
 end;
 
 //------------------------------------------------------------------------------
@@ -1677,7 +1690,7 @@ begin
   begin
     if (Value < FMin) then Value := FMin;
     if (Value > FMax) then Value := FMax;
-    // Set the start value (for animation
+    // Set the start value (for animation)
     Animation.StartValue := FValue;
     // Set value
     FValue := Value;
@@ -2185,8 +2198,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.AnimationTimerProc(var Msg: TMessage);
 var
-  CurrentTime, Elapsed: Integer;
-  AnimationProgress: Single;
+  CurrentTime, Elapsed: Cardinal;
+  AnimationProgress, EasedProgress, InterpolatedValue: Single;
+  EasingFunction: TOBDCustomControlAnimationEasingFunction;
 begin
   if Msg.Msg = WM_TIMER then
   begin
@@ -2195,14 +2209,22 @@ begin
     // Calculate elapsed time
     Elapsed := CurrentTime - Animation.StartTime;
 
+    // Get the easing function
+    EasingFunction := GetEasingFunction(Animation.&Type);
     if Elapsed < Animation.Duration then
     begin
+      // Calulate the animation progress
       AnimationProgress := Elapsed / Animation.Duration;
-      // Interpolate between the current animated value and the target value
-      Animation.Value := Animation.StartValue + (FValue - Animation.StartValue) * AnimationProgress;
-    end else
+      // Apply easing function to AnimationProgress
+      EasedProgress := EasingFunction(AnimationProgress);
+      // Calculate the interpolated value using the eased progress
+      InterpolatedValue := Animation.StartValue + (FValue - Animation.StartValue) * EasedProgress;
+      // Update the animation value
+      Animation.Value := InterpolatedValue;
+    end
+    else
     begin
-      // Ensure it ends exactly at the target value
+      // Directly set to target value when animation duration has passed
       Animation.Value := FValue;
     end;
 
