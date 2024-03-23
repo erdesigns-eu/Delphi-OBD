@@ -6,7 +6,7 @@
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 20/03/2024
+// RELEASE DATE   : 22/03/2024
 //------------------------------------------------------------------------------
 unit OBD.CircularGauge;
 
@@ -79,24 +79,24 @@ const
   DEFAULT_MAJOR_LENGTH = 15;
 
   /// <summary>
-  ///   Default gauge background from color
+  ///   Default background from color
   /// </summary>
   DEFAULT_BACKGROUND_FROM = $00E4E4E4;
   /// <summary>
-  ///   Default gauge background to color
+  ///   Default background to color
   /// </summary>
   DEFAULT_BACKGROUND_TO = $00CDCDCD;
 
   /// <summary>
-  ///   Default gauge border from color
+  ///   Default border from color
   /// </summary>
   DEFAULT_BORDER_FROM = $00D2D2D2;
   /// <summary>
-  ///   Default gauge border to color
+  ///   Default border to color
   /// </summary>
   DEFAULT_BORDER_TO = $009D9D9D;
   /// <summary>
-  ///   Default gauge border width
+  ///   Default border width
   /// </summary>
   DEFAULT_BORDER_WIDTH = 6;
 
@@ -1018,6 +1018,10 @@ type
     ///   Override Loaded method
     /// </summary>
     procedure Loaded; override;
+    /// <summary>
+    ///   Override WndProc method
+    /// </summary>
+    procedure WndProc(var Message: TMessage); override;
   public
     /// <summary>
     ///   Constructor
@@ -1090,8 +1094,6 @@ type
     /// </summary>
     property GradientScale: TOBDCircularGaugeGradientScaleItems read FGradientScaleItems write SetGradientScaleItems;
   end;
-
-procedure Register;
 
 implementation
 
@@ -1188,9 +1190,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGaugeBorder.SetWidth(Value: Integer);
 begin
-  if (FWidth <> Value) then
+  if (FWidth <> Value) and (Value >= 0) then
   begin
-    // Set the enw width
+    // Set the new width
     FWidth := Value;
     // Notify the change
     if Assigned(OnChange) then OnChange(Self);
@@ -1731,6 +1733,8 @@ begin
   begin
     // Set from value
     FFrom := Value;
+    // Set to value
+    if FFrom > FTo then FTo := Value;
     // Notify change
     Changed(False);
   end;
@@ -2569,6 +2573,20 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// WND PROC
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.WndProc(var Message: TMessage);
+begin
+  // Call inherited WndProc
+  inherited;
+  // Handle message
+  case Message.Msg of
+    // Color changed
+    CM_COLORCHANGED: InvalidateBackground;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
 constructor TOBDCircularGauge.Create(AOwner: TComponent);
@@ -2687,14 +2705,10 @@ begin
     FAnimation.Assign((Source as TOBDCircularGauge).Animation);
     FGradientScaleItems.Assign((Source as TOBDCircularGauge).GradientScale);
   end;
-end;
-
-//------------------------------------------------------------------------------
-// REGISTER THE COMPONENT
-//------------------------------------------------------------------------------
-procedure Register;
-begin
-  RegisterComponents('ERDesigns OBD Visual', [TOBDCircularGauge]);
+  // Invalidate background
+  InvalidateBackground;
+  // Invalidate the buffer
+  InvalidateBuffer;
 end;
 
 end.

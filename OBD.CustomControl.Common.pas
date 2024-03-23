@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, Winapi.GDIPAPI;
+  Vcl.Graphics, Vcl.Themes, Winapi.GDIPOBJ, Winapi.GDIPAPI;
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
@@ -22,6 +22,8 @@ uses
 function GetAppropriateColor(Color: TColor): TColor;
 function SafeColorRefToARGB(Color: TColor): DWORD;
 function FontStyle(Font: TFont): TFontStyle;
+function RoundRect(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath; overload;
+function RoundRect(Rect: TGPRect; Corner: Single) : TGPGraphicsPath; overload;
 
 implementation
 
@@ -74,6 +76,32 @@ begin
     Result := FontStyleStrikeout
   else
     Result := FontStyleRegular;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ ROUNDRECT PATH
+//------------------------------------------------------------------------------
+function RoundRect(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ ROUNDRECT PATH
+//------------------------------------------------------------------------------
+function RoundRect(Rect: TGPRect; Corner: Single) : TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  Result.CloseFigure;
 end;
 
 end.
