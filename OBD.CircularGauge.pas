@@ -111,7 +111,7 @@ const
   /// <summary>
   ///   Default needle color
   /// </summary>
-  DEFAULT_NEEDLE_COLOR = clSkyBlue;
+  DEFAULT_NEEDLE_COLOR = $00DF7000;
   /// <summary>
   ///   Default needle border width
   /// </summary>

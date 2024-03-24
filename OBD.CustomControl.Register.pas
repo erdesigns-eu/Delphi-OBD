@@ -22,7 +22,7 @@ procedure Register;
 
 implementation
 
-uses System.Classes, OBD.CircularGauge, OBD.MatrixDisplay;
+uses System.Classes, OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENT
@@ -31,7 +31,8 @@ procedure Register;
 begin
   RegisterComponents(ComponentPage, [
     TOBDCircularGauge, // Register the Circular Gauge
-    TOBDMatrixDisplay  // Register the Matrix Display
+    TOBDMatrixDisplay, // Register the Matrix Display
+    TOBDLed            // Register the LED
   ]);
 end;
 

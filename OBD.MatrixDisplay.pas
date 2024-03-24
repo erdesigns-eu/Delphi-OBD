@@ -16,14 +16,14 @@ uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Themes,
 
-  OBD.CustomControl, OBD.CustomControl.Common, OBD.CustomControl.Animation;
+  OBD.CustomControl, OBD.CustomControl.Common;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
 //------------------------------------------------------------------------------
 const
   /// <summary>
-  ///   Margin from the border (Otherwise the gauge border is flattened on the side)
+  ///   Margin from the border (Otherwise the display border is flattened on the side)
   /// </summary>
   MARGIN_FROM_BORDER = 2;
 
@@ -74,7 +74,7 @@ const
   /// <summary>
   ///   Default cell on color
   /// </summary>
-  DEFAULT_CELL_ON_COLOR = $00151515;
+  DEFAULT_CELL_ON_COLOR = $00DF7000;
   /// <summary>
   ///   Default cell off color
   /// </summary>
@@ -411,6 +411,14 @@ type
     /// </summary>
     procedure InvalidateBackground; virtual;
     /// <summary>
+    ///   Paint matrix cells
+    /// </summary>
+    procedure PaintMatrix; virtual;
+    /// <summary>
+    ///   Paint buffer
+    /// </summary>
+    procedure PaintBuffer; override;
+    /// <summary>
     ///   On change handler
     /// </summary>
     procedure SettingsChanged(Sender: TObject);
@@ -430,14 +438,6 @@ type
     ///   Set cell at specified row/col
     /// </summary>
     procedure SetCell(Row, Col: Integer; Value: TOBDMatrixDisplayCell);
-    /// <summary>
-    ///   Paint matrix cells
-    /// </summary>
-    procedure PaintMatrix; virtual;
-    /// <summary>
-    ///   Paint buffer
-    /// </summary>
-    procedure PaintBuffer; override;
   protected
     /// <summary>
     ///   Override Resize method
@@ -974,6 +974,78 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// PAINT MATRIX
+//------------------------------------------------------------------------------
+procedure TOBDMatrixDisplay.PaintMatrix;
+
+  procedure PaintCell(CellRect: TRect; Value: Boolean);
+  begin
+    with Buffer.Canvas do
+    begin
+      // Set brush color
+      if Value then
+        Brush.Color := GetAppropriateColor(FOnColor)
+      else
+        Brush.Color := GetAppropriateColor(FOffColor);
+      // Draw cell
+      FillRect(CellRect);
+    end;
+  end;
+
+var
+  CenterX, CenterY, StartX, X, Y, R, C: Integer;
+begin
+  // Get horizontal center
+  CenterX := Width div 2;
+  // Get vertical center
+  CenterY := Height div 2;
+
+  // Calculate the horizontal start position
+  X := CenterX - (((Cols * CellSize) + ((Cols - 2) * CellSpacing)) div 2);
+  // Calculate the vertical start position
+  Y := CenterY - (((Rows * CellSize) + ((Rows - 2) * CellSpacing)) div 2);
+
+  // Remember the start position
+  StartX := X;
+
+  // Loop over rows
+  for R := 0 to Rows -1 do
+  begin
+    // Loop over cols
+    for C := 0 to Cols -1 do
+    begin
+      // Make sure we dont paint over the border
+      if (X > (Border.Width + (CellSpacing * 2))) and (X < (Width - ((Border.Width * 2)) + (CellSpacing * 2))) and
+         (Y > (Border.Width + (CellSpacing * 2))) and (Y < (Height - ((Border.Width * 2)) + (CellSpacing * 2))) then
+      // Paint the cell
+      PaintCell(TRect.Create(X, Y, X + CellSize, Y + CellSize), FCells[R][C]);
+      // Increase the X position
+      Inc(X, CellSize + CellSpacing);
+    end;
+    // Reset the X position
+    X := StartX;
+    // Increase the Y position
+    Inc(Y, CellSize + CellSpacing);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// PAINT BUFFER
+//------------------------------------------------------------------------------
+procedure TOBDMatrixDisplay.PaintBuffer;
+begin
+  // Call inherited PaintBuffer
+  inherited;
+  // Copy the background buffer to the main buffer, by buffering the background
+  // and only updating the background buffer when the background is changed
+  // allows us to just copy the background buffer, which speeds up our PaintBuffer
+  // resulting in less CPU consumption and allowing higher framerates.
+  BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
+  // Paint matrix cells on the buffer.
+  PaintMatrix;
+end;
+
+//------------------------------------------------------------------------------
 // ON CHANGE HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SettingsChanged(Sender: TObject);
@@ -1047,78 +1119,6 @@ begin
 
   // If we make it here, the row and column exist so lets set its value.
   FCells[Row][Col] := Value;
-end;
-
-//------------------------------------------------------------------------------
-// PAINT MATRIX
-//------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.PaintMatrix;
-
-  procedure PaintCell(CellRect: TRect; Value: Boolean);
-  begin
-    with Buffer.Canvas do
-    begin
-      // Set brush color
-      if Value then
-        Brush.Color := GetAppropriateColor(FOnColor)
-      else
-        Brush.Color := GetAppropriateColor(FOffColor);
-      // Draw cell
-      FillRect(CellRect);
-    end;
-  end;
-
-var
-  CenterX, CenterY, StartX, X, Y, R, C: Integer;
-begin
-  // Get horizontal center
-  CenterX := Width div 2;
-  // Get vertical center
-  CenterY := Height div 2;
-
-  // Calculate the horizontal start position
-  X := CenterX - (((Cols * CellSize) + ((Cols - 2) * CellSpacing)) div 2);
-  // Calculate the vertical start position
-  Y := CenterY - (((Rows * CellSize) + ((Rows - 2) * CellSpacing)) div 2);
-
-  // Remember the start position
-  StartX := X;
-
-  // Loop over rows
-  for R := 0 to Rows -1 do
-  begin
-    // Loop over cols
-    for C := 0 to Cols -1 do
-    begin
-      // Make sure we dont paint over the border
-      if (X > (Border.Width + (CellSpacing * 2))) and (X < (Width - ((Border.Width * 2)) + (CellSpacing * 2))) and
-         (Y > (Border.Width + (CellSpacing * 2))) and (Y < (Height - ((Border.Width * 2)) + (CellSpacing * 2))) then
-      // Paint the cell
-      PaintCell(TRect.Create(X, Y, X + CellSize, Y + CellSize), FCells[R][C]);
-      // Increase the X position
-      Inc(X, CellSize + CellSpacing);
-    end;
-    // Reset the X position
-    X := StartX;
-    // Increase the Y position
-    Inc(Y, CellSize + CellSpacing);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// PAINT BUFFER
-//------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.PaintBuffer;
-begin
-  // Call inherited PaintBuffer
-  inherited;
-  // Copy the background buffer to the main buffer, by buffering the background
-  // and only updating the background buffer when the background is changed
-  // allows us to just copy the background buffer, which speeds up our PaintBuffer
-  // resulting in less CPU consumption and allowing higher framerates.
-  BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
-  // Paint matrix cells on the buffer.
-  PaintMatrix;
 end;
 
 //------------------------------------------------------------------------------
