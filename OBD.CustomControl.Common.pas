@@ -22,8 +22,9 @@ uses
 function GetAppropriateColor(Color: TColor): TColor;
 function SafeColorRefToARGB(Color: TColor): DWORD;
 function FontStyle(Font: TFont): TFontStyle;
-function RoundRect(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath; overload;
-function RoundRect(Rect: TGPRect; Corner: Single) : TGPGraphicsPath; overload;
+function CreateRoundRectPath(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath; overload;
+function CreateRoundRectPath(Rect: TGPRect; Corner: Single) : TGPGraphicsPath; overload;
+function CreateBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
 
 implementation
 
@@ -81,7 +82,7 @@ end;
 //------------------------------------------------------------------------------
 // GET GDI+ ROUNDRECT PATH
 //------------------------------------------------------------------------------
-function RoundRect(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath;
+function CreateRoundRectPath(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath;
 begin
   Result := TGPGraphicsPath.Create;
   Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
@@ -94,7 +95,7 @@ end;
 //------------------------------------------------------------------------------
 // GET GDI+ ROUNDRECT PATH
 //------------------------------------------------------------------------------
-function RoundRect(Rect: TGPRect; Corner: Single) : TGPGraphicsPath;
+function CreateRoundRectPath(Rect: TGPRect; Corner: Single) : TGPGraphicsPath;
 begin
   Result := TGPGraphicsPath.Create;
   Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
@@ -103,5 +104,40 @@ begin
   Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
   Result.CloseFigure;
 end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BACK BUTTON PATH
+//------------------------------------------------------------------------------
+function CreateBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+var
+  MiddleY, Radius: Single;
+begin
+  Result := TGPGraphicsPath.Create;
+
+  // Calculate the vertical middle point for the triangle peak
+  MiddleY := Rect.Y + (Rect.Height / 2);
+  // The radius for the arcs on the left side, half the width of the arrow part
+  Radius := Rect.Height / 4;
+
+  // Start the figure
+  Result.StartFigure;
+
+  // Add the arrow point arc
+  Result.AddArc(Rect.X, MiddleY - (Corner / 2), Corner, Corner, 135, 45);
+  // Top left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y, Radius * 2, Radius * 2, 225, 45);
+  // Top-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y, Corner * 2, Corner * 2, 270, 90);
+  // Bottom-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y + Rect.Height - Corner * 2, Corner * 2, Corner * 2, 0, 90);
+  // Bottom left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y + Rect.Height - Radius * 2, Radius * 2, Radius * 2, 90, 45);
+
+  // Flatten
+  Result.Flatten;
+  // Close the figure
+  Result.CloseFigure;
+end;
+
 
 end.

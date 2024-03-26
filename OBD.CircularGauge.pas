@@ -81,20 +81,20 @@ const
   /// <summary>
   ///   Default background from color
   /// </summary>
-  DEFAULT_BACKGROUND_FROM = $00E4E4E4;
+  DEFAULT_BACKGROUND_FROM = $00FBF5F7;
   /// <summary>
   ///   Default background to color
   /// </summary>
-  DEFAULT_BACKGROUND_TO = $00CDCDCD;
+  DEFAULT_BACKGROUND_TO = $00BBAEAC;
 
   /// <summary>
   ///   Default border from color
   /// </summary>
-  DEFAULT_BORDER_FROM = $00D2D2D2;
+  DEFAULT_BORDER_FROM = $00918888;
   /// <summary>
   ///   Default border to color
   /// </summary>
-  DEFAULT_BORDER_TO = $009D9D9D;
+  DEFAULT_BORDER_TO = $00776F6F;
   /// <summary>
   ///   Default border width
   /// </summary>
@@ -127,7 +127,7 @@ const
   /// <summary>
   ///   Default needle center color
   /// </summary>
-  DEFAULT_NEEDLE_CENTER_COLOR = $009D9D9D;
+  DEFAULT_NEEDLE_CENTER_COLOR = $00918888;
   /// <summary>
   ///   Default needle center border width
   /// </summary>
@@ -135,7 +135,7 @@ const
   /// <summary>
   ///   Default needle center border color
   /// </summary>
-  DEFAULT_NEEDLE_CENTER_BORDER_COLOR = $00575757;
+  DEFAULT_NEEDLE_CENTER_BORDER_COLOR = $00776F6F;
 
   /// <summary>
   ///   Default animation enabled
@@ -2205,7 +2205,7 @@ begin
     if FMinorTicks.ShowLabel then
     begin
       FontFamily := TGPFontFamily.Create(FMinorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, FontStyle(FMinorTicks.Font), UnitPoint);
+      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, OBD.CustomControl.Common.FontStyle(FMinorTicks.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMinorTicks.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -2274,7 +2274,7 @@ begin
     if FMajorTicks.ShowLabel then
     begin
       FontFamily := TGPFontFamily.Create(FMajorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, FontStyle(FMajorTicks.Font), UnitPoint);
+      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, OBD.CustomControl.Common.FontStyle(FMajorTicks.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMajorTicks.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -2311,7 +2311,7 @@ begin
     if (FTopCaption.Caption <> '') then
     begin
       FontFamily := TGPFontFamily.Create(FTopCaption.Font.Name);
-      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, FontStyle(FTopCaption.Font), UnitPoint);
+      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, OBD.CustomControl.Common.FontStyle(FTopCaption.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FTopCaption.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -2331,8 +2331,7 @@ begin
     if (FBottomCaption.Caption <> '') then
     begin
       FontFamily := TGPFontFamily.Create(FBottomCaption.Font.Name);
-      // TODO: update the font styles
-      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, FontStyle(FBottomCaption.Font), UnitPoint);
+      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, OBD.CustomControl.Common.FontStyle(FBottomCaption.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FBottomCaption.Font.Color));
       StringFormat := TGPStringFormat.Create;
       StringFormat.SetAlignment(StringAlignmentCenter);
@@ -2643,8 +2642,8 @@ begin
   end;
 
   // Set default dimensions
-  Width := 201;
-  Height := 201;
+  Width := 176;
+  Height := 176;
 end;
 
 //------------------------------------------------------------------------------

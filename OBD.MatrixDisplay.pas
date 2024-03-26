@@ -48,24 +48,24 @@ const
   /// <summary>
   ///   Default background from color
   /// </summary>
-  DEFAULT_BACKGROUND_FROM = $00E4E4E4;
+  DEFAULT_BACKGROUND_FROM = $00FBF5F7;
   /// <summary>
   ///   Default background to color
   /// </summary>
-  DEFAULT_BACKGROUND_TO = $00CDCDCD;
+  DEFAULT_BACKGROUND_TO = $00BBAEAC;
 
   /// <summary>
   ///   Default border from color
   /// </summary>
-  DEFAULT_BORDER_FROM = $00D2D2D2;
+  DEFAULT_BORDER_FROM = $00918888;
   /// <summary>
   ///   Default border to color
   /// </summary>
-  DEFAULT_BORDER_TO = $009D9D9D;
+  DEFAULT_BORDER_TO = $00776F6F;
   /// <summary>
   ///   Default border width
   /// </summary>
-  DEFAULT_BORDER_WIDTH = 6;
+  DEFAULT_BORDER_WIDTH = 3;
   /// <summary>
   ///   Default border width
   /// </summary>
@@ -78,7 +78,7 @@ const
   /// <summary>
   ///   Default cell off color
   /// </summary>
-  DEFAULT_CELL_OFF_COLOR = $00BFBFBF;
+  DEFAULT_CELL_OFF_COLOR = $00F9F9F9;
 
   /// <summary>
   ///   Default animation enabled
@@ -936,12 +936,16 @@ begin
       BackgroundRect := MakeRect(Border.Width, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
       // Create the background brush
       Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
+      // Get the background path
+      Path := CreateRoundRectPath(BackgroundRect, Border.Corner);
       try
         // Fill the background
-        Graphics.FillRectangle(Brush, BackgroundRect);
+        Graphics.FillPath(Brush, Path);
       finally
         // Free the background brush object
         Brush.Free;
+        // Free the background path
+        Path.Free;
       end;
     end;
 
@@ -955,9 +959,9 @@ begin
       // Create the border pen
       Pen := TGPPen.Create(Brush, Border.Width);
       Pen.SetAlignment(PenAlignmentInset);
+      // Get the border path
+      Path := CreateRoundRectPath(BorderRect, Border.Corner);
       try
-        // Get the border path
-        Path := RoundRect(BorderRect, Border.Corner);
         // Draw the border
         Graphics.DrawPath(Pen, Path);
       finally
@@ -965,6 +969,8 @@ begin
         Brush.Free;
         // Free the background pen object
         Pen.Free;
+        // Free the border path
+        Path.Free;
       end;
     end;
 

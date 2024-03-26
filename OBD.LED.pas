@@ -30,11 +30,11 @@ const
   /// <summary>
   ///   Default border from color
   /// </summary>
-  DEFAULT_BORDER_FROM = $00D2D2D2;
+  DEFAULT_BORDER_FROM = $00918888;
   /// <summary>
   ///   Default border to color
   /// </summary>
-  DEFAULT_BORDER_TO = $009D9D9D;
+  DEFAULT_BORDER_TO = $00776F6F;
   /// <summary>
   ///   Default border width
   /// </summary>
@@ -585,7 +585,7 @@ procedure TOBDLed.InvalidateColors;
   procedure PaintLed(Buffer: TBitmap; State: TOBDLedState);
   var
     SS: TCustomStyleServices;
-    Size, X, Y, GW, GH, GX, GY: Single;
+    Size, X, Y, GW, GH, GX: Single;
     Graphics: TGPGraphics;
     BorderRect, LedRect, GlareRect: TGPRectF;
     Brush: TGPBrush;
@@ -669,12 +669,12 @@ procedure TOBDLed.InvalidateColors;
       GW := Size * 0.75;
       // Calculate glare height
       GH := Size * 0.5;
-      //
+      // Calculate the glare horizontal position
       GX := (Width / 2) - (GW / 2);
 
       // Get the rectangle for the glare
       GlareRect := MakeRect(GX, Y + + Border.Width + 2, GW, GH);
-      // Create the glare brush
+      // Create the glare brush (White with alpha 75 to White with alpha 30)
       Brush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
       // Draw the glare
       try
