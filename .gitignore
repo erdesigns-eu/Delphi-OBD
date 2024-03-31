@@ -70,3 +70,5 @@ modules/
 Visual.dpk
 Visual.dproj
 Visual.res
+TEST.dfm
+TEST.pas

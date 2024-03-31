@@ -894,10 +894,10 @@ procedure TOBDMatrixDisplay.InvalidateBackground;
 var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
-  BackgroundRect, BorderRect: TGPRect;
-  Brush: TGPBrush;
+  BackgroundRect, BorderRect, GlareRect: TGPRect;
+  Brush, GlareBrush: TGPBrush;
   Pen: TGPPen;
-  Path: TGPGraphicsPath;
+  Path, GlarePath: TGPGraphicsPath;
 begin
   // Update the size of the background buffer
   FBackgroundBuffer.SetSize(Width, Height);
@@ -947,6 +947,17 @@ begin
         // Free the background path
         Path.Free;
       end;
+    end;
+
+    // Draw the glare
+    GlareRect := MakeRect(Border.Width, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
+    GlarePath := CreateGlareRoundRectPath(GlareRect, Border.Corner);
+    GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
+    try
+      Graphics.FillPath(GlareBrush, GlarePath);
+    finally
+      GlarePath.Free;
+      GlareBrush.Free;
     end;
 
     // Draw the border

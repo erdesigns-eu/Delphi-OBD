@@ -13,7 +13,7 @@ unit OBD.CustomControl.Common;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  WinApi.Windows, System.SysUtils, System.Types, System.UITypes,
   Vcl.Graphics, Vcl.Themes, Winapi.GDIPOBJ, Winapi.GDIPAPI;
 
 //------------------------------------------------------------------------------
@@ -22,9 +22,33 @@ uses
 function GetAppropriateColor(Color: TColor): TColor;
 function SafeColorRefToARGB(Color: TColor): DWORD;
 function FontStyle(Font: TFont): TFontStyle;
-function CreateRoundRectPath(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath; overload;
-function CreateRoundRectPath(Rect: TGPRect; Corner: Single) : TGPGraphicsPath; overload;
-function CreateBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+function CreateRoundRectPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateRoundRectPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareRoundRectPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareRoundRectPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateBackButtonPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareBackButtonPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateTabLeftPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateTabLeftPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareTabLeftPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareTabLeftPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateTabCenterPath(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateTabCenterPath(Rect: TGPRect): TGPGraphicsPath; overload;
+function CreateGlareTabCenterPath(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateGlareTabCenterPath(Rect: TGPRect): TGPGraphicsPath; overload;
+function CreateTabRightPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateTabRightPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareTabRightPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateGlareTabRightPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateBatteryPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath; overload;
+function CreateBatteryPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath; overload;
+function CreateBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
+function CreateBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
+function CreateGlareBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
+function CreateGlareBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
+function CreateGlareBatteryPercentageRect(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPRectF;
 
 implementation
 
@@ -82,26 +106,76 @@ end;
 //------------------------------------------------------------------------------
 // GET GDI+ ROUNDRECT PATH
 //------------------------------------------------------------------------------
-function CreateRoundRectPath(Rect: TGPRectF; Corner: Single) : TGPGraphicsPath;
+function CreateRoundRectPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
 begin
   Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
   Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
   Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
   Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  // Add arc bottom left corner
   Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
   Result.CloseFigure;
 end;
 
 //------------------------------------------------------------------------------
 // GET GDI+ ROUNDRECT PATH
 //------------------------------------------------------------------------------
-function CreateRoundRectPath(Rect: TGPRect; Corner: Single) : TGPGraphicsPath;
+function CreateRoundRectPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
 begin
   Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
   Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
   Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
   Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  // Add arc bottom left corner
   Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ GLARE ROUNDRECT PATH
+//------------------------------------------------------------------------------
+function CreateGlareRoundRectPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add line from top right corner to center right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + Rect.Height / 2, Rect.X, Rect.Y + Rect.Height / 2);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ GLARE ROUNDRECT PATH
+//------------------------------------------------------------------------------
+function CreateGlareRoundRectPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add line from top right corner to center right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + Rect.Height / 2, Rect.X, Rect.Y + Rect.Height / 2);
+  // Close the figure
   Result.CloseFigure;
 end;
 
@@ -139,5 +213,518 @@ begin
   Result.CloseFigure;
 end;
 
+//------------------------------------------------------------------------------
+// GET GDI+ BACK BUTTON PATH
+//------------------------------------------------------------------------------
+function CreateBackButtonPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+var
+  MiddleY, Radius: Single;
+begin
+  Result := TGPGraphicsPath.Create;
+
+  // Calculate the vertical middle point for the triangle peak
+  MiddleY := Rect.Y + (Rect.Height / 2);
+  // The radius for the arcs on the left side, half the width of the arrow part
+  Radius := Rect.Height / 4;
+
+  // Start the figure
+  Result.StartFigure;
+
+  // Add the arrow point arc
+  Result.AddArc(Rect.X, MiddleY - (Corner / 2), Corner, Corner, 135, 45);
+  // Top left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y, Radius * 2, Radius * 2, 225, 45);
+  // Top-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y, Corner * 2, Corner * 2, 270, 90);
+  // Bottom-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y + Rect.Height - Corner * 2, Corner * 2, Corner * 2, 0, 90);
+  // Bottom left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y + Rect.Height - Radius * 2, Radius * 2, Radius * 2, 90, 45);
+
+  // Flatten
+  Result.Flatten;
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BACK BUTTON PATH
+//------------------------------------------------------------------------------
+function CreateGlareBackButtonPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+var
+  MiddleY, Radius: Single;
+begin
+  Result := TGPGraphicsPath.Create;
+
+  // Calculate the vertical middle point for the triangle peak
+  MiddleY := Rect.Y + (Rect.Height / 2);
+  // The radius for the arcs on the left side, half the width of the arrow part
+  Radius := Rect.Height / 4;
+
+  // Start the figure
+  Result.StartFigure;
+
+  // Add the arrow point arc
+  Result.AddArc(Rect.X, MiddleY - (Corner / 2), Corner, Corner, 135, 45);
+  // Top left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y, Radius * 2, Radius * 2, 225, 45);
+  // Top-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y, Corner * 2, Corner * 2, 270, 90);
+  //
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + Corner, Rect.X + Rect.Width, Rect.Y + Rect.Height / 2);
+
+  // Flatten
+  Result.Flatten;
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BACK BUTTON PATH
+//------------------------------------------------------------------------------
+function CreateGlareBackButtonPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+var
+  MiddleY, Radius: Single;
+begin
+  Result := TGPGraphicsPath.Create;
+
+  // Calculate the vertical middle point for the triangle peak
+  MiddleY := Rect.Y + (Rect.Height / 2);
+  // The radius for the arcs on the left side, half the width of the arrow part
+  Radius := Rect.Height / 4;
+
+  // Start the figure
+  Result.StartFigure;
+
+  // Add the arrow point arc
+  Result.AddArc(Rect.X, MiddleY - (Corner / 2), Corner, Corner, 135, 45);
+  // Top left arc
+  Result.AddArc(Rect.X + (Rect.Height / 4), Rect.Y, Radius * 2, Radius * 2, 225, 45);
+  // Top-right corner arc
+  Result.AddArc(Rect.X + Rect.Width - Corner * 2, Rect.Y, Corner * 2, Corner * 2, 270, 90);
+  //
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + Corner, Rect.X + Rect.Width, Rect.Y + Rect.Height / 2);
+
+  // Flatten
+  Result.Flatten;
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB LEFT PATH
+//------------------------------------------------------------------------------
+function CreateTabLeftPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + Rect.Height);
+  // Add arc bottom left corner
+  Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB LEFT PATH
+//------------------------------------------------------------------------------
+function CreateTabLeftPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + Rect.Height);
+  // Add arc bottom left corner
+  Result.AddArc(Rect.X, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB LEFT PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabLeftPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2));
+  // Add straight line at the bottom
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB LEFT PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabLeftPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(Rect.X, Rect.Y, Corner, Corner, 180, 90);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2));
+  // Add straight line at the bottom
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB CENTER PATH
+//------------------------------------------------------------------------------
+function CreateTabCenterPath(Rect: TGPRectF): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line on the left
+  Result.AddLine(Rect.X, Rect.Y + Rect.Height, Rect.X, Rect.Y);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + Rect.Height);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB CENTER PATH
+//------------------------------------------------------------------------------
+function CreateTabCenterPath(Rect: TGPRect): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line on the left
+  Result.AddLine(Rect.X, Rect.Y + Rect.Height, Rect.X, Rect.Y);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + Rect.Height);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB CENTER PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabCenterPath(Rect: TGPRectF): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line on the left
+  Result.AddLine(Rect.X, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB CENTER PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabCenterPath(Rect: TGPRect): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line on the left
+  Result.AddLine(Rect.X, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y);
+  // Add straight line on the right
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y, Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB RIGHT PATH
+//------------------------------------------------------------------------------
+function CreateTabRightPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line to the left
+  Result.AddLine(Rect.X, Rect.Y + Rect.Height, Rect.X, Rect.Y);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB RIGHT PATH
+//------------------------------------------------------------------------------
+function CreateTabRightPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line to the left
+  Result.AddLine(Rect.X, Rect.Y + Rect.Height, Rect.X, Rect.Y);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, (Rect.Y + Rect.Height) - Corner, Corner, Corner, 0, 90);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB RIGHT PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabRightPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line to the left
+  Result.AddLine(Rect.X, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add straight line at the bottom
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ TAB RIGHT PATH
+//------------------------------------------------------------------------------
+function CreateGlareTabRightPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add straight line to the left
+  Result.AddLine(Rect.X, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y);
+  // Add arc top right corner
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Rect.Y, Corner, Corner, 270, 90);
+  // Add straight line at the bottom
+  Result.AddLine(Rect.X + Rect.Width, Rect.Y + (Rect.Height / 2), Rect.X, Rect.Y + (Rect.Height / 2));
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+
+//------------------------------------------------------------------------------
+// GET GDI+ BATTERY PATH
+//------------------------------------------------------------------------------
+function CreateBatteryPath(Rect: TGPRectF; Corner: Single): TGPGraphicsPath;
+var
+  H, W, X, Y, BW, BH: Single;
+  BatteryTopRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery "top" dimensions
+  BW := Rect.Width * 0.1;
+  BH := H * 0.5;
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(X, Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
+  Result.AddArc((X + W) - Corner, Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
+  Result.AddArc((X + W) - Corner, (Y + H) - Corner, Corner, Corner, 0, 90);
+  // Add arc bottom left corner
+  Result.AddArc(X, (Y + H) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
+  Result.CloseFigure;
+
+  // Calculate the battery "top" rect
+  BatteryTopRect := MakeRect(X + W, Y + (BH / 2), BW, BH);
+
+  // Start the figure
+  Result.StartFigure;
+  // Add battery top
+  Result.AddRectangle(BatteryTopRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BATTERY PATH
+//------------------------------------------------------------------------------
+function CreateBatteryPath(Rect: TGPRect; Corner: Single): TGPGraphicsPath;
+var
+  H, W, X, Y, BW, BH: Single;
+  BatteryTopRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery "top" dimensions
+  BW := Rect.Width * 0.1;
+  BH := H * 0.5;
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Add arc left top corner
+  Result.AddArc(X, Y, Corner, Corner, 180, 90);
+  // Add arc top right corner
+  Result.AddArc((X + W) - Corner, Y, Corner, Corner, 270, 90);
+  // Add arc bottom right corner
+  Result.AddArc((X + W) - Corner, (Y + H) - Corner, Corner, Corner, 0, 90);
+  // Add arc bottom left corner
+  Result.AddArc(X, (Y + H) - Corner, Corner, Corner, 90, 90);
+  // Close the figure
+  Result.CloseFigure;
+
+  // Calculate the battery "top" rect
+  BatteryTopRect := MakeRect(X + W, Y + (BH / 2), BW, BH);
+
+  // Start the figure
+  Result.StartFigure;
+  // Add battery top
+  Result.AddRectangle(BatteryTopRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BATTERY PERCENTAGE PATH
+//------------------------------------------------------------------------------
+function CreateBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPGraphicsPath;
+var
+  H, W, X, Y: Single;
+  BatterypercentageRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery percentage rect
+  BatterypercentageRect := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, H - (Distance * 2));
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Create the battery percentage path
+  Result.AddRectangle(BatteryPercentageRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ BATTERY PERCENTAGE PATH
+//------------------------------------------------------------------------------
+function CreateBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath;
+var
+  H, W, X, Y: Single;
+  BatterypercentageRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery percentage rect
+  BatterypercentageRect := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, H - (Distance * 2));
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Create the battery percentage path
+  Result.AddRectangle(BatteryPercentageRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ GLARE BATTERY PERCENTAGE PATH
+//------------------------------------------------------------------------------
+function CreateGlareBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPGraphicsPath;
+var
+  H, W, X, Y: Single;
+  BatterypercentageRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery percentage rect
+  BatterypercentageRect := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, (H - (Distance * 2)) / 2);
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Create the battery percentage path
+  Result.AddRectangle(BatteryPercentageRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ GLARE BATTERY PERCENTAGE PATH
+//------------------------------------------------------------------------------
+function CreateGlareBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath;
+var
+  H, W, X, Y: Single;
+  BatterypercentageRect: TGPRectF;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery percentage rect
+  BatterypercentageRect := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, (H - (Distance * 2)) / 2);
+
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+  // Create the battery percentage path
+  Result.AddRectangle(BatteryPercentageRect);
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ GLARE BATTERY PERCENTAGE PATH
+//------------------------------------------------------------------------------
+function CreateGlareBatteryPercentageRect(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPRectF;
+var
+  H, W, X, Y: Single;
+begin
+  // Calculate the dimensions of the battery housing
+  W := Rect.Width * 0.9;
+  H := Rect.Height * 0.55;
+  X := Rect.X;
+  Y := (Rect.Y + (Rect.Height / 2)) - (H / 2);
+
+  // Calculate the battery percentage rect
+  Result := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, (H - (Distance * 2) / 2));
+end;
 
 end.

@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.Touch.Header.pas
-// CONTENTS       : LED component
+// CONTENTS       : Header component
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls,
+  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
 
   OBD.CustomControl.Common;
 
@@ -26,6 +26,10 @@ const
   ///   Default height
   /// </summary>
   DEFAULT_HEIGHT = 50;
+  /// <summary>
+  ///   Default corner radius
+  /// </summary>
+  DEFAULT_CORNER = 5;
 
   /// <summary>
   ///   Default background from color
@@ -57,6 +61,79 @@ const
   ///   Default back button width
   /// </summary>
   DEFAULT_BACK_BUTTON_WIDTH = 60;
+  /// <summary>
+  ///   Default back button normal color from
+  /// </summary>
+  DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM = $00EFEFEE;
+  /// <summary>
+  ///   Default back button normal color to
+  /// </summary>
+  DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO = $00ACA2A1;
+  /// <summary>
+  ///   Default back button hot color from
+  /// </summary>
+  DEFAULT_BACK_BUTTON_HOT_COLOR_FROM = $00E2E2E0;
+  /// <summary>
+  ///   Default back button hot color to
+  /// </summary>
+  DEFAULT_BACK_BUTTON_HOT_COLOR_TO = $00A59B9A;
+  /// <summary>
+  ///   Default back button pressed color from
+  /// </summary>
+  DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM = $00CDCDC9;
+  /// <summary>
+  ///   Default back button pressed color to
+  /// </summary>
+  DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO = $00928685;
+  /// <summary>
+  ///   Default back button disabled color from
+  /// </summary>
+  DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM = $00928685;
+  /// <summary>
+  ///   Default back button disabled color to
+  /// </summary>
+  DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO = $00A89F9D;
+
+  /// <summary>
+  ///   Default action button width
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_WIDTH = 80;
+  /// <summary>
+  ///   Default action button caption
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_TEXT = 'Connect';
+  /// <summary>
+  ///   Default action button normal color from
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_NORMAL_COLOR_FROM = $00EC7600;
+  /// <summary>
+  ///   Default action button normal color to
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_NORMAL_COLOR_TO = $00FFA346;
+  /// <summary>
+  ///   Default action button hot color from
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_HOT_COLOR_FROM = $00DD6F00;
+  /// <summary>
+  ///   Default action button hot color to
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_HOT_COLOR_TO = $00FF870F;
+  /// <summary>
+  ///   Default v button pressed color from
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_PRESSED_COLOR_FROM = $009D4F00;
+  /// <summary>
+  ///   Default action button pressed color to
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_PRESSED_COLOR_TO = $00E17100;
+  /// <summary>
+  ///   Default action button disabled color from
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_DISABLED_COLOR_FROM = $00DF7000;
+  /// <summary>
+  ///   Default action button disabled color to
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_DISABLED_COLOR_TO = $00DF7000;
 
   /// <summary>
   ///   Default caption text
@@ -66,6 +143,34 @@ const
   ///   Default caption font size
   /// </summary>
   DEFAULT_CAPTION_FONT_SIZE = 12;
+
+  /// <summary>
+  ///   Default tab width
+  /// </summary>
+  DEFAULT_TAB_WIDTH = 100;
+
+  /// <summary>
+  ///   Default battery indicator color (0-25%)
+  /// </summary>
+  DEFAULT_BATTERY_COLOR_25 = $004864FF;
+  /// <summary>
+  ///   Default battery indicator color (26-50%)
+  /// </summary>
+  DEFAULT_BATTERY_COLOR_50 = $0052B1F8;
+  /// <summary>
+  ///   Default battery indicator color (51-75%)
+  /// </summary>
+  DEFAULT_BATTERY_COLOR_75 = $000CE076;
+  /// <summary>
+  ///   Default battery indicator color (75-100%)
+  /// </summary>
+  DEFAULT_BATTERY_COLOR_100 = $00FF870F;
+
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
+type
+  TOBDTouchHeaderTabChangeEvent = procedure(Sender: TObject; TabIndex: Integer) of object;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -251,6 +356,10 @@ type
     ///   Button Rect
     /// </summary>
     FButtonRect: TRect;
+    /// <summary>
+    ///   Button state (0 = normal, 1 = hot, 2 = pressed)
+    /// </summary>
+    FButtonState: Integer;
   private
     /// <summary>
     ///   Normal button color
@@ -296,6 +405,10 @@ type
     ///   Border width
     /// </summary>
     FBorderWidth: Single;
+    /// <summary>
+    ///   Image
+    /// </summary>
+    FImage: TPicture;
 
     /// <summary>
     ///   Set normal button color
@@ -341,6 +454,10 @@ type
     ///   Set border width
     /// </summary>
     procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set image
+    /// </summary>
+    procedure SetImage(Value: TPicture);
   private
     /// <summary>
     ///   On change event
@@ -355,6 +472,10 @@ type
     ///   Button Rect
     /// </summary>
     property ButtonRect: TRect read FButtonRect write FButtonRect;
+    /// <summary>
+    ///   Button state (0 = normal, 1 = hot, 2 = pressed)
+    /// </summary>
+    property ButtonState: Integer read FButtonState write FButtonState;
   public
     /// <summary>
     ///   Constructor
@@ -414,11 +535,26 @@ type
     ///   Border width
     /// </summary>
     property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Image
+    /// </summary>
+    property Image: TPicture read FImage write SetImage;
 
     /// <summary>
     ///   On change event
     /// </summary>
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Header action button
+  /// </summary>
+  TOBDTouchHeaderActionButton = class(TOBDTouchHeaderButton)
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; override;
   end;
 
   /// <summary>
@@ -484,6 +620,468 @@ type
   end;
 
   /// <summary>
+  ///   Touch Header Tab Item
+  /// </summary>
+  TOBDTouchHeaderTabItem = class(TCollectionItem)
+  private
+    /// <summary>
+    ///   Tab Rect
+    /// </summary>
+    FTabRect: TRect;
+    /// <summary>
+    ///   Tab state (0 = normal, 1 = hot, 2 = pressed)
+    /// </summary>
+    FTabState: Integer;
+  private
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    FCaption: TCaption;
+    /// <summary>
+    ///   Image
+    /// </summary>
+    FImage: TPicture;
+    /// <summary>
+    ///   Width
+    /// </summary>
+    FWidth: Integer;
+    /// <summary>
+    ///   Enabled
+    /// </summary>
+    FEnabled: Boolean;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    FVisible: Boolean;
+
+    /// <summary>
+    ///   Set caption
+    /// </summary>
+    procedure SetCaption(Value: TCaption);
+    /// <summary>
+    ///   Set image
+    /// </summary>
+    procedure SetImage(Value: TPicture);
+    /// <summary>
+    ///   Set width
+    /// </summary>
+    procedure SetWidth(Value: Integer);
+    /// <summary>
+    ///   Set enabled
+    /// </summary>
+    procedure SetEnabled(Value: Boolean);
+    /// <summary>
+    ///   Set visible
+    /// </summary>
+    procedure SetVisible(Value: Boolean);
+  protected
+    /// <summary>
+    ///   Tab rect
+    /// </summary>
+    property TabRect: TRect read FTabRect write FTabRect;
+    /// <summary>
+    ///   Tab state
+    /// </summary>
+    property TabState: Integer read FTabState write FTabState;
+  protected
+    /// <summary>
+    ///   Image changed handler
+    /// </summary>
+    procedure ImageChanged(Sender: TObject);
+    /// <summary>
+    ///   Override get displayname function
+    /// </summary>
+    function GetDisplayName : String; override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(Collection: TCollection); override;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Assign
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    property Caption: TCaption read FCaption write SetCaption;
+    /// <summary>
+    ///   Image
+    /// </summary>
+    property Image: TPicture read FImage write SetImage;
+    /// <summary>
+    ///   Width
+    /// </summary>
+    property Width: Integer read FWidth write SetWidth default DEFAULT_TAB_WIDTH;
+    /// <summary>
+    ///   Enabled
+    /// </summary>
+    property Enabled: Boolean read FEnabled write SetEnabled default True;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    property Visible: Boolean read FVisible write SetVisible default True;
+  end;
+
+  /// <summary>
+  ///   Touch Header Tab Collection
+  /// </summary>
+  TOBDTouchHeaderTabCollection = class(TOwnedCollection)
+  private
+    /// <summary>
+    ///   On Change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+
+    /// <summary>
+    ///   Get tab item
+    /// </summary>
+    function GetItem(AIndex: Integer): TOBDTouchHeaderTabItem;
+    /// <summary>
+    ///   Set tab item
+    /// </summary>
+    procedure SetItem(AIndex: Integer; const Value: TOBDTouchHeaderTabItem);
+  protected
+    /// <summary>
+    ///   Override Item update handler
+    /// </summary>
+    procedure Update(Item: TCollectionItem); override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(AOwner: TPersistent); virtual;
+
+    /// <summary>
+    ///   Add tab item
+    /// </summary>
+    function Add: TOBDTouchHeaderTabItem;
+    /// <summary>
+    ///   Assign
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+
+    /// <summary>
+    ///   Items
+    /// </summary>
+    property Items[AIndex: Integer]: TOBDTouchHeaderTabItem read GetItem write SetItem;
+    /// <summary>
+    ///   On Change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Header tab
+  /// </summary>
+  TOBDTouchHeaderTab = class(TPersistent)
+  private
+    /// <summary>
+    ///   Normal tab color
+    /// </summary>
+    FNormalColor: TOBDTouchHeaderButtonColor;
+    /// <summary>
+    ///   Hot tab color
+    /// </summary>
+    FHotColor: TOBDTouchHeaderButtonColor;
+    /// <summary>
+    ///   Pressed tab color
+    /// </summary>
+    FPressedColor: TOBDTouchHeaderButtonColor;
+    /// <summary>
+    ///   Disabled tab color
+    /// </summary>
+    FDisabledColor: TOBDTouchHeaderButtonColor;
+    /// <summary>
+    ///   Active tab color
+    /// </summary>
+    FActiveColor: TOBDTouchHeaderButtonColor;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    FBorderWidth: Single;
+
+    /// <summary>
+    ///   Set normal tab color
+    /// </summary>
+    procedure SetNormalColor(Value: TOBDTouchHeaderButtonColor);
+    /// <summary>
+    ///   Set hot tab color
+    /// </summary>
+    procedure SetHotColor(Value: TOBDTouchHeaderButtonColor);
+    /// <summary>
+    ///   Set pressed tab color
+    /// </summary>
+    procedure SetPressedColor(Value: TOBDTouchHeaderButtonColor);
+    /// <summary>
+    ///   Set disabled tab color
+    /// </summary>
+    procedure SetDisabledColor(Value: TOBDTouchHeaderButtonColor);
+    /// <summary>
+    ///   Set active tab color
+    /// </summary>
+    procedure SetActiveColor(Value: TOBDTouchHeaderButtonColor);
+    /// <summary>
+    ///   Set font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed hanlder
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Normal button color
+    /// </summary>
+    property NormalColor: TOBDTouchHeaderButtonColor read FNormalColor write SetNormalColor;
+    /// <summary>
+    ///   Hot button color
+    /// </summary>
+    property HotColor: TOBDTouchHeaderButtonColor read FHotColor write SetHotColor;
+    /// <summary>
+    ///   Pressed button color
+    /// </summary>
+    property PressedColor: TOBDTouchHeaderButtonColor read FPressedColor write SetPressedColor;
+    /// <summary>
+    ///   Disabled button color
+    /// </summary>
+    property DisabledColor: TOBDTouchHeaderButtonColor read FDisabledColor write SetDisabledColor;
+    /// <summary>
+    ///   Active tab color
+    /// </summary>
+    property ActiveColor: TOBDTouchHeaderButtonColor read FActiveColor write SetActiveColor;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BORDER_TO;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Header vattery indicator
+  /// </summary>
+  TOBDTouchHeaderBatteryIndicator = class(TPersistent)
+  private
+    /// <summary>
+    ///   Indicator size
+    /// </summary>
+    FSize: Integer;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    FVisible: Boolean;
+    /// <summary>
+    ///   Show label
+    /// </summary>
+    FShowLabel: Boolean;
+    /// <summary>
+    ///   Battery percentage
+    /// </summary>
+    FPercentage: Single;
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    FBorderWidth: Single;
+    /// <summary>
+    ///   Color for percentage (0-25)
+    /// </summary>
+    FColor25: TColor;
+    /// <summary>
+    ///   Color for percentage (26-50)
+    /// </summary>
+    FColor50: TColor;
+    /// <summary>
+    ///   Color for percentage (51-75)
+    /// </summary>
+    FColor75: TColor;
+    /// <summary>
+    ///   Color for percentage (76-100)
+    /// </summary>
+    FColor100: TColor;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+
+    /// <summary>
+    ///   Set indicator size
+    /// </summary>
+    procedure SetSize(Value: Integer);
+    /// <summary>
+    ///   Set visible
+    /// </summary>
+    procedure SetVisible(Value: Boolean);
+    /// <summary>
+    ///   Set show label
+    /// </summary>
+    procedure SetShowLabel(Value: Boolean);
+    /// <summary>
+    ///   Set percentage
+    /// </summary>
+    procedure SetPercentage(Value: Single);
+    /// <summary>
+    ///   Set border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set color for percentage (0-25)
+    /// </summary>
+    procedure SetColor25(Value: TColor);
+    /// <summary>
+    ///   Set color for percentage (26-50)
+    /// </summary>
+    procedure SetColor50(Value: TColor);
+    /// <summary>
+    ///   Set color for percentage (51-75)
+    /// </summary>
+    procedure SetColor75(Value: TColor);
+    /// <summary>
+    ///   Set color for percentage (76-100)
+    /// </summary>
+    procedure SetColor100(Value: TColor);
+    /// <summary>
+    ///   Font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed hanlder
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Indicator size
+    /// </summary>
+    property Size: Integer read FSize write SetSize default 32;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    property Visible: Boolean read FVisible write SetVisible default True;
+    /// <summary>
+    ///   Show label
+    /// </summary>
+    property ShowLabel: Boolean read FShowLabel write SetShowLabel default True;
+    /// <summary>
+    ///   Battery percentage
+    /// </summary>
+    property Percentage: Single read FPercentage write SetPercentage; 
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BORDER_TO;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Color for percentage (0-25)
+    /// </summary>
+    property Color25: TColor read FColor25 write SetColor25 default DEFAULT_BATTERY_COLOR_25;
+    /// <summary>
+    ///   Color for percentage (26-50)
+    /// </summary>
+    property Color50: TColor read FColor50 write SetColor50 default DEFAULT_BATTERY_COLOR_50;
+    /// <summary>
+    ///   Color for percentage (51-75)
+    /// </summary>
+    property Color75: TColor read FColor75 write SetColor75 default DEFAULT_BATTERY_COLOR_75;
+    /// <summary>
+    ///   Color for percentage (76-100)
+    /// </summary>
+    property Color100: TColor read FColor100 write SetColor100 default DEFAULT_BATTERY_COLOR_100;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+  
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Touch Header Component
   /// </summary>
   TOBDTouchHeader = class(TCustomControl)
@@ -519,9 +1117,42 @@ type
     /// </summary>
     FBackButton: TOBDTouchHeaderButton;
     /// <summary>
+    ///   Action button
+    /// </summary>
+    FActionButton: TOBDTouchHeaderActionButton;
+    /// <summary>
     ///   Caption
     /// </summary>
     FCaption: TOBDTouchHeaderCaption;
+    /// <summary>
+    ///   Tabs
+    /// </summary>
+    FTabs: TOBDTouchHeaderTabCollection;
+    /// <summary>
+    ///   Tab settings
+    /// </summary>
+    FTab: TOBDTouchHeaderTab;
+    /// <summary>
+    ///   Tab index (active tab)
+    /// </summary>
+    FTabIndex: Integer;
+    /// <summary>
+    ///   Battery indicator
+    /// </summary>
+    FBatteryIndicator: TOBDTouchHeaderBatteryIndicator;
+
+    /// <summary>
+    ///   Back button click event
+    /// </summary>
+    FOnBackButtonClick: TNotifyEvent;
+    /// <summary>
+    ///   Action button click event
+    /// </summary>
+    FOnActionButtonClick: TNotifyEvent;
+    /// <summary>
+    ///   Tab index change event
+    /// </summary>
+    FOnTabChange: TOBDTouchHeaderTabChangeEvent;
 
     /// <summary>
     ///   Set background
@@ -536,9 +1167,29 @@ type
     /// </summary>
     procedure SetBackButton(Value: TOBDTouchHeaderButton);
     /// <summary>
+    ///   Set action button
+    /// </summary>
+    procedure SetActionButton(Value: TOBDTouchHeaderActionButton);
+    /// <summary>
     ///   Set caption
     /// </summary>
     procedure SetCaption(Value: TOBDTouchHeaderCaption);
+    /// <summary>
+    ///   Set tabs
+    /// </summary>
+    procedure SetTabs(Value: TOBDTouchHeaderTabCollection);
+    /// <summary>
+    ///   Set tab settings
+    /// </summary>
+    procedure SetTab(Value: TOBDTouchHeaderTab);
+    /// <summary>
+    ///   Set tab index (active tab)
+    /// </summary>
+    procedure SetTabIndex(Value: Integer);
+    /// <summary>
+    ///   Set battery indicator
+    /// </summary>
+    procedure SetBatteryIndicator(Value: TOBDTouchHeaderBatteryIndicator);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -548,6 +1199,18 @@ type
     ///   WM_ERASEBKGND message handler
     /// </summary>
     procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
+    /// <summary>
+    ///   WM_KILLFOCUS message handler
+    /// </summary>
+    procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
+    /// <summary>
+    ///   CM_ENABLEDCHANGED message handler
+    /// </summary>
+    procedure CMEnabledChanged(var Message: TMessage); message CM_ENABLEDCHANGED;
+    /// <summary>
+    ///   CM_MOUSELEAVE message handler
+    /// </summary>
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
     /// <summary>
     ///   Buffer (This is the canvas we draw on)
@@ -574,6 +1237,18 @@ type
     ///   Override UpdateStyleElements method
     /// </summary>
     procedure UpdateStyleElements; override;
+    /// <summary>
+    ///   Override MouseDown method
+    /// </summary>
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    /// <summary>
+    ///   Override MouseUp method
+    /// </summary>
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    /// <summary>
+    ///   Override MouseMove method
+    /// </summary>
+    procedure MouseMove(Shift: TShiftState; X: Integer; Y: Integer); override;
   protected
     /// <summary>
     ///   Settings changed handler
@@ -611,9 +1286,42 @@ type
     /// </summary>
     property BackButton: TOBDTouchHeaderButton read FBackButton write SetBackButton;
     /// <summary>
+    ///   Action button
+    /// </summary>
+    property ActionButton: TOBDTouchHeaderActionButton read FActionButton write SetActionButton;
+    /// <summary>
     ///   Caption
     /// </summary>
     property Caption: TOBDTouchHeaderCaption read FCaption write SetCaption;
+    /// <summary>
+    ///   Tabs
+    /// </summary>
+    property Tabs: TOBDTouchHeaderTabCollection read FTabs write SetTabs;
+    /// <summary>
+    ///   Tab settings
+    /// </summary>
+    property Tab: TOBDTouchHeaderTab read FTab write SetTab;
+    /// <summary>
+    ///   Tab index (active tab)
+    /// </summary>
+    property TabIndex: Integer read FTabIndex write SetTabIndex default -1;
+    /// <summary>
+    ///   Battery indicator
+    /// </summary>
+    property BatteryIndicator: TOBDTouchHeaderBatteryIndicator read FBatteryIndicator write SetBatteryIndicator;
+
+    /// <summary>
+    ///   Back button click event
+    /// </summary>
+    property OnBackButtonClick: TNotifyEvent read FOnBackButtonClick write FOnBackButtonClick;
+    /// <summary>
+    ///   Action button click event
+    /// </summary>
+    property OnActionButtonClick: TNotifyEvent read FOnActionButtonClick write FOnActionButtonClick;
+    /// <summary>
+    ///   Tab index change event
+    /// </summary>
+    property OnTabChange: TOBDTouchHeaderTabChangeEvent read FOnTabChange write FOnTabChange;
   published
     /// <summary>
     ///   Component alignment (inherited)
@@ -947,6 +1655,15 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET IMAGE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderButton.SetImage(Value: TPicture);
+begin
+  // Set new image
+  FImage.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDTouchHeaderButton.SettingsChanged(Sender: TObject);
@@ -965,31 +1682,32 @@ begin
   // Create Normal button color
   FNormalColor := TOBDTouchHeaderButtonColor.Create;
   FNormalColor.OnChange := SettingsChanged;
-  FNormalColor.FromColor := $00EFEFEE;
-  FNormalColor.ToColor := $00ACA2A1;
+  FNormalColor.FromColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM;
+  FNormalColor.ToColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO;
   // Create Hot button color
   FHotColor := TOBDTouchHeaderButtonColor.Create;
   FHotColor.OnChange := SettingsChanged;
-  FHotColor.FromColor := $00F0F0F0;
-  FHotColor.ToColor := $00CCC7C6;
+  FHotColor.FromColor := DEFAULT_BACK_BUTTON_HOT_COLOR_FROM;
+  FHotColor.ToColor := DEFAULT_BACK_BUTTON_HOT_COLOR_TO;
   // Create Pressed button color
   FPressedColor := TOBDTouchHeaderButtonColor.Create;
   FPressedColor.OnChange := SettingsChanged;
-  FPressedColor.FromColor := $00EFEFEE;
-  FPressedColor.ToColor := $00ACA2A1;
+  FPressedColor.FromColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM;
+  FPressedColor.ToColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO;
   // Create Disabled button color
   FDisabledColor := TOBDTouchHeaderButtonColor.Create;
   FDisabledColor.OnChange := SettingsChanged;
-  FDisabledColor.FromColor := $00CCC7C6;
-  FDisabledColor.ToColor := $00A89F9D;
+  FDisabledColor.FromColor := DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM;
+  FDisabledColor.ToColor := DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO;
   // Create font
   FFont := TFont.Create;
   FFont.OnChange := SettingsChanged;
+  // Create image
+  FImage := TPicture.Create;
+  FImage.OnChange := SettingsChanged;
   // Set defaults
   FEnabled := True;
   FVisible := True;
-  FWidth   := DEFAULT_BACK_BUTTON_WIDTH;
-  FCaption := DEFAULT_BACK_BUTTON_CAPTION;
   FBorderColor := DEFAULT_BORDER_TO;
   FBorderWidth := 1;
 end;
@@ -1009,6 +1727,8 @@ begin
   FDisabledColor.Free;
   // Free font
   FFont.Free;
+  // Free image
+  FImage.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1032,11 +1752,32 @@ begin
     FWidth := (Source as TOBDTouchHeaderButton).Width;
     FBorderColor := (Source as TOBDTouchHeaderButton).BorderColor;
     FBorderWidth := (Source as TOBDTouchHeaderButton).BorderWidth;
+    FImage.Assign((Source as TOBDTouchHeaderButton).Image);
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
     // Call inherited assign
     inherited;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeaderActionButton.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  FWidth    := DEFAULT_ACTION_BUTTON_WIDTH;
+  FCaption  := DEFAULT_ACTION_BUTTON_TEXT;
+  FNormalColor.FFromColor   := DEFAULT_ACTION_BUTTON_NORMAL_COLOR_FROM;
+  FNormalColor.FToColor     := DEFAULT_ACTION_BUTTON_NORMAL_COLOR_TO;
+  FHotColor.FFromColor      := DEFAULT_ACTION_BUTTON_HOT_COLOR_FROM;
+  FHotColor.FToColor        := DEFAULT_ACTION_BUTTON_HOT_COLOR_TO;
+  FPressedColor.FFromColor  := DEFAULT_ACTION_BUTTON_PRESSED_COLOR_FROM;
+  FPressedColor.FToColor    := DEFAULT_ACTION_BUTTON_PRESSED_COLOR_TO;
+  FDisabledColor.FFromColor := DEFAULT_ACTION_BUTTON_DISABLED_COLOR_FROM;
+  FDisabledColor.FToColor   := DEFAULT_ACTION_BUTTON_DISABLED_COLOR_TO;
+  FFont.Color := clWhite;
 end;
 
 //------------------------------------------------------------------------------
@@ -1113,6 +1854,582 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.SetCaption(Value: TCaption);
+begin
+  if (FCaption <> Value) then
+  begin
+    FCaption := Value;
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET IMAGE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.SetImage(Value: TPicture);
+begin
+  FImage.Assign(Value);
+  Changed(False);
+end;
+
+//------------------------------------------------------------------------------
+// SET WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.SetWidth(Value: Integer);
+begin
+  if (FWidth <> Value) then
+  begin
+    FWidth := Value;
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ENABLED
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.SetEnabled(Value: Boolean);
+begin
+  if (FEnabled <> Value) then
+  begin
+    FEnabled := Value;
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VISIBLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.SetVisible(Value: Boolean);
+begin
+  if (FVisible <> Value) then
+  begin
+    FVisible := Value;
+    Changed(False);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// IMAGE CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.ImageChanged(Sender: TObject);
+begin
+  Changed(False);
+end;
+
+//------------------------------------------------------------------------------
+// GET DISPLAY NAME
+//------------------------------------------------------------------------------
+function TOBDTouchHeaderTabItem.GetDisplayName: string;
+begin
+  Result := FCaption;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeaderTabItem.Create(Collection: TCollection);
+begin
+  // Call inherited constructor
+  inherited Create(Collection);
+  // Create image
+  FImage := TPicture.Create;
+  FImage.OnChange := ImageChanged;
+  // Set defaults
+  FCaption := Format('Tab %d', [Index]);
+  FWidth := DEFAULT_TAB_WIDTH;
+  FEnabled := True;
+  FVisible := True;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchHeaderTabItem.Destroy;
+begin
+  // Free image
+  FImage.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabItem.Assign(Source: TPersistent);
+begin
+  if (Source is TOBDTouchHeaderTabItem) then
+  begin
+    FCaption := (Source as TOBDTouchHeaderTabItem).Caption;
+    FImage.Assign((Source as TOBDTouchHeaderTabItem).Image);
+    FWidth := (Source as TOBDTouchHeaderTabItem).Width;
+    FEnabled := (Source as TOBDTouchHeaderTabItem).Enabled;
+    FVisible := (Source as TOBDTouchHeaderTabItem).Visible;
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// GET TAB ITEM
+//------------------------------------------------------------------------------
+function TOBDTouchHeaderTabCollection.GetItem(AIndex: Integer): TOBDTouchHeaderTabItem;
+begin
+  Result := TOBDTouchHeaderTabItem(inherited Items[AIndex]);
+end;
+
+//------------------------------------------------------------------------------
+// SET TAB ITEM
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabCollection.SetItem(AIndex: Integer; const Value: TOBDTouchHeaderTabItem);
+begin
+  // Call inherited set item
+  inherited SetItem(AIndex, Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// ITEM UPDATE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabCollection.Update(Item: TCollectionItem);
+begin
+  // Call inherited update
+  inherited Update(Item);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeaderTabCollection.Create(AOwner: TPersistent);
+begin
+  // Call inherited constructor
+  inherited Create(AOwner, TOBDTouchHeaderTabItem);
+end;
+
+//------------------------------------------------------------------------------
+// ADD TAB ITEM
+//------------------------------------------------------------------------------
+function TOBDTouchHeaderTabCollection.Add: TOBDTouchHeaderTabItem;
+begin
+  // Create new tab item
+  Result := TOBDTouchHeaderTabItem(inherited Add);
+  // Set new tab item caption
+  Result.Caption := Format('Tab %d', [NextID]);
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTabCollection.Assign(Source: TPersistent);
+var
+  L: TOBDTouchHeaderTabCollection;
+  I: Integer;
+begin
+  if (Source is TOBDTouchHeaderTabCollection) then
+  begin
+    // Cast the list as TOBDTouchHeaderTabCollection
+    L := TOBDTouchHeaderTabCollection(Source);
+    // Clear the items
+    Clear;
+    // Add the items
+    for I := 0 to L.Count - 1 do Add.Assign(L.Items[I]);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SET NORMAL COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetNormalColor(Value: TOBDTouchHeaderButtonColor);
+begin
+  FNormalColor.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET HOT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetHotColor(Value: TOBDTouchHeaderButtonColor);
+begin
+  FHotColor.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET PRESSED COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetPressedColor(Value: TOBDTouchHeaderButtonColor);
+begin
+  FPressedColor.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET DISABLED COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetDisabledColor(Value: TOBDTouchHeaderButtonColor);
+begin
+  FDisabledColor.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET ACTIVE COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetActiveColor(Value: TOBDTouchHeaderButtonColor);
+begin
+  FActiveColor.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetBorderColor(Value: TColor);
+begin
+  if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SetBorderWidth(Value: Single);
+begin
+ if (FBorderWidth <> Value) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.SettingsChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeaderTab.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create Normal tab color
+  FNormalColor := TOBDTouchHeaderButtonColor.Create;
+  FNormalColor.OnChange := SettingsChanged;
+  FNormalColor.FromColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM;
+  FNormalColor.ToColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO;
+  // Create Hot tab color
+  FHotColor := TOBDTouchHeaderButtonColor.Create;
+  FHotColor.OnChange := SettingsChanged;
+  FHotColor.FromColor := DEFAULT_BACK_BUTTON_HOT_COLOR_FROM;
+  FHotColor.ToColor := DEFAULT_BACK_BUTTON_HOT_COLOR_TO;
+  // Create Pressed tab color
+  FPressedColor := TOBDTouchHeaderButtonColor.Create;
+  FPressedColor.OnChange := SettingsChanged;
+  FPressedColor.FromColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM;
+  FPressedColor.ToColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO;
+  // Create Disabled tab color
+  FDisabledColor := TOBDTouchHeaderButtonColor.Create;
+  FDisabledColor.OnChange := SettingsChanged;
+  FDisabledColor.FromColor := DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM;
+  FDisabledColor.ToColor := DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO;
+  // Create Active tab color
+  FActiveColor := TOBDTouchHeaderButtonColor.Create;
+  FActiveColor.OnChange := SettingsChanged;
+  FActiveColor.FromColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO;
+  FActiveColor.ToColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  // Set defaults
+  FBorderColor := DEFAULT_BORDER_TO;
+  FBorderWidth := 1;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchHeaderTab.Destroy;
+begin
+  // Free normal color
+  FNormalColor.Free;
+  // Free hot color
+  FHotColor.Free;
+  // Free pressed color
+  FPressedColor.Free;
+  // Free disabled color
+  FDisabledColor.Free;
+  // Free active color
+  FActiveColor.Free;
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderTab.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchHeaderButton) then
+  begin
+    FNormalColor.Assign((Source as TOBDTouchHeaderTab).NormalColor);
+    FHotColor.Assign((Source as TOBDTouchHeaderTab).HotColor);
+    FPressedColor.Assign((Source as TOBDTouchHeaderTab).PressedColor);
+    FDisabledColor.Assign((Source as TOBDTouchHeaderTab).DisabledColor);
+    FActiveColor.Assign((Source as TOBDTouchHeaderTab).ActiveColor);
+    FFont.Assign((Source as TOBDTouchHeaderTab).Font);
+    FBorderColor := (Source as TOBDTouchHeaderTab).BorderColor;
+    FBorderWidth := (Source as TOBDTouchHeaderTab).BorderWidth;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetSize(Value: Integer);
+begin
+  if (FSize <> Value) and (FSize >= 16) then
+  begin
+    // Set new size
+    FSize := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VISIBLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetVisible(Value: Boolean);
+begin
+  if (FVisible <> Value) then
+  begin
+    // Set visible
+    FVisible := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BSHOW LABEL
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetShowLabel(Value: Boolean);
+begin
+  if (FShowLabel <> Value) then
+  begin
+    // Set new showlabel
+    FShowLabel := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET PERCENTAGE
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetPercentage(Value: Single);
+begin
+  if (FPercentage <> Value) and (Value >= 0) and (Value <= 100) then
+  begin
+    // Set new percentage
+    FPercentage := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetBorderColor(Value: TColor);
+begin
+  if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetBorderWidth(Value: Single);
+begin
+  if (FBorderWidth <> Value) and (Value >= 0) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR 25
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetColor25(Value: TColor);
+begin
+  if (FColor25 <> Value) then
+  begin
+    // Set new color
+    FColor25 := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR 50
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetColor50(Value: TColor);
+begin
+  if (FColor50 <> Value) then
+  begin
+    // Set new color
+    FColor50 := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR 75
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetColor75(Value: TColor);
+begin
+  if (FColor75 <> Value) then
+  begin
+    // Set new color
+    FColor75 := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET COLOR 100
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetColor100(Value: TColor);
+begin
+  if (FColor100 <> Value) then
+  begin
+    // Set new color
+    FColor100 := Value;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.SettingsChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeaderBatteryIndicator.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  FFont.Size := 7;
+  // Set defaults
+  FSize := 32;
+  FVisible := True;
+  FShowLabel := True;
+  FPercentage := 100;
+  FBorderColor := DEFAULT_BORDER_TO;
+  FBorderWidth := 1;
+  FColor25 := DEFAULT_BATTERY_COLOR_25;
+  FColor50 := DEFAULT_BATTERY_COLOR_50;
+  FColor75 := DEFAULT_BATTERY_COLOR_75;
+  FColor100 := DEFAULT_BATTERY_COLOR_100;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchHeaderBatteryIndicator.Destroy;
+begin
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeaderBatteryIndicator.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchHeaderBatteryIndicator) then
+  begin
+    FSize := (Source as TOBDTouchHeaderBatteryIndicator).Size;
+    FVisible := (Source as TOBDTouchHeaderBatteryIndicator).Visible;
+    FShowLabel := (Source as TOBDTouchHeaderBatteryIndicator).ShowLabel;
+    FPercentage := (Source as TOBDTouchHeaderBatteryIndicator).Percentage;
+    FBorderColor := (Source as TOBDTouchHeaderBatteryIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchHeaderBatteryIndicator).BorderWidth;
+    FColor25 := (Source as TOBDTouchHeaderBatteryIndicator).Color25;
+    FColor50 := (Source as TOBDTouchHeaderBatteryIndicator).Color50;
+    FColor75 := (Source as TOBDTouchHeaderBatteryIndicator).Color75;
+    FColor100 := (Source as TOBDTouchHeaderBatteryIndicator).Color100;
+    FFont.Assign((Source as TOBDTouchHeaderBatteryIndicator).Font);
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // CLASS CONSTRUCTOR
 //------------------------------------------------------------------------------
 class constructor TOBDTouchHeader.Create;
@@ -1153,11 +2470,56 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET ACTION BUTTON
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.SetActionButton(Value: TOBDTouchHeaderActionButton);
+begin
+  FActionButton.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
 // SET CAPTION
 //------------------------------------------------------------------------------
 procedure TOBDTouchHeader.SetCaption(Value: TOBDTouchHeaderCaption);
 begin
   FCaption.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET TABS
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.SetTabs(Value: TOBDTouchHeaderTabCollection);
+begin
+  FTabs.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET TAB SETTINGS
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.SetTab(Value: TOBDTouchHeaderTab);
+begin
+  FTab.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET TAB INDEX
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.SetTabIndex(Value: Integer);
+begin
+  if (FTabIndex <> Value) and (Value >= -1) and (Value < FTabs.Count) then
+  begin
+    FTabIndex := Value;
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BATTERY INDICATOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.SetBatteryIndicator(Value: TOBDTouchHeaderBatteryIndicator);
+begin
+  FBatteryIndicator.Assign(Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -1179,6 +2541,134 @@ procedure TOBDTouchHeader.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
 begin
   // Set the handled flag
   Msg.Result := 1;
+end;
+
+//------------------------------------------------------------------------------
+// WM_KILLFOCUS MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.WMKillFocus(var Message: TWMKillFocus);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  // Call inherited mousedown
+  inherited;
+
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Reset back button state to normal
+  if BackButton.Visible and BackButton.Enabled and (BackButton.ButtonState <> 0) then
+  begin
+    BackButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset action button state to normal
+  if ActionButton.Visible and ActionButton.Enabled and (ActionButton.ButtonState <> 0) then
+  begin
+    ActionButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset tab state to normal
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible and (FTabs.Items[I].TabState <> 0) then
+  begin
+    FTabs.Items[I].TabState := 0;
+    NeedRedraw := True;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CM_ENABLEDCHANGED MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.CMEnabledChanged(var Message: TMessage);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  inherited;
+
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Reset back button state to normal
+  if BackButton.Visible and BackButton.Enabled and (BackButton.ButtonState <> 0) then
+  begin
+    BackButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset action button state to normal
+  if ActionButton.Visible and ActionButton.Enabled and (ActionButton.ButtonState <> 0) then
+  begin
+    BackButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset tab state to normal
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible and (FTabs.Items[I].TabState <> 0) then
+  begin
+    FTabs.Items[I].TabState := 0;
+    NeedRedraw := True;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CM_MOUSELEAVE MESSAGE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.CMMouseLeave(var Message: TMessage);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Reset back button state to normal
+  if BackButton.Visible and BackButton.Enabled and (BackButton.ButtonState <> 0) then
+  begin
+    BackButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset action button state to normal
+  if ActionButton.Visible and ActionButton.Enabled and (ActionButton.ButtonState <> 0) then
+  begin
+    ActionButton.ButtonState := 0;
+    NeedRedraw := True;
+  end;
+
+  // Reset tab state to normal
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible and (FTabs.Items[I].TabState <> 0) then
+  begin
+    FTabs.Items[I].TabState := 0;
+    NeedRedraw := True;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1255,10 +2745,288 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// MOUSE DOWN HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  // Call inherited mousedown
+  inherited;
+
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Check if we are over the back button
+  if BackButton.Visible and BackButton.Enabled then
+  begin
+    if PtInRect(BackButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to pressed
+      if (BackButton.ButtonState < 2) then
+      begin
+        BackButton.ButtonState := 2;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (BackButton.ButtonState = 1) then
+      begin
+        BackButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over the action button
+  if ActionButton.Visible and ActionButton.Enabled then
+  begin
+    if PtInRect(ActionButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to pressed
+      if (ActionButton.ButtonState < 2) then
+      begin
+        ActionButton.ButtonState := 2;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (ActionButton.ButtonState = 1) then
+      begin
+        ActionButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over a tab
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible then
+  begin
+    if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
+    begin
+      // Set tab state to pressed
+      if (FTabs.Items[I].TabState < 2) then
+      begin
+        FTabs.Items[I].TabState := 2;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset tab state to normal
+      if (FTabs.Items[I].TabState =  1) then
+      begin
+        FTabs.Items[I].TabState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// MOUSE UP HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  // Call inherited mouseup
+  inherited;
+
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Check if we are over the back button
+  if BackButton.Visible and BackButton.Enabled then
+  begin
+    if PtInRect(BackButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to hot
+      if (BackButton.ButtonState = 2) then
+      begin
+        BackButton.ButtonState := 1;
+        NeedRedraw := True;
+        // If the button state is pressed, fire a click event
+        if Assigned(FOnBackButtonClick) then FOnBackButtonClick(Self);
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (BackButton.ButtonState <> 0) then
+      begin
+        BackButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over the action button
+  if ActionButton.Visible and ActionButton.Enabled then
+  begin
+    if PtInRect(ActionButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to hot
+      if (ActionButton.ButtonState = 2) then
+      begin
+        ActionButton.ButtonState := 1;
+        NeedRedraw := True;
+        // If the button state is pressed, fire a click event
+        if Assigned(FOnActionButtonClick) then FOnActionButtonClick(Self);
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (ActionButton.ButtonState <> 0) then
+      begin
+        ActionButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over a tab
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible then
+  begin
+    if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
+    begin
+      // Set tab state to hot
+      if (FTabs.Items[I].TabState = 2) then
+      begin
+        FTabs.Items[I].TabState := 1;
+        NeedRedraw := True;
+        // Update the tabindex
+        FTabIndex := I;
+        // If the tab state is pressed, fire a click event
+        if Assigned(OnTabChange) then OnTabChange(Self, I);
+      end;
+    end else
+    begin
+      // Reset tab state to normal
+      if (FTabs.Items[I].TabState <> 0) then
+      begin
+        FTabs.Items[I].TabState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// MOUSE MOVE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
+var
+  NeedRedraw: Boolean;
+  I: Integer;
+begin
+  // Call inherited mousemove
+  inherited;
+
+  // Flag to indicate we need to redraw
+  NeedRedraw := False;
+
+  // Check if we are over the back button
+  if BackButton.Visible and BackButton.Enabled then
+  begin
+    if PtInRect(BackButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to hot
+      if (BackButton.ButtonState = 0) then
+      begin
+        BackButton.ButtonState := 1;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (BackButton.ButtonState = 1) then
+      begin
+        BackButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over the action button
+  if ActionButton.Visible and ActionButton.Enabled then
+  begin
+    if PtInRect(ActionButton.ButtonRect, Point(X, Y)) then
+    begin
+      // Set button state to hot
+      if (ActionButton.ButtonState = 0) then
+      begin
+        ActionButton.ButtonState := 1;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset button state to normal
+      if (ActionButton.ButtonState = 1) then
+      begin
+        ActionButton.ButtonState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // Check if we are over a tab
+  for I := 0 to FTabs.Count -1 do
+  if FTabs.Items[I].Visible then
+  begin
+    if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
+    begin
+      // Set tab state to hot
+      if (FTabs.Items[I].TabState = 0) then
+      begin
+        FTabs.Items[I].TabState := 1;
+        NeedRedraw := True;
+      end;
+    end else
+    begin
+      // Reset tab state to normal
+      if (FTabs.Items[I].TabState = 1) then
+      begin
+        FTabs.Items[I].TabState := 0;
+        NeedRedraw := True;
+      end;
+    end;
+  end;
+
+  // If we need to redraw, then update the buffer and invalidate
+  if NeedRedraw then
+  begin
+    PaintBuffer;
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDTouchHeader.SettingsChanged(Sender: TObject);
 begin
+  // Reset tab index
+  if (FTabIndex > FTabs.Count) then FTabIndex := FTabs.Count -1;
+  if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
   // Paint buffer
   PaintBuffer;
   // Invalidate buffer
@@ -1281,16 +3049,20 @@ var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
   BackgroundRect, BorderRect: TGPRect;
-  BackButtonRect, CaptionRect: TGPRectF;
-  Brush: TGPBrush;
+  ButtonRect, CaptionRect, GlareRect, TabRect, BatteryRect: TGPRectF;
+  Brush, GlareBrush: TGPBrush;
   Pen: TGPPen;
-  BackButtonPath: TGPGraphicsPath;
-  X, Y, W, H: Single;
+  ButtonPath, GlarePath, TabPath, BatteryPath, PercentagePath: TGPGraphicsPath;
+  X, Y, W, H, TX: Single;
+  S: string;
 
   Font: TGPFont;
   FontBrush: TGPSolidBrush;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
+
+  TotalTabWidth, I, FirstVisibleTab, LastVisibleTab: Integer;
+  TabsVisible, IsFirstTab, IsLastTab: Boolean;
 begin
   // Update the size of the buffer
   Buffer.SetSize(Width, Height);
@@ -1371,25 +3143,45 @@ begin
       StringFormat.SetAlignment(StringAlignmentCenter);
       StringFormat.SetLineAlignment(StringAlignmentCenter);
       // Calculate the button rect and caption rect
-      BackButtonRect := MakeRect(X, Y, BackButton.Width, H);
+      ButtonRect := MakeRect(X, Y, BackButton.Width, H);
       BackButton.ButtonRect := TRect.Create(Round(X), Round(Y), Round(X) + BackButton.Width, Round(Y + H));
       CaptionRect := MakeRect(X + 6, Y, BackButton.Width - 6, H);
-      // Create the button path
-      BackButtonPath := CreateBackButtonPath(BackButtonRect, 4);
+      GlareRect   := MakeRect(X, Y, BackButton.Width, H);
+      // Create the button path and glare path
+      ButtonPath := CreateBackButtonPath(ButtonRect, DEFAULT_CORNER);
+      GlarePath  := CreateGlareBackButtonPath(GlareRect, DEFAULT_CORNER);
       // Create the brush and pen
       if not BackButton.Enabled then
       begin
-        Brush := TGPLinearGradientBrush.Create(BackButtonRect, SafeColorRefToARGB(BackButton.DisabledColor.FromColor), SafeColorRefToARGB(BackButton.DisabledColor.ToColor), LinearGradientModeVertical);
+        // Disabled colors
+        Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.DisabledColor.FromColor), SafeColorRefToARGB(BackButton.DisabledColor.ToColor), LinearGradientModeVertical);
       end else
       begin
-        Brush := TGPLinearGradientBrush.Create(BackButtonRect, SafeColorRefToARGB(BackButton.NormalColor.FromColor), SafeColorRefToARGB(BackButton.NormalColor.ToColor), LinearGradientModeVertical);
+        case BackButton.ButtonState of
+          // Normal colors
+          0: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.NormalColor.FromColor), SafeColorRefToARGB(BackButton.NormalColor.ToColor), LinearGradientModeVertical);
+          // Hot colors
+          1: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.HotColor.FromColor), SafeColorRefToARGB(BackButton.HotColor.ToColor), LinearGradientModeVertical);
+          // Pressed colors
+          2: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.PressedColor.FromColor), SafeColorRefToARGB(BackButton.PressedColor.ToColor), LinearGradientModeVertical);
+        end;
       end;
       Pen := TGPPen.Create(SafeColorRefToARGB(BackButton.BorderColor), BackButton.BorderWidth);
+      GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
       try
         // Draw the button
-        Graphics.FillPath(Brush, BackButtonPath);
+        Graphics.FillPath(Brush, ButtonPath);
+        // Draw the glare
+        Graphics.FillPath(GlareBrush, GlarePath);
         // Draw the border
-        if BackButton.BorderColor <> clNone then Graphics.DrawPath(Pen, BackButtonPath);
+        if BackButton.BorderColor <> clNone then Graphics.DrawPath(Pen, ButtonPath);
+        // Draw the image
+        if Assigned(BackButton.Image.Graphic) then
+        begin
+          X := 4 + (ButtonRect.X + (ButtonRect.Width / 2)) - (BackButton.Image.Width / 2);
+          Y := (ButtonRect.Y + (ButtonRect.Height / 2)) - (BackButton.Image.Height / 2);
+          Buffer.Canvas.Draw(Round(X), Round(Y), BackButton.Image.Graphic);
+        end else
         // Draw the caption
         Graphics.DrawString(BackButton.Caption, Length(BackButton.Caption), Font, CaptionRect, StringFormat, FontBrush);
       finally
@@ -1399,11 +3191,242 @@ begin
         StringFormat.Free;
         Brush.Free;
         Pen.Free;
+        GlarePath.Free;
+        GlareBrush.Free;
+      end;
+    end;
+
+    // Draw the action button
+    if ActionButton.Visible then
+    begin
+      // Offset from the left
+      if BackButton.Visible then
+        X := 8 + BackButton.Width + 8
+      else
+        X := 8;
+      // Height of the button
+      H := Height - 16;
+      // Vertical position
+      Y := ((Height / 2) - (H / 2)) - (Border.Height / 2);
+      // Create font objects
+      FontFamily := TGPFontFamily.Create(ActionButton.Font.Name);
+      Font := TGPFont.Create(FontFamily, ActionButton.Font.Size, OBD.CustomControl.Common.FontStyle(ActionButton.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(ActionButton.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      // Calculate the button rect and caption rect
+      ButtonRect := MakeRect(X, Y, ActionButton.Width, H);
+      ActionButton.ButtonRect := TRect.Create(Round(X), Round(Y), Round(X) + ActionButton.Width, Round(Y + H));
+      CaptionRect := MakeRect(X, Y, ActionButton.Width, H);
+      GlareRect   := MakeRect(X, Y, ActionButton.Width, H);
+      // Create the button path and glare path
+      ButtonPath := CreateRoundRectPath(ButtonRect, DEFAULT_CORNER);
+      GlarePath  := CreateGlareRoundRectPath(GlareRect, DEFAULT_CORNER);
+      // Create the brush and pen
+      if not ActionButton.Enabled then
+      begin
+        // Disabled colors
+        Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.DisabledColor.FromColor), SafeColorRefToARGB(ActionButton.DisabledColor.ToColor), LinearGradientModeVertical);
+      end else
+      begin
+        case ActionButton.ButtonState of
+          // Normal colors
+          0: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.NormalColor.FromColor), SafeColorRefToARGB(ActionButton.NormalColor.ToColor), LinearGradientModeVertical);
+          // Hot colors
+          1: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.HotColor.FromColor), SafeColorRefToARGB(ActionButton.HotColor.ToColor), LinearGradientModeVertical);
+          // Pressed colors
+          2: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.PressedColor.FromColor), SafeColorRefToARGB(ActionButton.PressedColor.ToColor), LinearGradientModeVertical);
+        end;
+      end;
+      Pen := TGPPen.Create(SafeColorRefToARGB(ActionButton.BorderColor), ActionButton.BorderWidth);
+      GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
+      try
+        // Draw the button
+        Graphics.FillPath(Brush, ButtonPath);
+        // Draw the glare
+        Graphics.FillPath(GlareBrush, GlarePath);
+        // Draw the border
+        if ActionButton.BorderColor <> clNone then Graphics.DrawPath(Pen, ButtonPath);
+        // Draw the image
+        if Assigned(ActionButton.Image.Graphic) then
+        begin
+          X := 4 + (ButtonRect.X + (ButtonRect.Width / 2)) - (ActionButton.Image.Width / 2);
+          Y := (ButtonRect.Y + (ButtonRect.Height / 2)) - (ActionButton.Image.Height / 2);
+          Buffer.Canvas.Draw(Round(X), Round(Y), ActionButton.Image.Graphic);
+        end else
+        // Draw the caption
+        Graphics.DrawString(ActionButton.Caption, Length(ActionButton.Caption), Font, CaptionRect, StringFormat, FontBrush);
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+        Brush.Free;
+        Pen.Free;
+        GlarePath.Free;
+        GlareBrush.Free;
+      end;
+    end;
+
+    // Get the total tabs with
+    TotalTabWidth := 0;
+    // First visible tab index
+    FirstVisibleTab := -1;
+    // Last visible tab index
+    LastVisibleTab  := -1;
+    // Loop over tabs
+    for I := 0 to FTabs.Count -1 do
+    begin
+      // Increment the total tab width
+      if FTabs.Items[I].Visible then Inc(TotalTabWidth, FTabs.Items[I].Width);
+      // Set first visible tab index
+      if (FirstVisibleTab = -1) and FTabs.Items[I].Visible then FirstVisibleTab := I;
+      // Set last visible tab index
+      if FTabs.Items[I].Visible then LastVisibleTab := I;
+    end;
+
+    // Flag to indicate tabs are visible
+    TabsVisible := (TotalTabWidth > 0);
+
+    // Draw tabs
+    if TabsVisible then
+    begin
+      // Height of the button
+      H := Height - 16;
+      // Vertical position
+      Y := ((Height / 2) - (H / 2)) - (Border.Height / 2);
+
+      // Calculate the tab start position
+      TX := 16;
+      if BackButton.Visible then TX := TX + BackButton.Width + 8;
+      if ActionButton.Visible then TX := TX + ActionButton.Width + 8;
+      W := Width - (TX * 2);
+      TX := TX + ((W / 2) - (TotalTabWidth / 2));
+
+      // Create font objects
+      FontFamily := TGPFontFamily.Create(Tab.Font.Name);
+      Font := TGPFont.Create(FontFamily, Tab.Font.Size, OBD.CustomControl.Common.FontStyle(Tab.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Tab.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+
+      try
+        // Loop over tabs
+        for I := 0 to FTabs.Count -1 do
+        begin
+          // Flag to indicate this is the first tab
+          IsFirstTab := I = FirstVisibleTab;
+          // Flag to indicate this is the last tab
+          IsLastTab  := I = LastVisibleTab;
+
+          // If tab is not visible, continue
+          if not FTabs.Items[I].Visible then Continue;
+
+          // Calculate the tab rect
+          TabRect := MakeRect(TX, Y, FTabs.Items[I].Width, H);
+          FTabs.Items[I].TabRect := Rect(Round(TX), Round(Y), Round(TX + FTabs.Items[I].Width), Round(Y + H));
+
+          // First tab
+          if IsFirstTab and (not IsLastTab) then
+          begin
+            // Create tab path
+            TabPath := CreateTabLeftPath(TabRect, DEFAULT_CORNER);
+            // Create glare path
+            GlarePath := CreateGlareTabLeftPath(TabRect, DEFAULT_CORNER);
+          end else
+
+          // Last tab
+          if (not IsFirstTab) and IsLastTab then
+          begin
+            // Create tab path
+            TabPath := CreateTabRightPath(TabRect, DEFAULT_CORNER);
+            // Create glare path
+            GlarePath := CreateGlareTabRightPath(TabRect, DEFAULT_CORNER);
+          end else
+
+          // Center tab
+          if (not IsFirstTab) and (not IsLastTab) then
+          begin
+            // Create tab path
+            TabPath := CreateTabCenterPath(TabRect);
+            // Create glare path
+            GlarePath := CreateGlareTabCenterPath(TabRect);
+          end else
+
+          // First and last tab (Single tab)
+          begin
+            // Create tab path
+            TabPath := CreateRoundRectPath(TabRect, DEFAULT_CORNER);
+            // Create glare path
+            GlarePath := CreateGlareRoundRectPath(TabRect, DEFAULT_CORNER);
+          end;
+
+          // Create the brush and pen
+          GlareBrush := TGPLinearGradientBrush.Create(TabRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
+          if not FTabs.Items[I].Enabled then
+          begin
+            // Disabled colors
+            Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.DisabledColor.FromColor), SafeColorRefToARGB(Tab.DisabledColor.ToColor), LinearGradientModeVertical);
+          end else
+          if TabIndex = I then
+          begin
+            // Active colors
+            Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.ActiveColor.FromColor), SafeColorRefToARGB(Tab.ActiveColor.ToColor), LinearGradientModeVertical);
+          end else
+          begin
+            case FTabs.Items[I].TabState of
+              // Normal colors
+              0: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.NormalColor.FromColor), SafeColorRefToARGB(Tab.NormalColor.ToColor), LinearGradientModeVertical);
+              // Hot colors
+              1: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.HotColor.FromColor), SafeColorRefToARGB(Tab.HotColor.ToColor), LinearGradientModeVertical);
+              // Pressed colors
+              2: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.PressedColor.FromColor), SafeColorRefToARGB(Tab.PressedColor.ToColor), LinearGradientModeVertical);
+            end;
+          end;
+
+          Pen := TGPPen.Create(SafeColorRefToARGB(ActionButton.BorderColor), ActionButton.BorderWidth);
+          try
+            // Draw the tab
+            Graphics.FillPath(Brush, TabPath);
+            // Draw the glare
+            Graphics.FillPath(GlareBrush, GlarePath);
+            // Draw the border
+            if Tab.BorderColor <> clNone then Graphics.DrawPath(Pen, TabPath);
+            // Draw the image
+            if Assigned(FTabs.Items[I].Image.Graphic) then
+            begin
+              X := TX + 4 + (TabRect.X + (TabRect.Width / 2)) - (FTabs.Items[I].Image.Width / 2);
+              Y := (TabRect.Y + (TabRect.Height / 2)) - (FTabs.Items[I].Image.Height / 2);
+              Buffer.Canvas.Draw(Round(X), Round(Y), FTabs.Items[I].Image.Graphic);
+            end else
+            begin
+              // Draw the caption
+              CaptionRect := MakeRect(TX, Y, FTabs.Items[I].Width, H);
+              Graphics.DrawString(FTabs.Items[I].Caption, Length(FTabs.Items[I].Caption), Font, CaptionRect, StringFormat, FontBrush);
+            end;
+          finally
+            Brush.Free;
+            GlareBrush.Free;
+            Pen.Free;
+            TabPath.Free;
+            GlarePath.Free;
+          end;
+
+          // Increase X position
+          TX := TX + (FTabs.Items[I].Width - Tab.BorderWidth);
+        end;
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
       end;
     end;
 
     // Draw the caption
-    if (Caption.Caption <> '') then
+    if (Caption.Caption <> '') and (not TabsVisible) then
     begin
       // Create font objects
       FontFamily := TGPFontFamily.Create(Caption.Font.Name);
@@ -1417,6 +3440,78 @@ begin
         // Draw the caption
         Graphics.DrawString(Caption.Caption, Length(Caption.Caption), Font, CaptionRect, StringFormat, FontBrush);
       finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+
+    // Draw the battery indicator
+    if BatteryIndicator.Visible then
+    begin
+      // Calculate the X position
+      X := (Width - 8) - BatteryIndicator.Size;
+      // Calculate the Y position
+      Y := (Height / 2) - (BatteryIndicator.Size / 2);
+      // Calculate the battery indicator rect
+      BatteryRect := MakeRect(X, Y, BatteryIndicator.Size, BatteryIndicator.Size);
+      // Calculate the caption rect
+      CaptionRect := MakeRect(X, Y + 2, BatteryIndicator.Size - 2, BatteryIndicator.Size - 2);
+      // Create the paths
+      BatteryPath := CreateBatteryPath(BatteryRect, DEFAULT_CORNER);
+      PercentagePath := CreateBatteryPercentagePath(BatteryRect, BatteryIndicator.Percentage);
+      // Calculate the glare rect
+      GlareRect := CreateGlareBatteryPercentageRect(BatteryRect, BatteryIndicator.Percentage);
+      // Create the glare path
+      GlarePath := CreateGlareBatteryPercentagePath(BatteryRect, BatteryIndicator.Percentage);
+
+      // Create the pen
+      Pen := TGPPen.Create(SafeColorRefToARGB(BatteryIndicator.BorderColor), BatteryIndicator.BorderWidth);
+      Pen.SetAlignment(PenAlignmentCenter);
+
+      // Create the brush
+      if (BatteryIndicator.Percentage <= 25) then
+        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Color25))
+      else
+      if (BatteryIndicator.Percentage <= 50) then
+        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Color50))
+      else 
+      if (BatteryIndicator.Percentage <= 75) then
+        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Color75))
+      else
+        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Color100));
+      // Create the glare brush
+      GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
+
+      // Create font objects
+      FontFamily := TGPFontFamily.Create(BatteryIndicator.Font.Name);
+      Font := TGPFont.Create(FontFamily, BatteryIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(BatteryIndicator.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentCenter);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+        
+      // Draw the battery indicator
+      try
+        // Draw the battery indicator outline
+        Graphics.DrawPath(Pen, BatteryPath);
+        // Draw the percentage
+        Graphics.FillPath(Brush, PercentagePath);
+        // Draw the glare
+        Graphics.FillPath(GlareBrush, GlarePath);
+        // Draw the label
+        if BatteryIndicator.ShowLabel then
+        begin
+          S := Format('%d%%', [Round(BatteryIndicator.Percentage)]);
+          Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
+        end;
+      finally         
+        BatteryPath.Free;
+        PercentagePath.Free;
+        Pen.Free;
+        Brush.Free;
+        GlareBrush.Free;
         FontFamily.Free;
         Font.Free;
         FontBrush.Free;
@@ -1451,10 +3546,25 @@ begin
   // Create back button
   FBackButton := TOBDTouchHeaderButton.Create;
   FBackButton.OnChange := SettingsChanged;
+  FBackButton.FWidth   := DEFAULT_BACK_BUTTON_WIDTH;
+  FBackButton.FCaption := DEFAULT_BACK_BUTTON_CAPTION;
+  // Create action button
+  FActionButton := TOBDTouchHeaderActionButton.Create;
+  FActionButton.OnChange := SettingsChanged;
   // Create caption
   FCaption := TOBDTouchHeaderCaption.Create;
   FCaption.OnChange := SettingsChanged;
+  // Create tabs
+  FTabs := TOBDTouchHeaderTabCollection.Create(Self);
+  FTabs.OnChange := SettingsChanged;
+  // Create tab settings
+  FTab := TOBDTouchHeaderTab.Create;
+  FTab.OnChange := SettingsChanged;
+  // Create battery indicator
+  FBatteryIndicator := TOBDTouchHeaderBatteryIndicator.Create;
+  FBatteryIndicator.OnChange := SettingsChanged; 
   // Set defaults
+  FTabIndex := -1;
   Height := DEFAULT_HEIGHT;
   Align := alTop;
 end;
@@ -1472,8 +3582,16 @@ begin
   FBorder.Free;
   // Free back button
   FBackButton.Free;
+  // Free action button
+  FActionButton.Free;
   // Free caption
   FCaption.Free;
+  // Free tabs
+  FTabs.Free;
+  // Free tab settings
+  FTab.Free;
+  // Free battery indicator
+  FBatteryIndicator.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1491,7 +3609,11 @@ begin
     FBackground.Assign((Source as TOBDTouchHeader).Background);
     FBorder.Assign((Source as TOBDTouchHeader).Border);
     FBackButton.Assign((Source as TOBDTouchHeader).BackButton);
+    FActionButton.Assign((Source as TOBDTouchHeader).ActionButton);
     FCaption.Assign((Source as TOBDTouchHeader).Caption);
+    FTabs.Assign((Source as TOBDTouchHeader).Tabs);
+    FTabIndex := (Source as TOBDTouchHeader).TabIndex;
+    FBatteryIndicator.Assign((Source as TOBDTouchHeader).BatteryIndicator);
   end;
 end;
 
