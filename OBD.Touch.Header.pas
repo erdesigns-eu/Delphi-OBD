@@ -34,20 +34,20 @@ const
   /// <summary>
   ///   Default background from color
   /// </summary>
-  DEFAULT_BACKGROUND_FROM = $00FBF5F7;
+  DEFAULT_BACKGROUND_FROM = clWhite;
   /// <summary>
   ///   Default background to color
   /// </summary>
-  DEFAULT_BACKGROUND_TO = $00BBAEAC;
+  DEFAULT_BACKGROUND_TO = $00D7D7D7;
 
   /// <summary>
   ///   Default border from color
   /// </summary>
-  DEFAULT_BORDER_FROM = $00918888;
+  DEFAULT_BORDER_FROM = $00BFBFBF;
   /// <summary>
   ///   Default border to color
   /// </summary>
-  DEFAULT_BORDER_TO = $00776F6F;
+  DEFAULT_BORDER_TO = $00CBCCCD;
   /// <summary>
   ///   Default border height
   /// </summary>
@@ -62,37 +62,41 @@ const
   /// </summary>
   DEFAULT_BACK_BUTTON_WIDTH = 60;
   /// <summary>
+  ///   Default back button border color
+  /// </summary>
+  DEFAULT_BACK_BUTTON_BORDER_COLOR = $00ACACAC;
+  /// <summary>
   ///   Default back button normal color from
   /// </summary>
-  DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM = $00EFEFEE;
+  DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM = $00F5F5F5;
   /// <summary>
   ///   Default back button normal color to
   /// </summary>
-  DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO = $00ACA2A1;
+  DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO = $00C1C1C2;
   /// <summary>
   ///   Default back button hot color from
   /// </summary>
-  DEFAULT_BACK_BUTTON_HOT_COLOR_FROM = $00E2E2E0;
+  DEFAULT_BACK_BUTTON_HOT_COLOR_FROM = $00F0F0F0;
   /// <summary>
   ///   Default back button hot color to
   /// </summary>
-  DEFAULT_BACK_BUTTON_HOT_COLOR_TO = $00A59B9A;
+  DEFAULT_BACK_BUTTON_HOT_COLOR_TO = $00B9B9BB;
   /// <summary>
   ///   Default back button pressed color from
   /// </summary>
-  DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM = $00CDCDC9;
+  DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM = $00E5E5E5;
   /// <summary>
   ///   Default back button pressed color to
   /// </summary>
-  DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO = $00928685;
+  DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO = $00B0B0B3;
   /// <summary>
   ///   Default back button disabled color from
   /// </summary>
-  DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM = $00928685;
+  DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM = $00E2E2E2;
   /// <summary>
   ///   Default back button disabled color to
   /// </summary>
-  DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO = $00A89F9D;
+  DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO = $00BFBFBF;
 
   /// <summary>
   ///   Default action button width
@@ -102,6 +106,10 @@ const
   ///   Default action button caption
   /// </summary>
   DEFAULT_ACTION_BUTTON_TEXT = 'Connect';
+  /// <summary>
+  ///   Default action button border color
+  /// </summary>
+  DEFAULT_ACTION_BUTTON_BORDER_COLOR = $00F27900;
   /// <summary>
   ///   Default action button normal color from
   /// </summary>
@@ -530,7 +538,7 @@ type
     /// <summary>
     ///   Border color
     /// </summary>
-    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BORDER_TO;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BACK_BUTTON_BORDER_COLOR;
     /// <summary>
     ///   Border width
     /// </summary>
@@ -1049,7 +1057,7 @@ type
     /// <summary>
     ///   Border color
     /// </summary>
-    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BORDER_TO;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_BACK_BUTTON_BORDER_COLOR;
     /// <summary>
     ///   Border width
     /// </summary>
@@ -1708,7 +1716,7 @@ begin
   // Set defaults
   FEnabled := True;
   FVisible := True;
-  FBorderColor := DEFAULT_BORDER_TO;
+  FBorderColor := DEFAULT_BACK_BUTTON_BORDER_COLOR;
   FBorderWidth := 1;
 end;
 
@@ -1777,6 +1785,7 @@ begin
   FPressedColor.FToColor    := DEFAULT_ACTION_BUTTON_PRESSED_COLOR_TO;
   FDisabledColor.FFromColor := DEFAULT_ACTION_BUTTON_DISABLED_COLOR_FROM;
   FDisabledColor.FToColor   := DEFAULT_ACTION_BUTTON_DISABLED_COLOR_TO;
+  FBorderColor              := DEFAULT_ACTION_BUTTON_BORDER_COLOR;
   FFont.Color := clWhite;
 end;
 
@@ -2157,13 +2166,13 @@ begin
   // Create Active tab color
   FActiveColor := TOBDTouchHeaderButtonColor.Create;
   FActiveColor.OnChange := SettingsChanged;
-  FActiveColor.FromColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO;
-  FActiveColor.ToColor := DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM;
+  FActiveColor.FromColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO;
+  FActiveColor.ToColor := DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM;
   // Create font
   FFont := TFont.Create;
   FFont.OnChange := SettingsChanged;
   // Set defaults
-  FBorderColor := DEFAULT_BORDER_TO;
+  FBorderColor := DEFAULT_BACK_BUTTON_BORDER_COLOR;
   FBorderWidth := 1;
 end;
 
@@ -2384,7 +2393,7 @@ begin
   FVisible := True;
   FShowLabel := True;
   FPercentage := 100;
-  FBorderColor := DEFAULT_BORDER_TO;
+  FBorderColor := DEFAULT_BACK_BUTTON_BORDER_COLOR;
   FBorderWidth := 1;
   FColor25 := DEFAULT_BATTERY_COLOR_25;
   FColor50 := DEFAULT_BATTERY_COLOR_50;
@@ -2804,7 +2813,7 @@ begin
 
   // Check if we are over a tab
   for I := 0 to FTabs.Count -1 do
-  if FTabs.Items[I].Visible then
+  if FTabs.Items[I].Visible and FTabs.Items[I].Enabled then
   begin
     if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
     begin
@@ -2897,7 +2906,7 @@ begin
 
   // Check if we are over a tab
   for I := 0 to FTabs.Count -1 do
-  if FTabs.Items[I].Visible then
+  if FTabs.Items[I].Visible and FTabs.Items[I].Enabled then
   begin
     if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
     begin
@@ -2990,7 +2999,7 @@ begin
 
   // Check if we are over a tab
   for I := 0 to FTabs.Count -1 do
-  if FTabs.Items[I].Visible then
+  if FTabs.Items[I].Visible and FTabs.Items[I].Enabled then
   begin
     if PtInRect(FTabs.Items[I].TabRect, Point(X, Y)) then
     begin
@@ -3294,8 +3303,6 @@ begin
     begin
       // Height of the button
       H := Height - 16;
-      // Vertical position
-      Y := ((Height / 2) - (H / 2)) - (Border.Height / 2);
 
       // Calculate the tab start position
       TX := 16;
@@ -3320,6 +3327,9 @@ begin
           IsFirstTab := I = FirstVisibleTab;
           // Flag to indicate this is the last tab
           IsLastTab  := I = LastVisibleTab;
+
+          // Vertical position
+          Y := ((Height / 2) - (H / 2)) - (Border.Height / 2);
 
           // If tab is not visible, continue
           if not FTabs.Items[I].Visible then Continue;
@@ -3386,7 +3396,7 @@ begin
             end;
           end;
 
-          Pen := TGPPen.Create(SafeColorRefToARGB(ActionButton.BorderColor), ActionButton.BorderWidth);
+          Pen := TGPPen.Create(SafeColorRefToARGB(Tab.BorderColor), Tab.BorderWidth);
           try
             // Draw the tab
             Graphics.FillPath(Brush, TabPath);
@@ -3397,7 +3407,7 @@ begin
             // Draw the image
             if Assigned(FTabs.Items[I].Image.Graphic) then
             begin
-              X := TX + 4 + (TabRect.X + (TabRect.Width / 2)) - (FTabs.Items[I].Image.Width / 2);
+              X := (TabRect.X + (TabRect.Width / 2)) - (FTabs.Items[I].Image.Width / 2);
               Y := (TabRect.Y + (TabRect.Height / 2)) - (FTabs.Items[I].Image.Height / 2);
               Buffer.Canvas.Draw(Round(X), Round(Y), FTabs.Items[I].Image.Graphic);
             end else

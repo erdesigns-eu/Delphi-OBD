@@ -25,7 +25,8 @@ procedure Register;
 implementation
 
 uses
-  OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED, OBD.Touch.Header;
+  OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED,
+  OBD.Touch.Header, OBD.Touch.Statusbar;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENT
@@ -33,11 +34,12 @@ uses
 procedure Register;
 begin
   RegisterComponents(ComponentPage, [
-    TOBDCircularGauge, // Register the Circular Gauge
-    TOBDMatrixDisplay, // Register the Matrix Display
-    TOBDLed,           // Register the LED
+    TOBDCircularGauge,  // Register the Circular Gauge
+    TOBDMatrixDisplay,  // Register the Matrix Display
+    TOBDLed,            // Register the LED
 
-    TOBDTouchHeader    // Register the Touch Header
+    TOBDTouchHeader,    // Register the Touch Header
+    TOBDTouchStatusbar  // Register the Touch Statusbar
   ]);
 end;
 

@@ -50,6 +50,9 @@ function CreateGlareBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Di
 function CreateGlareBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
 function CreateGlareBatteryPercentageRect(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPRectF;
 
+function CreateVehicleBatteryPath(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateVehicleBatteryPath(Rect: TGPRect): TGPGraphicsPath; overload;
+
 implementation
 
 //------------------------------------------------------------------------------
@@ -725,6 +728,148 @@ begin
 
   // Calculate the battery percentage rect
   Result := MakeRect(X + Distance, Y + Distance, ((W - (Distance * 2)) / 100) * Percentage, (H - (Distance * 2) / 2));
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ VEHICLE BATTERY PATH
+//------------------------------------------------------------------------------
+function CreateVehicleBatteryPath(Rect: TGPRectF): TGPGraphicsPath;
+const
+  S: string = '- +';
+var
+  X, Y, W, H, PW, PH, PS: Single;
+  BoxRect, Polerect: TGPRectF;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  X := Rect.X;
+  Y := Rect.Y + (Rect.Height / 2);
+
+  // Battery box height
+  H := Rect.Height * 0.6;
+
+  // Pole width
+  PW := Rect.Width / 4;
+  // Pole height
+  PH := Rect.Height / 8;
+  // Space next and between poles
+  PS := (Rect.Width / 2) / 3;
+
+  // Start with the left line
+  Result.AddLine(X, Y + (H / 2), X, Y - (H / 2));
+
+  // Then the top line with the two poles
+  // 1.
+  Result.AddLine(X, Y - (H / 2), X + PS, Y - (H / 2));
+  // 2.
+  Result.AddLine(X + PS,  Y - (H / 2), X + PS, (Y - (H / 2)) - PH);
+  // 3.
+  Result.AddLine(X + PS, (Y - (H / 2)) - PH, X + PS + PW, (Y - (H / 2)) - PH);
+  // 4.
+  Result.AddLine(X + PS + PW, (Y - (H / 2)) - PH, X + PS + PW, Y - (H / 2));
+  // 5.
+  Result.AddLine(X + PS + PW, Y - (H / 2), X + PS + PW + PS, Y - (H / 2));
+  // 6.
+  Result.AddLine(X + PS + PW + PS, Y - (H / 2),  X + PS + PW + PS, (Y - (H / 2)) - PH);
+  // 7.
+  Result.AddLine(X + PS + PW + PS, (Y - (H / 2)) - PH, X + PS + PW + PS + PW, (Y - (H / 2)) - PH);
+  // 8.
+  Result.AddLine(X + PS + PW + PS + PW, (Y - (H / 2)) - PH, X + PS + PW + PS + PW, Y - (H / 2));
+  // 9.
+  Result.AddLine(X + PS + PW + PS + PW, Y - (H / 2), X + PS + PW + PS + PW + PS, Y - (H / 2));
+
+  // And then the right line
+  Result.AddLine(X + PS + PW + PS + PW + PS,  Y - (H / 2), X + PS + PW + PS + PW + PS, Y + (H / 2));
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Add the minus and plus signs
+  FontFamily := TGPFontFamily.Create('Arial');
+  StringFormat := TGPStringFormat.Create;
+  StringFormat.SetAlignment(StringAlignmentCenter);
+  StringFormat.SetLineAlignment(StringAlignmentCenter);
+  try
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, Rect, StringFormat);
+  finally
+    FontFamily.Free;
+    StringFormat.Free;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ VEHICLE BATTERY PATH
+//------------------------------------------------------------------------------
+function CreateVehicleBatteryPath(Rect: TGPRect): TGPGraphicsPath; overload;
+const
+  S: string = '- +';
+var
+  X, Y, W, H, PW, PH, PS: Single;
+  BoxRect, Polerect: TGPRectF;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  X := Rect.X;
+  Y := Rect.Y + (Rect.Height / 2);
+
+  // Battery box height
+  H := Rect.Height * 0.6;
+
+  // Pole width
+  PW := Rect.Width / 4;
+  // Pole height
+  PH := Rect.Height / 8;
+  // Space next and between poles
+  PS := (Rect.Width / 2) / 3;
+
+  // Start with the left line
+  Result.AddLine(X, Y + (H / 2), X, Y - (H / 2));
+
+  // Then the top line with the two poles
+  // 1.
+  Result.AddLine(X, Y - (H / 2), X + PS, Y - (H / 2));
+  // 2.
+  Result.AddLine(X + PS,  Y - (H / 2), X + PS, (Y - (H / 2)) - PH);
+  // 3.
+  Result.AddLine(X + PS, (Y - (H / 2)) - PH, X + PS + PW, (Y - (H / 2)) - PH);
+  // 4.
+  Result.AddLine(X + PS + PW, (Y - (H / 2)) - PH, X + PS + PW, Y - (H / 2));
+  // 5.
+  Result.AddLine(X + PS + PW, Y - (H / 2), X + PS + PW + PS, Y - (H / 2));
+  // 6.
+  Result.AddLine(X + PS + PW + PS, Y - (H / 2),  X + PS + PW + PS, (Y - (H / 2)) - PH);
+  // 7.
+  Result.AddLine(X + PS + PW + PS, (Y - (H / 2)) - PH, X + PS + PW + PS + PW, (Y - (H / 2)) - PH);
+  // 8.
+  Result.AddLine(X + PS + PW + PS + PW, (Y - (H / 2)) - PH, X + PS + PW + PS + PW, Y - (H / 2));
+  // 9.
+  Result.AddLine(X + PS + PW + PS + PW, Y - (H / 2), X + PS + PW + PS + PW + PS, Y - (H / 2));
+
+  // And then the right line
+  Result.AddLine(X + PS + PW + PS + PW + PS,  Y - (H / 2), X + PS + PW + PS + PW + PS, Y + (H / 2));
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Add the minus and plus signs
+  FontFamily := TGPFontFamily.Create('Arial');
+  StringFormat := TGPStringFormat.Create;
+  StringFormat.SetAlignment(StringAlignmentCenter);
+  StringFormat.SetLineAlignment(StringAlignmentCenter);
+  try
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, Rect, StringFormat);
+  finally
+    FontFamily.Free;
+    StringFormat.Free;
+  end;
 end;
 
 end.
