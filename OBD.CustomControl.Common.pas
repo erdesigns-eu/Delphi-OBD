@@ -49,9 +49,14 @@ function CreateBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance
 function CreateGlareBatteryPercentagePath(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
 function CreateGlareBatteryPercentagePath(Rect: TGPRect; Percentage: Single; Distance: Single = 2): TGPGraphicsPath; overload;
 function CreateGlareBatteryPercentageRect(Rect: TGPRectF; Percentage: Single; Distance: Single = 2): TGPRectF;
-
 function CreateVehicleBatteryPath(Rect: TGPRectF): TGPGraphicsPath; overload;
 function CreateVehicleBatteryPath(Rect: TGPRect): TGPGraphicsPath; overload;
+function CreateJ1962Path(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateJ1962Path(Rect: TGPRect): TGPGraphicsPath; overload;
+function CreateInternetGlobePath(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateInternetGlobePath(Rect: TGPRect): TGPGraphicsPath; overload;
+function CreateProtocolPath(Rect: TGPRectF): TGPGraphicsPath; overload;
+function CreateProtocolPath(Rect: TGPRect): TGPGraphicsPath; overload;
 
 implementation
 
@@ -737,8 +742,7 @@ function CreateVehicleBatteryPath(Rect: TGPRectF): TGPGraphicsPath;
 const
   S: string = '- +';
 var
-  X, Y, W, H, PW, PH, PS: Single;
-  BoxRect, Polerect: TGPRectF;
+  X, Y, H, PW, PH, PS: Single;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
 begin
@@ -808,8 +812,7 @@ function CreateVehicleBatteryPath(Rect: TGPRect): TGPGraphicsPath; overload;
 const
   S: string = '- +';
 var
-  X, Y, W, H, PW, PH, PS: Single;
-  BoxRect, Polerect: TGPRectF;
+  X, Y, H, PW, PH, PS: Single;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
 begin
@@ -870,6 +873,304 @@ begin
     FontFamily.Free;
     StringFormat.Free;
   end;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ J1962 PATH
+//------------------------------------------------------------------------------
+function CreateJ1962Path(Rect: TGPRectF): TGPGraphicsPath;
+var
+  W, H, X, Y: Single;
+  Corner: Single;
+  PlugHeight: Single;
+  CenterRect: TGPRectF;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  Corner := Rect.Width / 8;
+  PlugHeight := Rect.Height / 2;
+  Y := (Rect.Y + (Rect.Height / 2)) - (PlugHeight / 2);
+
+  // Start with the top left arc
+  Result.AddArc(Rect.X, Y, Corner, Corner, 150, 120);
+  // Then the top right arc
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Y, Corner, Corner, 270, 120);
+
+  // Then the bottom line
+  W := Rect.Width / 6;
+  H := Rect.Height / 20;
+  Result.AddLine((Rect.X + Rect.Width) - Corner, Y + PlugHeight, ((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight);
+  Result.AddLine(((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight, ((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight + H);
+  X := ((Rect.X + Rect.Width) - Corner) - W;
+  Result.AddLine(X, Y + PlugHeight + H, X - (W * 2.5), Y + PlugHeight + H);
+  Result.AddLine(X - (W * 2.5), Y + PlugHeight + H, X - (W * 2.5), Y + PlugHeight);
+  Result.AddLine(X - (W * 2.5), Y + PlugHeight, X - (W * 3.5), Y + PlugHeight);
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Add center rectangle
+  H := Rect.Height / 16;
+  W := Rect.Width / 16;
+  CenterRect := MakeRect(Rect.X + Corner + W, (Y + (PlugHeight / 2)) - (H / 2), Rect.Width - ((Corner * 2) + (W * 2)), H);
+  Result.AddRectangle(CenterRect);
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ J1962 PATH
+//------------------------------------------------------------------------------
+function CreateJ1962Path(Rect: TGPRect): TGPGraphicsPath;
+var
+  W, H, X, Y: Single;
+  Corner: Single;
+  PlugHeight: Single;
+  CenterRect: TGPRectF;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  Corner := Rect.Width / 8;
+  PlugHeight := Rect.Height / 2;
+  Y := (Rect.Y + (Rect.Height / 2)) - (PlugHeight / 2);
+
+  // Start with the top left arc
+  Result.AddArc(Rect.X, Y, Corner, Corner, 150, 120);
+  // Then the top right arc
+  Result.AddArc((Rect.X + Rect.Width) - Corner, Y, Corner, Corner, 270, 120);
+
+  // Then the bottom line
+  W := Rect.Width / 6;
+  H := Rect.Height / 20;
+  Result.AddLine((Rect.X + Rect.Width) - Corner, Y + PlugHeight, ((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight);
+  Result.AddLine(((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight, ((Rect.X + Rect.Width) - Corner) - W, Y + PlugHeight + H);
+  X := ((Rect.X + Rect.Width) - Corner) - W;
+  Result.AddLine(X, Y + PlugHeight + H, X - (W * 2.5), Y + PlugHeight + H);
+  Result.AddLine(X - (W * 2.5), Y + PlugHeight + H, X - (W * 2.5), Y + PlugHeight);
+  Result.AddLine(X - (W * 2.5), Y + PlugHeight, X - (W * 3.5), Y + PlugHeight);
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Add center rectangle
+  H := Rect.Height / 16;
+  W := Rect.Width / 16;
+  CenterRect := MakeRect(Rect.X + Corner + W, (Y + (PlugHeight / 2)) - (H / 2), Rect.Width - ((Corner * 2) + (W * 2)), H);
+  Result.AddRectangle(CenterRect);
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ INTERNET GLOBE PATH
+//------------------------------------------------------------------------------
+function CreateInternetGlobePath(Rect: TGPRectF): TGPGraphicsPath;
+var
+  W, H, X, Y, C: Single;
+  EllipseRect: TGPRectF;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  // Outer ellipse
+  EllipseRect := MakeRect(Rect.X, Rect.Y, Rect.Width, Rect.Height);
+  Result.AddEllipse(EllipseRect);
+
+  // Inner ellipse
+  W := Rect.Width / 2;
+  X := (Rect.X + (Rect.Width / 2)) - (W / 2);
+  EllipseRect := MakeRect(X, Rect.Y, W, Rect.Height);
+  Result.AddEllipse(EllipseRect);
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Calculate the height for horizontal lines
+  H := Rect.Height / 3;
+  C := Rect.Height / 32.75;
+
+  // First horizontal line
+  Y := Rect.Y + Rect.Height / 2 - H / 2;
+  Result.StartFigure;
+  Result.AddLine(Rect.X + C, Y, (Rect.X + Rect.Width) - C, Y);
+  Result.CloseFigure;
+
+  // Second horizontal line
+  Y := Rect.Y + Rect.Height / 2 + H / 2;
+  Result.StartFigure;
+  Result.AddLine(Rect.X + C, Y, (Rect.X + Rect.Width) - C, Y);
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ INTERNET GLOBE PATH
+//------------------------------------------------------------------------------
+function CreateInternetGlobePath(Rect: TGPRect): TGPGraphicsPath;
+var
+  W, H, X, Y, C: Single;
+  EllipseRect: TGPRectF;
+begin
+  Result := TGPGraphicsPath.Create;
+  // Start the figure
+  Result.StartFigure;
+
+  // Outer ellipse
+  EllipseRect := MakeRect(Rect.X, Rect.Y, Rect.Width, Rect.Height + 0.0);
+  Result.AddEllipse(EllipseRect);
+
+  // Inner ellipse
+  W := Rect.Width / 2;
+  X := (Rect.X + (Rect.Width / 2)) - (W / 2);
+  EllipseRect := MakeRect(X, Rect.Y, W, Rect.Height);
+  Result.AddEllipse(EllipseRect);
+
+  // Close the figure
+  Result.CloseFigure;
+
+  // Calculate the height for horizontal lines
+  H := Rect.Height / 3;
+  C := Rect.Height / 32.75;
+
+  // First horizontal line
+  Y := Rect.Y + Rect.Height / 2 - H / 2;
+  Result.StartFigure;
+  Result.AddLine(Rect.X + C, Y, (Rect.X + Rect.Width) - C, Y);
+  Result.CloseFigure;
+
+  // Second horizontal line
+  Y := Rect.Y + Rect.Height / 2 + H / 2;
+  Result.StartFigure;
+  Result.AddLine(Rect.X + C, Y, (Rect.X + Rect.Width) - C, Y);
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ PROTOCOL PATH
+//------------------------------------------------------------------------------
+function CreateProtocolPath(Rect: TGPRectF): TGPGraphicsPath;
+const
+  S: string = '<>';
+var
+  W, H, X, Y: Single;
+  R: TGPRectF;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
+begin
+  Result := TGPGraphicsPath.Create;
+  Result.StartFigure;
+
+  // Center
+  X := Rect.X + (Rect.Width / 2);
+  Y := Rect.Y + (Rect.Height / 2);
+
+  W := Rect.Width;
+  H := Rect.Height / 2;
+
+  // Add top rectandle
+  R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 8), W, H);
+  Result.AddRectangle(R);
+  Result.CloseFigure;
+  Result.StartFigure;
+
+  // Add the code sign
+  FontFamily := TGPFontFamily.Create('Arial');
+  StringFormat := TGPStringFormat.Create;
+  StringFormat.SetAlignment(StringAlignmentCenter);
+  StringFormat.SetLineAlignment(StringAlignmentCenter);
+  try
+    R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 6), W, H);
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, R, StringFormat);
+  finally
+    FontFamily.Free;
+    StringFormat.Free;
+  end;
+
+  // Add line down
+  Result.AddLine(X, Y + (Rect.Height / 8), X, Y + (Rect.Height / 4));
+
+  // Add bottom rectangle
+  W := Rect.Width / 6;
+  H := Rect.Height / 6;
+  R := MakeRect(X - (W / 2), Y + (Rect.Height / 4), W, H);
+  Result.AddRectangle(R);
+
+  // Add line to the left
+  Result.CloseFigure;
+  Result.StartFigure;
+  Result.AddLine(X - (W / 2), Y + (Rect.Height / 4) + (H / 2), Rect.X + (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Add line to the right
+  Result.CloseFigure;
+  Result.StartFigure;
+  Result.AddLine(X + (W / 2), Y + (Rect.Height / 4) + (H / 2), (Rect.X + Rect.Width) - (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Close the figure
+  Result.CloseFigure;
+end;
+
+//------------------------------------------------------------------------------
+// GET GDI+ PROTOCOL PATH
+//------------------------------------------------------------------------------
+function CreateProtocolPath(Rect: TGPRect): TGPGraphicsPath;
+const
+  S: string = '<>';
+var
+  W, H, X, Y: Single;
+  R: TGPRectF;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
+begin
+  Result := TGPGraphicsPath.Create;
+  Result.StartFigure;
+
+  // Center
+  X := Rect.X + (Rect.Width / 2);
+  Y := Rect.Y + (Rect.Height / 2);
+
+  W := Rect.Width;
+  H := Rect.Height / 2;
+
+  // Add top rectandle
+  R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 8), W, H);
+  Result.AddRectangle(R);
+  Result.CloseFigure;
+  Result.StartFigure;
+
+  // Add the code sign
+  FontFamily := TGPFontFamily.Create('Arial');
+  StringFormat := TGPStringFormat.Create;
+  StringFormat.SetAlignment(StringAlignmentCenter);
+  StringFormat.SetLineAlignment(StringAlignmentCenter);
+  try
+    R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 6), W, H);
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, R, StringFormat);
+  finally
+    FontFamily.Free;
+    StringFormat.Free;
+  end;
+
+  // Add line down
+  Result.AddLine(X, Y + (Rect.Height / 8), X, Y + (Rect.Height / 4));
+
+  // Add bottom rectangle
+  W := Rect.Width / 6;
+  H := Rect.Height / 6;
+  R := MakeRect(X - (W / 2), Y + (Rect.Height / 4), W, H);
+  Result.AddRectangle(R);
+
+  // Add line to the left
+  Result.CloseFigure;
+  Result.StartFigure;
+  Result.AddLine(X - (W / 2), Y + (Rect.Height / 4) + (H / 2), Rect.X + (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Add line to the right
+  Result.CloseFigure;
+  Result.StartFigure;
+  Result.AddLine(X + (W / 2), Y + (Rect.Height / 4) + (H / 2), (Rect.X + Rect.Width) - (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Close the figure
+  Result.CloseFigure;
 end;
 
 end.

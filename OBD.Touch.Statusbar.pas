@@ -56,7 +56,7 @@ const
   /// <summary>
   ///   Default battery indicator border color
   /// </summary>
-  DEFAULT_BATTERY_INDICATOR_BORDER_COLOR = $00151515;
+  DEFAULT_BATTERY_INDICATOR_BORDER_COLOR = clBlack;
   /// <summary>
   ///   Default battery indicator label format
   /// </summary>
@@ -69,6 +69,69 @@ const
   ///   Default battery indicator to color
   /// </summary>
   DEFAULT_BATTERY_INDICATOR_TO_COLOR = $00C1C1C2;
+
+  /// <summary>
+  ///   Default VCI indicator size
+  /// </summary>
+  DEFAULT_VCI_INDICATOR_SIZE = 16;
+  /// <summary>
+  ///   Default VCI indicator border color
+  /// </summary>
+  DEFAULT_VCI_INDICATOR_BORDER_COLOR = clBlack;
+  /// <summary>
+  ///   Default VCI indicator from color
+  /// </summary>
+  DEFAULT_VCI_INDICATOR_FROM_COLOR = $00F5F5F5;
+  /// <summary>
+  ///   Default VCI indicator to color
+  /// </summary>
+  DEFAULT_VCI_INDICATOR_TO_COLOR = $00C1C1C2;
+  /// <summary>
+  ///   Default VCI indicator caption
+  /// </summary>
+  DEFAULT_VCI_INDICATOR_CAPTION = 'Not connected';
+
+  /// <summary>
+  ///   Default Internet connection indicator size
+  /// </summary>
+  DEFAULT_INTERNET_CONNECTION_INDICATOR_SIZE = 12;
+  /// <summary>
+  ///   Default Internet connection border color
+  /// </summary>
+  DEFAULT_INTERNET_CONNECTION_INDICATOR_BORDER_COLOR = clBlack;
+  /// <summary>
+  ///   Default Internet connection from color
+  /// </summary>
+  DEFAULT_INTERNET_CONNECTION_INDICATOR_FROM_COLOR = $00F5F5F5;
+  /// <summary>
+  ///   Default Internet connection to color
+  /// </summary>
+  DEFAULT_INTERNET_CONNECTION_INDICATOR_TO_COLOR = $00C1C1C2;
+  /// <summary>
+  ///   Default Internet connection caption
+  /// </summary>
+  DEFAULT_INTERNET_CONNECTION_INDICATOR_CAPTION = 'No internet access';
+
+  /// <summary>
+  ///   Default protocol indicator size
+  /// </summary>
+  DEFAULT_PROTOCOL_INDICATOR_SIZE = 16;
+  /// <summary>
+  ///   Default protocol border color
+  /// </summary>
+  DEFAULT_PROTOCOL_INDICATOR_BORDER_COLOR = clBlack;
+  /// <summary>
+  ///   Default protocol from color
+  /// </summary>
+  DEFAULT_PROTOCOL_INDICATOR_FROM_COLOR = $00F5F5F5;
+  /// <summary>
+  ///   Default protocol to color
+  /// </summary>
+  DEFAULT_PROTOCOL_INDICATOR_TO_COLOR = $00C1C1C2;
+  /// <summary>
+  ///   Default protocol caption
+  /// </summary>
+  DEFAULT_PROTOCOL_INDICATOR_CAPTION = 'Not connected';
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -339,6 +402,408 @@ type
   end;
 
   /// <summary>
+  ///   Touch Statusbar VCI (Vehicle Connection Interface) indicator
+  /// </summary>
+  TOBDTouchStatusbarVciIndicator = class(TPersistent)
+  private
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    FBorderWidth: Single;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    FSize: Single;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    FVisible: Boolean;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    FCaption: TCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    FFromColor: TColor;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    FToColor: TColor;
+
+    /// <summary>
+    ///   Set border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set size
+    /// </summary>
+    procedure SetSize(Value: Single);
+    /// <summary>
+    ///   Set visible
+    /// </summary>
+    procedure SetVisible(Value: Boolean);
+    /// <summary>
+    ///   Set font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set caption
+    /// </summary>
+    procedure SetCaption(Value: TCaption);
+    /// <summary>
+    ///   Set from color
+    /// </summary>
+    procedure SetFromColor(Value: TColor);
+    /// <summary>
+    ///   Set to color
+    /// </summary>
+    procedure SetToColor(Value: TColor);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed handler
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_VCI_INDICATOR_BORDER_COLOR;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    property Size: Single read FSize write SetSize;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    property Visible: Boolean read FVisible write SetVisible default True;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    property Caption: TCaption read FCaption write SetCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    property FromColor: TColor read FFromColor write SetFromColor default DEFAULT_VCI_INDICATOR_FROM_COLOR;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    property ToColor: TColor read FToColor write SetToColor default DEFAULT_VCI_INDICATOR_TO_COLOR;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Statusbar Internet connection indicator
+  /// </summary>
+  TOBDTouchStatusbarInternetConnectionIndicator = class(TPersistent)
+  private
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    FBorderWidth: Single;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    FSize: Single;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    FVisible: Boolean;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    FCaption: TCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    FFromColor: TColor;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    FToColor: TColor;
+
+    /// <summary>
+    ///   Set border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set size
+    /// </summary>
+    procedure SetSize(Value: Single);
+    /// <summary>
+    ///   Set visible
+    /// </summary>
+    procedure SetVisible(Value: Boolean);
+    /// <summary>
+    ///   Set font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set caption
+    /// </summary>
+    procedure SetCaption(Value: TCaption);
+    /// <summary>
+    ///   Set from color
+    /// </summary>
+    procedure SetFromColor(Value: TColor);
+    /// <summary>
+    ///   Set to color
+    /// </summary>
+    procedure SetToColor(Value: TColor);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed handler
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_INTERNET_CONNECTION_INDICATOR_BORDER_COLOR;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    property Size: Single read FSize write SetSize;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    property Visible: Boolean read FVisible write SetVisible default True;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    property Caption: TCaption read FCaption write SetCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    property FromColor: TColor read FFromColor write SetFromColor default DEFAULT_INTERNET_CONNECTION_INDICATOR_FROM_COLOR;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    property ToColor: TColor read FToColor write SetToColor default DEFAULT_INTERNET_CONNECTION_INDICATOR_TO_COLOR;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Statusbar Protocol indicator
+  /// </summary>
+  TOBDTouchStatusbarProtocolIndicator = class(TPersistent)
+  private
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    FBorderColor: TColor;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    FBorderWidth: Single;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    FSize: Single;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    FVisible: Boolean;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    FCaption: TCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    FFromColor: TColor;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    FToColor: TColor;
+
+    /// <summary>
+    ///   Set border color
+    /// </summary>
+    procedure SetBorderColor(Value: TColor);
+    /// <summary>
+    ///   Set border width
+    /// </summary>
+    procedure SetBorderWidth(Value: Single);
+    /// <summary>
+    ///   Set size
+    /// </summary>
+    procedure SetSize(Value: Single);
+    /// <summary>
+    ///   Set visible
+    /// </summary>
+    procedure SetVisible(Value: Boolean);
+    /// <summary>
+    ///   Set font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set caption
+    /// </summary>
+    procedure SetCaption(Value: TCaption);
+    /// <summary>
+    ///   Set from color
+    /// </summary>
+    procedure SetFromColor(Value: TColor);
+    /// <summary>
+    ///   Set to color
+    /// </summary>
+    procedure SetToColor(Value: TColor);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed handler
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create; virtual;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Override assign method
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Border color
+    /// </summary>
+    property BorderColor: TColor read FBorderColor write SetBorderColor default DEFAULT_PROTOCOL_INDICATOR_BORDER_COLOR;
+    /// <summary>
+    ///   Border width
+    /// </summary>
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    /// <summary>
+    ///   Size
+    /// </summary>
+    property Size: Single read FSize write SetSize;
+    /// <summary>
+    ///   Visible
+    /// </summary>
+    property Visible: Boolean read FVisible write SetVisible default True;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Caption
+    /// </summary>
+    property Caption: TCaption read FCaption write SetCaption;
+    /// <summary>
+    ///   From color
+    /// </summary>
+    property FromColor: TColor read FFromColor write SetFromColor default DEFAULT_PROTOCOL_INDICATOR_FROM_COLOR;
+    /// <summary>
+    ///   To color
+    /// </summary>
+    property ToColor: TColor read FToColor write SetToColor default DEFAULT_PROTOCOL_INDICATOR_TO_COLOR;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Touch Statusbar Component
   /// </summary>
   TOBDTouchStatusbar = class(TCustomControl)
@@ -373,6 +838,18 @@ type
     ///   Battery indicator
     /// </summary>
     FBatteryIndicator: TOBDTouchStatusbarBatteryIndicator;
+    /// <summary>
+    ///   VCI (Vehicle Connection Interface) indicator
+    /// </summary>
+    FVciIndicator: TOBDTouchStatusbarVciIndicator;
+    /// <summary>
+    ///   Internet connection indicator
+    /// </summary>
+    FInternetConnectionIndicator: TOBDTouchStatusbarInternetConnectionIndicator;
+    /// <summary>
+    ///   Protocol indicator
+    /// </summary>
+    FProtocolIndicator: TOBDTouchStatusbarProtocolIndicator;
 
     /// <summary>
     ///   Set background
@@ -386,6 +863,18 @@ type
     ///   Set battery indicator
     /// </summary>
     procedure SetBatteryIndicator(Value: TOBDTouchStatusbarBatteryIndicator);
+    /// <summary>
+    ///   Set VCI indicator
+    /// </summary>
+    procedure SetVciIndicator(Value: TOBDTouchStatusbarVciIndicator);
+    /// <summary>
+    ///   Set internet connection indicator
+    /// </summary>
+    procedure SetInternetConnectionIndicator(Value: TOBDTouchStatusbarInternetConnectionIndicator);
+    /// <summary>
+    ///   Set protocol indicator
+    /// </summary>
+    procedure SetProtocolIndicator(Value: TOBDTouchStatusbarProtocolIndicator);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -481,6 +970,18 @@ type
     ///   Battery indicator
     /// </summary>
     property BatteryIndicator: TOBDTouchStatusbarBatteryIndicator read FBatteryIndicator write SetBatteryIndicator;
+    /// <summary>
+    ///   VCI (Vehicle Connection Interface) indicator
+    /// </summary>
+    property VciIndicator: TOBDTouchStatusbarVciIndicator read FVciIndicator write SetVciIndicator;
+    /// <summary>
+    ///   Internet connection indicator
+    /// </summary>
+    property InternetConnectionIndicator: TOBDTouchStatusbarInternetConnectionIndicator read FInternetConnectionIndicator write SetInternetConnectionIndicator;
+    /// <summary>
+    ///   Protocol indicator
+    /// </summary>
+    property ProtocolIndicator: TOBDTouchStatusbarProtocolIndicator read FProtocolIndicator write SetProtocolIndicator;
   published
     /// <summary>
     ///   Component alignment (inherited)
@@ -816,6 +1317,510 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetBorderColor(Value: TColor);
+begin
+  if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetBorderWidth(Value: Single);
+begin
+  if (FBorderWidth <> Value) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetSize(Value: Single);
+begin
+  if (FSize <> Value) then
+  begin
+    // Set new size
+    FSize := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VISIBLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetVisible(Value: Boolean);
+begin
+  if (FVisible <> Value) then
+  begin
+    // Set visible
+    FVisible := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET FORMAT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetCaption(Value: TCaption);
+begin
+  if (FCaption <> Value) then
+  begin
+    // Set new caption
+    FCaption := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetFromColor(Value: TColor);
+begin
+  if (FFromColor <> Value) then
+  begin
+    // Set new from color
+    FFromColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SetToColor(Value: TColor);
+begin
+  if (FToColor <> Value) then
+  begin
+    // Set new to color
+    FToColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.SettingsChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchStatusbarVciIndicator.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  // Set defaults
+  FBorderColor := DEFAULT_VCI_INDICATOR_BORDER_COLOR;
+  FBorderWidth := 1;
+  FSize := DEFAULT_VCI_INDICATOR_SIZE;
+  FVisible := True;
+  FFromColor := DEFAULT_VCI_INDICATOR_FROM_COLOR;
+  FToColor := DEFAULT_VCI_INDICATOR_TO_COLOR;
+  FCaption := DEFAULT_VCI_INDICATOR_CAPTION;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchStatusbarVciIndicator.Destroy;
+begin
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarVciIndicator.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchStatusbarVciIndicator) then
+  begin
+    FBorderColor := (Source as TOBDTouchStatusbarVciIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchStatusbarVciIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchStatusbarVciIndicator).Size;
+    FVisible := (Source as TOBDTouchStatusbarVciIndicator).Visible;
+    FCaption:= (Source as TOBDTouchStatusbarVciIndicator).Caption;
+    FFromColor := (Source as TOBDTouchStatusbarVciIndicator).FromColor;
+    FToColor := (Source as TOBDTouchStatusbarVciIndicator).ToColor;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetBorderColor(Value: TColor);
+begin
+  if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetBorderWidth(Value: Single);
+begin
+  if (FBorderWidth <> Value) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetSize(Value: Single);
+begin
+  if (FSize <> Value) then
+  begin
+    // Set new size
+    FSize := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VISIBLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetVisible(Value: Boolean);
+begin
+  if (FVisible <> Value) then
+  begin
+    // Set visible
+    FVisible := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET FORMAT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetCaption(Value: TCaption);
+begin
+  if (FCaption <> Value) then
+  begin
+    // Set new caption
+    FCaption := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetFromColor(Value: TColor);
+begin
+  if (FFromColor <> Value) then
+  begin
+    // Set new from color
+    FFromColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SetToColor(Value: TColor);
+begin
+  if (FToColor <> Value) then
+  begin
+    // Set new to color
+    FToColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.SettingsChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchStatusbarInternetConnectionIndicator.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  // Set defaults
+  FBorderColor := DEFAULT_INTERNET_CONNECTION_INDICATOR_BORDER_COLOR;
+  FBorderWidth := 1;
+  FSize := DEFAULT_INTERNET_CONNECTION_INDICATOR_SIZE;
+  FVisible := True;
+  FFromColor := DEFAULT_INTERNET_CONNECTION_INDICATOR_FROM_COLOR;
+  FToColor := DEFAULT_INTERNET_CONNECTION_INDICATOR_TO_COLOR;
+  FCaption := DEFAULT_INTERNET_CONNECTION_INDICATOR_CAPTION;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchStatusbarInternetConnectionIndicator.Destroy;
+begin
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarInternetConnectionIndicator.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchStatusbarInternetConnectionIndicator) then
+  begin
+    FBorderColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchStatusbarInternetConnectionIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchStatusbarInternetConnectionIndicator).Size;
+    FVisible := (Source as TOBDTouchStatusbarInternetConnectionIndicator).Visible;
+    FCaption:= (Source as TOBDTouchStatusbarInternetConnectionIndicator).Caption;
+    FFromColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).FromColor;
+    FToColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).ToColor;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetBorderColor(Value: TColor);
+begin
+  if (FBorderColor <> Value) then
+  begin
+    // Set new border color
+    FBorderColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetBorderWidth(Value: Single);
+begin
+  if (FBorderWidth <> Value) then
+  begin
+    // Set new border width
+    FBorderWidth := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetSize(Value: Single);
+begin
+  if (FSize <> Value) then
+  begin
+    // Set new size
+    FSize := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET VISIBLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetVisible(Value: Boolean);
+begin
+  if (FVisible <> Value) then
+  begin
+    // Set visible
+    FVisible := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET FORMAT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetCaption(Value: TCaption);
+begin
+  if (FCaption <> Value) then
+  begin
+    // Set new caption
+    FCaption := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetFromColor(Value: TColor);
+begin
+  if (FFromColor <> Value) then
+  begin
+    // Set new from color
+    FFromColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SetToColor(Value: TColor);
+begin
+  if (FToColor <> Value) then
+  begin
+    // Set new to color
+    FToColor := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.SettingsChanged(Sender: TObject);
+begin
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchStatusbarProtocolIndicator.Create;
+begin
+  // Call inherited constructor
+  inherited Create;
+  // Create font
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  // Set defaults
+  FBorderColor := DEFAULT_PROTOCOL_INDICATOR_BORDER_COLOR;
+  FBorderWidth := 1;
+  FSize := DEFAULT_PROTOCOL_INDICATOR_SIZE;
+  FVisible := True;
+  FFromColor := DEFAULT_PROTOCOL_INDICATOR_FROM_COLOR;
+  FToColor := DEFAULT_PROTOCOL_INDICATOR_TO_COLOR;
+  FCaption := DEFAULT_PROTOCOL_INDICATOR_CAPTION;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchStatusbarProtocolIndicator.Destroy;
+begin
+  // Free font
+  FFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarProtocolIndicator.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchStatusbarProtocolIndicator) then
+  begin
+    FBorderColor := (Source as TOBDTouchStatusbarProtocolIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchStatusbarProtocolIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchStatusbarProtocolIndicator).Size;
+    FVisible := (Source as TOBDTouchStatusbarProtocolIndicator).Visible;
+    FCaption:= (Source as TOBDTouchStatusbarProtocolIndicator).Caption;
+    FFromColor := (Source as TOBDTouchStatusbarProtocolIndicator).FromColor;
+    FToColor := (Source as TOBDTouchStatusbarProtocolIndicator).ToColor;
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // CLASS CONSTRUCTOR
 //------------------------------------------------------------------------------
 class constructor TOBDTouchStatusbar.Create;
@@ -853,6 +1858,30 @@ end;
 procedure TOBDTouchStatusbar.SetBatteryIndicator(Value: TOBDTouchStatusbarBatteryIndicator);
 begin
   FBatteryIndicator.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET VCI INDICATOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbar.SetVciIndicator(Value: TOBDTouchStatusbarVciIndicator);
+begin
+  FVciIndicator.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET INTERNET CONNECTION INDICATOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbar.SetInternetConnectionIndicator(Value: TOBDTouchStatusbarInternetConnectionIndicator);
+begin
+  FInternetConnectionIndicator.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET PROTOCOL INDICATOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbar.SetProtocolIndicator(Value: TOBDTouchStatusbarProtocolIndicator);
+begin
+  FProtocolIndicator.Assign(Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -1019,17 +2048,17 @@ var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
   BackgroundRect, BorderRect: TGPRect;
-  MeasureRect, CaptionRect, BatteryRect: TGPRectF;
+  MeasureRect, CaptionRect, BatteryRect, VCIRect, InternetRect, ProtocolRect: TGPRectF;
   Brush: TGPBrush;
   Pen: TGPPen;
-  BatteryPath: TGPGraphicsPath;
+  BatteryPath, VciPath, InternetPath, ProtocolPath: TGPGraphicsPath;
 
   Font: TGPFont;
   FontBrush: TGPSolidBrush;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
 
-  X, Y: Single;
+  X, Y, Z: Single;
   S: string;
 begin
   // Update the size of the buffer
@@ -1094,17 +2123,20 @@ begin
       end;
     end;
 
+    // Set the X position
+    X := Width - 8;
+
     // Draw the battery indicator
     if BatteryIndicator.Visible then
     begin
-      X := Width - 8;
       Y := ((Height - Border.Height) / 2) - (BatteryIndicator.Size / 2);
 
-      // Draw the voltage label
+      // Create font for the label
       FontFamily := TGPFontFamily.Create(BatteryIndicator.Font.Name);
       Font := TGPFont.Create(FontFamily, BatteryIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(BatteryIndicator.Font), UnitPoint);
       FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Font.Color));
       StringFormat := TGPStringFormat.Create;
+      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
       StringFormat.SetAlignment(StringAlignmentFar);
       StringFormat.SetLineAlignment(StringAlignmentCenter);
 
@@ -1133,7 +2165,7 @@ begin
       Pen := TGPPen.Create(SafeColorRefToARGB(BatteryIndicator.BorderColor), BatteryIndicator.BorderWidth);
       Pen.SetAlignment(PenAlignmentInset);
       // Create brush
-      Brush := TGPLinearGradientBrush.Create(BatteryRect, SafeColorRefToARGB($00F5F5F5), SafeColorRefToARGB($00C1C1C2), LinearGradientModeVertical);
+      Brush := TGPLinearGradientBrush.Create(BatteryRect, SafeColorRefToARGB(BatteryIndicator.FromColor), SafeColorRefToARGB(BatteryIndicator.ToColor), LinearGradientModeVertical);
       try
         if (BatteryIndicator.FromColor <> clNone) and (BatteryIndicator.ToColor <> clNone) then
           Graphics.FillPath(Brush, BatteryPath);
@@ -1143,7 +2175,173 @@ begin
         Pen.Free;
         Brush.Free;
       end;
+
+      // Update the x position
+      X := X - (BatteryIndicator.Size + 4);
     end;
+
+    // Draw the VCI indicator
+    if VciIndicator.Visible then
+    begin
+      // Update the Y position
+      Y := ((Height - Border.Height) / 2) - (VciIndicator.Size / 2);
+
+      // Create font for the label
+      FontFamily := TGPFontFamily.Create(VciIndicator.Font.Name);
+      Font := TGPFont.Create(FontFamily, VciIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(VciIndicator.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(VciIndicator.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
+      StringFormat.SetAlignment(StringAlignmentFar);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+
+      // Format the label
+      S := VciIndicator.Caption;
+      // Set the measure rect
+      MeasureRect := MakeRect(0, 0.0, X, Height - Border.Height);
+      // First measure the needed space for the label
+      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
+      // Draw the label
+      try
+        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
+        X := X - (CaptionRect.Width + 2);
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+
+      // Create vci indicator rect
+      VciRect := MakeRect(X - VciIndicator.Size, Y, VciIndicator.Size, VciIndicator.Size);
+      // Create vci indicator path
+      VciPath := CreateJ1962Path(VciRect);
+      // Create pen
+      Pen := TGPPen.Create(SafeColorRefToARGB(VciIndicator.BorderColor), VciIndicator.BorderWidth);
+      Pen.SetAlignment(PenAlignmentInset);
+      // Create brush
+      Brush := TGPLinearGradientBrush.Create(VciRect, SafeColorRefToARGB(VciIndicator.FromColor), SafeColorRefToARGB(VciIndicator.ToColor), LinearGradientModeVertical);
+      try
+        if (VciIndicator.FromColor <> clNone) and (VciIndicator.ToColor <> clNone) then
+          Graphics.FillPath(Brush, VciPath);
+        Graphics.DrawPath(Pen, VciPath);
+      finally
+        VciPath.Free;
+        Pen.Free;
+        Brush.Free;
+      end;
+
+      // Update the x position
+      X := X - (VciIndicator.Size + 4);
+    end;
+
+    // Draw the internet connection indicator
+    if InternetConnectionIndicator.Visible then
+    begin
+      // Update the Y position
+      Y := ((Height - Border.Height) / 2) - (InternetConnectionIndicator.Size / 2);
+
+      // Create font for the label
+      FontFamily := TGPFontFamily.Create(InternetConnectionIndicator.Font.Name);
+      Font := TGPFont.Create(FontFamily, InternetConnectionIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(InternetConnectionIndicator.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(InternetConnectionIndicator.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
+      StringFormat.SetAlignment(StringAlignmentFar);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+
+      // Format the label
+      S := InternetConnectionIndicator.Caption;
+      // Set the measure rect
+      MeasureRect := MakeRect(0, 0.0, X, Height - Border.Height);
+      // First measure the needed space for the label
+      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
+      // Draw the label
+      try
+        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
+        X := X - CaptionRect.Width;
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+
+      // Create internet connection indicator rect
+      InternetRect := MakeRect(X - InternetConnectionIndicator.Size, Y, InternetConnectionIndicator.Size, InternetConnectionIndicator.Size);
+      // Create internet connection indicator path
+      InternetPath := CreateInternetGlobePath(InternetRect);
+      // Create pen
+      Pen := TGPPen.Create(SafeColorRefToARGB(InternetConnectionIndicator.BorderColor), InternetConnectionIndicator.BorderWidth);
+      Pen.SetAlignment(PenAlignmentInset);
+      Brush := TGPLinearGradientBrush.Create(InternetRect, SafeColorRefToARGB(InternetConnectionIndicator.FromColor), SafeColorRefToARGB(InternetConnectionIndicator.ToColor), LinearGradientModeVertical);
+      try
+        if (InternetConnectionIndicator.FromColor <> clNone) and (InternetConnectionIndicator.ToColor <> clNone) then
+          Graphics.FillEllipse(Brush, InternetRect);
+        Graphics.DrawPath(Pen, InternetPath);
+      finally
+        InternetPath.Free;
+        Pen.Free;
+        Brush.Free;
+      end;
+
+      X := X - (InternetConnectionIndicator.Size + 4);
+    end;
+
+    // Draw the protocol indicator
+    if ProtocolIndicator.Visible then
+    begin
+      // Get the available width
+      Z := X;
+      // Update the Y position
+      Y := ((Height - Border.Height) / 2) - (ProtocolIndicator.Size / 2);
+      X := 8;
+
+      // Create protocol indicator rect
+      ProtocolRect := MakeRect(8, Y, ProtocolIndicator.Size, ProtocolIndicator.Size);
+      // Create protocol indicator path
+      ProtocolPath := CreateProtocolPath(ProtocolRect);
+      // Create pen
+      Pen := TGPPen.Create(SafeColorRefToARGB(ProtocolIndicator.BorderColor), ProtocolIndicator.BorderWidth);
+      Pen.SetAlignment(PenAlignmentInset);
+      Brush := TGPLinearGradientBrush.Create(ProtocolRect, SafeColorRefToARGB(ProtocolIndicator.FromColor), SafeColorRefToARGB(ProtocolIndicator.ToColor), LinearGradientModeVertical);
+      try
+        if (ProtocolIndicator.FromColor <> clNone) and (ProtocolIndicator.ToColor <> clNone) then
+          Graphics.FillPath(Brush, ProtocolPath);
+        Graphics.DrawPath(Pen, ProtocolPath);
+      finally
+        ProtocolPath.Free;
+        Pen.Free;
+        Brush.Free;
+      end;
+
+      // Create font for the label
+      FontFamily := TGPFontFamily.Create(ProtocolIndicator.Font.Name);
+      Font := TGPFont.Create(FontFamily, ProtocolIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(ProtocolIndicator.Font), UnitPoint);
+      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(ProtocolIndicator.Font.Color));
+      StringFormat := TGPStringFormat.Create;
+      StringFormat.SetAlignment(StringAlignmentNear);
+      StringFormat.SetLineAlignment(StringAlignmentCenter);
+      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
+      StringFormat.SetTrimming(StringTrimmingEllipsisCharacter);
+
+      // Format the label
+      S := ProtocolIndicator.Caption;
+      // Set the measure rect
+      MeasureRect := MakeRect(12 + ProtocolIndicator.Size, 0.0, Z - (12 + ProtocolIndicator.Size), Height - Border.Height);
+      // First measure the needed space for the label
+      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
+      // Draw the label
+      try
+        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
+      finally
+        FontFamily.Free;
+        Font.Free;
+        FontBrush.Free;
+        StringFormat.Free;
+      end;
+    end;
+
 
   finally
     // Free GDI+ graphics object
@@ -1173,6 +2371,15 @@ begin
   // Create battery indicator
   FBatteryIndicator := TOBDTouchStatusbarBatteryIndicator.Create;
   FBatteryIndicator.OnChange := SettingsChanged;
+  // Create vci indicator
+  FVciIndicator := TOBDTouchStatusbarVciIndicator.Create;
+  FVciIndicator.OnChange := SettingsChanged;
+  // Create internet connection indicator
+  FInternetConnectionIndicator := TOBDTouchStatusbarInternetConnectionIndicator.Create;
+  FInternetConnectionIndicator.OnChange := SettingsChanged;
+  // Create protocol indicator
+  FProtocolIndicator := TOBDTouchStatusbarProtocolIndicator.Create;
+  FProtocolIndicator.OnChange := SettingsChanged;
   // Set defaults
   Height := DEFAULT_HEIGHT;
   Align := alTop;
@@ -1191,6 +2398,12 @@ begin
   FBorder.Free;
   // Free battery indicator
   FBatteryIndicator.Free;
+  // Free vci indicator
+  FVciIndicator.Free;
+  // Free internet connection indicator
+  FInternetConnectionIndicator.Free;
+  // Free protocol indicator
+  FProtocolIndicator.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1208,6 +2421,9 @@ begin
     FBackground.Assign((Source as TOBDTouchStatusbar).Background);
     FBorder.Assign((Source as TOBDTouchStatusbar).Border);
     FBatteryIndicator.Assign((Source as TOBDTouchStatusbar).BatteryIndicator);
+    FVciIndicator.Assign((Source as TOBDTouchStatusbar).VciIndicator);
+    FInternetConnectionIndicator.Assign((Source as TOBDTouchStatusbar).InternetConnectionIndicator);
+    FProtocolIndicator.Assign((Source as TOBDTouchStatusbar).ProtocolIndicator);
   end;
 end;
 
