@@ -26,7 +26,7 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED,
-  OBD.Touch.Header, OBD.Touch.Statusbar;
+  OBD.Touch.Header, OBD.Touch.Subheader;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENT
@@ -39,7 +39,7 @@ begin
     TOBDLed,            // Register the LED
 
     TOBDTouchHeader,    // Register the Touch Header
-    TOBDTouchStatusbar  // Register the Touch Statusbar
+    TOBDTouchSubheader  // Register the Touch Subheader
   ]);
 end;
 

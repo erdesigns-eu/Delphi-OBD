@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.Touch.Statusbar.pas
-// CONTENTS       : Statusbar component
+// UNIT           : OBD.Touch.Subheader.pas
+// CONTENTS       : Subheader component
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
@@ -8,7 +8,7 @@
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 31/03/2024
 //------------------------------------------------------------------------------
-unit OBD.Touch.Statusbar;
+unit OBD.Touch.Subheader;
 
 interface
 
@@ -138,9 +138,9 @@ const
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Touch Statusbar background properties
+  ///   Touch Subheader background properties
   /// </summary>
-  TOBDTouchStatusbarBackground = class(TPersistent)
+  TOBDTouchSubheaderBackground = class(TPersistent)
   private
     /// <summary>
     ///   Gradient from color
@@ -191,9 +191,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar border properties
+  ///   Touch Subheader border properties
   /// </summary>
-  TOBDTouchStatusbarBorder = class(TPersistent)
+  TOBDTouchSubheaderBorder = class(TPersistent)
   private
     /// <summary>
     ///   Gradient from color
@@ -256,9 +256,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar battery indicator
+  ///   Touch Subheader battery indicator
   /// </summary>
-  TOBDTouchStatusbarBatteryIndicator = class(TPersistent)
+  TOBDTouchSubheaderBatteryIndicator = class(TPersistent)
   private
     /// <summary>
     ///   Border color
@@ -402,9 +402,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar VCI (Vehicle Connection Interface) indicator
+  ///   Touch Subheader VCI (Vehicle Connection Interface) indicator
   /// </summary>
-  TOBDTouchStatusbarVciIndicator = class(TPersistent)
+  TOBDTouchSubheaderVciIndicator = class(TPersistent)
   private
     /// <summary>
     ///   Border color
@@ -536,9 +536,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar Internet connection indicator
+  ///   Touch Subheader Internet connection indicator
   /// </summary>
-  TOBDTouchStatusbarInternetConnectionIndicator = class(TPersistent)
+  TOBDTouchSubheaderInternetConnectionIndicator = class(TPersistent)
   private
     /// <summary>
     ///   Border color
@@ -670,9 +670,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar Protocol indicator
+  ///   Touch Subheader Protocol indicator
   /// </summary>
-  TOBDTouchStatusbarProtocolIndicator = class(TPersistent)
+  TOBDTouchSubheaderProtocolIndicator = class(TPersistent)
   private
     /// <summary>
     ///   Border color
@@ -804,9 +804,9 @@ type
   end;
 
   /// <summary>
-  ///   Touch Statusbar Component
+  ///   Touch Subheader Component
   /// </summary>
-  TOBDTouchStatusbar = class(TCustomControl)
+  TOBDTouchSubheader = class(TCustomControl)
   private
     /// <summary>
     ///   Class constructor
@@ -829,52 +829,52 @@ type
     /// <summary>
     ///   Background
     /// </summary>
-    FBackground: TOBDTouchStatusbarBackground;
+    FBackground: TOBDTouchSubheaderBackground;
     /// <summary>
     ///   Border
     /// </summary>
-    FBorder: TOBDTouchStatusbarBorder;
+    FBorder: TOBDTouchSubheaderBorder;
     /// <summary>
     ///   Battery indicator
     /// </summary>
-    FBatteryIndicator: TOBDTouchStatusbarBatteryIndicator;
+    FBatteryIndicator: TOBDTouchSubheaderBatteryIndicator;
     /// <summary>
     ///   VCI (Vehicle Connection Interface) indicator
     /// </summary>
-    FVciIndicator: TOBDTouchStatusbarVciIndicator;
+    FVciIndicator: TOBDTouchSubheaderVciIndicator;
     /// <summary>
     ///   Internet connection indicator
     /// </summary>
-    FInternetConnectionIndicator: TOBDTouchStatusbarInternetConnectionIndicator;
+    FInternetConnectionIndicator: TOBDTouchSubheaderInternetConnectionIndicator;
     /// <summary>
     ///   Protocol indicator
     /// </summary>
-    FProtocolIndicator: TOBDTouchStatusbarProtocolIndicator;
+    FProtocolIndicator: TOBDTouchSubheaderProtocolIndicator;
 
     /// <summary>
     ///   Set background
     /// </summary>
-    procedure SetBackground(Value: TOBDTouchStatusbarBackground);
+    procedure SetBackground(Value: TOBDTouchSubheaderBackground);
     /// <summary>
     ///   Set border
     /// </summary>
-    procedure SetBorder(Value: TOBDTouchStatusbarBorder);
+    procedure SetBorder(Value: TOBDTouchSubheaderBorder);
     /// <summary>
     ///   Set battery indicator
     /// </summary>
-    procedure SetBatteryIndicator(Value: TOBDTouchStatusbarBatteryIndicator);
+    procedure SetBatteryIndicator(Value: TOBDTouchSubheaderBatteryIndicator);
     /// <summary>
     ///   Set VCI indicator
     /// </summary>
-    procedure SetVciIndicator(Value: TOBDTouchStatusbarVciIndicator);
+    procedure SetVciIndicator(Value: TOBDTouchSubheaderVciIndicator);
     /// <summary>
     ///   Set internet connection indicator
     /// </summary>
-    procedure SetInternetConnectionIndicator(Value: TOBDTouchStatusbarInternetConnectionIndicator);
+    procedure SetInternetConnectionIndicator(Value: TOBDTouchSubheaderInternetConnectionIndicator);
     /// <summary>
     ///   Set protocol indicator
     /// </summary>
-    procedure SetProtocolIndicator(Value: TOBDTouchStatusbarProtocolIndicator);
+    procedure SetProtocolIndicator(Value: TOBDTouchSubheaderProtocolIndicator);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -961,27 +961,27 @@ type
     /// <summary>
     ///   Background
     /// </summary>
-    property Background: TOBDTouchStatusbarBackground read FBackground write SetBackground;
+    property Background: TOBDTouchSubheaderBackground read FBackground write SetBackground;
     /// <summary>
     ///   Border
     /// </summary>
-    property Border: TOBDTouchStatusbarBorder read FBorder write SetBorder;
+    property Border: TOBDTouchSubheaderBorder read FBorder write SetBorder;
     /// <summary>
     ///   Battery indicator
     /// </summary>
-    property BatteryIndicator: TOBDTouchStatusbarBatteryIndicator read FBatteryIndicator write SetBatteryIndicator;
+    property BatteryIndicator: TOBDTouchSubheaderBatteryIndicator read FBatteryIndicator write SetBatteryIndicator;
     /// <summary>
     ///   VCI (Vehicle Connection Interface) indicator
     /// </summary>
-    property VciIndicator: TOBDTouchStatusbarVciIndicator read FVciIndicator write SetVciIndicator;
+    property VciIndicator: TOBDTouchSubheaderVciIndicator read FVciIndicator write SetVciIndicator;
     /// <summary>
     ///   Internet connection indicator
     /// </summary>
-    property InternetConnectionIndicator: TOBDTouchStatusbarInternetConnectionIndicator read FInternetConnectionIndicator write SetInternetConnectionIndicator;
+    property InternetConnectionIndicator: TOBDTouchSubheaderInternetConnectionIndicator read FInternetConnectionIndicator write SetInternetConnectionIndicator;
     /// <summary>
     ///   Protocol indicator
     /// </summary>
-    property ProtocolIndicator: TOBDTouchStatusbarProtocolIndicator read FProtocolIndicator write SetProtocolIndicator;
+    property ProtocolIndicator: TOBDTouchSubheaderProtocolIndicator read FProtocolIndicator write SetProtocolIndicator;
   published
     /// <summary>
     ///   Component alignment (inherited)
@@ -1005,7 +1005,7 @@ uses
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBackground.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderBackground.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1019,7 +1019,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBackground.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderBackground.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1033,7 +1033,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarBackground.Create;
+constructor TOBDTouchSubheaderBackground.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1045,13 +1045,13 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBackground.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderBackground.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarBackground) then
+  if (Source is TOBDTouchSubheaderBackground) then
   begin
-    FFromColor := (Source as TOBDTouchStatusbarBackground).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarBackground).ToColor;
+    FFromColor := (Source as TOBDTouchSubheaderBackground).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBackground).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1062,7 +1062,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBorder.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderBorder.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1076,7 +1076,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBorder.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderBorder.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1090,7 +1090,7 @@ end;
 //------------------------------------------------------------------------------
 // SET WIDTH
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBorder.SetHeight(Value: Integer);
+procedure TOBDTouchSubheaderBorder.SetHeight(Value: Integer);
 begin
   if (FHeight <> Value) and (Value >= 0) then
   begin
@@ -1104,7 +1104,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarBorder.Create;
+constructor TOBDTouchSubheaderBorder.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1117,14 +1117,14 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBorder.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderBorder.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarBorder) then
+  if (Source is TOBDTouchSubheaderBorder) then
   begin
-    FFromColor := (Source as TOBDTouchStatusbarBorder).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarBorder).ToColor;
-    FHeight := (Source as TOBDTouchStatusbarBorder).Height;
+    FFromColor := (Source as TOBDTouchSubheaderBorder).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBorder).ToColor;
+    FHeight := (Source as TOBDTouchSubheaderBorder).Height;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1135,7 +1135,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetBorderColor(Value: TColor);
+procedure TOBDTouchSubheaderBatteryIndicator.SetBorderColor(Value: TColor);
 begin
   if (FBorderColor <> Value) then
   begin
@@ -1149,7 +1149,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER WIDTH
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetBorderWidth(Value: Single);
+procedure TOBDTouchSubheaderBatteryIndicator.SetBorderWidth(Value: Single);
 begin
   if (FBorderWidth <> Value) then
   begin
@@ -1163,7 +1163,7 @@ end;
 //------------------------------------------------------------------------------
 // SET SIZE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetSize(Value: Single);
+procedure TOBDTouchSubheaderBatteryIndicator.SetSize(Value: Single);
 begin
   if (FSize <> Value) then
   begin
@@ -1177,7 +1177,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VISIBLE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetVisible(Value: Boolean);
+procedure TOBDTouchSubheaderBatteryIndicator.SetVisible(Value: Boolean);
 begin
   if (FVisible <> Value) then
   begin
@@ -1191,7 +1191,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FONT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetFont(Value: TFont);
+procedure TOBDTouchSubheaderBatteryIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
@@ -1199,7 +1199,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VOLTAGE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetVoltage(Value: Single);
+procedure TOBDTouchSubheaderBatteryIndicator.SetVoltage(Value: Single);
 begin
   if (FVoltage <> Value) and (Value >= 0) and (Value <= 100) then
   begin
@@ -1213,7 +1213,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FORMAT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetFormat(Value: string);
+procedure TOBDTouchSubheaderBatteryIndicator.SetFormat(Value: string);
 begin
   if (FFormat <> Value) then
   begin
@@ -1227,7 +1227,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderBatteryIndicator.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1241,7 +1241,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderBatteryIndicator.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1255,7 +1255,7 @@ end;
 //------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.SettingsChanged(Sender: TObject);
+procedure TOBDTouchSubheaderBatteryIndicator.SettingsChanged(Sender: TObject);
 begin
   // Notify change
   if Assigned(FOnChange) then FOnChange(Self);
@@ -1264,7 +1264,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarBatteryIndicator.Create;
+constructor TOBDTouchSubheaderBatteryIndicator.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1285,7 +1285,7 @@ end;
 //------------------------------------------------------------------------------
 // DESTRUCTOR
 //------------------------------------------------------------------------------
-destructor TOBDTouchStatusbarBatteryIndicator.Destroy;
+destructor TOBDTouchSubheaderBatteryIndicator.Destroy;
 begin
   // Free font
   FFont.Free;
@@ -1296,19 +1296,19 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarBatteryIndicator.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderBatteryIndicator.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarBatteryIndicator) then
+  if (Source is TOBDTouchSubheaderBatteryIndicator) then
   begin
-    FBorderColor := (Source as TOBDTouchStatusbarBatteryIndicator).BorderColor;
-    FBorderWidth := (Source as TOBDTouchStatusbarBatteryIndicator).BorderWidth;
-    FSize := (Source as TOBDTouchStatusbarBatteryIndicator).Size;
-    FVisible := (Source as TOBDTouchStatusbarBatteryIndicator).Visible;
-    FVoltage := (Source as TOBDTouchStatusbarBatteryIndicator).Voltage;
-    FFormat := (Source as TOBDTouchStatusbarBatteryIndicator).Format;
-    FFromColor := (Source as TOBDTouchStatusbarBatteryIndicator).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarBatteryIndicator).ToColor;
+    FBorderColor := (Source as TOBDTouchSubheaderBatteryIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderBatteryIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchSubheaderBatteryIndicator).Size;
+    FVisible := (Source as TOBDTouchSubheaderBatteryIndicator).Visible;
+    FVoltage := (Source as TOBDTouchSubheaderBatteryIndicator).Voltage;
+    FFormat := (Source as TOBDTouchSubheaderBatteryIndicator).Format;
+    FFromColor := (Source as TOBDTouchSubheaderBatteryIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBatteryIndicator).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1319,7 +1319,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetBorderColor(Value: TColor);
+procedure TOBDTouchSubheaderVciIndicator.SetBorderColor(Value: TColor);
 begin
   if (FBorderColor <> Value) then
   begin
@@ -1333,7 +1333,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER WIDTH
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetBorderWidth(Value: Single);
+procedure TOBDTouchSubheaderVciIndicator.SetBorderWidth(Value: Single);
 begin
   if (FBorderWidth <> Value) then
   begin
@@ -1347,7 +1347,7 @@ end;
 //------------------------------------------------------------------------------
 // SET SIZE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetSize(Value: Single);
+procedure TOBDTouchSubheaderVciIndicator.SetSize(Value: Single);
 begin
   if (FSize <> Value) then
   begin
@@ -1361,7 +1361,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VISIBLE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetVisible(Value: Boolean);
+procedure TOBDTouchSubheaderVciIndicator.SetVisible(Value: Boolean);
 begin
   if (FVisible <> Value) then
   begin
@@ -1375,7 +1375,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FONT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetFont(Value: TFont);
+procedure TOBDTouchSubheaderVciIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
@@ -1383,7 +1383,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FORMAT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetCaption(Value: TCaption);
+procedure TOBDTouchSubheaderVciIndicator.SetCaption(Value: TCaption);
 begin
   if (FCaption <> Value) then
   begin
@@ -1397,7 +1397,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderVciIndicator.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1411,7 +1411,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderVciIndicator.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1425,7 +1425,7 @@ end;
 //------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.SettingsChanged(Sender: TObject);
+procedure TOBDTouchSubheaderVciIndicator.SettingsChanged(Sender: TObject);
 begin
   // Notify change
   if Assigned(FOnChange) then FOnChange(Self);
@@ -1434,7 +1434,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarVciIndicator.Create;
+constructor TOBDTouchSubheaderVciIndicator.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1454,7 +1454,7 @@ end;
 //------------------------------------------------------------------------------
 // DESTRUCTOR
 //------------------------------------------------------------------------------
-destructor TOBDTouchStatusbarVciIndicator.Destroy;
+destructor TOBDTouchSubheaderVciIndicator.Destroy;
 begin
   // Free font
   FFont.Free;
@@ -1465,18 +1465,18 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarVciIndicator.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderVciIndicator.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarVciIndicator) then
+  if (Source is TOBDTouchSubheaderVciIndicator) then
   begin
-    FBorderColor := (Source as TOBDTouchStatusbarVciIndicator).BorderColor;
-    FBorderWidth := (Source as TOBDTouchStatusbarVciIndicator).BorderWidth;
-    FSize := (Source as TOBDTouchStatusbarVciIndicator).Size;
-    FVisible := (Source as TOBDTouchStatusbarVciIndicator).Visible;
-    FCaption:= (Source as TOBDTouchStatusbarVciIndicator).Caption;
-    FFromColor := (Source as TOBDTouchStatusbarVciIndicator).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarVciIndicator).ToColor;
+    FBorderColor := (Source as TOBDTouchSubheaderVciIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderVciIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchSubheaderVciIndicator).Size;
+    FVisible := (Source as TOBDTouchSubheaderVciIndicator).Visible;
+    FCaption:= (Source as TOBDTouchSubheaderVciIndicator).Caption;
+    FFromColor := (Source as TOBDTouchSubheaderVciIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderVciIndicator).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1487,7 +1487,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetBorderColor(Value: TColor);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderColor(Value: TColor);
 begin
   if (FBorderColor <> Value) then
   begin
@@ -1501,7 +1501,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER WIDTH
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetBorderWidth(Value: Single);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderWidth(Value: Single);
 begin
   if (FBorderWidth <> Value) then
   begin
@@ -1515,7 +1515,7 @@ end;
 //------------------------------------------------------------------------------
 // SET SIZE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetSize(Value: Single);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetSize(Value: Single);
 begin
   if (FSize <> Value) then
   begin
@@ -1529,7 +1529,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VISIBLE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetVisible(Value: Boolean);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetVisible(Value: Boolean);
 begin
   if (FVisible <> Value) then
   begin
@@ -1543,7 +1543,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FONT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetFont(Value: TFont);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
@@ -1551,7 +1551,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FORMAT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetCaption(Value: TCaption);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetCaption(Value: TCaption);
 begin
   if (FCaption <> Value) then
   begin
@@ -1565,7 +1565,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1579,7 +1579,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1593,7 +1593,7 @@ end;
 //------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.SettingsChanged(Sender: TObject);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SettingsChanged(Sender: TObject);
 begin
   // Notify change
   if Assigned(FOnChange) then FOnChange(Self);
@@ -1602,7 +1602,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarInternetConnectionIndicator.Create;
+constructor TOBDTouchSubheaderInternetConnectionIndicator.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1622,7 +1622,7 @@ end;
 //------------------------------------------------------------------------------
 // DESTRUCTOR
 //------------------------------------------------------------------------------
-destructor TOBDTouchStatusbarInternetConnectionIndicator.Destroy;
+destructor TOBDTouchSubheaderInternetConnectionIndicator.Destroy;
 begin
   // Free font
   FFont.Free;
@@ -1633,18 +1633,18 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarInternetConnectionIndicator.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderInternetConnectionIndicator.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarInternetConnectionIndicator) then
+  if (Source is TOBDTouchSubheaderInternetConnectionIndicator) then
   begin
-    FBorderColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).BorderColor;
-    FBorderWidth := (Source as TOBDTouchStatusbarInternetConnectionIndicator).BorderWidth;
-    FSize := (Source as TOBDTouchStatusbarInternetConnectionIndicator).Size;
-    FVisible := (Source as TOBDTouchStatusbarInternetConnectionIndicator).Visible;
-    FCaption:= (Source as TOBDTouchStatusbarInternetConnectionIndicator).Caption;
-    FFromColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarInternetConnectionIndicator).ToColor;
+    FBorderColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderInternetConnectionIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchSubheaderInternetConnectionIndicator).Size;
+    FVisible := (Source as TOBDTouchSubheaderInternetConnectionIndicator).Visible;
+    FCaption:= (Source as TOBDTouchSubheaderInternetConnectionIndicator).Caption;
+    FFromColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1655,7 +1655,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetBorderColor(Value: TColor);
+procedure TOBDTouchSubheaderProtocolIndicator.SetBorderColor(Value: TColor);
 begin
   if (FBorderColor <> Value) then
   begin
@@ -1669,7 +1669,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER WIDTH
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetBorderWidth(Value: Single);
+procedure TOBDTouchSubheaderProtocolIndicator.SetBorderWidth(Value: Single);
 begin
   if (FBorderWidth <> Value) then
   begin
@@ -1683,7 +1683,7 @@ end;
 //------------------------------------------------------------------------------
 // SET SIZE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetSize(Value: Single);
+procedure TOBDTouchSubheaderProtocolIndicator.SetSize(Value: Single);
 begin
   if (FSize <> Value) then
   begin
@@ -1697,7 +1697,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VISIBLE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetVisible(Value: Boolean);
+procedure TOBDTouchSubheaderProtocolIndicator.SetVisible(Value: Boolean);
 begin
   if (FVisible <> Value) then
   begin
@@ -1711,7 +1711,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FONT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetFont(Value: TFont);
+procedure TOBDTouchSubheaderProtocolIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
@@ -1719,7 +1719,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FORMAT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetCaption(Value: TCaption);
+procedure TOBDTouchSubheaderProtocolIndicator.SetCaption(Value: TCaption);
 begin
   if (FCaption <> Value) then
   begin
@@ -1733,7 +1733,7 @@ end;
 //------------------------------------------------------------------------------
 // SET FROM COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetFromColor(Value: TColor);
+procedure TOBDTouchSubheaderProtocolIndicator.SetFromColor(Value: TColor);
 begin
   if (FFromColor <> Value) then
   begin
@@ -1747,7 +1747,7 @@ end;
 //------------------------------------------------------------------------------
 // SET TO COLOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SetToColor(Value: TColor);
+procedure TOBDTouchSubheaderProtocolIndicator.SetToColor(Value: TColor);
 begin
   if (FToColor <> Value) then
   begin
@@ -1761,7 +1761,7 @@ end;
 //------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.SettingsChanged(Sender: TObject);
+procedure TOBDTouchSubheaderProtocolIndicator.SettingsChanged(Sender: TObject);
 begin
   // Notify change
   if Assigned(FOnChange) then FOnChange(Self);
@@ -1770,7 +1770,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbarProtocolIndicator.Create;
+constructor TOBDTouchSubheaderProtocolIndicator.Create;
 begin
   // Call inherited constructor
   inherited Create;
@@ -1790,7 +1790,7 @@ end;
 //------------------------------------------------------------------------------
 // DESTRUCTOR
 //------------------------------------------------------------------------------
-destructor TOBDTouchStatusbarProtocolIndicator.Destroy;
+destructor TOBDTouchSubheaderProtocolIndicator.Destroy;
 begin
   // Free font
   FFont.Free;
@@ -1801,18 +1801,18 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarProtocolIndicator.Assign(Source: TPersistent);
+procedure TOBDTouchSubheaderProtocolIndicator.Assign(Source: TPersistent);
 begin
   // Assign properties
-  if (Source is TOBDTouchStatusbarProtocolIndicator) then
+  if (Source is TOBDTouchSubheaderProtocolIndicator) then
   begin
-    FBorderColor := (Source as TOBDTouchStatusbarProtocolIndicator).BorderColor;
-    FBorderWidth := (Source as TOBDTouchStatusbarProtocolIndicator).BorderWidth;
-    FSize := (Source as TOBDTouchStatusbarProtocolIndicator).Size;
-    FVisible := (Source as TOBDTouchStatusbarProtocolIndicator).Visible;
-    FCaption:= (Source as TOBDTouchStatusbarProtocolIndicator).Caption;
-    FFromColor := (Source as TOBDTouchStatusbarProtocolIndicator).FromColor;
-    FToColor := (Source as TOBDTouchStatusbarProtocolIndicator).ToColor;
+    FBorderColor := (Source as TOBDTouchSubheaderProtocolIndicator).BorderColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderProtocolIndicator).BorderWidth;
+    FSize := (Source as TOBDTouchSubheaderProtocolIndicator).Size;
+    FVisible := (Source as TOBDTouchSubheaderProtocolIndicator).Visible;
+    FCaption:= (Source as TOBDTouchSubheaderProtocolIndicator).Caption;
+    FFromColor := (Source as TOBDTouchSubheaderProtocolIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderProtocolIndicator).ToColor;
     // Notify change
     if Assigned(OnChange) then OnChange(Self);
   end else
@@ -1823,23 +1823,23 @@ end;
 //------------------------------------------------------------------------------
 // CLASS CONSTRUCTOR
 //------------------------------------------------------------------------------
-class constructor TOBDTouchStatusbar.Create;
+class constructor TOBDTouchSubheader.Create;
 begin
-  TCustomStyleEngine.RegisterStyleHook(TOBDTouchStatusbar, TPanelStyleHook);
+  TCustomStyleEngine.RegisterStyleHook(TOBDTouchSubheader, TPanelStyleHook);
 end;
 
 //------------------------------------------------------------------------------
 // CLASS DESTRUCTOR
 //------------------------------------------------------------------------------
-class destructor TOBDTouchStatusbar.Destroy;
+class destructor TOBDTouchSubheader.Destroy;
 begin
-  TCustomStyleEngine.UnRegisterStyleHook(TOBDTouchStatusbar, TPanelStyleHook);
+  TCustomStyleEngine.UnRegisterStyleHook(TOBDTouchSubheader, TPanelStyleHook);
 end;
 
 //------------------------------------------------------------------------------
 // SET BACKGROUND
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetBackground(Value: TOBDTouchStatusbarBackground);
+procedure TOBDTouchSubheader.SetBackground(Value: TOBDTouchSubheaderBackground);
 begin
   FBackground.Assign(Value);
 end;
@@ -1847,7 +1847,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BORDER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetBorder(Value: TOBDTouchStatusbarBorder);
+procedure TOBDTouchSubheader.SetBorder(Value: TOBDTouchSubheaderBorder);
 begin
   FBorder.Assign(Value);
 end;
@@ -1855,7 +1855,7 @@ end;
 //------------------------------------------------------------------------------
 // SET BATTERY INDICATOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetBatteryIndicator(Value: TOBDTouchStatusbarBatteryIndicator);
+procedure TOBDTouchSubheader.SetBatteryIndicator(Value: TOBDTouchSubheaderBatteryIndicator);
 begin
   FBatteryIndicator.Assign(Value);
 end;
@@ -1863,7 +1863,7 @@ end;
 //------------------------------------------------------------------------------
 // SET VCI INDICATOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetVciIndicator(Value: TOBDTouchStatusbarVciIndicator);
+procedure TOBDTouchSubheader.SetVciIndicator(Value: TOBDTouchSubheaderVciIndicator);
 begin
   FVciIndicator.Assign(Value);
 end;
@@ -1871,7 +1871,7 @@ end;
 //------------------------------------------------------------------------------
 // SET INTERNET CONNECTION INDICATOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetInternetConnectionIndicator(Value: TOBDTouchStatusbarInternetConnectionIndicator);
+procedure TOBDTouchSubheader.SetInternetConnectionIndicator(Value: TOBDTouchSubheaderInternetConnectionIndicator);
 begin
   FInternetConnectionIndicator.Assign(Value);
 end;
@@ -1879,7 +1879,7 @@ end;
 //------------------------------------------------------------------------------
 // SET PROTOCOL INDICATOR
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SetProtocolIndicator(Value: TOBDTouchStatusbarProtocolIndicator);
+procedure TOBDTouchSubheader.SetProtocolIndicator(Value: TOBDTouchSubheaderProtocolIndicator);
 begin
   FProtocolIndicator.Assign(Value);
 end;
@@ -1887,7 +1887,7 @@ end;
 //------------------------------------------------------------------------------
 // WM_PAINT MESSAGE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.WMPaint(var Msg: TWMPaint);
+procedure TOBDTouchSubheader.WMPaint(var Msg: TWMPaint);
 begin
   inherited;
   // Retrieve the invalidated rectangle
@@ -1899,7 +1899,7 @@ end;
 //------------------------------------------------------------------------------
 // WM_ERASEBKGND MESSAGE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
+procedure TOBDTouchSubheader.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
 begin
   // Set the handled flag
   Msg.Result := 1;
@@ -1908,7 +1908,7 @@ end;
 //------------------------------------------------------------------------------
 // WM_KILLFOCUS MESSAGE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.WMKillFocus(var Message: TWMKillFocus);
+procedure TOBDTouchSubheader.WMKillFocus(var Message: TWMKillFocus);
 begin
   inherited;
 end;
@@ -1916,7 +1916,7 @@ end;
 //------------------------------------------------------------------------------
 // CM_ENABLEDCHANGED MESSAGE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.CMEnabledChanged(var Message: TMessage);
+procedure TOBDTouchSubheader.CMEnabledChanged(var Message: TMessage);
 begin
   inherited;
 end;
@@ -1924,7 +1924,7 @@ end;
 //------------------------------------------------------------------------------
 // CM_MOUSELEAVE MESSAGE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.CMMouseLeave(var Message: TMessage);
+procedure TOBDTouchSubheader.CMMouseLeave(var Message: TMessage);
 begin
   inherited;
 end;
@@ -1932,7 +1932,7 @@ end;
 //------------------------------------------------------------------------------
 // CREATE PARAMS
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.CreateParams(var Params: TCreateParams);
+procedure TOBDTouchSubheader.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   // Adjust window style to avoid unnecessary redraws on size changes,
@@ -1943,7 +1943,7 @@ end;
 //------------------------------------------------------------------------------
 // PAINT
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Paint;
+procedure TOBDTouchSubheader.Paint;
 var
   X, Y, W, H: Integer;
 begin
@@ -1967,7 +1967,7 @@ end;
 //------------------------------------------------------------------------------
 // RESIZE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Resize;
+procedure TOBDTouchSubheader.Resize;
 begin
   // Call inherited Resize
   inherited;
@@ -1980,7 +1980,7 @@ end;
 //------------------------------------------------------------------------------
 // LOADED
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Loaded;
+procedure TOBDTouchSubheader.Loaded;
 begin
   inherited;
   // Paint buffer
@@ -1992,7 +1992,7 @@ end;
 //------------------------------------------------------------------------------
 // UPDATE STYLE ELEMENTS
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.UpdateStyleElements;
+procedure TOBDTouchSubheader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
@@ -2005,7 +2005,7 @@ end;
 //------------------------------------------------------------------------------
 // MOUSE DOWN HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
+procedure TOBDTouchSubheader.MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
 begin
   // Call inherited mousedown
   inherited;
@@ -2014,7 +2014,7 @@ end;
 //------------------------------------------------------------------------------
 // MOUSE UP HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
+procedure TOBDTouchSubheader.MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
 begin
   // Call inherited mouseup
   inherited;
@@ -2023,7 +2023,7 @@ end;
 //------------------------------------------------------------------------------
 // MOUSE MOVE HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
+procedure TOBDTouchSubheader.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
 begin
   // Call inherited mousemove
   inherited;
@@ -2032,7 +2032,7 @@ end;
 //------------------------------------------------------------------------------
 // SETTINGS CHANGED HANDLER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.SettingsChanged(Sender: TObject);
+procedure TOBDTouchSubheader.SettingsChanged(Sender: TObject);
 begin
   // Paint buffer
   PaintBuffer;
@@ -2043,7 +2043,7 @@ end;
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.PaintBuffer;
+procedure TOBDTouchSubheader.PaintBuffer;
 var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
@@ -2352,7 +2352,7 @@ end;
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TOBDTouchStatusbar.Create(AOwner: TComponent);
+constructor TOBDTouchSubheader.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
@@ -2363,22 +2363,22 @@ begin
   // Set the buffer pixel format
   FBuffer.PixelFormat := pf32bit;
   // Create background
-  FBackground := TOBDTouchStatusbarBackground.Create;
+  FBackground := TOBDTouchSubheaderBackground.Create;
   FBackground.OnChange := SettingsChanged;
   // Create border
-  FBorder := TOBDTouchStatusbarBorder.Create;
+  FBorder := TOBDTouchSubheaderBorder.Create;
   FBorder.OnChange := SettingsChanged;
   // Create battery indicator
-  FBatteryIndicator := TOBDTouchStatusbarBatteryIndicator.Create;
+  FBatteryIndicator := TOBDTouchSubheaderBatteryIndicator.Create;
   FBatteryIndicator.OnChange := SettingsChanged;
   // Create vci indicator
-  FVciIndicator := TOBDTouchStatusbarVciIndicator.Create;
+  FVciIndicator := TOBDTouchSubheaderVciIndicator.Create;
   FVciIndicator.OnChange := SettingsChanged;
   // Create internet connection indicator
-  FInternetConnectionIndicator := TOBDTouchStatusbarInternetConnectionIndicator.Create;
+  FInternetConnectionIndicator := TOBDTouchSubheaderInternetConnectionIndicator.Create;
   FInternetConnectionIndicator.OnChange := SettingsChanged;
   // Create protocol indicator
-  FProtocolIndicator := TOBDTouchStatusbarProtocolIndicator.Create;
+  FProtocolIndicator := TOBDTouchSubheaderProtocolIndicator.Create;
   FProtocolIndicator.OnChange := SettingsChanged;
   // Set defaults
   Height := DEFAULT_HEIGHT;
@@ -2388,7 +2388,7 @@ end;
 //------------------------------------------------------------------------------
 // DESTRUCTOR
 //------------------------------------------------------------------------------
-destructor TOBDTouchStatusbar.Destroy;
+destructor TOBDTouchSubheader.Destroy;
 begin
   // Free buffer
   FBuffer.Free;
@@ -2411,19 +2411,19 @@ end;
 //------------------------------------------------------------------------------
 // ASSIGN
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Assign(Source: TPersistent);
+procedure TOBDTouchSubheader.Assign(Source: TPersistent);
 begin
   // Call inherited assign
   inherited;
   // Assign custom properties
-  if (Source is TOBDTouchStatusbar) then
+  if (Source is TOBDTouchSubheader) then
   begin
-    FBackground.Assign((Source as TOBDTouchStatusbar).Background);
-    FBorder.Assign((Source as TOBDTouchStatusbar).Border);
-    FBatteryIndicator.Assign((Source as TOBDTouchStatusbar).BatteryIndicator);
-    FVciIndicator.Assign((Source as TOBDTouchStatusbar).VciIndicator);
-    FInternetConnectionIndicator.Assign((Source as TOBDTouchStatusbar).InternetConnectionIndicator);
-    FProtocolIndicator.Assign((Source as TOBDTouchStatusbar).ProtocolIndicator);
+    FBackground.Assign((Source as TOBDTouchSubheader).Background);
+    FBorder.Assign((Source as TOBDTouchSubheader).Border);
+    FBatteryIndicator.Assign((Source as TOBDTouchSubheader).BatteryIndicator);
+    FVciIndicator.Assign((Source as TOBDTouchSubheader).VciIndicator);
+    FInternetConnectionIndicator.Assign((Source as TOBDTouchSubheader).InternetConnectionIndicator);
+    FProtocolIndicator.Assign((Source as TOBDTouchSubheader).ProtocolIndicator);
   end;
 end;
 

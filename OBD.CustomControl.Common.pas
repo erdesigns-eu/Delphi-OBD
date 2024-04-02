@@ -1050,9 +1050,9 @@ end;
 //------------------------------------------------------------------------------
 function CreateProtocolPath(Rect: TGPRectF): TGPGraphicsPath;
 const
-  S: string = '<>';
+  S: string = '00';
 var
-  W, H, X, Y: Single;
+  W, H, X, Y, T: Single;
   R: TGPRectF;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
@@ -1080,7 +1080,7 @@ begin
   StringFormat.SetLineAlignment(StringAlignmentCenter);
   try
     R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 6), W, H);
-    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, R, StringFormat);
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 3, R, StringFormat);
   finally
     FontFamily.Free;
     StringFormat.Free;
@@ -1100,10 +1100,24 @@ begin
   Result.StartFigure;
   Result.AddLine(X - (W / 2), Y + (Rect.Height / 4) + (H / 2), Rect.X + (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
 
+  // Add ellipse to the left
+  Result.CloseFigure;
+  Result.StartFigure;
+  T := Y + (Rect.Height / 4) + (H / 2);
+  R := MakeRect((Rect.X + (Rect.Width / 4)) - Rect.Width / 8, T - (Rect.Height / 16), Rect.Width / 8, Rect.Height / 8);
+  Result.AddEllipse(R);
+
   // Add line to the right
   Result.CloseFigure;
   Result.StartFigure;
   Result.AddLine(X + (W / 2), Y + (Rect.Height / 4) + (H / 2), (Rect.X + Rect.Width) - (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Add ellipse to the right
+  Result.CloseFigure;
+  Result.StartFigure;
+  T := Y + (Rect.Height / 4) + (H / 2);
+  R := MakeRect((Rect.X + Rect.Width) - (Rect.Width / 4), T - (Rect.Height / 16), Rect.Width / 8, Rect.Height / 8);
+  Result.AddEllipse(R);
 
   // Close the figure
   Result.CloseFigure;
@@ -1114,9 +1128,9 @@ end;
 //------------------------------------------------------------------------------
 function CreateProtocolPath(Rect: TGPRect): TGPGraphicsPath;
 const
-  S: string = '<>';
+  S: string = '00';
 var
-  W, H, X, Y: Single;
+  W, H, X, Y, T: Single;
   R: TGPRectF;
   FontFamily: TGPFontFamily;
   StringFormat: TGPStringFormat;
@@ -1144,7 +1158,7 @@ begin
   StringFormat.SetLineAlignment(StringAlignmentCenter);
   try
     R := MakeRect(X - (W / 2), (Y - H) + (Rect.Height / 6), W, H);
-    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 2, R, StringFormat);
+    Result.AddString(S, Length(S), FontFamily, FontStyleRegular, Rect.Height / 3, R, StringFormat);
   finally
     FontFamily.Free;
     StringFormat.Free;
@@ -1164,10 +1178,24 @@ begin
   Result.StartFigure;
   Result.AddLine(X - (W / 2), Y + (Rect.Height / 4) + (H / 2), Rect.X + (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
 
+  // Add ellipse to the left
+  Result.CloseFigure;
+  Result.StartFigure;
+  T := Y + (Rect.Height / 4) + (H / 2);
+  R := MakeRect((Rect.X + (Rect.Width / 4)) - Rect.Width / 8, T - (Rect.Height / 16), Rect.Width / 8, Rect.Height / 8);
+  Result.AddEllipse(R);
+
   // Add line to the right
   Result.CloseFigure;
   Result.StartFigure;
   Result.AddLine(X + (W / 2), Y + (Rect.Height / 4) + (H / 2), (Rect.X + Rect.Width) - (Rect.Width / 4), Y + (Rect.Height / 4) + (H / 2));
+
+  // Add ellipse to the right
+  Result.CloseFigure;
+  Result.StartFigure;
+  T := Y + (Rect.Height / 4) + (H / 2);
+  R := MakeRect((Rect.X + Rect.Width) - (Rect.Width / 4), T - (Rect.Height / 16), Rect.Width / 8, Rect.Height / 8);
+  Result.AddEllipse(R);
 
   // Close the figure
   Result.CloseFigure;
