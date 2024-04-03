@@ -894,7 +894,7 @@ procedure TOBDMatrixDisplay.InvalidateBackground;
 var
   SS: TCustomStyleServices;
   Graphics: TGPGraphics;
-  BackgroundRect, BorderRect, GlareRect: TGPRect;
+  BackgroundRect, BorderRect, GlareRect: TGPRectF;
   Brush, GlareBrush: TGPBrush;
   Pen: TGPPen;
   Path, GlarePath: TGPGraphicsPath;
@@ -933,7 +933,7 @@ begin
     if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
     begin
       // Get the rectangle for the background
-      BackgroundRect := MakeRect(Border.Width, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
+      BackgroundRect := MakeRect(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
       // Create the background brush
       Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
       // Get the background path
@@ -950,7 +950,7 @@ begin
     end;
 
     // Draw the glare
-    GlareRect := MakeRect(Border.Width, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
+    GlareRect := MakeRect(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
     GlarePath := CreateGlareRoundRectPath(GlareRect, Border.Corner);
     GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
     try
@@ -964,7 +964,7 @@ begin
     if(Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
     begin
       // Get the rectangle for the border
-      BorderRect := MakeRect(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2));
+      BorderRect := MakeRect(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2) + 0.0);
       // Create the border brush
       Brush := TGPLinearGradientBrush.Create(BorderRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
       // Create the border pen

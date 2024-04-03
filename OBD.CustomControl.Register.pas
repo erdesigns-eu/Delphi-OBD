@@ -12,7 +12,7 @@ unit OBD.CustomControl.Register;
 
 interface
 
-uses System.Classes;
+uses System.Classes, DesignIntf, DesignEditors, ToolsAPI;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -26,21 +26,32 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED,
-  OBD.Touch.Header, OBD.Touch.Subheader;
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form,
+  OBD.Form.Wizard;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENT
 //------------------------------------------------------------------------------
 procedure Register;
 begin
+  // Register our own components
   RegisterComponents(ComponentPage, [
     TOBDCircularGauge,  // Register the Circular Gauge
     TOBDMatrixDisplay,  // Register the Matrix Display
     TOBDLed,            // Register the LED
 
     TOBDTouchHeader,    // Register the Touch Header
-    TOBDTouchSubheader  // Register the Touch Subheader
+    TOBDTouchSubheader, // Register the Touch Subheader
+    TOBDTouchStatusbar  // Register the Touch Statusbar
   ]);
+
+  // Register our custom form
+  RegisterCustomModule(TOBDForm, TCustomModule);
+  // Register the form wizard (Adds an entry to the "New Items" dialog).
+  RegisterPackageWizard(TOBDFormWizard.Create);
 end;
+
+exports
+  Register;
 
 end.

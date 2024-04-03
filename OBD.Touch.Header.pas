@@ -16,7 +16,7 @@ uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
 
-  OBD.CustomControl.Common;
+  OBD.CustomControl.Common, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -39,140 +39,6 @@ const
   ///   Default background to color
   /// </summary>
   DEFAULT_BACKGROUND_TO = $00D7D7D7;
-
-  /// <summary>
-  ///   Default border from color
-  /// </summary>
-  DEFAULT_BORDER_FROM = $00BFBFBF;
-  /// <summary>
-  ///   Default border to color
-  /// </summary>
-  DEFAULT_BORDER_TO = $00CBCCCD;
-  /// <summary>
-  ///   Default border height
-  /// </summary>
-  DEFAULT_BORDER_HEIGHT = 2;
-
-  /// <summary>
-  ///   Default back button caption
-  /// </summary>
-  DEFAULT_BACK_BUTTON_CAPTION = 'Back';
-  /// <summary>
-  ///   Default back button width
-  /// </summary>
-  DEFAULT_BACK_BUTTON_WIDTH = 60;
-  /// <summary>
-  ///   Default back button border color
-  /// </summary>
-  DEFAULT_BACK_BUTTON_BORDER_COLOR = $00ACACAC;
-  /// <summary>
-  ///   Default back button normal color from
-  /// </summary>
-  DEFAULT_BACK_BUTTON_NORMAL_COLOR_FROM = $00F5F5F5;
-  /// <summary>
-  ///   Default back button normal color to
-  /// </summary>
-  DEFAULT_BACK_BUTTON_NORMAL_COLOR_TO = $00C1C1C2;
-  /// <summary>
-  ///   Default back button hot color from
-  /// </summary>
-  DEFAULT_BACK_BUTTON_HOT_COLOR_FROM = $00F0F0F0;
-  /// <summary>
-  ///   Default back button hot color to
-  /// </summary>
-  DEFAULT_BACK_BUTTON_HOT_COLOR_TO = $00B9B9BB;
-  /// <summary>
-  ///   Default back button pressed color from
-  /// </summary>
-  DEFAULT_BACK_BUTTON_PRESSED_COLOR_FROM = $00E5E5E5;
-  /// <summary>
-  ///   Default back button pressed color to
-  /// </summary>
-  DEFAULT_BACK_BUTTON_PRESSED_COLOR_TO = $00B0B0B3;
-  /// <summary>
-  ///   Default back button disabled color from
-  /// </summary>
-  DEFAULT_BACK_BUTTON_DISABLED_COLOR_FROM = $00E2E2E2;
-  /// <summary>
-  ///   Default back button disabled color to
-  /// </summary>
-  DEFAULT_BACK_BUTTON_DISABLED_COLOR_TO = $00BFBFBF;
-
-  /// <summary>
-  ///   Default action button width
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_WIDTH = 80;
-  /// <summary>
-  ///   Default action button caption
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_TEXT = 'Connect';
-  /// <summary>
-  ///   Default action button border color
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_BORDER_COLOR = $00F27900;
-  /// <summary>
-  ///   Default action button normal color from
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_NORMAL_COLOR_FROM = $00EC7600;
-  /// <summary>
-  ///   Default action button normal color to
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_NORMAL_COLOR_TO = $00FFA346;
-  /// <summary>
-  ///   Default action button hot color from
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_HOT_COLOR_FROM = $00DD6F00;
-  /// <summary>
-  ///   Default action button hot color to
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_HOT_COLOR_TO = $00FF870F;
-  /// <summary>
-  ///   Default v button pressed color from
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_PRESSED_COLOR_FROM = $009D4F00;
-  /// <summary>
-  ///   Default action button pressed color to
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_PRESSED_COLOR_TO = $00E17100;
-  /// <summary>
-  ///   Default action button disabled color from
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_DISABLED_COLOR_FROM = $00DF7000;
-  /// <summary>
-  ///   Default action button disabled color to
-  /// </summary>
-  DEFAULT_ACTION_BUTTON_DISABLED_COLOR_TO = $00DF7000;
-
-  /// <summary>
-  ///   Default caption text
-  /// </summary>
-  DEFAULT_CAPTION_TEXT = '';
-  /// <summary>
-  ///   Default caption font size
-  /// </summary>
-  DEFAULT_CAPTION_FONT_SIZE = 12;
-
-  /// <summary>
-  ///   Default tab width
-  /// </summary>
-  DEFAULT_TAB_WIDTH = 100;
-
-  /// <summary>
-  ///   Default battery indicator color (0-25%)
-  /// </summary>
-  DEFAULT_BATTERY_COLOR_25 = $004864FF;
-  /// <summary>
-  ///   Default battery indicator color (26-50%)
-  /// </summary>
-  DEFAULT_BATTERY_COLOR_50 = $0052B1F8;
-  /// <summary>
-  ///   Default battery indicator color (51-75%)
-  /// </summary>
-  DEFAULT_BATTERY_COLOR_75 = $000CE076;
-  /// <summary>
-  ///   Default battery indicator color (75-100%)
-  /// </summary>
-  DEFAULT_BATTERY_COLOR_100 = $00FF870F;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -1277,6 +1143,10 @@ type
     destructor Destroy; override;
 
     /// <summary>
+    ///   Override Repaint method
+    /// </summary>
+    procedure Repaint; override;
+    /// <summary>
     ///   Override assign method
     /// </summary>
     procedure Assign(Source: TPersistent); override;
@@ -1831,7 +1701,6 @@ begin
   FFont := TFont.Create;
   FFont.OnChange := SettingsChanged;
   FFont.Size := DEFAULT_CAPTION_FONT_SIZE;
-  FCaption := DEFAULT_CAPTION_TEXT;
 end;
 
 //------------------------------------------------------------------------------
@@ -3604,6 +3473,19 @@ begin
   FBatteryIndicator.Free;
   // Call inherited destructor
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// REPAINT
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.Repaint;
+begin
+  // Call inherited repaint
+  inherited;
+  // Paint buffer
+  PaintBuffer;
+  // Invalidate
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 31/03/2024
+// RELEASE DATE   : 01/04/2024
 //------------------------------------------------------------------------------
 unit OBD.Touch.Subheader;
 
@@ -16,7 +16,7 @@ uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
 
-  OBD.CustomControl.Common;
+  OBD.CustomControl.Common, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -26,112 +26,6 @@ const
   ///   Default height
   /// </summary>
   DEFAULT_HEIGHT = 25;
-
-  /// <summary>
-  ///   Default background from color
-  /// </summary>
-  DEFAULT_BACKGROUND_FROM = $00EBECEC;
-  /// <summary>
-  ///   Default background to color
-  /// </summary>
-  DEFAULT_BACKGROUND_TO = $00EFEFEF;
-
-  /// <summary>
-  ///   Default border from color
-  /// </summary>
-  DEFAULT_BORDER_FROM = $00BFBFBF;
-  /// <summary>
-  ///   Default border to color
-  /// </summary>
-  DEFAULT_BORDER_TO = $00CBCCCD;
-  /// <summary>
-  ///   Default border height
-  /// </summary>
-  DEFAULT_BORDER_HEIGHT = 2;
-
-  /// <summary>
-  ///   Default battery indicator size
-  /// </summary>
-  DEFAULT_BATTERY_INDICATOR_SIZE = 16;
-  /// <summary>
-  ///   Default battery indicator border color
-  /// </summary>
-  DEFAULT_BATTERY_INDICATOR_BORDER_COLOR = clBlack;
-  /// <summary>
-  ///   Default battery indicator label format
-  /// </summary>
-  DEFAULT_BATTERY_INDICATOR_LABEL_FORMAT = '%.1fV';
-  /// <summary>
-  ///   Default battery indicator from color
-  /// </summary>
-  DEFAULT_BATTERY_INDICATOR_FROM_COLOR = $00F5F5F5;
-  /// <summary>
-  ///   Default battery indicator to color
-  /// </summary>
-  DEFAULT_BATTERY_INDICATOR_TO_COLOR = $00C1C1C2;
-
-  /// <summary>
-  ///   Default VCI indicator size
-  /// </summary>
-  DEFAULT_VCI_INDICATOR_SIZE = 16;
-  /// <summary>
-  ///   Default VCI indicator border color
-  /// </summary>
-  DEFAULT_VCI_INDICATOR_BORDER_COLOR = clBlack;
-  /// <summary>
-  ///   Default VCI indicator from color
-  /// </summary>
-  DEFAULT_VCI_INDICATOR_FROM_COLOR = $00F5F5F5;
-  /// <summary>
-  ///   Default VCI indicator to color
-  /// </summary>
-  DEFAULT_VCI_INDICATOR_TO_COLOR = $00C1C1C2;
-  /// <summary>
-  ///   Default VCI indicator caption
-  /// </summary>
-  DEFAULT_VCI_INDICATOR_CAPTION = 'Not connected';
-
-  /// <summary>
-  ///   Default Internet connection indicator size
-  /// </summary>
-  DEFAULT_INTERNET_CONNECTION_INDICATOR_SIZE = 12;
-  /// <summary>
-  ///   Default Internet connection border color
-  /// </summary>
-  DEFAULT_INTERNET_CONNECTION_INDICATOR_BORDER_COLOR = clBlack;
-  /// <summary>
-  ///   Default Internet connection from color
-  /// </summary>
-  DEFAULT_INTERNET_CONNECTION_INDICATOR_FROM_COLOR = $00F5F5F5;
-  /// <summary>
-  ///   Default Internet connection to color
-  /// </summary>
-  DEFAULT_INTERNET_CONNECTION_INDICATOR_TO_COLOR = $00C1C1C2;
-  /// <summary>
-  ///   Default Internet connection caption
-  /// </summary>
-  DEFAULT_INTERNET_CONNECTION_INDICATOR_CAPTION = 'No internet access';
-
-  /// <summary>
-  ///   Default protocol indicator size
-  /// </summary>
-  DEFAULT_PROTOCOL_INDICATOR_SIZE = 16;
-  /// <summary>
-  ///   Default protocol border color
-  /// </summary>
-  DEFAULT_PROTOCOL_INDICATOR_BORDER_COLOR = clBlack;
-  /// <summary>
-  ///   Default protocol from color
-  /// </summary>
-  DEFAULT_PROTOCOL_INDICATOR_FROM_COLOR = $00F5F5F5;
-  /// <summary>
-  ///   Default protocol to color
-  /// </summary>
-  DEFAULT_PROTOCOL_INDICATOR_TO_COLOR = $00C1C1C2;
-  /// <summary>
-  ///   Default protocol caption
-  /// </summary>
-  DEFAULT_PROTOCOL_INDICATOR_CAPTION = 'Not connected';
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -884,18 +778,6 @@ type
     ///   WM_ERASEBKGND message handler
     /// </summary>
     procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
-    /// <summary>
-    ///   WM_KILLFOCUS message handler
-    /// </summary>
-    procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
-    /// <summary>
-    ///   CM_ENABLEDCHANGED message handler
-    /// </summary>
-    procedure CMEnabledChanged(var Message: TMessage); message CM_ENABLEDCHANGED;
-    /// <summary>
-    ///   CM_MOUSELEAVE message handler
-    /// </summary>
-    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
     /// <summary>
     ///   Buffer (This is the canvas we draw on)
@@ -922,18 +804,6 @@ type
     ///   Override UpdateStyleElements method
     /// </summary>
     procedure UpdateStyleElements; override;
-    /// <summary>
-    ///   Override MouseDown method
-    /// </summary>
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-    /// <summary>
-    ///   Override MouseUp method
-    /// </summary>
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-    /// <summary>
-    ///   Override MouseMove method
-    /// </summary>
-    procedure MouseMove(Shift: TShiftState; X: Integer; Y: Integer); override;
   protected
     /// <summary>
     ///   Settings changed handler
@@ -953,6 +823,10 @@ type
     /// </summary>
     destructor Destroy; override;
 
+    /// <summary>
+    ///   Override Repaint method
+    /// </summary>
+    procedure Repaint; override;
     /// <summary>
     ///   Override assign method
     /// </summary>
@@ -1906,30 +1780,6 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// WM_KILLFOCUS MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.WMKillFocus(var Message: TWMKillFocus);
-begin
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// CM_ENABLEDCHANGED MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.CMEnabledChanged(var Message: TMessage);
-begin
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// CM_MOUSELEAVE MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.CMMouseLeave(var Message: TMessage);
-begin
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
 // CREATE PARAMS
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.CreateParams(var Params: TCreateParams);
@@ -2000,33 +1850,6 @@ begin
   PaintBuffer;
   // Invalidate buffer
   Invalidate;
-end;
-
-//------------------------------------------------------------------------------
-// MOUSE DOWN HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
-begin
-  // Call inherited mousedown
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// MOUSE UP HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer; Y: Integer);
-begin
-  // Call inherited mouseup
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// MOUSE MOVE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
-begin
-  // Call inherited mousemove
-  inherited;
 end;
 
 //------------------------------------------------------------------------------
@@ -2295,7 +2118,6 @@ begin
       Z := X;
       // Update the Y position
       Y := ((Height - Border.Height) / 2) - (ProtocolIndicator.Size / 2);
-      X := 8;
 
       // Create protocol indicator rect
       ProtocolRect := MakeRect(8, Y, ProtocolIndicator.Size, ProtocolIndicator.Size);
@@ -2406,6 +2228,19 @@ begin
   FProtocolIndicator.Free;
   // Call inherited destructor
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// REPAINT
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.Repaint;
+begin
+  // Call inherited repaint
+  inherited;
+  // Paint buffer
+  PaintBuffer;
+  // Invalidate
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
