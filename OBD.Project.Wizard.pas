@@ -91,7 +91,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetName: string;
 begin
-  Result := 'OBD Project';
+  Result := 'Windows VCL Project';
 end;
 
 //------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetComment: string;
 begin
-  Result := 'Create a new ERDesigns OBD Project, including a OBD MainForm with a header, subheader and statusbar.';
+  Result := 'Creates a new ERDesigns VCL Project, including a OBD MainForm with a header, subheader and statusbar.';
 end;
 
 //------------------------------------------------------------------------------
@@ -338,11 +338,15 @@ const
     'program %s;'                                                                      + #13#10 +
     ''                                                                                 + #13#10 +
     'uses'                                                                             + #13#10 +
-    '  Vcl.Forms;'                                                                     + #13#10 +
+    '  Vcl.Forms,'                                                                     + #13#10 +
+    '  OBD.Application.Settings;'                                                      + #13#10 +
     ''                                                                                 + #13#10 +
     '{$R *.res}'                                                                       + #13#10 +
     ''                                                                                 + #13#10 +
+    'var'                                                                              + #13#10 +
+    '  ApplicationSettings: TOBDApplicationSettings;'                                  + #13#10 +
     'begin'                                                                            + #13#10 +
+    '  ApplicationSettings := TOBDApplicationSettings.Instance;'                       + #13#10 +
     '  Application.Initialize;'                                                        + #13#10 +
     '  Application.MainFormOnTaskbar := True;'                                         + #13#10 +
     '  Application.Run;'                                                               + #13#10 +

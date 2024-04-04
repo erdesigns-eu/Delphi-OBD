@@ -13,7 +13,7 @@ unit OBD.Touch.Statusbar;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
   Vcl.Forms,
 
@@ -976,10 +976,10 @@ begin
       SizeGripRect := MakeRect(0.0, Border.Height, Width - 3, Height - Border.Height);
       SizeGripWidth := Ceil((SizeGrip.DotSize + SizeGrip.DotSpacing) * 3);
       FSizeGrip.SizeGripRect := Rect((Width - 3) - SizeGripWidth, Border.Height, Width - 3, Height);
-      case SizeGrip.DotShape of
-        dsSquare: SizeGripPath := CreateSizeGripPathSquare(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing);
-        dsCircle: SizeGripPath := CreateSizeGripPathCircle(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing);
-      end;
+      if SizeGrip.DotShape = dsSquare then
+        SizeGripPath := CreateSizeGripPathSquare(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing)
+      else
+        SizeGripPath := CreateSizeGripPathCircle(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing);
       Brush := TGPSolidBrush.Create(SafeColorRefToARGB(SizeGrip.DotColor));
       try
         Graphics.FillPath(Brush, SizeGripPath);

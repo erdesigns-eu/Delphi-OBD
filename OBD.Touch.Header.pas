@@ -13,7 +13,7 @@ unit OBD.Touch.Header;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
 
   OBD.CustomControl.Common, OBD.CustomControl.Constants;
@@ -3036,12 +3036,14 @@ begin
       end else
       begin
         case BackButton.ButtonState of
-          // Normal colors
-          0: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.NormalColor.FromColor), SafeColorRefToARGB(BackButton.NormalColor.ToColor), LinearGradientModeVertical);
           // Hot colors
           1: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.HotColor.FromColor), SafeColorRefToARGB(BackButton.HotColor.ToColor), LinearGradientModeVertical);
           // Pressed colors
           2: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.PressedColor.FromColor), SafeColorRefToARGB(BackButton.PressedColor.ToColor), LinearGradientModeVertical);
+
+          // Normal color
+          else
+            Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(BackButton.NormalColor.FromColor), SafeColorRefToARGB(BackButton.NormalColor.ToColor), LinearGradientModeVertical);
         end;
       end;
       Pen := TGPPen.Create(SafeColorRefToARGB(BackButton.BorderColor), BackButton.BorderWidth);
@@ -3109,12 +3111,13 @@ begin
       end else
       begin
         case ActionButton.ButtonState of
-          // Normal colors
-          0: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.NormalColor.FromColor), SafeColorRefToARGB(ActionButton.NormalColor.ToColor), LinearGradientModeVertical);
           // Hot colors
           1: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.HotColor.FromColor), SafeColorRefToARGB(ActionButton.HotColor.ToColor), LinearGradientModeVertical);
           // Pressed colors
           2: Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.PressedColor.FromColor), SafeColorRefToARGB(ActionButton.PressedColor.ToColor), LinearGradientModeVertical);
+          // Normal colors
+          else
+            Brush := TGPLinearGradientBrush.Create(ButtonRect, SafeColorRefToARGB(ActionButton.NormalColor.FromColor), SafeColorRefToARGB(ActionButton.NormalColor.ToColor), LinearGradientModeVertical);
         end;
       end;
       Pen := TGPPen.Create(SafeColorRefToARGB(ActionButton.BorderColor), ActionButton.BorderWidth);
@@ -3256,12 +3259,13 @@ begin
           end else
           begin
             case FTabs.Items[I].TabState of
-              // Normal colors
-              0: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.NormalColor.FromColor), SafeColorRefToARGB(Tab.NormalColor.ToColor), LinearGradientModeVertical);
               // Hot colors
               1: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.HotColor.FromColor), SafeColorRefToARGB(Tab.HotColor.ToColor), LinearGradientModeVertical);
               // Pressed colors
               2: Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.PressedColor.FromColor), SafeColorRefToARGB(Tab.PressedColor.ToColor), LinearGradientModeVertical);
+              // Normal colors
+              else
+                Brush := TGPLinearGradientBrush.Create(TabRect, SafeColorRefToARGB(Tab.NormalColor.FromColor), SafeColorRefToARGB(Tab.NormalColor.ToColor), LinearGradientModeVertical);
             end;
           end;
 

@@ -101,7 +101,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDMainFormModuleCreatorWizard.GetName: string;
 begin
-  Result := 'OBD MainForm';
+  Result := 'Windows VCL Mainform';
 end;
 
 //------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDMainFormModuleCreatorWizard.GetComment: string;
 begin
-  Result := 'Create a new ERDesigns OBD Mainform including a header, subheader and statusbar.';
+  Result := 'Creates a new ERDesigns OBD Mainform including a header, subheader and statusbar.';
 end;
 
 //------------------------------------------------------------------------------
@@ -295,8 +295,8 @@ end;
 //------------------------------------------------------------------------------
 function TOBDMainFormModuleCreator.GetMainForm: Boolean;
 begin
-  // True if this is the main form of the application
-  Result := False;
+  // Since this is the mainform, return true.
+  Result := True;
 end;
 
 //------------------------------------------------------------------------------
