@@ -2,8 +2,8 @@ object OBDForm: TOBDForm
   Left = 0
   Top = 0
   Caption = 'OBDForm'
-  ClientHeight = 442
-  ClientWidth = 628
+  ClientHeight = 440
+  ClientWidth = 620
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

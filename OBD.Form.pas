@@ -28,6 +28,11 @@ type
   TOBDForm = class(TForm)
   private
     /// <summary>
+    ///   "Old" window state used in WndProc
+    /// </summary>
+    FOldWindowState: TWindowState;
+
+    /// <summary>
     ///   Repaint OBD controls
     /// </summary>
     procedure RepaintOBDControls; virtual;
@@ -36,6 +41,11 @@ type
     ///   Override WndProc method
     /// </summary>
     procedure WndProc(var Msg: TMessage); override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(AOwner: TComponent); override;
   end;
 
 var
@@ -89,13 +99,32 @@ begin
   inherited WndProc(Msg);
 
   // Handle window messages that we need to repaint OBD controls
-  // like the header, subheader and statusbar.
-  if Msg.Msg = WM_SYSCOMMAND then
+  // like the header, subheader and statusbar. This is because when the
+  // window is Maximized or Restored there is no resize handler called
+  // and the buffers of our custom components are not updated.
+  if Msg.Msg = WM_WINDOWPOSCHANGED then
   begin
-    case Msg.WParam of
-      SC_MINIMIZE, SC_MAXIMIZE, SC_RESTORE: RepaintOBDControls;
+    // Check if the window state changed
+    if (FOldWindowState <> WindowState) then
+    begin
+      // Update window state for next event, as we only need to repaint the
+      // controls when the window state changed.
+      FOldWindowState := WindowState;
+      // Repaint our controls
+      RepaintOBDControls;
     end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDForm.Create(AOwner: TComponent);
+begin
+  // Call inherited constructor
+  inherited Create(AOwner);
+  // Set initial window state
+  FOldWindowState := WindowState;
 end;
 
 end.

@@ -1,79 +1,65 @@
 ﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.Form.Wizard.pas
-// CONTENTS       : OBD Form wizard
+// UNIT           : OBD.MainForm.Wizard.pas
+// CONTENTS       : OBD MainForm wizard
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 03/04/2024
+// RELEASE DATE   : 04/04/2024
 //------------------------------------------------------------------------------
-unit OBD.Form.Wizard;
+unit OBD.Mainform.Wizard;
 
 interface
 
 uses
-  ToolsAPI, System.SysUtils, Dialogs;
+  System.SysUtils, WinApi.Windows, Vcl.Dialogs, DesignIntf, ToolsAPI, PlatformAPI;
 
 //------------------------------------------------------------------------------
 // CLASSES
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Base OBD Form Wizard
+  ///   OBD MainForm Module Creator Wizard
   /// </summary>
-  TOBDFormWizard = class(TInterfacedObject, IOTARepositoryWizard, IOTAWizard, IOTAFormWizard, IOTARepositoryWizard80)
+  TOBDMainFormModuleCreatorWizard = class(TNotifierObject, IOTAWizard, IOTARepositoryWizard, IOTAFormWizard, IOTARepositoryWizard60, IOTARepositoryWizard80, IOTARepositoryWizard160)
   public
-    // IOTAWizard methods
+    // IOTAWizard
     function GetIDString: string;
     function GetName: string;
     function GetState: TWizardState;
     procedure Execute;
-
-    // IOTARepositoryWizard methods
+    // IOTARepositoryWizard
     function GetAuthor: string;
     function GetComment: string;
     function GetPage: string;
     function GetGlyph: Cardinal;
-
-    // Additional methods for IOTAFormWizard
+    // IOTARepositoryWizard60
     function GetDesigner: string;
-    function GetGalleryCategory: IOTAGalleryCategory;
+    // IOTARepositoryWizard80
     function GetPersonality: string;
-
-    // IOTANotifier methods
-    procedure AfterSave;
-    procedure BeforeSave;
-    procedure Destroyed;
-    procedure Modified;
+    function GetGalleryCategory: IOTAGalleryCategory;
+    // IOTARepositoryWizard160
+    function GetFrameworkTypes: TArray<string>;
+    function GetPlatforms: TArray<string>;
   end;
 
   /// <summary>
-  ///   OTA File
+  ///   OBD MainForm Module Creator
   /// </summary>
-  TOTAFile = class(TInterfacedObject, IOTAFile)
+  TOBDMainFormModuleCreator = class(TInterfacedObject, IOTACreator, IOTAModuleCreator)
   private
-    FContent: string;
+    FProject: IOTAProject;
   public
-    constructor Create(const Content: string);
+    constructor Create; overload; virtual;
+    constructor Create(AProject: IOTAProject); overload; virtual;
 
-    // IOTAFile
-    function GetSource: string;
-    function GetAge: TDateTime;
-  end;
-
-  /// <summary>
-  ///   Form File Creator
-  /// </summary>
-  type
-  TOTAFileCreator = class(TInterfacedObject, IOTAModuleCreator)
-  private
-    FUnitName: string;
-    FFormName: string;
-    FClassName: string;
-  public
-    constructor Create(const UnitName, FormName, ClassName: string);
-
+    // IOTACreator
+    function GetCreatorType: string;
+    function GetExisting: Boolean;
+    function GetFileSystem: string;
+    function GetOwner: IOTAModule;
+    function GetUnnamed: Boolean;
     // IOTAModuleCreator
     function GetAncestorName: string;
     function GetImplFileName: string;
@@ -85,261 +71,302 @@ type
     function NewFormFile(const FormIdent, AncestorIdent: string): IOTAFile;
     function NewImplSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
     function NewIntfSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
-    function NewProjectSource(const ProjectName: string): IOTAFile;
-    function GetCreatorType: string; virtual;
-    function GetExisting: Boolean; virtual;
-    function GetFileSystem: string; virtual;
-    function GetOwner: IOTAModule; virtual;
-    function GetUnnamed: Boolean; virtual;
     procedure FormCreated(const FormEditor: IOTAFormEditor);
   end;
 
+  /// <summary>
+  ///   OBD Source File
+  /// </summary>
+  TOBDSourceFile = class(TInterfacedObject, IOTAFile)
+  private
+    FSource: string;
+  public
+    function GetSource: string;
+    function GetAge: TDateTime;
+    constructor Create(const Source: string);
+  end;
 
 implementation
 
 //------------------------------------------------------------------------------
-// GET ID STRING
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET ID STRING
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetIDString: string;
+function TOBDMainFormModuleCreatorWizard.GetIDString: string;
 begin
-  Result := 'ERDesigns.OBDFormWizard';
+  Result := 'ERDesigns.OBDMainFormWizard';
 end;
 
 //------------------------------------------------------------------------------
-// GET NAME
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET NAME
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetName: string;
+function TOBDMainFormModuleCreatorWizard.GetName: string;
 begin
-  Result := 'OBD Form';
+  Result := 'OBD MainForm';
 end;
 
 //------------------------------------------------------------------------------
-// GET STATE
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET STATE
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetState: TWizardState;
+function TOBDMainFormModuleCreatorWizard.GetState: TWizardState;
 begin
   Result := [wsEnabled];
 end;
 
 //------------------------------------------------------------------------------
-// EXECUTE
+// TOBDMAINFORM MODULE CREATOR WIZARD: EXECUTE
 //------------------------------------------------------------------------------
-procedure TOBDFormWizard.Execute;
-const
-  Name: string = 'OBDMainForm';
-var
-  Project: IOTAProject;
-  UnitName, ClassName, FileName, FormName: string;
+procedure TOBDMainFormModuleCreatorWizard.Execute;
 begin
-  if Assigned(BorlandIDEServices) then
-  begin
-    // Query new default unit, class and filename
-    (BorlandIDEServices as IOTAModuleServices).GetNewModuleAndClassName('', UnitName, ClassName, FileName);
-    ClassName := Format('T%s%s', [Name, Copy(UnitName, 5, Length(UnitName))]);
-    FormName  := Format('%s%s', [Name, Copy(UnitName, 5, Length(UnitName))]);
-    Project := GetActiveProject;
-    if Assigned(Project) then
-    begin
-      (BorlandIDEServices as IOTAModuleServices).CreateModule(TOTAFileCreator.Create(UnitName, FormName, ClassName) as IOTAModuleCreator);
-    end;
-  end;
+  (BorlandIDEServices as IOTAModuleServices).CreateModule(TOBDMainFormModuleCreator.Create);
 end;
 
-
 //------------------------------------------------------------------------------
-// GET AUTHOR
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET AUTHOR
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetAuthor: string;
+function TOBDMainFormModuleCreatorWizard.GetAuthor: string;
 begin
   Result := 'ERDesigns';
 end;
 
 //------------------------------------------------------------------------------
-// GET COMMENT
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET COMMENT
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetComment: string;
+function TOBDMainFormModuleCreatorWizard.GetComment: string;
 begin
   Result := 'Create a new ERDesigns OBD Mainform including a header, subheader and statusbar.';
 end;
 
 //------------------------------------------------------------------------------
-// GET PAGE
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET PAGE
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetPage: string;
+function TOBDMainFormModuleCreatorWizard.GetPage: string;
 begin
   Result := 'ERDesigns OBD';
 end;
 
 //------------------------------------------------------------------------------
-// GET GLYPH
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET GLYPH
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetGlyph: Cardinal;
+function TOBDMainFormModuleCreatorWizard.GetGlyph: Cardinal;
 begin
   Result := 0;
 end;
 
 //------------------------------------------------------------------------------
-// GET DESIGNER
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET DESIGNER
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetDesigner: string;
+function TOBDMainFormModuleCreatorWizard.GetDesigner: string;
 begin
   Result := dVCL;
 end;
 
 //------------------------------------------------------------------------------
-// GET GALLERY CATEGORY
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET PERSONALITY
 //------------------------------------------------------------------------------
-function TOBDFormWizard.GetGalleryCategory: IOTAGalleryCategory;
-begin
-  Result := nil;
-end;
-
-//------------------------------------------------------------------------------
-// GET PERSONALITY
-//------------------------------------------------------------------------------
-function TOBDFormWizard.GetPersonality: string;
+function TOBDMainFormModuleCreatorWizard.GetPersonality: string;
 begin
   Result := sDelphiPersonality;
 end;
 
 //------------------------------------------------------------------------------
-// AFTER SAVE HANDLER
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET GALLERY CATEGORY
 //------------------------------------------------------------------------------
-procedure TOBDFormWizard.AfterSave;
+function TOBDMainFormModuleCreatorWizard.GetGalleryCategory: IOTAGalleryCategory;
+var
+  Category: IOTAGalleryCategory;
+  CatManager: IOTAGalleryCategoryManager;
 begin
-  //
+  CatManager := (BorlandIDEServices as IOTAGalleryCategoryManager);
+  Assert(Assigned(CatManager));
+  Category := CatManager.FindCategory(sCategoryDelphiNewFiles);
+  if Assigned(Category) then
+    Result := Category
+  else
+    Result := nil;
 end;
 
 //------------------------------------------------------------------------------
-// BEFORE SAVE HANDLER
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET FRAMEWORK TYPES
 //------------------------------------------------------------------------------
-procedure TOBDFormWizard.BeforeSave;
+function TOBDMainFormModuleCreatorWizard.GetFrameworkTypes: TArray<String>;
 begin
-  //
+  Setlength(Result, 1);
+  Result[0] := sFrameworkTypeVCL;
 end;
 
 //------------------------------------------------------------------------------
-// DESTROYED HANDLER
+// TOBDMAINFORM MODULE CREATOR WIZARD: GET PLATFORMS
 //------------------------------------------------------------------------------
-procedure TOBDFormWizard.Destroyed;
+function TOBDMainFormModuleCreatorWizard.GetPlatforms: TArray<String>;
 begin
-  //
+  SetLength(Result, 2);
+  Result[0] := cWin32Platform;
+  Result[1] := cWin64Platform;
 end;
 
 //------------------------------------------------------------------------------
-// MODIFIED HANDLER
+// TOBDMAINFORM MODULE CREATOR: FORM CREATED
 //------------------------------------------------------------------------------
-procedure TOBDFormWizard.Modified;
+procedure TOBDMainFormModuleCreator.FormCreated(const FormEditor: IOTAFormEditor);
 begin
-  //
+  // Nothing
 end;
 
 //------------------------------------------------------------------------------
-// CONSTRUCTOR
+// TOBDMAINFORM MODULE CREATOR: GET ANCESTOR NAME
 //------------------------------------------------------------------------------
-constructor TOTAFile.Create(const Content: string);
+function TOBDMainFormModuleCreator.GetAncestorName: string;
+begin
+  Result := 'OBDForm';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDMainFormModuleCreator.Create;
 begin
   // Call inherited constructor
   inherited Create;
-  // Set content
-  FContent := Content;
 end;
 
 //------------------------------------------------------------------------------
-// GET SOURCE
+// TOBDMAINFORM MODULE CREATOR: CONSTRUCTOR
 //------------------------------------------------------------------------------
-function TOTAFile.GetSource: string;
+constructor TOBDMainFormModuleCreator.Create(AProject: IOTAProject);
 begin
-  Result := FContent;
-end;
-
-//------------------------------------------------------------------------------
-// GET AGE
-//------------------------------------------------------------------------------
-function TOTAFile.GetAge: TDateTime;
-begin
-  // Indicates a new file
-  Result := -1;
-end;
-
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TOTAFileCreator.Create(const UnitName, FormName, ClassName: string);
-begin
+  // Call inherited constructor
   inherited Create;
-  FUnitName := UnitName;
-  FFormName := FormName;
-  FClassName := ClassName;
+  // Store project
+  FProject := AProject;
 end;
 
 //------------------------------------------------------------------------------
-// GET ANCESTOR NAME
+// TOBDMAINFORM MODULE CREATOR: GET ANCESTOR NAME
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetAncestorName: string;
+function TOBDMainFormModuleCreator.GetCreatorType: string;
 begin
-  Result := 'TOBDForm';
+  // Return sUnit or sText as appropriate
+  Result := sForm;
 end;
 
 //------------------------------------------------------------------------------
-// GET IMPLEMENTATION FILENAME
+// TOBDMAINFORM MODULE CREATOR: GET EXCISTING
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetImplFileName: string;
+function TOBDMainFormModuleCreator.GetExisting: Boolean;
 begin
-  Result := FUnitName + '.pas';
+  Result := False;
 end;
 
 //------------------------------------------------------------------------------
-// GET INTERFACE FILENAME
+// TOBDMAINFORM MODULE CREATOR: GET FILE SYSTEM
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetIntfFileName: string;
+function TOBDMainFormModuleCreator.GetFileSystem: string;
+begin
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: GET FORM NAME
+//------------------------------------------------------------------------------
+function TOBDMainFormModuleCreator.GetFormName: string;
+begin
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: GET IMPLEMENTATION FILENAME
+//------------------------------------------------------------------------------
+function TOBDMainFormModuleCreator.GetImplFileName: string;
+begin
+  Result := '';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: GET INTERFACE FILENAME
+//------------------------------------------------------------------------------
+function TOBDMainFormModuleCreator.GetIntfFileName: string;
 begin
   // Blank for forms
   Result := '';
 end;
 
 //------------------------------------------------------------------------------
-// GET NAME OF THE FORM
+// TOBDMAINFORM MODULE CREATOR: GET MAIN FORM
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetFormName: string;
-begin
-  Result := FFormName;
-end;
-
-//------------------------------------------------------------------------------
-// GET MAINFORM
-//------------------------------------------------------------------------------
-function TOTAFileCreator.GetMainForm: Boolean;
+function TOBDMainFormModuleCreator.GetMainForm: Boolean;
 begin
   // True if this is the main form of the application
   Result := False;
 end;
 
 //------------------------------------------------------------------------------
-// GET SHOW FORM
+// TOBDMAINFORM MODULE CREATOR: GET OWNER
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetShowForm: Boolean;
+function TOBDMainFormModuleCreator.GetOwner: IOTAModule;
+var
+  ModuleServices: IOTAModuleServices;
+  Module: IOTAModule;
+  NewModule: IOTAModule;
+begin
+  if Assigned(FProject) then
+  begin
+    Result := FProject;
+  end else
+  begin
+    Result := nil;
+    ModuleServices := (BorlandIDEServices as IOTAModuleServices);
+    Module := ModuleServices.CurrentModule;
+
+    if Module <> nil then
+    begin
+      if Module.QueryInterface(IOTAProject, NewModule) = S_OK then
+        Result := NewModule
+
+      else if Module.OwnerModuleCount > 0 then
+      begin
+        NewModule := Module.OwnerModules[0];
+        if NewModule <> nil then
+          if NewModule.QueryInterface(IOTAProject, Result) <> S_OK then
+            Result := nil;
+      end;
+    end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: GET SHOW FORM
+//------------------------------------------------------------------------------
+function TOBDMainFormModuleCreator.GetShowForm: Boolean;
 begin
   // Show the form by default
   Result := True;
 end;
 
 //------------------------------------------------------------------------------
-// GET SHOW SOURCE
+// TOBDMAINFORM MODULE CREATOR: GET SHOW SOURCE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetShowSource: Boolean;
+function TOBDMainFormModuleCreator.GetShowSource: Boolean;
 begin
   // Show the source code by default
   Result := True;
 end;
 
 //------------------------------------------------------------------------------
-// GET NEW FORM FILE
+// TOBDMAINFORM MODULE CREATOR: GET UNNAMED
 //------------------------------------------------------------------------------
-function TOTAFileCreator.NewFormFile(const FormIdent, AncestorIdent: string): IOTAFile;
+function TOBDMainFormModuleCreator.GetUnnamed: Boolean;
+begin
+  // Typically True for new files to prompt for a name
+  Result := True;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDMAINFORM MODULE CREATOR: NEW FORM FILE
+//------------------------------------------------------------------------------
+function TOBDMainFormModuleCreator.NewFormFile(const FormIdent, AncestorIdent: string): IOTAFile;
 const
   FormDFMTemplate =
-    'object %s: %s'                                   + #13#10 +
+    'object %s: T%s'                                  + #13#10 +
     'Left = 0'                                        + #13#10 +
     'Top = 0'                                         + #13#10 +
     'Caption = ''%s'''                                + #13#10 +
@@ -376,15 +403,25 @@ const
 
     'end';
 begin
-  Result := TOTAFile.Create(Format(FormDFMTemplate, [FFormName, FClassName, FFormName]));
+  Result := TOBDSourceFile.Create(Format(FormDFMTemplate, [FormIdent, FormIdent, FormIdent]))
 end;
 
 //------------------------------------------------------------------------------
-// GET IMPLEMENATION SOURCE
+// TOBDMAINFORM MODULE CREATOR: NEW IMPLEMENATION SOURCE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.NewImplSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
+function TOBDMainFormModuleCreator.NewImplSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
 const
   SourceTemplate =
+    '//------------------------------------------------------------------------------'                   + #13#10 +
+    '// UNIT           : %s.pas'                                                                         + #13#10 +
+    '// VERSION        : 1.0'                                                                            + #13#10 +
+    '// TARGET         : Embarcadero Delphi 11 or higher'                                                + #13#10 +
+    '// AUTHOR         : Ernst Reidinga (ERDesigns)'                                                     + #13#10 +
+    '// STATUS         : Open source under Apache 2.0 library'                                           + #13#10 +
+    '// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11'                                                       + #13#10 +
+    '// CREATED DATE   : %s'                                                                             + #13#10 +
+    '//------------------------------------------------------------------------------'                   + #13#10 +
+    ''                                                                                                   + #13#10 +
     'unit %s;'                                                                                           + #13#10 +
     ''                                                                                                   + #13#10 +
     'interface'                                                                                          + #13#10 +
@@ -396,7 +433,7 @@ const
     '  OBD.Form, OBD.Touch.Subheader, OBD.Touch.Header, OBD.Touch.Statusbar;'                            + #13#10 +
     ''                                                                                                   + #13#10 +
     'type'                                                                                               + #13#10 +
-    '  %s = class(%s)'                                                                                   + #13#10 +
+    '  T%s = class(T%s)'                                                                                 + #13#10 +
 
     // Our OBD Touch controls
     '    OBDTouchHeader1: TOBDTouchHeader;'                                                              + #13#10 +
@@ -411,7 +448,7 @@ const
     '  end;'                                                                                             + #13#10 +
     ''                                                                                                   + #13#10 +
     'var'                                                                                                + #13#10 +
-    '  %s: %s;'                                                                                          + #13#10 +
+    '  %s: T%s;'                                                                                         + #13#10 +
     ''                                                                                                   + #13#10 +
     'implementation'                                                                                     + #13#10 +
     ''                                                                                                   + #13#10 +
@@ -419,93 +456,40 @@ const
     ''                                                                                                   + #13#10 +
     'end.';
 begin
-  Result := TOTAFile.Create(Format(SourceTemplate, [ModuleIdent, FClassName, AncestorIdent, FormIdent, FClassName, FormIdent, FormIdent]));
+  Result := TOBDSourceFile.Create(Format(SourceTemplate, [ModuleIdent, FormatDateTime('dd/mm/yyyy', Now), ModuleIdent, FormIdent, AncestorIdent, FormIdent, FormIdent]));
 end;
 
 //------------------------------------------------------------------------------
-// GET INTERFACE SOURCE
+// TOBDMAINFORM MODULE CREATOR: NEW INTERFACE SOURCE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.NewIntfSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
+function TOBDMainFormModuleCreator.NewIntfSource(const ModuleIdent, FormIdent, AncestorIdent: string): IOTAFile;
 begin
   Result := nil;
 end;
 
 //------------------------------------------------------------------------------
-// GET NEW PROJECT SOURCE
+// TOBSOURCEFILE: CREATE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.NewProjectSource(const ProjectName: string): IOTAFile;
-const
-  ProjectTemplate =
-    'program %s'                                + #13#10 +
-    ''                                          + #13#10 +
-    'uses'                                      + #13#10 +
-    '  Vcl.Forms,'                              + #13#10 +
-    '  %s in ''%s'' {%s};'                      + #13#10 +
-    ''                                          + #13#10 +
-    '{$R *.res}'                                + #13#10 +
-    ''                                          + #13#10 +
-    'begin'                                     + #13#10 +
-    '  Application.Initialize;'                 + #13#10 +
-    '  Application.MainFormOnTaskbar := True;'  + #13#10 +
-    '  Application.CreateForm(%s, %s);'         + #13#10 +
-    '  Application.Run;'                        + #13#10 +
-    'end.';
+constructor TOBDSourceFile.Create(const Source: string);
 begin
-  Result := TOTAFile.Create(Format(ProjectTemplate, [ProjectName, FUnitName, FUnitName, FClassName, FFormName]));
+  FSource := Source;
 end;
 
 //------------------------------------------------------------------------------
-// GET CREATOR TYPE
+// TOBSOURCEFILE: GET AGE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetCreatorType: string;
+function TOBDSourceFile.GetAge: TDateTime;
 begin
-  // Indicates creating a form
-  Result := sForm;
+  Result := -1;
 end;
 
 //------------------------------------------------------------------------------
-// GET EXISTING
+// TOBSOURCEFILE: GET SOURCE
 //------------------------------------------------------------------------------
-function TOTAFileCreator.GetExisting: Boolean;
+function TOBDSourceFile.GetSource: string;
 begin
-  // Typically False for new files
-  Result := False;
-end;
-
-//------------------------------------------------------------------------------
-// GET FILE SYSTEM
-//------------------------------------------------------------------------------
-function TOTAFileCreator.GetFileSystem: string;
-begin
-  // Use the default file system
-  Result := '';
-end;
-
-//------------------------------------------------------------------------------
-// GET OWNER
-//------------------------------------------------------------------------------
-function TOTAFileCreator.GetOwner: IOTAModule;
-begin
-  Result := nil;
-end;
-
-//------------------------------------------------------------------------------
-// GET UNNAMED
-//------------------------------------------------------------------------------
-function TOTAFileCreator.GetUnnamed: Boolean;
-begin
-  // Typically True for new files to prompt for a name
-  Result := True;
-end;
-
-//------------------------------------------------------------------------------
-// FORM CREATED HANDLER
-//------------------------------------------------------------------------------
-procedure TOTAFileCreator.FormCreated(const FormEditor: IOTAFormEditor);
-begin
-  // This method is called after the form has been created by the IDE.
-  // If you need to perform any actions with the form editor, you can do it here.
-  // For many simple use cases, this method can remain empty.
+  Result := FSource;
 end;
 
 end.
+
