@@ -91,7 +91,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetName: string;
 begin
-  Result := 'Windows VCL Project';
+  Result := 'ERDesigns OBD Project';
 end;
 
 //------------------------------------------------------------------------------

@@ -27,7 +27,7 @@ implementation
 uses
   OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form,
-  OBD.MainForm.Wizard, OBD.Project.Wizard;
+  OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENTS AND WIZARDS
@@ -48,13 +48,12 @@ begin
   // Register our custom form
   RegisterCustomModule(TOBDForm, TCustomModule);
 
-  // Register the Project wizard (Adds an entry to the "New Items" dialog).
+  // Register the Project wizard
   RegisterPackageWizard(TOBDProjectModuleCreatorWizard.Create);
-  // Register the MainForm wizard (Adds an entry to the "New Items" dialog).
+  // Register the MainForm wizard
   RegisterPackageWizard(TOBDMainFormModuleCreatorWizard.Create);
+  // Register the Form wizard
+  RegisterPackageWizard(TOBFormModuleCreatorWizard.Create);
 end;
-
-exports
-  Register;
 
 end.
