@@ -44,6 +44,9 @@ const
 // TYPES
 //------------------------------------------------------------------------------
 type
+  /// <summary>
+  ///   Touch Header Tab Change event
+  /// </summary>
   TOBDTouchHeaderTabChangeEvent = procedure(Sender: TObject; TabIndex: Integer) of object;
 
 //------------------------------------------------------------------------------

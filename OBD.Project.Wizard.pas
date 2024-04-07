@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, WinApi.Windows, Vcl.Dialogs, DesignIntf, ToolsAPI, PlatformAPI,
-  OBD.Mainform.Wizard;
+  OBD.Mainform.Wizard, OBD.DataModule.Wizard;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -79,6 +79,15 @@ type
 implementation
 
 //------------------------------------------------------------------------------
+// VARIABLES
+//------------------------------------------------------------------------------
+var
+  /// <summary>
+  ///   Wizard Icon
+  /// </summary>
+  WizardIcon: HICON;
+
+//------------------------------------------------------------------------------
 // TOBPROJECT MODULE CREATOR WIZARD: GET ID STRING
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetIDString: string;
@@ -123,7 +132,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetComment: string;
 begin
-  Result := 'Creates a new ERDesigns VCL Project, including a OBD MainForm with a header, subheader and statusbar.';
+  Result := 'Creates a new ERDesigns VCL Project, including a OBD MainForm with a header, subheader and statusbar and a OBD DataModule.';
 end;
 
 //------------------------------------------------------------------------------
@@ -139,7 +148,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDProjectModuleCreatorWizard.GetGlyph: Cardinal;
 begin
-  Result := 0;
+  Result := WizardIcon;
 end;
 
 //------------------------------------------------------------------------------
@@ -363,11 +372,13 @@ procedure TOBDProjectCreator.NewDefaultProjectModule(const Project: IOTAProject)
 var
   ModuleServices: IOTAModuleServices;
   MainForm: IOTAModule;
+  DataModule: IOTAModule;
 begin
   ModuleServices := BorlandIDEServices as IOTAModuleServices;
   if Assigned(ModuleServices) then
   begin
     MainForm := ModuleServices.CreateModule(TOBDMainFormModuleCreator.Create(Project));
+    DataModule := ModuleServices.CreateModule(TOBDDataModuleCreator.Create(Project));
   end;
 end;
 
@@ -412,5 +423,12 @@ procedure TOBDProjectCreator.SetInitialOptions(const NewProject: IOTAProject);
 begin
   //
 end;
+
+//------------------------------------------------------------------------------
+// INITIALIZATION
+//------------------------------------------------------------------------------
+initialization
+  // Load the wizard icon
+  WizardIcon := LoadIcon(hInstance, 'PROJECT');
 
 end.

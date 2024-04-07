@@ -12,13 +12,17 @@ unit OBD.CustomControl.Register;
 
 interface
 
-uses System.Classes, DesignIntf, DesignEditors, ToolsAPI;
+uses WinApi.Windows, System.Classes, System.SysUtils, DesignIntf, DesignEditors, ToolsAPI;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
 //------------------------------------------------------------------------------
 const
-  ComponentPage = 'ERDesigns OBD';
+  ComponentPage      = 'ERDesigns OBD';
+  PackageCopyright   = 'ERDesigns - Ernst Reidinga © 2024';
+  PackageName        = 'ERDesigns OBD Framework';
+  PackageDescription = 'ERDesigns OBD is a Framework including components to create OBD (On Board Diagnostics) applications for vehicles.' + #13#10#13#10 + PackageCopyright;
+  PackageLicense     = 'Open source under Apache 2.0 library';
 
 procedure Register;
 
@@ -26,8 +30,42 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED,
-  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form,
-  OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard;
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
+  OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
+
+//------------------------------------------------------------------------------
+// ADD ICON AND INFO TO ABOUT BOX
+//------------------------------------------------------------------------------
+procedure AddAboutBox;
+var
+  AboutBitmap: HBITMAP;
+  AboutBoxServices: IOTAAboutBoxServices;
+begin
+  // Load the bitmap for the about box
+  AboutBitmap := LoadBitmap(hInstance, 'PACKAGE');
+  // Check if aboutbox services is supported
+  if Supports(BorlandIDEServices, IOTAAboutBoxServices, AboutBoxServices) then
+  begin
+    // Add to the about box
+    AboutBoxServices.AddPluginInfo(PackageName, PackageDescription, AboutBitmap, False, PackageLicense);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// ADD ICON AND INFO TO SPLASH SCREEN
+//------------------------------------------------------------------------------
+procedure AddSplashScreen;
+var
+  SplashBitmap: HBITMAP;
+begin
+  // Load the bitmap for the Splash Screen
+  SplashBitmap := LoadBitmap(hInstance, 'PACKAGE');
+  if SplashBitmap <> 0 then
+  begin
+    // Add to the splash screen
+    SplashScreenServices.AddPluginBitmap(PackageName, SplashBitmap, False, PackageLicense);
+  end
+end;
 
 //------------------------------------------------------------------------------
 // REGISTER THE COMPONENTS AND WIZARDS
@@ -47,6 +85,8 @@ begin
 
   // Register our custom form
   RegisterCustomModule(TOBDForm, TCustomModule);
+  // Register our custom datamodule
+  RegisterCustomModule(TOBDDataModule, TCustomModule);
 
   // Register the Project wizard
   RegisterPackageWizard(TOBDProjectModuleCreatorWizard.Create);
@@ -54,6 +94,17 @@ begin
   RegisterPackageWizard(TOBDMainFormModuleCreatorWizard.Create);
   // Register the Form wizard
   RegisterPackageWizard(TOBFormModuleCreatorWizard.Create);
+  // Register the DataModule wizard
+  RegisterPackageWizard(TOBDataModuleCreatorWizard.Create);
 end;
+
+//------------------------------------------------------------------------------
+// INITIALIZATION
+//------------------------------------------------------------------------------
+initialization
+  // Add the about box information
+  AddAboutBox;
+  // Add the splash screen information
+  AddSplashScreen;
 
 end.

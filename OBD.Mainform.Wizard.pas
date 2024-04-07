@@ -89,6 +89,15 @@ type
 implementation
 
 //------------------------------------------------------------------------------
+// VARIABLES
+//------------------------------------------------------------------------------
+var
+  /// <summary>
+  ///   Wizard Icon
+  /// </summary>
+  WizardIcon: HICON;
+
+//------------------------------------------------------------------------------
 // TOBDMAINFORM MODULE CREATOR WIZARD: GET ID STRING
 //------------------------------------------------------------------------------
 function TOBDMainFormModuleCreatorWizard.GetIDString: string;
@@ -149,7 +158,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDMainFormModuleCreatorWizard.GetGlyph: Cardinal;
 begin
-  Result := 0;
+  Result := WizardIcon;
 end;
 
 //------------------------------------------------------------------------------
@@ -490,6 +499,13 @@ function TOBDSourceFile.GetSource: string;
 begin
   Result := FSource;
 end;
+
+//------------------------------------------------------------------------------
+// INITIALIZATION
+//------------------------------------------------------------------------------
+initialization
+  // Load the wizard icon
+  WizardIcon := LoadIcon(hInstance, 'FORM');
 
 end.
 

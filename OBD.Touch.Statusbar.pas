@@ -36,6 +36,14 @@ type
   ///   Size grip dot shape type
   /// </summary>
   TOBDTouchStatusbarSizeGripDotShape = (dsSquare, dsCircle);
+  /// <summary>
+  ///   Statusbar panel style
+  /// </summary>
+  TOBDTouchStatusbarPanelStyle = (psSimpleText, psAdvancedText);
+  /// <summary>
+  ///   Statusbar panel led state
+  /// </summary>
+  TOBDTouchStatusbarPanelLedState = (lsGrayed, lsOff, lsOn);
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -259,6 +267,228 @@ type
   end;
 
   /// <summary>
+  ///   Touch Statusbar Panel
+  /// </summary>
+  TOBDTouchStatusbarPanel = class(TCollectionItem)
+  private
+    /// <summary>
+    ///   Width
+    /// </summary>
+    FWidth: Integer;
+    /// <summary>
+    ///   Status Panel style
+    /// </summary>
+    FStyle: TOBDTouchStatusbarPanelStyle;
+    /// <summary>
+    ///   Text
+    /// </summary>
+    FText: TCaption;
+    /// <summary>
+    ///   Primary Text
+    /// </summary>
+    FPrimaryText: TCaption;
+    /// <summary>
+    ///   Secondary Text
+    /// </summary>
+    FSecondaryText: TCaption;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    FFont: TFont;
+    /// <summary>
+    ///   Primary Font
+    /// </summary>
+    FPrimaryFont: TFont;
+    /// <summary>
+    ///   Secondary Font
+    /// </summary>
+    FSecondaryFont: TFont;
+    /// <summary>
+    ///   Show LED
+    /// </summary>
+    FShowLed: Boolean;
+    /// <summary>
+    ///   LED state
+    /// </summary>
+    FLedState: TOBDTouchStatusbarPanelLedState;
+    /// <summary>
+    ///   Auto size
+    /// </summary>
+    FAutoSize: Boolean;
+
+    /// <summary>
+    ///   Set width
+    /// </summary>
+    procedure SetWidth(Value: Integer);
+    /// <summary>
+    ///   Set status Panel style
+    /// </summary>
+    procedure SetStyle(Value: TOBDTouchStatusbarPanelStyle);
+    /// <summary>
+    ///   Set Text
+    /// </summary>
+    procedure SetText(Value: TCaption);
+    /// <summary>
+    ///   Set Primary Text
+    /// </summary>
+    procedure SetPrimaryText(Value: TCaption);
+    /// <summary>
+    ///   Set Secondary Text
+    /// </summary>
+    procedure SetSecondaryText(Value: TCaption);
+    /// <summary>
+    ///   Set Font
+    /// </summary>
+    procedure SetFont(Value: TFont);
+    /// <summary>
+    ///   Set Primary Font
+    /// </summary>
+    procedure SetPrimaryFont(Value: TFont);
+    /// <summary>
+    ///   Set Secondary Font
+    /// </summary>
+    procedure SetSecondaryFont(Value: TFont);
+    /// <summary>
+    ///   Set show LED
+    /// </summary>
+    procedure SetShowLed(Value: Boolean);
+    /// <summary>
+    ///   Set LED state
+    /// </summary>
+    procedure SetLedState(Value: TOBDTouchStatusbarPanelLedState);
+    /// <summary>
+    ///   Set auto size
+    /// </summary>
+    procedure SetAutoSize(Value: Boolean);
+  private
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+  protected
+    /// <summary>
+    ///   Settings changed handler
+    /// </summary>
+    procedure SettingsChanged(Sender: TObject);
+    /// <summary>
+    ///   Override get displayname function
+    /// </summary>
+    function GetDisplayName : String; override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(Collection: TCollection); override;
+    /// <summary>
+    ///   Destructor
+    /// </summary>
+    destructor Destroy; override;
+
+    /// <summary>
+    ///   Assign
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+  published
+    /// <summary>
+    ///   Width
+    /// </summary>
+    property Width: Integer read FWidth write SetWidth default 100;
+    /// <summary>
+    ///   Status Panel style
+    /// </summary>
+    property Style: TOBDTouchStatusbarPanelStyle read FStyle write SetStyle default psSimpleText;
+    /// <summary>
+    ///   Text
+    /// </summary>
+    property Text: TCaption read FText write SetText;
+    /// <summary>
+    ///   Primary Text
+    /// </summary>
+    property PrimaryText: TCaption read FPrimaryText write SetPrimaryText;
+    /// <summary>
+    ///   Secondary Text
+    /// </summary>
+    property SecondaryText: TCaption read FSecondaryText write SetSecondaryText;
+    /// <summary>
+    ///   Font
+    /// </summary>
+    property Font: TFont read FFont write SetFont;
+    /// <summary>
+    ///   Primary Font
+    /// </summary>
+    property PrimaryFont: TFont read FPrimaryFont write SetPrimaryFont;
+    /// <summary>
+    ///   Secondary Font
+    /// </summary>
+    property SecondaryFont: TFont read FSecondaryFont write SetSecondaryFont;
+    /// <summary>
+    ///   Show LED
+    /// </summary>
+    property ShowLed: Boolean read FShowLed write SetShowLed default False;
+    /// <summary>
+    ///   LED state
+    /// </summary>
+    property LedState: TOBDTouchStatusbarPanelLedState read FLedState write SetLedState default lsOff;
+    /// <summary>
+    ///   Auto size
+    /// </summary>
+    property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
+
+    /// <summary>
+    ///   On change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
+  ///   Touch Statusbar Panel Collection
+  /// </summary>
+  TOBDTouchStatusbarPanelCollection = class(TOwnedCollection)
+  private
+    /// <summary>
+    ///   On Change event
+    /// </summary>
+    FOnChange: TNotifyEvent;
+
+    /// <summary>
+    ///   Get status panel
+    /// </summary>
+    function GetItem(AIndex: Integer): TOBDTouchStatusbarPanel;
+    /// <summary>
+    ///   Set status panel
+    /// </summary>
+    procedure SetItem(AIndex: Integer; const Value: TOBDTouchStatusbarPanel);
+  protected
+    /// <summary>
+    ///   Override Item update handler
+    /// </summary>
+    procedure Update(Item: TCollectionItem); override;
+  public
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    constructor Create(AOwner: TPersistent); virtual;
+
+    /// <summary>
+    ///   Add status panel
+    /// </summary>
+    function Add: TOBDTouchStatusbarPanel;
+    /// <summary>
+    ///   Assign
+    /// </summary>
+    procedure Assign(Source: TPersistent); override;
+
+    /// <summary>
+    ///   Panels
+    /// </summary>
+    property Panels[AIndex: Integer]: TOBDTouchStatusbarPanel read GetItem write SetItem;
+    /// <summary>
+    ///   On Change event
+    /// </summary>
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
+  /// <summary>
   ///   Touch Statusbar Component
   /// </summary>
   TOBDTouchStatusbar = class(TCustomControl)
@@ -293,6 +523,10 @@ type
     ///   Size Grip
     /// </summary>
     FSizeGrip: TOBDTouchStatusbarSizeGrip;
+    /// <summary>
+    ///   Panels
+    /// </summary>
+    FPanels: TOBDTouchStatusbarPanelCollection;
 
     /// <summary>
     ///   Set background
@@ -306,6 +540,10 @@ type
     ///   Set size grip
     /// </summary>
     procedure SetSizeGrip(Value: TOBDTouchStatusbarSizeGrip);
+    /// <summary>
+    ///   Set panels
+    /// </summary>
+    procedure SetPanels(Value: TOBDTouchStatusbarPanelCollection);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -409,6 +647,10 @@ type
     ///   Size Grip
     /// </summary>
     property SizeGrip: TOBDTouchStatusbarSizeGrip read FSizeGrip write SetSizeGrip;
+    /// <summary>
+    ///   Panels
+    /// </summary>
+    property Panels: TOBDTouchStatusbarPanelCollection read FPanels write SetPanels;
   published
     /// <summary>
     ///   Component alignment (inherited)
@@ -665,6 +907,319 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetWidth(Value: Integer);
+begin
+  if (FWidth <> Value) and (Value >= 0) then
+  begin
+    // Set new width
+    FWidth := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET STYLE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetStyle(Value: TOBDTouchStatusbarPanelStyle);
+begin
+  if (FStyle <> Value) then
+  begin
+    // Set new style
+    FStyle := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetText(Value: TCaption);
+begin
+  if (FText <> Value) then
+  begin
+    // Set new text
+    FText := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET PRIMARY TEXT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetPrimaryText(Value: TCaption);
+begin
+  if (FPrimaryText <> Value) then
+  begin
+    // Set new primary text
+    FPrimaryText := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SECONDARY TEXT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetSecondaryText(Value: TCaption);
+begin
+  if (FSecondaryText <> Value) then
+  begin
+    // Set new secondary text
+    FSecondaryText := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetFont(Value: TFont);
+begin
+  // Assign font
+  FFont.Assign(Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// SET PRIMARY FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetPrimaryFont(Value: TFont);
+begin
+  // Assign primary font
+  FPrimaryFont.Assign(Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// SET SECONDARY FONT
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetSecondaryFont(Value: TFont);
+begin
+  // Assign secondary font
+  FSecondaryFont.Assign(Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW LED
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetShowLed(Value: Boolean);
+begin
+  if (FShowLed <> Value) then
+  begin
+    // Set show LED
+    FShowLed := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET LED STATE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetLedState(Value: TOBDTouchStatusbarPanelLedState);
+begin
+  if (FLedState <> Value) then
+  begin
+    // Set new LED state
+    FLedState := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET AUTO SIZE
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetAutoSize(Value: Boolean);
+begin
+  if (FAutoSize <> Value) then
+  begin
+    // Set new autosize
+    FAutoSize := Value;
+    // Notify change
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SETTINGS CHANGED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SettingsChanged(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// GET DISPLAY NAME
+//------------------------------------------------------------------------------
+function TOBDTouchStatusbarPanel.GetDisplayName: string;
+begin
+  // Return text
+  if (FText <> '') then
+    Result := FText
+  else
+  // Return primary and secondary text
+  if (FPrimaryText <> '') and (FSecondaryText <> '') then
+    Result := FPrimaryText + ' - ' + FSecondaryText
+  else
+  // Return primary text
+  if (FPrimaryText <> '') then
+    Result := FPrimaryText
+  else
+  // Return secondary text
+  if (FSecondaryText <> '') then
+    Result := FSecondaryText
+  else
+  // Return default (inherited) text
+    Result := inherited GetDisplayName;
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchStatusbarPanel.Create(Collection: TCollection);
+begin
+  // Call inherited constructor
+  inherited Create(Collection);
+  // Create fonts
+  FFont := TFont.Create;
+  FFont.OnChange := SettingsChanged;
+  FPrimaryFont := TFont.Create;
+  FPrimaryFont.OnChange := SettingsChanged;
+  FSecondaryFont := TFont.Create;
+  FSecondaryFont.OnChange := SettingsChanged;
+  // Set defaults
+  FWidth := 100;
+  FStyle := psSimpleText;
+  FText := '';
+  FPrimaryText := '';
+  FSecondaryText := '';
+  FShowLed := False;
+  FLedState := lsOff;
+  FAutoSize := False;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchStatusbarPanel.Destroy;
+begin
+  // Free fonts
+  FFont.Free;
+  FPrimaryFont.Free;
+  FSecondaryFont.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.Assign(Source: TPersistent);
+begin
+  // Assign properties
+  if (Source is TOBDTouchStatusbarPanel) then
+  begin
+    FWidth := (Source as TOBDTouchStatusbarPanel).Width;
+    FStyle := (Source as TOBDTouchStatusbarPanel).Style;
+    FText := (Source as TOBDTouchStatusbarPanel).Text;
+    FPrimaryText := (Source as TOBDTouchStatusbarPanel).PrimaryText;
+    FSecondaryText := (Source as TOBDTouchStatusbarPanel).SecondaryText;
+    FShowLed := (Source as TOBDTouchStatusbarPanel).ShowLed;
+    FLedState := (Source as TOBDTouchStatusbarPanel).LedState;
+    FAutoSize := (Source as TOBDTouchStatusbarPanel).AutoSize;
+    FFont.Assign((Source as TOBDTouchStatusbarPanel).Font);
+    FPrimaryFont.Assign((Source as TOBDTouchStatusbarPanel).PrimaryFont);
+    FSecondaryFont.Assign((Source as TOBDTouchStatusbarPanel).SecondaryFont);
+    // Notify change
+    if Assigned(OnChange) then OnChange(Self);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// GET PANEL ITEM
+//------------------------------------------------------------------------------
+function TOBDTouchStatusbarPanelCollection.GetItem(AIndex: Integer): TOBDTouchStatusbarPanel;
+begin
+  Result := TOBDTouchStatusbarPanel(inherited Items[AIndex]);
+end;
+
+//------------------------------------------------------------------------------
+// SET PANEL ITEM
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanelCollection.SetItem(AIndex: Integer; const Value: TOBDTouchStatusbarPanel);
+begin
+  // Call inherited set item
+  inherited SetItem(AIndex, Value);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// ITEM UPDATE HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanelCollection.Update(Item: TCollectionItem);
+begin
+  // Call inherited update
+  inherited Update(Item);
+  // Notify change
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchStatusbarPanelCollection.Create(AOwner: TPersistent);
+begin
+  // Call inherited constructor
+  inherited Create(AOwner, TOBDTouchStatusbarPanel);
+end;
+
+//------------------------------------------------------------------------------
+// ADD PANEL ITEM
+//------------------------------------------------------------------------------
+function TOBDTouchStatusbarPanelCollection.Add: TOBDTouchStatusbarPanel;
+begin
+  // Create new panel item
+  Result := TOBDTouchStatusbarPanel(inherited Add);
+  // Set new panel item text
+  Result.Text := Format('Panel %d', [NextID]);
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanelCollection.Assign(Source: TPersistent);
+var
+  L: TOBDTouchStatusbarPanelCollection;
+  I: Integer;
+begin
+  if (Source is TOBDTouchStatusbarPanelCollection) then
+  begin
+    // Cast the list as TOBDTouchStatusbarPanelCollection
+    L := TOBDTouchStatusbarPanelCollection(Source);
+    // Clear the items
+    Clear;
+    // Add the items
+    for I := 0 to L.Count - 1 do Add.Assign(L.Items[I]);
+  end else
+    // Call inherited assign
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
 // CLASS CONSTRUCTOR
 //------------------------------------------------------------------------------
 class constructor TOBDTouchStatusbar.Create;
@@ -702,6 +1257,14 @@ end;
 procedure TOBDTouchStatusbar.SetSizeGrip(Value: TOBDTouchStatusbarSizeGrip);
 begin
   FSizeGrip.Assign(Value);
+end;
+
+//------------------------------------------------------------------------------
+// SET PANELS
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbar.SetPanels(Value: TOBDTouchStatusbarPanelCollection);
+begin
+  FPanels.Assign(Value);
 end;
 
 //------------------------------------------------------------------------------
@@ -906,7 +1469,8 @@ var
   BackgroundRect, BorderRect, SizeGripRect: TGPRectF;
   Brush: TGPBrush;
   SizeGripPath: TGPGraphicsPath;
-  SizeGripWidth: Integer;
+  SizeGripWidth, I: Integer;
+  X, Y, PanelX: Single;
 begin
   // Update the size of the buffer
   Buffer.SetSize(Width, Height);
@@ -970,6 +1534,12 @@ begin
       end;
     end;
 
+    // Draw the panels
+    for I := 0 to Panels.Count -1 do
+    begin
+      // TODO
+    end;
+
     // Draw the Size Grip
     if SizeGrip.Visible then
     begin
@@ -1017,6 +1587,9 @@ begin
   // Create size grip
   FSizegrip := TOBDTouchStatusbarSizeGrip.Create;
   FSizeGrip.OnChange := SettingsChanged;
+  // Create panels
+  FPanels := TOBDTouchStatusbarPanelCollection.Create(Self);
+  FPanels.OnChange := SettingsChanged;
   // Set defaults
   Height := DEFAULT_HEIGHT;
   Align := alBottom;
@@ -1035,6 +1608,8 @@ begin
   FBorder.Free;
   // Free size grip
   FSizegrip.Free;
+  // Free panels
+  FPanels.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1065,6 +1640,7 @@ begin
     FBackground.Assign((Source as TOBDTouchStatusbar).Background);
     FBorder.Assign((Source as TOBDTouchStatusbar).Border);
     FSizeGrip.Assign((Source as TOBDTouchStatusbar).SizeGrip);
+    FPanels.Assign((Source as TOBDTouchStatusbar).Panels);
   end;
 end;
 
