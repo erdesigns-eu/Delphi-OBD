@@ -71,6 +71,20 @@ type
   end;
 
   /// <summary>
+  ///   VIN Year
+  /// </summary>
+  TVINYear = record
+    /// <summary>
+    ///   Code
+    /// </summary>
+    Code: Char;
+    /// <summary>
+    ///   Year
+    /// </summary>
+    Year: Integer;
+  end;
+
+  /// <summary>
   ///   VIN Parse Result
   /// </summary>
   TVINParseResult = record
@@ -89,7 +103,7 @@ type
     /// <summary>
     ///   Year (Array of possible years)
     /// </summary>
-    Year: TArray<Integer>;
+    Year: TArray<TVINYear>;
     /// <summary>
     ///   World Manufacturer Identifier
     /// </summary>

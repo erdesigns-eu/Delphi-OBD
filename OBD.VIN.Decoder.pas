@@ -18,74 +18,39 @@ uses
   OBD.VIN.Types, OBD.VIN.Constants;
 
 //------------------------------------------------------------------------------
-// INTERFACES
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   OBD VIN Decoder (Interface)
-  /// </summary>
-  IOBDVinDecoder = interface
-    ['{49CFB2D5-F3DE-4673-BE79-ED03D3B9B26B}']
-    /// <summary>
-    ///   Get the region from a WMI (World Manufacturer Identifier)
-    /// </summary>
-    function GetRegion(const WMI: string): TVINRegion;
-    /// <summary>
-    ///   Get the country from a WMI (World Manufacturer Identifier)
-    /// </summary>
-    function GetCountry(const WMI: string): TVINCountry;
-    /// <summary>
-    ///   Get the manufacturer from a WMI (World Manufacturer Identifier)
-    /// </summary>
-    function GetManufacturer(const WMI: string): TVINManufacturer;
-    /// <summary>
-    ///   Get the years from the year code
-    /// </summary>
-    function GetYears(const YearCode: Char): TArray<Integer>;
-    /// <summary>
-    ///   Validate a VIN
-    /// </summary>
-    function Validate(const VIN: string; var ErrorMessage: string): Boolean;
-    /// <summary>
-    ///   Parse a VIN into separate parts
-    /// </summary>
-    function Parse(const VIN: string): TVINParseResult;
-  end;
-
-//------------------------------------------------------------------------------
 // CLASSES
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   OBD VIN Decoder (Class)
+  ///   OBD VIN Decoder
   /// </summary>
-  TOBDVinDecoder = class(TInterfacedObject, IOBDVinDecoder)
+  TOBDVinDecoder = class
   protected
     /// <summary>
     ///   Get the region from a WMI (World Manufacturer Identifier)
     /// </summary>
-    function GetRegion(const WMI: string): TVINRegion;
+    class function GetRegion(const WMI: string): TVINRegion;
     /// <summary>
     ///   Get the country from a WMI (World Manufacturer Identifier)
     /// </summary>
-    function GetCountry(const WMI: string): TVINCountry;
+    class function GetCountry(const WMI: string): TVINCountry;
     /// <summary>
     ///   Get the manufacturer from a WMI (World Manufacturer Identifier)
     /// </summary>
-    function GetManufacturer(const WMI: string): TVINManufacturer;
+    class function GetManufacturer(const WMI: string): TVINManufacturer;
     /// <summary>
     ///   Get the years from the year code
     /// </summary>
-    function GetYears(const YearCode: Char): TArray<Integer>;
+    class function GetYears(const YearCode: Char): TArray<TVINYear>;
   public
     /// <summary>
     ///   Validate a VIN
     /// </summary>
-    function Validate(const VIN: string; var ErrorMessage: string): Boolean;
+    class function Validate(const VIN: string; var ErrorMessage: string): Boolean;
     /// <summary>
     ///   Parse a VIN into separate parts
     /// </summary>
-    function Parse(const VIN: string): TVINParseResult;
+    class function Parse(const VIN: string): TVINParseResult;
   end;
 
 implementation
@@ -95,7 +60,7 @@ uses System.DateUtils;
 //------------------------------------------------------------------------------
 // GET REGION
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.GetRegion(const WMI: string): TVINRegion;
+class function TOBDVinDecoder.GetRegion(const WMI: string): TVINRegion;
 const
   UnknownRegion: TVINRegion = (RangeStart: #0; RangeEnd: #0; Name: '');
 var
@@ -123,7 +88,7 @@ end;
 //------------------------------------------------------------------------------
 // GET COUNTRY
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.GetCountry(const WMI: string): TVINCountry;
+class function TOBDVinDecoder.GetCountry(const WMI: string): TVINCountry;
 const
   UnknownCountry: TVINCountry = (RangeStart: ''; RangeEnd: ''; Name: ''; Code: '');
 begin
@@ -138,7 +103,7 @@ end;
 //------------------------------------------------------------------------------
 // GET MANUFACTURER
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.GetManufacturer(const WMI: string): TVINManufacturer;
+class function TOBDVinDecoder.GetManufacturer(const WMI: string): TVINManufacturer;
 const
   UnknownManufacturer: TVINManufacturer = (Code: ''; Name: '');
 begin
@@ -153,35 +118,27 @@ end;
 //------------------------------------------------------------------------------
 // GET YEARS
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.GetYears(const YearCode: Char): TArray<Integer>;
-const
-  START_YEAR = 1980;
+class function TOBDVinDecoder.GetYears(const YearCode: Char): TArray<TVINYear>;
 var
-  Index, CurrentYear, Candidate, I: Integer;
+  Index, CurrentYear, I: Integer;
 begin
-  // Get the current year
-  CurrentYear := YearOf(Now);
-  // Try to find the year in the year map
-  if VINYearMap.TryGetValue(YearCode, Index) then
+  Index := 0;
+  Currentyear := YearOf(Now);
+  for I := Low(VINYearMap) to High(VINYearMap) do
   begin
-    Candidate := START_YEAR + Index;
-    I := 0;
-    SetLength(Result, 0);
-    repeat
+    if (VINYearMap[I].Code = YearCode) and (VINYearMap[I].Year <= CurrentYear) then
+    begin
       SetLength(Result, Length(Result) + 1);
-      Result[I] := Candidate;
-      Inc(I);
-      Candidate := Candidate + Length(YEAR_CHARS);
-    until Candidate > CurrentYear;
-  end else
-    // If yearCode not found, return an empty array
-    SetLength(Result, 0);
+      Result[Index] := VINYearMap[I];
+      Inc(Index);
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
 // VALIDATE VIN
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.Validate(const VIN: string; var ErrorMessage: string): Boolean;
+class function TOBDVinDecoder.Validate(const VIN: string; var ErrorMessage: string): Boolean;
 begin
   // Initialize result
   Result := True;
@@ -212,7 +169,12 @@ end;
 //------------------------------------------------------------------------------
 // PARSE VIN
 //------------------------------------------------------------------------------
-function TOBDVinDecoder.Parse(const VIN: string): TVINParseResult;
+class function TOBDVinDecoder.Parse(const VIN: string): TVINParseResult;
+//+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+//| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12| 13| 14| 15| 16| 17|
+//+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+//|   WMI     |         VDS           |             VIS               |
+//+-----------+-------------------+---+---+---+-----------------------+
 const
   UnknownVIN: TVINParseResult = (
     Region       : (RangeStart: #0; RangeEnd: #0; Name: '');
@@ -227,13 +189,12 @@ const
   );
 var
   ErrorMessage: string;
-  YearCode: Char;
 begin
   // First check if the VIN is valid
   if not Validate(VIN, ErrorMessage) then
   begin
-    // Set valid to false
-    Result.Valid := False;
+    // Use the Unknown VIN record for the result
+    Result := UnknownVIN;
     // Assign the error message
     Result.ErrorMessage := ErrorMessage;
   end else
@@ -246,8 +207,6 @@ begin
     Result.VDS := Copy(VIN, 4, 6);
     // Extract the VIS
     Result.VIS := Copy(VIN, 10, 8);
-    // Extract the year code
-    YearCode := Copy(VIN, 10, 1)[1];
     // Parse the region
     Result.Region := GetRegion(Result.WMI);
     // Parse the country
@@ -255,7 +214,7 @@ begin
     // Parse the manufacturer
     Result.Manufacturer := GetManufacturer(Result.WMI);
     // Parse the year (possible years)
-    Result.Year := GetYears(YearCode);
+    Result.Year := GetYears(VIN[10]);
   end;
 end;
 
