@@ -1,0 +1,47 @@
+﻿package DesignTime;
+
+{$R *.res}
+{$R *.dres}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'ERDesigns OBD - Designtime Package'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  designide,
+  vcl;
+
+contains
+  OBD.CustomControl.Register in '..\OBD.CustomControl.Register.pas',
+  OBD.DataModule in '..\OBD.DataModule.pas' {OBDDataModule: TDataModule},
+  OBD.DataModule.Wizard in '..\OBD.DataModule.Wizard.pas',
+  OBD.Form in '..\OBD.Form.pas' {OBDForm},
+  OBD.Form.Wizard in '..\OBD.Form.Wizard.pas',
+  OBD.Mainform.Wizard in '..\OBD.Mainform.Wizard.pas',
+  OBD.Project.Wizard in '..\OBD.Project.Wizard.pas';
+
+end.
