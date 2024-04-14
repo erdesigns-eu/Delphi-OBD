@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.RadioCode.Becker5.pas
-// CONTENTS       : Becker Radio Code Calculator (4 Digits)
+// CONTENTS       : Becker Radio Code Calculator (5 Digits)
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
