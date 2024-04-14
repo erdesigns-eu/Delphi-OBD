@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.RadioCode.Becker.pas
+// UNIT           : OBD.RadioCode.Becker4.pas
 // CONTENTS       : Becker Radio Code Calculator (4 Digits)
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
@@ -8,7 +8,7 @@
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 13/04/2024
 //------------------------------------------------------------------------------
-unit OBD.RadioCode.Becker;
+unit OBD.RadioCode.Becker4;
 
 interface
 
@@ -24,7 +24,7 @@ type
   /// <summary>
   ///   OBD Becker RadioCode Calculator (4 Digits)
   /// </summary>
-  TOBDRadioCodeBecker = class(TOBDRadioCode)
+  TOBDRadioCodeBecker4 = class(TOBDRadioCode)
   private const
     /// <summary>
     ///   Database containing all Becker (4 Digits) codes from serial code
@@ -1071,7 +1071,7 @@ uses System.StrUtils;
 //------------------------------------------------------------------------------
 // GET DESCRIPTION
 //------------------------------------------------------------------------------
-function TOBDRadioCodeBecker.GetDescription: string;
+function TOBDRadioCodeBecker4.GetDescription: string;
 begin
   Result := 'Calculate radio code for Becker (4 Digits) radio''s.';
 end;
@@ -1079,7 +1079,7 @@ end;
 //------------------------------------------------------------------------------
 // VALIDATE
 //------------------------------------------------------------------------------
-function TOBDRadioCodeBecker.Validate(const Input: string; var ErrorMessage: string): Boolean;
+function TOBDRadioCodeBecker4.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   S: string;
 begin
@@ -1127,7 +1127,7 @@ end;
 //------------------------------------------------------------------------------
 // CALCULATE
 //------------------------------------------------------------------------------
-function TOBDRadioCodeBecker.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
+function TOBDRadioCodeBecker4.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   S: string;
   I: Integer;
