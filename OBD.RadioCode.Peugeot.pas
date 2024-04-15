@@ -111,13 +111,6 @@ begin
     ErrorMessage := 'Fourth character must be a digit!';
     Exit(False);
   end;
-
-  // The input can not start with A0
-  if (UpperCase(Input[1]) = 'A') and (UpperCase(Input[2]) = '0') then
-  begin
-    ErrorMessage := 'Can not start with A0!';
-    Exit(False);
-  end;
 end;
 
 //------------------------------------------------------------------------------
