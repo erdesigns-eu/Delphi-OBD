@@ -673,7 +673,7 @@ procedure TOBDLed.InvalidateColors;
       GX := (Width / 2) - (GW / 2);
 
       // Get the rectangle for the glare
-      GlareRect := MakeRect(GX, Y + + Border.Width + 2, GW, GH);
+      GlareRect := MakeRect(GX, Y + Border.Width + 2, GW, GH);
       // Create the glare brush (White with alpha 75 to White with alpha 30)
       Brush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
       // Draw the glare

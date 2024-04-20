@@ -17,7 +17,7 @@ uses
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
   Vcl.Forms,
 
-  OBD.CustomControl.Common, OBD.CustomControl.Constants;
+  OBD.LED, OBD.CustomControl.Common, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -40,10 +40,6 @@ type
   ///   Statusbar panel style
   /// </summary>
   TOBDTouchStatusbarPanelStyle = (psSimpleText, psAdvancedText);
-  /// <summary>
-  ///   Statusbar panel led state
-  /// </summary>
-  TOBDTouchStatusbarPanelLedState = (lsGrayed, lsOff, lsOn);
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -272,6 +268,11 @@ type
   TOBDTouchStatusbarPanel = class(TCollectionItem)
   private
     /// <summary>
+    ///   Panel Rect
+    /// </summary>
+    FPanelRect: TRect;
+  private
+    /// <summary>
     ///   Width
     /// </summary>
     FWidth: Integer;
@@ -310,11 +311,27 @@ type
     /// <summary>
     ///   LED state
     /// </summary>
-    FLedState: TOBDTouchStatusbarPanelLedState;
+    FLedState: TOBDLedState;
     /// <summary>
     ///   Auto size
     /// </summary>
     FAutoSize: Boolean;
+    /// <summary>
+    ///   Led border color
+    /// </summary>
+    FLedBorder: TOBDLedBorder;
+    /// <summary>
+    ///   Led grayed color
+    /// </summary>
+    FLedGrayedColor: TOBDLedGrayedColor;
+    /// <summary>
+    ///   Led off color
+    /// </summary>
+    FLedOffColor: TOBDLedOffColor;
+    /// <summary>
+    ///   Led on color
+    /// </summary>
+    FLedOnColor: TOBDLedOnColor;
 
     /// <summary>
     ///   Set width
@@ -355,16 +372,27 @@ type
     /// <summary>
     ///   Set LED state
     /// </summary>
-    procedure SetLedState(Value: TOBDTouchStatusbarPanelLedState);
+    procedure SetLedState(Value: TOBDLedState);
     /// <summary>
     ///   Set auto size
     /// </summary>
     procedure SetAutoSize(Value: Boolean);
-  private
     /// <summary>
-    ///   On change event
+    ///   Set Led border color
     /// </summary>
-    FOnChange: TNotifyEvent;
+    procedure SetLedBorder(Value: TOBDLedBorder);
+    /// <summary>
+    ///   Set Led grayed color
+    /// </summary>
+    procedure SetLedGrayedColor(Value: TOBDLedGrayedColor);
+    /// <summary>
+    ///   Set Led off color
+    /// </summary>
+    procedure SetLedOffColor(Value: TOBDLedOffColor);
+    /// <summary>
+    ///   Set Led on color
+    /// </summary>
+    procedure SetLedOnColor(Value: TOBDLedOnColor);
   protected
     /// <summary>
     ///   Settings changed handler
@@ -374,6 +402,11 @@ type
     ///   Override get displayname function
     /// </summary>
     function GetDisplayName : String; override;
+  protected
+    /// <summary>
+    ///   Panel Rect
+    /// </summary>
+    property PanelRect: TRect read FPanelRect write FPanelRect;
   public
     /// <summary>
     ///   Constructor
@@ -428,16 +461,27 @@ type
     /// <summary>
     ///   LED state
     /// </summary>
-    property LedState: TOBDTouchStatusbarPanelLedState read FLedState write SetLedState default lsOff;
+    property LedState: TOBDLedState read FLedState write SetLedState default lsOff;
     /// <summary>
     ///   Auto size
     /// </summary>
-    property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
-
+    property AutoSize: Boolean read FAutoSize write SetAutoSize default True;
     /// <summary>
-    ///   On change event
+    ///   Led border color
     /// </summary>
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property LedBorder: TOBDLedBorder read FLedBorder write SetLedBorder;
+    /// <summary>
+    ///   Led grayed color
+    /// </summary>
+    property LedGrayedColor: TOBDLedGrayedColor read FLedGrayedColor write SetLedGrayedColor;
+    /// <summary>
+    ///   Led off color
+    /// </summary>
+    property LedOffColor: TOBDLedOffColor read FLedOffColor write SetLedOffColor;
+    /// <summary>
+    ///   Led on color
+    /// </summary>
+    property LedOnColor: TOBDLedOnColor read FLedOnColor write SetLedOnColor;
   end;
 
   /// <summary>
@@ -481,7 +525,7 @@ type
     /// <summary>
     ///   Panels
     /// </summary>
-    property Panels[AIndex: Integer]: TOBDTouchStatusbarPanel read GetItem write SetItem;
+    property Panels[AIndex: Integer]: TOBDTouchStatusbarPanel read GetItem write SetItem; default;
     /// <summary>
     ///   On Change event
     /// </summary>
@@ -916,7 +960,7 @@ begin
     // Set new width
     FWidth := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -930,7 +974,7 @@ begin
     // Set new style
     FStyle := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -944,7 +988,7 @@ begin
     // Set new text
     FText := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -958,7 +1002,7 @@ begin
     // Set new primary text
     FPrimaryText := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -972,7 +1016,7 @@ begin
     // Set new secondary text
     FSecondaryText := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -984,7 +1028,7 @@ begin
   // Assign font
   FFont.Assign(Value);
   // Notify change
-  if Assigned(FOnChange) then FOnChange(Self);
+  Changed(False);
 end;
 
 //------------------------------------------------------------------------------
@@ -995,7 +1039,7 @@ begin
   // Assign primary font
   FPrimaryFont.Assign(Value);
   // Notify change
-  if Assigned(FOnChange) then FOnChange(Self);
+  Changed(False);
 end;
 
 //------------------------------------------------------------------------------
@@ -1006,7 +1050,7 @@ begin
   // Assign secondary font
   FSecondaryFont.Assign(Value);
   // Notify change
-  if Assigned(FOnChange) then FOnChange(Self);
+  Changed(False);
 end;
 
 //------------------------------------------------------------------------------
@@ -1019,21 +1063,21 @@ begin
     // Set show LED
     FShowLed := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
 //------------------------------------------------------------------------------
 // SET LED STATE
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbarPanel.SetLedState(Value: TOBDTouchStatusbarPanelLedState);
+procedure TOBDTouchStatusbarPanel.SetLedState(Value: TOBDLedState);
 begin
   if (FLedState <> Value) then
   begin
     // Set new LED state
     FLedState := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
 end;
 
@@ -1047,8 +1091,51 @@ begin
     // Set new autosize
     FAutoSize := Value;
     // Notify change
-    if Assigned(FOnChange) then FOnChange(Self);
+    Changed(False);
   end;
+end;
+
+//------------------------------------------------------------------------------
+// SET LED BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetLedBorder(Value: TOBDLedBorder);
+begin
+  // Assign color
+  FLedBorder.Assign(Value);
+  // Notify change
+  Changed(False);
+end;
+
+//------------------------------------------------------------------------------
+// SET LED GRAYED COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetLedGrayedColor(Value: TOBDLedGrayedColor);
+begin
+  FLedGrayedColor.Assign(Value);
+  // Notify change
+  Changed(False);
+end;
+
+//------------------------------------------------------------------------------
+// SET LED OFF COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetLedOffColor(Value: TOBDLedOffColor);
+begin
+  // Assign color
+  FLedOffColor.Assign(Value);
+  // Notify change
+  Changed(False);
+end;
+
+//------------------------------------------------------------------------------
+// SET LED ON COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTouchStatusbarPanel.SetLedOnColor(Value: TOBDLedOnColor);
+begin
+  // Assign color
+  FLedOnColor.Assign(Value);
+  // Notify change
+  Changed(False);
 end;
 
 //------------------------------------------------------------------------------
@@ -1056,7 +1143,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbarPanel.SettingsChanged(Sender: TObject);
 begin
-  if Assigned(FOnChange) then FOnChange(Self);
+  // Notify change
+  Changed(False);
 end;
 
 //------------------------------------------------------------------------------
@@ -1101,12 +1189,21 @@ begin
   // Set defaults
   FWidth := 100;
   FStyle := psSimpleText;
-  FText := '';
+  FText := Format('Panel %d', [Index + 1]);
   FPrimaryText := '';
   FSecondaryText := '';
   FShowLed := False;
   FLedState := lsOff;
-  FAutoSize := False;
+  FAutoSize := True;
+  // Create LED colors
+  FLedBorder := TOBDLedBorder.Create;
+  FLedBorder.OnChange := SettingsChanged;
+  FLedGrayedColor := TOBDLedGrayedColor.Create;
+  FLedGrayedColor.OnChange := SettingsChanged;
+  FLedOffColor := TOBDLedOffColor.Create;
+  FLedOffColor.OnChange := SettingsChanged;
+  FLedOnColor := TOBDLedOnColor.Create;
+  FLedOnColor.OnChange := SettingsChanged;
 end;
 
 //------------------------------------------------------------------------------
@@ -1118,6 +1215,11 @@ begin
   FFont.Free;
   FPrimaryFont.Free;
   FSecondaryFont.Free;
+  // Free LED colors
+  FLedBorder.Free;
+  FLedGrayedColor.Free;
+  FLedOffColor.Free;
+  FLedOnColor.Free;
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1142,7 +1244,7 @@ begin
     FPrimaryFont.Assign((Source as TOBDTouchStatusbarPanel).PrimaryFont);
     FSecondaryFont.Assign((Source as TOBDTouchStatusbarPanel).SecondaryFont);
     // Notify change
-    if Assigned(OnChange) then OnChange(Self);
+    Changed(False);
   end else
     // Call inherited assign
     inherited;
@@ -1463,14 +1565,138 @@ end;
 // PAINT BUFFER
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.PaintBuffer;
+const
+  PanelPadding = 4;
+  LedSize = 14;
+var
+  Graphics: TGPGraphics;
+
+  //----------------------------------------------------------------------------
+  // MEASURE THE TEXT WIDTH
+  //----------------------------------------------------------------------------
+  function TextWidth(const Text: string; Font: TFont): Integer;
+  var
+    F: TGPFont;
+    FF: TGPFontFamily;
+    SF: TGPStringFormat;
+    CR: TGPRectF;
+    RR: TGPRectF;
+  begin
+    FF := TGPFontFamily.Create(Font.Name);
+    F := TGPFont.Create(FF, Font.Size, OBD.CustomControl.Common.FontStyle(Font), UnitPoint);
+    SF := TGPStringFormat.Create;
+    SF.SetAlignment(StringAlignmentNear);
+    SF.SetLineAlignment(StringAlignmentCenter);
+    try
+      CR := MakeRect(0.0, 0, 10000, 10000);
+      if Graphics.MeasureString(Text, Length(Text), F, CR, SF, RR) = Ok then
+        Result := Ceil(RR.Width)
+      else
+        Result := 0;
+    finally
+      F.Free;
+      FF.Free;
+      SF.Free;
+    end;
+  end;
+
+  //----------------------------------------------------------------------------
+  // MEASURE THE TEXT WIDTH
+  //----------------------------------------------------------------------------
+  procedure PaintLed(Panel: TOBDTouchStatusbarPanel);
+  var
+    SS: TCustomStyleServices;
+    X, Y: Single;
+    Graphics: TGPGraphics;
+    BorderRect, LedRect: TGPRectF;
+    Brush: TGPBrush;
+    Pen: TGPPen;
+  begin
+    // Initialize GDI+ Graphics object
+    Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
+    try
+      // Set smoothing mode to high-quality
+      Graphics.SetSmoothingMode(SmoothingModeHighQuality);
+      // Set compositing quality to high-quality
+      Graphics.SetCompositingQuality(CompositingQualityHighQuality);
+
+      X := Panel.PanelRect.Left;
+      Y := (Border.Height + ((ClientRect.Height - Border.Height) / 2)) - (LedSize / 2);
+
+      // Get the rectangle for the border
+      BorderRect := MakeRect(X, Y, LedSize, LedSize);
+
+      // Draw the background - we use a clWindow color for the background,
+      // this shines a bit through to offset the color and the border.
+      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(clWindow));
+      try
+        Graphics.FillEllipse(Brush, BorderRect);
+      finally
+        // Free brush object
+        Brush.Free;
+      end;
+
+      // Get the rectangle for the led color
+      LedRect := MakeRect(X + Panel.LedBorder.Width + 1, Y + Panel.LedBorder.Width + 1, LedSize - (Panel.LedBorder.Width * 2) - 2,  LedSize - (Panel.LedBorder.Width * 2) - 2);
+
+      // Create the led brush
+      case Panel.LedState of
+        lsGrayed : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedGrayedColor.FromColor), SafeColorRefToARGB(Panel.LedGrayedColor.ToColor), LinearGradientModeVertical);
+        lsOff    : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedOffColor.FromColor), SafeColorRefToARGB(Panel.LedOffColor.ToColor), LinearGradientModeVertical);
+        lsOn     : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedOnColor.FromColor), SafeColorRefToARGB(Panel.LedOnColor.ToColor), LinearGradientModeVertical);
+      end;
+      // Create the led pen
+      case Panel.LedState of
+        lsGrayed : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedGrayedColor.FromColor), 1.5);
+        lsOff    : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedOffColor.FromColor), 1.5);
+        lsOn     : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedOnColor.FromColor), 1.5);
+      end;
+      Pen.SetAlignment(PenAlignmentInset);
+      // Draw the led
+      try
+        Graphics.FillEllipse(Brush, LedRect);
+        Graphics.DrawEllipse(Pen, LedRect);
+      finally
+        Brush.Free;
+        Pen.Free;
+      end;
+
+      // Draw the border
+      if (Panel.LedBorder.FromColor <> clNone) and (Panel.LedBorder.ToColor <> clNone) and (Panel.LedBorder.Width > 0) then
+      begin
+        // Create the border brush
+        Brush := TGPLinearGradientBrush.Create(BorderRect, SafeColorRefToARGB(Panel.LedBorder.FromColor), SafeColorRefToARGB(Panel.LedBorder.ToColor), LinearGradientModeVertical);
+        // Create the border pen
+        Pen := TGPPen.Create(Brush, Panel.LedBorder.Width);
+        Pen.SetAlignment(PenAlignmentInset);
+        try
+          // Draw the gauge border
+          Graphics.DrawEllipse(Pen, BorderRect);
+        finally
+          // Free the background brush object
+          Brush.Free;
+          // Free the background pen object
+          Pen.Free;
+        end;
+      end;
+    finally
+      Graphics.Free;
+    end;
+  end;
+
 var
   SS: TCustomStyleServices;
-  Graphics: TGPGraphics;
   BackgroundRect, BorderRect, SizeGripRect: TGPRectF;
   Brush: TGPBrush;
   SizeGripPath: TGPGraphicsPath;
-  SizeGripWidth, I: Integer;
-  X, Y, PanelX: Single;
+  SizeGripWidth, I, W, S, PanelX: Integer;
+  X, Y: Single;
+
+  Font: TGPFont;
+  FontBrush: TGPSolidBrush;
+  FontFamily: TGPFontFamily;
+  StringFormat: TGPStringFormat;
+  CaptionRect: TGPRectF;
 begin
   // Update the size of the buffer
   Buffer.SetSize(Width, Height);
@@ -1534,10 +1760,123 @@ begin
       end;
     end;
 
+    // Set initial Panel X position
+    PanelX := ClientRect.Left;
+
+    // Calculate panel rects
+    for I := 0 to Panels.Count -1 do
+    begin
+      W := 0;
+      if Panels[I].AutoSize then
+      begin
+        // Include led width
+        if Panels[I].ShowLed then W := W + LedSize + PanelPadding + 2;
+        // Calculate simple panel text width
+        if Panels[I].Style = psSimpleText then
+          W := W + TextWidth(Panels[I].Text, Panels[I].Font)
+        else
+        begin
+          // Calculate adanced panel primary text width
+          W := W + TextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
+          // Calculate adanced panel secondary text width
+          W := W + TextWidth(Panels[I].SecondaryText, Panels[I].SecondaryFont);
+          // Add padding between primary and secondary text
+          W := W + PanelPadding;
+        end;
+      end else
+      begin
+        // Include led width
+        if Panels[I].ShowLed then W := W + LedSize;
+        // Panel width
+        W := W + Panels[I].Width;
+      end;
+      // Set panel rect
+      Panels[I].PanelRect := TRect.Create(
+        PanelX + PanelPadding,
+        ClientRect.Top,
+        PanelX + PanelPadding + W + PanelPadding,
+        ClientRect.Bottom
+      );
+      // Inc Panel X position
+      PanelX := PanelX + Panels[I].PanelRect.Width;
+    end;
+
     // Draw the panels
     for I := 0 to Panels.Count -1 do
     begin
-      // TODO
+      if Panels[I].ShowLed then
+      begin
+        PaintLed(Panels[I]);
+        X := LedSize + 2;
+      end else X := 0;
+      if Panels[I].Style = psSimpleText then
+      begin
+        FontFamily := TGPFontFamily.Create(Panels[I].Font.Name);
+        Font := TGPFont.Create(FontFamily, Panels[I].Font.Size, OBD.CustomControl.Common.FontStyle(Panels[I].Font), UnitPoint);
+        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].Font.Color));
+        StringFormat := TGPStringFormat.Create;
+        StringFormat.SetAlignment(StringAlignmentNear);
+        StringFormat.SetLineAlignment(StringAlignmentCenter);
+        try
+          CaptionRect := MakeRect(
+            Panels[I].PanelRect.Left + X,
+            Panels[I].PanelRect.Top + Border.Height,
+            Panels[I].PanelRect.Width - X,
+            Panels[I].PanelRect.Height
+          );
+          Graphics.DrawString(Panels[I].Text, Length(Panels[I].Text), Font, CaptionRect, StringFormat, FontBrush);
+        finally
+          FontFamily.Free;
+          Font.Free;
+          FontBrush.Free;
+          StringFormat.Free;
+        end;
+      end else
+      begin
+        // Primary text
+        FontFamily := TGPFontFamily.Create(Panels[I].PrimaryFont.Name);
+        Font := TGPFont.Create(FontFamily, Panels[I].PrimaryFont.Size, OBD.CustomControl.Common.FontStyle(Panels[I].PrimaryFont), UnitPoint);
+        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].PrimaryFont.Color));
+        StringFormat := TGPStringFormat.Create;
+        StringFormat.SetAlignment(StringAlignmentNear);
+        StringFormat.SetLineAlignment(StringAlignmentCenter);
+        try
+          CaptionRect := MakeRect(
+            Panels[I].PanelRect.Left + X,
+            Panels[I].PanelRect.Top + Border.Height,
+            Panels[I].PanelRect.Width - X,
+            Panels[I].PanelRect.Height
+          );
+          Graphics.DrawString(Panels[I].PrimaryText, Length(Panels[I].PrimaryText), Font, CaptionRect, StringFormat, FontBrush);
+        finally
+          FontFamily.Free;
+          Font.Free;
+          FontBrush.Free;
+          StringFormat.Free;
+        end;
+        X := X + TextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
+        // Secondary text
+        FontFamily := TGPFontFamily.Create(Panels[I].SecondaryFont.Name);
+        Font := TGPFont.Create(FontFamily, Panels[I].SecondaryFont.Size, OBD.CustomControl.Common.FontStyle(Panels[I].SecondaryFont), UnitPoint);
+        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].SecondaryFont.Color));
+        StringFormat := TGPStringFormat.Create;
+        StringFormat.SetAlignment(StringAlignmentNear);
+        StringFormat.SetLineAlignment(StringAlignmentCenter);
+        try
+          CaptionRect := MakeRect(
+            Panels[I].PanelRect.Left + X,
+            Panels[I].PanelRect.Top + Border.Height,
+            Panels[I].PanelRect.Width - X,
+            Panels[I].PanelRect.Height
+          );
+          Graphics.DrawString(Panels[I].SecondaryText, Length(Panels[I].SecondaryText), Font, CaptionRect, StringFormat, FontBrush);
+        finally
+          FontFamily.Free;
+          Font.Free;
+          FontBrush.Free;
+          StringFormat.Free;
+        end;
+      end;
     end;
 
     // Draw the Size Grip
