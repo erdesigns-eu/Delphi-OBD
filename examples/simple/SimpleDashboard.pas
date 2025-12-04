@@ -3,110 +3,73 @@ unit Examples.Simple.SimpleDashboard;
 interface
 
 uses
-  System.Classes, Vcl.Forms, Vcl.Controls,
-  OBD.Connection.Component, OBD.Protocol.Component,
+  System.Classes, System.SysUtils,
+  Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.StdCtrls,
+  OBD.Adapter.Types, OBD.Connection.Component, OBD.Protocol, OBD.Protocol.Component,
   OBD.Header.Component, OBD.Subheader.Component, OBD.Gauge.Component,
-  OBD.Touch.Header, OBD.Touch.Subheader, OBD.CircularGauge;
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.CircularGauge;
 
-type
+/// <summary>
+///   Simple dashboard showcasing connection, protocol, header, subheader, and
+///   gauge bindings using the non-visual components.
+/// </summary>
+/// <remarks>
+///   Drop-in example with connect/disconnect buttons and a live gauge resolver.
+/// </remarks>
+TSimpleDashboardForm = class(TForm)
+  Header: TOBDTouchHeader;
+  Subheader: TOBDTouchSubheader;
+  Statusbar: TOBDTouchStatusbar;
+  Gauge: TOBDCircularGauge;
+  ControlPanel: TPanel;
+  ConnectButton: TButton;
+  DisconnectButton: TButton;
+  ConnectionComponent: TOBDConnectionComponent;
+  ProtocolComponent: TOBDProtocolComponent;
+  HeaderComponent: TOBDHeaderComponent;
+  SubheaderComponent: TOBDSubheaderComponent;
+  GaugeComponent: TOBDGaugeComponent;
   /// <summary>
-  ///   Minimal serial demo form that wires connection, protocol, header,
-  ///   subheader, and gauge components together with defaults.
+  ///   Connects using the configured connection component when the button is
+  ///   pressed.
   /// </summary>
-  TSimpleDashboardForm = class(TForm)
-  private
-    /// <summary>
-    ///   Non-visual connection wrapper configured for the serial transport.
-    /// </summary>
-    FConnection: TOBDConnectionComponent;
-    /// <summary>
-    ///   Protocol parser that consumes connection data and emits parsed messages.
-    /// </summary>
-    FProtocol: TOBDProtocolComponent;
-    /// <summary>
-    ///   Controller that applies connection state to the header visual.
-    /// </summary>
-    FHeaderController: TOBDHeaderComponent;
-    /// <summary>
-    ///   Controller that applies connection and protocol details to the subheader visual.
-    /// </summary>
-    FSubheaderController: TOBDSubheaderComponent;
-    /// <summary>
-    ///   Controller that maps protocol messages into gauge values.
-    /// </summary>
-    FGaugeController: TOBDGaugeComponent;
-    /// <summary>
-    ///   Skia-based header visual displayed at the top of the form.
-    /// </summary>
-    FHeader: TOBDTouchHeader;
-    /// <summary>
-    ///   Skia-based subheader visual displayed beneath the header.
-    /// </summary>
-    FSubheader: TOBDTouchSubheader;
-    /// <summary>
-    ///   Circular gauge visual hosted on the form.
-    /// </summary>
-    FGauge: TOBDCircularGauge;
-  public
-    /// <summary>
-    ///   Builds the form controls, non-visual components, and default bindings.
-    /// </summary>
-    procedure InitializeDashboard;
-  end;
+  procedure ConnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Disconnects the active connection when requested from the UI.
+  /// </summary>
+  procedure DisconnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Resolves a gauge value from the incoming protocol messages.
+  /// </summary>
+  procedure ResolveGaugeValue(Sender: TObject; const Messages: TArray<IOBDDataMessage>;
+    out Value: Single; out Applied: Boolean);
+end;
+
+var
+  SimpleDashboardForm: TSimpleDashboardForm;
 
 implementation
 
-procedure TSimpleDashboardForm.InitializeDashboard;
+{$R *.dfm}
+
+procedure TSimpleDashboardForm.ConnectButtonClick(Sender: TObject);
 begin
-  // Create the visual controls first so they are ready for binding.
-  FHeader := TOBDTouchHeader.Create(Self);
-  FHeader.Parent := Self;
-  FHeader.Align := alTop;
+  ConnectionComponent.Connect;
+end;
 
-  FSubheader := TOBDTouchSubheader.Create(Self);
-  FSubheader.Parent := Self;
-  FSubheader.Align := alTop;
+procedure TSimpleDashboardForm.DisconnectButtonClick(Sender: TObject);
+begin
+  ConnectionComponent.Disconnect;
+end;
 
-  FGauge := TOBDCircularGauge.Create(Self);
-  FGauge.Parent := Self;
-  FGauge.Align := alClient;
-
-  // Create the non-visual components that manage connectivity and parsing.
-  FConnection := TOBDConnectionComponent.Create(Self);
-  FConnection.SerialPort := 'COM3';
-  FConnection.SerialBaudRate := br115200;
-
-  FProtocol := TOBDProtocolComponent.Create(Self);
-  FProtocol.ConnectionComponent := FConnection;
-
-  // Bind header and subheader visuals to the connection component for captions and indicators.
-  FHeaderController := TOBDHeaderComponent.Create(Self);
-  FHeaderController.Header := FHeader;
-  FHeaderController.ConnectionComponent := FConnection;
-  FHeaderController.AutoBindConnection := True;
-
-  FSubheaderController := TOBDSubheaderComponent.Create(Self);
-  FSubheaderController.Subheader := FSubheader;
-  FSubheaderController.ConnectionComponent := FConnection;
-  FSubheaderController.ProtocolComponent := FProtocol;
-  FSubheaderController.AutoBindConnection := True;
-  FSubheaderController.AutoBindProtocol := True;
-
-  // Bind protocol output to the gauge for a simple live value preview.
-  FGaugeController := TOBDGaugeComponent.Create(Self);
-  FGaugeController.Gauge := FGauge;
-  FGaugeController.ProtocolComponent := FProtocol;
-  FGaugeController.AutoBindProtocol := True;
-  FGaugeController.OnResolveValue :=
-    procedure(Sender: TObject; const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean)
-    begin
-      // Sample resolver: apply the latest numeric payload when present.
-      Applied := Length(Messages) > 0;
-      if Applied then
-        Value := Messages[High(Messages)].NumericValue
-      else
-        Value := 0;
-    end;
+procedure TSimpleDashboardForm.ResolveGaugeValue(Sender: TObject;
+  const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean);
+begin
+  Applied := Length(Messages) > 0;
+  if Applied then
+    Value := Messages[High(Messages)].NumericValue
+  else
+    Value := 0;
 end;
 
 end.

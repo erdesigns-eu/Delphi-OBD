@@ -3,78 +3,68 @@ unit Examples.Serial.SerialModule;
 interface
 
 uses
-  System.Classes,
-  OBD.Connection.Component, OBD.Protocol.Component,
-  OBD.Header.Component, OBD.Subheader.Component;
+  System.Classes, System.SysUtils,
+  Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.StdCtrls,
+  OBD.Adapter.Types, OBD.Connection.Component, OBD.Protocol, OBD.Protocol.Component,
+  OBD.Header.Component, OBD.Subheader.Component, OBD.Gauge.Component,
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.CircularGauge;
 
-type
+/// <summary>
+///   Serial-focused dashboard example configured with a COM port and baud rate.
+/// </summary>
+TSerialDashboardForm = class(TForm)
+  Header: TOBDTouchHeader;
+  Subheader: TOBDTouchSubheader;
+  Statusbar: TOBDTouchStatusbar;
+  Gauge: TOBDCircularGauge;
+  ControlPanel: TPanel;
+  ConnectButton: TButton;
+  DisconnectButton: TButton;
+  ConnectionComponent: TOBDConnectionComponent;
+  ProtocolComponent: TOBDProtocolComponent;
+  HeaderComponent: TOBDHeaderComponent;
+  SubheaderComponent: TOBDSubheaderComponent;
+  GaugeComponent: TOBDGaugeComponent;
   /// <summary>
-  ///   Data module that configures a serial transport with custom captions for UI bindings.
+  ///   Initiates a serial connection using the published component settings.
   /// </summary>
-  TSerialDemoModule = class(TDataModule)
-  private
-    /// <summary>
-    ///   Connection component configured for a wired serial adapter.
-    /// </summary>
-    FConnection: TOBDConnectionComponent;
-    /// <summary>
-    ///   Protocol component that consumes serial frames.
-    /// </summary>
-    FProtocol: TOBDProtocolComponent;
-    /// <summary>
-    ///   Header controller that injects human-friendly captions when connected.
-    /// </summary>
-    FHeaderController: TOBDHeaderComponent;
-    /// <summary>
-    ///   Subheader controller that forwards connection details.
-    /// </summary>
-    FSubheaderController: TOBDSubheaderComponent;
-  public
-    /// <summary>
-    ///   Initialize the serial connection, parser, and UI controllers.
-    /// </summary>
-    procedure InitializeComponents;
-  end;
+  procedure ConnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Disconnects the serial adapter when the user requests it.
+  /// </summary>
+  procedure DisconnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Converts protocol messages into gauge values for visualization.
+  /// </summary>
+  procedure ResolveGaugeValue(Sender: TObject; const Messages: TArray<IOBDDataMessage>;
+    out Value: Single; out Applied: Boolean);
+end;
+
+var
+  SerialDashboardForm: TSerialDashboardForm;
 
 implementation
 
-procedure TSerialDemoModule.InitializeComponents;
+{$R *.dfm}
+
+procedure TSerialDashboardForm.ConnectButtonClick(Sender: TObject);
 begin
-  // Create the serial connection with an explicit baud rate and port.
-  FConnection := TOBDConnectionComponent.Create(Self);
-  FConnection.ConnectionType := ctSerial;
-  FConnection.SerialPort := 'COM5';
-  FConnection.SerialBaudRate := br115200;
+  ConnectionComponent.Connect;
+end;
 
-  // Hook the protocol to the connection for auto-parsing.
-  FProtocol := TOBDProtocolComponent.Create(Self);
-  FProtocol.ConnectionComponent := FConnection;
-  FProtocol.AutoBindConnection := True;
+procedure TSerialDashboardForm.DisconnectButtonClick(Sender: TObject);
+begin
+  ConnectionComponent.Disconnect;
+end;
 
-  // Customize header captions via the resolver to surface the selected port.
-  FHeaderController := TOBDHeaderComponent.Create(Self);
-  FHeaderController.ConnectionComponent := FConnection;
-  FHeaderController.AutoBindConnection := True;
-  FHeaderController.AutoApplyBattery := False;
-  FHeaderController.OnResolveState :=
-    procedure(Sender: TObject; const Connected: Boolean; const ConnectionType: TOBDConnectionType;
-      out Caption: string; out BatteryPercentage: Single; out ApplyCaption, ApplyBattery: Boolean)
-    begin
-      ApplyCaption := True;
-      ApplyBattery := False;
-      if Connected then
-        Caption := Format('Serial link active on %s', [FConnection.SerialPort])
-      else
-        Caption := 'Serial link disconnected';
-      BatteryPercentage := 0;
-    end;
-
-  // Forward connection and protocol bindings to the subheader for status labels.
-  FSubheaderController := TOBDSubheaderComponent.Create(Self);
-  FSubheaderController.ConnectionComponent := FConnection;
-  FSubheaderController.ProtocolComponent := FProtocol;
-  FSubheaderController.AutoBindConnection := True;
-  FSubheaderController.AutoBindProtocol := True;
+procedure TSerialDashboardForm.ResolveGaugeValue(Sender: TObject;
+  const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean);
+begin
+  Applied := Length(Messages) > 0;
+  if Applied then
+    Value := Messages[High(Messages)].NumericValue
+  else
+    Value := 0;
 end;
 
 end.

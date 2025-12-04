@@ -1,6 +1,6 @@
 # Delphi OBD Examples
 
-This directory groups focused, ready-to-run snippets that illustrate how to use the new non-visual components alongside the Skia-based visuals. Each subfolder contains a single form or data module plus inline comments you can paste into a project or open directly in the IDE.
+This directory now contains full Delphi projects (DPR + PAS + DFM) that illustrate how to use the non-visual components alongside the Skia-based visuals. Open any DPR in the IDE and press **Run** to explore the wiring.
 
 - `simple/` – Minimal wired dashboard using the serial transport defaults.
 - `serial/` – Explicit serial configuration with custom baud rate and captions.
@@ -9,4 +9,4 @@ This directory groups focused, ready-to-run snippets that illustrate how to use 
 - `ftdi/` – FTDI cable configuration with guarded reconnect calls.
 - `advanced/` – Multi-component dashboard that demonstrates custom resolvers, diagnostics, and gauge bindings.
 
-All examples rely solely on the units shipped in this repository and avoid third-party dependencies. Drop the units into a project, add the corresponding DFMs if desired, and press Run to see the components live.
+Each example bundles visual controls, connection/protocol components, and controller bindings without relying on third-party dependencies.

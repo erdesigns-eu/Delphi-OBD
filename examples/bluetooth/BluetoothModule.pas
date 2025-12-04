@@ -3,56 +3,68 @@ unit Examples.Bluetooth.BluetoothModule;
 interface
 
 uses
-  System.Classes, System.Bluetooth,
-  OBD.Connection.Component, OBD.Protocol.Component,
-  OBD.Subheader.Component;
+  System.Classes, System.SysUtils,
+  Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.StdCtrls,
+  OBD.Adapter.Types, OBD.Connection.Component, OBD.Protocol, OBD.Protocol.Component,
+  OBD.Header.Component, OBD.Subheader.Component, OBD.Gauge.Component,
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.CircularGauge;
 
-type
+/// <summary>
+///   Bluetooth dashboard example with configured adapter address and bindings.
+/// </summary>
+TBluetoothDashboardForm = class(TForm)
+  Header: TOBDTouchHeader;
+  Subheader: TOBDTouchSubheader;
+  Statusbar: TOBDTouchStatusbar;
+  Gauge: TOBDCircularGauge;
+  ControlPanel: TPanel;
+  ConnectButton: TButton;
+  DisconnectButton: TButton;
+  ConnectionComponent: TOBDConnectionComponent;
+  ProtocolComponent: TOBDProtocolComponent;
+  HeaderComponent: TOBDHeaderComponent;
+  SubheaderComponent: TOBDSubheaderComponent;
+  GaugeComponent: TOBDGaugeComponent;
   /// <summary>
-  ///   Data module that pairs a Bluetooth adapter with the protocol parser and subheader controller.
+  ///   Initiates the Bluetooth connection when requested via the UI.
   /// </summary>
-  TBluetoothDemoModule = class(TDataModule)
-  private
-    /// <summary>
-    ///   Connection component configured for Bluetooth discovery.
-    /// </summary>
-    FConnection: TOBDConnectionComponent;
-    /// <summary>
-    ///   Protocol parser bound to the Bluetooth link.
-    /// </summary>
-    FProtocol: TOBDProtocolComponent;
-    /// <summary>
-    ///   Subheader controller that mirrors VCI and internet captions from the connection.
-    /// </summary>
-    FSubheaderController: TOBDSubheaderComponent;
-  public
-    /// <summary>
-    ///   Initialize the Bluetooth connection settings and bind the controllers.
-    /// </summary>
-    procedure InitializeComponents;
-  end;
+  procedure ConnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Stops the Bluetooth session when the user disconnects.
+  /// </summary>
+  procedure DisconnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Resolves gauge values from parsed protocol messages.
+  /// </summary>
+  procedure ResolveGaugeValue(Sender: TObject; const Messages: TArray<IOBDDataMessage>;
+    out Value: Single; out Applied: Boolean);
+end;
+
+var
+  BluetoothDashboardForm: TBluetoothDashboardForm;
 
 implementation
 
-procedure TBluetoothDemoModule.InitializeComponents;
+{$R *.dfm}
+
+procedure TBluetoothDashboardForm.ConnectButtonClick(Sender: TObject);
 begin
-  // Configure the Bluetooth link with a manager and target address.
-  FConnection := TOBDConnectionComponent.Create(Self);
-  FConnection.ConnectionType := ctBluetooth;
-  FConnection.BluetoothManager := TBluetoothManager.Current;
-  FConnection.BluetoothAddress := '00:00:00:00:00:00';
+  ConnectionComponent.Connect;
+end;
 
-  // Bind the protocol to the Bluetooth connection for automatic parsing.
-  FProtocol := TOBDProtocolComponent.Create(Self);
-  FProtocol.ConnectionComponent := FConnection;
-  FProtocol.AutoBindConnection := True;
+procedure TBluetoothDashboardForm.DisconnectButtonClick(Sender: TObject);
+begin
+  ConnectionComponent.Disconnect;
+end;
 
-  // Present VCI and internet indicators based on the Bluetooth state.
-  FSubheaderController := TOBDSubheaderComponent.Create(Self);
-  FSubheaderController.ConnectionComponent := FConnection;
-  FSubheaderController.ProtocolComponent := FProtocol;
-  FSubheaderController.AutoBindConnection := True;
-  FSubheaderController.AutoBindProtocol := True;
+procedure TBluetoothDashboardForm.ResolveGaugeValue(Sender: TObject;
+  const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean);
+begin
+  Applied := Length(Messages) > 0;
+  if Applied then
+    Value := Messages[High(Messages)].NumericValue
+  else
+    Value := 0;
 end;
 
 end.

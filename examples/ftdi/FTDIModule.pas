@@ -3,76 +3,68 @@ unit Examples.FTDI.FTDIModule;
 interface
 
 uses
-  System.Classes,
-  OBD.Connection.Component, OBD.Protocol.Component,
-  OBD.Header.Component, OBD.Subheader.Component;
+  System.Classes, System.SysUtils,
+  Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.StdCtrls,
+  OBD.Adapter.Types, OBD.Connection.Component, OBD.Protocol, OBD.Protocol.Component,
+  OBD.Header.Component, OBD.Subheader.Component, OBD.Gauge.Component,
+  OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.CircularGauge;
 
-type
+/// <summary>
+///   FTDI dashboard example that showcases serial number targeting and baud setup.
+/// </summary>
+TFTDIDashboardForm = class(TForm)
+  Header: TOBDTouchHeader;
+  Subheader: TOBDTouchSubheader;
+  Statusbar: TOBDTouchStatusbar;
+  Gauge: TOBDCircularGauge;
+  ControlPanel: TPanel;
+  ConnectButton: TButton;
+  DisconnectButton: TButton;
+  ConnectionComponent: TOBDConnectionComponent;
+  ProtocolComponent: TOBDProtocolComponent;
+  HeaderComponent: TOBDHeaderComponent;
+  SubheaderComponent: TOBDSubheaderComponent;
+  GaugeComponent: TOBDGaugeComponent;
   /// <summary>
-  ///   Data module demonstrating FTDI cable setup with guarded reconnects.
+  ///   Starts the FTDI connection using the configured device serial number.
   /// </summary>
-  TFTDIDemoModule = class(TDataModule)
-  private
-    /// <summary>
-    ///   FTDI-backed connection component.
-    /// </summary>
-    FConnection: TOBDConnectionComponent;
-    /// <summary>
-    ///   Protocol component that parses FTDI frames.
-    /// </summary>
-    FProtocol: TOBDProtocolComponent;
-    /// <summary>
-    ///   Header controller that mirrors connection changes.
-    /// </summary>
-    FHeaderController: TOBDHeaderComponent;
-    /// <summary>
-    ///   Subheader controller that reflects FTDI connectivity.
-    /// </summary>
-    FSubheaderController: TOBDSubheaderComponent;
-  public
-    /// <summary>
-    ///   Initialize the FTDI connection, parser, and UI controllers.
-    /// </summary>
-    procedure InitializeComponents;
-    /// <summary>
-    ///   Attempt a reconnect using the configured FTDI parameters.
-    /// </summary>
-    procedure AttemptReconnect;
-  end;
+  procedure ConnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Stops the FTDI connection using the wrapped component API.
+  /// </summary>
+  procedure DisconnectButtonClick(Sender: TObject);
+  /// <summary>
+  ///   Converts parsed protocol messages into gauge updates.
+  /// </summary>
+  procedure ResolveGaugeValue(Sender: TObject; const Messages: TArray<IOBDDataMessage>;
+    out Value: Single; out Applied: Boolean);
+end;
+
+var
+  FTDIDashboardForm: TFTDIDashboardForm;
 
 implementation
 
-procedure TFTDIDemoModule.InitializeComponents;
+{$R *.dfm}
+
+procedure TFTDIDashboardForm.ConnectButtonClick(Sender: TObject);
 begin
-  // Configure the FTDI link with serial number and baud rate.
-  FConnection := TOBDConnectionComponent.Create(Self);
-  FConnection.ConnectionType := ctFTDI;
-  FConnection.SerialNumber := 'FT123456';
-  FConnection.FTDIBaudRate := br115200;
-
-  // Bind protocol parsing to the FTDI connection.
-  FProtocol := TOBDProtocolComponent.Create(Self);
-  FProtocol.ConnectionComponent := FConnection;
-  FProtocol.AutoBindConnection := True;
-
-  // Apply connection state to header and subheader visuals.
-  FHeaderController := TOBDHeaderComponent.Create(Self);
-  FHeaderController.ConnectionComponent := FConnection;
-  FHeaderController.AutoBindConnection := True;
-
-  FSubheaderController := TOBDSubheaderComponent.Create(Self);
-  FSubheaderController.ConnectionComponent := FConnection;
-  FSubheaderController.ProtocolComponent := FProtocol;
-  FSubheaderController.AutoBindConnection := True;
-  FSubheaderController.AutoBindProtocol := True;
+  ConnectionComponent.Connect;
 end;
 
-procedure TFTDIDemoModule.AttemptReconnect;
+procedure TFTDIDashboardForm.DisconnectButtonClick(Sender: TObject);
 begin
-  // Simplified reconnect that safely disconnects before attempting a reconnect.
-  if FConnection.Connected then
-    FConnection.Disconnect;
-  FConnection.Connect;
+  ConnectionComponent.Disconnect;
+end;
+
+procedure TFTDIDashboardForm.ResolveGaugeValue(Sender: TObject;
+  const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean);
+begin
+  Applied := Length(Messages) > 0;
+  if Applied then
+    Value := Messages[High(Messages)].NumericValue
+  else
+    Value := 0;
 end;
 
 end.
