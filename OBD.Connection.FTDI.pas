@@ -666,23 +666,37 @@ end;
 //------------------------------------------------------------------------------
 function TFTDI.SendData(DataPtr: Pointer; DataSize: Cardinal): Cardinal;
 var
+  Remaining: Cardinal;
+  CurrentPtr: PByte;
   BytesWritten: DWORD;
+  WriteStatus: FT_Result;
 begin
   Result := 0;
   // Exit here when we're not connected
   if not Connected then Exit;
   // Send data
   if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
-  if (FT_Write(FFTDIHandle, DataPtr, DataSize, @BytesWritten) = FT_OK) then
+  Remaining := DataSize;
+  CurrentPtr := DataPtr;
+  while Remaining > 0 do
   begin
-    Result := BytesWritten;
-    if (BytesWritten <> DataSize) then
+    WriteStatus := FT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
+    if WriteStatus <> FT_OK then
     begin
-      // TODO: Implement better error handling
-      // Not all bytes are written - handle error/exception
-      if Assigned(OnError) then OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [BytesWritten, DataSize]));
+      if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));
+      Break;
     end;
+    Inc(Result, BytesWritten);
+    if BytesWritten = 0 then
+    begin
+      if Assigned(OnError) then OnError(Self, WriteStatus, Format('Write stalled after %d of %d bytes were sent', [Result, DataSize]));
+      Break;
+    end;
+    Dec(Remaining, BytesWritten);
+    Inc(CurrentPtr, BytesWritten);
   end;
+  if (Result <> DataSize) and Assigned(OnError) then
+    OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [Result, DataSize]));
 end;
 
 //------------------------------------------------------------------------------
