@@ -11,6 +11,77 @@ uses
   OBD.Service05, OBD.Service06, OBD.Service07, OBD.Service08, OBD.Service09,
   OBD.Service0A;
 
+type
+  /// <summary>
+  ///   Snapshot of commonly visualized mode 01 metrics consumed by the examples.
+  /// </summary>
+  TOBDService01Snapshot = record
+    /// <summary>
+    ///   Indicates whether the malfunction indicator lamp is active.
+    /// </summary>
+    MIL: Boolean;
+    /// <summary>
+    ///   Number of diagnostic trouble codes reported by the ECU.
+    /// </summary>
+    DTCCount: Integer;
+    /// <summary>
+    ///   Engine revolutions per minute.
+    /// </summary>
+    EngineRPM: Integer;
+    /// <summary>
+    ///   Vehicle speed in kilometers per hour.
+    /// </summary>
+    VehicleSpeed: Integer;
+    /// <summary>
+    ///   Intake air temperature in degrees Celsius.
+    /// </summary>
+    IntakeAirTemperature: Integer;
+    /// <summary>
+    ///   Engine coolant temperature in degrees Celsius.
+    /// </summary>
+    CoolantTemperature: Integer;
+    /// <summary>
+    ///   Absolute intake manifold pressure in kPa.
+    /// </summary>
+    IntakeManifoldAbsolutePressure: Integer;
+    /// <summary>
+    ///   Fuel rail pressure in kPa.
+    /// </summary>
+    FuelPressure: Integer;
+    /// <summary>
+    ///   Mass air flow rate in grams per second.
+    /// </summary>
+    MassAirFlowRate: Double;
+    /// <summary>
+    ///   Throttle position percentage from 0 to 100.
+    /// </summary>
+    ThrottlePosition: Double;
+  end;
+
+  /// <summary>
+  ///   Event fired when live mode 01 data has been parsed for visualization.
+  /// </summary>
+  TOBDServiceDemoLiveDataEvent = procedure(Sender: TObject;
+    const Snapshot: TOBDService01Snapshot) of object;
+
+  /// <summary>
+  ///   Event fired when freeze-frame data has been parsed for the stored DTC.
+  /// </summary>
+  TOBDServiceDemoFreezeFrameEvent = procedure(Sender: TObject; const DTC: string;
+    const Snapshot: TOBDService01Snapshot) of object;
+
+  /// <summary>
+  ///   Event fired when DTCs are parsed for the specified category (stored,
+  ///   pending, or permanent).
+  /// </summary>
+  TOBDServiceDemoDTCEvent = procedure(Sender: TObject; const Kind: string;
+    const Codes: TArray<TOBDServiceDiagnosticTroubleCode>) of object;
+
+  /// <summary>
+  ///   Event fired when mode 09 vehicle identification data has been parsed.
+  /// </summary>
+  TOBDServiceDemoVINEvent = procedure(Sender: TObject; const VIN: string) of object;
+
 /// <summary>
 ///   Helper that issues OBD-II mode 01 through 0A requests using the shared
 ///   request encoders and parses responses into the service decoders for
@@ -42,6 +113,11 @@ private
   FEncoder09: TOBDService09RequestEncoder;
   FEncoder0A: TOBDService0ARequestEncoder;
   FChainedMessages: TReceiveDataMessagesEvent;
+  FOnLiveData: TOBDServiceDemoLiveDataEvent;
+  FOnFreezeFrame: TOBDServiceDemoFreezeFrameEvent;
+  FOnDTCs: TOBDServiceDemoDTCEvent;
+  FOnVIN: TOBDServiceDemoVINEvent;
+  function BuildSnapshot(const Service: TOBDService01): TOBDService01Snapshot;
   procedure ProtocolMessages(Sender: TObject; const Messages: TArray<IOBDDataMessage>);
   procedure ProcessMessage(const Msg: IOBDDataMessage);
   procedure Log(const Text: string);
@@ -106,11 +182,41 @@ public
   ///   Issues a mode 0A permanent DTC request.
   /// </summary>
   procedure RequestPermanentDTCs;
+  /// <summary>
+  ///   Raised when live mode 01 data is parsed for display.
+  /// </summary>
+  property OnLiveData: TOBDServiceDemoLiveDataEvent read FOnLiveData write FOnLiveData;
+  /// <summary>
+  ///   Raised when freeze-frame data is parsed for the stored DTC snapshot.
+  /// </summary>
+  property OnFreezeFrame: TOBDServiceDemoFreezeFrameEvent read FOnFreezeFrame write FOnFreezeFrame;
+  /// <summary>
+  ///   Raised when stored, pending, or permanent DTCs are parsed.
+  /// </summary>
+  property OnDTCs: TOBDServiceDemoDTCEvent read FOnDTCs write FOnDTCs;
+  /// <summary>
+  ///   Raised when a mode 09 vehicle identification number is parsed.
+  /// </summary>
+  property OnVIN: TOBDServiceDemoVINEvent read FOnVIN write FOnVIN;
 end;
 
 implementation
 
 { TOBDServiceDemo }
+
+function TOBDServiceDemo.BuildSnapshot(const Service: TOBDService01): TOBDService01Snapshot;
+begin
+  Result.MIL := Service.MIL;
+  Result.DTCCount := Service.DTC;
+  Result.EngineRPM := Service.EngineRPM;
+  Result.VehicleSpeed := Service.VehicleSpeed;
+  Result.IntakeAirTemperature := Service.IntakeAirTemperature;
+  Result.CoolantTemperature := Service.EngineCoolantTemperature;
+  Result.IntakeManifoldAbsolutePressure := Service.IntakeManifoldAbsolutePressure;
+  Result.FuelPressure := Service.FuelPressure;
+  Result.MassAirFlowRate := Service.MassAirFlowRate;
+  Result.ThrottlePosition := Service.ThrottlePosition;
+end;
 
 procedure TOBDServiceDemo.Attach;
 begin
@@ -197,6 +303,7 @@ var
   ServiceId: Byte;
   Codes: TArray<TOBDServiceDiagnosticTroubleCode>;
   Code: TOBDServiceDiagnosticTroubleCode;
+  Snapshot: TOBDService01Snapshot;
 begin
   Data := Msg.Data;
   if Length(Data) = 0 then
@@ -208,11 +315,17 @@ begin
       begin
         FService01.ParseResponse(Data);
         Log(Format('Mode 01 parsed: MIL=%s, DTCs=%d', [BoolToStr(FService01.MIL, True), FService01.DTC]));
+        Snapshot := BuildSnapshot(FService01);
+        if Assigned(FOnLiveData) then
+          FOnLiveData(Self, Snapshot);
       end;
     $42:
       begin
         FService02.ParseResponse(Data);
         Log(Format('Mode 02 parsed: Freeze-frame DTC=%s', [FService02.StoredFreezeFrameDTC]));
+        Snapshot := BuildSnapshot(FService02);
+        if Assigned(FOnFreezeFrame) then
+          FOnFreezeFrame(Self, FService02.StoredFreezeFrameDTC, Snapshot);
       end;
     $43:
       begin
@@ -223,6 +336,8 @@ begin
         else
           for Code in Codes do
             Log('Mode 03 parsed DTC: ' + Code.DTC);
+        if Assigned(FOnDTCs) then
+          FOnDTCs(Self, 'Stored', Codes);
       end;
     $44:
       begin
@@ -248,6 +363,8 @@ begin
         else
           for Code in Codes do
             Log('Mode 07 parsed pending DTC: ' + Code.DTC);
+        if Assigned(FOnDTCs) then
+          FOnDTCs(Self, 'Pending', Codes);
       end;
     $48:
       begin
@@ -258,6 +375,8 @@ begin
       begin
         FService09.ParseResponse(Data);
         Log(Format('Mode 09 parsed: VIN=%s', [FService09.VehicleIdentificationNumber]));
+        if Assigned(FOnVIN) then
+          FOnVIN(Self, FService09.VehicleIdentificationNumber);
       end;
     $4A:
       begin
@@ -268,6 +387,8 @@ begin
         else
           for Code in Codes do
             Log('Mode 0A parsed permanent DTC: ' + Code.DTC);
+        if Assigned(FOnDTCs) then
+          FOnDTCs(Self, 'Permanent', Codes);
       end;
   end;
 end;

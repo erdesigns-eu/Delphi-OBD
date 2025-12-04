@@ -24,7 +24,7 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
   object DiagnosticsPanel: TPanel
     Align = alBottom
     Height = 240
-    TabOrder = 3
+    TabOrder = 4
     object DiagnosticButtons: TPanel
       Align = alTop
       Height = 48
@@ -130,12 +130,12 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     Align = alBottom
     Height = 32
     ParentBackground = False
-    TabOrder = 4
+    TabOrder = 5
   end
   object ControlPanel: TPanel
     Align = alBottom
     Height = 48
-    TabOrder = 2
+    TabOrder = 3
     object ConnectButton: TButton
       Left = 8
       Top = 10
@@ -155,9 +155,99 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
       OnClick = DisconnectButtonClick
     end
   end
+  object DataPanel: TPanel
+    Align = alRight
+    Width = 320
+    TabOrder = 2
+    object LiveDataGroup: TGroupBox
+      Align = alTop
+      Caption = 'Live data'
+      Height = 200
+      TabOrder = 0
+      object LiveDataList: TListView
+        Align = alClient
+        Columns = <
+          item
+            Caption = 'Metric'
+            Width = 160
+          end
+          item
+            Caption = 'Value'
+            Width = 140
+          end>
+        ReadOnly = True
+        RowSelect = True
+        TabOrder = 0
+        ViewStyle = vsReport
+      end
+    end
+    object FreezeFrameGroup: TGroupBox
+      Align = alTop
+      Caption = 'Freeze-frame'
+      Height = 180
+      TabOrder = 1
+      object FreezeFrameList: TListView
+        Align = alClient
+        Columns = <
+          item
+            Caption = 'Metric'
+            Width = 160
+          end
+          item
+            Caption = 'Value'
+            Width = 140
+          end>
+        ReadOnly = True
+        RowSelect = True
+        TabOrder = 0
+        ViewStyle = vsReport
+      end
+    end
+    object VehicleInfoGroup: TGroupBox
+      Align = alTop
+      Caption = 'Vehicle info'
+      Height = 72
+      TabOrder = 2
+      object VINCaption: TLabel
+        Left = 12
+        Top = 24
+        Width = 50
+        Height = 15
+        Caption = 'VIN:'
+      end
+      object VINValue: TLabel
+        Left = 72
+        Top = 24
+        Width = 36
+        Height = 15
+        Caption = '---'
+      end
+    end
+    object DTCGroup: TGroupBox
+      Align = alClient
+      Caption = 'Diagnostic trouble codes'
+      TabOrder = 3
+      object DTCList: TListView
+        Align = alClient
+        Columns = <
+          item
+            Caption = 'Type'
+            Width = 80
+          end
+          item
+            Caption = 'Code'
+            Width = 200
+          end>
+        ReadOnly = True
+        RowSelect = True
+        TabOrder = 0
+        ViewStyle = vsReport
+      end
+    end
+  end
   object Gauge: TOBDCircularGauge
     Align = alClient
-    TabOrder = 5
+    TabOrder = 6
     Value = 0
   end
   object ConnectionComponent: TOBDConnectionComponent

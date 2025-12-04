@@ -8,6 +8,6 @@ This directory now contains full Delphi projects (DPR + PAS + DFM) that illustra
 - `bluetooth/` – Bluetooth pairing sample with VCI status hooks.
 - `wifi/` – WiFi transport with reconnect-friendly IP/port setup.
 - `ftdi/` – FTDI cable configuration with guarded reconnect calls.
-- `advanced/` – Multi-component dashboard that demonstrates custom resolvers, diagnostics, and gauge bindings.
+- `advanced/` – Multi-component dashboard that demonstrates custom resolvers, diagnostics, live PID visuals, freeze-frame capture, VIN display, and DTC viewers.
 
 Each example bundles visual controls, connection/protocol components, and controller bindings without relying on third-party dependencies.
