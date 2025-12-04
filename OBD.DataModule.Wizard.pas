@@ -365,9 +365,22 @@ end;
 function TOBDDataModuleCreator.NewFormFile(const FormIdent, AncestorIdent: string): IOTAFile;
 const
   FormDFMTemplate =
-    'object %s: T%s' + #13#10 +
-    '  Height = 480' + #13#10 +
-    '  Width = 640'  + #13#10 +
+    'object %s: T%s'                                         + #13#10 +
+    '  Height = 480'                                         + #13#10 +
+    '  Width = 640'                                          + #13#10 +
+    '  object OBDConnectionComponent1: TOBDConnectionComponent' + #13#10 +
+    '    ConnectionType = ctSerial'                          + #13#10 +
+    '    SerialPort = ''COM1'''                              + #13#10 +
+    '    SerialBaudRate = br38400'                           + #13#10 +
+    '    Left = 40'                                          + #13#10 +
+    '    Top = 40'                                           + #13#10 +
+    '  end'                                                  + #13#10 +
+    '  object OBDProtocolComponent1: TOBDProtocolComponent'  + #13#10 +
+    '    ConnectionComponent = OBDConnectionComponent1'      + #13#10 +
+    '    AutoBindConnection = True'                          + #13#10 +
+    '    Left = 200'                                         + #13#10 +
+    '    Top = 40'                                           + #13#10 +
+    '  end'                                                  + #13#10 +
     'end';
 begin
   Result := TOBDSourceFile.Create(Format(FormDFMTemplate, [FormIdent, FormIdent]))
@@ -395,17 +408,22 @@ const
     ''                                                                                  + #13#10 +
     'uses'                                                                              + #13#10 +
     '  System.SysUtils, System.Classes,'                                                + #13#10 +
-    ''                                                                                  + #13#10 +
-    '  OBD.DataModule;'                                                                 + #13#10 +
-    ''                                                                                  + #13#10 +
+
+    '  OBD.DataModule, OBD.Connection.Component, OBD.Protocol.Component;'              + #13#10 +
+
     'type'                                                                              + #13#10 +
     '  T%s = class(T%s)'                                                                + #13#10 +
+
+    // Shared OBD components
+    '    OBDConnectionComponent1: TOBDConnectionComponent;'                             + #13#10 +
+    '    OBDProtocolComponent1: TOBDProtocolComponent;'                                 + #13#10 +
+    // Shared OBD components
+
     '  private'                                                                         + #13#10 +
     '    { Private declarations }'                                                      + #13#10 +
     '  public'                                                                          + #13#10 +
     '    { Public declarations }'                                                       + #13#10 +
     '  end;'                                                                            + #13#10 +
-    ''                                                                                  + #13#10 +
     'var'                                                                               + #13#10 +
     '  %s: T%s;'                                                                        + #13#10 +
     ''                                                                                  + #13#10 +
