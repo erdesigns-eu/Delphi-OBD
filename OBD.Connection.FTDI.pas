@@ -761,7 +761,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
+  InvokeDataReceived(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -769,7 +769,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
+  InvokeDataSend(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -777,7 +777,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
 begin
-  if Assigned(OnError) then OnError(Self, ErrorCode, ErrorMessage);
+  InvokeError(ErrorCode, ErrorMessage);
 end;
 
 //------------------------------------------------------------------------------
@@ -785,14 +785,19 @@ end;
 //------------------------------------------------------------------------------
 function TFTDIOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  Result := Connected;
-  // Exit here is we're already connected
-  if Result then Exit;
-  // Exit here if the connection type is incorrect
-  if Params.ConnectionType <> ctFTDI then Exit;
-  // Connect to the FTDI port
-  FFTDI.BaudRate := Params.FTDIBaudRate;
-  Result := FFTDI.Connect(Params.SerialNumber);
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := Connected;
+    // Exit here is we're already connected
+    if Result then Exit;
+    // Exit here if the connection type is incorrect
+    if Params.ConnectionType <> ctFTDI then Exit;
+    // Connect to the FTDI port
+    FFTDI.BaudRate := Params.FTDIBaudRate;
+    Result := FFTDI.Connect(Params.SerialNumber);
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -800,11 +805,16 @@ end;
 //------------------------------------------------------------------------------
 function TFTDIOBDConnection.Disconnect: Boolean;
 begin
-  Result := Connected;
-  if Result then
-  begin
-    FFTDI.Disconnect;
+  TMonitor.Enter(FConnectionLock);
+  try
     Result := Connected;
+    if Result then
+    begin
+      FFTDI.Disconnect;
+      Result := Connected;
+    end;
+  finally
+    TMonitor.Exit(FConnectionLock);
   end;
 end;
 

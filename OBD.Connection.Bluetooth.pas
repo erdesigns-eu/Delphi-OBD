@@ -503,7 +503,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TBluetoothOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
+  InvokeDataReceived(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -511,7 +511,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TBluetoothOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
+  InvokeDataSend(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -519,7 +519,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TBluetoothOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
 begin
-  if Assigned(OnError) then OnError(Self, ErrorCode, ErrorMessage);
+  InvokeError(ErrorCode, ErrorMessage);
 end;
 
 //------------------------------------------------------------------------------
@@ -552,13 +552,18 @@ end;
 //------------------------------------------------------------------------------
 function TBluetoothOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  Result := Connected;
-  // Exit here is we're already connected
-  if Result then Exit;
-  // Exit here if the connection type is incorrect
-  if Params.ConnectionType <> ctBluetooth then Exit;
-  // Connect to the Bluetooth Device
-  Result := FBluetooth.Connect(Params.Manager, AnsiString(Params.Address));
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := Connected;
+    // Exit here is we're already connected
+    if Result then Exit;
+    // Exit here if the connection type is incorrect
+    if Params.ConnectionType <> ctBluetooth then Exit;
+    // Connect to the Bluetooth Device
+    Result := FBluetooth.Connect(Params.Manager, AnsiString(Params.Address));
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -566,11 +571,16 @@ end;
 //------------------------------------------------------------------------------
 function TBluetoothOBDConnection.Disconnect: Boolean;
 begin
-  Result := Connected;
-  if Result then
-  begin
-    FBluetooth.Disconnect;
+  TMonitor.Enter(FConnectionLock);
+  try
     Result := Connected;
+    if Result then
+    begin
+      FBluetooth.Disconnect;
+      Result := Connected;
+    end;
+  finally
+    TMonitor.Exit(FConnectionLock);
   end;
 end;
 

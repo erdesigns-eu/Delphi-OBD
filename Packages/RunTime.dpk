@@ -36,13 +36,18 @@ requires
 
 contains
   OBD.CustomControl.Animation in '..\OBD.CustomControl.Animation.pas',
-  OBD.CustomControl.Common in '..\OBD.CustomControl.Common.pas',
+  OBD.CustomControl.Helpers in '..\OBD.CustomControl.Helpers.pas',
   OBD.CustomControl.Constants in '..\OBD.CustomControl.Constants.pas',
   OBD.CustomControl in '..\OBD.CustomControl.pas',
+  OBD.Component.BindingHelpers in '..\OBD.Component.BindingHelpers.pas',
   OBD.LED in '..\OBD.LED.pas',
   OBD.MatrixDisplay in '..\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\OBD.Touch.Statusbar.pas',
-  OBD.Touch.Subheader in '..\OBD.Touch.Subheader.pas';
+  OBD.Touch.Subheader in '..\OBD.Touch.Subheader.pas',
+  OBD.Connection.Component in '..\OBD.Connection.Component.pas',
+  OBD.Protocol.Component in '..\OBD.Protocol.Component.pas',
+  OBD.Gauge.Component in '..\OBD.Gauge.Component.pas',
+  OBD.Header.Component in '..\OBD.Header.Component.pas';
 
 end.

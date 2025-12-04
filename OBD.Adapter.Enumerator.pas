@@ -14,8 +14,8 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Bluetooth, System.Win.Registry,
-  Winapi.Windows, WinApi.Messages, Vcl.Forms, System.Generics.Defaults,
-  System.Generics.Collections,
+  System.SyncObjs, System.Threading, Winapi.Windows, WinApi.Messages,
+  Vcl.Forms, System.Generics.Defaults, System.Generics.Collections,
 
   OBD.Adapter.Types, OBD.Adapter.Constants, OBD.Connection.Constants, OBD.Connection.Types;
 
@@ -35,6 +35,26 @@ type
   /// </summary>
   IOBDAdapterEnumerator = interface
     ['{6943A0ED-9057-4F95-9A05-142B755E9A1D}']
+    /// <summary>
+    ///   Starts a background refresh of all adapter lists and returns the running task reference.
+    /// </summary>
+    function BeginRefreshAsync: ITask;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of serial (COM) adapters.
+    /// </summary>
+    function SnapshotSerialAdapters: TArray<TSerialOBDAdapterEnum>;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of FTDI adapters.
+    /// </summary>
+    function SnapshotFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of Bluetooth adapters.
+    /// </summary>
+    function SnapshotBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+    /// <summary>
+    ///   Performs a synchronous refresh of all adapter lists.
+    /// </summary>
+    function Refresh: Boolean;
   end;
 
 //------------------------------------------------------------------------------
@@ -181,11 +201,35 @@ type
     ///   Bluetooth adapters
     /// </summary>
     FBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+    /// <summary>
+    ///   Lock object guarding adapter lists and refresh task state.
+    /// </summary>
+    FAdaptersLock: TObject;
+    /// <summary>
+    ///   Background refresh task reference.
+    /// </summary>
+    FRefreshTask: ITask;
+    /// <summary>
+    ///   Cancellation event for the refresh task.
+    /// </summary>
+    FRefreshCancelEvent: TEvent;
 
     /// <summary>
     ///   Hidden window message handler
     /// </summary>
     procedure USBWndProc(var Msg: TMessage);
+    /// <summary>
+    ///   Copies a serial adapter array under lock for external consumers.
+    /// </summary>
+    function GetSerialAdapters: TArray<TSerialOBDAdapterEnum>;
+    /// <summary>
+    ///   Copies an FTDI adapter array under lock for external consumers.
+    /// </summary>
+    function GetFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+    /// <summary>
+    ///   Copies a Bluetooth adapter array under lock for external consumers.
+    /// </summary>
+    function GetBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
   protected
     /// <summary>
     ///   Is bluetooth available on the system?
@@ -198,15 +242,15 @@ type
     /// <summary>
     ///   Enumerate serial (COM) ports
     /// </summary>
-    function EnumerateSerial: Boolean; virtual;
+    function EnumerateSerial(out Adapters: TArray<TSerialOBDAdapterEnum>): Boolean; virtual;
     /// <summary>
     ///   Enumertate FTDI devices
     /// </summary>
-    function EnumerateFTDI: Boolean; virtual;
+    function EnumerateFTDI(out Adapters: TArray<TFTDIOBDAdapterEnum>): Boolean; virtual;
     /// <summary>
     ///   Enumerate bluetooth devices
     /// </summary>
-    function EnumerateBluetooth: Boolean; virtual;
+    function EnumerateBluetooth(out Adapters: TArray<TBluetoothOBDAdapterEnum>): Boolean; virtual;
   public
     /// <summary>
     ///   Constructor
@@ -221,6 +265,22 @@ type
     ///   Refresh the lists
     /// </summary>
     function Refresh: Boolean;
+    /// <summary>
+    ///   Starts a background refresh of all adapter lists and returns the running task reference.
+    /// </summary>
+    function BeginRefreshAsync: ITask;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of serial (COM) adapters.
+    /// </summary>
+    function SnapshotSerialAdapters: TArray<TSerialOBDAdapterEnum>;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of FTDI adapters.
+    /// </summary>
+    function SnapshotFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+    /// <summary>
+    ///   Retrieves a thread-safe snapshot of Bluetooth adapters.
+    /// </summary>
+    function SnapshotBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
 
     /// <summary>
     ///   Event when new USB devices is added
@@ -238,15 +298,15 @@ type
     /// <summary>
     ///   Serial (COM) port adapters
     /// </summary>
-    property SerialAdapters: TArray<TSerialOBDAdapterEnum> read FSerialAdapters;
+    property SerialAdapters: TArray<TSerialOBDAdapterEnum> read GetSerialAdapters;
     /// <summary>
     ///   FTDI (USB) adapters
     /// </summary>
-    property FTDIAdapters: TArray<TFTDIOBDAdapterEnum> read FFTDIAdapters;
+    property FTDIAdapters: TArray<TFTDIOBDAdapterEnum> read GetFTDIAdapters;
     /// <summary>
     ///   Bluetooth adapters
     /// </summary>
-    property BluetoothAdapters: TArray<TBluetoothOBDAdapterEnum> read FBluetoothAdapters;
+    property BluetoothAdapters: TArray<TBluetoothOBDAdapterEnum> read GetBluetoothAdapters;
     /// <summary>
     ///   Bluetooth manager (Used for discovery and connecting)
     /// </summary>
@@ -388,6 +448,54 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SERIAL SNAPSHOT ACCESSOR
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.GetSerialAdapters: TArray<TSerialOBDAdapterEnum>;
+begin
+  // Guard access to the shared serial adapter list
+  TMonitor.Enter(FAdaptersLock);
+  try
+    // Copy to isolate callers from concurrent mutations
+    Result := Copy(FSerialAdapters, 0, Length(FSerialAdapters));
+  finally
+    // Release the lock
+    TMonitor.Exit(FAdaptersLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// FTDI SNAPSHOT ACCESSOR
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.GetFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+begin
+  // Guard access to the shared FTDI adapter list
+  TMonitor.Enter(FAdaptersLock);
+  try
+    // Copy to isolate callers from concurrent mutations
+    Result := Copy(FFTDIAdapters, 0, Length(FFTDIAdapters));
+  finally
+    // Release the lock
+    TMonitor.Exit(FAdaptersLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// BLUETOOTH SNAPSHOT ACCESSOR
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.GetBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+begin
+  // Guard access to the shared Bluetooth adapter list
+  TMonitor.Enter(FAdaptersLock);
+  try
+    // Copy to isolate callers from concurrent mutations
+    Result := Copy(FBluetoothAdapters, 0, Length(FBluetoothAdapters));
+  finally
+    // Release the lock
+    TMonitor.Exit(FAdaptersLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // IS BLUETOOTH AVAILABLE
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.BluetoothAvailable: Boolean;
@@ -417,7 +525,7 @@ end;
 //------------------------------------------------------------------------------
 // ENUMERATE SERIAL (COM) PORTS
 //------------------------------------------------------------------------------
-function TOBDAdapterEnumerator.EnumerateSerial: Boolean;
+function TOBDAdapterEnumerator.EnumerateSerial(out Adapters: TArray<TSerialOBDAdapterEnum>): Boolean;
 
   function ExtractCOMPort(const S: string): string;
   var
@@ -450,7 +558,7 @@ begin
   // initialize result
   Result := False;
   // Clear list
-  SetLength(FSerialAdapters, 0);
+  SetLength(Adapters, 0);
 
   // Get device information set
   DeviceInfoSet := SetupDiGetClassDevs(@GUID_DEVINTERFACE_COMPORT, nil, 0, DIGCF_PRESENT or DIGCF_DEVICEINTERFACE);
@@ -471,7 +579,7 @@ begin
       if SetupDiGetDeviceRegistryProperty(DeviceInfoSet, DeviceInfoData, SPDRP_FRIENDLYNAME, @RegDataType, @Buffer[0], SizeOf(Buffer), @RequiredSize) then
       begin
         // Set the length of the list
-        SetLength(FSerialAdapters, Length(FSerialAdapters) + 1);
+        SetLength(Adapters, Length(Adapters) + 1);
         // Copy the buffer to a string
         S := String(PAnsiChar(@Buffer[0]));
         // Extract the COM port
@@ -479,7 +587,7 @@ begin
         // Extract the friendlyname
         F := Copy(S, 1, LastDelimiter('(', S) - 1);
         // Create adapter enum
-        FSerialAdapters[I -1] := TSerialOBDAdapterEnum.Create(P, F);
+        Adapters[I -1] := TSerialOBDAdapterEnum.Create(P, F);
       end;
     end;
   finally
@@ -489,7 +597,7 @@ begin
   // Create an instance of the comparer
   Comparer := TSerialOBDAdapterEnumComparer.Create;
   // Sort the ports ascending by port number
-  TArray.Sort<TSerialOBDAdapterEnum>(FSerialAdapters, Comparer);
+  TArray.Sort<TSerialOBDAdapterEnum>(Adapters, Comparer);
 
   // If we make it here, we succeeded
   Result := True;
@@ -498,7 +606,7 @@ end;
 //------------------------------------------------------------------------------
 // ENUMERATE FTDI ADAPTERS
 //------------------------------------------------------------------------------
-function TOBDAdapterEnumerator.EnumerateFTDI: Boolean;
+function TOBDAdapterEnumerator.EnumerateFTDI(out Adapters: TArray<TFTDIOBDAdapterEnum>): Boolean;
 var
   DeviceCount: DWORD;
   DeviceInfoList: array of FTDIDeviceNode;
@@ -507,7 +615,7 @@ begin
   // initialize result
   Result := False;
   // Clear list
-  SetLength(FFTDIAdapters, 0);
+  SetLength(Adapters, 0);
   // Get the FTDI device count
   if FT_CreateDeviceInfoList(@DeviceCount) <> FT_OK then Exit;
   // Load FTDI device information
@@ -519,10 +627,10 @@ begin
     if FT_GetDeviceInfoList(@DeviceInfoList[0], @DeviceCount) = FT_OK then
     begin
       // Set length of the list
-      SetLength(FFTDIAdapters, DeviceCount);
+      SetLength(Adapters, DeviceCount);
       // Add FTDI devices to the list
       for I := 0 to DeviceCount - 1 do
-      FFTDIAdapters[I] := TFTDIOBDAdapterEnum.Create(String(DeviceInfoList[I].SerialNumber), String(DeviceInfoList[I].Description));
+        Adapters[I] := TFTDIOBDAdapterEnum.Create(String(DeviceInfoList[I].SerialNumber), String(DeviceInfoList[I].Description));
       // If we make it here, we succeeded
       Result := True;
     end;
@@ -532,7 +640,7 @@ end;
 //------------------------------------------------------------------------------
 // ENUMERATE BLUETOOTH ADAPTERS
 //------------------------------------------------------------------------------
-function TOBDAdapterEnumerator.EnumerateBluetooth: Boolean;
+function TOBDAdapterEnumerator.EnumerateBluetooth(out Adapters: TArray<TBluetoothOBDAdapterEnum>): Boolean;
 var
   PairedDevices: TBluetoothDeviceList;
   I: Integer;
@@ -540,16 +648,16 @@ begin
   // initialize result
   Result := False;
   // Clear list
-  SetLength(FBluetoothAdapters, 0);
+  SetLength(Adapters, 0);
   if BluetoothAvailable and BluetoothEnabled then
   try
     // Get the list of paired devices
     PairedDevices := BluetoothManager.LastPairedDevices;
     // Set the length of the list
-    SetLength(FBluetoothAdapters, PairedDevices.Count);
+    SetLength(Adapters, PairedDevices.Count);
     // Add devices to the list
     for I := 0 to PairedDevices.Count -1 do
-    FBluetoothAdapters[I] := TBluetoothOBDAdapterEnum.Create(PairedDevices[I].Address, PairedDevices[I].DeviceName);
+      Adapters[I] := TBluetoothOBDAdapterEnum.Create(PairedDevices[I].Address, PairedDevices[I].DeviceName);
     // If we make it here, we succeeded
     Result := True;
   except
@@ -569,6 +677,10 @@ var
 begin
   // Call inherited constructor
   inherited Create;
+  // Create lock for guarding adapter state
+  FAdaptersLock := TObject.Create;
+  // Create cancellation event for background refresh
+  FRefreshCancelEvent := TEvent.Create(nil, True, False, '');
   // Load the bluetooth manager
   FBluetoothManager := TBluetoothManager.Current;
   // Create the hidden window for USB arrival/removal
@@ -589,6 +701,15 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDAdapterEnumerator.Destroy;
 begin
+  // Cancel any running refresh task
+  if Assigned(FRefreshTask) then
+  begin
+    FRefreshCancelEvent.SetEvent;
+    FRefreshTask.Wait;
+  end;
+  // Release synchronization primitives
+  FRefreshCancelEvent.Free;
+  TObject.Free(FAdaptersLock);
   // Free hidden window
   DeallocateHWnd(FUSBHandle);
   // Call inherited destructor
@@ -600,16 +721,102 @@ end;
 //------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.Refresh: Boolean;
 var
+  SerialAdapters: TArray<TSerialOBDAdapterEnum>;
+  FTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+  BluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
   S, F, B: Boolean;
 begin
-  // Refresh Serial (COM) Ports
-  S := EnumerateSerial;
-  // Refresh the FTDI devices
-  F := EnumerateFTDI;
-  // Refresh the Bluetooth devices
-  B := EnumerateBluetooth;
+  // Refresh Serial (COM) Ports into a local buffer
+  S := EnumerateSerial(SerialAdapters);
+  // Refresh the FTDI devices into a local buffer
+  F := EnumerateFTDI(FTDIAdapters);
+  // Refresh the Bluetooth devices into a local buffer
+  B := EnumerateBluetooth(BluetoothAdapters);
+  // Publish results under lock to prevent races with consumers
+  TMonitor.Enter(FAdaptersLock);
+  try
+    FSerialAdapters := SerialAdapters;
+    FFTDIAdapters := FTDIAdapters;
+    FBluetoothAdapters := BluetoothAdapters;
+  finally
+    TMonitor.Exit(FAdaptersLock);
+  end;
   // Return true if enumerating all lists succeeded
   Result := S and F and B;
+end;
+
+//------------------------------------------------------------------------------
+// BEGIN ASYNC REFRESH
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.BeginRefreshAsync: ITask;
+begin
+  // Ensure only one refresh task runs at a time
+  TMonitor.Enter(FAdaptersLock);
+  try
+    // Cancel and wait for an existing task when present
+    if Assigned(FRefreshTask) and (FRefreshTask.Status = TTaskStatus.Running) then
+    begin
+      FRefreshCancelEvent.SetEvent;
+      FRefreshTask.Wait;
+    end;
+    // Reset cancellation for the new run
+    FRefreshCancelEvent.ResetEvent;
+    // Launch a background refresh
+    FRefreshTask := TTask.Run(
+      procedure
+      var
+        SerialAdapters: TArray<TSerialOBDAdapterEnum>;
+        FTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+        BluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+        S, F, B: Boolean;
+      begin
+        // Gather adapter lists without holding locks
+        S := EnumerateSerial(SerialAdapters);
+        // Stop early if cancellation is requested
+        if FRefreshCancelEvent.WaitFor(0) = wrSignaled then Exit;
+        F := EnumerateFTDI(FTDIAdapters);
+        if FRefreshCancelEvent.WaitFor(0) = wrSignaled then Exit;
+        B := EnumerateBluetooth(BluetoothAdapters);
+        if FRefreshCancelEvent.WaitFor(0) = wrSignaled then Exit;
+        // Publish results under lock when no cancellation is pending
+        TMonitor.Enter(FAdaptersLock);
+        try
+          if FRefreshCancelEvent.WaitFor(0) = wrSignaled then Exit;
+          FSerialAdapters := SerialAdapters;
+          FFTDIAdapters := FTDIAdapters;
+          FBluetoothAdapters := BluetoothAdapters;
+        finally
+          TMonitor.Exit(FAdaptersLock);
+        end;
+        // Optionally signal failure by setting cancellation when any refresh failed
+        if not (S and F and B) then
+          FRefreshCancelEvent.SetEvent;
+      end);
+    Result := FRefreshTask;
+  finally
+    TMonitor.Exit(FAdaptersLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SNAPSHOT ADAPTER ACCESSORS
+//------------------------------------------------------------------------------
+function TOBDAdapterEnumerator.SnapshotSerialAdapters: TArray<TSerialOBDAdapterEnum>;
+begin
+  // Provide a copy of the cached serial adapters
+  Result := GetSerialAdapters;
+end;
+
+function TOBDAdapterEnumerator.SnapshotFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
+begin
+  // Provide a copy of the cached FTDI adapters
+  Result := GetFTDIAdapters;
+end;
+
+function TOBDAdapterEnumerator.SnapshotBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
+begin
+  // Provide a copy of the cached Bluetooth adapters
+  Result := GetBluetoothAdapters;
 end;
 
 end.

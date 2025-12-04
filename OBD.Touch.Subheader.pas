@@ -13,10 +13,12 @@ unit OBD.Touch.Subheader;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
+  System.SysUtils, System.Classes, System.Types, System.Math, System.Skia, Vcl.Controls,
+  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg,
+  Vcl.Themes, Vcl.ExtCtrls,
 
-  OBD.CustomControl.Common, OBD.CustomControl.Constants;
+  OBD.Connection.Component, OBD.Connection.Types,
+  OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -744,6 +746,14 @@ type
     ///   Protocol indicator
     /// </summary>
     FProtocolIndicator: TOBDTouchSubheaderProtocolIndicator;
+    /// <summary>
+    ///   Connection component used to synchronize indicator captions.
+    /// </summary>
+    FConnectionComponent: TOBDConnectionComponent;
+    /// <summary>
+    ///   Indicates whether indicator captions should be updated automatically from the connection component.
+    /// </summary>
+    FAutoApplyConnectionDetails: Boolean;
 
     /// <summary>
     ///   Set background
@@ -769,6 +779,10 @@ type
     ///   Set protocol indicator
     /// </summary>
     procedure SetProtocolIndicator(Value: TOBDTouchSubheaderProtocolIndicator);
+    /// <summary>
+    ///   Set the connection component used for automatic indicator updates.
+    /// </summary>
+    procedure SetConnectionComponent(const Value: TOBDConnectionComponent);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -778,6 +792,18 @@ type
     ///   WM_ERASEBKGND message handler
     /// </summary>
     procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
+    /// <summary>
+    ///   Handle connection state changes and queue UI-safe indicator updates.
+    /// </summary>
+    procedure HandleConnectionStateChanged(Sender: TObject; const Connected: Boolean; const ConnectionType: TOBDConnectionType);
+    /// <summary>
+    ///   Apply connection captions to indicators on the UI thread.
+    /// </summary>
+    procedure ApplyConnectionDetails(const Connected: Boolean; const ConnectionType: TOBDConnectionType);
+    /// <summary>
+    ///   Build a friendly caption for the current connection target.
+    /// </summary>
+    function BuildConnectionCaption(const ConnectionType: TOBDConnectionType): string;
   protected
     /// <summary>
     ///   Buffer (This is the canvas we draw on)
@@ -856,7 +882,14 @@ type
     ///   Protocol indicator
     /// </summary>
     property ProtocolIndicator: TOBDTouchSubheaderProtocolIndicator read FProtocolIndicator write SetProtocolIndicator;
-  published
+    /// <summary>
+    ///   Connection component used to automatically reflect connection details on the indicator captions.
+    /// </summary>
+    property ConnectionComponent: TOBDConnectionComponent read FConnectionComponent write SetConnectionComponent;
+    /// <summary>
+    ///   Enables or disables automatic indicator updates when the connection component changes state.
+    /// </summary>
+    property AutoApplyConnectionDetails: Boolean read FAutoApplyConnectionDetails write FAutoApplyConnectionDetails default True;
     /// <summary>
     ///   Component alignment (inherited)
     /// </summary>
@@ -874,7 +907,7 @@ type
 implementation
 
 uses
-  Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -1759,6 +1792,96 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET CONNECTION COMPONENT
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.SetConnectionComponent(const Value: TOBDConnectionComponent);
+begin
+  if FConnectionComponent = Value then
+    Exit;
+
+  if Assigned(FConnectionComponent) and (FConnectionComponent.OnConnectionStateChanged = HandleConnectionStateChanged) then
+    FConnectionComponent.OnConnectionStateChanged := nil;
+
+  FConnectionComponent := Value;
+
+  if Assigned(FConnectionComponent) then
+  begin
+    FConnectionComponent.OnConnectionStateChanged := HandleConnectionStateChanged;
+    if FAutoApplyConnectionDetails then
+      HandleConnectionStateChanged(FConnectionComponent, FConnectionComponent.Connected, FConnectionComponent.ConnectionType);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE CONNECTION STATE CHANGED
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.HandleConnectionStateChanged(Sender: TObject; const Connected: Boolean; const ConnectionType: TOBDConnectionType);
+begin
+  if not FAutoApplyConnectionDetails then
+    Exit;
+
+  TThread.Queue(nil,
+    procedure
+    begin
+      ApplyConnectionDetails(Connected, ConnectionType);
+    end);
+end;
+
+//------------------------------------------------------------------------------
+// APPLY CONNECTION DETAILS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.ApplyConnectionDetails(const Connected: Boolean; const ConnectionType: TOBDConnectionType);
+var
+  CaptionText: string;
+  InternetText: string;
+begin
+  if not Assigned(FConnectionComponent) then
+    Exit;
+
+  if Connected then
+  begin
+    CaptionText := BuildConnectionCaption(ConnectionType);
+    case ConnectionType of
+      ctWiFi:
+        InternetText := Format('%s:%d', [FConnectionComponent.IPAddress, FConnectionComponent.Port]);
+      ctBluetooth:
+        InternetText := FConnectionComponent.BluetoothAddress;
+    else
+      InternetText := '';
+    end;
+  end
+  else
+  begin
+    CaptionText := 'Disconnected';
+    InternetText := '';
+  end;
+
+  FVciIndicator.Caption := CaptionText;
+  FInternetConnectionIndicator.Visible := Connected and (ConnectionType in [ctWiFi, ctBluetooth]);
+  FInternetConnectionIndicator.Caption := InternetText;
+  Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+// BUILD CONNECTION CAPTION
+//------------------------------------------------------------------------------
+function TOBDTouchSubheader.BuildConnectionCaption(const ConnectionType: TOBDConnectionType): string;
+begin
+  case ConnectionType of
+    ctSerial:
+      Result := Format('COM %s', [FConnectionComponent.SerialPort]);
+    ctBluetooth:
+      Result := 'Bluetooth';
+    ctWiFi:
+      Result := 'WiFi';
+    ctFTDI:
+      Result := 'FTDI';
+  else
+    Result := 'Unknown';
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // WM_PAINT MESSAGE HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.WMPaint(var Msg: TWMPaint);
@@ -1868,307 +1991,237 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.PaintBuffer;
 var
-  SS: TCustomStyleServices;
-  Graphics: TGPGraphics;
-  BackgroundRect, BorderRect: TGPRect;
-  MeasureRect, CaptionRect, BatteryRect, VCIRect, InternetRect, ProtocolRect: TGPRectF;
-  Brush: TGPBrush;
-  Pen: TGPPen;
-  BatteryPath, VciPath, InternetPath, ProtocolPath: TGPGraphicsPath;
-
-  Font: TGPFont;
-  FontBrush: TGPSolidBrush;
-  FontFamily: TGPFontFamily;
-  StringFormat: TGPStringFormat;
-
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  BackgroundRect, BorderRect: TSkRect;
+  MeasureRect: TRect;
+  BatteryRect, VciRect, InternetRect, ProtocolRect: TRectF;
+  BatteryCaptionRect, VciCaptionRect, InternetCaptionRect, ProtocolCaptionRect: TRect;
+  BatteryLabelText, VciLabelText, InternetLabelText, ProtocolLabelText: string;
+  HasBattery, HasVci, HasInternet, HasProtocol: Boolean;
   X, Y, Z: Single;
-  S: string;
+  TextSize: TSizeF;
 begin
   // Update the size of the buffer
   Buffer.SetSize(Width, Height);
 
-  // If VCL styles is available and enabled, then draw the VCL Style background
-  // so it matches the active style background like on the Form or a Panel.
-  if TStyleManager.IsCustomStyleActive then
+  // Allocate a Skia surface for the subheader drawing pass
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
+
+  // Clear using the active style's fill color so the Skia surface matches themed backgrounds
+  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+
+  // Draw the backround gradient when configured
+  if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    SS := StyleServices;
-    // Draw the styled background
-    SS.DrawElement(Buffer.Canvas.Handle, SS.GetElementDetails(twWindowRoot), Rect(0, 0, Width, Height));
-  end else
-  // Otherwise fill the background with the color.
-  with Buffer.Canvas do
-  begin
-    // Use the component color
-    Brush.Color := Self.Color;
-    // Use a solid brush
-    Brush.Style := bsSolid;
-    // Fill the background with the component color
-    FillRect(Rect(0, 0, Width, Height));
+    BackgroundRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+      [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawRect(BackgroundRect, Paint);
   end;
 
-  // Initialize GDI+ Graphics object
-  Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
-  try
-    // Set smoothing mode to high-quality
-    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-    // Set compositing quality to high-quality
-    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
-
-    // Draw the backround
-    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
-    begin
-      // Get the rectangle for the background
-      BackgroundRect := MakeRect(0, 0, Width, Height);
-      // Create the background brush
-      Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
-      try
-        // Fill the background
-        Graphics.FillRectangle(Brush, BackgroundRect);
-      finally
-        // Free the background brush object
-        Brush.Free;
-      end;
-    end;
-
-    // Draw the border
-    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
-    begin
-      // Get the rectangle for the border
-      BorderRect := MakeRect(0, Height - Border.Height, Width, Border.Height);
-      // Create the border brush
-      Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-      try
-        // Fill the border
-        Graphics.FillRectangle(Brush, BorderRect);
-      finally
-        // Free the border brush object
-        Brush.Free;
-      end;
-    end;
-
-    // Set the X position
-    X := Width - 8;
-
-    // Draw the battery indicator
-    if BatteryIndicator.Visible then
-    begin
-      Y := ((Height - Border.Height) / 2) - (BatteryIndicator.Size / 2);
-
-      // Create font for the label
-      FontFamily := TGPFontFamily.Create(BatteryIndicator.Font.Name);
-      Font := TGPFont.Create(FontFamily, BatteryIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(BatteryIndicator.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(BatteryIndicator.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
-      StringFormat.SetAlignment(StringAlignmentFar);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-
-      // Format the label
-      S := Format(BatteryIndicator.Format, [BatteryIndicator.Voltage]);
-      // Set the measure rect
-      MeasureRect := MakeRect(0, 0, Width - 8.0, Height - Border.Height);
-      // First measure the needed space for the label
-      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
-      // Draw the label
-      try
-        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
-        X := X - (CaptionRect.Width + 4);
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-
-      // Create battery indicator rect
-      BatteryRect := MakeRect(X - BatteryIndicator.Size, Y, BatteryIndicator.Size, BatteryIndicator.Size);
-      // Create battery indicator path
-      BatteryPath := CreateVehicleBatteryPath(BatteryRect);
-      // Create pen
-      Pen := TGPPen.Create(SafeColorRefToARGB(BatteryIndicator.BorderColor), BatteryIndicator.BorderWidth);
-      Pen.SetAlignment(PenAlignmentInset);
-      // Create brush
-      Brush := TGPLinearGradientBrush.Create(BatteryRect, SafeColorRefToARGB(BatteryIndicator.FromColor), SafeColorRefToARGB(BatteryIndicator.ToColor), LinearGradientModeVertical);
-      try
-        if (BatteryIndicator.FromColor <> clNone) and (BatteryIndicator.ToColor <> clNone) then
-          Graphics.FillPath(Brush, BatteryPath);
-        Graphics.DrawPath(Pen, BatteryPath);
-      finally
-        BatteryPath.Free;
-        Pen.Free;
-        Brush.Free;
-      end;
-
-      // Update the x position
-      X := X - (BatteryIndicator.Size + 4);
-    end;
-
-    // Draw the VCI indicator
-    if VciIndicator.Visible then
-    begin
-      // Update the Y position
-      Y := ((Height - Border.Height) / 2) - (VciIndicator.Size / 2);
-
-      // Create font for the label
-      FontFamily := TGPFontFamily.Create(VciIndicator.Font.Name);
-      Font := TGPFont.Create(FontFamily, VciIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(VciIndicator.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(VciIndicator.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
-      StringFormat.SetAlignment(StringAlignmentFar);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-
-      // Format the label
-      S := VciIndicator.Caption;
-      // Set the measure rect
-      MeasureRect := MakeRect(0, 0.0, X, Height - Border.Height);
-      // First measure the needed space for the label
-      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
-      // Draw the label
-      try
-        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
-        X := X - (CaptionRect.Width + 2);
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-
-      // Create vci indicator rect
-      VciRect := MakeRect(X - VciIndicator.Size, Y, VciIndicator.Size, VciIndicator.Size);
-      // Create vci indicator path
-      VciPath := CreateJ1962Path(VciRect);
-      // Create pen
-      Pen := TGPPen.Create(SafeColorRefToARGB(VciIndicator.BorderColor), VciIndicator.BorderWidth);
-      Pen.SetAlignment(PenAlignmentInset);
-      // Create brush
-      Brush := TGPLinearGradientBrush.Create(VciRect, SafeColorRefToARGB(VciIndicator.FromColor), SafeColorRefToARGB(VciIndicator.ToColor), LinearGradientModeVertical);
-      try
-        if (VciIndicator.FromColor <> clNone) and (VciIndicator.ToColor <> clNone) then
-          Graphics.FillPath(Brush, VciPath);
-        Graphics.DrawPath(Pen, VciPath);
-      finally
-        VciPath.Free;
-        Pen.Free;
-        Brush.Free;
-      end;
-
-      // Update the x position
-      X := X - (VciIndicator.Size + 4);
-    end;
-
-    // Draw the internet connection indicator
-    if InternetConnectionIndicator.Visible then
-    begin
-      // Update the Y position
-      Y := ((Height - Border.Height) / 2) - (InternetConnectionIndicator.Size / 2);
-
-      // Create font for the label
-      FontFamily := TGPFontFamily.Create(InternetConnectionIndicator.Font.Name);
-      Font := TGPFont.Create(FontFamily, InternetConnectionIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(InternetConnectionIndicator.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(InternetConnectionIndicator.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
-      StringFormat.SetAlignment(StringAlignmentFar);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-
-      // Format the label
-      S := InternetConnectionIndicator.Caption;
-      // Set the measure rect
-      MeasureRect := MakeRect(0, 0.0, X, Height - Border.Height);
-      // First measure the needed space for the label
-      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
-      // Draw the label
-      try
-        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
-        X := X - CaptionRect.Width;
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-
-      // Create internet connection indicator rect
-      InternetRect := MakeRect(X - InternetConnectionIndicator.Size, Y, InternetConnectionIndicator.Size, InternetConnectionIndicator.Size);
-      // Create internet connection indicator path
-      InternetPath := CreateInternetGlobePath(InternetRect);
-      // Create pen
-      Pen := TGPPen.Create(SafeColorRefToARGB(InternetConnectionIndicator.BorderColor), InternetConnectionIndicator.BorderWidth);
-      Pen.SetAlignment(PenAlignmentInset);
-      Brush := TGPLinearGradientBrush.Create(InternetRect, SafeColorRefToARGB(InternetConnectionIndicator.FromColor), SafeColorRefToARGB(InternetConnectionIndicator.ToColor), LinearGradientModeVertical);
-      try
-        if (InternetConnectionIndicator.FromColor <> clNone) and (InternetConnectionIndicator.ToColor <> clNone) then
-          Graphics.FillEllipse(Brush, InternetRect);
-        Graphics.DrawPath(Pen, InternetPath);
-      finally
-        InternetPath.Free;
-        Pen.Free;
-        Brush.Free;
-      end;
-
-      X := X - (InternetConnectionIndicator.Size + 4);
-    end;
-
-    // Draw the protocol indicator
-    if ProtocolIndicator.Visible then
-    begin
-      // Get the available width
-      Z := X;
-      // Update the Y position
-      Y := ((Height - Border.Height) / 2) - (ProtocolIndicator.Size / 2);
-
-      // Create protocol indicator rect
-      ProtocolRect := MakeRect(8, Y, ProtocolIndicator.Size, ProtocolIndicator.Size);
-      // Create protocol indicator path
-      ProtocolPath := CreateProtocolPath(ProtocolRect);
-      // Create pen
-      Pen := TGPPen.Create(SafeColorRefToARGB(ProtocolIndicator.BorderColor), ProtocolIndicator.BorderWidth);
-      Pen.SetAlignment(PenAlignmentInset);
-      Brush := TGPLinearGradientBrush.Create(ProtocolRect, SafeColorRefToARGB(ProtocolIndicator.FromColor), SafeColorRefToARGB(ProtocolIndicator.ToColor), LinearGradientModeVertical);
-      try
-        if (ProtocolIndicator.FromColor <> clNone) and (ProtocolIndicator.ToColor <> clNone) then
-          Graphics.FillPath(Brush, ProtocolPath);
-        Graphics.DrawPath(Pen, ProtocolPath);
-      finally
-        ProtocolPath.Free;
-        Pen.Free;
-        Brush.Free;
-      end;
-
-      // Create font for the label
-      FontFamily := TGPFontFamily.Create(ProtocolIndicator.Font.Name);
-      Font := TGPFont.Create(FontFamily, ProtocolIndicator.Font.Size, OBD.CustomControl.Common.FontStyle(ProtocolIndicator.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(ProtocolIndicator.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetAlignment(StringAlignmentNear);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-      StringFormat.SetFormatFlags(StringFormatFlagsNoWrap);
-      StringFormat.SetTrimming(StringTrimmingEllipsisCharacter);
-
-      // Format the label
-      S := ProtocolIndicator.Caption;
-      // Set the measure rect
-      MeasureRect := MakeRect(12 + ProtocolIndicator.Size, 0.0, Z - (12 + ProtocolIndicator.Size), Height - Border.Height);
-      // First measure the needed space for the label
-      if Graphics.MeasureString(S, Length(S), Font, MeasureRect, StringFormat, CaptionRect) = Ok then
-      // Draw the label
-      try
-        Graphics.DrawString(S, Length(S), Font, CaptionRect, StringFormat, FontBrush);
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-    end;
-
-
-  finally
-    // Free GDI+ graphics object
-    Graphics.Free;
+  // Draw the border stripe when enabled
+  if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
+  begin
+    BorderRect := TSkRect.Create(0.0, Height - Border.Height + 0.0, Width + 0.0, Height + 0.0);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
+      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawRect(BorderRect, Paint);
   end;
+
+  // Prepare layout state
+  X := Width - 8;
+  HasBattery := False;
+  HasVci := False;
+  HasInternet := False;
+  HasProtocol := False;
+
+  // Draw the battery indicator
+  if BatteryIndicator.Visible then
+  begin
+    Y := ((Height - Border.Height) / 2) - (BatteryIndicator.Size / 2);
+    BatteryLabelText := Format(BatteryIndicator.Format, [BatteryIndicator.Voltage]);
+
+    TextSize := MeasureSkText(BatteryLabelText, BatteryIndicator.Font);
+    MeasureRect := Rect(0, 0, Width - 8, Height - Border.Height);
+    BatteryCaptionRect := Rect(
+      MeasureRect.Right - Ceil(TextSize.cx),
+      ((Height - Border.Height) div 2) - Ceil(TextSize.cy / 2),
+      MeasureRect.Right,
+      ((Height - Border.Height) div 2) + Ceil(TextSize.cy / 2));
+    X := X - (TextSize.cx + 4);
+
+    BatteryRect := TRectF.Create(X - BatteryIndicator.Size, Y, X, Y + BatteryIndicator.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BatteryRect.Left, BatteryRect.Top),
+      TSkPoint.Create(BatteryRect.Left, BatteryRect.Bottom),
+      [SafeColorRefToSkColor(BatteryIndicator.FromColor), SafeColorRefToSkColor(BatteryIndicator.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawPath(CreateVehicleBatteryPath(BatteryRect), Paint);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := BatteryIndicator.BorderWidth;
+    Paint.Color := SafeColorRefToSkColor(BatteryIndicator.BorderColor);
+    Canvas.DrawPath(CreateVehicleBatteryPath(BatteryRect), Paint);
+
+    X := X - (BatteryIndicator.Size + 4);
+    HasBattery := True;
+  end;
+
+  // Draw the VCI indicator
+  if VciIndicator.Visible then
+  begin
+    Y := ((Height - Border.Height) / 2) - (VciIndicator.Size / 2);
+    VciLabelText := VciIndicator.Caption;
+
+    TextSize := MeasureSkText(VciLabelText, VciIndicator.Font);
+    MeasureRect := Rect(0, 0, Round(X), Height - Border.Height);
+    VciCaptionRect := Rect(
+      MeasureRect.Right - Ceil(TextSize.cx),
+      ((Height - Border.Height) div 2) - Ceil(TextSize.cy / 2),
+      MeasureRect.Right,
+      ((Height - Border.Height) div 2) + Ceil(TextSize.cy / 2));
+    X := X - (TextSize.cx + 2);
+
+    VciRect := TRectF.Create(X - VciIndicator.Size, Y, X, Y + VciIndicator.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(VciRect.Left, VciRect.Top),
+      TSkPoint.Create(VciRect.Left, VciRect.Bottom),
+      [SafeColorRefToSkColor(VciIndicator.FromColor), SafeColorRefToSkColor(VciIndicator.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawPath(CreateJ1962Path(VciRect), Paint);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := VciIndicator.BorderWidth;
+    Paint.Color := SafeColorRefToSkColor(VciIndicator.BorderColor);
+    Canvas.DrawPath(CreateJ1962Path(VciRect), Paint);
+
+    X := X - (VciIndicator.Size + 4);
+    HasVci := True;
+  end;
+
+  // Draw the internet connection indicator
+  if InternetConnectionIndicator.Visible then
+  begin
+    Y := ((Height - Border.Height) / 2) - (InternetConnectionIndicator.Size / 2);
+    InternetLabelText := InternetConnectionIndicator.Caption;
+
+    TextSize := MeasureSkText(InternetLabelText, InternetConnectionIndicator.Font);
+    MeasureRect := Rect(0, 0, Round(X), Height - Border.Height);
+    InternetCaptionRect := Rect(
+      MeasureRect.Right - Ceil(TextSize.cx),
+      ((Height - Border.Height) div 2) - Ceil(TextSize.cy / 2),
+      MeasureRect.Right,
+      ((Height - Border.Height) div 2) + Ceil(TextSize.cy / 2));
+    X := X - TextSize.cx;
+
+    InternetRect := TRectF.Create(X - InternetConnectionIndicator.Size, Y, X, Y + InternetConnectionIndicator.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(InternetRect.Left, InternetRect.Top),
+      TSkPoint.Create(InternetRect.Left, InternetRect.Bottom),
+      [SafeColorRefToSkColor(InternetConnectionIndicator.FromColor), SafeColorRefToSkColor(InternetConnectionIndicator.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawOval(TSkRect.Create(InternetRect.Left, InternetRect.Top, InternetRect.Right, InternetRect.Bottom), Paint);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := InternetConnectionIndicator.BorderWidth;
+    Paint.Color := SafeColorRefToSkColor(InternetConnectionIndicator.BorderColor);
+    Canvas.DrawPath(CreateInternetGlobePath(InternetRect), Paint);
+
+    X := X - (InternetConnectionIndicator.Size + 4);
+    HasInternet := True;
+  end;
+
+  // Draw the protocol indicator
+  if ProtocolIndicator.Visible then
+  begin
+    Z := X;
+    Y := ((Height - Border.Height) / 2) - (ProtocolIndicator.Size / 2);
+
+    ProtocolRect := TRectF.Create(8, Y, 8 + ProtocolIndicator.Size, Y + ProtocolIndicator.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(ProtocolRect.Left, ProtocolRect.Top),
+      TSkPoint.Create(ProtocolRect.Left, ProtocolRect.Bottom),
+      [SafeColorRefToSkColor(ProtocolIndicator.FromColor), SafeColorRefToSkColor(ProtocolIndicator.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawPath(CreateProtocolPath(ProtocolRect), Paint);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := ProtocolIndicator.BorderWidth;
+    Paint.Color := SafeColorRefToSkColor(ProtocolIndicator.BorderColor);
+    Canvas.DrawPath(CreateProtocolPath(ProtocolRect), Paint);
+
+    ProtocolLabelText := FitTextToWidth(ProtocolIndicator.Caption, ProtocolIndicator.Font, Round(Z - (12 + ProtocolIndicator.Size)));
+    TextSize := MeasureSkText(ProtocolLabelText, ProtocolIndicator.Font);
+    MeasureRect := Rect(12 + ProtocolIndicator.Size, 0, Round(Z - (12 + ProtocolIndicator.Size)), Height - Border.Height);
+    ProtocolCaptionRect := Rect(
+      MeasureRect.Left,
+      ((Height - Border.Height) div 2) - Ceil(TextSize.cy / 2),
+      MeasureRect.Left + Min(Ceil(TextSize.cx), MeasureRect.Right - MeasureRect.Left),
+      ((Height - Border.Height) div 2) + Ceil(TextSize.cy / 2));
+    HasProtocol := True;
+  end;
+
+  // Render captions with Skia to keep text drawing inside the Skia pipeline
+  if HasBattery then
+  begin
+    DrawSkTextCentered(Canvas, BatteryLabelText, BatteryIndicator.Font, TRectF.Create(BatteryCaptionRect), BatteryIndicator.Font.Color, TSkTextAlign.Right);
+    DrawSkTextCentered(Canvas, '- +', BatteryIndicator.Font, BatteryRect, BatteryIndicator.Font.Color);
+  end;
+
+  if HasVci then
+    DrawSkTextCentered(Canvas, VciLabelText, VciIndicator.Font, TRectF.Create(VciCaptionRect), VciIndicator.Font.Color, TSkTextAlign.Right);
+
+  if HasInternet then
+    DrawSkTextCentered(Canvas, InternetLabelText, InternetConnectionIndicator.Font, TRectF.Create(InternetCaptionRect), InternetConnectionIndicator.Font.Color, TSkTextAlign.Right);
+
+  if HasProtocol then
+    DrawSkTextCentered(Canvas, ProtocolLabelText, ProtocolIndicator.Font, TRectF.Create(ProtocolCaptionRect), ProtocolIndicator.Font.Color, TSkTextAlign.Left);
+
+  // Copy the Skia surface into the component buffer
+  Surface.MakeImageSnapshot.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -2202,6 +2255,8 @@ begin
   // Create protocol indicator
   FProtocolIndicator := TOBDTouchSubheaderProtocolIndicator.Create;
   FProtocolIndicator.OnChange := SettingsChanged;
+  // Enable automatic connection application by default
+  FAutoApplyConnectionDetails := True;
   // Set defaults
   Height := DEFAULT_HEIGHT;
   Align := alTop;
@@ -2226,6 +2281,9 @@ begin
   FInternetConnectionIndicator.Free;
   // Free protocol indicator
   FProtocolIndicator.Free;
+  // Clear connection component reference
+  if Assigned(FConnectionComponent) and (FConnectionComponent.OnConnectionStateChanged = HandleConnectionStateChanged) then
+    FConnectionComponent.OnConnectionStateChanged := nil;
   // Call inherited destructor
   inherited Destroy;
 end;

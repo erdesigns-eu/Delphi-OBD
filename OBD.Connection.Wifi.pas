@@ -450,7 +450,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TWifiOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
+  InvokeDataReceived(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -458,7 +458,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TWifiOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
+  InvokeDataSend(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TWifiOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
 begin
-  if Assigned(OnError) then OnError(Self, ErrorCode, ErrorMessage);
+  InvokeError(ErrorCode, ErrorMessage);
 end;
 
 //------------------------------------------------------------------------------
@@ -499,13 +499,18 @@ end;
 //------------------------------------------------------------------------------
 function TWifiOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  Result := Connected;
-  // Exit here is we're already connected
-  if Result then Exit;
-  // Exit here if the connection type is incorrect
-  if Params.ConnectionType <> ctWiFi then Exit;
-  // Connect to the Wifi (TCP) Socket
-  Result := FWifi.Connect(string(Params.IPAddress), Params.Port);
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := Connected;
+    // Exit here is we're already connected
+    if Result then Exit;
+    // Exit here if the connection type is incorrect
+    if Params.ConnectionType <> ctWiFi then Exit;
+    // Connect to the Wifi (TCP) Socket
+    Result := FWifi.Connect(string(Params.IPAddress), Params.Port);
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -513,11 +518,16 @@ end;
 //------------------------------------------------------------------------------
 function TWifiOBDConnection.Disconnect: Boolean;
 begin
-  Result := Connected;
-  if Result then
-  begin
-    FWifi.Disconnect;
+  TMonitor.Enter(FConnectionLock);
+  try
     Result := Connected;
+    if Result then
+    begin
+      FWifi.Disconnect;
+      Result := Connected;
+    end;
+  finally
+    TMonitor.Exit(FConnectionLock);
   end;
 end;
 

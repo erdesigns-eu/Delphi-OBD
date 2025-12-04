@@ -160,6 +160,7 @@
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="..\OBD.CustomControl.Register.pas"/>
+        <DCCReference Include="..\OBD.Component.Editors.pas"/>
         <DCCReference Include="..\OBD.DataModule.pas">
             <Form>OBDDataModule</Form>
             <FormType>dfm</FormType>

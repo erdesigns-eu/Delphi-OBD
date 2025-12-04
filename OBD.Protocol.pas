@@ -23,38 +23,48 @@ uses
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   OBD Protocol (INTERFACE)
+  ///   Thread-aware protocol contract used by parser implementations to convert
+  ///   adapter lines into decoded messages while exposing read-only snapshots of
+  ///   parsed ECU data.
   /// </summary>
   IOBDProtocol = interface
     ['{D603AC35-7A02-4723-A52A-67809258AD0F}']
     /// <summary>
-    ///   Invoke
+    ///   Parses the supplied text lines into data messages. Callers should pass
+    ///   immutable snapshots gathered under a lock when running on background
+    ///   threads.
     /// </summary>
     function Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
     /// <summary>
-    ///   Load ECU list
+    ///   Consumes parsed messages to populate the ECU list. This method is
+    ///   expected to run under the parser's internal lock.
     /// </summary>
     procedure LoadECUList(Messages: TArray<IOBDDataMessage>);
     /// <summary>
-    ///   Get the OBD Protocol name
+    ///   Gets the OBD protocol name.
     /// </summary>
     function GetName: string;
     /// <summary>
-    ///   Get the OBD Protocol name with additional data
+    ///   Gets the OBD protocol name with additional data.
     /// </summary>
     function GetDisplayName: string;
     /// <summary>
-    ///   Get the OBD Protocol ID (for ELM compatible interfaces)
+    ///   Gets the OBD protocol ID (for ELM compatible interfaces).
     /// </summary>
     function GetELMID: string;
     /// <summary>
-    ///   Parse a Data Frame
+    ///   Parses a single data frame, returning true when it could be decoded
+    ///   successfully.
     /// </summary>
     function ParseFrame(Frame: IOBDDataFrame): Boolean;
     /// <summary>
-    ///   Parse a Data Message
+    ///   Parses a single data message, returning true when successful.
     /// </summary>
     function ParseMessage(Msg: IOBDDataMessage): Boolean;
+    /// <summary>
+    ///   Creates a thread-safe snapshot of loaded ECUs for read-only consumption.
+    /// </summary>
+    function SnapshotECUList: TArray<string>;
     /// <summary>
     ///   OBD Protocol name
     /// </summary>
@@ -67,6 +77,10 @@ type
     ///   ELM OBD ID
     /// </summary>
     property ELMID: string read GetELMID;
+    /// <summary>
+    ///   Thread-safe snapshot of loaded ECUs.
+    /// </summary>
+    property ECUListSnapshot: TArray<string> read SnapshotECUList;
   end;
 
 //------------------------------------------------------------------------------
@@ -78,6 +92,10 @@ type
   /// </summary>
   TOBDProtocol = class(TInterfacedObject, IOBDProtocol)
   private
+    /// <summary>
+    ///   Monitor used to guard ECU list access and parsing scratch buffers.
+    /// </summary>
+    FStateLock: TObject;
     /// <summary>
     ///   Used in the invoke function
     /// </summary>
@@ -95,6 +113,19 @@ type
     /// </summary>
     FAllowLongMessages: Boolean;
     /// <summary>
+    ///   Partition incoming lines into OBD and non-OBD buckets while guarding shared lists.
+    /// </summary>
+    /// <param name="Lines">
+    ///   Raw message lines returned from the adapter.
+    /// </param>
+    /// <param name="OBDLines">
+    ///   Output array of validated hexadecimal OBD lines.
+    /// </param>
+    /// <param name="NonOBDLines">
+    ///   Output array of non-OBD lines for diagnostic handling.
+    /// </param>
+    procedure BucketizeLines(const Lines: TStrings; out OBDLines, NonOBDLines: TArray<string>);
+    /// <summary>
     ///   Invoke
     /// </summary>
     function Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
@@ -102,6 +133,10 @@ type
     ///   Load ECU list
     /// </summary>
     procedure LoadECUList(Messages: TArray<IOBDDataMessage>);
+    /// <summary>
+    ///   Creates a thread-safe snapshot of loaded ECUs for read-only consumption.
+    /// </summary>
+    function SnapshotECUList: TArray<string>;
   protected
     /// <summary>
     ///   Convert a hex string to TBytes
@@ -181,53 +216,67 @@ implementation
 //------------------------------------------------------------------------------
 // INVOKE
 //------------------------------------------------------------------------------
-function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
+procedure TOBDProtocol.BucketizeLines(const Lines: TStrings; out OBDLines, NonOBDLines: TArray<string>);
 
- function IsHex(const Line: string): Boolean;
+  function IsHex(const Line: string): Boolean;
   var
     I: Integer;
   begin
-    // initialize result
     Result := False;
-    // Exit here if the line is empty
     if Line = '' then Exit;
-    // Loop over all characters, and check if they are valid hex characters
     for I := 1 to Length(Line) do
-    if not CharInSet(Line[I], ['0'..'9', 'A'..'F', 'a'..'f']) then Exit;
-    // If we make it here, the string contains valid hex characters.
+      if not CharInSet(Line[I], ['0'..'9', 'A'..'F', 'a'..'f']) then Exit;
     Result := True;
   end;
-
 
 var
   Line: string;
   LineNoSpaces: string;
+begin
+  OBDLines := nil;
+  NonOBDLines := nil;
+  TMonitor.Enter(FStateLock);
+  try
+    FOBDLines.Clear;
+    FNonOBDLines.Clear;
+    for Line in Lines do
+    begin
+      LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
+      if IsHex(LineNoSpaces) then
+      begin
+        FOBDLines.Add(Line);
+        OBDLines := OBDLines + [Line];
+      end
+      else
+      begin
+        FNonOBDLines.Add(Line);
+        NonOBDLines := NonOBDLines + [Line];
+      end;
+    end;
+  finally
+    TMonitor.Exit(FStateLock);
+  end;
+end;
+
+function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
+
+var
+  Line: string;
+  OBDLines: TArray<string>;
+  NonOBDLines: TArray<string>;
   Frame: IOBDDataFrame;
   Frames: TArray<IOBDDataFrame>;
   FramesByECU: TDictionary<Integer, TArray<IOBDDataFrame>>;
   ECU: Integer;
   Msg: IOBDDataMessage;
 begin
-  // Clear lists
-  FOBDLines.Clear;
-  FNonOBDLines.Clear;
-
-  // Loop over lines
-  for Line in Lines do
-  begin
-    // Remove spaces
-    LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
-    // If the string is valid HEX add it to the OBD lines stringlist
-    if IsHex(LineNoSpaces) then FOBDLines.Add(Line)
-    // Otherwise add it to the non OBD lines stringlist
-    else FNonOBDLines.Add(Line);
-  end;
+  BucketizeLines(Lines, OBDLines, NonOBDLines);
 
   // Initialize frames length
   SetLength(Frames, 0);
 
   // Loop over OBD lines
-  for Line in FOBDLines do
+  for Line in OBDLines do
   begin
     // Create frame from line
     Frame := TOBDDataFrame.Create(Line);
@@ -262,7 +311,7 @@ begin
     end;
 
     // Handle invalid lines (probably from the ELM)
-    for Line in FNonOBDLines do
+    for Line in NonOBDLines do
     begin
       // Give each line its own message object
       Result := Result + [TOBDDataMessage.Create([TOBDDataFrame.Create(Line)])];
@@ -299,14 +348,36 @@ var
   Msg: IOBDDataMessage;
 begin
   // Clear ECU list
-  FECUList.Clear;
-  // Loop over messages
-  for Msg in Messages do
-  begin
-    // If the message doesnt contain any data, continue
-    if not Msg.Parsed then Continue;
-    // Convert the TxId to hexadecimal string and add to the ECU list
-    FECUList.Add(Msg.ECU);
+  TMonitor.Enter(FStateLock);
+  try
+    FECUList.Clear;
+    // Loop over messages
+    for Msg in Messages do
+    begin
+      // If the message doesnt contain any data, continue
+      if not Msg.Parsed then Continue;
+      // Convert the TxId to hexadecimal string and add to the ECU list
+      FECUList.Add(Msg.ECU);
+    end;
+  finally
+    TMonitor.Exit(FStateLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SNAPSHOT ECU LIST
+//------------------------------------------------------------------------------
+function TOBDProtocol.SnapshotECUList: TArray<string>;
+var
+  Index: Integer;
+begin
+  TMonitor.Enter(FStateLock);
+  try
+    SetLength(Result, FECUList.Count);
+    for Index := 0 to FECUList.Count - 1 do
+      Result[Index] := FECUList[Index];
+  finally
+    TMonitor.Exit(FStateLock);
   end;
 end;
 
@@ -319,6 +390,8 @@ var
 begin
   // Call inherited Constructor
   inherited Create;
+  // Create monitor lock
+  FStateLock := TObject.Create;
   // Create ECU list
   FECUList := TStringList.Create;
   // Create lists
@@ -338,10 +411,17 @@ end;
 destructor TOBDProtocol.Destroy;
 begin
   // Free ECU list
-  FECUList.Free;
-  // Free lists
-  FOBDLines.Free;
-  FNonOBDLines.Free;
+  TMonitor.Enter(FStateLock);
+  try
+    FECUList.Free;
+    // Free lists
+    FOBDLines.Free;
+    FNonOBDLines.Free;
+  finally
+    TMonitor.Exit(FStateLock);
+  end;
+  // Release monitor lock
+  FStateLock.Free;
   // Call inherited Destructor
   inherited;
 end;
