@@ -25,5 +25,5 @@ This quick start shows how to scaffold a Skia-enabled OBD UI with the updated pa
 ## Notes
 - All generated controls stay within the Skia rendering path; no GDI or GDI+ primitives are emitted by the scaffolded forms.
 - The non-visual components are design-time friendly and expose IntelliSense comments on their declarations for discoverability.
-- Prefer the ready-made projects under [examples/](examples/) when you want a runnable baseline for serial, Bluetooth, WiFi, FTDI,
-  simple, or advanced dashboards.
+- Prefer the ready-made projects under [examples/](examples/) when you want a runnable baseline for a minimal connect/read/clear
+  workflow or for serial, Bluetooth, WiFi, FTDI, simple, or advanced dashboards.
