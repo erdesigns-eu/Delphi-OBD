@@ -135,6 +135,7 @@
         <DCCReference Include="..\OBD.Protocol.Component.pas"/>
         <DCCReference Include="..\OBD.Gauge.Component.pas"/>
         <DCCReference Include="..\OBD.Header.Component.pas"/>
+        <DCCReference Include="..\OBD.Subheader.Component.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

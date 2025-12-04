@@ -137,6 +137,10 @@ type
     ///   Release bindings and synchronization primitives.
     /// </summary>
     destructor Destroy; override;
+    /// <summary>
+    ///   Validate component bindings after streaming completes.
+    /// </summary>
+    procedure Loaded; override;
   public
     /// <summary>
     ///   Manually request that the controller apply the given connection state
@@ -292,6 +296,22 @@ begin
       'Connection.OnConnectionStateChanged', Self, FOnBindingNotification);
   FBindingLock.Free;
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// LOADED
+//------------------------------------------------------------------------------
+procedure TOBDHeaderComponent.Loaded;
+begin
+  inherited Loaded;
+
+  if FAutoApplyCaption or FAutoApplyBattery then
+    TOBDBindingHelpers.ValidateRequiredComponent(Self, FHeader, 'Header');
+
+  if FAutoBindConnection then
+    TOBDBindingHelpers.ValidateRequiredComponent(Self, FConnectionComponent, 'ConnectionComponent');
+
+  RefreshConnectionBinding;
 end;
 
 //------------------------------------------------------------------------------

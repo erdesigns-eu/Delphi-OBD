@@ -31,7 +31,7 @@ implementation
 uses
   OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
-  OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component,
+  OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
   OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
 
 //------------------------------------------------------------------------------
@@ -86,7 +86,8 @@ begin
     TOBDConnectionComponent, // Register the non-visual connection wrapper
     TOBDProtocolComponent,   // Register the non-visual protocol wrapper
     TOBDGaugeComponent,      // Register the non-visual gauge controller
-    TOBDHeaderComponent      // Register the non-visual header controller
+    TOBDHeaderComponent,     // Register the non-visual header controller
+    TOBDSubheaderComponent   // Register the non-visual subheader controller
   ]);
 
   // Register our custom form

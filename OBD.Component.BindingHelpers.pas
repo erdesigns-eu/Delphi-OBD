@@ -13,7 +13,7 @@ unit OBD.Component.BindingHelpers;
 interface
 
 uses
-  System.Classes, System.SyncObjs;
+  System.Classes, System.SyncObjs, System.SysUtils;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -53,6 +53,12 @@ type
     class procedure RestoreHandler<T>(const Lock: TObject; var TargetEvent: T; var StoredHandler: T;
       const BindingName: string = ''; const Owner: TComponent = nil;
       const Notification: TOBDBindingNotification = nil); static;
+    /// <summary>
+    ///   Validates that a required component reference is assigned, raising a
+    ///   component error when the dependency is missing.
+    /// </summary>
+    class procedure ValidateRequiredComponent(const Owner: TComponent;
+      const RequiredComponent: TComponent; const BindingName: string); static;
   end;
 
 implementation
@@ -95,6 +101,23 @@ begin
     if Lock <> nil then
       TMonitor.Exit(Lock);
   end;
+end;
+
+//------------------------------------------------------------------------------
+// VALIDATE REQUIRED COMPONENT
+//------------------------------------------------------------------------------
+class procedure TOBDBindingHelpers.ValidateRequiredComponent(const Owner: TComponent;
+  const RequiredComponent: TComponent; const BindingName: string);
+begin
+  if Assigned(RequiredComponent) then
+    Exit;
+
+  if Owner <> nil then
+    raise EComponentError.CreateFmt('%s requires %s to be assigned for binding "%s".',
+      [Owner.Name, BindingName, BindingName])
+  else
+    raise EComponentError.CreateFmt('Binding "%s" requires an assigned component.',
+      [BindingName]);
 end;
 
 end.

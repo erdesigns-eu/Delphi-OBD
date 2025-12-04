@@ -48,6 +48,7 @@ contains
   OBD.Connection.Component in '..\OBD.Connection.Component.pas',
   OBD.Protocol.Component in '..\OBD.Protocol.Component.pas',
   OBD.Gauge.Component in '..\OBD.Gauge.Component.pas',
-  OBD.Header.Component in '..\OBD.Header.Component.pas';
+  OBD.Header.Component in '..\OBD.Header.Component.pas',
+  OBD.Subheader.Component in '..\OBD.Subheader.Component.pas';
 
 end.
