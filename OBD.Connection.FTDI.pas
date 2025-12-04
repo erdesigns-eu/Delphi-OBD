@@ -13,7 +13,7 @@ unit OBD.Connection.FTDI;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.SyncObjs,
 
   OBD.Connection,
   OBD.Connection.Types,
@@ -94,6 +94,10 @@ type
     ///   Event to emit when an error occurs
     /// </summary>
     FOnError: TErrorEvent;
+    /// <summary>
+    ///   Monitor object guarding concurrent send operations.
+    /// </summary>
+    FSendLock: TObject;
     /// <summary>
     ///   Input Buffer
     /// </summary>
@@ -526,6 +530,8 @@ constructor TFTDI.Create;
 begin
   // Call inherited constructor
   inherited Create;
+  // Allocate send monitor to guard concurrent write operations
+  FSendLock := TObject.Create;
   // Initialize Handle with an invalid handle value (Disconnected)
   FFTDIHandle := INVALID_HANDLE_VALUE;
   // Allocate a Window HANDLE to catch the FTDI Thread Notification Messages (WM_FTDI_RX_CHAR, WM_FTDI_MODEM_STATUS)
@@ -543,6 +549,8 @@ destructor TFTDI.Destroy;
 begin
   // Ensure connection is closed and resources are released
   Disconnect;
+  // Release the send monitor
+  FreeAndNil(FSendLock);
   // Release the thread's Window HANDLE
   DeallocateHWnd(FNotifyWnd);
   // Close the event handle (necessary for cleanup)
@@ -674,26 +682,33 @@ begin
   Result := 0;
   // Exit here when we're not connected
   if not Connected then Exit;
+  // Exit immediately on empty payloads
+  if DataSize = 0 then Exit;
   // Send data
-  if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
-  Remaining := DataSize;
-  CurrentPtr := DataPtr;
-  while Remaining > 0 do
-  begin
-    WriteStatus := FT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
-    if WriteStatus <> FT_OK then
+  TMonitor.Enter(FSendLock);
+  try
+    if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
+    Remaining := DataSize;
+    CurrentPtr := DataPtr;
+    while Remaining > 0 do
     begin
-      if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));
-      Break;
+      WriteStatus := FT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
+      if WriteStatus <> FT_OK then
+      begin
+        if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));
+        Break;
+      end;
+      Inc(Result, BytesWritten);
+      if BytesWritten = 0 then
+      begin
+        if Assigned(OnError) then OnError(Self, WriteStatus, Format('Write stalled after %d of %d bytes were sent', [Result, DataSize]));
+        Break;
+      end;
+      Dec(Remaining, BytesWritten);
+      Inc(CurrentPtr, BytesWritten);
     end;
-    Inc(Result, BytesWritten);
-    if BytesWritten = 0 then
-    begin
-      if Assigned(OnError) then OnError(Self, WriteStatus, Format('Write stalled after %d of %d bytes were sent', [Result, DataSize]));
-      Break;
-    end;
-    Dec(Remaining, BytesWritten);
-    Inc(CurrentPtr, BytesWritten);
+  finally
+    TMonitor.Exit(FSendLock);
   end;
   if (Result <> DataSize) and Assigned(OnError) then
     OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [Result, DataSize]));
