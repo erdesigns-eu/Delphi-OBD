@@ -20,6 +20,12 @@ uses
 //------------------------------------------------------------------------------
 type
   /// <summary>
+  ///   Callback signature for reporting diagnostic messages about binding and
+  ///   locking behavior.
+  /// </summary>
+  TOBDDiagnosticEvent = procedure(const Owner: TComponent; const Detail: string) of object;
+
+  /// <summary>
   ///   Binding operation stage used to describe whether a handler is being
   ///   swapped or restored.
   /// </summary>
@@ -45,14 +51,16 @@ type
     /// </summary>
     class procedure SwapHandler<T>(const Lock: TObject; var TargetEvent: T; var StoredHandler: T;
       const NewHandler: T; const BindingName: string = ''; const Owner: TComponent = nil;
-      const Notification: TOBDBindingNotification = nil); static;
+      const Notification: TOBDBindingNotification = nil; const Diagnostic: TOBDDiagnosticEvent = nil;
+      const DiagnosticContext: string = ''; const WaitWarningMs: Cardinal = 0); static;
     /// <summary>
     ///   Restore a previously stored handler to the target event while clearing
     ///   the stored reference under the monitor lock when supplied.
     /// </summary>
     class procedure RestoreHandler<T>(const Lock: TObject; var TargetEvent: T; var StoredHandler: T;
       const BindingName: string = ''; const Owner: TComponent = nil;
-      const Notification: TOBDBindingNotification = nil); static;
+      const Notification: TOBDBindingNotification = nil; const Diagnostic: TOBDDiagnosticEvent = nil;
+      const DiagnosticContext: string = ''; const WaitWarningMs: Cardinal = 0); static;
     /// <summary>
     ///   Validates that a required component reference is assigned, raising a
     ///   component error when the dependency is missing.
@@ -68,11 +76,23 @@ implementation
 //------------------------------------------------------------------------------
 class procedure TOBDBindingHelpers.SwapHandler<T>(const Lock: TObject; var TargetEvent: T;
   var StoredHandler: T; const NewHandler: T; const BindingName: string = ''; const Owner: TComponent = nil;
-  const Notification: TOBDBindingNotification = nil);
+  const Notification: TOBDBindingNotification = nil; const Diagnostic: TOBDDiagnosticEvent = nil;
+  const DiagnosticContext: string = ''; const WaitWarningMs: Cardinal = 0);
+var
+  StartTicks: UInt64;
+  Elapsed: UInt64;
+  ContextName: string;
 begin
+  ContextName := DiagnosticContext;
+  if ContextName = '' then
+    ContextName := BindingName;
+  StartTicks := TThread.GetTickCount64;
   if Lock <> nil then
     TMonitor.Enter(Lock);
+  Elapsed := TThread.GetTickCount64 - StartTicks;
   try
+    if Assigned(Diagnostic) and (WaitWarningMs > 0) and (Elapsed >= WaitWarningMs) then
+      Diagnostic(Owner, Format('%s lock wait exceeded %d ms during swap.', [ContextName, Elapsed]));
     StoredHandler := TargetEvent;
     TargetEvent := NewHandler;
     if Assigned(Notification) then
@@ -88,11 +108,23 @@ end;
 //------------------------------------------------------------------------------
 class procedure TOBDBindingHelpers.RestoreHandler<T>(const Lock: TObject; var TargetEvent: T;
   var StoredHandler: T; const BindingName: string = ''; const Owner: TComponent = nil;
-  const Notification: TOBDBindingNotification = nil);
+  const Notification: TOBDBindingNotification = nil; const Diagnostic: TOBDDiagnosticEvent = nil;
+  const DiagnosticContext: string = ''; const WaitWarningMs: Cardinal = 0);
+var
+  StartTicks: UInt64;
+  Elapsed: UInt64;
+  ContextName: string;
 begin
+  ContextName := DiagnosticContext;
+  if ContextName = '' then
+    ContextName := BindingName;
+  StartTicks := TThread.GetTickCount64;
   if Lock <> nil then
     TMonitor.Enter(Lock);
+  Elapsed := TThread.GetTickCount64 - StartTicks;
   try
+    if Assigned(Diagnostic) and (WaitWarningMs > 0) and (Elapsed >= WaitWarningMs) then
+      Diagnostic(Owner, Format('%s lock wait exceeded %d ms during restore.', [ContextName, Elapsed]));
     TargetEvent := StoredHandler;
     StoredHandler := Default(T);
     if Assigned(Notification) then

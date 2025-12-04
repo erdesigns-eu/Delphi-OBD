@@ -124,6 +124,11 @@ type
     /// </summary>
     FOnDiagnosticsUpdated: TNotifyEvent;
     /// <summary>
+    ///   Optional diagnostic callback invoked when monitor waits exceed the
+    ///   configured threshold.
+    /// </summary>
+    FOnDiagnostic: TOBDDiagnosticEvent;
+    /// <summary>
     ///   Replace the current protocol instance using the configured class
     ///   reference and allowance for long messages.
     /// </summary>
@@ -210,6 +215,15 @@ type
     ///   Raises the diagnostics updated event on the main thread.
     /// </summary>
     procedure NotifyDiagnosticsUpdated;
+    /// <summary>
+    ///   Emits a diagnostic callback when subscribed listeners are present.
+    /// </summary>
+    procedure EmitDiagnostic(const Detail: string);
+    /// <summary>
+    ///   Enters a monitor and reports contention when the wait exceeds the
+    ///   configured diagnostic threshold.
+    /// </summary>
+    procedure EnterLock(const Lock: TObject; const Context: string; const ThresholdMs: Cardinal = 15);
   protected
     /// <summary>
     ///   Initialize the component, allocating buffers and building the default
@@ -284,6 +298,11 @@ type
     ///   thread for UI safety.
     /// </summary>
     property OnDiagnosticsUpdated: TNotifyEvent read FOnDiagnosticsUpdated write FOnDiagnosticsUpdated;
+    /// <summary>
+    ///   Event fired when the component observes extended monitor waits during
+    ///   binding or buffer protection.
+    /// </summary>
+    property OnDiagnostic: TOBDDiagnosticEvent read FOnDiagnostic write FOnDiagnostic;
   end;
 
 implementation
@@ -313,13 +332,13 @@ end;
 destructor TOBDProtocolComponent.Destroy;
 begin
   DetachConnection;
-  TMonitor.Enter(FBufferLock);
+  EnterLock(FBufferLock, 'BufferLock.Destroy');
   try
     FPendingLines.Free;
   finally
     TMonitor.Exit(FBufferLock);
   end;
-  TMonitor.Enter(FDiagnosticsLock);
+  EnterLock(FDiagnosticsLock, 'DiagnosticsLock.Destroy');
   try
     FRecentLines.Free;
   finally
@@ -415,7 +434,7 @@ begin
     Exit;
   TOBDBindingHelpers.SwapHandler<TDataReceivedEvent>(FBindingLock, FConnection.OnDataReceived,
     FChainedOnDataReceived, HandleDataReceived, 'Connection.OnDataReceived', Self,
-    FOnBindingNotification);
+    FOnBindingNotification, FOnDiagnostic, 'ProtocolConnectionBinding', 20);
 end;
 
 //------------------------------------------------------------------------------
@@ -426,7 +445,8 @@ begin
   if Assigned(FConnection) then
   begin
     TOBDBindingHelpers.RestoreHandler<TDataReceivedEvent>(FBindingLock, FConnection.OnDataReceived,
-      FChainedOnDataReceived, 'Connection.OnDataReceived', Self, FOnBindingNotification);
+      FChainedOnDataReceived, 'Connection.OnDataReceived', Self, FOnBindingNotification,
+      FOnDiagnostic, 'ProtocolConnectionBinding', 20);
     FConnection := nil;
   end;
 end;
@@ -460,7 +480,7 @@ var
   LineBreakPos: Integer;
   RawLine: AnsiString;
 begin
-  TMonitor.Enter(FBufferLock);
+  EnterLock(FBufferLock, 'BufferLock.ExtractCompletedLines');
   try
     FPendingBuffer := FPendingBuffer + Incoming;
     repeat
@@ -496,7 +516,7 @@ var
 begin
   LocalLines := TStringList.Create;
   try
-    TMonitor.Enter(FBufferLock);
+    EnterLock(FBufferLock, 'BufferLock.DispatchMessages');
     try
       LocalLines.Assign(FPendingLines);
       FPendingLines.Clear;
@@ -526,7 +546,7 @@ begin
     Exit;
   end;
 
-  TMonitor.Enter(FDispatchLock);
+  EnterLock(FDispatchLock, 'DispatchLock.DeliverMessages');
   try
     TThread.Queue(nil,
       procedure
@@ -546,7 +566,7 @@ procedure TOBDProtocolComponent.RecordDiagnosticLine(const Line: string);
 begin
   if Line = '' then
     Exit;
-  TMonitor.Enter(FDiagnosticsLock);
+  EnterLock(FDiagnosticsLock, 'DiagnosticsLock.Record');
   try
     FRecentLines.Add(Line);
     TrimDiagnosticBuffer;
@@ -577,7 +597,7 @@ function TOBDProtocolComponent.GetDiagnosticsSnapshot: TArray<string>;
 var
   Index: Integer;
 begin
-  TMonitor.Enter(FDiagnosticsLock);
+  EnterLock(FDiagnosticsLock, 'DiagnosticsLock.Snapshot');
   try
     SetLength(Result, FRecentLines.Count);
     for Index := 0 to FRecentLines.Count - 1 do
@@ -595,7 +615,7 @@ begin
   if FDiagnosticsDepth = Value then
     Exit;
   FDiagnosticsDepth := Value;
-  TMonitor.Enter(FDiagnosticsLock);
+  EnterLock(FDiagnosticsLock, 'DiagnosticsLock.SetDepth');
   try
     TrimDiagnosticBuffer;
   finally
@@ -622,6 +642,31 @@ begin
       if Assigned(FOnDiagnosticsUpdated) then
         FOnDiagnosticsUpdated(Self);
     end);
+end;
+
+//------------------------------------------------------------------------------
+// EMIT DIAGNOSTIC
+//------------------------------------------------------------------------------
+procedure TOBDProtocolComponent.EmitDiagnostic(const Detail: string);
+begin
+  if Assigned(FOnDiagnostic) then
+    FOnDiagnostic(Self, Detail);
+end;
+
+//------------------------------------------------------------------------------
+// ENTER LOCK
+//------------------------------------------------------------------------------
+procedure TOBDProtocolComponent.EnterLock(const Lock: TObject; const Context: string;
+  const ThresholdMs: Cardinal = 15);
+var
+  StartTicks: UInt64;
+  Elapsed: UInt64;
+begin
+  StartTicks := TThread.GetTickCount64;
+  TMonitor.Enter(Lock);
+  Elapsed := TThread.GetTickCount64 - StartTicks;
+  if (ThresholdMs > 0) and (Elapsed >= ThresholdMs) then
+    EmitDiagnostic(Format('%s lock wait: %d ms', [Context, Elapsed]));
 end;
 
 //------------------------------------------------------------------------------
