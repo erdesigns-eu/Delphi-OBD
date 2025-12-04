@@ -678,6 +678,7 @@ var
   CurrentPtr: PByte;
   BytesWritten: DWORD;
   WriteStatus: FT_Result;
+  HadFailure: Boolean;
 begin
   Result := 0;
   // Exit here when we're not connected
@@ -687,6 +688,7 @@ begin
   // Send data
   TMonitor.Enter(FSendLock);
   try
+    HadFailure := False;
     if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
     Remaining := DataSize;
     CurrentPtr := DataPtr;
@@ -696,12 +698,14 @@ begin
       if WriteStatus <> FT_OK then
       begin
         if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));
+        HadFailure := True;
         Break;
       end;
       Inc(Result, BytesWritten);
       if BytesWritten = 0 then
       begin
         if Assigned(OnError) then OnError(Self, WriteStatus, Format('Write stalled after %d of %d bytes were sent', [Result, DataSize]));
+        HadFailure := True;
         Break;
       end;
       Dec(Remaining, BytesWritten);
@@ -710,7 +714,7 @@ begin
   finally
     TMonitor.Exit(FSendLock);
   end;
-  if (Result <> DataSize) and Assigned(OnError) then
+  if (Result <> DataSize) and (not HadFailure) and Assigned(OnError) then
     OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [Result, DataSize]));
 end;
 

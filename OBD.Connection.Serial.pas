@@ -1213,7 +1213,10 @@ end;
 //------------------------------------------------------------------------------
 procedure TSerialPort.ContinuePolling;
 begin
-  Dec(FRXPollingPauses);
+  if FRXPollingPauses > 0 then
+    Dec(FRXPollingPauses)
+  else
+    FRXPollingPauses := 0;
 end;
 
 //------------------------------------------------------------------------------
