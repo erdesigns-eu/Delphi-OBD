@@ -1,7 +1,9 @@
 object AdvancedDashboardForm: TAdvancedDashboardForm
   Caption = 'Advanced Dashboard'
-  ClientHeight = 560
+  ClientHeight = 620
   ClientWidth = 900
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   Position = poScreenCenter
   TextHeight = 15
   object Header: TOBDTouchHeader
@@ -19,6 +21,111 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     ParentBackground = False
     TabOrder = 1
   end
+  object DiagnosticsPanel: TPanel
+    Align = alBottom
+    Height = 240
+    TabOrder = 3
+    object DiagnosticButtons: TPanel
+      Align = alTop
+      Height = 48
+      TabOrder = 0
+      object MonitorStatusButton: TButton
+        Left = 8
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 01'
+        TabOrder = 0
+        OnClick = MonitorStatusButtonClick
+      end
+      object FreezeFrameButton: TButton
+        Left = 104
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 02'
+        TabOrder = 1
+        OnClick = FreezeFrameButtonClick
+      end
+      object StoredDTCButton: TButton
+        Left = 200
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 03'
+        TabOrder = 2
+        OnClick = StoredDTCButtonClick
+      end
+      object ClearDTCButton: TButton
+        Left = 296
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 04'
+        TabOrder = 3
+        OnClick = ClearDTCButtonClick
+      end
+      object OxygenSensorButton: TButton
+        Left = 392
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 05'
+        TabOrder = 4
+        OnClick = OxygenSensorButtonClick
+      end
+      object MonitorTestsButton: TButton
+        Left = 488
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 06'
+        TabOrder = 5
+        OnClick = MonitorTestsButtonClick
+      end
+      object PendingDTCButton: TButton
+        Left = 584
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 07'
+        TabOrder = 6
+        OnClick = PendingDTCButtonClick
+      end
+      object ControlSystemButton: TButton
+        Left = 680
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 08'
+        TabOrder = 7
+        OnClick = ControlSystemButtonClick
+      end
+      object VehicleInfoButton: TButton
+        Left = 776
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 09'
+        TabOrder = 8
+        OnClick = VehicleInfoButtonClick
+      end
+      object PermanentDTCButton: TButton
+        Left = 872
+        Top = 10
+        Width = 90
+        Height = 25
+        Caption = 'Mode 0A'
+        TabOrder = 9
+        OnClick = PermanentDTCButtonClick
+      end
+    end
+    object DiagnosticsMemo: TMemo
+      Align = alClient
+      ScrollBars = ssVertical
+      TabOrder = 1
+    end
+  end
   object Statusbar: TOBDTouchStatusbar
     Align = alBottom
     Height = 32
@@ -28,7 +135,7 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
   object ControlPanel: TPanel
     Align = alBottom
     Height = 48
-    TabOrder = 3
+    TabOrder = 2
     object ConnectButton: TButton
       Left = 8
       Top = 10
@@ -48,11 +155,6 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
       OnClick = DisconnectButtonClick
     end
   end
-  object DiagnosticsMemo: TMemo
-    Align = alRight
-    Width = 260
-    TabOrder = 2
-  end
   object Gauge: TOBDCircularGauge
     Align = alClient
     TabOrder = 5
@@ -63,16 +165,14 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     SerialPort = 'COM3'
     SerialBaudRate = br115200
     Left = 784
-    Top = 88
+    Top = 72
   end
   object ProtocolComponent: TOBDProtocolComponent
     ConnectionComponent = ConnectionComponent
-    ProtocolClass = TOBDProtocolISO15765
+    ProtocolClass = TOBDProtocolISO9141
     AutoBindConnection = True
-    DiagnosticsDepth = 200
-    OnDiagnosticsUpdated = DiagnosticsUpdated
     Left = 784
-    Top = 136
+    Top = 120
   end
   object HeaderComponent: TOBDHeaderComponent
     Header = Header
@@ -81,7 +181,7 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     AutoApplyCaption = True
     AutoApplyBattery = True
     Left = 784
-    Top = 184
+    Top = 168
   end
   object SubheaderComponent: TOBDSubheaderComponent
     Subheader = Subheader
@@ -92,7 +192,7 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     AutoApplyConnectionCaptions = True
     AutoApplyProtocolCaption = True
     Left = 784
-    Top = 232
+    Top = 216
   end
   object GaugeComponent: TOBDGaugeComponent
     Gauge = Gauge
@@ -101,6 +201,6 @@ object AdvancedDashboardForm: TAdvancedDashboardForm
     AutoApplyValue = True
     OnResolveValue = ResolveGaugeValue
     Left = 784
-    Top = 280
+    Top = 264
   end
 end
