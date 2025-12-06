@@ -176,6 +176,7 @@ var
   Mode: Byte;
   Frame: IOBDDataFrame;
   I: Integer;
+  BytesToCopy: Integer;
   FrameData: TBytes;
   Comparer: IComparer<IOBDDataFrame>;
   FirstFrame: Boolean;

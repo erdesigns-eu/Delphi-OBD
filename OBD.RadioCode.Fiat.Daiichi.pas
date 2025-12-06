@@ -138,11 +138,12 @@ begin
   for I := 1 to Length(Input) do
   begin
     // Update SNArr based on the character and index
+    // Use modulo to ensure result is always 0-9
     case I of
-      1: SNArr[3] := 10 - StrToInt(Input[I]);
-      2: SNArr[2] := 9 - StrToInt(Input[I]);
-      3: SNArr[1] := 9 - StrToInt(Input[I]);
-      4: SNArr[0] := 9 - StrToInt(Input[I]);
+      1: SNArr[3] := (10 - StrToInt(Input[I])) mod 10;
+      2: SNArr[2] := (9 - StrToInt(Input[I]) + 10) mod 10;
+      3: SNArr[1] := (9 - StrToInt(Input[I]) + 10) mod 10;
+      4: SNArr[0] := (9 - StrToInt(Input[I]) + 10) mod 10;
     end;
   end;
 
