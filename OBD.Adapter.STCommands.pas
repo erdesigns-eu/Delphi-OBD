@@ -271,6 +271,20 @@ const
     Group       : 'Voltage';
     Params      : 0;
   );
+  VOLTAGE_STATUS_MONITOR: STCommand = (
+    Command     : 'VSM %d';
+    Description : 'Voltage status monitor - enables/disables automatic monitoring';
+    Group       : 'Voltage';
+    Params      : 1;
+    Param1      : (Param: 'Enable'; Description: '0 = disable, 1 = enable voltage monitoring');
+  );
+  SET_LOW_VOLTAGE_ALERT: STCommand = (
+    Command     : 'SLVA %s';
+    Description : 'Set low voltage alert threshold';
+    Group       : 'Voltage';
+    Params      : 1;
+    Param1      : (Param: 'Voltage'; Description: 'Voltage threshold in volts (e.g., 11.5). Range typically 6.0 to 16.0 volts.');
+  );
 
 //------------------------------------------------------------------------------
 // ST COMMANDS: OBD PROTOCOL (TABLE 15)
@@ -432,6 +446,15 @@ const
     Description : 'Clear all flow control address pairs';
     Group       : 'CAN';
     Params      : 0;
+  );
+  SET_FLOW_ADJUST_PARAMETERS: STCommand = (
+    Command     : 'FAP %d, %d, %d';
+    Description : 'Set flow adjust parameters for CAN flow control';
+    Group       : 'CAN';
+    Params      : 3;
+    Param1      : (Param: 'BS'; Description: 'Block Size - number of frames between flow control frames (0-255)');
+    Param2      : (Param: 'STmin'; Description: 'Separation Time minimum - minimum time between frames in milliseconds (0-127)');
+    Param3      : (Param: 'WFTmax'; Description: 'Wait Frame Transmit maximum - max consecutive wait frames (0-15)');
   );
   SET_CAN_MONITORING_MODE: STCommand = (
     Command     : 'CMM %d';

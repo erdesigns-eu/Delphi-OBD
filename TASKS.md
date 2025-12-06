@@ -195,35 +195,84 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 
 ---
 
-#### TASK 2.3: Add More Radio Brands
-- **Priority:** 🟡 MEDIUM
-- **Estimated Effort:** 4-6 hours
-- **Description:** Support additional manufacturers
+#### TASK 2.3: Add Comprehensive Radio Brand Coverage
+- **Priority:** 🟠 HIGH (Updated per requirement)
+- **Estimated Effort:** 20-30 hours
+- **Description:** Comprehensive coverage of radio code calculators for all major manufacturers
 
-**Priority Order:**
-1. [ ] Nissan (BP series)
-2. [ ] Toyota/Lexus
-3. [ ] Mercedes-Benz
-4. [ ] Opel/Vauxhall
-5. [ ] Honda
-6. [ ] Hyundai/Kia
+**Japanese Manufacturers:**
+1. [ ] Nissan (BP series, Clarion models)
+2. [ ] Toyota/Lexus (Fujitsu Ten, Panasonic, Denso models)
+3. [ ] Honda (Alpine, Panasonic models)
+4. [ ] Mazda (Clarion, Panasonic models)
+5. [ ] Mitsubishi (various models)
+6. [ ] Subaru (various models)
+7. [ ] Suzuki (various models)
+8. [ ] Hyundai/Kia (Mobis, Blaupunkt models)
+
+**European Manufacturers:**
+1. [ ] Mercedes-Benz (Audio 10/20/30/50, Becker models)
+2. [ ] BMW (Business CD/Radio, Professional models)
+3. [ ] Opel/Vauxhall (CD30/70, Navi series)
+4. [ ] Volvo (SC and HU series)
+5. [ ] SEAT (various models)
+6. [ ] Skoda (various models)
+7. [ ] Land Rover/Jaguar (various models)
+8. [ ] Citroen (various models)
+9. [ ] PSA Group additional models
+
+**American Manufacturers:**
+1. [ ] Chrysler/Jeep/Dodge (various models)
+2. [ ] GM brands (Chevrolet, Cadillac, GMC, Buick)
+3. [ ] Lincoln/Mercury (various models)
+
+**Generic/Universal:**
+1. [ ] Blaupunkt (additional models)
+2. [ ] Clarion (universal models)
+3. [ ] Pioneer (locked models)
+4. [ ] Kenwood (locked models)
+5. [ ] Alpine (locked models)
+6. [ ] Visteon (various models)
+7. [ ] Vdo/Continental (various models)
+8. [ ] Grundig (various models)
+9. [ ] Philips (various models)
+
+**Implementation Strategy:**
+- Group by manufacturer/OEM supplier
+- Use shared calculation patterns where possible
+- Create factory classes for similar algorithms
+- Maintain consistent validation patterns
+- Add comprehensive test data for each model
 
 ---
 
 ### OBD Adapter Support Expansion
 
-#### TASK 2.4: OBDLink SX/MX Advanced Features
+#### ✅ TASK 2.4: OBDLink SX/MX Advanced Features (COMPLETED)
+- **Status:** ✅ DONE
 - **Priority:** 🟠 HIGH
 - **Estimated Effort:** 3-4 hours
 - **Description:** Full ST command support
 
-**ST Commands to Implement:**
-- [ ] `STDI` - Device Identification
-- [ ] `STVR` - Voltage Reading
-- [ ] `STVSM` - Voltage Status Monitor
-- [ ] `STSLVA` - Set Low Voltage Alert
-- [ ] `STFAP` - Flow Adjust Parameters
-- [ ] `STJ1939` - J1939 Protocol Support
+**Completed ST Commands:**
+- [x] `STDI` - Device Identification (already existed)
+- [x] `STVR` - Voltage Reading (already existed)
+- [x] `STVSM` - Voltage Status Monitor (ADDED)
+- [x] `STSLVA` - Set Low Voltage Alert (ADDED)
+- [x] `STFAP` - Flow Adjust Parameters (ADDED)
+- [x] `STJ1939` - J1939 Protocol Support (ADDED full protocol unit)
+
+**Implementation Details:**
+- Added VOLTAGE_STATUS_MONITOR command to OBD.Adapter.STCommands.pas
+- Added SET_LOW_VOLTAGE_ALERT command to OBD.Adapter.STCommands.pas
+- Added SET_FLOW_ADJUST_PARAMETERS command to OBD.Adapter.STCommands.pas
+- Created OBD.Protocol.J1939.pas with comprehensive J1939 support:
+  - TJ1939Message structure with priority, PGN, addresses, data
+  - Common PGN constants (DM1-DM5, engine, vehicle parameters)
+  - TOBDProtocolJ1939 class with PGN filtering, message parsing
+  - Transport protocol support for multi-frame messages
+  - DTC request/clear functions
+  - Integration with logger
 
 ---
 
@@ -351,7 +400,7 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 ## Next Steps
 
 **Immediate Priority (Start Here):**
-1. 🔄 TASK 2.2 - Add VW/Audi Radio Calculators (HIGH Priority)
+1. 🔄 TASK 2.3 - Add Comprehensive Radio Brand Coverage (HIGH Priority - EXPANDED)
 2. 🔄 TASK 2.4 - OBDLink SX/MX Advanced Features (HIGH Priority)
 3. 🔄 TASK 1.6 - Performance Profiling & Optimization (MEDIUM Priority)
 
@@ -362,11 +411,12 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 - ✅ TASK 1.4 - Memory Optimization (Partial - string helpers added)
 - ✅ TASK 1.5 - Error Handling Improvements (Logger + Retry)
 - ✅ TASK 2.1 - Radio Code Calculator Base Class Refactoring
+- ✅ TASK 2.2 - VW/Audi Radio Calculators (RCD, RNS, Concert)
 
 **This Month's Goals:**
-- Complete remaining HIGH priority tasks (2.2, 2.4)
+- Complete comprehensive radio calculator coverage for all major brands
+- Implement OBDLink advanced features
 - Work through MEDIUM priority optimizations
-- Begin Phase 2 extensions
 
 ---
 
