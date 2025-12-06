@@ -2077,6 +2077,7 @@ var
   NumberStr: string;
   LowValueAngle, HighValueAngle: Single;
   ArcPath: ISkPath;
+  PathBuilder: ISkPathBuilder;
 begin
   // Allocate a Skia surface that holds the static gauge background
   Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
@@ -2118,7 +2119,7 @@ begin
       Y + (GradientScale.Items[I].Size + Border.Width) + (InnerRadius * 2));
     OuterArcRect := TRectF.Create(X, Y, X + (OuterRadius * 2), Y + (OuterRadius * 2));
 
-    ArcPath := TSkPath.Create;
+    PathBuilder := TSkPathBuilder.Create;
     LowValueAngle := ((GradientScale.Items[I].From - FMin) / (FMax - FMin)) * ((EndAngle + 180) - StartAngle) + StartAngle;
     HighValueAngle := ((GradientScale.Items[I].&To - FMin) / (FMax - FMin)) * ((FEndAngle + 180) - FStartAngle) + FStartAngle;
 
@@ -2126,9 +2127,10 @@ begin
     if SweepAngle < 0 then
       SweepAngle := SweepAngle + 360;
 
-    ArcPath.AddArc(OuterArcRect, LowValueAngle, SweepAngle);
-    ArcPath.AddArc(InnerArcRect, LowValueAngle + SweepAngle, -SweepAngle);
-    ArcPath.Close;
+    PathBuilder.AddArc(OuterArcRect, LowValueAngle, SweepAngle);
+    PathBuilder.AddArc(InnerArcRect, LowValueAngle + SweepAngle, -SweepAngle);
+    PathBuilder.Close;
+    ArcPath := PathBuilder.Detach;
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
@@ -2316,6 +2318,7 @@ var
   NeedleLength: Single;
   ValueAngle, BaseAngleLeft, BaseAngleRight, X, Y, Size: Single;
   NeedlePath: ISkPath;
+  PathBuilder: ISkPathBuilder;
 begin
   // Ensure the buffer matches the control size for Skia drawing
   Buffer.SetSize(Width, Height);
@@ -2355,11 +2358,12 @@ begin
   RightPoint := TSkPoint.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
 
   // Build and fill the needle path
-  NeedlePath := TSkPath.Create;
-  NeedlePath.MoveTo(LeftPoint);
-  NeedlePath.LineTo(TipPoint);
-  NeedlePath.LineTo(RightPoint);
-  NeedlePath.Close;
+  PathBuilder := TSkPathBuilder.Create;
+  PathBuilder.MoveTo(LeftPoint);
+  PathBuilder.LineTo(TipPoint);
+  PathBuilder.LineTo(RightPoint);
+  PathBuilder.Close;
+  NeedlePath := PathBuilder.Detach;
 
   Paint := TSkPaint.Create;
   Paint.AntiAlias := True;

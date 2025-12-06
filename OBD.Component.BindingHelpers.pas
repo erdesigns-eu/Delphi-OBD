@@ -43,6 +43,11 @@ type
   ///   component event handlers under a caller-supplied monitor lock.
   /// </summary>
   TOBDBindingHelpers = record
+  private
+    /// <summary>
+    ///   Helper to check if a handler is assigned for notification purposes
+    /// </summary>
+    class function IsHandlerAssigned<T>(const Handler: T): Boolean; static;
   public
     /// <summary>
     ///   Replace the target event handler with a new one while storing the
@@ -71,6 +76,26 @@ type
 
 implementation
 
+uses
+  System.TypInfo;
+
+//------------------------------------------------------------------------------
+// IS HANDLER ASSIGNED
+//------------------------------------------------------------------------------
+class function TOBDBindingHelpers.IsHandlerAssigned<T>(const Handler: T): Boolean;
+var
+  M: TMethod absolute Handler;
+begin
+  // Check if the handler has a valid code pointer
+  // This works for method pointers (procedure of object)
+  // Note: This relies on the caller using only method pointer types.
+  // The size check ensures we're working with a compatible structure.
+  if SizeOf(T) <> SizeOf(TMethod) then
+    Result := False
+  else
+    Result := M.Code <> nil;
+end;
+
 //------------------------------------------------------------------------------
 // SWAP HANDLER
 //------------------------------------------------------------------------------
@@ -96,7 +121,7 @@ begin
     StoredHandler := TargetEvent;
     TargetEvent := NewHandler;
     if Assigned(Notification) then
-      Notification(Owner, BindingName, bsSwapping, TMethod(TargetEvent).Code <> nil);
+      Notification(Owner, BindingName, bsSwapping, IsHandlerAssigned<T>(TargetEvent));
   finally
     if Lock <> nil then
       TMonitor.Exit(Lock);
@@ -128,7 +153,7 @@ begin
     TargetEvent := StoredHandler;
     StoredHandler := Default(T);
     if Assigned(Notification) then
-      Notification(Owner, BindingName, bsRestoring, TMethod(TargetEvent).Code <> nil);
+      Notification(Owner, BindingName, bsRestoring, IsHandlerAssigned<T>(TargetEvent));
   finally
     if Lock <> nil then
       TMonitor.Exit(Lock);
