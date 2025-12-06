@@ -1994,7 +1994,7 @@ var
   Surface: ISkSurface;
   Canvas: ISkCanvas;
   Paint: ISkPaint;
-  BackgroundRect, BorderRect: TSkRect;
+  BackgroundRect, BorderRect: TRectF;
   MeasureRect: TRect;
   BatteryRect, VciRect, InternetRect, ProtocolRect: TRectF;
   BatteryCaptionRect, VciCaptionRect, InternetCaptionRect, ProtocolCaptionRect: TRect;
@@ -2016,7 +2016,7 @@ begin
   // Draw the backround gradient when configured
   if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    BackgroundRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
+    BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Shader := TSkShader.MakeLinearGradient(
@@ -2031,7 +2031,7 @@ begin
   // Draw the border stripe when enabled
   if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
   begin
-    BorderRect := TSkRect.Create(0.0, Height - Border.Height + 0.0, Width + 0.0, Height + 0.0);
+    BorderRect := TRectF.Create(0.0, Height - Border.Height + 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Shader := TSkShader.MakeLinearGradient(
@@ -2154,7 +2154,7 @@ begin
       [SafeColorRefToSkColor(InternetConnectionIndicator.FromColor), SafeColorRefToSkColor(InternetConnectionIndicator.ToColor)],
       nil,
       TSkTileMode.Clamp);
-    Canvas.DrawOval(TSkRect.Create(InternetRect.Left, InternetRect.Top, InternetRect.Right, InternetRect.Bottom), Paint);
+    Canvas.DrawOval(InternetRect, Paint);
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;

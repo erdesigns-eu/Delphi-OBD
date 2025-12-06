@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, System.Skia, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls, Vcl.Skia,
+  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls, Skia.Vcl,
 
   OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
@@ -1221,7 +1221,7 @@ type
 implementation
 
 uses
-  System.Skia, Vcl.Skia;
+  System.Skia, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -2947,7 +2947,7 @@ procedure TOBDTouchHeader.PaintBuffer;
     Canvas: ISkCanvas;
     Paint: ISkPaint;
     TabPath, GlarePath: ISkPath;
-    BackgroundRect, BorderRect: TSkRect;
+    BackgroundRect, BorderRect: TRectF;
     ButtonRect, TabRect, BatteryRect: TRectF;
     TabOverlays: TArray<TTabOverlay>;
     BackCaptionRect, ActionCaptionRect, CaptionRect, BatteryCaptionRect: TRect;
@@ -2968,7 +2968,7 @@ procedure TOBDTouchHeader.PaintBuffer;
     // Paint the background gradient when both colors are provided
     if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
     begin
-      BackgroundRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
+      BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
       Paint.Shader := TSkShader.MakeLinearGradient(
@@ -2983,7 +2983,7 @@ procedure TOBDTouchHeader.PaintBuffer;
     // Draw the border strip when enabled
     if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
     begin
-      BorderRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
+      BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
       Paint.Shader := TSkShader.MakeLinearGradient(
@@ -3264,7 +3264,7 @@ procedure TOBDTouchHeader.PaintBuffer;
         var BackImage := GraphicToSkImage(BackButton.Image.Graphic);
         if Assigned(BackImage) then
           Canvas.DrawImageRect(BackImage,
-            TSkRect.Create(
+            TRectF.Create(
               BackCaptionRect.Left + ((BackCaptionRect.Width - BackImage.Width) / 2),
               BackCaptionRect.Top + ((BackCaptionRect.Height - BackImage.Height) / 2),
               BackCaptionRect.Left + ((BackCaptionRect.Width - BackImage.Width) / 2) + BackImage.Width,
@@ -3282,7 +3282,7 @@ procedure TOBDTouchHeader.PaintBuffer;
         var ActionImage := GraphicToSkImage(ActionButton.Image.Graphic);
         if Assigned(ActionImage) then
           Canvas.DrawImageRect(ActionImage,
-            TSkRect.Create(
+            TRectF.Create(
               ActionCaptionRect.Left + ((ActionCaptionRect.Width - ActionImage.Width) / 2),
               ActionCaptionRect.Top + ((ActionCaptionRect.Height - ActionImage.Height) / 2),
               ActionCaptionRect.Left + ((ActionCaptionRect.Width - ActionImage.Width) / 2) + ActionImage.Width,
@@ -3303,7 +3303,7 @@ procedure TOBDTouchHeader.PaintBuffer;
           var TabImage := GraphicToSkImage(TabOverlays[I].Image);
           if Assigned(TabImage) then
             Canvas.DrawImageRect(TabImage,
-              TSkRect.Create(
+              TRectF.Create(
                 TabOverlays[I].Rect.Left + ((TabOverlays[I].Rect.Width - TabImage.Width) / 2),
                 TabOverlays[I].Rect.Top + ((TabOverlays[I].Rect.Height - TabImage.Height) / 2),
                 TabOverlays[I].Rect.Left + ((TabOverlays[I].Rect.Width - TabImage.Width) / 2) + TabImage.Width,

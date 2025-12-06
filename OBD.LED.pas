@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Controls,
-  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia,
+  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl,
 
   OBD.CustomControl, OBD.CustomControl.Helpers;
 
@@ -589,7 +589,7 @@ procedure TOBDLed.InvalidateColors;
     Surface: ISkSurface;
     Canvas: ISkCanvas;
     Size, X, Y, GW, GH, GX: Single;
-    BorderRect, LedRect, GlareRect: TSkRect;
+    BorderRect, LedRect, GlareRect: TRectF;
     BorderPaint, FillPaint, GlarePaint: ISkPaint;
     Colors: TArray<TAlphaColor>;
   begin
@@ -610,7 +610,7 @@ procedure TOBDLed.InvalidateColors;
     Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2)) - (Border.Width * 2) - 2;
     X := (Width / 2) - (Size / 2);
     Y := (Height / 2) - (Size / 2);
-    BorderRect := TSkRect.Create(X, Y, X + Size, Y + Size);
+    BorderRect := TRectF.Create(X, Y, X + Size, Y + Size);
 
     // Paint the subtle background disk behind the LED for depth
     BorderPaint := TSkPaint.Create;
@@ -620,7 +620,7 @@ procedure TOBDLed.InvalidateColors;
     Canvas.DrawOval(BorderRect, BorderPaint);
 
     // Prepare the main LED fill rectangle and choose the gradient palette by state
-    LedRect := TSkRect.Create(X + Border.Width + 2, Y + Border.Width + 2, X + Size - Border.Width - 2, Y + Size - Border.Width - 2);
+    LedRect := TRectF.Create(X + Border.Width + 2, Y + Border.Width + 2, X + Size - Border.Width - 2, Y + Size - Border.Width - 2);
     FillPaint := TSkPaint.Create;
     FillPaint.AntiAlias := True;
     FillPaint.Style := TSkPaintStyle.Fill;
@@ -648,7 +648,7 @@ procedure TOBDLed.InvalidateColors;
     GW := Size * 0.75;
     GH := Size * 0.5;
     GX := (Width / 2) - (GW / 2);
-    GlareRect := TSkRect.Create(GX, Y + Border.Width + 2, GX + GW, Y + Border.Width + 2 + GH);
+    GlareRect := TRectF.Create(GX, Y + Border.Width + 2, GX + GW, Y + Border.Width + 2 + GH);
     GlarePaint := TSkPaint.Create;
     GlarePaint.AntiAlias := True;
     GlarePaint.Style := TSkPaintStyle.Fill;
@@ -659,7 +659,7 @@ procedure TOBDLed.InvalidateColors;
     // Build the outer border ring gradient to frame the LED
     GW := Width - 1;
     GH := Height - 1;
-    BorderRect := TSkRect.Create(0, 0, GW, GH);
+    BorderRect := TRectF.Create(0, 0, GW, GH);
     BorderPaint := TSkPaint.Create;
     BorderPaint.AntiAlias := True;
     BorderPaint.Style := TSkPaintStyle.Stroke;
@@ -669,7 +669,7 @@ procedure TOBDLed.InvalidateColors;
     Canvas.DrawOval(BorderRect, BorderPaint);
 
     // Add an inner ring for subtle contrast and dimensionality
-    BorderRect := TSkRect.Create(1, 1, GW - 1, GH - 1);
+    BorderRect := TRectF.Create(1, 1, GW - 1, GH - 1);
     BorderPaint := TSkPaint.Create;
     BorderPaint.AntiAlias := True;
     BorderPaint.Style := TSkPaintStyle.Stroke;
