@@ -1436,9 +1436,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.SettingsChanged(Sender: TObject);
 begin
-  // Paint buffer
-  Invalidate;
-  // Invalidate buffer
+  // Trigger repaint
   Invalidate;
 end;
 

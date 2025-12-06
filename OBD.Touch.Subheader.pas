@@ -5,9 +5,7 @@ procedure TOBDTouchSubheader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
-  // Paint buffer
-  Invalidate;
-  // Invalidate buffer
+  // Trigger repaint
   Invalidate;
 end;
 
@@ -16,9 +14,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SettingsChanged(Sender: TObject);
 begin
-  // Paint buffer
-  Invalidate;
-  // Invalidate buffer
+  // Trigger repaint
   Invalidate;
 end;
 
