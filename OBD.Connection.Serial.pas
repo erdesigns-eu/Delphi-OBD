@@ -363,14 +363,14 @@ type
     /// <param name="s">
     ///   string to send
     /// </param>
-    function Sendstring(S: Ansistring): Boolean;
+    function SendString(const S: Ansistring): Boolean;
     /// <summary>
     //    Sends a C-style Ansi string (NULL terminated)
     /// </summary>
     /// <param name="s">
     ///   string to send
     /// </param>
-    function SendCstring(S: PAnsiChar): Boolean;
+    function SendCstring(const S: PAnsiChar): Boolean;
     /// <summary>
     //    Reads binary data. Returns number of bytes read
     /// </summary>

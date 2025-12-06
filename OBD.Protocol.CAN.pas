@@ -375,22 +375,28 @@ begin
     // Exit here if we never captured a consecutive frame
     if Length(CF) = 0 then Exit;
 
-    // Calculate proper sequence indices from the lower 4 bits given
-    for Prev in CF do
+    // Sort consecutive frames by their initial sequence index (0-15)
+    Comparer := TOBDDataFrameSequenceComparer.Create;
+    TArray.Sort<IOBDDataFrame>(CF, Comparer);
+
+    // Unwrap sequence indices to handle wrap-around from 15 to 0
+    // Consecutive frames start at 1 and wrap at 15 back to 0
+    // We need to convert wrapped sequences like [1,2,...,15,0,1,2] to [1,2,...,15,16,17,18]
+    for I := 1 to High(CF) do
     begin
-      for Curr in CF do
-      begin
-        Seq := (Prev.SeqIndex and not $0F) or Curr.SeqIndex;
-        // If this is more than 7 frames away, we probably just wrapped (e.g.,
-        // last=0x0F current=0x01 should mean 0x11, not 0x01)
-        if Seq < Prev.SeqIndex - 7 then Seq := Seq + $10;
-        Curr.SeqIndex := Seq;
-      end;
+      // If current index is less than previous, we wrapped around from 15 to 0
+      // Add $10 (16) to unwrap the sequence
+      if CF[I].SeqIndex < CF[I - 1].SeqIndex then
+        CF[I].SeqIndex := CF[I - 1].SeqIndex + 1
+      // If the gap is large (>1), we likely had a wrap and need to adjust
+      else if CF[I].SeqIndex > CF[I - 1].SeqIndex + 1 then
+        // Check if wrapping would give us the correct sequence
+        if (CF[I].SeqIndex and $0F) = ((CF[I - 1].SeqIndex + 1) and $0F) then
+          CF[I].SeqIndex := CF[I - 1].SeqIndex + 1;
     end;
 
-    // Create an instance of the comparer
+    // Now sort all frames (FF + CF) for final assembly
     Comparer := TOBDDataFrameComparer.Create;
-    // Sort the frames by the order byte
     TArray.Sort<IOBDDataFrame>(Frames, Comparer);
 
     // Check contiguity, and that we aren't missing any frames
@@ -398,11 +404,18 @@ begin
     for I := 0 to High(CF) do Indices[I] := CF[I].SeqIndex;
     if not Contiguous(Indices, 1, Length(CF)) then Exit;
 
+    // Validate first frame has minimum required data
+    if Length(FF[0].Data) < 5 then Exit;
+
     // Service 03, 07 and 0A are handled different than the other services
     if (FF[0].Data[2] = $43) or (FF[0].Data[2] = $47) or (FF[0].Data[2] = $4A) then
     begin
       // Copy the service id and the rest of the data
-      Msg.Data := Copy(FF[0].Data, 2, 1) + Copy(FF[0].Data, 4, Length(FF[0].Data) - 2);
+      // Bounds check: ensure we have at least 4 bytes before accessing index 4
+      if Length(FF[0].Data) >= 4 then
+        Msg.Data := Copy(FF[0].Data, 2, 1) + Copy(FF[0].Data, 4, Length(FF[0].Data) - 4)
+      else
+        Msg.Data := Copy(FF[0].Data, 2, 1);
     end else
     begin
       // NOTE:
@@ -410,12 +423,20 @@ begin
       // keep the service ID and Parameter ID from the first frame..
 
       // On the first frame, skip PCI byte AND length code
-      Msg.Data := Copy(FF[0].Data, 2, 2) + Copy(FF[0].Data, 5, Length(FF[0].Data) - 4);
+      // Bounds check: ensure we have at least 5 bytes before accessing index 5
+      if Length(FF[0].Data) >= 5 then
+        Msg.Data := Copy(FF[0].Data, 2, 2) + Copy(FF[0].Data, 5, Length(FF[0].Data) - 5)
+      else
+        Msg.Data := Copy(FF[0].Data, 2, 2);
     end;
 
     // Now that they're in order, load/accumulate the data from each CF frame
     for F in CF do Msg.Data := Msg.Data + Copy(F.Data, 1, Length(F.Data) - 1);
+    
     // Chop to the correct size (as specified in the first frame)
+    // Bounds check: don't try to copy more than we have
+    if FF[0].DataLength > Length(Msg.Data) then
+      FF[0].DataLength := Length(Msg.Data);
     Msg.Data := Copy(Msg.Data, 0, FF[0].DataLength);
 
     // Service 03, 07 and 0A
