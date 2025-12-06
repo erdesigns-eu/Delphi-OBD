@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.CustomControl.Helpers.pas
 // CONTENTS       : Shared Skia helper functions for custom components
 // VERSION        : 1.0
