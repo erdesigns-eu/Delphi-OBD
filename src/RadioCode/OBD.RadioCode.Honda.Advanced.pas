@@ -298,9 +298,9 @@ begin
   if not ValidateLength(Sanitized, 8, ErrorMessage) then
     Exit(False);
     
-  if Sanitized[1] < 'A' then
+  if not CharInSet(Sanitized[1], ['A'..'Z']) then
   begin
-    ErrorMessage := 'Must start with a letter!';
+    ErrorMessage := 'Must start with a letter (A-Z)!';
     Exit(False);
   end;
     

@@ -1,3 +1,13 @@
+//------------------------------------------------------------------------------
+// UNIT           : OBD.RadioCode.Mazda.Advanced.pas
+// CONTENTS       : Mazda Radio Code Calculator with Multiple Algorithms
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 12/06/2024
+//------------------------------------------------------------------------------
 unit OBD.RadioCode.Mazda.Advanced;
 
 interface
