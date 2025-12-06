@@ -16,6 +16,8 @@ uses
   WinApi.Windows, System.SysUtils, System.Types, System.UITypes, System.Skia,
   Vcl.Graphics, Vcl.Themes;
 
+
+
 //------------------------------------------------------------------------------
 // FUNCTIONS
 //------------------------------------------------------------------------------
@@ -404,15 +406,15 @@ function CreateTabLeftPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: ISkRoundRect;
-  Radii: array[0..3] of TPointF;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the left corners while keeping the right edge straight
   RoundRect := TSkRoundRect.Create;
-  Radii[0] := PointF(Corner, Corner); // Top-left
-  Radii[1] := PointF(0, 0);           // Top-right
-  Radii[2] := PointF(0, 0);           // Bottom-right
-  Radii[3] := PointF(Corner, Corner); // Bottom-left
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(Corner, Corner);
   RoundRect.SetRect(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
@@ -426,16 +428,16 @@ var
   GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: ISkRoundRect;
-  Radii: array[0..3] of TPointF;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
   GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
   RoundRect := TSkRoundRect.Create;
-  Radii[0] := PointF(Corner, Corner); // Top-left
-  Radii[1] := PointF(0, 0);           // Top-right
-  Radii[2] := PointF(0, 0);           // Bottom-right
-  Radii[3] := PointF(Corner, Corner); // Bottom-left
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(Corner, Corner);
   RoundRect.SetRect(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
@@ -474,15 +476,15 @@ function CreateTabRightPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: ISkRoundRect;
-  Radii: array[0..3] of TPointF;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the right corners while keeping the left edge straight
   RoundRect := TSkRoundRect.Create;
-  Radii[0] := PointF(0, 0);           // Top-left
-  Radii[1] := PointF(Corner, Corner); // Top-right
-  Radii[2] := PointF(Corner, Corner); // Bottom-right
-  Radii[3] := PointF(0, 0);           // Bottom-left
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(0, 0);
   RoundRect.SetRect(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
@@ -496,16 +498,16 @@ var
   GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: ISkRoundRect;
-  Radii: array[0..3] of TPointF;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
   GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
   RoundRect := TSkRoundRect.Create;
-  Radii[0] := PointF(0, 0);           // Top-left
-  Radii[1] := PointF(Corner, Corner); // Top-right
-  Radii[2] := PointF(Corner, Corner); // Bottom-right
-  Radii[3] := PointF(0, 0);           // Bottom-left
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(0, 0);
   RoundRect.SetRect(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
