@@ -713,7 +713,7 @@ type
 implementation
 
 uses
-  System.Math, System.Skia, Vcl.Skia;
+  System.Math, System.Skia, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
