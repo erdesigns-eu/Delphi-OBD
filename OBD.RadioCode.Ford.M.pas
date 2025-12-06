@@ -90,6 +90,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodeFordM.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
+  Sanitized: string;
   S: string;
 begin
   // Initialize result
@@ -97,50 +98,19 @@ begin
   // Clear the error message
   ErrorMessage := '';
 
-  // Remove the leading V (optional)
-  S := IfThen(Input.StartsWith('M', True), Copy(Input, 2, length(Input) - 1), Input);
+  // Sanitize input (remove whitespace, convert to uppercase)
+  Sanitized := SanitizeInput(Input);
 
-  // Make sure the input is 5 characters long
-  if not (Length(Input) = 5) then
-  begin
-    ErrorMessage := 'Must be 5 characters long!';
-    Exit(False);
-  end;
+  // Remove the leading M (optional)
+  S := IfThen(Sanitized.StartsWith('M', True), Copy(Sanitized, 2, length(Sanitized) - 1), Sanitized);
 
-  // Make sure the input starts with a digit
-  if not CharInSet(Input[1], ['0'..'9']) then
-  begin
-    ErrorMessage := 'First character must be a digit!';
+  // Validate length using helper method
+  if not ValidateLength(S, 5, ErrorMessage) then
     Exit(False);
-  end;
 
-  // Make sure the second character is a digit
-  if not (CharInSet(Input[2], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Second character must be a digit!';
+  // Validate that all characters are digits using helper method
+  if not ValidateDigits(S, ErrorMessage) then
     Exit(False);
-  end;
-
-  // Make sure the third character is a digit
-  if not (CharInSet(Input[3], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Third character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the fourth character is a digit
-  if not (CharInSet(Input[4], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Fourth character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the fifth character is a digit
-  if not (CharInSet(Input[4], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Fifth character must be a digit!';
-    Exit(False);
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -148,6 +118,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodeFordM.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
+  Sanitized: string;
   S: string;
   N: array[0..5] of Integer;
   N1, N2, N3, N4, N5, N6, N7: Integer;
@@ -163,11 +134,14 @@ begin
   // Clear the error message
   ErrorMessage := '';
 
-  // Check if the input is valid
-  if not Self.Validate(Input, ErrorMessage) then Exit(False);
+  // Sanitize input
+  Sanitized := SanitizeInput(Input);
 
-  // Remove the leading V (optional)
-  S := IfThen(Input.StartsWith('M', True), Copy(Input, 2, length(Input) - 1), Input);
+  // Check if the input is valid
+  if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
+
+  // Remove the leading M (optional)
+  S := IfThen(Sanitized.StartsWith('M', True), Copy(Sanitized, 2, length(Sanitized) - 1), Sanitized);
 
   // Fill the N array
   N[0] := StrToInt(S[6]);
@@ -195,35 +169,35 @@ begin
   R6 := Lookup[N6, 6];
   R7 := Lookup[N7, 9];
 
-  // Calculate the code
-  Res1 := ((Lookup[R2, R1] + 1) * (Lookup[R6, R2] + 1) + (Lookup[R4, R3] + 1) * (Lookup[R7, R5] + 1) + (Lookup[R1, R4])) mod 10;
-  Res2 := ((Lookup[R2, R1] + 1) * (Lookup[R5, R4] + 1) + (Lookup[R5, R2] + 1) * (Lookup[R7, R3] + 1) + (Lookup[R1, R6])) mod 10;
-  Res3 := ((Lookup[R2, R1] + 1) * (Lookup[R4, R2] + 1) + (Lookup[R3, R6] + 1) * (Lookup[R7, R4] + 1) + (Lookup[R1, R5])) mod 10;
-  Res4 := ((Lookup[R2, R1] + 1) * (Lookup[R6, R3] + 1) + (Lookup[R3, R7] + 1) * (Lookup[R2, R5] + 1) + (Lookup[R4, R1])) mod 10;
+  // Calculate the code using helper method for modular arithmetic
+  Res1 := ApplyModularTransform((Lookup[R2, R1] + 1) * (Lookup[R6, R2] + 1) + (Lookup[R4, R3] + 1) * (Lookup[R7, R5] + 1) + (Lookup[R1, R4]), 10);
+  Res2 := ApplyModularTransform((Lookup[R2, R1] + 1) * (Lookup[R5, R4] + 1) + (Lookup[R5, R2] + 1) * (Lookup[R7, R3] + 1) + (Lookup[R1, R6]), 10);
+  Res3 := ApplyModularTransform((Lookup[R2, R1] + 1) * (Lookup[R4, R2] + 1) + (Lookup[R3, R6] + 1) * (Lookup[R7, R4] + 1) + (Lookup[R1, R5]), 10);
+  Res4 := ApplyModularTransform((Lookup[R2, R1] + 1) * (Lookup[R6, R3] + 1) + (Lookup[R3, R7] + 1) * (Lookup[R2, R5] + 1) + (Lookup[R4, R1]), 10);
 
   XRes1 := (Lookup[Res1, 5] + 1) * (Lookup[Res2, 1] + 1) + 105;
   XRes2 := (Lookup[Res2, 1] + 1) * (Lookup[Res4, 0] + 1) + 102;
   XRes3 := (Lookup[Res1, 5] + 1) * (Lookup[Res3, 8] + 1) + 103;
   XRes4 := (Lookup[Res3, 8] + 1) * (Lookup[Res4, 0] + 1) + 108;
 
-  XRes11 := (XRes1 div 10) mod 10;
-  XRes10 := (XRes1 mod 10);
+  XRes11 := ApplyModularTransform(XRes1 div 10, 10);
+  XRes10 := ApplyModularTransform(XRes1, 10);
 
-  XRes21 := (XRes2 div 10) mod 10;
-  XRes20 := (XRes2 mod 10);
+  XRes21 := ApplyModularTransform(XRes2 div 10, 10);
+  XRes20 := ApplyModularTransform(XRes2, 10);
 
-  XRes31 := (XRes3 div 10) mod 10;
-  XRes30 := (XRes3 mod 10);
+  XRes31 := ApplyModularTransform(XRes3 div 10, 10);
+  XRes30 := ApplyModularTransform(XRes3, 10);
 
-  XRes41 := (XRes4 div 10) mod 10;
-  XRes40 := (XRes4 mod 10);
+  XRes41 := ApplyModularTransform(XRes4 div 10, 10);
+  XRes40 := ApplyModularTransform(XRes4, 10);
 
-  // Format the code for the output
+  // Format the code for the output using helper method for modular arithmetic
   Output := Format('%d%d%d%d', [
-    (XRes41 + XRes40 + R1) mod 10,
-    (XRes31 + XRes30 + R1) mod 10,
-    (XRes21 + XRes20 + R1) mod 10,
-    (XRes11 + XRes10 + R1) mod 10
+    ApplyModularTransform(XRes41 + XRes40 + R1, 10),
+    ApplyModularTransform(XRes31 + XRes30 + R1, 10),
+    ApplyModularTransform(XRes21 + XRes20 + R1, 10),
+    ApplyModularTransform(XRes11 + XRes10 + R1, 10)
   ]);
 end;
 

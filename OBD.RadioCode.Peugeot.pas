@@ -71,46 +71,24 @@ end;
 // VALIDATE
 //------------------------------------------------------------------------------
 function TOBDRadioCodePeugeot.Validate(const Input: string; var ErrorMessage: string): Boolean;
+var
+  Sanitized: string;
 begin
   // Initialize result
   Result := True;
   // Clear the error message
   ErrorMessage := '';
 
-  // Make sure the input is 4 characters long
-  if not (Length(Input) = 4) then
-  begin
-    ErrorMessage := 'Must be 4 characters long!';
-    Exit(False);
-  end;
+  // Sanitize input (remove whitespace, convert to uppercase)
+  Sanitized := SanitizeInput(Input);
 
-  // Make sure the input starts with a letter
-  if not CharInSet(Input[1], ['0'..'9']) then
-  begin
-    ErrorMessage := 'First character must be a digit!';
+  // Validate length using helper method
+  if not ValidateLength(Sanitized, 4, ErrorMessage) then
     Exit(False);
-  end;
 
-  // Make sure the second character is a digit
-  if not (CharInSet(Input[2], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Second character must be a digit!';
+  // Validate that all characters are digits using helper method
+  if not ValidateDigits(Sanitized, ErrorMessage) then
     Exit(False);
-  end;
-
-  // Make sure the third character is a digit
-  if not (CharInSet(Input[3], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Third character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the fourth character is a digit
-  if not (CharInSet(Input[4], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Fourth character must be a digit!';
-    Exit(False);
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -118,6 +96,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodePeugeot.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
+  Sanitized: string;
   I, D1, D2, D3, D4: Integer;
   SNArr: array[0..3] of Integer;
 begin
@@ -128,20 +107,23 @@ begin
   // Clear the error message
   ErrorMessage := '';
 
+  // Sanitize input
+  Sanitized := SanitizeInput(Input);
+
   // Check if the input is valid
-  if not Self.Validate(Input, ErrorMessage) then Exit(False);
+  if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
 
   // Initialize variables
-  D1 := StrToInt(Input[1]);
-  D2 := StrToInt(Input[2]);
-  D3 := StrToInt(Input[3]);
-  D4 := StrToInt(Input[4]);
+  D1 := StrToInt(Sanitized[1]);
+  D2 := StrToInt(Sanitized[2]);
+  D3 := StrToInt(Sanitized[3]);
+  D4 := StrToInt(Sanitized[4]);
 
-  // Perform calculations
-  SNArr[0] := (D1 + 1) mod 10;
-  SNArr[1] := (D2 + 2) mod 10;
-  SNArr[2] := (D3 + 3) mod 10;
-  SNArr[3] := (D4 + 4) mod 10;
+  // Perform calculations using helper method for modular arithmetic
+  SNArr[0] := ApplyModularTransform(D1 + 1, 10);
+  SNArr[1] := ApplyModularTransform(D2 + 2, 10);
+  SNArr[2] := ApplyModularTransform(D3 + 3, 10);
+  SNArr[3] := ApplyModularTransform(D4 + 4, 10);
 
   // Apply correction
   for I := 0 to 3 do

@@ -71,49 +71,39 @@ end;
 // VALIDATE
 //------------------------------------------------------------------------------
 function TOBDRadioCodeRenault.Validate(const Input: string; var ErrorMessage: string): Boolean;
+var
+  Sanitized: string;
 begin
   // Initialize result
   Result := True;
   // Clear the error message
   ErrorMessage := '';
 
-  // Make sure the input is 4 characters long
-  if not (Length(Input) = 4) then
-  begin
-    ErrorMessage := 'Must be 4 characters long!';
+  // Sanitize input (remove whitespace, convert to uppercase)
+  Sanitized := SanitizeInput(Input);
+
+  // Validate length using helper method
+  if not ValidateLength(Sanitized, 4, ErrorMessage) then
     Exit(False);
-  end;
 
   // Make sure the input starts with a letter
-  if not CharInSet(Input[1], ['A'..'Z']) then
+  if not CharInSet(Sanitized[1], ['A'..'Z']) then
   begin
     ErrorMessage := 'First character must be a letter!';
     Exit(False);
   end;
 
-  // Make sure the second character is a digit
-  if not (CharInSet(Input[2], ['0'..'9'])) then
+  // Make sure characters 2-4 are digits
+  if not CharInSet(Sanitized[2], ['0'..'9']) or
+     not CharInSet(Sanitized[3], ['0'..'9']) or
+     not CharInSet(Sanitized[4], ['0'..'9']) then
   begin
-    ErrorMessage := 'Second character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the third character is a digit
-  if not (CharInSet(Input[3], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Third character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the fourth character is a digit
-  if not (CharInSet(Input[4], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Fourth character must be a digit!';
+    ErrorMessage := 'Characters 2-4 must be digits!';
     Exit(False);
   end;
 
   // The input can not start with A0
-  if (UpperCase(Input[1]) = 'A') and (UpperCase(Input[2]) = '0') then
+  if (Sanitized[1] = 'A') and (Sanitized[2] = '0') then
   begin
     ErrorMessage := 'Can not start with A0!';
     Exit(False);
@@ -125,6 +115,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodeRenault.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
+  Sanitized: string;
   X, Y, Z, C: Integer;
 begin
   // Initialize result
@@ -134,18 +125,21 @@ begin
   // Clear the error message
   ErrorMessage := '';
 
+  // Sanitize input
+  Sanitized := SanitizeInput(Input);
+
   // Check if the input is valid
-  if not Self.Validate(Input, ErrorMessage) then Exit(False);
+  if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
 
   // Calculate the code
   // Note: Convert char to digit value (Ord('0') = 48, so subtract 48 or use StrToInt)
-  X := StrToInt(Input[2]) + (Ord(UpperCase(Input[1])[1]) - Ord('A')) * 10 + 10;
-  // Prevent division by zero
+  X := StrToInt(Sanitized[2]) + (Ord(Sanitized[1]) - Ord('A')) * 10 + 10;
+  // Prevent division by zero using helper method
   if X = 0 then X := 1;
   
-  Y := StrToInt(Input[4]) + StrToInt(Input[3]) * 10 + X;
-  Z := (Y * 7) mod 100;
-  C := (Z div 10) + (Z mod 10) * 10 + ((259 mod X) mod 100) * 100;
+  Y := StrToInt(Sanitized[4]) + StrToInt(Sanitized[3]) * 10 + X;
+  Z := ApplyModularTransform(Y * 7, 100);
+  C := (Z div 10) + (Z mod 10) * 10 + ApplyModularTransform(ApplyModularTransform(259, X), 100) * 100;
 
   // Format the code for the output
   Output := Format('%.*d', [4, C]);

@@ -71,46 +71,24 @@ end;
 // VALIDATE
 //------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVP.Validate(const Input: string; var ErrorMessage: string): Boolean;
+var
+  Sanitized: string;
 begin
   // Initialize result
   Result := True;
   // Clear the error message
   ErrorMessage := '';
 
-  // Make sure the input is 4 characters long
-  if not (Length(Input) = 4) then
-  begin
-    ErrorMessage := 'Must be 4 characters long!';
-    Exit(False);
-  end;
+  // Sanitize input (remove whitespace, convert to uppercase)
+  Sanitized := SanitizeInput(Input);
 
-  // Make sure the input starts with a digit
-  if not CharInSet(Input[1], ['0'..'9']) then
-  begin
-    ErrorMessage := 'First character must be a digit!';
+  // Validate length using helper method
+  if not ValidateLength(Sanitized, 4, ErrorMessage) then
     Exit(False);
-  end;
 
-  // Make sure the second character is a digit
-  if not (CharInSet(Input[2], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Second character must be a digit!';
+  // Validate that all characters are digits using helper method
+  if not ValidateDigits(Sanitized, ErrorMessage) then
     Exit(False);
-  end;
-
-  // Make sure the third character is a digit
-  if not (CharInSet(Input[3], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Third character must be a digit!';
-    Exit(False);
-  end;
-
-  // Make sure the fourth character is a digit
-  if not (CharInSet(Input[4], ['0'..'9'])) then
-  begin
-    ErrorMessage := 'Fourth character must be a digit!';
-    Exit(False);
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -171,6 +149,7 @@ function TOBDRadioCodeFiatVP.Calculate(const Input: string; var Output: string; 
   end;
 
 var
+  Sanitized: string;
   InputCode, OutputCode: Integer;
   SNArr: array[0..3] of Integer;
 begin
@@ -181,11 +160,14 @@ begin
   // Clear the error message
   ErrorMessage := '';
 
+  // Sanitize input
+  Sanitized := SanitizeInput(Input);
+
   // Check if the input is valid
-  if not Self.Validate(Input, ErrorMessage) then Exit(False);
+  if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
 
   // Set the input code
-  InputCode := StrToInt(Input);
+  InputCode := StrToInt(Sanitized);
 
   // Calculate the code
   OutputCode := 1111;
