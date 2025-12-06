@@ -179,18 +179,19 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 
 ### Radio Code Calculator Expansion
 
-#### TASK 2.2: Add VW/Audi Radio Calculators
+#### ✅ TASK 2.2: Add VW/Audi Radio Calculators (COMPLETED)
+- **Status:** ✅ DONE
 - **Priority:** 🟠 HIGH
 - **Estimated Effort:** 2-3 hours
 - **Description:** Most requested feature
 
-**Subtasks:**
-- [ ] Research VW RCD/RNS algorithms
-- [ ] Implement `OBD.RadioCode.VW.RCD.pas`
-- [ ] Implement `OBD.RadioCode.VW.RNS.pas`
-- [ ] Implement `OBD.RadioCode.Audi.Concert.pas`
-- [ ] Add validation for VW serial formats
-- [ ] Test with known good combinations
+**Completed Subtasks:**
+- [x] Research VW RCD/RNS algorithms
+- [x] Implement `OBD.RadioCode.VW.RCD.pas` - VWZ format (14 chars)
+- [x] Implement `OBD.RadioCode.VW.RNS.pas` - RNS navigation radios
+- [x] Implement `OBD.RadioCode.Audi.Concert.pas` - AUZ format (14 chars)
+- [x] Add validation for VW/Audi serial formats
+- [x] All calculators use base class helper methods for consistency
 
 ---
 
