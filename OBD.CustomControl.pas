@@ -1,16 +1,18 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.CustomControl.pas
-// CONTENTS       : Base Custom Control Component
-// VERSION        : 1.0
+// CONTENTS       : Base Custom Control Component with Skia rendering support
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 20/03/2024
-// NOTE           : This component serves as a base for other visual components,
-//                  it has a buffer and is drawn at a specified frame-rate, which
-//                  makes it ideal for components like Gauges and Displays that
-//                  need to be redrawn regularly.
+// UPDATED        : 06/12/2025 - Refactored for direct Skia rendering (no TBitmap buffer)
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
+// NOTE           : This component serves as a base for Skia-rendered components.
+//                  It provides timer-based rendering for animations and on-demand
+//                  rendering for static content. Child classes override PaintSkia
+//                  to render directly using Skia's canvas.
 //------------------------------------------------------------------------------
 unit OBD.CustomControl;
 
@@ -18,7 +20,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls;
+  Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -54,14 +56,6 @@ type
     /// </summary>
     FWindowHandle: THandle;
     /// <summary>
-    ///   Buffer (This is the canvas we draw on)
-    /// </summary>
-    FBuffer: TBitmap;
-    /// <summary>
-    ///   Update rect (Invalidated rectangle)
-    /// </summary>
-    FUpdateRect: TRect;
-    /// <summary>
     ///   Handle of the FPS timer
     /// </summary>
     FTimerHandle: THandle;
@@ -77,25 +71,16 @@ type
     procedure SetFramesPerSecond(Value: Integer);
   private
     /// <summary>
-    ///   WM_PAINT message handler
-    /// </summary>
-    procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
-    /// <summary>
     ///   WM_ERASEBKGND message handler
     /// </summary>
     procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
   protected
     /// <summary>
-    ///   Buffer (This is the canvas we draw on)
-    /// </summary>
-    property Buffer: TBitmap read FBuffer;
-
-    /// <summary>
     ///   Override CreateParams method
     /// </summary>
     procedure CreateParams(var Params: TCreateParams); override;
     /// <summary>
-    ///   Override Paint method
+    ///   Override Paint method - calls PaintSkia with Skia canvas
     /// </summary>
     procedure Paint; override;
     /// <summary>
@@ -116,13 +101,10 @@ type
     /// </summary>
     procedure TimerProc(var Msg: TMessage);
     /// <summary>
-    ///   Paint buffer
+    ///   Paint using Skia canvas (override this in child classes)
+    ///   This method is called with a Skia canvas that renders directly to the control
     /// </summary>
-    procedure PaintBuffer; virtual;
-    /// <summary>
-    ///   Invalidate buffer
-    /// </summary>
-    procedure InvalidateBuffer; virtual;
+    procedure PaintSkia(Canvas: ISkCanvas); virtual;
   public
     /// <summary>
     ///   Constructor
@@ -139,7 +121,8 @@ type
     procedure Assign(Source: TPersistent); override;
   published
     /// <summary>
-    ///   Frames per second
+    ///   Frames per second (for timer-based rendering during animations)
+    ///   Set to 0 to disable timer and use on-demand rendering only
     /// </summary>
     property FramesPerSecond: Integer read FFramesPerSecond write SetFramesPerSecond default DEFAULT_FPS;
   published
@@ -180,31 +163,26 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.SetFramesPerSecond(Value: Integer);
 begin
-  if (FFramesPerSecond <> Value) and (Value >= 1) and (Value < 100) then
+  if (FFramesPerSecond <> Value) and (Value >= 0) and (Value < 100) then
   begin
     // Update the FPS
     FFramesPerSecond := Value;
     if not (csDesigning in ComponentState) then
     begin
-      // Kill the timer
-      if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
-      // Create new timer
-      FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
+      // Kill existing timer
+      if (FTimerHandle <> 0) then
+      begin
+        KillTimer(FWindowHandle, FTimerHandle);
+        FTimerHandle := 0;
+      end;
+      // Create new timer only if FPS > 0
+      if Value > 0 then
+        FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
     end;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// WM_PAINT MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.WMPaint(var Msg: TWMPaint);
-begin
-  inherited;
-  // Retrieve the invalidated rectangle
-  if not GetUpdateRect(Handle, FUpdateRect, False) then
-  // If no update region, default to the entire client area
-  FUpdateRect := Rect(0, 0, Width, Height);
-end;
+
 
 //------------------------------------------------------------------------------
 // WM_ERASEBKGND MESSAGE HANDLER
@@ -231,23 +209,20 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.Paint;
 var
-  X, Y, W, H: Integer;
+  Surface: ISkSurface;
 begin
   // Call inherited Paint
   inherited;
 
-  // Draw the buffer to the component canvas
-  X := FUpdateRect.Left;
-  Y := FUpdateRect.Top;
-  W := FUpdateRect.Right - FUpdateRect.Left;
-  H := FUpdateRect.Bottom - FUpdateRect.Top;
-
-  if (W <> 0) and (H <> 0) then
-    // Only update invalidated part
-    BitBlt(Canvas.Handle, X, Y, W, H, FBuffer.Canvas.Handle, X,  Y, SRCCOPY)
-  else
-    // Repaint the whole buffer to the surface
-    BitBlt(Canvas.Handle, 0, 0, Width, Height, FBuffer.Canvas.Handle, X,  Y, SRCCOPY);
+  // Create Skia surface directly from Canvas HDC for zero-copy rendering
+  Surface := TSkSurface.MakeFromHDC(Canvas.Handle, Width, Height);
+  if Assigned(Surface) then
+  begin
+    // Call child class to paint using Skia canvas
+    PaintSkia(Surface.Canvas);
+    // Flush ensures all drawing commands are executed
+    Surface.Flush;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -257,8 +232,8 @@ procedure TOBDCustomControl.Resize;
 begin
   // Call inherited Resize
   inherited;
-  // Update the size of the buffer
-  FBuffer.SetSize(Width, Height);
+  // Trigger repaint with new size
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -267,10 +242,9 @@ end;
 procedure TOBDCustomControl.Loaded;
 begin
   inherited;
-  // Update the size of the buffer
-  FBuffer.SetSize(Width, Height);
-  // Create new timer
-  if not (csDesigning in ComponentState) then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
+  // Create timer for animation support (if FPS > 0)
+  if (FFramesPerSecond > 0) and not (csDesigning in ComponentState) then
+    FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
 end;
 
 //------------------------------------------------------------------------------
@@ -278,10 +252,10 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.UpdateStyleElements;
 begin
-  // Call inherited Loaded
+  // Call inherited
   inherited;
-  // Invalidate buffer
-  InvalidateBuffer;
+  // Trigger repaint with new style
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -291,7 +265,7 @@ procedure TOBDCustomControl.TimerProc(var Msg: TMessage);
 begin
   if Msg.Msg = WM_TIMER then
   begin
-    // Trigger a repaint
+    // Trigger a repaint (for animations)
     if (FTimerHandle <> 0) then Invalidate;
   end else
     // Pass message to default message handler
@@ -299,26 +273,13 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// PAINT BUFFER
+// PAINT SKIA (Virtual method for child classes to override)
 //------------------------------------------------------------------------------
-procedure TOBDCustomControl.PaintBuffer;
+procedure TOBDCustomControl.PaintSkia(Canvas: ISkCanvas);
 begin
-  // This is actually an abstract method, but for safety we add it like this.
-end;
-
-//------------------------------------------------------------------------------
-// INVALIDATE BUFFER
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.InvalidateBuffer;
-begin
-  // Execute the Paint Buffer method. This method is an alternative for the
-  // default invalidate method, because we are drawing to the component canvas
-  // when the timer is fired (Fires x times per second).
-  PaintBuffer;
-  // When we are using this component in Design Mode (In the Delphi IDE)
-  // we want to invalidate the control too, because the timer wont fire
-  // in Design mode.
-  if (csDesigning in ComponentState) then Invalidate;
+  // Default implementation: Clear with background color
+  Canvas.Clear(TAlphaColorRec.Null);
+  // Child classes should override this to provide their rendering
 end;
 
 //------------------------------------------------------------------------------
@@ -328,13 +289,9 @@ constructor TOBDCustomControl.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Prevent background erasure for smoother rendering and reduced flickering.
+  // Prevent background erasure for smoother rendering and reduced flickering
   ControlStyle := ControlStyle + [csOpaque];
-  // Create Buffer
-  FBuffer := TBitmap.Create;
-  // Set the buffer pixel format
-  FBuffer.PixelFormat := pf32bit;
-  // Set initial FPS
+  // Set initial FPS (for animation support)
   FFramesPerSecond := DEFAULT_FPS;
   // Allocate window handle for the timer
   if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(TimerProc);
@@ -352,8 +309,6 @@ begin
     // Deallocate window handle
     DeallocateHWnd(FWindowHandle);
   end;
-  // Free buffer
-  FBuffer.Free;
   // Call inherited destructor
   inherited Destroy;
 end;

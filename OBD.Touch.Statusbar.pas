@@ -1,12 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.Touch.Statusbar.pas
-// CONTENTS       : Statusbar component
-// VERSION        : 1.0
+// CONTENTS       : Statusbar component with Skia rendering
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 02/04/2024
+// UPDATED        : 06/12/2025 - Refactored to inherit from TOBDCustomControl
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Touch.Statusbar;
 
@@ -15,9 +17,9 @@ interface
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
-  Vcl.Forms,
+  Vcl.Forms, System.Skia, Skia.Vcl,
 
-  OBD.LED, OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
+  OBD.CustomControl, OBD.LED, OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -535,7 +537,7 @@ type
   /// <summary>
   ///   Touch Statusbar Component
   /// </summary>
-  TOBDTouchStatusbar = class(TCustomControl)
+  TOBDTouchStatusbar = class(TOBDCustomControl)
   private
     /// <summary>
     ///   Class constructor
@@ -545,15 +547,6 @@ type
     ///   Class destructor
     /// </summary>
     class destructor Destroy;
-  private
-    /// <summary>
-    ///   Buffer (This is the canvas we draw on)
-    /// </summary>
-    FBuffer: TBitmap;
-    /// <summary>
-    ///   Update rect (Invalidated rectangle)
-    /// </summary>
-    FUpdateRect: TRect;
   private
     /// <summary>
     ///   Background
@@ -590,14 +583,6 @@ type
     procedure SetPanels(Value: TOBDTouchStatusbarPanelCollection);
   private
     /// <summary>
-    ///   WM_PAINT message handler
-    /// </summary>
-    procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
-    /// <summary>
-    ///   WM_ERASEBKGND message handler
-    /// </summary>
-    procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
-    /// <summary>
     ///   WM_KILLFOCUS message handler
     /// </summary>
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
@@ -610,27 +595,6 @@ type
     /// </summary>
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
-    /// <summary>
-    ///   Buffer (This is the canvas we draw on)
-    /// </summary>
-    property Buffer: TBitmap read FBuffer;
-
-    /// <summary>
-    ///   Override CreateParams method
-    /// </summary>
-    procedure CreateParams(var Params: TCreateParams); override;
-    /// <summary>
-    ///   Override Paint method
-    /// </summary>
-    procedure Paint; override;
-    /// <summary>
-    ///   Override Resize method
-    /// </summary>
-    procedure Resize; override;
-    /// <summary>
-    ///   Override Loaded method
-    /// </summary>
-    procedure Loaded; override;
     /// <summary>
     ///   Override UpdateStyleElements method
     /// </summary>
@@ -657,9 +621,9 @@ type
     /// </summary>
     procedure SettingsChanged(Sender: TObject);
     /// <summary>
-    ///   Paint buffer
+    ///   Paint with Skia canvas
     /// </summary>
-    procedure PaintBuffer; virtual;
+    procedure PaintSkia(Canvas: ISkCanvas); override;
   public
     /// <summary>
     ///   Constructor
@@ -1370,27 +1334,6 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// WM_PAINT MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.WMPaint(var Msg: TWMPaint);
-begin
-  inherited;
-  // Retrieve the invalidated rectangle
-  if not GetUpdateRect(Handle, FUpdateRect, False) then
-  // If no update region, default to the entire client area
-  FUpdateRect := Rect(0, 0, Width, Height);
-end;
-
-//------------------------------------------------------------------------------
-// WM_ERASEBKGND MESSAGE HANDLER
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
-begin
-  // Set the handled flag
-  Msg.Result := 1;
-end;
-
-//------------------------------------------------------------------------------
 // WM_KILLFOCUS MESSAGE HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.WMKillFocus(var Message: TWMKillFocus);
@@ -1415,75 +1358,13 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// CREATE PARAMS
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  // Adjust window style to avoid unnecessary redraws on size changes,
-  // optimizing performance for custom drawing.
-  with Params do Style := Style and not (CS_HREDRAW or CS_VREDRAW);
-end;
-
-//------------------------------------------------------------------------------
-// PAINT
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Paint;
-var
-  X, Y, W, H: Integer;
-begin
-  // Call inherited Paint
-  inherited;
-
-  // Draw the buffer to the component canvas
-  X := FUpdateRect.Left;
-  Y := FUpdateRect.Top;
-  W := FUpdateRect.Right - FUpdateRect.Left;
-  H := FUpdateRect.Bottom - FUpdateRect.Top;
-
-  if (W <> 0) and (H <> 0) then
-    // Only update invalidated part
-    BitBlt(Canvas.Handle, X, Y, W, H, FBuffer.Canvas.Handle, X,  Y, SRCCOPY)
-  else
-    // Repaint the whole buffer to the surface
-    BitBlt(Canvas.Handle, 0, 0, Width, Height, FBuffer.Canvas.Handle, X,  Y, SRCCOPY);
-end;
-
-//------------------------------------------------------------------------------
-// RESIZE
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Resize;
-begin
-  // Call inherited Resize
-  inherited;
-  // Paint buffer
-  PaintBuffer;
-  // Invalidate
-  Invalidate;
-end;
-
-//------------------------------------------------------------------------------
-// LOADED
-//------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.Loaded;
-begin
-  inherited;
-  // Paint buffer
-  PaintBuffer;
-  // Invalidate
-  Invalidate;
-end;
-
-//------------------------------------------------------------------------------
 // UPDATE STYLE ELEMENTS
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.UpdateStyleElements;
 begin
-  // Call inherited Loaded
+  // Call inherited
   inherited;
-  // Paint buffer
-  PaintBuffer;
-  // Invalidate buffer
+  // Trigger repaint
   Invalidate;
 end;
 
@@ -1555,22 +1436,18 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.SettingsChanged(Sender: TObject);
 begin
-  // Paint buffer
-  PaintBuffer;
-  // Invalidate buffer
+  // Trigger repaint
   Invalidate;
 end;
 
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
-procedure TOBDTouchStatusbar.PaintBuffer;
+procedure TOBDTouchStatusbar.PaintSkia(Canvas: ISkCanvas);
 const
   PanelPadding = 4;
   LedSize = 14;
 var
-  Surface: ISkSurface;
-  Canvas: ISkCanvas;
   Paint: ISkPaint;
   Typeface: ISkTypeface;
   SkFont: ISkFont;
@@ -1659,14 +1536,7 @@ var
     end;
   end;
 begin
-  // Ensure the back-buffer matches the control dimensions before drawing
-  Buffer.SetSize(Width, Height);
-
-  // Allocate a Skia surface for fast, CPU-backed drawing and retrieve its canvas
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
-  Canvas := Surface.Canvas;
-
-  // Clear using the resolved style color so unpainted areas remain consistent with VCL themes
+  // Clear canvas with resolved background color
   Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
   // Paint the background gradient when both colors are provided
@@ -1798,8 +1668,7 @@ begin
     end;
   end;
 
-  // Copy the Skia surface into the component buffer used by the base painter
-  Surface.MakeImageSnapshot.ToBitmap(Buffer);
+  // Direct rendering to canvas - no conversion needed!
 end;
 
 //------------------------------------------------------------------------------
@@ -1807,14 +1676,8 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDTouchStatusbar.Create(AOwner: TComponent);
 begin
-  // Call inherited constructor
+  // Call inherited constructor (handles rendering setup)
   inherited Create(AOwner);
-  // Prevent background erasure for smoother rendering and reduced flickering.
-  ControlStyle := ControlStyle + [csOpaque];
-  // Create Buffer
-  FBuffer := TBitmap.Create;
-  // Set the buffer pixel format
-  FBuffer.PixelFormat := pf32bit;
   // Create background
   FBackground := TOBDTouchStatusbarBackground.Create;
   FBackground.OnChange := SettingsChanged;
@@ -1837,8 +1700,6 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDTouchStatusbar.Destroy;
 begin
-  // Free buffer
-  FBuffer.Free;
   // Free background
   FBackground.Free;
   // Free border
@@ -1858,10 +1719,6 @@ procedure TOBDTouchStatusbar.Repaint;
 begin
   // Call inherited repaint
   inherited;
-  // Paint buffer
-  PaintBuffer;
-  // Invalidate
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------

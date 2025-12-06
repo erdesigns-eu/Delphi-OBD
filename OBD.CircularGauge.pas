@@ -1,12 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.CircularGauge.pas
-// CONTENTS       : Circular gauge component
-// VERSION        : 1.0
+// CONTENTS       : Circular gauge component with Skia rendering
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 22/03/2024
+// UPDATED        : 06/12/2025 - Refactored for direct Skia rendering
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.CircularGauge;
 
@@ -14,7 +16,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.SyncObjs, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
+  Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl, System.Types,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
 
@@ -990,13 +992,13 @@ type
     /// </summary>
     procedure InvalidateBackground; virtual;
     /// <summary>
-    ///   Paint the needle
+    ///   Paint the needle on the provided Skia canvas
     /// </summary>
-    procedure PaintNeedle; virtual;
+    procedure PaintNeedle(Canvas: ISkCanvas); virtual;
     /// <summary>
-    ///   Paint buffer
+    ///   Override PaintSkia to render gauge with Skia
     /// </summary>
-    procedure PaintBuffer; override;
+    procedure PaintSkia(Canvas: ISkCanvas); override;
     /// <summary>
     ///   Builds the static background snapshot while the render lock is held.
     /// </summary>
@@ -1900,7 +1902,7 @@ begin
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -1916,7 +1918,7 @@ begin
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -1932,7 +1934,7 @@ begin
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -1948,7 +1950,7 @@ begin
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -1968,7 +1970,7 @@ begin
     // Set animation start time
     Animation.StartTime := GetTickCount;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -2308,10 +2310,8 @@ end;
 //------------------------------------------------------------------------------
 // PAINT NEEDLE
 //------------------------------------------------------------------------------
-procedure TOBDCircularGauge.PaintNeedle;
+procedure TOBDCircularGauge.PaintNeedle(Canvas: ISkCanvas);
 var
-  Surface: ISkSurface;
-  Canvas: ISkCanvas;
   Paint: ISkPaint;
   BackgroundImage: ISkImage;
   BasePoint, LeftPoint, RightPoint, TipPoint: TPointF;
@@ -2320,12 +2320,7 @@ var
   NeedlePath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
-  // Ensure the buffer matches the control size for Skia drawing
-  Buffer.SetSize(Width, Height);
-
-  // Allocate a Skia surface and seed it with the cached background buffer
-  Surface := TSkSurface.MakeRaster(Width, Height);
-  Canvas := Surface.Canvas;
+  // Draw the cached background image first
   BackgroundImage := AcquireBackgroundSnapshot;
   if Assigned(BackgroundImage) then
     Canvas.DrawImage(BackgroundImage, 0, 0)
@@ -2398,20 +2393,16 @@ begin
     Paint.Color := SafeColorRefToSkColor(FNeedle.CenterBorderColor);
     Canvas.DrawCircle(BasePoint.X, BasePoint.Y, (FNeedle.CenterSize / 2) - (FNeedle.CenterBorderWidth / 2), Paint);
   end;
-
-  // Snapshot the composed scene back into the component buffer
-  Surface.MakeImageSnapshot.ToBitmap(Buffer);
+  // Canvas is rendering directly to the control - no conversion needed!
 end;
 
 //------------------------------------------------------------------------------
-// PAINT BUFFER
+// PAINT SKIA
 //------------------------------------------------------------------------------
-procedure TOBDCircularGauge.PaintBuffer;
+procedure TOBDCircularGauge.PaintSkia(Canvas: ISkCanvas);
 begin
-  // Call inherited PaintBuffer
-  inherited;
-  // Paint the composed needle on top of the cached Skia background.
-  PaintNeedle;
+  // Paint the gauge with needle directly to the provided canvas
+  PaintNeedle(Canvas);
 end;
 
 //------------------------------------------------------------------------------
@@ -2422,7 +2413,7 @@ begin
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2431,7 +2422,7 @@ end;
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2447,7 +2438,7 @@ begin
     if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
   end;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2486,7 +2477,7 @@ begin
     end;
 
     // Trigger a repaint to display the updated needle position
-    InvalidateBuffer;
+    Invalidate;
   end else
     // Pass message to default message handler
     Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
@@ -2502,7 +2493,7 @@ begin
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2515,7 +2506,7 @@ begin
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2652,7 +2643,7 @@ begin
   // Invalidate background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 end.
