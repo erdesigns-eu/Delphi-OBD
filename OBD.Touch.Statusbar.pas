@@ -1575,7 +1575,7 @@ var
   Typeface: ISkTypeface;
   SkFont: ISkFont;
   Metrics: TSkFontMetrics;
-  BackgroundRect, BorderRect, LedRect, LedBorderRect, SizeGripRect: TSkRect;
+  BackgroundRect, BorderRect, LedRect, LedBorderRect, SizeGripRect: TRectF;
   SizeGripWidth, I, W, S, PanelX: Integer;
   X, Y: Single;
 
@@ -1614,8 +1614,8 @@ var
     X := Panel.PanelRect.Left;
     Y := (Border.Height + ((ClientRect.Height - Border.Height) / 2)) - (LedSize / 2);
 
-    LedBorderRect := TSkRect.Create(X, Y, X + LedSize, Y + LedSize);
-    LedRect := TSkRect.Create(
+    LedBorderRect := TRectF.Create(X, Y, X + LedSize, Y + LedSize);
+    LedRect := TRectF.Create(
       LedBorderRect.Left + Panel.LedBorder.Width + 1,
       LedBorderRect.Top + Panel.LedBorder.Width + 1,
       LedBorderRect.Right - Panel.LedBorder.Width - 1,
@@ -1687,7 +1687,7 @@ begin
   // Paint the background gradient when both colors are provided
   if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    BackgroundRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
+    BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Shader := TSkShader.MakeLinearGradient(
@@ -1702,7 +1702,7 @@ begin
   // Draw the top border strip when enabled
   if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
   begin
-    BorderRect := TSkRect.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
+    BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Shader := TSkShader.MakeLinearGradient(
@@ -1754,7 +1754,7 @@ begin
   // Draw the resize size grip as a 3x3 matrix of dots
   if SizeGrip.Visible then
   begin
-    SizeGripRect := TSkRect.Create(0.0, Border.Height + 0.0, Width - 3.0, Height - Border.Height + 0.0);
+    SizeGripRect := TRectF.Create(0.0, Border.Height + 0.0, Width - 3.0, Height - Border.Height + 0.0);
     SizeGripWidth := Ceil((SizeGrip.DotSize + SizeGrip.DotSpacing) * 3);
     FSizeGrip.SizeGripRect := Rect((Width - 3) - SizeGripWidth, Border.Height, Width - 3, Height);
     Paint := TSkPaint.Create;
@@ -1767,7 +1767,7 @@ begin
         X := SizeGripRect.Right - SizeGripWidth + (W * (SizeGrip.DotSize + SizeGrip.DotSpacing));
         Y := SizeGripRect.Bottom - ((S + 1) * (SizeGrip.DotSize + SizeGrip.DotSpacing));
         if SizeGrip.DotShape = dsSquare then
-          Canvas.DrawRect(TSkRect.Create(X, Y, X + SizeGrip.DotSize, Y + SizeGrip.DotSize), Paint)
+          Canvas.DrawRect(TRectF.Create(X, Y, X + SizeGrip.DotSize, Y + SizeGrip.DotSize), Paint)
         else
           Canvas.DrawCircle(TSkPoint.Create(X + (SizeGrip.DotSize / 2), Y + (SizeGrip.DotSize / 2)), SizeGrip.DotSize / 2, Paint);
       end;
