@@ -53,7 +53,7 @@ type
     /// <summary>
     ///   Parse service response
     /// </summary>
-    procedure ParseResponse(Response: TBytes); override;
+    procedure ParseResponse(const Response: TBytes); override;
 
     /// <summary>
     ///   List with Diagnostic Trouble Codes (One code per line)
@@ -107,7 +107,7 @@ end;
 //------------------------------------------------------------------------------
 // SERVICE 03: PARSE RESPONSE
 //------------------------------------------------------------------------------
-procedure TOBDService03.ParseResponse(Response: TBytes);
+procedure TOBDService03.ParseResponse(const Response: TBytes);
 var
   ServiceDecoder: IOBDServiceResponseDecoder;
   ErrorDecoder: IOBDResponseDecoder;
