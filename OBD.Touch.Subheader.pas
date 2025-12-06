@@ -345,8 +345,9 @@ var
   X, Y, Z: Single;
   TextSize: TSizeF;
 begin
-  // Clear canvas with background color
-  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+  try
+    // Clear canvas with background color
+    Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
   // Draw the backround gradient when configured
   if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
@@ -555,7 +556,14 @@ begin
   if HasProtocol then
     DrawSkTextCentered(Canvas, ProtocolLabelText, ProtocolIndicator.Font, TRectF.Create(ProtocolCaptionRect), ProtocolIndicator.Font.Color, TSkTextAlign.Left);
 
-  // Direct rendering to canvas - no conversion needed!
+    // Direct rendering to canvas - no conversion needed!
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with background color
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

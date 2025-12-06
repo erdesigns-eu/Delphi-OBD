@@ -15,10 +15,10 @@ unit OBD.MatrixDisplay;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  System.Math, Vcl.Graphics, System.Skia, Skia.Vcl,
+  System.SysUtils, System.Classes, System.Types, System.Diagnostics, Vcl.Controls, 
+  WinApi.Windows, Winapi.Messages, System.Math, Vcl.Graphics, System.Skia, Skia.Vcl,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.AnimationManager;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -308,9 +308,9 @@ type
   end;
 
   /// <summary>
-  ///   Circular Gauge Component
+  ///   Matrix Display Component
   /// </summary>
-  TOBDMatrixDisplay = class(TOBDCustomControl)
+  TOBDMatrixDisplay = class(TOBDCustomControl, IOBDAnimatable)
   private
     /// <summary>
     ///   Background Buffer
@@ -325,13 +325,13 @@ type
     /// </summary>
     FCellsLock: TObject;
     /// <summary>
-    ///   Window handle needed for the timer
+    ///   Stopwatch for high-resolution timing
     /// </summary>
-    FWindowHandle: THandle;
+    FStopwatch: TStopwatch;
     /// <summary>
-    ///   Handle of the animation timer
+    ///   Last animation tick time in milliseconds
     /// </summary>
-    FTimerHandle: THandle;
+    FLastAnimationMs: Int64;
   private
     /// <summary>
     ///   Cells
@@ -441,10 +441,6 @@ type
     /// </summary>
     procedure AnimationChanged(Sender: TObject);
     /// <summary>
-    ///   Timer proc handler
-    /// </summary>
-    procedure AnimationTimerProc(var Msg: TMessage);
-    /// <summary>
     ///   Get cell at specified row/col
     /// </summary>
     function GetCell(Row, Col: Integer): TOBDMatrixDisplayCell;
@@ -520,6 +516,20 @@ type
     ///   Load text centered in the display
     /// </summary>
     procedure LoadTextCentered(const Value: string; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
+
+    // IOBDAnimatable interface methods
+    /// <summary>
+    ///   Called on each animation tick
+    /// </summary>
+    procedure AnimationTick(ElapsedMs: Int64);
+    /// <summary>
+    ///   Returns true if the control has active animations
+    /// </summary>
+    function IsAnimating: Boolean;
+    /// <summary>
+    ///   Get the desired frames per second for this control
+    /// </summary>
+    function GetFramesPerSecond: Integer;
   published
     /// <summary>
     ///   Cell size
@@ -779,6 +789,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCellSize(Value: Integer);
 begin
+  // Validate cell size (minimum 1 pixel)
+  if Value < 1 then Value := 1;
+  
   if (FCellSize <> Value) then
   begin
     // Set new cell size
@@ -793,6 +806,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCellSpacing(Value: Integer);
 begin
+  // Validate cell spacing (minimum 0 pixels)
+  if Value < 0 then Value := 0;
+  
   if (FCellSpacing <> Value) then
   begin
     // Set new cell spacing
@@ -807,7 +823,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetRows(Value: Integer);
 begin
-  if (FRows <> Value) and (Value >= 0) then
+  // Validate rows (minimum 1, maximum 1000 for reasonable memory usage)
+  if Value < 1 then Value := 1;
+  if Value > 1000 then Value := 1000;
+  
+  if (FRows <> Value) then
   begin
     // Set new row count
     FRows := Value;
@@ -823,7 +843,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCols(Value: Integer);
 begin
-  if (FCols <> Value) and (Value >= 0) then
+  // Validate columns (minimum 1, maximum 1000 for reasonable memory usage)
+  if Value < 1 then Value := 1;
+  if Value > 1000 then Value := 1000;
+  
+  if (FCols <> Value) then
   begin
     // Set new column count
     FCols := Value;
@@ -1088,14 +1112,22 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.PaintSkia(Canvas: ISkCanvas);
 begin
-  // Draw the cached background image first for optimal overdraw behavior
-  if FBackgroundImage <> nil then
-    Canvas.DrawImage(FBackgroundImage, 0, 0)
-  else
-    Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+  try
+    // Draw the cached background image first for optimal overdraw behavior
+    if FBackgroundImage <> nil then
+      Canvas.DrawImage(FBackgroundImage, 0, 0)
+    else
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
-  // Paint matrix cells on the Skia canvas (direct rendering, zero-copy)
-  PaintMatrix(Canvas);
+    // Paint matrix cells on the Skia canvas (direct rendering, zero-copy)
+    PaintMatrix(Canvas);
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with background color
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1116,21 +1148,32 @@ procedure TOBDMatrixDisplay.AnimationChanged(Sender: TObject);
 begin
   if not (csDesigning in ComponentState) then
   begin
-    // Kill the timer
-    if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
-    // Create new timer
-    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, Animation.Duration, nil);
+    // Reset the animation timer when animation settings change
+    FLastAnimationMs := FStopwatch.ElapsedMilliseconds;
+    // Notify the animation manager to check animation state
+    AnimationManager.CheckAnimationState;
   end;
   // Invalidate the buffer
   Invalidate;
 end;
 
 //------------------------------------------------------------------------------
-// ANIMATION TIMER MESSAGE HANDLER
+// ANIMATION TICK (IOBDAnimatable interface)
 //------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.AnimationTimerProc(var Msg: TMessage);
+procedure TOBDMatrixDisplay.AnimationTick(ElapsedMs: Int64);
+var
+  CurrentMs, TimeSinceLastTick: Int64;
 begin
-  if Msg.Msg = WM_TIMER then
+  if not Animation.Enabled then
+    Exit;
+
+  // Get current time from stopwatch
+  CurrentMs := FStopwatch.ElapsedMilliseconds;
+  // Calculate time since last animation tick
+  TimeSinceLastTick := CurrentMs - FLastAnimationMs;
+
+  // Only perform animation action if duration has elapsed
+  if TimeSinceLastTick >= Animation.Duration then
   begin
     case Animation.&Type of
       atScrollLeft  : ScrollLeft;
@@ -1140,11 +1183,29 @@ begin
       atInvert      : Invert;
     end;
 
-    // Trigger a repaint to display the updated needle position
+    // Update last tick time
+    FLastAnimationMs := CurrentMs;
+    
+    // Trigger a repaint to display the updated display
     Invalidate;
-  end else
-    // Pass message to default message handler
-    Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// IS ANIMATING (IOBDAnimatable interface)
+//------------------------------------------------------------------------------
+function TOBDMatrixDisplay.IsAnimating: Boolean;
+begin
+  Result := Animation.Enabled;
+end;
+
+//------------------------------------------------------------------------------
+// GET FRAMES PER SECOND (IOBDAnimatable interface)
+//------------------------------------------------------------------------------
+function TOBDMatrixDisplay.GetFramesPerSecond: Integer;
+begin
+  // MatrixDisplay uses custom duration-based timing, so use default FPS
+  Result := FramesPerSecond;
 end;
 
 //------------------------------------------------------------------------------
@@ -1271,13 +1332,14 @@ begin
   Height := 121;
   // Initialize cells
   InitializeCells;
-  //
+  // Initialize stopwatch for high-resolution timing
+  FStopwatch := TStopwatch.StartNew;
+  FLastAnimationMs := 0;
+
   if not (csDesigning in ComponentState) then
   begin
-    // Allocate window handle for the timer
-    FWindowHandle := AllocateHWnd(AnimationTimerProc);
-    // Create new timer
-    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
+    // Register with the animation manager
+    AnimationManager.RegisterControl(Self);
   end;
 end;
 
@@ -1288,10 +1350,8 @@ destructor TOBDMatrixDisplay.Destroy;
 begin
   if not (csDesigning in ComponentState) then
   begin
-    // Kill the timer
-    if (FTimerHandle <> 0) then KillTimer(FWindowHandle, FTimerHandle);
-    // Deallocate window handle
-    DeallocateHWnd(FWindowHandle);
+    // Unregister from the animation manager
+    AnimationManager.UnregisterControl(Self);
   end;
   // Free background buffer
   FBackgroundBuffer.Free;

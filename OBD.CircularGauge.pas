@@ -15,10 +15,11 @@ unit OBD.CircularGauge;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.SyncObjs, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
+  System.SysUtils, System.Classes, System.SyncObjs, System.Diagnostics, Vcl.Controls, 
+  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation,
+  OBD.CustomControl.AnimationManager;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -854,7 +855,7 @@ type
   /// <summary>
   ///   Circular Gauge Component
   /// </summary>
-  TOBDCircularGauge = class(TOBDCustomControl)
+  TOBDCircularGauge = class(TOBDCustomControl, IOBDAnimatable)
   private
     /// <summary>
     ///   Cached Skia snapshot of the static gauge background for reuse between frames.
@@ -865,13 +866,13 @@ type
     /// </summary>
     FRenderLock: TObject;
     /// <summary>
-    ///   Window handle needed for the timer
+    ///   Animation start time in milliseconds
     /// </summary>
-    FWindowHandle: THandle;
+    FAnimationStartMs: Int64;
     /// <summary>
-    ///   Handle of the animation timer
+    ///   Stopwatch for high-resolution timing
     /// </summary>
-    FTimerHandle: THandle;
+    FStopwatch: TStopwatch;
   private
     /// <summary>
     ///   Start angle
@@ -1019,10 +1020,6 @@ type
     ///   On animation changed handler
     /// </summary>
     procedure AnimationChanged(Sender: TObject);
-    /// <summary>
-    ///   Timer proc handler
-    /// </summary>
-    procedure AnimationTimerProc(var Msg: TMessage);
   protected
     /// <summary>
     ///   Override Resize method
@@ -1050,6 +1047,20 @@ type
     ///   Override assign method
     /// </summary>
     procedure Assign(Source: TPersistent); override;
+
+    // IOBDAnimatable interface methods
+    /// <summary>
+    ///   Called on each animation tick
+    /// </summary>
+    procedure AnimationTick(ElapsedMs: Int64);
+    /// <summary>
+    ///   Returns true if the control has active animations
+    /// </summary>
+    function IsAnimating: Boolean;
+    /// <summary>
+    ///   Get the desired frames per second for this control
+    /// </summary>
+    function GetFramesPerSecond: Integer;
   published
     /// <summary>
     ///   Start angle
@@ -1895,7 +1906,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetStartAngle(Value: Single);
 begin
-  if (FStartAngle <> Value) and (Value >= MIN_START_ANGLE) and (Value <= MAX_START_ANGLE) then
+  // Validate and clamp angle to valid range
+  if Value < MIN_START_ANGLE then Value := MIN_START_ANGLE;
+  if Value > MAX_START_ANGLE then Value := MAX_START_ANGLE;
+  
+  if (FStartAngle <> Value) then
   begin
     // Set new start angle
     FStartAngle := Value;
@@ -1911,7 +1926,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetEndAngle(Value: Single);
 begin
-  if (FEndAngle <> Value) and (Value >= MIN_END_ANGLE) and (Value <= MAX_END_ANGLE) then
+  // Validate and clamp angle to valid range
+  if Value < MIN_END_ANGLE then Value := MIN_END_ANGLE;
+  if Value > MAX_END_ANGLE then Value := MAX_END_ANGLE;
+  
+  if (FEndAngle <> Value) then
   begin
     // Set new end angle
     FEndAngle := Value;
@@ -1927,10 +1946,16 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetMin(Value: Single);
 begin
-  if (FMin <> Value) and (Value <= FMax) then
+  // Ensure Min is not greater than Max
+  if Value > FMax then Value := FMax;
+  
+  if (FMin <> Value) then
   begin
     // Set new min
     FMin := Value;
+    // Clamp current value to new range
+    if FValue < FMin then
+      FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
@@ -1943,10 +1968,16 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetMax(Value: Single);
 begin
-  if (FMax <> Value) and (Value >= FMin) then
+  // Ensure Max is not less than Min
+  if Value < FMin then Value := FMin;
+  
+  if (FMax <> Value) then
   begin
     // Set new max
     FMax := Value;
+    // Clamp current value to new range
+    if FValue > FMax then
+      FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
@@ -1967,8 +1998,11 @@ begin
     Animation.StartValue := FValue;
     // Set value
     FValue := Value;
-    // Set animation start time
-    Animation.StartTime := GetTickCount;
+    // Reset animation start time using stopwatch
+    FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
+    // Notify animation manager to start timer if needed
+    if not (csDesigning in ComponentState) then
+      AnimationManager.CheckAnimationState;
     // Invalidate buffer
     Invalidate;
   end;
@@ -2320,80 +2354,95 @@ var
   NeedlePath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
-  // Draw the cached background image first
-  BackgroundImage := AcquireBackgroundSnapshot;
-  if Assigned(BackgroundImage) then
-    Canvas.DrawImage(BackgroundImage, 0, 0)
-  else
-    Canvas.Clear(SafeColorRefToSkColor(Self.Color));
+  try
+    // Draw the cached background image first
+    BackgroundImage := AcquireBackgroundSnapshot;
+    if Assigned(BackgroundImage) then
+      Canvas.DrawImage(BackgroundImage, 0, 0)
+    else
+      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
 
-  // Gauge's center position
-  Size := System.Math.Min(ClientWidth, ClientHeight);
-  X := (Width - Size) / 2;
-  Y := (Height - Size) / 2;
-  BasePoint := TPointF.Create(X + Size / 2, Y + Size / 2);
+    // Validate value range before calculations to prevent division by zero
+    if FMax <= FMin then
+      Exit;
 
-  // Needle properties
-  NeedleLength := Size / 2 * FNeedle.Length;
+    // Gauge's center position
+    Size := System.Math.Min(ClientWidth, ClientHeight);
+    if Size <= 0 then
+      Exit;
+      
+    X := (Width - Size) / 2;
+    Y := (Height - Size) / 2;
+    BasePoint := TPointF.Create(X + Size / 2, Y + Size / 2);
 
-  // Calculate the needle's angle based on the current value
-  if Animation.Enabled then
-    ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
-  else
-    ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
-  ValueAngle := DegToRad(ValueAngle);
+    // Needle properties
+    NeedleLength := Size / 2 * FNeedle.Length;
 
-  // Calculate points for the needle
-  TipPoint := TPointF.Create(BasePoint.X + Cos(ValueAngle) * NeedleLength, BasePoint.Y + Sin(ValueAngle) * NeedleLength);
+    // Calculate the needle's angle based on the current value
+    if Animation.Enabled then
+      ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
+    else
+      ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
+    ValueAngle := DegToRad(ValueAngle);
 
-  // Calculate base angles for a wider base
-  BaseAngleLeft := ValueAngle + Pi / 2;
-  BaseAngleRight := ValueAngle - Pi / 2;
-  LeftPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2));
-  RightPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
+    // Calculate points for the needle
+    TipPoint := TPointF.Create(BasePoint.X + Cos(ValueAngle) * NeedleLength, BasePoint.Y + Sin(ValueAngle) * NeedleLength);
 
-  // Build and fill the needle path
-  PathBuilder := TSkPathBuilder.Create;
-  PathBuilder.MoveTo(LeftPoint);
-  PathBuilder.LineTo(TipPoint);
-  PathBuilder.LineTo(RightPoint);
-  PathBuilder.Close;
-  NeedlePath := PathBuilder.Detach;
+    // Calculate base angles for a wider base
+    BaseAngleLeft := ValueAngle + Pi / 2;
+    BaseAngleRight := ValueAngle - Pi / 2;
+    LeftPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2));
+    RightPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
 
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FNeedle.Color);
-  Canvas.DrawPath(NeedlePath, Paint);
+    // Build and fill the needle path
+    PathBuilder := TSkPathBuilder.Create;
+    PathBuilder.MoveTo(LeftPoint);
+    PathBuilder.LineTo(TipPoint);
+    PathBuilder.LineTo(RightPoint);
+    PathBuilder.Close;
+    NeedlePath := PathBuilder.Detach;
 
-  if (FNeedle.BorderColor <> clNone) and (FNeedle.BorderWidth > 0) then
-  begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := FNeedle.BorderWidth;
-    Paint.StrokeJoin := TSkStrokeJoin.Round;
-    Paint.Color := SafeColorRefToSkColor(FNeedle.BorderColor);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := SafeColorRefToSkColor(FNeedle.Color);
     Canvas.DrawPath(NeedlePath, Paint);
-  end;
 
-  // Draw the needle center with fill and optional stroke
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FNeedle.CenterColor);
-  Canvas.DrawCircle(BasePoint.X, BasePoint.Y, FNeedle.CenterSize / 2, Paint);
+    if (FNeedle.BorderColor <> clNone) and (FNeedle.BorderWidth > 0) then
+    begin
+      Paint := TSkPaint.Create;
+      Paint.AntiAlias := True;
+      Paint.Style := TSkPaintStyle.Stroke;
+      Paint.StrokeWidth := FNeedle.BorderWidth;
+      Paint.StrokeJoin := TSkStrokeJoin.Round;
+      Paint.Color := SafeColorRefToSkColor(FNeedle.BorderColor);
+      Canvas.DrawPath(NeedlePath, Paint);
+    end;
 
-  if (FNeedle.CenterBorderColor <> clNone) and (FNeedle.CenterBorderWidth > 0) then
-  begin
+    // Draw the needle center with fill and optional stroke
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := FNeedle.CenterBorderWidth;
-    Paint.Color := SafeColorRefToSkColor(FNeedle.CenterBorderColor);
-    Canvas.DrawCircle(BasePoint.X, BasePoint.Y, (FNeedle.CenterSize / 2) - (FNeedle.CenterBorderWidth / 2), Paint);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := SafeColorRefToSkColor(FNeedle.CenterColor);
+    Canvas.DrawCircle(BasePoint.X, BasePoint.Y, FNeedle.CenterSize / 2, Paint);
+
+    if (FNeedle.CenterBorderColor <> clNone) and (FNeedle.CenterBorderWidth > 0) then
+    begin
+      Paint := TSkPaint.Create;
+      Paint.AntiAlias := True;
+      Paint.Style := TSkPaintStyle.Stroke;
+      Paint.StrokeWidth := FNeedle.CenterBorderWidth;
+      Paint.Color := SafeColorRefToSkColor(FNeedle.CenterBorderColor);
+      Canvas.DrawCircle(BasePoint.X, BasePoint.Y, (FNeedle.CenterSize / 2) - (FNeedle.CenterBorderWidth / 2), Paint);
+    end;
+    // Canvas is rendering directly to the control - no conversion needed!
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with background color
+      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
+    end;
   end;
-  // Canvas is rendering directly to the control - no conversion needed!
 end;
 
 //------------------------------------------------------------------------------
@@ -2401,8 +2450,18 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.PaintSkia(Canvas: ISkCanvas);
 begin
-  // Paint the gauge with needle directly to the provided canvas
-  PaintNeedle(Canvas);
+  try
+    // Paint the gauge with needle directly to the provided canvas
+    PaintNeedle(Canvas);
+  except
+    on E: Exception do
+    begin
+      // On rendering error, clear canvas with background color as fallback
+      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
+      // In debug mode, you could log the error here
+      // OutputDebugString(PChar('CircularGauge render error: ' + E.Message));
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -2432,55 +2491,74 @@ procedure TOBDCircularGauge.AnimationChanged(Sender: TObject);
 begin
   if not (csDesigning in ComponentState) then
   begin
-    // Kill the timer
-    if (FTimerHandle <> 0) then KillTimer(Handle, FTimerHandle);
-    // Create new timer
-    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
+    // Notify the animation manager to check animation state
+    AnimationManager.CheckAnimationState;
   end;
   // Invalidate the buffer
   Invalidate;
 end;
 
 //------------------------------------------------------------------------------
-// ANIMATION TIMER MESSAGE HANDLER
+// ANIMATION TICK (IOBDAnimatable interface)
 //------------------------------------------------------------------------------
-procedure TOBDCircularGauge.AnimationTimerProc(var Msg: TMessage);
+procedure TOBDCircularGauge.AnimationTick(ElapsedMs: Int64);
 var
-  CurrentTime, Elapsed: Cardinal;
+  CurrentMs, Elapsed: Int64;
   AnimationProgress, EasedProgress, InterpolatedValue: Single;
   EasingFunction: TOBDCustomControlAnimationEasingFunction;
 begin
-  if Msg.Msg = WM_TIMER then
+  if not Animation.Enabled then
+    Exit;
+
+  // Get current time from stopwatch
+  CurrentMs := FStopwatch.ElapsedMilliseconds;
+  // Calculate elapsed time since animation start
+  Elapsed := CurrentMs - FAnimationStartMs;
+
+  // Get the easing function
+  EasingFunction := GetEasingFunction(Animation.&Type);
+  if Elapsed < Animation.Duration then
   begin
-    // Set current time
-    CurrentTime := GetTickCount;
-    // Calculate elapsed time
-    Elapsed := CurrentTime - Animation.StartTime;
+    // Calculate the animation progress
+    AnimationProgress := Elapsed / Animation.Duration;
+    // Apply easing function to AnimationProgress
+    EasedProgress := EasingFunction(AnimationProgress);
+    // Calculate the interpolated value using the eased progress
+    InterpolatedValue := Animation.StartValue + (FValue - Animation.StartValue) * EasedProgress;
+    // Update the animation value
+    Animation.Value := InterpolatedValue;
+  end
+  else
+  begin
+    // Directly set to target value when animation duration has passed
+    Animation.Value := FValue;
+  end;
 
-    // Get the easing function
-    EasingFunction := GetEasingFunction(Animation.&Type);
-    if Elapsed < Animation.Duration then
-    begin
-      // Calulate the animation progress
-      AnimationProgress := Elapsed / Animation.Duration;
-      // Apply easing function to AnimationProgress
-      EasedProgress := EasingFunction(AnimationProgress);
-      // Calculate the interpolated value using the eased progress
-      InterpolatedValue := Animation.StartValue + (FValue - Animation.StartValue) * EasedProgress;
-      // Update the animation value
-      Animation.Value := InterpolatedValue;
-    end
-    else
-    begin
-      // Directly set to target value when animation duration has passed
-      Animation.Value := FValue;
-    end;
+  // Trigger a repaint to display the updated needle position
+  Invalidate;
+end;
 
-    // Trigger a repaint to display the updated needle position
-    Invalidate;
-  end else
-    // Pass message to default message handler
-    Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
+//------------------------------------------------------------------------------
+// IS ANIMATING (IOBDAnimatable interface)
+//------------------------------------------------------------------------------
+function TOBDCircularGauge.IsAnimating: Boolean;
+var
+  CurrentMs, Elapsed: Int64;
+begin
+  if not Animation.Enabled then
+    Exit(False);
+    
+  CurrentMs := FStopwatch.ElapsedMilliseconds;
+  Elapsed := CurrentMs - FAnimationStartMs;
+  Result := (Elapsed < Animation.Duration) and (Animation.StartValue <> FValue);
+end;
+
+//------------------------------------------------------------------------------
+// GET FRAMES PER SECOND (IOBDAnimatable interface)
+//------------------------------------------------------------------------------
+function TOBDCircularGauge.GetFramesPerSecond: Integer;
+begin
+  Result := FramesPerSecond;
 end;
 
 //------------------------------------------------------------------------------
@@ -2569,12 +2647,14 @@ begin
   FGradientScaleItems := TOBDCircularGaugeGradientScaleItems.Create(Self);
   FGradientScaleItems.OnChange := SettingsChanged;
 
+  // Initialize stopwatch for high-resolution timing
+  FStopwatch := TStopwatch.StartNew;
+  FAnimationStartMs := 0;
+
   if not (csDesigning in ComponentState) then
   begin
-    // Allocate window handle for the timer
-    FWindowHandle := AllocateHWnd(AnimationTimerProc);
-    // Create new timer
-    if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FramesPerSecond, nil);
+    // Register with the animation manager
+    AnimationManager.RegisterControl(Self);
   end;
 
   // Set default dimensions
@@ -2589,10 +2669,8 @@ destructor TOBDCircularGauge.Destroy;
 begin
   if not (csDesigning in ComponentState) then
   begin
-    // Kill the timer
-    if (FTimerHandle <> 0) then KillTimer(FWindowHandle, FTimerHandle);
-    // Deallocate window handle
-    DeallocateHWnd(FWindowHandle);
+    // Unregister from the animation manager
+    AnimationManager.UnregisterControl(Self);
   end;
   // Release render lock
   FRenderLock.Free;

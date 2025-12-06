@@ -1536,11 +1536,12 @@ var
     end;
   end;
 begin
-  // Clear canvas with resolved background color
-  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+  try
+    // Clear canvas with resolved background color
+    Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
-  // Paint the background gradient when both colors are provided
-  if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
+    // Paint the background gradient when both colors are provided
+    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
     BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
@@ -1668,7 +1669,14 @@ begin
     end;
   end;
 
-  // Direct rendering to canvas - no conversion needed!
+    // Direct rendering to canvas - no conversion needed!
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with background color
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
