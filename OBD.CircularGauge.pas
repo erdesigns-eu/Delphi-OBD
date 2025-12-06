@@ -2069,7 +2069,7 @@ var
   Paint: ISkPaint;
   Font: ISkFont;
   Size, X, Y, SweepAngle: Single;
-  GaugeRect, CaptionRect, InnerArcRect, OuterArcRect: TSkRect;
+  GaugeRect, CaptionRect, InnerArcRect, OuterArcRect: TRectF;
   TotalTicks, TickIndex, I: Integer;
   AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
   StartPoint, EndPoint: TSkPoint;
@@ -2089,7 +2089,7 @@ begin
   Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2));
   X := (Width - Size) / 2;
   Y := (Height - Size) / 2;
-  GaugeRect := TSkRect.Create(X, Y, X + Size, Y + Size);
+  GaugeRect := TRectF.Create(X, Y, X + Size, Y + Size);
 
   // Draw the background gradient ellipse when colors are configured
   if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
@@ -2111,12 +2111,12 @@ begin
     InnerRadius := Size / 2 - (GradientScale.Items[I].Size + Border.Width);
     OuterRadius := Size / 2;
 
-    InnerArcRect := TSkRect.Create(
+    InnerArcRect := TRectF.Create(
       X + (GradientScale.Items[I].Size + Border.Width),
       Y + (GradientScale.Items[I].Size + Border.Width),
       X + (GradientScale.Items[I].Size + Border.Width) + (InnerRadius * 2),
       Y + (GradientScale.Items[I].Size + Border.Width) + (InnerRadius * 2));
-    OuterArcRect := TSkRect.Create(X, Y, X + (OuterRadius * 2), Y + (OuterRadius * 2));
+    OuterArcRect := TRectF.Create(X, Y, X + (OuterRadius * 2), Y + (OuterRadius * 2));
 
     ArcPath := TSkPath.Create;
     LowValueAngle := ((GradientScale.Items[I].From - FMin) / (FMax - FMin)) * ((EndAngle + 180) - StartAngle) + StartAngle;
@@ -2151,7 +2151,7 @@ begin
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
-    Canvas.DrawOval(TSkRect.Create(GaugeRect.Left + (Border.Width / 2), GaugeRect.Top + (Border.Width / 2), GaugeRect.Right - (Border.Width / 2), GaugeRect.Bottom - (Border.Width / 2)), Paint);
+    Canvas.DrawOval(TRectF.Create(GaugeRect.Left + (Border.Width / 2), GaugeRect.Top + (Border.Width / 2), GaugeRect.Right - (Border.Width / 2), GaugeRect.Bottom - (Border.Width / 2)), Paint);
   end;
 
   // Calculate the amount of minor ticks we need to draw
@@ -2259,7 +2259,7 @@ begin
     Paint.Style := TSkPaintStyle.Fill;
     Paint.TextAlign := TSkTextAlign.Center;
 
-    CaptionRect := TSkRect.Create(0, 0, Width, (Height / 2) + FTopCaption.Offset);
+    CaptionRect := TRectF.Create(0, 0, Width, (Height / 2) + FTopCaption.Offset);
     Canvas.DrawSimpleText(
       FTopCaption.Caption,
       CaptionRect.Left + ((CaptionRect.Right - CaptionRect.Left) / 2),
@@ -2278,7 +2278,7 @@ begin
     Paint.Style := TSkPaintStyle.Fill;
     Paint.TextAlign := TSkTextAlign.Center;
 
-    CaptionRect := TSkRect.Create(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
+    CaptionRect := TRectF.Create(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
     Canvas.DrawSimpleText(
       FBottomCaption.Caption,
       CaptionRect.Left + ((CaptionRect.Right - CaptionRect.Left) / 2),
