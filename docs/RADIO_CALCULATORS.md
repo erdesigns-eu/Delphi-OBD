@@ -67,6 +67,96 @@ Tracks algorithm updates: V1 (original), V2, V3, V4, V5 (latest)
    - Europe Modern (2011+)
    - Australia (2000+)
 
+### Advanced Calculators with Multiple Algorithms
+
+**New Advanced Implementations:**
+
+1. **OBD.RadioCode.Renault.Advanced.pas** - 7 variants with lookup tables:
+   - Pre-Code (1992-1998) - Letter conversion algorithm
+   - Philips 22DC279 (1995-2002) - Position-weighted
+   - Philips 22DC449 (1998-2005) - Enhanced security with progressive weights
+   - Blaupunkt 7640 (2000-2008) - Checksum-based
+   - UpdateList (2005-2012) - Alternating weights (13/7, 11/5)
+   - Philips Lookup Table - Known serials database
+   - Blaupunkt Lookup Table - Known serials database
+
+2. **OBD.RadioCode.Nissan.Advanced.pas** - 8 variants with lookup tables:
+   - BP Old (1995-2005) - Sum with multipliers
+   - BP Enhanced (2005-2012) - Position weighting
+   - Clarion (1998-2010) - Checksum algorithm
+   - Bose Premium (2003+) - Alternating 7/3 weights
+   - Connect (2012+) - Squared position weights (VIN integration)
+   - BP Lookup Table
+   - Clarion Lookup Table
+   - Bose Lookup Table
+
+3. **OBD.RadioCode.Peugeot.Advanced.pas** - 9 variants with lookup tables:
+   - Blaupunkt (1995-2005) - Position + 2 multiplier
+   - VDO/Philips (1998-2008) - Position * 2 multiplier
+   - Clarion (2000-2010) - Checksum * 5
+   - RD4 (2004-2010) - Alternating 7/3 weights
+   - RD45 (2008-2013) - Progressive weights (1,3,5,7...)
+   - RD5 (2010+) - Squared position weights
+   - Blaupunkt Lookup Table
+   - VDO Lookup Table
+   - Clarion Lookup Table
+
+4. **OBD.RadioCode.Mercedes.Regional.pas** - 6 variants:
+   - Becker (1995-2005) - Position + 2 multiplier
+   - Audio 10 (2000-2010) - Position * 3 multiplier
+   - Audio 20 (2005-2015) - Alternating 7/5 weights
+   - COMAND (2010+) - Squared position weights
+   - North America variant
+   - Asia variant
+
+5. **OBD.RadioCode.BMW.Regional.pas** - 5 variants:
+   - Business CD (1998-2008) - Simple position multiplier
+   - Professional (2004-2012) - Position * 2 multiplier
+   - iDrive (2008+) - Squared position weights
+   - North America variant
+   - Asia variant
+
+### Lookup Table System
+
+Advanced calculators include lookup tables for known serial/code pairs:
+- **Hybrid Approach**: Try lookup first, fall back to calculation
+- **Extensible**: Load additional serials from external files/databases
+- **Performance**: O(1) lookup time with TDictionary
+
+```delphi
+// Example: Renault with lookup table fallback
+Calculator := TOBDRadioCodeRenaultAdvanced.Create;
+try
+  Calculator.SetVariant('RENAULT_PHILIPS_LOOKUP');
+  
+  // First tries lookup table, then falls back to calculation
+  if Calculator.Calculate('A123', Output, ErrorMsg) then
+    ShowMessage('Code: ' + Output);
+finally
+  Calculator.Free;
+end;
+```
+
+### Multiple Algorithm Support
+
+Advanced calculators can handle different radio models from the same manufacturer:
+
+```delphi
+// Example: Nissan with different algorithms by model
+Calculator := TOBDRadioCodeNissanAdvanced.Create;
+try
+  // BP series (older models)
+  Calculator.SetVariant('NISSAN_BP_OLD');
+  Calculator.Calculate('1234', Output, ErrorMsg);
+  
+  // Bose premium systems (newer)
+  Calculator.SetVariant('NISSAN_BOSE');
+  Calculator.Calculate('5678', Output, ErrorMsg);
+finally
+  Calculator.Free;
+end;
+```
+
 ### Using Regional Variants
 
 ```delphi
