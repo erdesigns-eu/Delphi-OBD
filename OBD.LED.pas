@@ -1,12 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.LED.pas
-// CONTENTS       : LED component
-// VERSION        : 1.0
+// CONTENTS       : LED component with Skia rendering
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 24/03/2024
+// UPDATED        : 06/12/2025 - Refactored for direct Skia rendering
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.LED;
 
@@ -312,7 +314,7 @@ type
     /// <summary>
     ///   Paint buffer
     /// </summary>
-    procedure PaintBuffer; override;
+    procedure PaintSkia(Canvas: ISkCanvas); override;
     /// <summary>
     ///   On change handler
     /// </summary>
@@ -542,7 +544,7 @@ begin
     // Set new state
     FState := Value;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -691,12 +693,10 @@ end;
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
-procedure TOBDLed.PaintBuffer;
+procedure TOBDLed.PaintSkia(Canvas: ISkCanvas);
 var
   Image: ISkImage;
 begin
-  // Call inherited PaintBuffer
-  inherited;
   // Select the matching Skia snapshot for the requested LED state
   case State of
     lsGrayed : Image := FGrayedImage;
@@ -715,9 +715,11 @@ begin
     end;
   end;
 
-  // Copy the Skia snapshot directly into the component buffer
+  // Draw the Skia snapshot directly to the canvas (zero-copy rendering)
   if Assigned(Image) then
-    Image.ToBitmap(Buffer);
+    Canvas.DrawImage(Image, 0, 0)
+  else
+    Canvas.Clear(TAlphaColorRec.Null);
 end;
 
 //------------------------------------------------------------------------------
@@ -728,7 +730,7 @@ begin
   // Invalidate background
   InvalidateColors;
   // Invalidate buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -741,7 +743,7 @@ begin
   // Invalidate color buffers
   InvalidateColors;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -754,7 +756,7 @@ begin
   // Invalidate color buffers
   InvalidateColors;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -839,7 +841,7 @@ begin
   // Invalidate color buffers
   InvalidateColors;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 end.

@@ -1,12 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.MatrixDisplay.pas
-// CONTENTS       : Matrix display component
-// VERSION        : 1.0
+// CONTENTS       : Matrix display component with Skia rendering
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 23/03/2024
+// UPDATED        : 06/12/2025 - Refactored for direct Skia rendering
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.MatrixDisplay;
 
@@ -429,7 +431,7 @@ type
     /// <summary>
     ///   Paint buffer
     /// </summary>
-    procedure PaintBuffer; override;
+    procedure PaintSkia(Canvas: ISkCanvas); override;
     /// <summary>
     ///   On change handler
     /// </summary>
@@ -782,7 +784,7 @@ begin
     // Set new cell size
     FCellSize := Value;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -796,7 +798,7 @@ begin
     // Set new cell spacing
     FCellSpacing := Value;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -812,7 +814,7 @@ begin
     // Initialize cells
     InitializeCells;
     // Invalidate the buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -828,7 +830,7 @@ begin
     // Initialize cells
     InitializeCells;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -858,7 +860,7 @@ begin
     // Set new on color
     FOnColor := Value;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -872,7 +874,7 @@ begin
     // Set new off color
     FOffColor := Value;
     // Invalidate buffer
-    InvalidateBuffer;
+    Invalidate;
   end;
 end;
 
@@ -1084,29 +1086,16 @@ end;
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.PaintBuffer;
-var
-  Surface: ISkSurface;
-  Canvas: ISkCanvas;
+procedure TOBDMatrixDisplay.PaintSkia(Canvas: ISkCanvas);
 begin
-  // Call inherited PaintBuffer to keep any base class hooks intact
-  inherited;
-
-  // Create a Skia surface for compositing the pre-rendered background and cells
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
-  Canvas := Surface.Canvas;
-
   // Draw the cached background image first for optimal overdraw behavior
   if FBackgroundImage <> nil then
     Canvas.DrawImage(FBackgroundImage, 0, 0)
   else
     Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
-  // Paint matrix cells on the Skia canvas
+  // Paint matrix cells on the Skia canvas (direct rendering, zero-copy)
   PaintMatrix(Canvas);
-
-  // Transfer the finished frame back to the buffered bitmap used by the base control
-  Surface.MakeImageSnapshot.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -1117,7 +1106,7 @@ begin
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1133,7 +1122,7 @@ begin
     if Animation.Enabled then FTimerHandle := SetTimer(FWindowHandle, 1, Animation.Duration, nil);
   end;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1152,7 +1141,7 @@ begin
     end;
 
     // Trigger a repaint to display the updated needle position
-    InvalidateBuffer;
+    Invalidate;
   end else
     // Pass message to default message handler
     Msg.Result := DefWindowProc(FWindowHandle, Msg.Msg, Msg.WParam, Msg.LParam);
@@ -1203,7 +1192,7 @@ begin
   // Invalidate background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1216,7 +1205,7 @@ begin
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1236,7 +1225,7 @@ begin
       // If there is text, reload the mask so it reflects the current font.
       if (Text <> '') then LoadTextCentered(Text);
       // Invalidate the buffer
-      InvalidateBuffer;
+      Invalidate;
     end;
     // Text changed
     CM_TEXTCHANGED:
@@ -1339,7 +1328,7 @@ begin
   // Invalidate background
   InvalidateBackground;
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -1567,7 +1556,7 @@ begin
   // Load the mask
   LoadMask(Value, R, C, Inversed);
   // Invalidate the buffer
-  InvalidateBuffer;
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
