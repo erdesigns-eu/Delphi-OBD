@@ -928,7 +928,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.InvalidateBackground;
 var
-  BackgroundRect, BorderRect: TSkRect;
+  BackgroundRect, BorderRect: TRectF;
   Surface: ISkSurface;
   Canvas: ISkCanvas;
   Path: ISkPath;
@@ -948,7 +948,7 @@ begin
   if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
     // Calculate the background rectangle taking the border thickness into account
-    BackgroundRect := TSkRect.Create(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
+    BackgroundRect := TRectF.Create(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
     // Build a Skia path for the rounded rectangle once
     Path := CreateSkRoundRectPath(RectF(BackgroundRect.Left, BackgroundRect.Top, BackgroundRect.Right, BackgroundRect.Bottom), Border.Corner);
     // Configure gradient paint
@@ -990,7 +990,7 @@ begin
   // Draw the border using a vertical gradient stroke when configured
   if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
   begin
-    BorderRect := TSkRect.Create(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2) + 0.0);
+    BorderRect := TRectF.Create(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2) + 0.0);
     Path := CreateSkRoundRectPath(RectF(BorderRect.Left, BorderRect.Top, BorderRect.Right, BorderRect.Bottom), Border.Corner);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
@@ -1023,7 +1023,7 @@ procedure TOBDMatrixDisplay.PaintMatrix(const ACanvas: ISkCanvas);
 var
   CenterX, CenterY, StartX, X, Y, R, C: Integer;
   PaintOn, PaintOff: ISkPaint;
-  CellRect: TSkRect;
+  CellRect: TRectF;
 begin
   // Prepare paint objects upfront to avoid allocations inside the nested loops
   PaintOn := TSkPaint.Create;
@@ -1064,7 +1064,7 @@ begin
              (Y > (Border.Width + (CellSpacing * 2))) and (Y < (Height - ((Border.Width * 2)) + (CellSpacing * 2))) then
           begin
             // Convert the integer rect into a Skia rectangle and draw using the correct paint
-            CellRect := TSkRect.Create(X, Y, X + CellSize, Y + CellSize);
+            CellRect := TRectF.Create(X, Y, X + CellSize, Y + CellSize);
             if FCells[R][C] then
               ACanvas.DrawRect(CellRect, PaintOn)
             else
@@ -1581,7 +1581,7 @@ var
   Paint: ISkPaint;
   Typeface: ISkTypeface;
   SkFont: ISkFont;
-  Bounds: TSkRect;
+  Bounds: TRectF;
   B: TBitmap;
 
   function CreateTypeface(const AFont: TFont): ISkTypeface;
@@ -1642,7 +1642,7 @@ var
   Paint: ISkPaint;
   Typeface: ISkTypeface;
   SkFont: ISkFont;
-  Bounds: TSkRect;
+  Bounds: TRectF;
   B: TBitmap;
 
   function CreateTypeface(const AFont: TFont): ISkTypeface;
