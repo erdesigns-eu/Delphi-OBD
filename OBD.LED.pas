@@ -697,29 +697,37 @@ procedure TOBDLed.PaintSkia(Canvas: ISkCanvas);
 var
   Image: ISkImage;
 begin
-  // Select the matching Skia snapshot for the requested LED state
-  case State of
-    lsGrayed : Image := FGrayedImage;
-    lsOff    : Image := FOffImage;
-    lsOn     : Image := FOnImage;
-  end;
-
-  // If a snapshot is missing (e.g. after resize), rebuild and reselect
-  if not Assigned(Image) then
-  begin
-    InvalidateColors;
+  try
+    // Select the matching Skia snapshot for the requested LED state
     case State of
       lsGrayed : Image := FGrayedImage;
       lsOff    : Image := FOffImage;
       lsOn     : Image := FOnImage;
     end;
-  end;
 
-  // Draw the Skia snapshot directly to the canvas (zero-copy rendering)
-  if Assigned(Image) then
-    Canvas.DrawImage(Image, 0, 0)
-  else
-    Canvas.Clear(TAlphaColorRec.Null);
+    // If a snapshot is missing (e.g. after resize), rebuild and reselect
+    if not Assigned(Image) then
+    begin
+      InvalidateColors;
+      case State of
+        lsGrayed : Image := FGrayedImage;
+        lsOff    : Image := FOffImage;
+        lsOn     : Image := FOnImage;
+      end;
+    end;
+
+    // Draw the Skia snapshot directly to the canvas (zero-copy rendering)
+    if Assigned(Image) then
+      Canvas.DrawImage(Image, 0, 0)
+    else
+      Canvas.Clear(TAlphaColorRec.Null);
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with transparent color
+      Canvas.Clear(TAlphaColorRec.Null);
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

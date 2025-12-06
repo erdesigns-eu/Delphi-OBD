@@ -1098,14 +1098,22 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.PaintSkia(Canvas: ISkCanvas);
 begin
-  // Draw the cached background image first for optimal overdraw behavior
-  if FBackgroundImage <> nil then
-    Canvas.DrawImage(FBackgroundImage, 0, 0)
-  else
-    Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+  try
+    // Draw the cached background image first for optimal overdraw behavior
+    if FBackgroundImage <> nil then
+      Canvas.DrawImage(FBackgroundImage, 0, 0)
+    else
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
 
-  // Paint matrix cells on the Skia canvas (direct rendering, zero-copy)
-  PaintMatrix(Canvas);
+    // Paint matrix cells on the Skia canvas (direct rendering, zero-copy)
+    PaintMatrix(Canvas);
+  except
+    on E: Exception do
+    begin
+      // On error, clear canvas with background color
+      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
