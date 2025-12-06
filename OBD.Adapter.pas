@@ -737,7 +737,7 @@ begin
   FAllowLongMessages := Value;
   if Assigned(FProtocol) then
   begin
-    (FProtocol as TOBDProtocol).AllowLongMesssages := Value;
+    (FProtocol as TOBDProtocol).AllowLongMessages := Value;
   end;
 end;
 

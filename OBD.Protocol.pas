@@ -180,7 +180,7 @@ type
     /// <summary>
     ///   Allow long messages (> 7 bytes)
     /// </summary>
-    property AllowLongMesssages: Boolean read FAllowLongMessages write FAllowLongMessages;
+    property AllowLongMessages: Boolean read FAllowLongMessages write FAllowLongMessages;
     /// <summary>
     ///   OBD Protocol name
     /// </summary>

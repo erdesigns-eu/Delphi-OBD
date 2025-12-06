@@ -152,7 +152,7 @@ begin
   if Length(RawBytes) < 6 then Exit;
 
   // If the frame length is too long, drop the frame
-  if not AllowLongMesssages then
+  if not AllowLongMessages then
   if Length(RawBytes) > 11 then Exit;
 
   // Exclude header and trailing checksum (handled by ELM adapter)

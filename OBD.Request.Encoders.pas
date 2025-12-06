@@ -37,7 +37,7 @@ type
     /// <summary>
     ///   Encode service request (with aditional data)
     /// </summary>
-    function EncodeServiceRequest(PID: Byte; Data: TBytes): string; overload;
+    function EncodeServiceRequest(PID: Byte; const Data: TBytes): string; overload;
   end;
 
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ type
     /// <summary>
     ///   Encode service request (with aditional data)
     /// </summary>
-    function EncodeServiceRequest(PID: Byte; Data: TBytes): string; overload; virtual;
+    function EncodeServiceRequest(PID: Byte; const Data: TBytes): string; overload; virtual;
   end;
 
   /// <summary>

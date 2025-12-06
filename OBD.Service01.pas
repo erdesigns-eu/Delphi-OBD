@@ -1121,9 +1121,9 @@ type
     /// </summary>
     FOxygenSensorPresent4Banks: TOBDServiceOxygenSensorPresent4Banks;
     /// <summary>
-    ///   Auxilary input status
+    ///   Auxiliary input status
     /// </summary>
-    FAuxilaryInputStatus: TOBDServiceAuxilaryInputStatus;
+    FAuxiliaryInputStatus: TOBDServiceAuxiliaryInputStatus;
     /// <summary>
     ///   Runtime since engine start
     /// </summary>
@@ -1588,9 +1588,9 @@ type
     /// </summary>
     property OxygenSensorPresent4Banks: TOBDServiceOxygenSensorPresent4Banks read FOxygenSensorPresent4Banks;
     /// <summary>
-    ///   Auxilary input status
+    ///   Auxiliary input status
     /// </summary>
-    property AuxilaryInputStatus: TOBDServiceAuxilaryInputStatus read FAuxilaryInputStatus;
+    property AuxiliaryInputStatus: TOBDServiceAuxiliaryInputStatus read FAuxiliaryInputStatus;
     /// <summary>
     ///   Runtime since engine start
     /// </summary>
@@ -2370,7 +2370,7 @@ begin
   // Reset oxygen sensors present in 4 banks
   FOxygenSensorPresent4Banks.Reset;
   // Reset auxilary input status
-  FAuxilaryInputStatus := aisUnknown;
+  FAuxiliaryInputStatus := aisUnknown;
   // Reset runtime since engine start
   FRuntimeSinceEngineStart := 0;
   // Reset distance traveled with MIL on
@@ -2833,13 +2833,13 @@ begin
   begin
     if Length(Data) < 1 then
     begin
-      FAuxilaryInputStatus := aisUnknown;
+      FAuxiliaryInputStatus := aisUnknown;
       Exit;
     end;
     if (Data[0] and $01) <> 0 then
-      FAuxilaryInputStatus := aisActive
+      FAuxiliaryInputStatus := aisActive
     else
-      FAuxilaryInputStatus := aisPowerTakeOff;
+      FAuxiliaryInputStatus := aisPowerTakeOff;
     if Assigned(OnData) then OnData(Self, GetServiceID, OBD_SERVICE_01_AUXILIARY_INPUT_STATUS);
     Exit;
   end;

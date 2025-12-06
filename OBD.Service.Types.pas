@@ -46,7 +46,7 @@ type
   /// <summary>
   ///   OBD Service 01 Parameter 1E (Auxiliary input status)
   /// </summary>
-  TOBDServiceAuxilaryInputStatus = (aisUnknown, aisPowerTakeOff, aisActive);
+  TOBDServiceAuxiliaryInputStatus = (aisUnknown, aisPowerTakeOff, aisActive);
   /// <summary>
   ///   OBD Service 03 (Diagnostic Trouble Codes) Category
   /// </summary>
