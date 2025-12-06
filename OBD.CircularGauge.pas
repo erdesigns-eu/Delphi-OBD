@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.SyncObjs, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia,
+  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
 
@@ -2072,7 +2072,7 @@ var
   GaugeRect, CaptionRect, InnerArcRect, OuterArcRect: TRectF;
   TotalTicks, TickIndex, I: Integer;
   AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
-  StartPoint, EndPoint: TSkPoint;
+  StartPoint, EndPoint: TPointF;
   NumberAngle, NumberRadius: Single;
   NumberStr: string;
   LowValueAngle, HighValueAngle: Single;
@@ -2080,7 +2080,7 @@ var
   PathBuilder: ISkPathBuilder;
 begin
   // Allocate a Skia surface that holds the static gauge background
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
 
   // Clear using the active style color so Skia draws over a themed backdrop without GDI bridging
@@ -2097,9 +2097,9 @@ begin
   begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(GaugeRect.Left, GaugeRect.Top),
-      TSkPoint.Create(GaugeRect.Left, GaugeRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(GaugeRect.Left, GaugeRect.Top),
+      TPointF.Create(GaugeRect.Left, GaugeRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -2147,9 +2147,9 @@ begin
     Paint.Style := TSkPaintStyle.Stroke;
     Paint.StrokeWidth := Border.Width;
     Paint.StrokeJoin := TSkStrokeJoin.Round;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(GaugeRect.Left, GaugeRect.Top),
-      TSkPoint.Create(GaugeRect.Left, GaugeRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(GaugeRect.Left, GaugeRect.Top),
+      TPointF.Create(GaugeRect.Left, GaugeRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -2173,8 +2173,8 @@ begin
     if (TickIndex mod Round(FMajorTicks.Step)) = 0 then
       Continue;
     CurrentAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
-    StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
-    EndPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
+    StartPoint := TPointF.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
+    EndPoint := TPointF.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
     Canvas.DrawLine(StartPoint, EndPoint, Paint);
   end;
 
@@ -2194,7 +2194,7 @@ begin
         Continue;
 
       NumberAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
-      StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
+      StartPoint := TPointF.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
 
       if (FMinorTicks.Divider > 0) then
         NumberStr := FloatToStr((FMin + (FMinorTicks.Step * TickIndex)) / FMinorTicks.Divider)
@@ -2220,8 +2220,8 @@ begin
   for TickIndex := 0 to TotalTicks do
   begin
     CurrentAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
-    StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
-    EndPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
+    StartPoint := TPointF.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
+    EndPoint := TPointF.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
     Canvas.DrawLine(StartPoint, EndPoint, Paint);
   end;
 
@@ -2238,7 +2238,7 @@ begin
     for TickIndex := 0 to TotalTicks do
     begin
       NumberAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
-      StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
+      StartPoint := TPointF.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
 
       if (FMajorTicks.Divider > 0) then
         NumberStr := FloatToStr((FMin + (FMajorTicks.Step * TickIndex)) / FMajorTicks.Divider)
@@ -2314,7 +2314,7 @@ var
   Canvas: ISkCanvas;
   Paint: ISkPaint;
   BackgroundImage: ISkImage;
-  BasePoint, LeftPoint, RightPoint, TipPoint: TSkPoint;
+  BasePoint, LeftPoint, RightPoint, TipPoint: TPointF;
   NeedleLength: Single;
   ValueAngle, BaseAngleLeft, BaseAngleRight, X, Y, Size: Single;
   NeedlePath: ISkPath;
@@ -2324,7 +2324,7 @@ begin
   Buffer.SetSize(Width, Height);
 
   // Allocate a Skia surface and seed it with the cached background buffer
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
   BackgroundImage := AcquireBackgroundSnapshot;
   if Assigned(BackgroundImage) then
@@ -2336,7 +2336,7 @@ begin
   Size := System.Math.Min(ClientWidth, ClientHeight);
   X := (Width - Size) / 2;
   Y := (Height - Size) / 2;
-  BasePoint := TSkPoint.Create(X + Size / 2, Y + Size / 2);
+  BasePoint := TPointF.Create(X + Size / 2, Y + Size / 2);
 
   // Needle properties
   NeedleLength := Size / 2 * FNeedle.Length;
@@ -2349,13 +2349,13 @@ begin
   ValueAngle := DegToRad(ValueAngle);
 
   // Calculate points for the needle
-  TipPoint := TSkPoint.Create(BasePoint.X + Cos(ValueAngle) * NeedleLength, BasePoint.Y + Sin(ValueAngle) * NeedleLength);
+  TipPoint := TPointF.Create(BasePoint.X + Cos(ValueAngle) * NeedleLength, BasePoint.Y + Sin(ValueAngle) * NeedleLength);
 
   // Calculate base angles for a wider base
   BaseAngleLeft := ValueAngle + Pi / 2;
   BaseAngleRight := ValueAngle - Pi / 2;
-  LeftPoint := TSkPoint.Create(BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2));
-  RightPoint := TSkPoint.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
+  LeftPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2));
+  RightPoint := TPointF.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
 
   // Build and fill the needle path
   PathBuilder := TSkPathBuilder.Create;
