@@ -104,8 +104,8 @@ begin
   // Remove the leading M (optional)
   S := IfThen(Sanitized.StartsWith('M', True), Copy(Sanitized, 2, length(Sanitized) - 1), Sanitized);
 
-  // Validate length using helper method
-  if not ValidateLength(S, 5, ErrorMessage) then
+  // Validate length using helper method (needs 6 digits after removing M prefix)
+  if not ValidateLength(S, 6, ErrorMessage) then
     Exit(False);
 
   // Validate that all characters are digits using helper method

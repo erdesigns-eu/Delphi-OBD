@@ -271,15 +271,20 @@ begin
     // Check if rotation is needed
     CheckRotation;
 
-    // Open or create file
+    // Open file for appending (create if doesn't exist)
     if TFile.Exists(FLogFilePath) then
-      FileStream := TFileStream.Create(FLogFilePath, fmOpenWrite or fmShareDenyWrite)
+    begin
+      FileStream := TFileStream.Create(FLogFilePath, fmOpenWrite or fmShareDenyWrite);
+      // Seek to end of file for appending
+      FileStream.Seek(0, soEnd);
+    end
     else
+    begin
+      // Create new file
       FileStream := TFileStream.Create(FLogFilePath, fmCreate or fmShareDenyWrite);
+    end;
 
     try
-      // Seek to end of file
-      FileStream.Seek(0, soEnd);
 
       // Write message
       Bytes := TEncoding.UTF8.GetBytes(Message + sLineBreak);

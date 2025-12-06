@@ -141,15 +141,21 @@ end;
 //------------------------------------------------------------------------------
 function HexStringToBytes(const HexStr: string): TBytes;
 var
-  Cleaned: string;
+  Builder: TStringBuilder;
   I, Len: Integer;
+  Cleaned: string;
 begin
-  // Remove spaces and non-hex characters
-  Cleaned := '';
-  for I := 1 to Length(HexStr) do
-  begin
-    if CharInSet(HexStr[I], ['0'..'9', 'A'..'F', 'a'..'f']) then
-      Cleaned := Cleaned + HexStr[I];
+  // Remove spaces and non-hex characters using TStringBuilder
+  Builder := TStringBuilder.Create(Length(HexStr));
+  try
+    for I := 1 to Length(HexStr) do
+    begin
+      if CharInSet(HexStr[I], ['0'..'9', 'A'..'F', 'a'..'f']) then
+        Builder.Append(HexStr[I]);
+    end;
+    Cleaned := Builder.ToString;
+  finally
+    Builder.Free;
   end;
 
   Len := Length(Cleaned) div 2;
@@ -282,6 +288,8 @@ begin
     Result := ComputeFunc();
     
     // Check cache size and remove oldest if needed
+    // Note: This is a simple FIFO eviction, not true LRU
+    // For proper LRU, a different data structure (e.g., linked list + hash map) would be needed
     if FCache.Count >= FMaxSize then
       FCache.Delete(0);
     
