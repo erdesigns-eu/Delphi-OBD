@@ -405,7 +405,7 @@ function TOBDProjectCreator.GetPlatforms: TArray<String>;
 begin
   SetLength(Result, 2);
   Result[0] := cWin32Platform;
-  Result[1] := cWin64Platform;;
+  Result[1] := cWin64Platform;
 end;
 
 //------------------------------------------------------------------------------
