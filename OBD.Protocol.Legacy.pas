@@ -205,6 +205,9 @@ begin
     // Loop over frames
     for Frame in Frames do
     begin
+      // Validate frame has minimum data
+      if Length(Frame.Data) < 1 then Continue;
+      
       // If this is the first frame, include the mode byte because we need
       // it in the OBD Service Response Decoder.
       if FirstFrame then
@@ -212,8 +215,11 @@ begin
         FrameData := Copy(Frame.Data, 0, Length(Frame.Data) - 1);
         FirstFrame := False;
       end else
-        // Exclude mode byte and checksum
+      begin
+        // Exclude mode byte and checksum - validate minimum length first
+        if Length(Frame.Data) < 2 then Continue;
         FrameData := Copy(Frame.Data, 1, Length(Frame.Data) - 2);
+      end;
       // Append frame to data
       Msg.Data := Msg.Data + FrameData;
     end;
@@ -230,30 +236,49 @@ begin
 
     // Multiple frames
     begin
+      // Validate all frames have minimum data for multi-frame processing
+      for Frame in Frames do
+        if Length(Frame.Data) < 3 then Exit;
+      
       // Create an instance of the comparer
       Comparer := TOBDDataFrameComparer.Create;
       // Sort the frames by the order byte
       TArray.Sort<IOBDDataFrame>(Frames, Comparer);
 
-      // Check contiguity
+      // Check contiguity - frame sequence number is at Data[2]
       for I := 1 to High(Frames) do
       begin
+        // Validate each frame has enough data for sequence check
+        if (Length(Frames[I].Data) < 3) or (Length(Frames[I - 1].Data) < 3) then Exit;
         // Exit if we received multiline response with missing frames
         if Frames[I].Data[2] <> Frames[I - 1].Data[2] + 1 then Exit;
       end;
 
-      // Exclude the frame id and checksum
-      Msg.SetDataLength(Length(Frames[0].Data) -2);
+      // Validate first frame has enough data (needs mode, pid, frame_id at minimum)
+      if Length(Frames[0].Data) < 4 then Exit;
+      
+      // Calculate total data length properly
+      // First frame: total length minus frame_id and checksum
+      Msg.SetDataLength(Length(Frames[0].Data) - 2);
 
-      // Copy the mode and pid
+      // Copy the mode and pid from first frame
       Move(Frames[0].Data[0], Msg.Data[0], 2);
-      // Then copy the rest of the data without the frame id
-      Move(Frames[0].Data[3], Msg.Data[2], Length(Msg.Data) - 2);
+      
+      // Copy the rest of the first frame data (after frame_id at index 2)
+      // Use safe bounds checking
+      if Length(Frames[0].Data) > 3 then
+      begin
+        BytesToCopy := Min(Length(Frames[0].Data) - 3, Length(Msg.Data) - 2);
+        if BytesToCopy > 0 then
+          Move(Frames[0].Data[3], Msg.Data[2], BytesToCopy);
+      end;
 
       // Add the data from the remaining frames
       for I := 1 to High(Frames) do
       begin
-        // Exclude mode/pid/frame id
+        // Validate frame has minimum required data
+        if Length(Frames[I].Data) < 4 then Continue;
+        // Exclude mode/pid/frame id/checksum
         FrameData := Copy(Frames[I].Data, 3, Length(Frames[I].Data) - 4);
         // Append frame to data
         Msg.Data := Msg.Data + FrameData;
