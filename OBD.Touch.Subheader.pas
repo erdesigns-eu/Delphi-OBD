@@ -13,7 +13,7 @@ unit OBD.Touch.Subheader;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, System.Math, System.Skia, Vcl.Controls,
+  System.SysUtils, System.Classes, System.Types, System.Math, System.Skia, Skia.Vcl, Vcl.Controls,
   WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg,
   Vcl.Themes, Vcl.ExtCtrls,
 

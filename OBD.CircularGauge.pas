@@ -14,7 +14,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.SyncObjs, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
+  Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl, System.Types,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
 
