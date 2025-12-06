@@ -1581,32 +1581,34 @@ var
 
   function CreateTypeface(const AFont: TFont): ISkTypeface;
   var
-    Weight: TSkFontStyleWeight;
-    Slant: TSkFontStyleSlant;
+    Weight: Integer;
+    Slant: TSkFontSlant;
   begin
-    Weight := TSkFontStyleWeight.Normal;
+    Weight := 400; // Normal weight
     if fsBold in AFont.Style then
-      Weight := TSkFontStyleWeight.Bold;
+      Weight := 700; // Bold weight
 
-    Slant := TSkFontStyleSlant.Upright;
+    Slant := TSkFontSlant.Upright;
     if fsItalic in AFont.Style then
-      Slant := TSkFontStyleSlant.Italic;
+      Slant := TSkFontSlant.Italic;
 
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
+    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant));
   end;
 
   function MeasureTextWidth(const Text: string; const AFont: TFont): Integer;
   var
     TextPaint: ISkPaint;
     TextFont: ISkFont;
+    Bounds: TRectF;
   begin
     TextPaint := TSkPaint.Create;
     TextPaint.AntiAlias := True;
     TextPaint.Style := TSkPaintStyle.Fill;
-    TextPaint.TextAlign := TSkTextAlign.Left;
+    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     TextFont := TSkFont.Create(CreateTypeface(AFont), AFont.Size);
-    Result := Ceil(TextFont.MeasureText(Text, TextPaint));
+    TextFont.MeasureText(Text, Bounds, TextPaint);
+    Result := Ceil(Bounds.Width);
   end;
 
   procedure PaintLed(Panel: TOBDTouchStatusbarPanel);
@@ -1779,7 +1781,7 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    Paint.TextAlign := TSkTextAlign.Left;
+    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     if Panels[I].ShowLed then
       X := LedSize + 2
