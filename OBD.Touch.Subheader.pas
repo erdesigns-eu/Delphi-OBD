@@ -108,6 +108,8 @@ type
     FSize: Integer;
     FFromColor: TColor;
     FToColor: TColor;
+    FBorderWidth: Single;
+    FBorderColor: TColor;
     FFont: TFont;
     FFormat: string;
     FVoltage: Single;
@@ -117,6 +119,8 @@ type
     procedure SetSize(Value: Integer);
     procedure SetFromColor(Value: TColor);
     procedure SetToColor(Value: TColor);
+    procedure SetBorderWidth(Value: Single);
+    procedure SetBorderColor(Value: TColor);
     procedure SetFont(Value: TFont);
     procedure SetFormat(const Value: string);
     procedure SetVoltage(Value: Single);
@@ -130,6 +134,8 @@ type
     property Size: Integer read FSize write SetSize default 24;
     property FromColor: TColor read FFromColor write SetFromColor default clLime;
     property ToColor: TColor read FToColor write SetToColor default clGreen;
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default clBlack;
     property Font: TFont read FFont write SetFont;
     property Format: string read FFormat write SetFormat;
     property Voltage: Single read FVoltage write SetVoltage;
@@ -145,6 +151,8 @@ type
     FSize: Integer;
     FFromColor: TColor;
     FToColor: TColor;
+    FBorderWidth: Single;
+    FBorderColor: TColor;
     FFont: TFont;
     FCaption: string;
     FOnChange: TNotifyEvent;
@@ -153,6 +161,8 @@ type
     procedure SetSize(Value: Integer);
     procedure SetFromColor(Value: TColor);
     procedure SetToColor(Value: TColor);
+    procedure SetBorderWidth(Value: Single);
+    procedure SetBorderColor(Value: TColor);
     procedure SetFont(Value: TFont);
     procedure SetCaption(const Value: string);
     procedure FontChanged(Sender: TObject);
@@ -165,6 +175,8 @@ type
     property Size: Integer read FSize write SetSize default 24;
     property FromColor: TColor read FFromColor write SetFromColor default clSkyBlue;
     property ToColor: TColor read FToColor write SetToColor default clBlue;
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default clBlack;
     property Font: TFont read FFont write SetFont;
     property Caption: string read FCaption write SetCaption;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -179,6 +191,8 @@ type
     FSize: Integer;
     FFromColor: TColor;
     FToColor: TColor;
+    FBorderWidth: Single;
+    FBorderColor: TColor;
     FFont: TFont;
     FCaption: string;
     FOnChange: TNotifyEvent;
@@ -187,6 +201,8 @@ type
     procedure SetSize(Value: Integer);
     procedure SetFromColor(Value: TColor);
     procedure SetToColor(Value: TColor);
+    procedure SetBorderWidth(Value: Single);
+    procedure SetBorderColor(Value: TColor);
     procedure SetFont(Value: TFont);
     procedure SetCaption(const Value: string);
     procedure FontChanged(Sender: TObject);
@@ -199,6 +215,8 @@ type
     property Size: Integer read FSize write SetSize default 24;
     property FromColor: TColor read FFromColor write SetFromColor default clYellow;
     property ToColor: TColor read FToColor write SetToColor default clOlive;
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default clBlack;
     property Font: TFont read FFont write SetFont;
     property Caption: string read FCaption write SetCaption;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -213,6 +231,8 @@ type
     FSize: Integer;
     FFromColor: TColor;
     FToColor: TColor;
+    FBorderWidth: Single;
+    FBorderColor: TColor;
     FFont: TFont;
     FCaption: string;
     FOnChange: TNotifyEvent;
@@ -221,6 +241,8 @@ type
     procedure SetSize(Value: Integer);
     procedure SetFromColor(Value: TColor);
     procedure SetToColor(Value: TColor);
+    procedure SetBorderWidth(Value: Single);
+    procedure SetBorderColor(Value: TColor);
     procedure SetFont(Value: TFont);
     procedure SetCaption(const Value: string);
     procedure FontChanged(Sender: TObject);
@@ -233,6 +255,8 @@ type
     property Size: Integer read FSize write SetSize default 24;
     property FromColor: TColor read FFromColor write SetFromColor default clAqua;
     property ToColor: TColor read FToColor write SetToColor default clTeal;
+    property BorderWidth: Single read FBorderWidth write SetBorderWidth;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default clBlack;
     property Font: TFont read FFont write SetFont;
     property Caption: string read FCaption write SetCaption;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -279,7 +303,6 @@ type
     property ProtocolIndicator: TOBDTouchSubheaderProtocolIndicator read FProtocolIndicator write SetProtocolIndicator;
     property AutoApplyConnectionDetails: Boolean read FAutoApplyConnectionDetails write SetAutoApplyConnectionDetails default True;
     property ConnectionComponent: TOBDConnectionComponent read FConnectionComponent write SetConnectionComponent;
-  published
     property Align;
     property Anchors;
     property Color;
