@@ -509,7 +509,7 @@ type
     /// <summary>
     ///   Load a bitmap mask centered in the display
     /// </summary>
-    procedure LoadMaskCenterd(const Value: TBitmap; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
+    procedure LoadMaskCentered(const Value: TBitmap; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
     /// <summary>
     ///   Load text in the display
     /// </summary>
@@ -1548,7 +1548,7 @@ end;
 //------------------------------------------------------------------------------
 // LOAD BITMAP MASK CENTERED
 //------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.LoadMaskCenterd(const Value: TBitmap; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
+procedure TOBDMatrixDisplay.LoadMaskCentered(const Value: TBitmap; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
 var
   W, H, R, C: Integer;
 begin
@@ -1583,34 +1583,17 @@ var
   SkFont: ISkFont;
   Bounds: TRectF;
   B: TBitmap;
-
-  function CreateTypeface(const AFont: TFont): ISkTypeface;
-  var
-    Weight: TSkFontStyleWeight;
-    Slant: TSkFontStyleSlant;
-  begin
-    Weight := TSkFontStyleWeight.Normal;
-    if fsBold in AFont.Style then
-      Weight := TSkFontStyleWeight.Bold;
-
-    Slant := TSkFontStyleSlant.Upright;
-    if fsItalic in AFont.Style then
-      Slant := TSkFontStyleSlant.Italic;
-
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
-  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    Typeface := CreateTypeface(Font);
+    Typeface := CreateSkTypeface(Font);
     SkFont := TSkFont.Create(Typeface, Font.Size);
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
     Paint.Color := TAlphaColors.Black;
-    Paint.TextAlign := TSkTextAlign.Left;
 
     // Measure the text using Skia so the mask bitmap fits snugly
     W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
@@ -1644,34 +1627,17 @@ var
   SkFont: ISkFont;
   Bounds: TRectF;
   B: TBitmap;
-
-  function CreateTypeface(const AFont: TFont): ISkTypeface;
-  var
-    Weight: TSkFontStyleWeight;
-    Slant: TSkFontStyleSlant;
-  begin
-    Weight := TSkFontStyleWeight.Normal;
-    if fsBold in AFont.Style then
-      Weight := TSkFontStyleWeight.Bold;
-
-    Slant := TSkFontStyleSlant.Upright;
-    if fsItalic in AFont.Style then
-      Slant := TSkFontStyleSlant.Italic;
-
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
-  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    Typeface := CreateTypeface(Font);
+    Typeface := CreateSkTypeface(Font);
     SkFont := TSkFont.Create(Typeface, Font.Size);
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
     Paint.Color := TAlphaColors.Black;
-    Paint.TextAlign := TSkTextAlign.Left;
 
     // Measure the text using Skia so the mask bitmap fits snugly
     W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
@@ -1686,7 +1652,7 @@ begin
     // Extract the Skia-rendered text into a bitmap for cell loading
     Surface.MakeImageSnapshot.ToBitmap(B);
     // Load the mask
-    Self.LoadMaskCenterd(B, Horizontal, Vertical, Inversed);
+    Self.LoadMaskCentered(B, Horizontal, Vertical, Inversed);
   finally
     B.Free;
   end;
