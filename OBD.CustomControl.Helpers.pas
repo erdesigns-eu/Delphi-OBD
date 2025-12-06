@@ -238,7 +238,7 @@ begin
   TextPaint.Style := TSkPaintStyle.Fill;
 
   TextFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
-  Metrics := TextFont.Metrics;
+  TextFont.GetMetrics(Metrics);
 
   // Measure text width using MeasureText method
   TextFont.MeasureText(Text, Bounds, TextPaint);
@@ -283,7 +283,7 @@ begin
   Paint.Color := SafeColorRefToSkColor(Color);
 
   SkFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
-  Metrics := SkFont.Metrics;
+  SkFont.GetMetrics(Metrics);
   TextHeight := Metrics.Descent - Metrics.Ascent;
 
   // Measure text to calculate alignment
@@ -413,7 +413,7 @@ begin
   Radii[1] := PointF(0, 0);           // Top-right
   Radii[2] := PointF(0, 0);           // Bottom-right
   Radii[3] := PointF(Corner, Corner); // Bottom-left
-  RoundRect.SetRectRadii(Rect, Radii);
+  RoundRect.SetRect(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -436,7 +436,7 @@ begin
   Radii[1] := PointF(0, 0);           // Top-right
   Radii[2] := PointF(0, 0);           // Bottom-right
   Radii[3] := PointF(Corner, Corner); // Bottom-left
-  RoundRect.SetRectRadii(GlareRect, Radii);
+  RoundRect.SetRect(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -483,7 +483,7 @@ begin
   Radii[1] := PointF(Corner, Corner); // Top-right
   Radii[2] := PointF(Corner, Corner); // Bottom-right
   Radii[3] := PointF(0, 0);           // Bottom-left
-  RoundRect.SetRectRadii(Rect, Radii);
+  RoundRect.SetRect(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -506,7 +506,7 @@ begin
   Radii[1] := PointF(Corner, Corner); // Top-right
   Radii[2] := PointF(Corner, Corner); // Bottom-right
   Radii[3] := PointF(0, 0);           // Bottom-left
-  RoundRect.SetRectRadii(GlareRect, Radii);
+  RoundRect.SetRect(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
