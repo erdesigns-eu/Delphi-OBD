@@ -12,6 +12,8 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ## Examples Overview
 
+**Total Examples**: 8 (7 connection types + 1 advanced dashboard)
+
 ### 📦 minimal/
 **Complexity**: Beginner  
 **Connection**: Serial (COM port)  
@@ -90,6 +92,29 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### 🌐 doip/
+**Complexity**: Advanced  
+**Connection**: UDP/Ethernet (Diagnostics over IP)  
+**What it demonstrates**:
+- DoIP protocol (ISO 13400) implementation
+- UDP connection for automotive Ethernet
+- Vehicle discovery and identification
+- Routing activation
+- UDS diagnostic messages over IP
+- BMW ENET cable support
+- Modern automotive Ethernet diagnostics
+
+**Best for**: BMW diagnostics, modern vehicles with Ethernet, high-speed diagnostics
+
+**Key Features**:
+- Vehicle discovery via broadcast
+- Routing activation to specific ECUs
+- UDS request/response handling
+- Keep-alive and power mode monitoring
+- Network-based diagnostics
+
+---
+
 ### 🎛️ advanced/
 **Complexity**: Advanced  
 **Connection**: Multiple (configurable)  
@@ -125,6 +150,41 @@ OBDConnection1.BluetoothDeviceName := 'OBDII';  // Your adapter's Bluetooth name
 OBDConnection1.ConnectionType := ctWifi;
 OBDConnection1.WifiHost := '192.168.0.10';  // Your adapter's IP
 OBDConnection1.WifiPort := 35000;           // Common: 35000, 23
+```
+
+### DoIP/UDP Connection (New in v2.0)
+```delphi
+uses
+  OBD.Connection.UDP, OBD.Protocol.DoIP;
+  
+var
+  Connection: TUDPConnection;
+  Protocol: TOBDProtocolDoIP;
+begin
+  // Create UDP connection for DoIP
+  Connection := TUDPConnection.Create('192.168.0.10', 13400);
+  
+  if Connection.Connect then
+  begin
+    Protocol := TOBDProtocolDoIP.Create;
+    try
+      // Set addresses
+      Protocol.SourceAddress := $0E00; // Tester
+      Protocol.TargetAddress := $0010; // Target ECU
+      
+      // Activate routing
+      Protocol.RoutingActivationRequest;
+      
+      // Send UDS diagnostic request
+      // ... see doip/ example for details
+    finally
+      Protocol.Free;
+    end;
+  end;
+  
+  Connection.Disconnect;
+  Connection.Free;
+end;
 ```
 
 ## Tips and Best Practices
