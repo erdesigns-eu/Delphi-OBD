@@ -976,7 +976,7 @@ begin
   Paint.Shader := TSkShader.MakeLinearGradient(
     TSkPoint.Create(0, Border.Width),
     TSkPoint.Create(0, (Height - Border.Width) / 2),
-    [TSkColor($4BFFFFFF), TSkColor($1EFFFFFF)],
+    [$4BFFFFFF, $1EFFFFFF],
     nil,
     TSkTileMode.Clamp);
   Path := CreateSkRoundRectPath(RectF(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2)), Border.Corner);
