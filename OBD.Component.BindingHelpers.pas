@@ -88,7 +88,12 @@ var
 begin
   // Check if the handler has a valid code pointer
   // This works for method pointers (procedure of object)
-  Result := (SizeOf(T) = SizeOf(TMethod)) and (M.Code <> nil);
+  // Note: This relies on the caller using only method pointer types.
+  // The size check ensures we're working with a compatible structure.
+  if SizeOf(T) <> SizeOf(TMethod) then
+    Result := False
+  else
+    Result := M.Code <> nil;
 end;
 
 //------------------------------------------------------------------------------
