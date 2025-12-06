@@ -272,8 +272,14 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
   - Explain each major section
   - Add inline documentation
   - Highlight best practices
-- [ ] Create example READMEs
-  - Per-example documentation
+- [x] Create example READMEs
+  - ✅ Enhanced main examples/README.md with:
+    - Detailed overview of each example (complexity, connection type, features)
+    - Quick start guide
+    - Common configuration steps with code snippets
+    - Tips and best practices
+    - Troubleshooting section
+    - Requirements and support links
   - What it demonstrates
   - How to configure
   - Expected output
