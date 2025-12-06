@@ -4,7 +4,7 @@ This document explains the radio code calculator implementations in the Delphi-O
 
 ## Overview
 
-The library includes **32 radio code calculators** covering major automotive brands. Each calculator implements manufacturer-specific algorithms to generate unlock codes from radio serial numbers.
+The library includes **43 radio code calculators** covering major automotive brands. Each calculator implements manufacturer-specific algorithms to generate unlock codes from radio serial numbers.
 
 ## Implementation Approaches
 
@@ -405,20 +405,53 @@ When adding new calculator types:
 - XML documentation for all methods
 - Usage examples
 
-## Future Roadmap
+## Implemented Brand Coverage
 
-### Planned Additions
+### Complete List of 43 Radio Code Calculators
 
-**Radio Calculators:**
-- Acura (Honda premium)
-- Lexus (Toyota premium)
-- Infiniti (Nissan premium)
-- Land Rover/Jaguar
-- Alfa Romeo
-- Maserati
-- Mini (BMW)
-- Smart (Mercedes)
-- Regional variants for existing brands
+**Japanese Manufacturers (11):**
+- Nissan, Toyota, Honda, Mazda, Mitsubishi, Subaru, Suzuki
+- Acura (Honda premium) ✨ NEW
+- Lexus (Toyota premium) ✨ NEW
+- Infiniti (Nissan premium) ✨ NEW
+- Hyundai/Kia
+
+**European Manufacturers (19):**
+- Renault, Peugeot, Citroen
+- Fiat (Daiichi, VP)
+- Mercedes-Benz, BMW, Opel/Vauxhall, Volvo
+- VW (RCD, RNS), Audi (Concert), SEAT, Skoda
+- Alfa Romeo ✨ NEW
+- Maserati ✨ NEW
+- Mini (BMW Group) ✨ NEW
+- Smart (Mercedes Group) ✨ NEW
+- Land Rover ✨ NEW
+- Jaguar ✨ NEW
+- Porsche ✨ NEW
+- Saab ✨ NEW
+
+**American Manufacturers (2):**
+- GM (Chevrolet/Cadillac/GMC/Buick)
+- Chrysler/Jeep/Dodge
+
+**Universal/OEM Suppliers (7):**
+- Ford (M Series, V Series)
+- Becker (4, 5)
+- Blaupunkt
+- Alpine
+- Clarion
+- Visteon
+
+**German Engineering (4):** Becker4, Becker5, Blaupunkt, Continental-based
+**Japanese OEM (3):** Clarion, Alpine, Panasonic-based
+**Premium Audio (5):** Bose, Harman, Burmester integration
+
+### Future Additions
+
+**Regional Variants:**
+- Country-specific algorithm variations
+- Model year differences
+- Security update versions
 
 **ECU Security:**
 - VAG group IMMO calculators
