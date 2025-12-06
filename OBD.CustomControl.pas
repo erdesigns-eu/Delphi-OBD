@@ -20,7 +20,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, Vcl.ExtCtrls,System.UITypes;
+  Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, Vcl.ExtCtrls, System.UITypes, System.Types;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -38,7 +38,7 @@ type
   /// <summary>
   ///   Base Custom Control Component
   /// </summary>
-  TOBDCustomControl = class(TCustomControl)
+  TOBDCustomControl = class(TSkCustomControl)
   private
     /// <summary>
     ///   Class constructor
@@ -69,20 +69,12 @@ type
     ///   Set frames per second
     /// </summary>
     procedure SetFramesPerSecond(Value: Integer);
-  private
-    /// <summary>
-    ///   WM_ERASEBKGND message handler
-    /// </summary>
-    procedure WMEraseBkGnd(var Msg: TWMEraseBkGnd); message WM_ERASEBKGND;
+
   protected
     /// <summary>
-    ///   Override CreateParams method
+    ///   Override Draw method from TSkCustomControl for Skia rendering
     /// </summary>
-    procedure CreateParams(var Params: TCreateParams); override;
-    /// <summary>
-    ///   Override Paint method - calls PaintSkia with Skia canvas
-    /// </summary>
-    procedure Paint; override;
+    procedure Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single); override;
     /// <summary>
     ///   Override Resize method
     /// </summary>
@@ -91,10 +83,6 @@ type
     ///   Override Loaded method
     /// </summary>
     procedure Loaded; override;
-    /// <summary>
-    ///   Override UpdateStyleElements method
-    /// </summary>
-    procedure UpdateStyleElements; override;
   protected
     /// <summary>
     ///   Timer proc handler
@@ -185,44 +173,12 @@ end;
 
 
 //------------------------------------------------------------------------------
-// WM_ERASEBKGND MESSAGE HANDLER
+// DRAW (Override from TSkCustomControl)
 //------------------------------------------------------------------------------
-procedure TOBDCustomControl.WMEraseBkGnd(var Msg: TWMEraseBkgnd);
+procedure TOBDCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 begin
-  // Set the handled flag
-  Msg.Result := 1;
-end;
-
-//------------------------------------------------------------------------------
-// CREATE PARAMS
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  // Adjust window style to avoid unnecessary redraws on size changes,
-  // optimizing performance for custom drawing.
-  with Params do Style := Style and not (CS_HREDRAW or CS_VREDRAW);
-end;
-
-//------------------------------------------------------------------------------
-// PAINT
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.Paint;
-var
-  Surface: ISkSurface;
-begin
-  // Call inherited Paint
-  inherited;
-
-  // Create Skia surface directly from Canvas HDC for zero-copy rendering
-  Surface := TSkSurface.MakeFromHDC(Canvas.Handle, Width, Height);
-  if Assigned(Surface) then
-  begin
-    // Call child class to paint using Skia canvas
-    PaintSkia(Surface.Canvas);
-    // Flush ensures all drawing commands are executed
-    Surface.Flush;
-  end;
+  // Call PaintSkia with the Skia canvas provided by TSkCustomControl
+  PaintSkia(ACanvas);
 end;
 
 //------------------------------------------------------------------------------
@@ -247,16 +203,7 @@ begin
     FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
 end;
 
-//------------------------------------------------------------------------------
-// UPDATE STYLE ELEMENTS
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.UpdateStyleElements;
-begin
-  // Call inherited
-  inherited;
-  // Trigger repaint with new style
-  Invalidate;
-end;
+
 
 //------------------------------------------------------------------------------
 // TIMER MESSAGE HANDLER
@@ -289,8 +236,6 @@ constructor TOBDCustomControl.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Prevent background erasure for smoother rendering and reduced flickering
-  ControlStyle := ControlStyle + [csOpaque];
   // Set initial FPS (for animation support)
   FFramesPerSecond := DEFAULT_FPS;
   // Allocate window handle for the timer
