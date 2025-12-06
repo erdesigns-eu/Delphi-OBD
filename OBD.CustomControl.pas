@@ -70,11 +70,22 @@ type
     ///   Frames per second
     /// </summary>
     FFramesPerSecond: Integer;
+    /// <summary>
+    ///   Use legacy double-buffering mode (deprecated)
+    ///   When False (default): Uses on-demand rendering for better performance
+    ///   When True: Uses timer-based pre-rendering (legacy behavior, may cause unnecessary redraws)
+    ///   Note: Skia rendering is already highly optimized. This property controls timing, not quality.
+    /// </summary>
+    FUseDoubleBuffering: Boolean;
 
     /// <summary>
     ///   Set frames per second
     /// </summary>
     procedure SetFramesPerSecond(Value: Integer);
+    /// <summary>
+    ///   Set use double buffering
+    /// </summary>
+    procedure SetUseDoubleBuffering(Value: Boolean);
   private
     /// <summary>
     ///   WM_PAINT message handler
@@ -142,6 +153,13 @@ type
     ///   Frames per second
     /// </summary>
     property FramesPerSecond: Integer read FFramesPerSecond write SetFramesPerSecond default DEFAULT_FPS;
+    /// <summary>
+    ///   Use legacy double-buffering mode (default: False for better performance)
+    ///   When False: Renders on-demand when invalidated (efficient for most use cases)
+    ///   When True: Pre-renders to buffer on timer ticks (legacy mode, less efficient)
+    ///   Note: All rendering still uses TBitmap Buffer internally for VCL compatibility
+    /// </summary>
+    property UseDoubleBuffering: Boolean read FUseDoubleBuffering write SetUseDoubleBuffering default False;
   published
     /// <summary>
     ///   Component alignment (inherited)
@@ -195,6 +213,22 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// SET USE DOUBLE BUFFERING
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.SetUseDoubleBuffering(Value: Boolean);
+begin
+  if FUseDoubleBuffering <> Value then
+  begin
+    FUseDoubleBuffering := Value;
+    // Resize buffer if needed
+    if FUseDoubleBuffering then
+      FBuffer.SetSize(Width, Height);
+    // Invalidate to redraw with new buffering mode
+    InvalidateBuffer;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // WM_PAINT MESSAGE HANDLER
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.WMPaint(var Msg: TWMPaint);
@@ -236,7 +270,11 @@ begin
   // Call inherited Paint
   inherited;
 
-  // Draw the buffer to the component canvas
+  // In optimized mode (!UseDoubleBuffering), render on-demand during WM_PAINT
+  if not FUseDoubleBuffering then
+    PaintBuffer;
+
+  // Copy Buffer to Canvas (this happens in both modes)
   X := FUpdateRect.Left;
   Y := FUpdateRect.Top;
   W := FUpdateRect.Right - FUpdateRect.Left;
@@ -257,8 +295,9 @@ procedure TOBDCustomControl.Resize;
 begin
   // Call inherited Resize
   inherited;
-  // Update the size of the buffer
-  FBuffer.SetSize(Width, Height);
+  // Update the size of the buffer only if double buffering is enabled
+  if FUseDoubleBuffering then
+    FBuffer.SetSize(Width, Height);
 end;
 
 //------------------------------------------------------------------------------
@@ -267,8 +306,9 @@ end;
 procedure TOBDCustomControl.Loaded;
 begin
   inherited;
-  // Update the size of the buffer
-  FBuffer.SetSize(Width, Height);
+  // Update the size of the buffer only if double buffering is enabled
+  if FUseDoubleBuffering then
+    FBuffer.SetSize(Width, Height);
   // Create new timer
   if not (csDesigning in ComponentState) then FTimerHandle := SetTimer(FWindowHandle, 1, 1000 div FFramesPerSecond, nil);
 end;
@@ -311,14 +351,19 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.InvalidateBuffer;
 begin
-  // Execute the Paint Buffer method. This method is an alternative for the
-  // default invalidate method, because we are drawing to the component canvas
-  // when the timer is fired (Fires x times per second).
-  PaintBuffer;
-  // When we are using this component in Design Mode (In the Delphi IDE)
-  // we want to invalidate the control too, because the timer wont fire
-  // in Design mode.
-  if (csDesigning in ComponentState) then Invalidate;
+  if FUseDoubleBuffering then
+  begin
+    // Legacy mode: Pre-render to buffer immediately, will be copied to Canvas on next Paint
+    PaintBuffer;
+    // In design mode or when timer is not running, trigger a repaint
+    if (csDesigning in ComponentState) then
+      Invalidate;
+  end
+  else
+  begin
+    // Optimized mode: Just schedule a repaint, PaintBuffer will be called during WM_PAINT
+    Invalidate;
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -336,6 +381,8 @@ begin
   FBuffer.PixelFormat := pf32bit;
   // Set initial FPS
   FFramesPerSecond := DEFAULT_FPS;
+  // Disable double buffering by default for better Skia performance
+  FUseDoubleBuffering := False;
   // Allocate window handle for the timer
   if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(TimerProc);
 end;
@@ -369,6 +416,7 @@ begin
   if (Source is TOBDCustomControl) then
   begin
     FFramesPerSecond := (Source as TOBDCustomControl).FramesPerSecond;
+    FUseDoubleBuffering := (Source as TOBDCustomControl).UseDoubleBuffering;
   end;
 end;
 
