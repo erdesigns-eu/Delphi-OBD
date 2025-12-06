@@ -36,13 +36,13 @@ requires
   vcl;
 
 contains
-  OBD.CustomControl.Register in '..\OBD.CustomControl.Register.pas',
-  OBD.Component.Editors in '..\OBD.Component.Editors.pas',
-  OBD.DataModule in '..\OBD.DataModule.pas' {OBDDataModule: TDataModule},
-  OBD.DataModule.Wizard in '..\OBD.DataModule.Wizard.pas',
-  OBD.Form in '..\OBD.Form.pas' {OBDForm},
-  OBD.Form.Wizard in '..\OBD.Form.Wizard.pas',
-  OBD.Mainform.Wizard in '..\OBD.Mainform.Wizard.pas',
-  OBD.Project.Wizard in '..\OBD.Project.Wizard.pas';
+  OBD.CustomControl.Register in '..\src\CustomControls\OBD.CustomControl.Register.pas',
+  OBD.Component.Editors in '..\src\Components\OBD.Component.Editors.pas',
+  OBD.DataModule in '..\src\Utilities\OBD.DataModule.pas' {OBDDataModule: TDataModule},
+  OBD.DataModule.Wizard in '..\src\Wizards\OBD.DataModule.Wizard.pas',
+  OBD.Form in '..\src\Forms\OBD.Form.pas' {OBDForm},
+  OBD.Form.Wizard in '..\src\Wizards\OBD.Form.Wizard.pas',
+  OBD.Mainform.Wizard in '..\src\Wizards\OBD.Mainform.Wizard.pas',
+  OBD.Project.Wizard in '..\src\Wizards\OBD.Project.Wizard.pas';
 
 end.

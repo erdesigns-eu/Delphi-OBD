@@ -293,11 +293,171 @@ end.
 - Radio unlock service documentation
 - Community-documented algorithms
 
+## Additional Calculator Types and Future Expansion
+
+Beyond radio code calculators, the library architecture supports additional automotive security calculator types:
+
+### ECU/Immobilizer Calculators
+
+**PIN Code Calculators:**
+- VAG Group PIN (from VIN/serial) - Audi/VW/Skoda/SEAT
+- PSA PIN codes (Peugeot/Citroen)
+- Ford Keyless Entry codes
+- Honda/Acura security codes
+- BMW EWS/CAS PIN extraction
+
+**Key Programming:**
+- Transponder calculations
+- Remote control programming codes
+- Smart key initialization codes
+
+### Potential Additions
+
+**Airbag Reset Codes:**
+- Crash data reset calculators
+- Airbag module unlock codes
+- Seat belt pretensioner reset
+
+**Navigation/Infotainment:**
+- Navigation system unlock codes
+- Infotainment unit reset codes
+- Map update authorization
+
+**Body Control Modules:**
+- Comfort control coding
+- Central locking codes
+- Window/sunroof initialization
+
+### Implementation Framework
+
+To add new calculator types:
+
+1. Create base class (similar to `TOBDRadioCode`)
+2. Implement calculator-specific validation
+3. Add algorithm or lookup table
+4. Document sources and verification
+5. Add to appropriate `src` subfolder
+
+## Sources and References
+
+### Official Documentation
+- **SAE J2534**: Pass-Thru Programming Standard
+- **SAE J1979**: OBD-II Diagnostic Standard
+- **ISO 15031**: Road vehicles - Communication between vehicle and external equipment
+- **VW/Audi Service Documentation**: Radio code procedures (SSP guides)
+- **Ford Workshop Manuals**: Radio security procedures
+
+### Community Resources
+- **Radio Code Databases**: Public databases with verified serial/code pairs
+- **Automotive Locksmith Forums**: Algorithm discussions and verification
+- **OBD Enthusiast Communities**: Real-world testing and validation
+- **Service Manual Archives**: Manufacturer-specific procedures
+
+### Algorithm Sources by Brand
+
+**Documented/Verified:**
+- **VW/Audi/SEAT/Skoda**: Based on ETKA and ELSA service systems
+- **Renault/Peugeot/Citroen**: PSA service documentation
+- **Ford M Series**: Service manual procedures
+- **Fiat/Becker**: Established automotive locksmith algorithms
+
+**Derived/Generic:**
+- **Japanese Manufacturers**: Pattern analysis from verified databases
+- **European Premium (Mercedes/BMW/Opel)**: Common industry patterns
+- **American Manufacturers**: Generalized from service procedures
+- **Aftermarket (Blaupunkt/Alpine/Clarion)**: Documented in manufacturer service guides
+
+**Proprietary/Lookup:**
+- **Ford V Series**: No algorithm exists - requires complete lookup table
+- **Becker 4/5**: Extended lookup tables with partial algorithms
+
+### Verification Methods
+
+1. **Database Comparison**: Cross-reference with known serial/code pairs
+2. **Service Manual Validation**: Compare against official procedures
+3. **Real-World Testing**: Verify with actual radio units
+4. **Community Verification**: Validation through automotive communities
+5. **Manufacturer Confirmation**: Where possible, verify with OEM sources
+
+### Legal and Ethical Considerations
+
+**Important Disclaimers:**
+- Radio code calculators are intended for legitimate vehicle service
+- Users must have legal ownership or authorization
+- Calculators should not be used for theft or unauthorized access
+- Some regions have laws restricting radio code calculation
+- Always verify legal requirements in your jurisdiction
+
+### Contributing New Calculators
+
+When adding new calculator types:
+
+1. **Provide Sources**: Document where algorithm came from
+2. **Verification Data**: Include test cases with known serial/code pairs
+3. **Legal Clearance**: Ensure algorithm doesn't violate copyrights
+4. **Limitations**: Document known restrictions or model-specific variants
+5. **Testing**: Provide test suite with validation
+
+**Submission Requirements:**
+- Source documentation or reference
+- Minimum 5 verified serial/code test pairs
+- Unit tests for validation
+- XML documentation for all methods
+- Usage examples
+
+## Future Roadmap
+
+### Planned Additions
+
+**Radio Calculators:**
+- Acura (Honda premium)
+- Lexus (Toyota premium)
+- Infiniti (Nissan premium)
+- Land Rover/Jaguar
+- Alfa Romeo
+- Maserati
+- Mini (BMW)
+- Smart (Mercedes)
+- Regional variants for existing brands
+
+**ECU Security:**
+- VAG group IMMO calculators
+- Ford PATS (Passive Anti-Theft System)
+- GM VATS/PassKey systems
+- Chrysler SKIM (Sentry Key Immobilizer Module)
+- Honda/Acura PGM-FI immobilizer
+
+**Body Electronics:**
+- Keyless entry codes
+- Central locking PIN codes
+- Comfort system initialization
+- Gateway module access codes
+
+### Research Areas
+
+- **Machine Learning**: Pattern recognition for unknown algorithms
+- **Reverse Engineering**: Safe analysis of encrypted systems
+- **Database Expansion**: Growing verified serial/code databases
+- **Manufacturer Partnerships**: Official algorithm documentation
+- **Regional Variants**: Country-specific implementation differences
+
+## Technical Support
+
+For questions about calculator implementations:
+- Check this documentation first
+- Review the source code comments
+- Consult manufacturer service manuals
+- Verify with known serial/code pairs
+- Report issues or improvements via GitHub
+
 ## License
 
-All radio code calculators are licensed under Apache 2.0 as part of the Delphi-OBD library.
+All radio code calculators and related security tools are licensed under Apache 2.0 as part of the Delphi-OBD library.
+
+**Disclaimer**: These tools are for legitimate automotive service purposes only. Users are responsible for compliance with local laws and regulations.
 
 ---
 
 **Last Updated**: December 6, 2025
 **Author**: Ernst Reidinga (ERDesigns)
+**Contributors**: Open source community
