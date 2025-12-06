@@ -789,6 +789,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCellSize(Value: Integer);
 begin
+  // Validate cell size (minimum 1 pixel)
+  if Value < 1 then Value := 1;
+  
   if (FCellSize <> Value) then
   begin
     // Set new cell size
@@ -803,6 +806,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCellSpacing(Value: Integer);
 begin
+  // Validate cell spacing (minimum 0 pixels)
+  if Value < 0 then Value := 0;
+  
   if (FCellSpacing <> Value) then
   begin
     // Set new cell spacing
@@ -817,7 +823,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetRows(Value: Integer);
 begin
-  if (FRows <> Value) and (Value >= 0) then
+  // Validate rows (minimum 1, maximum 1000 for reasonable memory usage)
+  if Value < 1 then Value := 1;
+  if Value > 1000 then Value := 1000;
+  
+  if (FRows <> Value) then
   begin
     // Set new row count
     FRows := Value;
@@ -833,7 +843,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SetCols(Value: Integer);
 begin
-  if (FCols <> Value) and (Value >= 0) then
+  // Validate columns (minimum 1, maximum 1000 for reasonable memory usage)
+  if Value < 1 then Value := 1;
+  if Value > 1000 then Value := 1000;
+  
+  if (FCols <> Value) then
   begin
     // Set new column count
     FCols := Value;

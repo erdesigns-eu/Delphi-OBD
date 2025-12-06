@@ -1906,7 +1906,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetStartAngle(Value: Single);
 begin
-  if (FStartAngle <> Value) and (Value >= MIN_START_ANGLE) and (Value <= MAX_START_ANGLE) then
+  // Validate and clamp angle to valid range
+  if Value < MIN_START_ANGLE then Value := MIN_START_ANGLE;
+  if Value > MAX_START_ANGLE then Value := MAX_START_ANGLE;
+  
+  if (FStartAngle <> Value) then
   begin
     // Set new start angle
     FStartAngle := Value;
@@ -1922,7 +1926,11 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetEndAngle(Value: Single);
 begin
-  if (FEndAngle <> Value) and (Value >= MIN_END_ANGLE) and (Value <= MAX_END_ANGLE) then
+  // Validate and clamp angle to valid range
+  if Value < MIN_END_ANGLE then Value := MIN_END_ANGLE;
+  if Value > MAX_END_ANGLE then Value := MAX_END_ANGLE;
+  
+  if (FEndAngle <> Value) then
   begin
     // Set new end angle
     FEndAngle := Value;
@@ -1938,10 +1946,16 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetMin(Value: Single);
 begin
-  if (FMin <> Value) and (Value <= FMax) then
+  // Ensure Min is not greater than Max
+  if Value > FMax then Value := FMax;
+  
+  if (FMin <> Value) then
   begin
     // Set new min
     FMin := Value;
+    // Clamp current value to new range
+    if FValue < FMin then
+      FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
@@ -1954,10 +1968,16 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SetMax(Value: Single);
 begin
-  if (FMax <> Value) and (Value >= FMin) then
+  // Ensure Max is not less than Min
+  if Value < FMin then Value := FMin;
+  
+  if (FMax <> Value) then
   begin
     // Set new max
     FMax := Value;
+    // Clamp current value to new range
+    if FValue > FMax then
+      FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
     // Invalidate buffer
