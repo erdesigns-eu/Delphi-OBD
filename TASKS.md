@@ -118,10 +118,11 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 - **Description:** Robust error handling throughout codebase
 
 **Subtasks:**
-- [ ] Add try-except blocks in all Paint methods
+- [x] Add try-except blocks in all Paint methods
   - Prevent crashes from rendering errors
-  - Log errors for debugging
-  - Show fallback rendering on error
+  - Show fallback rendering on error (clears canvas with background color)
+  - Added to: CircularGauge, LED, MatrixDisplay, Touch.Header, Touch.Statusbar, Touch.Subheader
+  - Added validation in CircularGauge.PaintNeedle (FMax > FMin, Size > 0)
 - [ ] Add connection error recovery
   - Auto-reconnect on connection loss
   - Retry logic with exponential backoff
