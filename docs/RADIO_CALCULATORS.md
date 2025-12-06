@@ -4,7 +4,132 @@ This document explains the radio code calculator implementations in the Delphi-O
 
 ## Overview
 
-The library includes **43 radio code calculators** covering major automotive brands. Each calculator implements manufacturer-specific algorithms to generate unlock codes from radio serial numbers.
+The library includes **43 radio code calculators** covering major automotive brands, plus **regional variant support** for handling country-specific algorithms, model year differences, and security updates. Each calculator implements manufacturer-specific algorithms to generate unlock codes from radio serial numbers.
+
+## Regional Variant System (NEW!)
+
+The library now includes a comprehensive variant management system for handling:
+
+### Geographic Regions
+- **North America** (USA, Canada, Mexico)
+- **Europe** (EU countries)
+- **Asia** (Japan, South Korea, China)
+- **Australia** (Australia, New Zealand)
+- **Middle East**
+- **South America**
+- **Africa**
+
+### Model Year Support
+Each variant can specify applicable year ranges (e.g., 1995-2005, 2006+)
+
+### Security Versions
+Tracks algorithm updates: V1 (original), V2, V3, V4, V5 (latest)
+
+### Regional Variant Calculators
+
+**Available Regional Implementations:**
+
+1. **OBD.RadioCode.Ford.Regional.pas** - Ford with 6 regional variants:
+   - Europe M-Series (1995-2005) - Original algorithm
+   - Europe V-Series (2006-2012) - Lookup table
+   - Europe Latest (2013+) - Enhanced security
+   - North America Classic (1995-2008)
+   - North America Modern (2009+) - VIN integration
+   - Australia (2000+)
+
+2. **OBD.RadioCode.Toyota.Regional.pas** - Toyota with 9 variants:
+   - Japan Fujitsu Ten (1995-2005, 2006-2012)
+   - Japan Panasonic (2000-2010)
+   - Japan Denso (2005+)
+   - North America Standard (2000-2010)
+   - North America JBL Premium (2005+)
+   - Europe Classic (1998-2008)
+   - Europe Modern (2009+)
+   - Australia (2000+)
+
+3. **OBD.RadioCode.VW.Regional.pas** - VW with 10 variants:
+   - Europe Gamma Series (1995-2000)
+   - Europe Beta Series (1998-2003)
+   - Europe Alpha Series (2000-2005) - Enhanced security
+   - Europe RCD Series (2003-2012, 2013+)
+   - Europe RNS Navigation (2005-2015, 2016+)
+   - North America Standard (2000-2010)
+   - North America Modern (2011+)
+   - China (2008+)
+
+4. **OBD.RadioCode.Honda.Regional.pas** - Honda with 9 variants:
+   - Japan Alpine (1995-2005, 2006+)
+   - Japan Panasonic (2000+)
+   - Japan Clarion (1998-2010)
+   - North America Alpine (1998-2008)
+   - North America Modern (2009+)
+   - Europe Classic (2000-2010)
+   - Europe Modern (2011+)
+   - Australia (2000+)
+
+### Using Regional Variants
+
+```delphi
+uses
+  OBD.RadioCode.Ford.Regional, OBD.RadioCode.Variants;
+
+var
+  Calculator: TOBDRadioCodeFordRegional;
+  Output, ErrorMsg: string;
+begin
+  Calculator := TOBDRadioCodeFordRegional.Create;
+  try
+    // Set variant by region and year
+    Calculator.SetVariant(rcrEurope, 2010);
+    
+    // Or set specific variant by ID
+    Calculator.SetVariant('FORD_EU_M');
+    
+    // Get current variant info
+    ShowMessage('Using: ' + Calculator.GetCurrentVariant.Description);
+    
+    // Calculate code
+    if Calculator.Calculate('M123456', Output, ErrorMsg) then
+      ShowMessage('Code: ' + Output);
+  finally
+    Calculator.Free;
+  end;
+end;
+```
+
+### Variant Auto-Selection
+
+The system automatically selects the best matching variant based on:
+1. **Region match** (highest priority, +100 points)
+2. **Year range** (medium priority, +50 points)
+3. **Radio model** (if provided, +75 points)
+4. **Default flag** (fallback, +5 points)
+
+### Listing Available Variants
+
+```delphi
+var
+  Calculator: TOBDRadioCodeToyotaRegional;
+  I: Integer;
+  Variant: TRadioCodeVariant;
+begin
+  Calculator := TOBDRadioCodeToyotaRegional.Create;
+  try
+    for I := 0 to Calculator.GetAvailableVariants.VariantCount - 1 do
+    begin
+      Variant := Calculator.GetAvailableVariants[I];
+      WriteLn(Format('%s: %s (%d-%d) - %s',
+        [Variant.VariantID,
+         Variant.Description,
+         Variant.YearRange.StartYear,
+         Variant.YearRange.EndYear,
+         RegionToString(Variant.Region)]));
+    end;
+  finally
+    Calculator.Free;
+  end;
+end;
+```
 
 ## Implementation Approaches
 
