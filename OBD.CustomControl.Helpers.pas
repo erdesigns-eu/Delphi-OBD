@@ -138,6 +138,20 @@ function CreateSkRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 
 implementation
 
+const
+  /// <summary>
+  ///   Skia font style width constant for normal width (used in TSkFontStyle.Create)
+  /// </summary>
+  SKIA_FONT_WIDTH_NORMAL = 5;
+  /// <summary>
+  ///   Skia font weight for normal text (400)
+  /// </summary>
+  SKIA_FONT_WEIGHT_NORMAL = 400;
+  /// <summary>
+  ///   Skia font weight for bold text (700)
+  /// </summary>
+  SKIA_FONT_WEIGHT_BOLD = 700;
+
 //------------------------------------------------------------------------------
 // GET APPROPRIATE COLOR (THEMED COLOR IF THEMES ENABLED)
 //------------------------------------------------------------------------------
@@ -189,15 +203,15 @@ var
   Weight: Integer;
   Slant: TSkFontSlant;
 begin
-  Weight := 400; // Normal weight
+  Weight := SKIA_FONT_WEIGHT_NORMAL;
   if fsBold in AFont.Style then
-    Weight := 700; // Bold weight
+    Weight := SKIA_FONT_WEIGHT_BOLD;
 
   Slant := TSkFontSlant.Upright;
   if fsItalic in AFont.Style then
     Slant := TSkFontSlant.Italic;
 
-  Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant)); // 5 = Normal width
+  Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, SKIA_FONT_WIDTH_NORMAL, Slant));
 end;
 
 //------------------------------------------------------------------------------
@@ -294,7 +308,7 @@ end;
 function CreateRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
 begin
   // Build a Skia round-rectangle using a reusable path builder
   PathBuilder := TSkPathBuilder.Create;
@@ -311,7 +325,7 @@ function CreateGlareRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   GlareRect: TRectF;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
 begin
   // Restrict the glare overlay to the upper half of the round-rectangle
   GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
@@ -320,7 +334,7 @@ begin
   PathBuilder.AddRoundRect(RoundRect);
   // Finalize the glare path for Skia drawing
   Result := PathBuilder.Detach;
-end;
+end.
 
 //------------------------------------------------------------------------------
 // BUILD SKIA BACK BUTTON PATH
