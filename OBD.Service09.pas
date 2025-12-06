@@ -467,7 +467,7 @@ type
     /// <summary>
     ///   Parse service response
     /// </summary>
-    procedure ParseResponse(Response: TBytes); override;
+    procedure ParseResponse(const Response: TBytes); override;
     /// <summary>
     ///   Is given PID supported?
     /// </summary>
@@ -791,7 +791,7 @@ end;
 //------------------------------------------------------------------------------
 // SERVICE 09: PARSE RESPONSE
 //------------------------------------------------------------------------------
-procedure TOBDService09.ParseResponse(Response: TBytes);
+procedure TOBDService09.ParseResponse(const Response: TBytes);
 var
   ServiceDecoder: IOBDServiceResponseDecoder;
   ErrorDecoder: IOBDResponseDecoder;

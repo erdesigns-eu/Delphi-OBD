@@ -729,7 +729,7 @@ end;
 //------------------------------------------------------------------------------
 function TOBDDataMessage.Equals(Msg: IOBDDataMessage): Boolean;
 
-  function CompareData(Data1, Data2: TBytes): Integer;
+  function CompareData(const Data1, Data2: TBytes): Integer;
   var
     I: Integer;
   begin

@@ -210,7 +210,7 @@ type
     /// <param name="s">
     ///   string to send
     /// </param>
-    function SendString(S: Ansistring): Boolean;
+    function SendString(const S: Ansistring): Boolean;
     /// <summary>
     //    Sends a C-style Ansi string (NULL terminated)
     /// </summary>

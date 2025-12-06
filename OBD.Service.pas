@@ -33,7 +33,7 @@ type
     /// <summary>
     ///   Parse service response
     /// </summary>
-    procedure ParseResponse(Response: TBytes);
+    procedure ParseResponse(const Response: TBytes);
   end;
 
 //------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ type
     /// <summary>
     ///   Parse service response
     /// </summary>
-    procedure ParseResponse(Response: TBytes); virtual; abstract;
+    procedure ParseResponse(const Response: TBytes); virtual; abstract;
 
     /// <summary>
     ///   Error response event

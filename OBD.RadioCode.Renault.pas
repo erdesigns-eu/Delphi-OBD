@@ -138,8 +138,12 @@ begin
   if not Self.Validate(Input, ErrorMessage) then Exit(False);
 
   // Calculate the code
-  X := Ord(Input[2]) + (Ord(Input[1])) * 10 - 698;
-  Y := Ord(Input[4]) + (Ord(Input[3])) * 10 + X - 528;
+  // Note: Convert char to digit value (Ord('0') = 48, so subtract 48 or use StrToInt)
+  X := StrToInt(Input[2]) + (Ord(UpperCase(Input[1])[1]) - Ord('A')) * 10 + 10;
+  // Prevent division by zero
+  if X = 0 then X := 1;
+  
+  Y := StrToInt(Input[4]) + StrToInt(Input[3]) * 10 + X;
   Z := (Y * 7) mod 100;
   C := (Z div 10) + (Z mod 10) * 10 + ((259 mod X) mod 100) * 100;
 
