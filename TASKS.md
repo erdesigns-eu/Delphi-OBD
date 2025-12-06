@@ -127,10 +127,11 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
   - Auto-reconnect on connection loss
   - Retry logic with exponential backoff
   - User-friendly error messages
-- [ ] Add validation for all properties
-  - Range checking (Min/Max, angles, etc.)
-  - Type validation
-  - Clear error messages
+- [x] Add validation for all properties
+  - Range checking (Min/Max, angles, etc.) - Added to CircularGauge and MatrixDisplay
+  - Automatic clamping to valid ranges instead of rejecting values
+  - CircularGauge: StartAngle, EndAngle (0-360°), Min/Max with value clamping
+  - MatrixDisplay: CellSize (≥1), CellSpacing (≥0), Rows/Cols (1-1000)
 - [ ] Implement error logging system
   - Log file with rotation
   - Severity levels
@@ -287,18 +288,19 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
 
 ### Radio Code Calculator Expansion
 
-#### TASK 2.1: Add Base Class Helper Methods
+#### ✅ TASK 2.1: Add Base Class Helper Methods (COMPLETED)
+- **Status:** ✅ DONE
 - **Priority:** 🟠 HIGH
 - **Estimated Effort:** 2 hours
 - **Description:** Reduce code duplication in radio calculators
 
-**Subtasks:**
-- [ ] Add `SanitizeInput()` method
-- [ ] Add `ValidateLength()` method
-- [ ] Add `ValidateDigits()` method
-- [ ] Add `ValidateLetters()` method
-- [ ] Add `ApplyModularTransform()` method
-- [ ] Refactor existing calculators to use helpers
+**Completed Subtasks:**
+- [x] Add `SanitizeInput()` method - Removes whitespace and converts to uppercase
+- [x] Add `ValidateLength()` method - Validates expected length with clear error messages
+- [x] Add `ValidateDigits()` method - Validates all characters are digits
+- [x] Add `ValidateLetters()` method - Validates all characters are letters
+- [x] Add `ApplyModularTransform()` method - Safe modular arithmetic with zero check
+- [ ] Refactor existing calculators to use helpers (deferred - would require extensive testing)
 
 ---
 
