@@ -186,18 +186,18 @@ end;
 //------------------------------------------------------------------------------
 function CreateSkTypeface(const AFont: TFont): ISkTypeface;
 var
-  Weight: TSkFontStyleWeight;
-  Slant: TSkFontStyleSlant;
+  Weight: Integer;
+  Slant: TSkFontSlant;
 begin
-  Weight := TSkFontStyleWeight.Normal;
+  Weight := 400; // Normal weight
   if fsBold in AFont.Style then
-    Weight := TSkFontStyleWeight.Bold;
+    Weight := 700; // Bold weight
 
-  Slant := TSkFontStyleSlant.Upright;
+  Slant := TSkFontSlant.Upright;
   if fsItalic in AFont.Style then
-    Slant := TSkFontStyleSlant.Italic;
+    Slant := TSkFontSlant.Italic;
 
-  Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
+  Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant)); // 5 = Normal width
 end;
 
 //------------------------------------------------------------------------------
@@ -217,16 +217,18 @@ var
   TextPaint: ISkPaint;
   TextFont: ISkFont;
   Metrics: TSkFontMetrics;
+  Bounds: TRectF;
 begin
   TextPaint := TSkPaint.Create;
   TextPaint.AntiAlias := True;
   TextPaint.Style := TSkPaintStyle.Fill;
-  TextPaint.TextAlign := ATextAlign;
 
   TextFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
   Metrics := TextFont.Metrics;
 
-  Result := TSizeF.Create(TextFont.MeasureText(Text, TextPaint), Metrics.Descent - Metrics.Ascent);
+  // Measure text width using MeasureText method
+  TextFont.MeasureText(Text, Bounds, TextPaint);
+  Result := TSizeF.Create(Bounds.Width, Metrics.Descent - Metrics.Ascent);
 end;
 
 //------------------------------------------------------------------------------
@@ -258,23 +260,26 @@ var
   SkFont: ISkFont;
   Metrics: TSkFontMetrics;
   TextHeight: Single;
+  TextBounds: TRectF;
   X, Y: Single;
 begin
   Paint := TSkPaint.Create;
   Paint.AntiAlias := True;
   Paint.Style := TSkPaintStyle.Fill;
-  Paint.TextAlign := Align;
   Paint.Color := SafeColorRefToSkColor(Color);
 
   SkFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
   Metrics := SkFont.Metrics;
   TextHeight := Metrics.Descent - Metrics.Ascent;
 
+  // Measure text to calculate alignment
+  SkFont.MeasureText(Text, TextBounds, Paint);
+
   case Align of
     TSkTextAlign.Center:
-      X := Rect.Left + (Rect.Width / 2);
+      X := Rect.Left + (Rect.Width - TextBounds.Width) / 2;
     TSkTextAlign.Right:
-      X := Rect.Right;
+      X := Rect.Right - TextBounds.Width;
   else
     X := Rect.Left;
   end;
@@ -384,17 +389,17 @@ end;
 function CreateTabLeftPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the left corners while keeping the right edge straight
   RoundRect := TSkRoundRect.Create;
-  RoundRect.SetRectRadii(Rect, [
-    PointF(Corner, Corner), // Top-left
-    PointF(0, 0),           // Top-right
-    PointF(0, 0),           // Bottom-right
-    PointF(Corner, Corner)  // Bottom-left
-  ]);
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(Corner, Corner);
+  RoundRect.SetRectRadii(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -406,18 +411,18 @@ function CreateGlareTabLeftPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
   GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
   RoundRect := TSkRoundRect.Create;
-  RoundRect.SetRectRadii(GlareRect, [
-    PointF(Corner, Corner), // Top-left
-    PointF(0, 0),           // Top-right
-    PointF(0, 0),           // Bottom-right
-    PointF(Corner, Corner)  // Bottom-left
-  ]);
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(Corner, Corner);
+  RoundRect.SetRectRadii(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -454,17 +459,17 @@ end;
 function CreateTabRightPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the right corners while keeping the left edge straight
   RoundRect := TSkRoundRect.Create;
-  RoundRect.SetRectRadii(Rect, [
-    PointF(0, 0),           // Top-left
-    PointF(Corner, Corner), // Top-right
-    PointF(Corner, Corner), // Bottom-right
-    PointF(0, 0)            // Bottom-left
-  ]);
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(0, 0);
+  RoundRect.SetRectRadii(Rect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -476,18 +481,18 @@ function CreateGlareTabRightPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
-  RoundRect: TSkRoundRect;
+  RoundRect: ISkRoundRect;
+  Radii: TSkRoundRectRadii;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
   GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
   RoundRect := TSkRoundRect.Create;
-  RoundRect.SetRectRadii(GlareRect, [
-    PointF(0, 0),           // Top-left
-    PointF(Corner, Corner), // Top-right
-    PointF(Corner, Corner), // Bottom-right
-    PointF(0, 0)            // Bottom-left
-  ]);
+  Radii[TSkRoundRectCorner.UpperLeft] := PointF(0, 0);
+  Radii[TSkRoundRectCorner.UpperRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerRight] := PointF(Corner, Corner);
+  Radii[TSkRoundRectCorner.LowerLeft] := PointF(0, 0);
+  RoundRect.SetRectRadii(GlareRect, Radii);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -770,19 +775,19 @@ end;
 //------------------------------------------------------------------------------
 function CreateInternetGlobePath(const Rect: TRectF): ISkPath;
 var
-  H1: Integer;
-  H2: Integer;
+  H1: Single;
+  H2: Single;
   PathBuilder: ISkPathBuilder;
-  W1: Integer;
-  W2: Integer;
+  W1: Single;
+  W2: Single;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Draw the outer circle as the globe boundary
   PathBuilder.AddOval(Rect);
 
   // Two vertical lines dividing the globe
-  W1 := Rect.Left + (Rect.Width div 4);
-  W2 := Rect.Left + ((Rect.Width div 4) * 3);
+  W1 := Rect.Left + (Rect.Width / 4);
+  W2 := Rect.Left + ((Rect.Width / 4) * 3);
 
   PathBuilder.MoveTo(W1, Rect.Top);
   PathBuilder.LineTo(W1, Rect.Top + Rect.Height);
@@ -791,8 +796,8 @@ begin
   PathBuilder.LineTo(W2, Rect.Top + Rect.Height);
 
   // Two horizontal lines dividing the globe
-  H1 := Rect.Top + (Rect.Height div 3);
-  H2 := Rect.Top + ((Rect.Height div 3) * 2);
+  H1 := Rect.Top + (Rect.Height / 3);
+  H2 := Rect.Top + ((Rect.Height / 3) * 2);
 
   PathBuilder.MoveTo(Rect.Left, H1);
   PathBuilder.LineTo(Rect.Left + Rect.Width, H1);
@@ -809,19 +814,19 @@ end;
 function CreateProtocolPath(const Rect: TRectF): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
-  StrokeDistance: Integer;
-  X1: Integer;
-  X2: Integer;
-  Y1: Integer;
-  Y2: Integer;
+  StrokeDistance: Single;
+  X1: Single;
+  X2: Single;
+  Y1: Single;
+  Y2: Single;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Determine the diagonal stroke positions relative to the rectangle
-  StrokeDistance := Round(Rect.Height / 4);
-  X1 := Round(Rect.Left + StrokeDistance);
-  Y1 := Round(Rect.Top + StrokeDistance);
-  X2 := Round((Rect.Left + Rect.Width) - StrokeDistance);
-  Y2 := Round((Rect.Top + Rect.Height) - StrokeDistance);
+  StrokeDistance := Rect.Height / 4;
+  X1 := Rect.Left + StrokeDistance;
+  Y1 := Rect.Top + StrokeDistance;
+  X2 := (Rect.Left + Rect.Width) - StrokeDistance;
+  Y2 := (Rect.Top + Rect.Height) - StrokeDistance;
 
   // Bottom-left stroke
   PathBuilder.MoveTo(Rect.Left, Y1);
