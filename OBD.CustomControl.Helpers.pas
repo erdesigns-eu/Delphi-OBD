@@ -290,12 +290,10 @@ function CreateRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
 begin
   // Build a Skia round-rectangle using a reusable path builder
   PathBuilder := TSkPathBuilder.Create;
-  SkRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
-  RoundRect := TSkRoundRect.Create(SkRect, Corner, Corner);
+  RoundRect := TSkRoundRect.Create(Rect, Corner, Corner);
   PathBuilder.AddRoundRect(RoundRect);
   // Export the immutable Skia path for the caller
   Result := PathBuilder.Detach;
@@ -307,11 +305,11 @@ end;
 function CreateGlareRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
-  GlareRect: TSkRect;
+  GlareRect: TRectF;
   RoundRect: TSkRoundRect;
 begin
   // Restrict the glare overlay to the upper half of the round-rectangle
-  GlareRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
+  GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
   PathBuilder := TSkPathBuilder.Create;
   RoundRect := TSkRoundRect.Create(GlareRect, Corner, Corner);
   PathBuilder.AddRoundRect(RoundRect);
@@ -327,12 +325,12 @@ var
   ArrowRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
+  BodyRect: TRectF;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Main round-rectangle body using half-width to keep the arrow head crisp
-  SkRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Left + (Rect.Width / 2), Rect.Bottom);
-  RoundRect := TSkRoundRect.Create(SkRect, Corner, Corner);
+  BodyRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Left + (Rect.Width / 2), Rect.Bottom);
+  RoundRect := TSkRoundRect.Create(BodyRect, Corner, Corner);
   PathBuilder.AddRoundRect(RoundRect);
 
   // Arrow overlay centered vertically on the right half
@@ -356,13 +354,13 @@ end;
 function CreateGlareBackButtonPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   ArrowRect: TRectF;
-  GlareRect: TSkRect;
+  GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare only spans the top half of the button body
-  GlareRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Left + (Rect.Width / 2), Rect.Top + (Rect.Height / 2));
+  GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Left + (Rect.Width / 2), Rect.Top + (Rect.Height / 2));
   RoundRect := TSkRoundRect.Create(GlareRect, Corner, Corner);
   PathBuilder.AddRoundRect(RoundRect);
 
@@ -387,12 +385,16 @@ function CreateTabLeftPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the left corners while keeping the right edge straight
-  SkRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
-  RoundRect := TSkRoundRect.Create(SkRect, Corner, Corner, 0, 0, Corner, Corner, 0, 0);
+  RoundRect := TSkRoundRect.Create;
+  RoundRect.SetRectRadii(Rect, [
+    PointF(Corner, Corner), // Top-left
+    PointF(0, 0),           // Top-right
+    PointF(0, 0),           // Bottom-right
+    PointF(Corner, Corner)  // Bottom-left
+  ]);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -402,14 +404,20 @@ end;
 //------------------------------------------------------------------------------
 function CreateGlareTabLeftPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
-  GlareRect: TSkRect;
+  GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
-  GlareRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
-  RoundRect := TSkRoundRect.Create(GlareRect, Corner, Corner, 0, 0, Corner, Corner, 0, 0);
+  GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
+  RoundRect := TSkRoundRect.Create;
+  RoundRect.SetRectRadii(GlareRect, [
+    PointF(Corner, Corner), // Top-left
+    PointF(0, 0),           // Top-right
+    PointF(0, 0),           // Bottom-right
+    PointF(Corner, Corner)  // Bottom-left
+  ]);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -423,7 +431,7 @@ var
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Center tab is a simple rectangle with squared edges
-  PathBuilder.AddRect(TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom));
+  PathBuilder.AddRect(Rect);
   Result := PathBuilder.Detach;
 end;
 
@@ -436,7 +444,7 @@ var
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare runs across the top half of the center tab
-  PathBuilder.AddRect(TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2)));
+  PathBuilder.AddRect(TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2)));
   Result := PathBuilder.Detach;
 end;
 
@@ -447,12 +455,16 @@ function CreateTabRightPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Round only the right corners while keeping the left edge straight
-  SkRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
-  RoundRect := TSkRoundRect.Create(SkRect, 0, 0, Corner, Corner, 0, 0, Corner, Corner);
+  RoundRect := TSkRoundRect.Create;
+  RoundRect.SetRectRadii(Rect, [
+    PointF(0, 0),           // Top-left
+    PointF(Corner, Corner), // Top-right
+    PointF(Corner, Corner), // Bottom-right
+    PointF(0, 0)            // Bottom-left
+  ]);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -462,14 +474,20 @@ end;
 //------------------------------------------------------------------------------
 function CreateGlareTabRightPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
-  GlareRect: TSkRect;
+  GlareRect: TRectF;
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Glare region only covers the upper half of the tab
-  GlareRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
-  RoundRect := TSkRoundRect.Create(GlareRect, 0, 0, Corner, Corner, 0, 0, Corner, Corner);
+  GlareRect := TRectF.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Top + (Rect.Height / 2));
+  RoundRect := TSkRoundRect.Create;
+  RoundRect.SetRectRadii(GlareRect, [
+    PointF(0, 0),           // Top-left
+    PointF(Corner, Corner), // Top-right
+    PointF(Corner, Corner), // Bottom-right
+    PointF(0, 0)            // Bottom-left
+  ]);
   PathBuilder.AddRoundRect(RoundRect);
   Result := PathBuilder.Detach;
 end;
@@ -483,7 +501,7 @@ var
   H, W, X, Y, BW, BH: Single;
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
+  BodyRect: TRectF;
 begin
   // Calculate the dimensions of the battery housing
   W := Rect.Width * 0.9;
@@ -498,13 +516,13 @@ begin
   PathBuilder := TSkPathBuilder.Create;
 
   // Main battery body
-  SkRect := TSkRect.Create(X, Y, X + W, Y + H);
-  RoundRect := TSkRoundRect.Create(SkRect, Corner, Corner);
+  BodyRect := TRectF.Create(X, Y, X + W, Y + H);
+  RoundRect := TSkRoundRect.Create(BodyRect, Corner, Corner);
   PathBuilder.AddRoundRect(RoundRect);
 
   // Battery post
   BatteryTopRect := TRectF.Create(X + W, Y + (BH / 2), X + W + BW, Y + (BH / 2) + BH);
-  PathBuilder.AddRect(TSkRect.Create(BatteryTopRect.Left, BatteryTopRect.Top, BatteryTopRect.Right, BatteryTopRect.Bottom));
+  PathBuilder.AddRect(BatteryTopRect);
 
   Result := PathBuilder.Detach;
 end;
@@ -533,7 +551,7 @@ begin
   );
 
   PathBuilder := TSkPathBuilder.Create;
-  PathBuilder.AddRect(TSkRect.Create(BatterypercentageRect.Left, BatterypercentageRect.Top, BatterypercentageRect.Right, BatterypercentageRect.Bottom));
+  PathBuilder.AddRect(BatterypercentageRect);
   Result := PathBuilder.Detach;
 end;
 
@@ -561,7 +579,7 @@ begin
   );
 
   PathBuilder := TSkPathBuilder.Create;
-  PathBuilder.AddRect(TSkRect.Create(BatterypercentageRect.Left, BatterypercentageRect.Top, BatterypercentageRect.Right, BatterypercentageRect.Bottom));
+  PathBuilder.AddRect(BatterypercentageRect);
   Result := PathBuilder.Detach;
 end;
 
@@ -711,12 +729,12 @@ begin
 
   for I := 0 to 4 do
   begin
-    PathBuilder.AddRect(TSkRect.Create(LinePoints[I].X - 2, LinePoints[I].Y - 2, LinePoints[I].X + 2, LinePoints[I].Y + 2));
+    PathBuilder.AddRect(TRectF.Create(LinePoints[I].X - 2, LinePoints[I].Y - 2, LinePoints[I].X + 2, LinePoints[I].Y + 2));
   end;
 
   for I := 5 to 9 do
   begin
-    PathBuilder.AddRect(TSkRect.Create(LinePoints[I].X - 2, LinePoints[I].Y + 4, LinePoints[I].X + 2, LinePoints[I].Y + 8));
+    PathBuilder.AddRect(TRectF.Create(LinePoints[I].X - 2, LinePoints[I].Y + 4, LinePoints[I].X + 2, LinePoints[I].Y + 8));
   end;
 
   // Create the bottom holes
@@ -729,12 +747,12 @@ begin
 
   for I := 0 to 3 do
   begin
-    PathBuilder.AddRect(TSkRect.Create(LinePoints[I].X - 2, LinePoints[I].Y - 2, LinePoints[I].X + 2, LinePoints[I].Y + 2));
+    PathBuilder.AddRect(TRectF.Create(LinePoints[I].X - 2, LinePoints[I].Y - 2, LinePoints[I].X + 2, LinePoints[I].Y + 2));
   end;
 
   for I := 4 to 6 do
   begin
-    PathBuilder.AddRect(TSkRect.Create(LinePoints[I].X - 2, LinePoints[I].Y + 4, LinePoints[I].X + 2, LinePoints[I].Y + 8));
+    PathBuilder.AddRect(TRectF.Create(LinePoints[I].X - 2, LinePoints[I].Y + 4, LinePoints[I].X + 2, LinePoints[I].Y + 8));
   end;
 
   // Center post
@@ -742,7 +760,7 @@ begin
   PostRect.Left := Rect.Left + (Rect.Width / 2) - 2;
   PostRect.Right := PostRect.Left + 4;
   PostRect.Top := PostRect.Top + (Rect.Height / 4);
-  PathBuilder.AddRect(TSkRect.Create(PostRect.Left, PostRect.Top, PostRect.Right, PostRect.Bottom));
+  PathBuilder.AddRect(PostRect);
 
   Result := PathBuilder.Detach;
 end;
@@ -752,7 +770,6 @@ end;
 //------------------------------------------------------------------------------
 function CreateInternetGlobePath(const Rect: TRectF): ISkPath;
 var
-  Circle: TSkRect;
   H1: Integer;
   H2: Integer;
   PathBuilder: ISkPathBuilder;
@@ -761,8 +778,7 @@ var
 begin
   PathBuilder := TSkPathBuilder.Create;
   // Draw the outer circle as the globe boundary
-  Circle := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
-  PathBuilder.AddOval(Circle);
+  PathBuilder.AddOval(Rect);
 
   // Two vertical lines dividing the globe
   W1 := Rect.Left + (Rect.Width div 4);
@@ -859,7 +875,7 @@ begin
     PosX := StartX + (2 - J) * (DotSize + DotSpacing);
     PosY := StartY + I * (DotSize + DotSpacing);
 
-    PathBuilder.AddRect(TSkRect.Create(PosX, PosY, PosX + DotSize, PosY + DotSize));
+    PathBuilder.AddRect(TRectF.Create(PosX, PosY, PosX + DotSize, PosY + DotSize));
   end;
 
   Result := PathBuilder.Detach;
@@ -894,7 +910,7 @@ begin
     PosX := StartX + (2 - J) * (DotSize + DotSpacing);
     PosY := StartY + I * (DotSize + DotSpacing);
 
-    PathBuilder.AddOval(TSkRect.Create(PosX, PosY, PosX + DotSize, PosY + DotSize));
+    PathBuilder.AddOval(TRectF.Create(PosX, PosY, PosX + DotSize, PosY + DotSize));
   end;
 
   Result := PathBuilder.Detach;
@@ -907,14 +923,11 @@ function CreateSkRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 var
   PathBuilder: ISkPathBuilder;
   RoundRect: TSkRoundRect;
-  SkRect: TSkRect;
 begin
   // Initialize the Skia path builder so path creation remains thread-safe and allocation-light
   PathBuilder := TSkPathBuilder.Create;
-  // Convert the incoming rectangle into a Skia rectangle structure
-  SkRect := TSkRect.Create(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
   // Prepare the round-rectangle descriptor with uniform corner radii
-  RoundRect := TSkRoundRect.Create(SkRect, Corner, Corner);
+  RoundRect := TSkRoundRect.Create(Rect, Corner, Corner);
   // Add the round-rectangle to the builder
   PathBuilder.AddRoundRect(RoundRect);
   // Detach produces an immutable path instance that can be shared across threads safely
