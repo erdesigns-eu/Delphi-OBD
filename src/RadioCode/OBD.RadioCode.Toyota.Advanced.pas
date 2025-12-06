@@ -190,7 +190,7 @@ begin
   // Note: Full production lookup tables would be loaded from external database files
 
   // Panasonic Lookup Table - 200 comprehensive entries
-  FPanasonicLookup.Add('20000', '0');
+  FPanasonicLookup.Add('20000', '0000');
   FPanasonicLookup.Add('20001', '0010');
   FPanasonicLookup.Add('20002', '0020');
   // ... continues to 200 entries

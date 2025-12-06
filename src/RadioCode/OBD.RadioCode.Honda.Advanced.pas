@@ -179,7 +179,7 @@ begin
     if TryStrToInt(Serial[I], Digit) then
       Sum := Sum + (Digit * (I - 1));
   end;
-  Result := IntToStr(Sum mod 10000).PadLeft(5, '0');
+  Result := IntToStr(Sum mod 100000).PadLeft(5, '0');
 end;
 
 function TOBDRadioCodeHondaAdvanced.CalculateAlpineEnhanced(const Serial: string): string;
