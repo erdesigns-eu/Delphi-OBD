@@ -13,7 +13,7 @@ unit OBD.Connection.FTDI;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.SyncObjs,
 
   OBD.Connection,
   OBD.Connection.Types,
@@ -94,6 +94,10 @@ type
     ///   Event to emit when an error occurs
     /// </summary>
     FOnError: TErrorEvent;
+    /// <summary>
+    ///   Monitor object guarding concurrent send operations.
+    /// </summary>
+    FSendLock: TObject;
     /// <summary>
     ///   Input Buffer
     /// </summary>
@@ -526,6 +530,8 @@ constructor TFTDI.Create;
 begin
   // Call inherited constructor
   inherited Create;
+  // Allocate send monitor to guard concurrent write operations
+  FSendLock := TObject.Create;
   // Initialize Handle with an invalid handle value (Disconnected)
   FFTDIHandle := INVALID_HANDLE_VALUE;
   // Allocate a Window HANDLE to catch the FTDI Thread Notification Messages (WM_FTDI_RX_CHAR, WM_FTDI_MODEM_STATUS)
@@ -543,6 +549,8 @@ destructor TFTDI.Destroy;
 begin
   // Ensure connection is closed and resources are released
   Disconnect;
+  // Release the send monitor
+  FreeAndNil(FSendLock);
   // Release the thread's Window HANDLE
   DeallocateHWnd(FNotifyWnd);
   // Close the event handle (necessary for cleanup)
@@ -666,23 +674,48 @@ end;
 //------------------------------------------------------------------------------
 function TFTDI.SendData(DataPtr: Pointer; DataSize: Cardinal): Cardinal;
 var
+  Remaining: Cardinal;
+  CurrentPtr: PByte;
   BytesWritten: DWORD;
+  WriteStatus: FT_Result;
+  HadFailure: Boolean;
 begin
   Result := 0;
   // Exit here when we're not connected
   if not Connected then Exit;
+  // Exit immediately on empty payloads
+  if DataSize = 0 then Exit;
   // Send data
-  if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
-  if (FT_Write(FFTDIHandle, DataPtr, DataSize, @BytesWritten) = FT_OK) then
-  begin
-    Result := BytesWritten;
-    if (BytesWritten <> DataSize) then
+  TMonitor.Enter(FSendLock);
+  try
+    HadFailure := False;
+    if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
+    Remaining := DataSize;
+    CurrentPtr := DataPtr;
+    while Remaining > 0 do
     begin
-      // TODO: Implement better error handling
-      // Not all bytes are written - handle error/exception
-      if Assigned(OnError) then OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [BytesWritten, DataSize]));
+      WriteStatus := FT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
+      if WriteStatus <> FT_OK then
+      begin
+        if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));
+        HadFailure := True;
+        Break;
+      end;
+      Inc(Result, BytesWritten);
+      if BytesWritten = 0 then
+      begin
+        if Assigned(OnError) then OnError(Self, WriteStatus, Format('Write stalled after %d of %d bytes were sent', [Result, DataSize]));
+        HadFailure := True;
+        Break;
+      end;
+      Dec(Remaining, BytesWritten);
+      Inc(CurrentPtr, BytesWritten);
     end;
+  finally
+    TMonitor.Exit(FSendLock);
   end;
+  if (Result <> DataSize) and (not HadFailure) and Assigned(OnError) then
+    OnError(Self, 0, Format('Written bytes differs from DataSize: (%d bytes) - (%d bytes)', [Result, DataSize]));
 end;
 
 //------------------------------------------------------------------------------
@@ -761,7 +794,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
+  InvokeDataReceived(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -769,7 +802,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
+  InvokeDataSend(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -777,7 +810,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TFTDIOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
 begin
-  if Assigned(OnError) then OnError(Self, ErrorCode, ErrorMessage);
+  InvokeError(ErrorCode, ErrorMessage);
 end;
 
 //------------------------------------------------------------------------------
@@ -785,14 +818,19 @@ end;
 //------------------------------------------------------------------------------
 function TFTDIOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  Result := Connected;
-  // Exit here is we're already connected
-  if Result then Exit;
-  // Exit here if the connection type is incorrect
-  if Params.ConnectionType <> ctFTDI then Exit;
-  // Connect to the FTDI port
-  FFTDI.BaudRate := Params.FTDIBaudRate;
-  Result := FFTDI.Connect(Params.SerialNumber);
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := Connected;
+    // Exit here is we're already connected
+    if Result then Exit;
+    // Exit here if the connection type is incorrect
+    if Params.ConnectionType <> ctFTDI then Exit;
+    // Connect to the FTDI port
+    FFTDI.BaudRate := Params.FTDIBaudRate;
+    Result := FFTDI.Connect(Params.SerialNumber);
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -800,11 +838,16 @@ end;
 //------------------------------------------------------------------------------
 function TFTDIOBDConnection.Disconnect: Boolean;
 begin
-  Result := Connected;
-  if Result then
-  begin
-    FFTDI.Disconnect;
+  TMonitor.Enter(FConnectionLock);
+  try
     Result := Connected;
+    if Result then
+    begin
+      FFTDI.Disconnect;
+      Result := Connected;
+    end;
+  finally
+    TMonitor.Exit(FConnectionLock);
   end;
 end;
 

@@ -13,7 +13,7 @@ unit OBD.Connection.Serial;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.SyncObjs,
 
   OBD.Connection,
   OBD.Connection.Types,
@@ -114,10 +114,6 @@ type
     /// </summary>
     FCkLineStatus: Boolean;
     /// <summary>
-    ///   This is used for the timer
-    /// </summary>
-    FNotifyWnd: HWND;
-    /// <summary>
     ///   Temporary buffer (RX) - used internally
     /// </summary>
     FTempInBuffer: Pointer;
@@ -130,11 +126,13 @@ type
     /// </summary>
     FRXPollingPauses: Integer;
     /// <summary>
-    ///   Flag used to guard against nested timer events which can be caused
-    ///   if somebody calls something in such an event which queries/polls
-    ///   Windows messages, like a call to MessageDlg.
+    ///   Event used to cooperatively stop the polling worker thread
     /// </summary>
-    FIsInOnTimer: Boolean;
+    FPollingStopEvent: TEvent;
+    /// <summary>
+    ///   Background thread that performs COM port polling without UI timers
+    /// </summary>
+    FPollingThread: TThread;
 
     /// <summary>
     ///   Sets the COM port handle
@@ -234,10 +232,21 @@ type
     ///   Sets the delay between polling checks
     /// </summary>
     /// <param name="Value">
-    ///   New polling interval in ms. Be aware that accurancy is a bit limited
-    ///   because of the use of the standard Windows timer.
+    ///   New polling interval in ms used by the background polling thread.
     /// </param>
     procedure SetPollingDelay(Value: Word);
+    /// <summary>
+    ///   Starts the dedicated polling worker thread when a port handle is available
+    /// </summary>
+    procedure StartPollingWorker;
+    /// <summary>
+    ///   Stops the dedicated polling worker thread and waits for shutdown
+    /// </summary>
+    procedure StopPollingWorker;
+    /// <summary>
+    ///   Executes a single polling pass to read data and packets from the COM port
+    /// </summary>
+    procedure PollSerialPort;
     /// <summary>
     ///   Applies current settings like baudrate and flow control to the open COM port
     /// </summary>
@@ -245,11 +254,6 @@ type
     ///   false if WInAPI call to activate these features failed.
     /// </returns>
     function ApplyCOMSettings: Boolean;
-    /// <summary>
-    ///   Polling proc: fetches received data from the port and calls the
-    ///   apropriate receive callbacks if necessary
-    /// </summary>
-    procedure TimerWndProc(var msg: TMessage);
   public
     /// <summary>
     ///   Constructor
@@ -670,8 +674,8 @@ begin
   // without closing in
   if Value = RELEASE_NOCLOSE_PORT then
   begin
-    // Stop the timer
-    if Connected then KillTimer(FNotifyWnd, 1);
+    // Stop the polling worker
+    if Connected then StopPollingWorker;
     // No more connected
     FHandle := INVALID_HANDLE_VALUE;
   end else
@@ -682,8 +686,8 @@ begin
     if Value = INVALID_HANDLE_VALUE then Exit;
     // Set COM port handle
     FHandle := Value;
-    // Start the timer (used for polling)
-    SetTimer(FNotifyWnd, 1, FPollingDelay, nil);
+    // Start the polling worker
+    StartPollingWorker;
   end;
 end;
 
@@ -833,12 +837,12 @@ begin
   // Only update if the new delay is not the same
   if Value <> FPollingDelay then
   begin
-    // Stop the timer
-    if Connected then KillTimer(FNotifyWnd, 1);
+    // Stop the polling worker
+    if Connected then StopPollingWorker;
     // Store new delay value
     FPollingDelay := Value;
-    // Restart the timer
-    if Connected then SetTimer(FNotifyWnd, 1, FPollingDelay, nil);
+    // Restart the polling worker
+    if Connected then StartPollingWorker;
     // Adjust the packet timeout
     SetPacketTimeout(FPacketTimeout);
   end;
@@ -912,90 +916,118 @@ end;
 //------------------------------------------------------------------------------
 // COM PORT POLLING PROC
 //------------------------------------------------------------------------------
-procedure TSerialPort.TimerWndProc(var Msg: TMessage);
+procedure TSerialPort.PollSerialPort;
 var
   BytesRead, BytesToRead, BytesToReadBuf, Dummy: DWORD;
   ComStat: TComStat;
-  S: string;
 begin
-  if (Msg.Msg = WM_TIMER) and Connected and (not FIsInOnTimer) then
+  if (not Connected) or (FRXPollingPauses > 0) then
+    Exit;
+
+  // Clear COMM Errors before we proceed
+  ClearCommError(FHandle, Dummy, @ComStat);
+  // If PacketSize is > 0 then emit the OnReceiveData event only if the RX
+  // buffer has at least PacketSize bytes in it.
+  if FPacketSize > 0 then
   begin
-    try
-      // Set flag to indicate that we are already in the OnTimer PROC.
-      FIsInOnTimer := True;
-      // Exit when RX polling has been paused
-      if FRXPollingPauses > 0 then Exit;
-      // Clear COMM Errors before we proceed
-      ClearCommError(FHandle, Dummy, @ComStat);
-      // If PacketSize is > 0 then emit the OnReceiveData event only if the RX
-      // buffer has at least PacketSize bytes in it.
-      if FPacketSize > 0 then
-      begin
-        // Ensure we received a complete packet
-        if DWORD(ComStat.cbInQue) >= DWORD(FPacketSize) then
-        begin
-          repeat
-            BytesRead := 0;
-            // Read Bytes
-            if ReadFile(FHandle, FTempInBuffer^, FPacketSize, BytesRead, nil) then
-            // Emit event
-            if (BytesRead <> 0) and Assigned(FOnReceivePacket) then FOnReceivePacket(Self, FTempInBuffer, BytesRead);
-            // Adjust time
-            FFirstByteOfPacketTime := FFirstByteOfPacketTime + DelayForRX(FPacketSize);
-            // Update IN QUE size
-            ComStat.cbInQue := ComStat.cbInQue - WORD(FPacketSize);
-            // Update first byte of packet
-            if ComStat.cbInQue = 0 then FFirstByteOfPacketTime := DWORD(-1);
-          until DWORD(comStat.cbInQue) < DWORD(FPacketSize);
-          // Done!
-          Exit;
-        end;
-
-        // Handle packet timeouts
-        if (FPacketTimeout > 0) and (FFirstByteOfPacketTime <> DWORD(-1)) and (GetTickCount - FFirstByteOfPacketTime > DWORD(FPacketTimeout)) then
-        begin
-          BytesRead := 0;
-          // Read the "incomplete" packet
-          if ReadFile(FHandle, FTempInBuffer^, comStat.cbInQue, BytesRead, nil) then
-          // If PacketMode is not pmDiscard then emit the packet
-          if (FPacketMode <> pmDiscard) and (BytesRead <> 0) and Assigned(FOnReceivePacket) then FOnReceivePacket(Self, FTempInBuffer, BytesRead);
-          // Restart waiting for a packet
-          FFirstByteOfPacketTime := DWORD(-1);
-          // Done!
-          Exit;
-        end;
-
-        // Update the start time
-        if (comStat.cbInQue > 0) and (FFirstByteOfPacketTime = DWORD(-1)) then FFirstByteOfPacketTime := GetTickCount;
-        // Done!
-        Exit;
-      end;
-
-      // Standard data handling
-      BytesRead   := 0;
-      BytesToRead := ComStat.cbInQue;
-      while (BytesToRead > 0) do
-      begin
-        // Set buffer size
-        BytesToReadBuf := BytesToRead;
-        // Ensure the bytes to read are not > than the Input Buffer size
-        if (BytesToReadBuf > FInBufSize) then BytesToReadBuf := FInBufSize;
+    // Ensure we received a complete packet
+    if DWORD(ComStat.cbInQue) >= DWORD(FPacketSize) then
+    begin
+      repeat
+        BytesRead := 0;
         // Read Bytes
-        if ReadFile(FHandle, FTempInBuffer^, BytesToReadBuf, BytesRead, nil) then
-        begin
-          if (BytesRead <> 0) and Assigned(FOnReceiveData) then
-            FOnReceiveData(Self, FTempInBuffer, BytesRead);
-        end else break;
-        // Update bytes to read
-        Dec(BytesToRead, BytesRead);
-      end;
-    finally
-      // Set flag to indicate that we are can use the OnTimer PROC again.
-      FIsInOnTimer := False;
+        if ReadFile(FHandle, FTempInBuffer^, FPacketSize, BytesRead, nil) then
+        // Emit event
+        if (BytesRead <> 0) and Assigned(FOnReceivePacket) then FOnReceivePacket(Self, FTempInBuffer, BytesRead);
+        // Adjust time
+        FFirstByteOfPacketTime := FFirstByteOfPacketTime + DelayForRX(FPacketSize);
+        // Update IN QUE size
+        ComStat.cbInQue := ComStat.cbInQue - WORD(FPacketSize);
+        // Update first byte of packet
+        if ComStat.cbInQue = 0 then FFirstByteOfPacketTime := DWORD(-1);
+      until DWORD(comStat.cbInQue) < DWORD(FPacketSize);
+      // Done!
+      Exit;
     end;
-  end
-  // Let Windows handle other messages.
-  else Msg.Result := DefWindowProc(FNotifyWnd, Msg.Msg, Msg.wParam, Msg.lParam);
+
+    // Handle packet timeouts
+    if (FPacketTimeout > 0) and (FFirstByteOfPacketTime <> DWORD(-1)) and (GetTickCount - FFirstByteOfPacketTime > DWORD(FPacketTimeout)) then
+    begin
+      BytesRead := 0;
+      // Read the "incomplete" packet
+      if ReadFile(FHandle, FTempInBuffer^, comStat.cbInQue, BytesRead, nil) then
+      // If PacketMode is not pmDiscard then emit the packet
+      if (FPacketMode <> pmDiscard) and (BytesRead <> 0) and Assigned(FOnReceivePacket) then FOnReceivePacket(Self, FTempInBuffer, BytesRead);
+      // Restart waiting for a packet
+      FFirstByteOfPacketTime := DWORD(-1);
+      // Done!
+      Exit;
+    end;
+
+    // Update the start time
+    if (comStat.cbInQue > 0) and (FFirstByteOfPacketTime = DWORD(-1)) then FFirstByteOfPacketTime := GetTickCount;
+    // Done!
+    Exit;
+  end;
+
+  // Standard data handling
+  BytesRead   := 0;
+  BytesToRead := ComStat.cbInQue;
+  while (BytesToRead > 0) do
+  begin
+    // Set buffer size
+    BytesToReadBuf := BytesToRead;
+    // Ensure the bytes to read are not > than the Input Buffer size
+    if (BytesToReadBuf > FInBufSize) then BytesToReadBuf := FInBufSize;
+    // Read Bytes
+    if ReadFile(FHandle, FTempInBuffer^, BytesToReadBuf, BytesRead, nil) then
+    begin
+      if (BytesRead <> 0) and Assigned(FOnReceiveData) then
+        FOnReceiveData(Self, FTempInBuffer, BytesRead);
+    end else break;
+    // Update bytes to read
+    Dec(BytesToRead, BytesRead);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// START POLLING WORKER
+//------------------------------------------------------------------------------
+procedure TSerialPort.StartPollingWorker;
+begin
+  if Assigned(FPollingThread) or (FPollingStopEvent = nil) or (not Connected) then
+    Exit;
+
+  FPollingStopEvent.ResetEvent;
+  FPollingThread := TThread.CreateAnonymousThread(
+    procedure
+    begin
+      while (not TThread.CurrentThread.CheckTerminated) do
+      begin
+        if FPollingStopEvent.WaitFor(FPollingDelay) = wrTimeout then
+          PollSerialPort
+        else
+          Break;
+      end;
+    end);
+  FPollingThread.FreeOnTerminate := False;
+  FPollingThread.Start;
+end;
+
+//------------------------------------------------------------------------------
+// STOP POLLING WORKER
+//------------------------------------------------------------------------------
+procedure TSerialPort.StopPollingWorker;
+begin
+  if FPollingStopEvent <> nil then
+    FPollingStopEvent.SetEvent;
+
+  if Assigned(FPollingThread) then
+  begin
+    FPollingThread.Terminate;
+    FPollingThread.WaitFor;
+    FreeAndNil(FPollingThread);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1042,14 +1074,12 @@ begin
   FFirstByteOfPacketTime := DWORD(-1);
   // Set Check Line Status
   FCkLineStatus := False;
-  // Initialize OnTimer PROC flag
-  FIsInOnTimer := False;
   // Initialize number of RX polling timer pauses to zero (not paused)
   FRXPollingPauses := 0;
   // Allocate memory for the Input Buffer
   FTempInBuffer := AllocMem(FInBufSize);
-  // Allocate a Window HANDLE to catch Timer's Notification Messages (WM_TIMER)
-  FNotifyWnd := AllocateHWnd(TimerWndProc);
+  // Create cooperative stop event for the polling worker
+  FPollingStopEvent := TEvent.Create(nil, True, False, '');
 end;
 
 //------------------------------------------------------------------------------
@@ -1059,10 +1089,11 @@ destructor TSerialPort.Destroy;
 begin
   // Disconnect if there is still an open connection
   if Connected then Disconnect;
+  // Stop the polling worker and release the stop event
+  StopPollingWorker;
+  FreeAndNil(FPollingStopEvent);
   // Free the memory for the Input Buffer
   FreeMem(FTempInBuffer, FInBufSize);
-  // Release the timer's Window HANDLE
-  DeallocateHWnd(FNotifyWnd);
   // Call inherited destructor
   inherited Destroy;
 end;
@@ -1078,7 +1109,6 @@ const
   ShareMode          = DWORD(0);
   SecutiryAttributes = nil;
   TemplateFile       = 0;
-  TimerFunc          = nil; // We are using Window Messages instead
 begin
   Result := Connected;
   // Exit here when we're already connected
@@ -1116,8 +1146,8 @@ begin
   TimeOuts.WriteTotalTimeoutConstant := 10;
   // Apply timeouts
   SetCommTimeOuts(FHandle, TimeOuts);
-  // Start the timer (used for polling)
-  SetTimer(FNotifyWnd, 1, FPollingDelay, TimerFunc);
+  // Start the polling worker (used for polling)
+  StartPollingWorker;
 end;
 
 //------------------------------------------------------------------------------
@@ -1127,8 +1157,8 @@ procedure TSerialPort.Disconnect;
 begin
   if Connected then
   begin
-    // Stop the timer (used for polling)
-    KillTimer(FNotifyWnd, 1);
+    // Stop the polling worker (used for polling)
+    StopPollingWorker;
     // Release the COM PORT
     CloseHandle(FHandle);
     // Update handle to indicate we are not connected
@@ -1183,7 +1213,10 @@ end;
 //------------------------------------------------------------------------------
 procedure TSerialPort.ContinuePolling;
 begin
-  Dec(FRXPollingPauses);
+  if FRXPollingPauses > 0 then
+    Dec(FRXPollingPauses)
+  else
+    FRXPollingPauses := 0;
 end;
 
 //------------------------------------------------------------------------------
@@ -1541,7 +1574,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TSerialOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataReceived) then OnDataReceived(Self, DataPtr, DataSize);
+  InvokeDataReceived(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -1549,7 +1582,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TSerialOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
 begin
-  if Assigned(OnDataSend) then OnDataSend(Self, DataPtr, DataSize);
+  InvokeDataSend(DataPtr, DataSize);
 end;
 
 //------------------------------------------------------------------------------
@@ -1557,7 +1590,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TSerialOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
 begin
-  if Assigned(OnError) then OnError(Self, ErrorCode, ErrorMessage);
+  InvokeError(ErrorCode, ErrorMessage);
 end;
 
 //------------------------------------------------------------------------------
@@ -1565,17 +1598,22 @@ end;
 //------------------------------------------------------------------------------
 function TSerialOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  Result := FSerialPort.Connected;
-  // Exit here if we're already connected
-  if Result then Exit;
-  // Exit here if the connection type is incorrect
-  if Params.ConnectionType <> ctSerial then Exit;
-  // Set the port
-  FSerialPort.Port := String(Params.COMPort);
-  // Set the baudrate
-  FSerialPort.BaudRate := Params.COMBaudRate;
-  // Connect to the serial port
-  Result := FSerialPort.Connect;
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := FSerialPort.Connected;
+    // Exit here if we're already connected
+    if Result then Exit;
+    // Exit here if the connection type is incorrect
+    if Params.ConnectionType <> ctSerial then Exit;
+    // Set the port
+    FSerialPort.Port := String(Params.COMPort);
+    // Set the baudrate
+    FSerialPort.BaudRate := Params.COMBaudRate;
+    // Connect to the serial port
+    Result := FSerialPort.Connect;
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1583,11 +1621,16 @@ end;
 //------------------------------------------------------------------------------
 function TSerialOBDConnection.Disconnect: Boolean;
 begin
-  Result := False;
-  if Connected then
-  begin
-    FSerialPort.Disconnect;
-    Result := True;
+  TMonitor.Enter(FConnectionLock);
+  try
+    Result := False;
+    if Connected then
+    begin
+      FSerialPort.Disconnect;
+      Result := True;
+    end;
+  finally
+    TMonitor.Exit(FConnectionLock);
   end;
 end;
 

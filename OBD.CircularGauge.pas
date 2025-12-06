@@ -13,10 +13,10 @@ unit OBD.CircularGauge;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes,
+  System.SysUtils, System.Classes, System.SyncObjs, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  Vcl.Graphics, Vcl.Themes, Skia.Vcl,
 
-  OBD.CustomControl, OBD.CustomControl.Common, OBD.CustomControl.Animation;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -855,9 +855,13 @@ type
   TOBDCircularGauge = class(TOBDCustomControl)
   private
     /// <summary>
-    ///   Background Buffer
+    ///   Cached Skia snapshot of the static gauge background for reuse between frames.
     /// </summary>
-    FBackgroundBuffer: TBitmap;
+    FBackgroundSnapshot: ISkImage;
+    /// <summary>
+    ///   Render lock to coordinate background and needle updates across threads.
+    /// </summary>
+    FRenderLock: TObject;
     /// <summary>
     ///   Window handle needed for the timer
     /// </summary>
@@ -994,6 +998,14 @@ type
     /// </summary>
     procedure PaintBuffer; override;
     /// <summary>
+    ///   Builds the static background snapshot while the render lock is held.
+    /// </summary>
+    procedure BuildBackgroundSnapshot;
+    /// <summary>
+    ///   Retrieves the cached background snapshot, constructing it when missing in a thread-safe way.
+    /// </summary>
+    function AcquireBackgroundSnapshot: ISkImage;
+    /// <summary>
     ///   On change handler
     /// </summary>
     procedure SettingsChanged(Sender: TObject);
@@ -1098,7 +1110,7 @@ type
 implementation
 
 uses
-  Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+  System.Math, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -2036,319 +2048,262 @@ end;
 // INVALIDATE BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
+begin
+  // Clear and rebuild the cached background snapshot under the render lock
+  TMonitor.Enter(FRenderLock);
+  try
+    FBackgroundSnapshot := nil;
+    BuildBackgroundSnapshot;
+  finally
+    TMonitor.Exit(FRenderLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// BUILD BACKGROUND SNAPSHOT
+//------------------------------------------------------------------------------
+procedure TOBDCircularGauge.BuildBackgroundSnapshot;
 var
-  SS: TCustomStyleServices;
-  Graphics: TGPGraphics;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  Font: ISkFont;
   Size, X, Y, SweepAngle: Single;
-  GaugeRect, CaptionRect: TGPRectF;
-  Brush: TGPBrush;
-  Pen: TGPPen;
+  GaugeRect, CaptionRect, InnerArcRect, OuterArcRect: TRectF;
   TotalTicks, TickIndex, I: Integer;
   AnglePerTick, CurrentAngle, InnerRadius, OuterRadius: Single;
-  StartPoint, EndPoint: TGPPointF;
+  StartPoint, EndPoint: TSkPoint;
   NumberAngle, NumberRadius: Single;
-  NumberStr: WideString;
-  NumberPoint: TGPPointF;
-  Font: TGPFont;
-  FontBrush: TGPSolidBrush;
-  FontFamily: TGPFontFamily;
-  StringFormat: TGPStringFormat;
-  ArcPath: TGPGraphicsPath;
-  InnerArcRect, OuterArcRect: TGPRectF;
-  LowValueAngle, HighValueAngle: single;
+  NumberStr: string;
+  LowValueAngle, HighValueAngle: Single;
+  ArcPath: ISkPath;
 begin
-  // Update the size of the background buffer
-  FBackgroundBuffer.SetSize(Width, Height);
+  // Allocate a Skia surface that holds the static gauge background
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
 
-  // If VCL styles is available and enabled, then draw the VCL Style background
-  // so it matches the active style background like on the Form or a Panel.
-  if TStyleManager.IsCustomStyleActive then
+  // Clear using the active style color so Skia draws over a themed backdrop without GDI bridging
+  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+
+  // Calculate gauge size and position based on the control's aspect ratio
+  Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2));
+  X := (Width - Size) / 2;
+  Y := (Height - Size) / 2;
+  GaugeRect := TRectF.Create(X, Y, X + Size, Y + Size);
+
+  // Draw the background gradient ellipse when colors are configured
+  if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    SS := StyleServices;
-    // Draw the styled background
-    SS.DrawElement(FBackgroundBuffer.Canvas.Handle, SS.GetElementDetails(twWindowRoot), Rect(0, 0, Width, Height));
-  end else
-  // Otherwise fill the background with the color.
-  with FBackgroundBuffer.Canvas do
-  begin
-    // Use the component color
-    Brush.Color := Self.Color;
-    // Use a solid brush
-    Brush.Style := bsSolid;
-    // Fill the background with the component color
-    FillRect(Rect(0, 0, Width, Height));
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(GaugeRect.Left, GaugeRect.Top),
+      TSkPoint.Create(GaugeRect.Left, GaugeRect.Bottom),
+      [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawOval(GaugeRect, Paint);
   end;
 
-  // Initialize GDI+ Graphics object
-  Graphics := TGPGraphics.Create(FBackgroundBuffer.Canvas.Handle);
+  // Draw gradient scale slices using Skia paths for each range
+  for I := 0 to GradientScale.Count - 1 do
+  begin
+    InnerRadius := Size / 2 - (GradientScale.Items[I].Size + Border.Width);
+    OuterRadius := Size / 2;
+
+    InnerArcRect := TRectF.Create(
+      X + (GradientScale.Items[I].Size + Border.Width),
+      Y + (GradientScale.Items[I].Size + Border.Width),
+      X + (GradientScale.Items[I].Size + Border.Width) + (InnerRadius * 2),
+      Y + (GradientScale.Items[I].Size + Border.Width) + (InnerRadius * 2));
+    OuterArcRect := TRectF.Create(X, Y, X + (OuterRadius * 2), Y + (OuterRadius * 2));
+
+    ArcPath := TSkPath.Create;
+    LowValueAngle := ((GradientScale.Items[I].From - FMin) / (FMax - FMin)) * ((EndAngle + 180) - StartAngle) + StartAngle;
+    HighValueAngle := ((GradientScale.Items[I].&To - FMin) / (FMax - FMin)) * ((FEndAngle + 180) - FStartAngle) + FStartAngle;
+
+    SweepAngle := HighValueAngle - LowValueAngle;
+    if SweepAngle < 0 then
+      SweepAngle := SweepAngle + 360;
+
+    ArcPath.AddArc(OuterArcRect, LowValueAngle, SweepAngle);
+    ArcPath.AddArc(InnerArcRect, LowValueAngle + SweepAngle, -SweepAngle);
+    ArcPath.Close;
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := SafeColorRefToSkColor(GradientScale.Items[I].Color);
+    Canvas.DrawPath(ArcPath, Paint);
+  end;
+
+  // Draw the gauge border with an inset stroke to respect the configured width
+  if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
+  begin
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := Border.Width;
+    Paint.StrokeJoin := TSkStrokeJoin.Round;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(GaugeRect.Left, GaugeRect.Top),
+      TSkPoint.Create(GaugeRect.Left, GaugeRect.Bottom),
+      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawOval(TRectF.Create(GaugeRect.Left + (Border.Width / 2), GaugeRect.Top + (Border.Width / 2), GaugeRect.Right - (Border.Width / 2), GaugeRect.Bottom - (Border.Width / 2)), Paint);
+  end;
+
+  // Calculate the amount of minor ticks we need to draw
+  TotalTicks := Round((FMax - FMin) / FMinorTicks.Step);
+  AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
+  InnerRadius := (Size / 2) - FBorder.Width - FMinorTicks.Length - FMinorTicks.Offset;
+  OuterRadius := (Size / 2) - FBorder.Width - FMinorTicks.Offset;
+
+  // Draw minor ticks
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Stroke;
+  Paint.StrokeWidth := FMinorTicks.Width;
+  Paint.Color := SafeColorRefToSkColor(FMinorTicks.Color);
+  for TickIndex := 0 to TotalTicks do
+  begin
+    if (TickIndex mod Round(FMajorTicks.Step)) = 0 then
+      Continue;
+    CurrentAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
+    StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
+    EndPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
+    Canvas.DrawLine(StartPoint, EndPoint, Paint);
+  end;
+
+  // Draw labels for minor ticks when enabled
+  if FMinorTicks.ShowLabel then
+  begin
+    Font := CreateSkFont(FMinorTicks.Font);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Color := SafeColorRefToSkColor(FMinorTicks.Font.Color);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.TextAlign := TSkTextAlign.Center;
+
+    NumberRadius := OuterRadius - FMinorTicks.Length - 10;
+    for TickIndex := 0 to TotalTicks do
+    begin
+      if (TickIndex mod Round(FMajorTicks.Step)) = 0 then
+        Continue;
+
+      NumberAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
+      StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
+
+      if (FMinorTicks.Divider > 0) then
+        NumberStr := FloatToStr((FMin + (FMinorTicks.Step * TickIndex)) / FMinorTicks.Divider)
+      else
+        NumberStr := FloatToStr(FMin + (FMinorTicks.Step * TickIndex));
+
+      Canvas.DrawSimpleText(NumberStr, StartPoint.X, StartPoint.Y + (Font.Size / 3), Font, Paint);
+    end;
+  end;
+
+  // Calculate the amount of major ticks we need to draw
+  TotalTicks := Round((FMax - FMin) / FMajorTicks.Step);
+  AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
+  InnerRadius := (Size / 2) - FBorder.Width - FMajorTicks.Length - FMajorTicks.Offset;
+  OuterRadius := (Size / 2) - FBorder.Width - FMajorTicks.Offset;
+
+  // Draw major ticks
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Stroke;
+  Paint.StrokeWidth := FMajorTicks.Width;
+  Paint.Color := SafeColorRefToSkColor(FMajorTicks.Color);
+  for TickIndex := 0 to TotalTicks do
+  begin
+    CurrentAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
+    StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius), Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius));
+    EndPoint := TSkPoint.Create(X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius), Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius));
+    Canvas.DrawLine(StartPoint, EndPoint, Paint);
+  end;
+
+  // Draw labels for major ticks when enabled
+  if FMajorTicks.ShowLabel then
+  begin
+    Font := CreateSkFont(FMajorTicks.Font);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Color := SafeColorRefToSkColor(FMajorTicks.Font.Color);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.TextAlign := TSkTextAlign.Center;
+
+    NumberRadius := OuterRadius - FMajorTicks.Length - 10;
+    for TickIndex := 0 to TotalTicks do
+    begin
+      NumberAngle := DegToRad(FStartAngle + (AnglePerTick * TickIndex));
+      StartPoint := TSkPoint.Create(X + (Size / 2) + (Cos(NumberAngle) * NumberRadius), Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius));
+
+      if (FMajorTicks.Divider > 0) then
+        NumberStr := FloatToStr((FMin + (FMajorTicks.Step * TickIndex)) / FMajorTicks.Divider)
+      else
+        NumberStr := FloatToStr(FMin + (FMajorTicks.Step * TickIndex));
+
+      Canvas.DrawSimpleText(NumberStr, StartPoint.X, StartPoint.Y + (Font.Size / 3), Font, Paint);
+    end;
+  end;
+
+  // Draw top caption when provided
+  if (FTopCaption.Caption <> '') then
+  begin
+    Font := CreateSkFont(FTopCaption.Font);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Color := SafeColorRefToSkColor(FTopCaption.Font.Color);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.TextAlign := TSkTextAlign.Center;
+
+    CaptionRect := TRectF.Create(0, 0, Width, (Height / 2) + FTopCaption.Offset);
+    Canvas.DrawSimpleText(
+      FTopCaption.Caption,
+      CaptionRect.Left + ((CaptionRect.Right - CaptionRect.Left) / 2),
+      CaptionRect.Top + ((CaptionRect.Bottom - CaptionRect.Top) / 2),
+      Font,
+      Paint);
+  end;
+
+  // Draw bottom caption when provided
+  if (FBottomCaption.Caption <> '') then
+  begin
+    Font := CreateSkFont(FBottomCaption.Font);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Color := SafeColorRefToSkColor(FBottomCaption.Font.Color);
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.TextAlign := TSkTextAlign.Center;
+
+    CaptionRect := TRectF.Create(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
+    Canvas.DrawSimpleText(
+      FBottomCaption.Caption,
+      CaptionRect.Left + ((CaptionRect.Right - CaptionRect.Left) / 2),
+      CaptionRect.Top + ((CaptionRect.Bottom - CaptionRect.Top) / 2),
+      Font,
+      Paint);
+  end;
+
+  // Persist the Skia surface into the reusable background snapshot
+  FBackgroundSnapshot := Surface.MakeImageSnapshot;
+end;
+
+//------------------------------------------------------------------------------
+// ACQUIRE BACKGROUND SNAPSHOT
+//------------------------------------------------------------------------------
+function TOBDCircularGauge.AcquireBackgroundSnapshot: ISkImage;
+begin
+  // Lazily rebuild the background snapshot while guarding concurrent access
+  TMonitor.Enter(FRenderLock);
   try
-    // Set smoothing mode to high-quality
-    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-    // Set compositing quality to high-quality
-    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
-
-    // Calculate gauge size and position based on control's aspect ratio
-    Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2));
-    X := (Width - Size) / 2;
-    Y := (Height - Size) / 2;
-
-    // Draw the backround
-    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
-    begin
-      // Get the rectangle for the gauge
-      GaugeRect := MakeRect(X, Y, Size, Size);
-      // Create the background brush
-      Brush := TGPLinearGradientBrush.Create(GaugeRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
-      try
-        // Fill the gauge background
-        Graphics.FillEllipse(Brush, GaugeRect);
-      finally
-        // Free the background brush object
-        Brush.Free;
-      end;
-    end;
-
-    // Draw gradient scale items
-    for I := 0 to GradientScale.Count -1 do
-    begin
-      // Calculate inner and outer radius
-      InnerRadius := Size / 2 - (GradientScale.Items[I].Size + Border.Width);
-      OuterRadius := Size / 2;
-
-      // Calculate arc rects
-      InnerArcRect := MakeRect(X + (GradientScale.Items[I].Size + Border.Width), Y + (GradientScale.Items[I].Size + Border.Width), InnerRadius * 2, InnerRadius * 2);
-      OuterArcRect := MakeRect(X, Y, OuterRadius * 2, OuterRadius * 2);
-
-      // Create the arc
-      ArcPath := TGPGraphicsPath.Create;
-      try
-        LowValueAngle := ((GradientScale.Items[I].From - FMin) / (FMax - FMin)) * ((EndAngle + 180) - StartAngle) + StartAngle;
-        HighValueAngle := ((GradientScale.Items[I].&To - FMin) / (FMax - FMin)) * ((FEndAngle + 180) - FStartAngle) + FStartAngle;
-
-        // Calculate sweep angle, which is the angle from LowValueAngle to HighValueAngle
-        SweepAngle := HighValueAngle - LowValueAngle;
-        // Ensure sweep angle is not negative
-        if SweepAngle < 0 then SweepAngle := SweepAngle + 360;
-
-        // Add the outer arc to the path
-        ArcPath.AddArc(OuterArcRect, LowValueAngle, SweepAngle);
-        // Since we're drawing the inner arc in the opposite direction,
-        // the start angle is the end angle of the outer arc,
-        // and the sweep angle is negative.
-        ArcPath.AddArc(InnerArcRect, LowValueAngle + SweepAngle, -SweepAngle);
-        // Close the figure
-        ArcPath.CloseFigure;
-
-        Brush := TGPSolidBrush.Create(SafeColorRefToARGB(GradientScale.Items[I].Color));
-        try
-          Graphics.FillPath(Brush, ArcPath);
-        finally
-          Brush.Free;
-        end;
-      finally
-        ArcPath.Free;
-      end;
-    end;
-
-    // Draw the border
-    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
-    begin
-      // Create the border brush
-      Brush := TGPLinearGradientBrush.Create(GaugeRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-      // Create the border pen
-      Pen := TGPPen.Create(Brush, Border.Width);
-      Pen.SetAlignment(PenAlignmentInset);
-      try
-        // Draw the gauge border
-        Graphics.DrawEllipse(Pen, GaugeRect);
-      finally
-        // Free the background brush object
-        Brush.Free;
-        // Free the background pen object
-        Pen.Free;
-      end;
-    end;
-
-    // Calculate the amount of minor ticks we need to draw
-    TotalTicks := Round((FMax - FMin) / FMinorTicks.Step);
-    // Adjust the AnglePerTick calculation to account for the described angle definitions
-    AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
-    // Calculate inner radius
-    InnerRadius := (Size / 2) - FBorder.Width - FMinorTicks.Length - FMinorTicks.Offset;
-    // Calculate outer radius
-    OuterRadius := (Size / 2) - FBorder.Width - FMinorTicks.Offset;
-    // Create the pen for the minor ticks
-    Pen := TGPPen.Create(SafeColorRefToARGB(FMinorTicks.Color), FMinorTicks.Width);
-    try
-      for TickIndex := 0 to TotalTicks do
-      begin
-        // Skip if we need to draw a major tick here
-        if (TickIndex mod Round(FMajorTicks.Step)) = 0 then Continue;
-        // Calculate current angle
-        CurrentAngle := FStartAngle + (AnglePerTick * TickIndex);
-        // Convert degrees to radians for Sin and Cos functions
-        CurrentAngle := DegToRad(CurrentAngle);
-        // Calculate the start and end points
-        StartPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius);
-        StartPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius);
-        EndPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius);
-        EndPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius);
-        // Draw the tick
-        Graphics.DrawLine(Pen, StartPoint, EndPoint);
-      end;
-    finally
-      // Free the minor tick pen object
-      Pen.Free;
-    end;
-
-    // Draw labels for minor ticks
-    if FMinorTicks.ShowLabel then
-    begin
-      FontFamily := TGPFontFamily.Create(FMinorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMinorTicks.Font.Size, OBD.CustomControl.Common.FontStyle(FMinorTicks.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMinorTicks.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetAlignment(StringAlignmentCenter);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-      try
-        // Adjust the radius for number positioning based on your design needs
-        NumberRadius := OuterRadius - FMinorTicks.Length - 10;
-        for TickIndex := 0 to TotalTicks do
-        begin
-          // Skip if we need to draw a major tick here
-          if (TickIndex mod Round(FMajorTicks.Step)) = 0 then Continue;
-          // Calculate the angle for the number
-          NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
-          // Convert degrees to radians for Sin and Cos functions
-          NumberAngle := DegToRad(NumberAngle);
-          // Determine the position for the number
-          NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
-          NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
-          // Convert tick value to string
-          if (FMinorTicks.Divider > 0) then
-            NumberStr := WideString(FloatToStr((FMin + (FMinorTicks.Step * TickIndex)) / FMinorTicks.Divider))
-          else
-            NumberStr := WideString(FloatToStr(FMin + (FMinorTicks.Step * TickIndex)));
-          // Draw the number at the calculated position
-          Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
-        end;
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-    end;
-
-    // Calculate the amount of major ticks we need to draw
-    TotalTicks := Round((FMax - FMin) / FMajorTicks.Step);
-    // Adjust the AnglePerTick calculation to account for the described angle definitions
-    AnglePerTick := ((180 + FEndAngle) - FStartAngle) / TotalTicks;
-    // Calculate inner radius
-    InnerRadius := (Size / 2) - FBorder.Width - FMajorTicks.Length - FMajorTicks.Offset;
-    // Calculate outer radius
-    OuterRadius := (Size / 2) - FBorder.Width - FMajorTicks.Offset;
-    // Create the pen for the minor ticks
-    Pen := TGPPen.Create(SafeColorRefToARGB(FMajorTicks.Color), FMajorTicks.Width);
-    try
-      for TickIndex := 0 to TotalTicks do
-      begin
-        // Calculate current angle
-        CurrentAngle := FStartAngle + (AnglePerTick * TickIndex);
-        // Convert degrees to radians for Sin and Cos functions
-        CurrentAngle := DegToRad(CurrentAngle);
-        // Calculate the start and end points
-        StartPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * InnerRadius);
-        StartPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * InnerRadius);
-        EndPoint.X := X + (Size / 2) + (Cos(CurrentAngle) * OuterRadius);
-        EndPoint.Y := Y + (Size / 2) + (Sin(CurrentAngle) * OuterRadius);
-        // Draw the tick
-        Graphics.DrawLine(Pen, StartPoint, EndPoint);
-      end;
-    finally
-      // Free the minor tick pen object
-      Pen.Free;
-    end;
-
-    // Draw labels for major ticks
-    if FMajorTicks.ShowLabel then
-    begin
-      FontFamily := TGPFontFamily.Create(FMajorTicks.Font.Name);
-      Font := TGPFont.Create(FontFamily, FMajorTicks.Font.Size, OBD.CustomControl.Common.FontStyle(FMajorTicks.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FMajorTicks.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetAlignment(StringAlignmentCenter);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-      try
-        // Adjust the radius for number positioning based on your design needs
-        NumberRadius := OuterRadius - FMajorTicks.Length - 10;
-        for TickIndex := 0 to TotalTicks do
-        begin
-          // Calculate the angle for the number
-          NumberAngle := FStartAngle + (AnglePerTick * TickIndex);
-          // Convert degrees to radians for Sin and Cos functions
-          NumberAngle := DegToRad(NumberAngle);
-          // Determine the position for the number
-          NumberPoint.X := X + (Size / 2) + (Cos(NumberAngle) * NumberRadius);
-          NumberPoint.Y := Y + (Size / 2) + (Sin(NumberAngle) * NumberRadius);
-          // Convert tick value to string
-          if (FMajorTicks.Divider > 0) then
-            NumberStr := WideString(FloatToStr((FMin + (FMajorTicks.Step * TickIndex)) / FMajorTicks.Divider))
-          else
-            NumberStr := WideString(FloatToStr(FMin + (FMajorTicks.Step * TickIndex)));
-          // Draw the number at the calculated position
-          Graphics.DrawString(NumberStr, -1, Font, NumberPoint, StringFormat, FontBrush);
-        end;
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-    end;
-
-    // Draw top caption
-    if (FTopCaption.Caption <> '') then
-    begin
-      FontFamily := TGPFontFamily.Create(FTopCaption.Font.Name);
-      Font := TGPFont.Create(FontFamily, FTopCaption.Font.Size, OBD.CustomControl.Common.FontStyle(FTopCaption.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FTopCaption.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetAlignment(StringAlignmentCenter);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-      try
-        CaptionRect := MakeRect(0, 0, Width, (Height / 2) + FTopCaption.Offset);
-        Graphics.DrawString(FTopCaption.Caption, -1, Font, CaptionRect, StringFormat, FontBrush);
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-    end;
-
-    // Draw bottom caption
-    if (FBottomCaption.Caption <> '') then
-    begin
-      FontFamily := TGPFontFamily.Create(FBottomCaption.Font.Name);
-      Font := TGPFont.Create(FontFamily, FBottomCaption.Font.Size, OBD.CustomControl.Common.FontStyle(FBottomCaption.Font), UnitPoint);
-      FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(FBottomCaption.Font.Color));
-      StringFormat := TGPStringFormat.Create;
-      StringFormat.SetAlignment(StringAlignmentCenter);
-      StringFormat.SetLineAlignment(StringAlignmentCenter);
-      try
-        CaptionRect := MakeRect(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
-        Graphics.DrawString(FBottomCaption.Caption, -1, Font, CaptionRect, StringFormat, FontBrush);
-      finally
-        FontFamily.Free;
-        Font.Free;
-        FontBrush.Free;
-        StringFormat.Free;
-      end;
-    end;
+    if not Assigned(FBackgroundSnapshot) then
+      BuildBackgroundSnapshot;
+    Result := FBackgroundSnapshot;
   finally
-    // Free the GDI+ Graphics object
-    Graphics.Free;
+    TMonitor.Exit(FRenderLock);
   end;
 end;
 
@@ -2357,98 +2312,95 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.PaintNeedle;
 var
-  Graphics: TGPGraphics;
-  Brush: TGPBrush;
-  Pen: TGPPen;
-  BasePoint, LeftPoint, RightPoint, TipPoint: TGPPointF;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  BackgroundImage: ISkImage;
+  BasePoint, LeftPoint, RightPoint, TipPoint: TSkPoint;
   NeedleLength: Single;
   ValueAngle, BaseAngleLeft, BaseAngleRight, X, Y, Size: Single;
-  NeedlePath: TGPGraphicsPath;
-  CenterRect: TGPRectF;
+  NeedlePath: ISkPath;
 begin
-  // Initialize GDI+ Graphics object
-  Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
-  try
-    // Set smoothing mode to high-quality
-    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-    // Set compositing quality to high-quality
-    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
+  // Ensure the buffer matches the control size for Skia drawing
+  Buffer.SetSize(Width, Height);
 
-    // Gauge's center position
-    Size := System.Math.Min(ClientWidth, ClientHeight);
-    X := (Width - Size) / 2;
-    Y := (Height - Size) / 2;
-    BasePoint.X := X + Size / 2;
-    BasePoint.Y := Y + Size / 2;
+  // Allocate a Skia surface and seed it with the cached background buffer
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
+  BackgroundImage := AcquireBackgroundSnapshot;
+  if Assigned(BackgroundImage) then
+    Canvas.DrawImage(BackgroundImage, 0, 0)
+  else
+    Canvas.Clear(SafeColorRefToSkColor(Self.Color));
 
-    // Needle properties
-    NeedleLength := Size / 2 * FNeedle.Length;
+  // Gauge's center position
+  Size := System.Math.Min(ClientWidth, ClientHeight);
+  X := (Width - Size) / 2;
+  Y := (Height - Size) / 2;
+  BasePoint := TSkPoint.Create(X + Size / 2, Y + Size / 2);
 
-    // Calculate the needle's angle based on the current value
-    if Animation.Enabled then
-      ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
-    else
-      ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
-    ValueAngle := DegToRad(ValueAngle);
+  // Needle properties
+  NeedleLength := Size / 2 * FNeedle.Length;
 
-    // Calculate points for the needle
-    TipPoint.X := BasePoint.X + Cos(ValueAngle) * NeedleLength;
-    TipPoint.Y := BasePoint.Y + Sin(ValueAngle) * NeedleLength;
+  // Calculate the needle's angle based on the current value
+  if Animation.Enabled then
+    ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
+  else
+    ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
+  ValueAngle := DegToRad(ValueAngle);
 
-    // Calculate base angles for a wider base
-    BaseAngleLeft := ValueAngle + Pi / 2;
-    BaseAngleRight := ValueAngle - Pi / 2;
-    LeftPoint.X := BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2);
-    LeftPoint.Y := BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2);
-    RightPoint.X := BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2);
-    RightPoint.Y := BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2);
+  // Calculate points for the needle
+  TipPoint := TSkPoint.Create(BasePoint.X + Cos(ValueAngle) * NeedleLength, BasePoint.Y + Sin(ValueAngle) * NeedleLength);
 
-    // Create the needle shape (path)
-    NeedlePath := TGPGraphicsPath.Create;
-    try
-      NeedlePath.StartFigure;
-      NeedlePath.AddLine(LeftPoint, TipPoint);
-      NeedlePath.AddLine(TipPoint, RightPoint);
-      NeedlePath.AddLine(RightPoint, LeftPoint);
-      NeedlePath.CloseFigure;
+  // Calculate base angles for a wider base
+  BaseAngleLeft := ValueAngle + Pi / 2;
+  BaseAngleRight := ValueAngle - Pi / 2;
+  LeftPoint := TSkPoint.Create(BasePoint.X + Cos(BaseAngleLeft) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleLeft) * (FNeedle.Width / 2));
+  RightPoint := TSkPoint.Create(BasePoint.X + Cos(BaseAngleRight) * (FNeedle.Width / 2), BasePoint.Y + Sin(BaseAngleRight) * (FNeedle.Width / 2));
 
-      // Create the brush for the needle
-      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(FNeedle.Color));
-      // Create the pen for the needle
-      Pen := TGPPen.Create(SafeColorRefToARGB(FNeedle.BorderColor), FNeedle.BorderWidth);
-      try
-        // Fill the needle shape
-        Graphics.FillPath(Brush, NeedlePath);
-        // Draw the border
-        if (FNeedle.BorderColor <> clNone) and (FNeedle.BorderWidth > 0) then
-        Graphics.DrawPath(Pen, NeedlePath);
-      finally
-        Brush.Free;
-        Pen.Free;
-      end;
-    finally
-      NeedlePath.Free;
-    end;
+  // Build and fill the needle path
+  NeedlePath := TSkPath.Create;
+  NeedlePath.MoveTo(LeftPoint);
+  NeedlePath.LineTo(TipPoint);
+  NeedlePath.LineTo(RightPoint);
+  NeedlePath.Close;
 
-    // Create the brush for the needle center
-    Brush := TGPSolidBrush.Create(SafeColorRefToARGB(Fneedle.CenterColor));
-    // Create the pen for the needle center
-    Pen := TGPPen.Create(SafeColorRefToARGB(FNeedle.CenterBorderColor), FNeedle.CenterBorderWidth);
-    try
-      CenterRect := MakeRect(BasePoint.X - FNeedle.CenterSize / 2, BasePoint.Y - FNeedle.CenterSize / 2, FNeedle.CenterSize, FNeedle.CenterSize);
-      // Fill the needle center
-      Graphics.FillEllipse(Brush, CenterRect);
-      // Draw the border
-      if (FNeedle.CenterBorderColor <> clNone) and (FNeedle.CenterBorderWidth > 0) then
-      Graphics.DrawEllipse(Pen, CenterRect);
-    finally
-      Brush.Free;
-      Pen.Free;
-    end;
-  finally
-    // Free the GDI+ Graphics object
-    Graphics.Free;
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Fill;
+  Paint.Color := SafeColorRefToSkColor(FNeedle.Color);
+  Canvas.DrawPath(NeedlePath, Paint);
+
+  if (FNeedle.BorderColor <> clNone) and (FNeedle.BorderWidth > 0) then
+  begin
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := FNeedle.BorderWidth;
+    Paint.StrokeJoin := TSkStrokeJoin.Round;
+    Paint.Color := SafeColorRefToSkColor(FNeedle.BorderColor);
+    Canvas.DrawPath(NeedlePath, Paint);
   end;
+
+  // Draw the needle center with fill and optional stroke
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Fill;
+  Paint.Color := SafeColorRefToSkColor(FNeedle.CenterColor);
+  Canvas.DrawCircle(BasePoint.X, BasePoint.Y, FNeedle.CenterSize / 2, Paint);
+
+  if (FNeedle.CenterBorderColor <> clNone) and (FNeedle.CenterBorderWidth > 0) then
+  begin
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := FNeedle.CenterBorderWidth;
+    Paint.Color := SafeColorRefToSkColor(FNeedle.CenterBorderColor);
+    Canvas.DrawCircle(BasePoint.X, BasePoint.Y, (FNeedle.CenterSize / 2) - (FNeedle.CenterBorderWidth / 2), Paint);
+  end;
+
+  // Snapshot the composed scene back into the component buffer
+  Surface.MakeImageSnapshot.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -2458,12 +2410,7 @@ procedure TOBDCircularGauge.PaintBuffer;
 begin
   // Call inherited PaintBuffer
   inherited;
-  // Copy the background buffer to the main buffer, by buffering the background
-  // and only updating the background buffer when the background is changed
-  // allows us to just copy the background buffer, which speeds up our PaintBuffer
-  // resulting in less CPU consumption and allowing higher framerates.
-  BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
-  // Paint the needle on the buffer.
+  // Paint the composed needle on top of the cached Skia background.
   PaintNeedle;
 end;
 
@@ -2592,10 +2539,8 @@ constructor TOBDCircularGauge.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Create background buffer
-  FBackgroundBuffer := TBitmap.Create;
-  // Set the background buffer pixel format
-  FBackgroundBuffer.PixelFormat := pf32bit;
+  // Initialize render lock for snapshot coordination
+  FRenderLock := TObject.Create;
   // Set default start angle
   FStartAngle := DEFAULT_START_ANGLE;
   // Set default end angle
@@ -2658,8 +2603,8 @@ begin
     // Deallocate window handle
     DeallocateHWnd(FWindowHandle);
   end;
-  // Free background buffer
-  FBackgroundBuffer.Free;
+  // Release render lock
+  FRenderLock.Free;
   // Free gauge background properties
   FBackground.Free;
   // Free gauge border properties

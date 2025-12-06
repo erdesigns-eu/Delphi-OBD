@@ -13,10 +13,10 @@ unit OBD.LED;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes,
+  System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Controls,
+  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl,
 
-  OBD.CustomControl, OBD.CustomControl.Common;
+  OBD.CustomControl, OBD.CustomControl.Helpers;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -250,17 +250,17 @@ type
   TOBDLed = class(TOBDCustomControl)
   private
     /// <summary>
-    ///   Grayed buffer
+    ///   Cached Skia snapshot for the grayed LED state
     /// </summary>
-    FGrayedBuffer: TBitmap;
+    FGrayedImage: ISkImage;
     /// <summary>
-    ///   Off buffer
+    ///   Cached Skia snapshot for the off LED state
     /// </summary>
-    FOffBuffer: TBitmap;
+    FOffImage: ISkImage;
     /// <summary>
-    ///   On buffer
+    ///   Cached Skia snapshot for the on LED state
     /// </summary>
-    FOnBuffer: TBitmap;
+    FOnImage: ISkImage;
   private
     /// <summary>
     ///   State
@@ -305,7 +305,8 @@ type
     procedure SetOnColor(Value: TOBDLedOnColor);
   protected
     /// <summary>
-    ///   Invalidate color buffers
+    /// <summary>
+    ///   Invalidate cached Skia LED snapshots for all states
     /// </summary>
     procedure InvalidateColors; virtual;
     /// <summary>
@@ -369,7 +370,7 @@ type
 implementation
 
 uses
-  Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -582,155 +583,141 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDLed.InvalidateColors;
 
-  procedure PaintLed(Buffer: TBitmap; State: TOBDLedState);
+  function PaintLedImage(State: TOBDLedState): ISkImage;
   var
-    SS: TCustomStyleServices;
+    BackgroundColor: TAlphaColor;
+    Surface: ISkSurface;
+    Canvas: ISkCanvas;
     Size, X, Y, GW, GH, GX: Single;
-    Graphics: TGPGraphics;
-    BorderRect, LedRect, GlareRect: TGPRectF;
-    Brush: TGPBrush;
-    Pen: TGPPen;
+    BorderRect, LedRect, GlareRect: TRectF;
+    BorderPaint, FillPaint, GlarePaint: ISkPaint;
+    Colors: TArray<TAlphaColor>;
   begin
-    // Update the size of the buffer
-    Buffer.SetSize(Width, Height);
-
-    // If VCL styles is available and enabled, then draw the VCL Style background
-    // so it matches the active style background like on the Form or a Panel.
+    // Resolve the background tint directly in Skia to avoid any GDI style drawing
     if TStyleManager.IsCustomStyleActive then
-    begin
-      SS := StyleServices;
-      // Draw the styled background
-      SS.DrawElement(Buffer.Canvas.Handle, SS.GetElementDetails(twWindowRoot), Rect(0, 0, Width, Height));
-    end else
-    // Otherwise fill the background with the color.
-    with Buffer.Canvas do
-    begin
-      // Use the component color
-      Brush.Color := Self.Color;
-      // Use a solid brush
-      Brush.Style := bsSolid;
-      // Fill the background with the component color
-      FillRect(Rect(0, 0, Width, Height));
+      BackgroundColor := SafeColorRefToSkColor(StyleServices.GetSystemColor(clWindow))
+    else
+      BackgroundColor := SafeColorRefToSkColor(Self.Color);
+
+    // Allocate a dedicated Skia surface for the LED snapshot
+    Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+    Canvas := Surface.Canvas;
+
+    // Clear the surface to the desired background tint
+    Canvas.Clear(BackgroundColor);
+
+    // Calculate the size of the LED body and center it within the control bounds
+    Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2)) - (Border.Width * 2) - 2;
+    X := (Width / 2) - (Size / 2);
+    Y := (Height / 2) - (Size / 2);
+    BorderRect := TRectF.Create(X, Y, X + Size, Y + Size);
+
+    // Paint the subtle background disk behind the LED for depth
+    BorderPaint := TSkPaint.Create;
+    BorderPaint.AntiAlias := True;
+    BorderPaint.Style := TSkPaintStyle.Fill;
+    BorderPaint.Color := SafeColorRefToSkColor(clWindow);
+    Canvas.DrawOval(BorderRect, BorderPaint);
+
+    // Prepare the main LED fill rectangle and choose the gradient palette by state
+    LedRect := TRectF.Create(X + Border.Width + 2, Y + Border.Width + 2, X + Size - Border.Width - 2, Y + Size - Border.Width - 2);
+    FillPaint := TSkPaint.Create;
+    FillPaint.AntiAlias := True;
+    FillPaint.Style := TSkPaintStyle.Fill;
+    case State of
+      lsGrayed : Colors := [SafeColorRefToSkColor(GrayedColor.FromColor), SafeColorRefToSkColor(GrayedColor.ToColor)];
+      lsOff    : Colors := [SafeColorRefToSkColor(OffColor.FromColor), SafeColorRefToSkColor(OffColor.ToColor)];
+      lsOn     : Colors := [SafeColorRefToSkColor(OnColor.FromColor), SafeColorRefToSkColor(OnColor.ToColor)];
     end;
+    FillPaint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(LedRect.Left, LedRect.Top), TSkPoint.Create(LedRect.Left, LedRect.Bottom), Colors, nil, TSkTileMode.Clamp);
+    Canvas.DrawOval(LedRect, FillPaint);
 
-    // Initialize GDI+ Graphics object
-    Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
-    try
-      // Set smoothing mode to high-quality
-      Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-      // Set compositing quality to high-quality
-      Graphics.SetCompositingQuality(CompositingQualityHighQuality);
-
-      // Calculate the size of the led
-      Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2)) - (Border.Width * 2) - 2;
-      // Calculate the horizontal position
-      X := (Width / 2) - (Size / 2);
-      // Calculate the vertical position
-      Y := (Height / 2) - (Size / 2);
-      // Get the rectangle for the border
-      BorderRect := MakeRect(X, Y, Size, Size);
-
-      // Draw the background - we use a clWindow color for the background,
-      // this shines a bit through to offset the color and the border.
-      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(clWindow));
-      try
-        Graphics.FillEllipse(Brush, BorderRect);
-      finally
-        // Free brush object
-        Brush.Free;
-      end;
-
-      // Get the rectangle for the led color
-      LedRect := MakeRect(X + Border.Width + 2, Y + Border.Width + 2, Size - (Border.Width * 2) - 4,  Size - (Border.Width * 2) - 4);
-
-      // Create the led brush
-      case State of
-        lsGrayed : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(GrayedColor.FromColor), SafeColorRefToARGB(GrayedColor.ToColor), LinearGradientModeVertical);
-        lsOff    : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(OffColor.FromColor), SafeColorRefToARGB(OffColor.ToColor), LinearGradientModeVertical);
-        lsOn     : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(OnColor.FromColor), SafeColorRefToARGB(OnColor.ToColor), LinearGradientModeVertical);
-      end;
-      // Create the led pen
-      case State of
-        lsGrayed : Pen := TGPPen.Create(SafeColorRefToARGB(GrayedColor.FromColor), 1.5);
-        lsOff    : Pen := TGPPen.Create(SafeColorRefToARGB(OffColor.FromColor), 1.5);
-        lsOn     : Pen := TGPPen.Create(SafeColorRefToARGB(OnColor.FromColor), 1.5);
-      end;
-      Pen.SetAlignment(PenAlignmentInset);
-      // Draw the led
-      try
-        Graphics.FillEllipse(Brush, LedRect);
-        Graphics.DrawEllipse(Pen, LedRect);
-      finally
-        Brush.Free;
-        Pen.Free;
-      end;
-
-      // Calculate glare width
-      GW := Size * 0.75;
-      // Calculate glare height
-      GH := Size * 0.5;
-      // Calculate the glare horizontal position
-      GX := (Width / 2) - (GW / 2);
-
-      // Get the rectangle for the glare
-      GlareRect := MakeRect(GX, Y + Border.Width + 2, GW, GH);
-      // Create the glare brush (White with alpha 75 to White with alpha 30)
-      Brush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
-      // Draw the glare
-      try
-        Graphics.FillEllipse(Brush, GlareRect);
-      finally
-        Brush.Free;
-      end;
-
-      // Draw the border
-      if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
-      begin
-        // Create the border brush
-        Brush := TGPLinearGradientBrush.Create(BorderRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-        // Create the border pen
-        Pen := TGPPen.Create(Brush, Border.Width);
-        Pen.SetAlignment(PenAlignmentInset);
-        try
-          // Draw the gauge border
-          Graphics.DrawEllipse(Pen, BorderRect);
-        finally
-          // Free the background brush object
-          Brush.Free;
-          // Free the background pen object
-          Pen.Free;
-        end;
-      end;
-    finally
-      Graphics.Free;
+    // Add a thin stroke around the LED body to highlight the rim
+    BorderPaint := TSkPaint.Create;
+    BorderPaint.AntiAlias := True;
+    BorderPaint.Style := TSkPaintStyle.Stroke;
+    BorderPaint.StrokeWidth := 1.5;
+    case State of
+      lsGrayed : BorderPaint.Color := SafeColorRefToSkColor(GrayedColor.FromColor);
+      lsOff    : BorderPaint.Color := SafeColorRefToSkColor(OffColor.FromColor);
+      lsOn     : BorderPaint.Color := SafeColorRefToSkColor(OnColor.FromColor);
     end;
+    Canvas.DrawOval(LedRect, BorderPaint);
+
+    // Calculate the glare footprint and blend a translucent highlight across it
+    GW := Size * 0.75;
+    GH := Size * 0.5;
+    GX := (Width / 2) - (GW / 2);
+    GlareRect := TRectF.Create(GX, Y + Border.Width + 2, GX + GW, Y + Border.Width + 2 + GH);
+    GlarePaint := TSkPaint.Create;
+    GlarePaint.AntiAlias := True;
+    GlarePaint.Style := TSkPaintStyle.Fill;
+    GlarePaint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(GlareRect.Left, GlareRect.Top), TSkPoint.Create(GlareRect.Left, GlareRect.Bottom),
+      [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
+    Canvas.DrawOval(GlareRect, GlarePaint);
+
+    // Build the outer border ring gradient to frame the LED
+    GW := Width - 1;
+    GH := Height - 1;
+    BorderRect := TRectF.Create(0, 0, GW, GH);
+    BorderPaint := TSkPaint.Create;
+    BorderPaint.AntiAlias := True;
+    BorderPaint.Style := TSkPaintStyle.Stroke;
+    BorderPaint.StrokeWidth := Border.Width;
+    BorderPaint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(BorderRect.Left, BorderRect.Top), TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)], nil, TSkTileMode.Clamp);
+    Canvas.DrawOval(BorderRect, BorderPaint);
+
+    // Add an inner ring for subtle contrast and dimensionality
+    BorderRect := TRectF.Create(1, 1, GW - 1, GH - 1);
+    BorderPaint := TSkPaint.Create;
+    BorderPaint.AntiAlias := True;
+    BorderPaint.Style := TSkPaintStyle.Stroke;
+    BorderPaint.StrokeWidth := Border.Width;
+    BorderPaint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(BorderRect.Left, BorderRect.Top), TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      [SafeColorRefToSkColor(Border.ToColor), SafeColorRefToSkColor(Border.FromColor)], nil, TSkTileMode.Clamp);
+    Canvas.DrawOval(BorderRect, BorderPaint);
+
+    Result := Surface.MakeImageSnapshot;
   end;
 
 begin
-  // Paint the grayed led
-  PaintLed(FGrayedBuffer, lsGrayed);
-  // Paint the off led
-  PaintLed(FOffBuffer, lsOff);
-  // Paint the on led
-  PaintLed(FOnBuffer, lsOn);
+  // Rebuild all LED state snapshots using Skia-only drawing to remove GDI usage
+  FGrayedImage := PaintLedImage(lsGrayed);
+  FOffImage := PaintLedImage(lsOff);
+  FOnImage := PaintLedImage(lsOn);
 end;
 
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
 procedure TOBDLed.PaintBuffer;
+var
+  Image: ISkImage;
 begin
   // Call inherited PaintBuffer
   inherited;
-  // Copy the color buffer to the main buffer, by buffering the colors
-  // and only updating the color buffers when the colors are changed
-  // allows us to just copy the color buffer, which speeds up our PaintBuffer
-  // resulting in less CPU consumption and allowing higher framerates.
+  // Select the matching Skia snapshot for the requested LED state
   case State of
-    lsGrayed : BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FGrayedBuffer.Canvas.Handle, 0, 0, SRCCOPY);
-    lsOff    : BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FOffBuffer.Canvas.Handle, 0, 0, SRCCOPY);
-    lsOn     : BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FOnBuffer.Canvas.Handle, 0, 0, SRCCOPY);
+    lsGrayed : Image := FGrayedImage;
+    lsOff    : Image := FOffImage;
+    lsOn     : Image := FOnImage;
   end;
+
+  // If a snapshot is missing (e.g. after resize), rebuild and reselect
+  if not Assigned(Image) then
+  begin
+    InvalidateColors;
+    case State of
+      lsGrayed : Image := FGrayedImage;
+      lsOff    : Image := FOffImage;
+      lsOn     : Image := FOnImage;
+    end;
+  end;
+
+  // Copy the Skia snapshot directly into the component buffer
+  if Assigned(Image) then
+    Image.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -791,15 +778,6 @@ constructor TOBDLed.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Create grayed buffer
-  FGrayedBuffer := TBitmap.Create;
-  FGrayedBuffer.PixelFormat := pf32bit;
-  // Create off buffer
-  FOffBuffer := TBitmap.Create;
-  FOffBuffer.PixelFormat := pf32bit;
-  // Create on buffer
-  FOnBuffer := TBitmap.Create;
-  FOnBuffer.PixelFormat := pf32bit;
   // Create border
   FBorder := TOBDLedBorder.Create;
   FBorder.OnChange := SettingsChanged;
@@ -817,6 +795,8 @@ begin
   //
   Width := 25;
   Height := 25;
+  // Generate the initial Skia LED snapshots
+  InvalidateColors;
 end;
 
 //------------------------------------------------------------------------------
@@ -824,12 +804,10 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDLed.Destroy;
 begin
-  // Free grayed buffer
-  FGrayedBuffer.Free;
-  // Free off buffer
-  FOffBuffer.Free;
-  // Free on buffer
-  FOnBuffer.Free;
+  // Release cached Skia snapshots
+  FGrayedImage := nil;
+  FOffImage := nil;
+  FOnImage := nil;
   // Free border
   FBorder.Free;
   // Free grayed color

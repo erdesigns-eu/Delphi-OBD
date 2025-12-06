@@ -13,7 +13,7 @@ unit OBD.Connection;
 interface
 
 uses
-  Winapi.Windows, System.Bluetooth, OBD.Connection.Types;
+  Winapi.Windows, System.Bluetooth, System.SyncObjs, OBD.Connection.Types;
 
 //------------------------------------------------------------------------------
 // CONNECTION TYPES
@@ -138,6 +138,14 @@ type
     ///   Event to emit when an error occured
     /// </summary>
     FOnError: TErrorEvent;
+    /// <summary>
+    ///   Synchronization object guarding event handler reads and writes
+    /// </summary>
+    FEventLock: TObject;
+    /// <summary>
+    ///   Synchronization object guarding connect, disconnect, and reconnect transitions.
+    /// </summary>
+    FConnectionLock: TObject;
   protected
     /// <summary>
     ///   On Data Send event handler GETTER
@@ -164,9 +172,46 @@ type
     /// </summary>
     procedure SetOnError(Value: TErrorEvent);
     /// <summary>
+    ///   Invoke the OnDataSend event with thread-safe handler lookup
+    /// </summary>
+    /// <param name="DataPtr">
+    ///   Pointer to the data buffer that was transmitted
+    /// </param>
+    /// <param name="DataSize">
+    ///   Number of bytes in the transmitted buffer
+    /// </param>
+    procedure InvokeDataSend(const DataPtr: Pointer; const DataSize: DWORD);
+    /// <summary>
+    ///   Invoke the OnDataReceived event with thread-safe handler lookup
+    /// </summary>
+    /// <param name="DataPtr">
+    ///   Pointer to the data buffer that was received
+    /// </param>
+    /// <param name="DataSize">
+    ///   Number of bytes in the received buffer
+    /// </param>
+    procedure InvokeDataReceived(const DataPtr: Pointer; const DataSize: DWORD);
+    /// <summary>
+    ///   Invoke the OnError event with thread-safe handler lookup
+    /// </summary>
+    /// <param name="ErrorCode">
+    ///   Numeric code describing the encountered error
+    /// </param>
+    /// <param name="ErrorMessage">
+    ///   Human-readable description of the error
+    /// </param>
+    procedure InvokeError(const ErrorCode: Integer; const ErrorMessage: string);
+    /// <summary>
     ///    Returns true if the interface is connected
     /// </summary>
     function Connected: Boolean; virtual; abstract;
+    /// <summary>
+    ///   Disconnect and reconnect with the supplied parameters in a thread-safe way.
+    /// </summary>
+    /// <param name="Params">
+    ///   Connection settings for the selected transport.
+    /// </param>
+    function Reconnect(const Params: TOBDConnectionParams): Boolean; virtual;
   public
     /// <summary>
     ///   Constructor: Allocate resources needed for the OBD Interface.
@@ -231,7 +276,12 @@ implementation
 //------------------------------------------------------------------------------
 function TOBDConnection.GetOnDataSend: TDataSendEvent;
 begin
-  Result := FOnDataSend;
+  TMonitor.Enter(FEventLock);
+  try
+    Result := FOnDataSend;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -239,7 +289,12 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDConnection.SetOnDataSend(Value: TDataSendEvent);
 begin
-  FOnDataSend := Value;
+  TMonitor.Enter(FEventLock);
+  try
+    FOnDataSend := Value;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -247,7 +302,12 @@ end;
 //------------------------------------------------------------------------------
 function TOBDConnection.GetOnDataReceived: TDataReceivedEvent;
 begin
-  Result := FOnDataReceive;
+  TMonitor.Enter(FEventLock);
+  try
+    Result := FOnDataReceive;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -255,7 +315,12 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDConnection.SetOnDataReceived(Value: TDataReceivedEvent);
 begin
-  FOnDataReceive := Value;
+  TMonitor.Enter(FEventLock);
+  try
+    FOnDataReceive := Value;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -263,7 +328,12 @@ end;
 //------------------------------------------------------------------------------
 function TOBDConnection.GetOnError: TErrorEvent;
 begin
-  Result := FOnError;
+  TMonitor.Enter(FEventLock);
+  try
+    Result := FOnError;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -271,7 +341,75 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDConnection.SetOnError(Value: TErrorEvent);
 begin
-  FOnError := Value;
+  TMonitor.Enter(FEventLock);
+  try
+    FOnError := Value;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// INVOKE DATA SEND HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDConnection.InvokeDataSend(const DataPtr: Pointer; const DataSize: DWORD);
+var
+  Handler: TDataSendEvent;
+begin
+  TMonitor.Enter(FEventLock);
+  try
+    Handler := FOnDataSend;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
+  if Assigned(Handler) then Handler(Self, DataPtr, DataSize);
+end;
+
+//------------------------------------------------------------------------------
+// INVOKE DATA RECEIVED HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDConnection.InvokeDataReceived(const DataPtr: Pointer; const DataSize: DWORD);
+var
+  Handler: TDataReceivedEvent;
+begin
+  TMonitor.Enter(FEventLock);
+  try
+    Handler := FOnDataReceive;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
+  if Assigned(Handler) then Handler(Self, DataPtr, DataSize);
+end;
+
+//------------------------------------------------------------------------------
+// INVOKE ERROR HANDLER
+//------------------------------------------------------------------------------
+procedure TOBDConnection.InvokeError(const ErrorCode: Integer; const ErrorMessage: string);
+var
+  Handler: TErrorEvent;
+begin
+  TMonitor.Enter(FEventLock);
+  try
+    Handler := FOnError;
+  finally
+    TMonitor.Exit(FEventLock);
+  end;
+  if Assigned(Handler) then Handler(Self, ErrorCode, ErrorMessage);
+end;
+
+//------------------------------------------------------------------------------
+// OBD CONNECTION RECONNECT
+//------------------------------------------------------------------------------
+function TOBDConnection.Reconnect(const Params: TOBDConnectionParams): Boolean;
+begin
+  TMonitor.Enter(FConnectionLock);
+  try
+    if Connected then
+      Disconnect;
+    Result := Connect(Params);
+  finally
+    TMonitor.Exit(FConnectionLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -280,6 +418,8 @@ end;
 constructor TOBDConnection.Create;
 begin
   inherited;
+  FEventLock := TObject.Create;
+  FConnectionLock := TObject.Create;
 end;
 
 //------------------------------------------------------------------------------
@@ -287,6 +427,8 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDConnection.Destroy;
 begin
+  FConnectionLock.Free;
+  FEventLock.Free;
   inherited;
 end;
 

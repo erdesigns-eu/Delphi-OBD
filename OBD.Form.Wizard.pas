@@ -378,6 +378,79 @@ const
     'Font.Name = ''Segoe UI'''                        + #13#10 +
     'Font.Style = []'                                 + #13#10 +
     'TextHeight = 15'                                 + #13#10 +
+
+    // Our OBD Touch controls
+    'object OBDTouchHeader1: TOBDTouchHeader'         + #13#10 +
+    'Left = 0'                                        + #13#10 +
+    'Top = 0'                                         + #13#10 +
+    'Width = 628'                                     + #13#10 +
+    'Height = 50'                                     + #13#10 +
+    'end'                                             + #13#10 +
+    'object OBDTouchSubheader1: TOBDTouchSubheader'   + #13#10 +
+    'Left = 0'                                        + #13#10 +
+    'Top = 50'                                        + #13#10 +
+    'Width = 628'                                     + #13#10 +
+    'Height = 25'                                     + #13#10 +
+    'end'                                             + #13#10 +
+    'object OBDTouchStatusbar1: TOBDTouchStatusbar'   + #13#10 +
+    'Left = 0'                                        + #13#10 +
+    'Top = 421'                                       + #13#10 +
+    'Width = 628'                                     + #13#10 +
+    'Height = 21'                                     + #13#10 +
+    'end'                                             + #13#10 +
+    'object OBDCircularGauge1: TOBDCircularGauge'     + #13#10 +
+    'Left = 192'                                      + #13#10 +
+    'Top = 104'                                       + #13#10 +
+    'Width = 225'                                     + #13#10 +
+    'Height = 225'                                    + #13#10 +
+    'Value = 0.000000000000000000'                     + #13#10 +
+    'end'                                             + #13#10 +
+    // Our OBD Touch controls
+
+    // Non-visual OBD components
+    'object OBDConnectionComponent1: TOBDConnectionComponent' + #13#10 +
+    '  ConnectionType = ctSerial'                       + #13#10 +
+    '  SerialPort = ''COM1'''                           + #13#10 +
+    '  SerialBaudRate = br38400'                        + #13#10 +
+    '  Left = 40'                                       + #13#10 +
+    '  Top = 336'                                       + #13#10 +
+    'end'                                               + #13#10 +
+    'object OBDProtocolComponent1: TOBDProtocolComponent' + #13#10 +
+    '  ConnectionComponent = OBDConnectionComponent1'   + #13#10 +
+    '  AutoBindConnection = True'                       + #13#10 +
+    '  Left = 168'                                      + #13#10 +
+    '  Top = 336'                                       + #13#10 +
+    'end'                                               + #13#10 +
+    'object OBDHeaderComponent1: TOBDHeaderComponent'   + #13#10 +
+    '  Header = OBDTouchHeader1'                        + #13#10 +
+    '  ConnectionComponent = OBDConnectionComponent1'   + #13#10 +
+    '  AutoBindConnection = True'                       + #13#10 +
+    '  AutoApplyCaption = True'                         + #13#10 +
+    '  AutoApplyBattery = True'                         + #13#10 +
+    '  Left = 296'                                      + #13#10 +
+    '  Top = 336'                                       + #13#10 +
+    'end'                                               + #13#10 +
+    'object OBDSubheaderComponent1: TOBDSubheaderComponent' + #13#10 +
+    '  Subheader = OBDTouchSubheader1'                  + #13#10 +
+    '  ConnectionComponent = OBDConnectionComponent1'   + #13#10 +
+    '  ProtocolComponent = OBDProtocolComponent1'       + #13#10 +
+    '  AutoBindConnection = True'                       + #13#10 +
+    '  AutoBindProtocol = True'                         + #13#10 +
+    '  AutoApplyConnectionCaptions = True'              + #13#10 +
+    '  AutoApplyProtocolCaption = True'                 + #13#10 +
+    '  Left = 440'                                      + #13#10 +
+    '  Top = 336'                                       + #13#10 +
+    'end'                                               + #13#10 +
+    'object OBDGaugeComponent1: TOBDGaugeComponent'     + #13#10 +
+    '  Gauge = OBDCircularGauge1'                       + #13#10 +
+    '  ProtocolComponent = OBDProtocolComponent1'       + #13#10 +
+    '  AutoBindProtocol = True'                         + #13#10 +
+    '  AutoApplyValue = True'                           + #13#10 +
+    '  Left = 568'                                      + #13#10 +
+    '  Top = 336'                                       + #13#10 +
+    'end'                                               + #13#10 +
+    // Non-visual OBD components
+
     'end';
 begin
   Result := TOBDSourceFile.Create(Format(FormDFMTemplate, [FormIdent, FormIdent, FormIdent]))
@@ -406,17 +479,31 @@ const
     'uses'                                                                                               + #13#10 +
     '  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,' + #13#10 +
     '  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,'                                                            + #13#10 +
-    ''                                                                                                   + #13#10 +
-    '  OBD.Form;'                                                                                        + #13#10 +
-    ''                                                                                                   + #13#10 +
+
+    '  OBD.Form, OBD.Touch.Subheader, OBD.Touch.Header, OBD.Touch.Statusbar, OBD.CircularGauge,'         + #13#10 +
+    '  OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component,'                          + #13#10 +
+    '  OBD.Subheader.Component, OBD.Gauge.Component;'                                                    + #13#10 +
+
     'type'                                                                                               + #13#10 +
     '  T%s = class(T%s)'                                                                                 + #13#10 +
+
+    // Our OBD Touch controls
+    '    OBDTouchHeader1: TOBDTouchHeader;'                                                              + #13#10 +
+    '    OBDTouchSubheader1: TOBDTouchSubheader;'                                                        + #13#10 +
+    '    OBDTouchStatusbar1: TOBDTouchStatusbar;'                                                        + #13#10 +
+    '    OBDCircularGauge1: TOBDCircularGauge;'                                                          + #13#10 +
+    '    OBDConnectionComponent1: TOBDConnectionComponent;'                                              + #13#10 +
+    '    OBDProtocolComponent1: TOBDProtocolComponent;'                                                  + #13#10 +
+    '    OBDHeaderComponent1: TOBDHeaderComponent;'                                                      + #13#10 +
+    '    OBDSubheaderComponent1: TOBDSubheaderComponent;'                                                + #13#10 +
+    '    OBDGaugeComponent1: TOBDGaugeComponent;'                                                        + #13#10 +
+    // Our OBD Touch controls
+
     '  private'                                                                                          + #13#10 +
     '    { Private declarations }'                                                                       + #13#10 +
     '  public'                                                                                           + #13#10 +
     '    { Public declarations }'                                                                        + #13#10 +
     '  end;'                                                                                             + #13#10 +
-    ''                                                                                                   + #13#10 +
     'var'                                                                                                + #13#10 +
     '  %s: T%s;'                                                                                         + #13#10 +
     ''                                                                                                   + #13#10 +

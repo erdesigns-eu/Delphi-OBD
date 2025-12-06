@@ -122,14 +122,20 @@
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="vclimg.dcp"/>
         <DCCReference Include="..\OBD.CustomControl.Animation.pas"/>
-        <DCCReference Include="..\OBD.CustomControl.Common.pas"/>
+        <DCCReference Include="..\OBD.CustomControl.Helpers.pas"/>
         <DCCReference Include="..\OBD.CustomControl.Constants.pas"/>
         <DCCReference Include="..\OBD.CustomControl.pas"/>
+        <DCCReference Include="..\OBD.Component.BindingHelpers.pas"/>
         <DCCReference Include="..\OBD.LED.pas"/>
         <DCCReference Include="..\OBD.MatrixDisplay.pas"/>
         <DCCReference Include="..\OBD.Touch.Header.pas"/>
         <DCCReference Include="..\OBD.Touch.Statusbar.pas"/>
         <DCCReference Include="..\OBD.Touch.Subheader.pas"/>
+        <DCCReference Include="..\OBD.Connection.Component.pas"/>
+        <DCCReference Include="..\OBD.Protocol.Component.pas"/>
+        <DCCReference Include="..\OBD.Gauge.Component.pas"/>
+        <DCCReference Include="..\OBD.Header.Component.pas"/>
+        <DCCReference Include="..\OBD.Subheader.Component.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

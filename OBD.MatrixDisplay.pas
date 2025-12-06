@@ -13,10 +13,10 @@ unit OBD.MatrixDisplay;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes,
+  System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
+  System.Math, Vcl.Graphics, System.Skia, Skia.Vcl,
 
-  OBD.CustomControl, OBD.CustomControl.Common;
+  OBD.CustomControl, OBD.CustomControl.Helpers;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -315,6 +315,14 @@ type
     /// </summary>
     FBackgroundBuffer: TBitmap;
     /// <summary>
+    ///   Cached Skia background image to reuse across paint cycles
+    /// </summary>
+    FBackgroundImage: ISkImage;
+    /// <summary>
+    ///   Lightweight lock to coordinate multithreaded cell access
+    /// </summary>
+    FCellsLock: TObject;
+    /// <summary>
     ///   Window handle needed for the timer
     /// </summary>
     FWindowHandle: THandle;
@@ -405,6 +413,10 @@ type
     ///   Initialize cells
     /// </summary>
     procedure InitializeCells;
+    /// <summary>
+    ///   Executes a routine while holding the cell monitor for thread safety
+    /// </summary>
+    procedure ExecuteWithCellsLocked(const Action: TProc);
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -413,7 +425,7 @@ type
     /// <summary>
     ///   Paint matrix cells
     /// </summary>
-    procedure PaintMatrix; virtual;
+    procedure PaintMatrix(const ACanvas: ISkCanvas); virtual;
     /// <summary>
     ///   Paint buffer
     /// </summary>
@@ -557,7 +569,7 @@ type
 implementation
 
 uses
-  Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -879,12 +891,36 @@ procedure TOBDMatrixDisplay.InitializeCells;
 var
   R, C: Integer;
 begin
-  // Set the length of the cells
-  SetLength(FCells, FRows, FCols);
-  // Initialize cells
-  for R := 0 to FRows -1 do
-  for C := 0 to FCols -1 do
-  FCells[R, C] := False;
+  // Initialize the cell matrix within a monitor to allow safe concurrent access
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      // Set the length of the cells
+      SetLength(FCells, FRows, FCols);
+      // Initialize cells
+      for R := 0 to FRows - 1 do
+        for C := 0 to FCols - 1 do
+          FCells[R, C] := False;
+    end);
+end;
+
+//------------------------------------------------------------------------------
+// EXECUTE WITH CELLS LOCKED
+//------------------------------------------------------------------------------
+procedure TOBDMatrixDisplay.ExecuteWithCellsLocked(const Action: TProc);
+begin
+  // If there is no work to perform, simply exit without acquiring the monitor
+  if not Assigned(Action) then
+    Exit;
+
+  // Acquire the monitor so parallel timers or worker threads cannot mutate the buffer mid-frame
+  TMonitor.Enter(FCellsLock);
+  try
+    Action;
+  finally
+    // Always release the monitor to prevent deadlocks
+    TMonitor.Exit(FCellsLock);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -892,126 +928,114 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.InvalidateBackground;
 var
-  SS: TCustomStyleServices;
-  Graphics: TGPGraphics;
-  BackgroundRect, BorderRect, GlareRect: TGPRectF;
-  Brush, GlareBrush: TGPBrush;
-  Pen: TGPPen;
-  Path, GlarePath: TGPGraphicsPath;
+  BackgroundRect, BorderRect: TRectF;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Path: ISkPath;
+  Paint: ISkPaint;
 begin
   // Update the size of the background buffer
   FBackgroundBuffer.SetSize(Width, Height);
 
-  // If VCL styles is available and enabled, then draw the VCL Style background
-  // so it matches the active style background like on the Form or a Panel.
-  if TStyleManager.IsCustomStyleActive then
+  // Allocate a Skia surface for fully hardware-accelerated drawing
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
+
+  // Clear the canvas using the resolved style color so the base matches styled controls
+  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+
+  // Draw the background gradient if both colors are provided
+  if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    SS := StyleServices;
-    // Draw the styled background
-    SS.DrawElement(FBackgroundBuffer.Canvas.Handle, SS.GetElementDetails(twWindowRoot), Rect(0, 0, Width, Height));
-  end else
-  // Otherwise fill the background with the color.
-  with FBackgroundBuffer.Canvas do
-  begin
-    // Use the component color
-    Brush.Color := Self.Color;
-    // Use a solid brush
-    Brush.Style := bsSolid;
-    // Fill the background with the component color
-    FillRect(Rect(0, 0, Width, Height));
-  end;
-
-  // Initialize GDI+ Graphics object
-  Graphics := TGPGraphics.Create(FBackgroundBuffer.Canvas.Handle);
-  try
-    // Set smoothing mode to high-quality
-    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-    // Set compositing quality to high-quality
-    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
-
-    // Draw the backround
-    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
-    begin
-      // Get the rectangle for the background
-      BackgroundRect := MakeRect(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
-      // Create the background brush
-      Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
-      // Get the background path
-      Path := CreateRoundRectPath(BackgroundRect, Border.Corner);
-      try
-        // Fill the background
-        Graphics.FillPath(Brush, Path);
-      finally
-        // Free the background brush object
-        Brush.Free;
-        // Free the background path
-        Path.Free;
-      end;
-    end;
-
-    // Draw the glare
-    GlareRect := MakeRect(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
-    GlarePath := CreateGlareRoundRectPath(GlareRect, Border.Corner);
-    GlareBrush := TGPLinearGradientBrush.Create(GlareRect, MakeColor(75, 255, 255, 255), MakeColor(30, 255, 255, 255), LinearGradientModeVertical);
+    // Calculate the background rectangle taking the border thickness into account
+    BackgroundRect := TRectF.Create(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2));
+    // Build a Skia path for the rounded rectangle once
+    Path := CreateSkRoundRectPath(RectF(BackgroundRect.Left, BackgroundRect.Top, BackgroundRect.Right, BackgroundRect.Bottom), Border.Corner);
+    // Configure gradient paint
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+      [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
     try
-      Graphics.FillPath(GlareBrush, GlarePath);
+      // Fill the rounded rectangle with the gradient
+      Canvas.DrawPath(Path, Paint);
     finally
-      GlarePath.Free;
-      GlareBrush.Free;
+      Paint := nil;
+      Path := nil;
     end;
-
-    // Draw the border
-    if(Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
-    begin
-      // Get the rectangle for the border
-      BorderRect := MakeRect(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2) + 0.0);
-      // Create the border brush
-      Brush := TGPLinearGradientBrush.Create(BorderRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-      // Create the border pen
-      Pen := TGPPen.Create(Brush, Border.Width);
-      Pen.SetAlignment(PenAlignmentInset);
-      // Get the border path
-      Path := CreateRoundRectPath(BorderRect, Border.Corner);
-      try
-        // Draw the border
-        Graphics.DrawPath(Pen, Path);
-      finally
-        // Free the background brush object
-        Brush.Free;
-        // Free the background pen object
-        Pen.Free;
-        // Free the border path
-        Path.Free;
-      end;
-    end;
-
-  finally
-    Graphics.Free;
   end;
+
+  // Draw a subtle glare overlay to mimic the previous glossy effect
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.BlendMode := TSkBlendMode.SrcOver;
+  Paint.Shader := TSkShader.MakeLinearGradient(
+    TSkPoint.Create(0, Border.Width),
+    TSkPoint.Create(0, (Height - Border.Width) / 2),
+    [$4BFFFFFF, $1EFFFFFF],
+    nil,
+    TSkTileMode.Clamp);
+  Path := CreateSkRoundRectPath(RectF(Border.Width + 0.0, Border.Width, Width - (Border.Width * 2), Height - (Border.Width * 2)), Border.Corner);
+  try
+    Canvas.DrawPath(Path, Paint);
+  finally
+    Paint := nil;
+    Path := nil;
+  end;
+
+  // Draw the border using a vertical gradient stroke when configured
+  if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) and (Border.Width > 0) then
+  begin
+    BorderRect := TRectF.Create(MARGIN_FROM_BORDER, MARGIN_FROM_BORDER, Width - (MARGIN_FROM_BORDER * 2), Height - (MARGIN_FROM_BORDER * 2) + 0.0);
+    Path := CreateSkRoundRectPath(RectF(BorderRect.Left, BorderRect.Top, BorderRect.Right, BorderRect.Bottom), Border.Corner);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := Border.Width;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
+      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    try
+      Canvas.DrawPath(Path, Paint);
+    finally
+      Paint := nil;
+      Path := nil;
+    end;
+  end;
+
+  // Persist the Skia-rendered background so it can be reused by the paint buffer
+  FBackgroundImage := Surface.MakeImageSnapshot;
+  if FBackgroundImage <> nil then
+    FBackgroundImage.ToBitmap(FBackgroundBuffer);
 end;
 
 //------------------------------------------------------------------------------
 // PAINT MATRIX
 //------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.PaintMatrix;
-
-  procedure PaintCell(CellRect: TRect; Value: Boolean);
-  begin
-    with Buffer.Canvas do
-    begin
-      // Set brush color
-      if Value then
-        Brush.Color := GetAppropriateColor(FOnColor)
-      else
-        Brush.Color := GetAppropriateColor(FOffColor);
-      // Draw cell
-      FillRect(CellRect);
-    end;
-  end;
-
+procedure TOBDMatrixDisplay.PaintMatrix(const ACanvas: ISkCanvas);
 var
   CenterX, CenterY, StartX, X, Y, R, C: Integer;
+  PaintOn, PaintOff: ISkPaint;
+  CellRect: TRectF;
 begin
+  // Prepare paint objects upfront to avoid allocations inside the nested loops
+  PaintOn := TSkPaint.Create;
+  PaintOn.Style := TSkPaintStyle.Fill;
+  PaintOn.Color := SafeColorRefToSkColor(FOnColor);
+  PaintOn.AntiAlias := False;
+
+  PaintOff := TSkPaint.Create;
+  PaintOff.Style := TSkPaintStyle.Fill;
+  PaintOff.Color := SafeColorRefToSkColor(FOffColor);
+  PaintOff.AntiAlias := False;
+
   // Get horizontal center
   CenterX := Width div 2;
   // Get vertical center
@@ -1025,41 +1049,64 @@ begin
   // Remember the start position
   StartX := X;
 
-  // Loop over rows
-  for R := 0 to Rows -1 do
-  begin
-    // Loop over cols
-    for C := 0 to Cols -1 do
+  // Lock cells so drawing remains thread-safe when animation updates come from timers
+  ExecuteWithCellsLocked(
+    procedure
     begin
-      // Make sure we dont paint over the border
-      if (X > (Border.Width + (CellSpacing * 2))) and (X < (Width - ((Border.Width * 2)) + (CellSpacing * 2))) and
-         (Y > (Border.Width + (CellSpacing * 2))) and (Y < (Height - ((Border.Width * 2)) + (CellSpacing * 2))) then
-      // Paint the cell
-      PaintCell(TRect.Create(X, Y, X + CellSize, Y + CellSize), FCells[R][C]);
-      // Increase the X position
-      Inc(X, CellSize + CellSpacing);
-    end;
-    // Reset the X position
-    X := StartX;
-    // Increase the Y position
-    Inc(Y, CellSize + CellSpacing);
-  end;
+      // Loop over rows
+      for R := 0 to Rows - 1 do
+      begin
+        // Loop over cols
+        for C := 0 to Cols - 1 do
+        begin
+          // Make sure we dont paint over the border
+          if (X > (Border.Width + (CellSpacing * 2))) and (X < (Width - ((Border.Width * 2)) + (CellSpacing * 2))) and
+             (Y > (Border.Width + (CellSpacing * 2))) and (Y < (Height - ((Border.Width * 2)) + (CellSpacing * 2))) then
+          begin
+            // Convert the integer rect into a Skia rectangle and draw using the correct paint
+            CellRect := TRectF.Create(X, Y, X + CellSize, Y + CellSize);
+            if FCells[R][C] then
+              ACanvas.DrawRect(CellRect, PaintOn)
+            else
+              ACanvas.DrawRect(CellRect, PaintOff);
+          end;
+          // Increase the X position
+          Inc(X, CellSize + CellSpacing);
+        end;
+        // Reset the X position
+        X := StartX;
+        // Increase the Y position
+        Inc(Y, CellSize + CellSpacing);
+      end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
 // PAINT BUFFER
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.PaintBuffer;
+var
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
 begin
-  // Call inherited PaintBuffer
+  // Call inherited PaintBuffer to keep any base class hooks intact
   inherited;
-  // Copy the background buffer to the main buffer, by buffering the background
-  // and only updating the background buffer when the background is changed
-  // allows us to just copy the background buffer, which speeds up our PaintBuffer
-  // resulting in less CPU consumption and allowing higher framerates.
-  BitBlt(Buffer.Canvas.Handle, 0, 0, Width, Height, FBackgroundBuffer.Canvas.Handle, 0,  0, SRCCOPY);
-  // Paint matrix cells on the buffer.
-  PaintMatrix;
+
+  // Create a Skia surface for compositing the pre-rendered background and cells
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
+
+  // Draw the cached background image first for optimal overdraw behavior
+  if FBackgroundImage <> nil then
+    Canvas.DrawImage(FBackgroundImage, 0, 0)
+  else
+    Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+
+  // Paint matrix cells on the Skia canvas
+  PaintMatrix(Canvas);
+
+  // Transfer the finished frame back to the buffered bitmap used by the base control
+  Surface.MakeImageSnapshot.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -1123,7 +1170,11 @@ begin
   if Col > Cols then Exit;
 
   // If we make it here, the row and column exist so lets return its value.
-  Result := FCells[Row][Col];
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      Result := FCells[Row][Col];
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1135,7 +1186,11 @@ begin
   if Col > Cols then Exit;
 
   // If we make it here, the row and column exist so lets set its value.
-  FCells[Row][Col] := Value;
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      FCells[Row][Col] := Value;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1203,6 +1258,8 @@ begin
   FBackgroundBuffer := TBitmap.Create;
   // Set the background buffer pixel format
   FBackgroundBuffer.PixelFormat := pf32bit;
+  // Create a lightweight lock object for multithreaded access
+  FCellsLock := TObject.Create;
   // Set defaults
   FCellSize := DEFAULT_CELL_SIZE;
   FCellSpacing := DEFAULT_CELL_SPACING;
@@ -1249,6 +1306,8 @@ begin
   end;
   // Free background buffer
   FBackgroundBuffer.Free;
+  // Release the cell lock
+  FCellsLock.Free;
   // Free background
   FBackground.Free;
   // Free border
@@ -1290,8 +1349,14 @@ procedure TOBDMatrixDisplay.Clear;
 var
   R, C: Integer;
 begin
-  // Clear all cells
-  for R := 0 to FRows -1 do for C := 0 to FCols -1 do FCells[R, C] := False;
+  // Clear all cells inside a monitored block for safe concurrent access
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      for R := 0 to FRows - 1 do
+        for C := 0 to FCols - 1 do
+          FCells[R, C] := False;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1301,8 +1366,14 @@ procedure TOBDMatrixDisplay.Invert;
 var
   R, C: Integer;
 begin
-  // Invert all cells
-  for R := 0 to FRows -1 do for C := 0 to FCols -1 do FCells[R, C] := not FCells[R, C];
+  // Invert all cells while holding the monitor so timer callbacks cannot interleave
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      for R := 0 to FRows - 1 do
+        for C := 0 to FCols - 1 do
+          FCells[R, C] := not FCells[R, C];
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1315,21 +1386,25 @@ begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
-  if Loop then
-  begin
-    // Shift the rows up by Step
-    for R := 0 to FRows - Step - 1 do FCells[R] := FCells[R + Step];
-    // Wrap the rows from the bottom to the top
-    for R := FRows - Step to FRows - 1 do FCells[R] := FCells[R - FRows + Step];
-  end else
-  begin
-    // Shift the rows up by Step
-    for R := 0 to FRows - Step - 1 do FCells[R] := FCells[R + Step];
-    // Fill the new rows with False
-    for R := FRows - Step to FRows - 1 do
-    for C := 0 to FCols - 1 do
-    FCells[R][C] := False;
-  end;
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      if Loop then
+      begin
+        // Shift the rows up by Step
+        for R := 0 to FRows - Step - 1 do FCells[R] := FCells[R + Step];
+        // Wrap the rows from the bottom to the top
+        for R := FRows - Step to FRows - 1 do FCells[R] := FCells[R - FRows + Step];
+      end else
+      begin
+        // Shift the rows up by Step
+        for R := 0 to FRows - Step - 1 do FCells[R] := FCells[R + Step];
+        // Fill the new rows with False
+        for R := FRows - Step to FRows - 1 do
+          for C := 0 to FCols - 1 do
+            FCells[R][C] := False;
+      end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1342,21 +1417,25 @@ begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
-  if Loop then
-  begin
-    // Shift the rows down by Step
-    for R := FRows - 1 downto Step do FCells[R] := FCells[R - Step];
-    // Wrap the rows from the top to the bottom
-    for R := 0 to Step - 1 do FCells[R] := FCells[R + FRows - Step];
-  end else
-  begin
-    // Shift the rows down by Step
-    for R := FRows - 1 downto Step do FCells[R] := FCells[R - Step];
-    // Fill the new rows with False
-    for R := 0 to Step - 1 do
-    for C := 0 to FCols - 1 do
-    FCells[R][C] := False;
-  end;
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      if Loop then
+      begin
+        // Shift the rows down by Step
+        for R := FRows - 1 downto Step do FCells[R] := FCells[R - Step];
+        // Wrap the rows from the top to the bottom
+        for R := 0 to Step - 1 do FCells[R] := FCells[R + FRows - Step];
+      end else
+      begin
+        // Shift the rows down by Step
+        for R := FRows - 1 downto Step do FCells[R] := FCells[R - Step];
+        // Fill the new rows with False
+        for R := 0 to Step - 1 do
+          for C := 0 to FCols - 1 do
+            FCells[R][C] := False;
+      end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1369,27 +1448,31 @@ begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
-  if Loop then
-  begin
-    // Shift the columns left by Step
-    for R := 0 to FRows - 1 do
-    for C := 0 to FCols - Step - 1 do
-    FCells[R][C] := FCells[R][C + Step];
-    // Wrap the columns from the right to the left
-    for R := 0 to FRows - 1 do
-    for C := FCols - Step to FCols - 1 do
-    FCells[R][C] := FCells[R][C - FCols + Step];
-  end else
-  begin
-    // Shift the columns left by Step
-    for R := 0 to FRows - 1 do
-    for C := 0 to FCols - Step - 1 do
-    FCells[R][C] := FCells[R][C + Step];
-    // Fill the new columns with False
-    for R := 0 to FRows - 1 do
-    for C := FCols - Step to FCols - 1 do
-    FCells[R][C] := False;
-  end;
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      if Loop then
+      begin
+        // Shift the columns left by Step
+        for R := 0 to FRows - 1 do
+          for C := 0 to FCols - Step - 1 do
+            FCells[R][C] := FCells[R][C + Step];
+        // Wrap the columns from the right to the left
+        for R := 0 to FRows - 1 do
+          for C := FCols - Step to FCols - 1 do
+            FCells[R][C] := FCells[R][C - FCols + Step];
+      end else
+      begin
+        // Shift the columns left by Step
+        for R := 0 to FRows - 1 do
+          for C := 0 to FCols - Step - 1 do
+            FCells[R][C] := FCells[R][C + Step];
+        // Fill the new columns with False
+        for R := 0 to FRows - 1 do
+          for C := FCols - Step to FCols - 1 do
+            FCells[R][C] := False;
+      end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1402,27 +1485,31 @@ begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
-  if Loop then
-  begin
-    // Shift the columns right by Step
-    for R := 0 to FRows - 1 do
-    for C := FCols - 1 downto Step do
-    FCells[R][C] := FCells[R][C - Step];
-    // Wrap the columns from the left to the right
-    for R := 0 to FRows - 1 do
-    for C := 0 to Step - 1 do
-    FCells[R][C] := FCells[R][C + FCols - Step];
-  end else
-  begin
-    // Shift the columns right by Step
-    for R := 0 to FRows - 1 do
-    for C := FCols - 1 downto Step do
-    FCells[R][C] := FCells[R][C - Step];
-    // Fill the new columns with False
-    for R := 0 to FRows - 1 do
-    for C := 0 to Step - 1 do
-    FCells[R][C] := False;
-  end;
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      if Loop then
+      begin
+        // Shift the columns right by Step
+        for R := 0 to FRows - 1 do
+          for C := FCols - 1 downto Step do
+            FCells[R][C] := FCells[R][C - Step];
+        // Wrap the columns from the left to the right
+        for R := 0 to FRows - 1 do
+          for C := 0 to Step - 1 do
+            FCells[R][C] := FCells[R][C + FCols - Step];
+      end else
+      begin
+        // Shift the columns right by Step
+        for R := 0 to FRows - 1 do
+          for C := FCols - 1 downto Step do
+            FCells[R][C] := FCells[R][C - Step];
+        // Fill the new columns with False
+        for R := 0 to FRows - 1 do
+          for C := 0 to Step - 1 do
+            FCells[R][C] := False;
+      end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1443,15 +1530,19 @@ var
 begin
   // First clear the display
   Clear;
-  // Loop over the bitmap pixels
-  for R := 0 to Value.Height do
-  for C := 0 to Value.Width do
-  begin
-    // Make sure the pixel is in the range of our rows and cols
-    if (Row >= 0) and ((Row + R) < Rows) and (Col >= 0) and ((Col + C) < Cols) then
-    // Set the cell on/off depending on the pixel
-    FCells[Row + R, Col + C] := IsCellOn(R, C);
-  end;
+  // Loop over the bitmap pixels while holding the monitor to keep state coherent
+  ExecuteWithCellsLocked(
+    procedure
+    begin
+      for R := 0 to Value.Height do
+        for C := 0 to Value.Width do
+        begin
+          // Make sure the pixel is in the range of our rows and cols
+          if (Row >= 0) and ((Row + R) < Rows) and (Col >= 0) and ((Col + C) < Cols) then
+            // Set the cell on/off depending on the pixel
+            FCells[Row + R, Col + C] := IsCellOn(R, C);
+        end;
+    end);
 end;
 
 //------------------------------------------------------------------------------
@@ -1485,31 +1576,54 @@ end;
 procedure TOBDMatrixDisplay.LoadText(const Value: string; const Row: Integer = 0; const Col: Integer = 0; const Inversed: Boolean = False);
 var
   W, H: Integer;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  Typeface: ISkTypeface;
+  SkFont: ISkFont;
+  Bounds: TRectF;
   B: TBitmap;
+
+  function CreateTypeface(const AFont: TFont): ISkTypeface;
+  var
+    Weight: TSkFontStyleWeight;
+    Slant: TSkFontStyleSlant;
+  begin
+    Weight := TSkFontStyleWeight.Normal;
+    if fsBold in AFont.Style then
+      Weight := TSkFontStyleWeight.Bold;
+
+    Slant := TSkFontStyleSlant.Upright;
+    if fsItalic in AFont.Style then
+      Slant := TSkFontStyleSlant.Italic;
+
+    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
+  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    // Set bitmap to 1 bit - black/white
-    B.PixelFormat := pf1bit;
-    B.Monochrome  := True;
-    // Draw the text on the bitmap
-    with B.Canvas do
-    begin
-      Font.Assign(Self.Font);
-      Font.Color := clBlack;
-      // Calculate the text width
-      W := TextWidth(Value);
-      // Calculate the text height
-      H := TextHeight(Value);
-      // Set the size of the bitmap
-      B.SetSize(W, H);
-      // Fill the background white
-      Brush.Color := clWhite;
-      FillRect(Rect(0, 0, W, H));
-      // Draw the text
-      TextOut(0, 0, Value);
-    end;
+    Typeface := CreateTypeface(Font);
+    SkFont := TSkFont.Create(Typeface, Font.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := TAlphaColors.Black;
+    Paint.TextAlign := TSkTextAlign.Left;
+
+    // Measure the text using Skia so the mask bitmap fits snugly
+    W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
+    H := Ceil(Bounds.Height);
+
+    // Create a Skia surface that renders the monochrome mask
+    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Canvas := Surface.Canvas;
+    Canvas.Clear(TAlphaColors.White);
+    Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
+
+    // Extract the Skia-rendered text into a bitmap for cell loading
+    Surface.MakeImageSnapshot.ToBitmap(B);
     // Load the mask
     LoadMask(B, Row, Col, Inversed);
   finally
@@ -1523,31 +1637,54 @@ end;
 procedure TOBDMatrixDisplay.LoadTextCentered(const Value: string; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
 var
   W, H: Integer;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  Typeface: ISkTypeface;
+  SkFont: ISkFont;
+  Bounds: TRectF;
   B: TBitmap;
+
+  function CreateTypeface(const AFont: TFont): ISkTypeface;
+  var
+    Weight: TSkFontStyleWeight;
+    Slant: TSkFontStyleSlant;
+  begin
+    Weight := TSkFontStyleWeight.Normal;
+    if fsBold in AFont.Style then
+      Weight := TSkFontStyleWeight.Bold;
+
+    Slant := TSkFontStyleSlant.Upright;
+    if fsItalic in AFont.Style then
+      Slant := TSkFontStyleSlant.Italic;
+
+    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
+  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    // Set bitmap to 1 bit - black/white
-    B.PixelFormat := pf1bit;
-    B.Monochrome  := True;
-    // Draw the text on the bitmap
-    with B.Canvas do
-    begin
-      Font.Assign(Self.Font);
-      Font.Color := clBlack;
-      // Calculate the text width
-      W := TextWidth(Value);
-      // Calculate the text height
-      H := TextHeight(Value);
-      // Set the size of the bitmap
-      B.SetSize(W, H);
-      // Fill the background white
-      Brush.Color := clWhite;
-      FillRect(Rect(0, 0, W, H));
-      // Draw the text
-      TextOut(0, 0, Value);
-    end;
+    Typeface := CreateTypeface(Font);
+    SkFont := TSkFont.Create(Typeface, Font.Size);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := TAlphaColors.Black;
+    Paint.TextAlign := TSkTextAlign.Left;
+
+    // Measure the text using Skia so the mask bitmap fits snugly
+    W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
+    H := Ceil(Bounds.Height);
+
+    // Create a Skia surface that renders the monochrome mask
+    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Canvas := Surface.Canvas;
+    Canvas.Clear(TAlphaColors.White);
+    Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
+
+    // Extract the Skia-rendered text into a bitmap for cell loading
+    Surface.MakeImageSnapshot.ToBitmap(B);
     // Load the mask
     Self.LoadMaskCenterd(B, Horizontal, Vertical, Inversed);
   finally

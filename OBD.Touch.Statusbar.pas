@@ -17,7 +17,7 @@ uses
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
   Vcl.Forms,
 
-  OBD.LED, OBD.CustomControl.Common, OBD.CustomControl.Constants;
+  OBD.LED, OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -713,7 +713,7 @@ type
 implementation
 
 uses
-  Winapi.GDIPOBJ, Winapi.GDIPAPI, System.Math;
+  System.Math, System.Skia, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -1569,339 +1569,253 @@ const
   PanelPadding = 4;
   LedSize = 14;
 var
-  Graphics: TGPGraphics;
-
-  //----------------------------------------------------------------------------
-  // MEASURE THE TEXT WIDTH
-  //----------------------------------------------------------------------------
-  function TextWidth(const Text: string; Font: TFont): Integer;
-  var
-    F: TGPFont;
-    FF: TGPFontFamily;
-    SF: TGPStringFormat;
-    CR: TGPRectF;
-    RR: TGPRectF;
-  begin
-    FF := TGPFontFamily.Create(Font.Name);
-    F := TGPFont.Create(FF, Font.Size, OBD.CustomControl.Common.FontStyle(Font), UnitPoint);
-    SF := TGPStringFormat.Create;
-    SF.SetAlignment(StringAlignmentNear);
-    SF.SetLineAlignment(StringAlignmentCenter);
-    try
-      CR := MakeRect(0.0, 0, 10000, 10000);
-      if Graphics.MeasureString(Text, Length(Text), F, CR, SF, RR) = Ok then
-        Result := Ceil(RR.Width)
-      else
-        Result := 0;
-    finally
-      F.Free;
-      FF.Free;
-      SF.Free;
-    end;
-  end;
-
-  //----------------------------------------------------------------------------
-  // MEASURE THE TEXT WIDTH
-  //----------------------------------------------------------------------------
-  procedure PaintLed(Panel: TOBDTouchStatusbarPanel);
-  var
-    SS: TCustomStyleServices;
-    X, Y: Single;
-    Graphics: TGPGraphics;
-    BorderRect, LedRect: TGPRectF;
-    Brush: TGPBrush;
-    Pen: TGPPen;
-  begin
-    // Initialize GDI+ Graphics object
-    Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
-    try
-      // Set smoothing mode to high-quality
-      Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-      // Set compositing quality to high-quality
-      Graphics.SetCompositingQuality(CompositingQualityHighQuality);
-
-      X := Panel.PanelRect.Left;
-      Y := (Border.Height + ((ClientRect.Height - Border.Height) / 2)) - (LedSize / 2);
-
-      // Get the rectangle for the border
-      BorderRect := MakeRect(X, Y, LedSize, LedSize);
-
-      // Draw the background - we use a clWindow color for the background,
-      // this shines a bit through to offset the color and the border.
-      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(clWindow));
-      try
-        Graphics.FillEllipse(Brush, BorderRect);
-      finally
-        // Free brush object
-        Brush.Free;
-      end;
-
-      // Get the rectangle for the led color
-      LedRect := MakeRect(X + Panel.LedBorder.Width + 1, Y + Panel.LedBorder.Width + 1, LedSize - (Panel.LedBorder.Width * 2) - 2,  LedSize - (Panel.LedBorder.Width * 2) - 2);
-
-      // Create the led brush
-      case Panel.LedState of
-        lsGrayed : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedGrayedColor.FromColor), SafeColorRefToARGB(Panel.LedGrayedColor.ToColor), LinearGradientModeVertical);
-        lsOff    : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedOffColor.FromColor), SafeColorRefToARGB(Panel.LedOffColor.ToColor), LinearGradientModeVertical);
-        lsOn     : Brush := TGPLinearGradientBrush.Create(LedRect, SafeColorRefToARGB(Panel.LedOnColor.FromColor), SafeColorRefToARGB(Panel.LedOnColor.ToColor), LinearGradientModeVertical);
-      end;
-      // Create the led pen
-      case Panel.LedState of
-        lsGrayed : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedGrayedColor.FromColor), 1.5);
-        lsOff    : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedOffColor.FromColor), 1.5);
-        lsOn     : Pen := TGPPen.Create(SafeColorRefToARGB(Panel.LedOnColor.FromColor), 1.5);
-      end;
-      Pen.SetAlignment(PenAlignmentInset);
-      // Draw the led
-      try
-        Graphics.FillEllipse(Brush, LedRect);
-        Graphics.DrawEllipse(Pen, LedRect);
-      finally
-        Brush.Free;
-        Pen.Free;
-      end;
-
-      // Draw the border
-      if (Panel.LedBorder.FromColor <> clNone) and (Panel.LedBorder.ToColor <> clNone) and (Panel.LedBorder.Width > 0) then
-      begin
-        // Create the border brush
-        Brush := TGPLinearGradientBrush.Create(BorderRect, SafeColorRefToARGB(Panel.LedBorder.FromColor), SafeColorRefToARGB(Panel.LedBorder.ToColor), LinearGradientModeVertical);
-        // Create the border pen
-        Pen := TGPPen.Create(Brush, Panel.LedBorder.Width);
-        Pen.SetAlignment(PenAlignmentInset);
-        try
-          // Draw the gauge border
-          Graphics.DrawEllipse(Pen, BorderRect);
-        finally
-          // Free the background brush object
-          Brush.Free;
-          // Free the background pen object
-          Pen.Free;
-        end;
-      end;
-    finally
-      Graphics.Free;
-    end;
-  end;
-
-var
-  SS: TCustomStyleServices;
-  BackgroundRect, BorderRect, SizeGripRect: TGPRectF;
-  Brush: TGPBrush;
-  SizeGripPath: TGPGraphicsPath;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  Typeface: ISkTypeface;
+  SkFont: ISkFont;
+  Metrics: TSkFontMetrics;
+  BackgroundRect, BorderRect, LedRect, LedBorderRect, SizeGripRect: TRectF;
   SizeGripWidth, I, W, S, PanelX: Integer;
   X, Y: Single;
 
-  Font: TGPFont;
-  FontBrush: TGPSolidBrush;
-  FontFamily: TGPFontFamily;
-  StringFormat: TGPStringFormat;
-  CaptionRect: TGPRectF;
+  function CreateTypeface(const AFont: TFont): ISkTypeface;
+  var
+    Weight: TSkFontStyleWeight;
+    Slant: TSkFontStyleSlant;
+  begin
+    Weight := TSkFontStyleWeight.Normal;
+    if fsBold in AFont.Style then
+      Weight := TSkFontStyleWeight.Bold;
+
+    Slant := TSkFontStyleSlant.Upright;
+    if fsItalic in AFont.Style then
+      Slant := TSkFontStyleSlant.Italic;
+
+    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, TSkFontStyleWidth.Normal, Slant));
+  end;
+
+  function MeasureTextWidth(const Text: string; const AFont: TFont): Integer;
+  var
+    TextPaint: ISkPaint;
+    TextFont: ISkFont;
+  begin
+    TextPaint := TSkPaint.Create;
+    TextPaint.AntiAlias := True;
+    TextPaint.Style := TSkPaintStyle.Fill;
+    TextPaint.TextAlign := TSkTextAlign.Left;
+
+    TextFont := TSkFont.Create(CreateTypeface(AFont), AFont.Size);
+    Result := Ceil(TextFont.MeasureText(Text, TextPaint));
+  end;
+
+  procedure PaintLed(Panel: TOBDTouchStatusbarPanel);
+  begin
+    X := Panel.PanelRect.Left;
+    Y := (Border.Height + ((ClientRect.Height - Border.Height) / 2)) - (LedSize / 2);
+
+    LedBorderRect := TRectF.Create(X, Y, X + LedSize, Y + LedSize);
+    LedRect := TRectF.Create(
+      LedBorderRect.Left + Panel.LedBorder.Width + 1,
+      LedBorderRect.Top + Panel.LedBorder.Width + 1,
+      LedBorderRect.Right - Panel.LedBorder.Width - 1,
+      LedBorderRect.Bottom - Panel.LedBorder.Width - 1
+    );
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    case Panel.LedState of
+      lsGrayed : Paint.Shader := TSkShader.MakeLinearGradient(
+        TSkPoint.Create(LedRect.Left, LedRect.Top),
+        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+        [SafeColorRefToSkColor(Panel.LedGrayedColor.FromColor), SafeColorRefToSkColor(Panel.LedGrayedColor.ToColor)],
+        nil,
+        TSkTileMode.Clamp);
+      lsOff    : Paint.Shader := TSkShader.MakeLinearGradient(
+        TSkPoint.Create(LedRect.Left, LedRect.Top),
+        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+        [SafeColorRefToSkColor(Panel.LedOffColor.FromColor), SafeColorRefToSkColor(Panel.LedOffColor.ToColor)],
+        nil,
+        TSkTileMode.Clamp);
+      lsOn     : Paint.Shader := TSkShader.MakeLinearGradient(
+        TSkPoint.Create(LedRect.Left, LedRect.Top),
+        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+        [SafeColorRefToSkColor(Panel.LedOnColor.FromColor), SafeColorRefToSkColor(Panel.LedOnColor.ToColor)],
+        nil,
+        TSkTileMode.Clamp);
+    end;
+    Canvas.DrawOval(LedRect, Paint);
+
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := 1.5;
+    case Panel.LedState of
+      lsGrayed : Paint.Color := SafeColorRefToSkColor(Panel.LedGrayedColor.FromColor);
+      lsOff    : Paint.Color := SafeColorRefToSkColor(Panel.LedOffColor.FromColor);
+      lsOn     : Paint.Color := SafeColorRefToSkColor(Panel.LedOnColor.FromColor);
+    end;
+    Canvas.DrawOval(LedRect, Paint);
+
+    if (Panel.LedBorder.FromColor <> clNone) and (Panel.LedBorder.ToColor <> clNone) and (Panel.LedBorder.Width > 0) then
+    begin
+      Paint := TSkPaint.Create;
+      Paint.AntiAlias := True;
+      Paint.Style := TSkPaintStyle.Stroke;
+      Paint.StrokeWidth := Panel.LedBorder.Width;
+      Paint.Shader := TSkShader.MakeLinearGradient(
+        TSkPoint.Create(LedBorderRect.Left, LedBorderRect.Top),
+        TSkPoint.Create(LedBorderRect.Left, LedBorderRect.Bottom),
+        [SafeColorRefToSkColor(Panel.LedBorder.FromColor), SafeColorRefToSkColor(Panel.LedBorder.ToColor)],
+        nil,
+        TSkTileMode.Clamp);
+      Canvas.DrawOval(LedBorderRect, Paint);
+    end;
+  end;
 begin
-  // Update the size of the buffer
+  // Ensure the back-buffer matches the control dimensions before drawing
   Buffer.SetSize(Width, Height);
 
-  // If VCL styles is available and enabled, then draw the VCL Style background
-  // so it matches the active style background like on the Form or a Panel.
-  if TStyleManager.IsCustomStyleActive then
+  // Allocate a Skia surface for fast, CPU-backed drawing and retrieve its canvas
+  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Canvas := Surface.Canvas;
+
+  // Clear using the resolved style color so unpainted areas remain consistent with VCL themes
+  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+
+  // Paint the background gradient when both colors are provided
+  if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
   begin
-    SS := StyleServices;
-    // Draw the styled background
-    SS.DrawElement(Buffer.Canvas.Handle, SS.GetElementDetails(twWindowRoot), Rect(0, 0, Width, Height));
-  end else
-  // Otherwise fill the background with the color.
-  with Buffer.Canvas do
-  begin
-    // Use the component color
-    Brush.Color := Self.Color;
-    // Use a solid brush
-    Brush.Style := bsSolid;
-    // Fill the background with the component color
-    FillRect(Rect(0, 0, Width, Height));
+    BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+      [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawRect(BackgroundRect, Paint);
   end;
 
-  // Initialize GDI+ Graphics object
-  Graphics := TGPGraphics.Create(Buffer.Canvas.Handle);
-  try
-    // Set smoothing mode to high-quality
-    Graphics.SetSmoothingMode(SmoothingModeHighQuality);
-    // Set compositing quality to high-quality
-    Graphics.SetCompositingQuality(CompositingQualityHighQuality);
+  // Draw the top border strip when enabled
+  if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
+  begin
+    BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Shader := TSkShader.MakeLinearGradient(
+      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
+      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
+      nil,
+      TSkTileMode.Clamp);
+    Canvas.DrawRect(BorderRect, Paint);
+  end;
 
-    // Draw the backround
-    if (Background.FromColor <> clNone) and (Background.ToColor <> clNone) then
+  // Calculate panel rectangles based on auto-size/text/LED requirements
+  PanelX := ClientRect.Left;
+  for I := 0 to Panels.Count -1 do
+  begin
+    W := 0;
+    if Panels[I].AutoSize then
     begin
-      // Get the rectangle for the background
-      BackgroundRect := MakeRect(0.0, 0, Width, Height);
-      // Create the background brush
-      Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Background.FromColor), SafeColorRefToARGB(Background.ToColor), LinearGradientModeVertical);
-      try
-        // Fill the background
-        Graphics.FillRectangle(Brush, BackgroundRect);
-      finally
-        // Free the background brush object
-        Brush.Free;
-      end;
-    end;
-
-    // Draw the border
-    if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
-    begin
-      // Get the rectangle for the border
-      BorderRect := MakeRect(0.0, 0, Width, Border.Height);
-      // Create the border brush
-      Brush := TGPLinearGradientBrush.Create(BackgroundRect, SafeColorRefToARGB(Border.FromColor), SafeColorRefToARGB(Border.ToColor), LinearGradientModeVertical);
-      try
-        // Fill the border
-        Graphics.FillRectangle(Brush, BorderRect);
-      finally
-        // Free the border brush object
-        Brush.Free;
-      end;
-    end;
-
-    // Set initial Panel X position
-    PanelX := ClientRect.Left;
-
-    // Calculate panel rects
-    for I := 0 to Panels.Count -1 do
-    begin
-      W := 0;
-      if Panels[I].AutoSize then
-      begin
-        // Include led width
-        if Panels[I].ShowLed then W := W + LedSize + PanelPadding + 2;
-        // Calculate simple panel text width
-        if Panels[I].Style = psSimpleText then
-          W := W + TextWidth(Panels[I].Text, Panels[I].Font)
-        else
-        begin
-          // Calculate adanced panel primary text width
-          W := W + TextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
-          // Calculate adanced panel secondary text width
-          W := W + TextWidth(Panels[I].SecondaryText, Panels[I].SecondaryFont);
-          // Add padding between primary and secondary text
-          W := W + PanelPadding;
-        end;
-      end else
-      begin
-        // Include led width
-        if Panels[I].ShowLed then W := W + LedSize;
-        // Panel width
-        W := W + Panels[I].Width;
-      end;
-      // Set panel rect
-      Panels[I].PanelRect := TRect.Create(
-        PanelX + PanelPadding,
-        ClientRect.Top,
-        PanelX + PanelPadding + W + PanelPadding,
-        ClientRect.Bottom
-      );
-      // Inc Panel X position
-      PanelX := PanelX + Panels[I].PanelRect.Width;
-    end;
-
-    // Draw the panels
-    for I := 0 to Panels.Count -1 do
-    begin
-      if Panels[I].ShowLed then
-      begin
-        PaintLed(Panels[I]);
-        X := LedSize + 2;
-      end else X := 0;
+      if Panels[I].ShowLed then W := W + LedSize + PanelPadding + 2;
       if Panels[I].Style = psSimpleText then
-      begin
-        FontFamily := TGPFontFamily.Create(Panels[I].Font.Name);
-        Font := TGPFont.Create(FontFamily, Panels[I].Font.Size, OBD.CustomControl.Common.FontStyle(Panels[I].Font), UnitPoint);
-        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].Font.Color));
-        StringFormat := TGPStringFormat.Create;
-        StringFormat.SetAlignment(StringAlignmentNear);
-        StringFormat.SetLineAlignment(StringAlignmentCenter);
-        try
-          CaptionRect := MakeRect(
-            Panels[I].PanelRect.Left + X,
-            Panels[I].PanelRect.Top + Border.Height,
-            Panels[I].PanelRect.Width - X,
-            Panels[I].PanelRect.Height
-          );
-          Graphics.DrawString(Panels[I].Text, Length(Panels[I].Text), Font, CaptionRect, StringFormat, FontBrush);
-        finally
-          FontFamily.Free;
-          Font.Free;
-          FontBrush.Free;
-          StringFormat.Free;
-        end;
-      end else
-      begin
-        // Primary text
-        FontFamily := TGPFontFamily.Create(Panels[I].PrimaryFont.Name);
-        Font := TGPFont.Create(FontFamily, Panels[I].PrimaryFont.Size, OBD.CustomControl.Common.FontStyle(Panels[I].PrimaryFont), UnitPoint);
-        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].PrimaryFont.Color));
-        StringFormat := TGPStringFormat.Create;
-        StringFormat.SetAlignment(StringAlignmentNear);
-        StringFormat.SetLineAlignment(StringAlignmentCenter);
-        try
-          CaptionRect := MakeRect(
-            Panels[I].PanelRect.Left + X,
-            Panels[I].PanelRect.Top + Border.Height,
-            Panels[I].PanelRect.Width - X,
-            Panels[I].PanelRect.Height
-          );
-          Graphics.DrawString(Panels[I].PrimaryText, Length(Panels[I].PrimaryText), Font, CaptionRect, StringFormat, FontBrush);
-        finally
-          FontFamily.Free;
-          Font.Free;
-          FontBrush.Free;
-          StringFormat.Free;
-        end;
-        X := X + TextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
-        // Secondary text
-        FontFamily := TGPFontFamily.Create(Panels[I].SecondaryFont.Name);
-        Font := TGPFont.Create(FontFamily, Panels[I].SecondaryFont.Size, OBD.CustomControl.Common.FontStyle(Panels[I].SecondaryFont), UnitPoint);
-        FontBrush := TGPSolidBrush.Create(SafeColorRefToARGB(Panels[I].SecondaryFont.Color));
-        StringFormat := TGPStringFormat.Create;
-        StringFormat.SetAlignment(StringAlignmentNear);
-        StringFormat.SetLineAlignment(StringAlignmentCenter);
-        try
-          CaptionRect := MakeRect(
-            Panels[I].PanelRect.Left + X,
-            Panels[I].PanelRect.Top + Border.Height,
-            Panels[I].PanelRect.Width - X,
-            Panels[I].PanelRect.Height
-          );
-          Graphics.DrawString(Panels[I].SecondaryText, Length(Panels[I].SecondaryText), Font, CaptionRect, StringFormat, FontBrush);
-        finally
-          FontFamily.Free;
-          Font.Free;
-          FontBrush.Free;
-          StringFormat.Free;
-        end;
-      end;
-    end;
-
-    // Draw the Size Grip
-    if SizeGrip.Visible then
-    begin
-      SizeGripRect := MakeRect(0.0, Border.Height, Width - 3, Height - Border.Height);
-      SizeGripWidth := Ceil((SizeGrip.DotSize + SizeGrip.DotSpacing) * 3);
-      FSizeGrip.SizeGripRect := Rect((Width - 3) - SizeGripWidth, Border.Height, Width - 3, Height);
-      if SizeGrip.DotShape = dsSquare then
-        SizeGripPath := CreateSizeGripPathSquare(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing)
+        W := W + MeasureTextWidth(Panels[I].Text, Panels[I].Font)
       else
-        SizeGripPath := CreateSizeGripPathCircle(SizeGripRect, SizeGrip.DotSize, SizeGrip.DotSpacing);
-      Brush := TGPSolidBrush.Create(SafeColorRefToARGB(SizeGrip.DotColor));
-      try
-        Graphics.FillPath(Brush, SizeGripPath);
-      finally
-        SizeGripPath.Free;
-        Brush.Free;
+      begin
+        W := W + MeasureTextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
+        W := W + MeasureTextWidth(Panels[I].SecondaryText, Panels[I].SecondaryFont);
+        W := W + PanelPadding;
       end;
+    end else
+    begin
+      if Panels[I].ShowLed then W := W + LedSize;
+      W := W + Panels[I].Width;
     end;
-
-  finally
-    // Free GDI+ graphics object
-    Graphics.Free;
+    Panels[I].PanelRect := TRect.Create(
+      PanelX + PanelPadding,
+      ClientRect.Top,
+      PanelX + PanelPadding + W + PanelPadding,
+      ClientRect.Bottom
+    );
+    PanelX := PanelX + Panels[I].PanelRect.Width;
   end;
+
+  // Render LEDs for all panels that need them
+  for I := 0 to Panels.Count -1 do
+  begin
+    if Panels[I].ShowLed then
+      PaintLed(Panels[I]);
+  end;
+
+  // Draw the resize size grip as a 3x3 matrix of dots
+  if SizeGrip.Visible then
+  begin
+    SizeGripRect := TRectF.Create(0.0, Border.Height + 0.0, Width - 3.0, Height - Border.Height + 0.0);
+    SizeGripWidth := Ceil((SizeGrip.DotSize + SizeGrip.DotSpacing) * 3);
+    FSizeGrip.SizeGripRect := Rect((Width - 3) - SizeGripWidth, Border.Height, Width - 3, Height);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := SafeColorRefToSkColor(SizeGrip.DotColor);
+    for W := 0 to 2 do
+      for S := 0 to 2 do
+      begin
+        X := SizeGripRect.Right - SizeGripWidth + (W * (SizeGrip.DotSize + SizeGrip.DotSpacing));
+        Y := SizeGripRect.Bottom - ((S + 1) * (SizeGrip.DotSize + SizeGrip.DotSpacing));
+        if SizeGrip.DotShape = dsSquare then
+          Canvas.DrawRect(TRectF.Create(X, Y, X + SizeGrip.DotSize, Y + SizeGrip.DotSize), Paint)
+        else
+          Canvas.DrawCircle(TSkPoint.Create(X + (SizeGrip.DotSize / 2), Y + (SizeGrip.DotSize / 2)), SizeGrip.DotSize / 2, Paint);
+      end;
+  end;
+
+  // Draw captions for each panel, honoring LED offsets and style differences
+  for I := 0 to Panels.Count -1 do
+  begin
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.TextAlign := TSkTextAlign.Left;
+
+    if Panels[I].ShowLed then
+      X := LedSize + 2
+    else
+      X := 0;
+
+    if Panels[I].Style = psSimpleText then
+    begin
+      Typeface := CreateTypeface(Panels[I].Font);
+      SkFont := TSkFont.Create(Typeface, Panels[I].Font.Size);
+      Paint.Color := SafeColorRefToSkColor(Panels[I].Font.Color);
+      Metrics := SkFont.Metrics;
+      Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
+      Canvas.DrawSimpleText(Panels[I].Text, Panels[I].PanelRect.Left + X, Y, SkFont, Paint);
+    end else
+    begin
+      Typeface := CreateTypeface(Panels[I].PrimaryFont);
+      SkFont := TSkFont.Create(Typeface, Panels[I].PrimaryFont.Size);
+      Paint.Color := SafeColorRefToSkColor(Panels[I].PrimaryFont.Color);
+      Metrics := SkFont.Metrics;
+      Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
+      Canvas.DrawSimpleText(Panels[I].PrimaryText, Panels[I].PanelRect.Left + X, Y, SkFont, Paint);
+
+      X := X + MeasureTextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
+
+      Typeface := CreateTypeface(Panels[I].SecondaryFont);
+      SkFont := TSkFont.Create(Typeface, Panels[I].SecondaryFont.Size);
+      Paint.Color := SafeColorRefToSkColor(Panels[I].SecondaryFont.Color);
+      Metrics := SkFont.Metrics;
+      Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
+      Canvas.DrawSimpleText(Panels[I].SecondaryText, Panels[I].PanelRect.Left + X + PanelPadding, Y, SkFont, Paint);
+    end;
+  end;
+
+  // Copy the Skia surface into the component buffer used by the base painter
+  Surface.MakeImageSnapshot.ToBitmap(Buffer);
 end;
 
 //------------------------------------------------------------------------------
