@@ -241,10 +241,16 @@ This document provides a unified, prioritized task list for the Delphi-OBD proje
   - Show more code snippets
   - Add screenshots
   - Create quick reference
-- [ ] Update QuickStart.md
-  - Reflect v2.0 changes
-  - Add troubleshooting section
-  - Add video tutorial links
+- [x] Update QuickStart.md
+  - ✅ Added "What's New in v2.0" section documenting all major changes
+  - ✅ Added comprehensive troubleshooting section covering:
+    - Component installation issues
+    - Rendering issues (blank components, animation problems)
+    - Connection issues (COM port, adapter communication)
+    - Performance issues (CPU/memory usage)
+    - Common errors with solutions
+  - ✅ Added additional resources section
+  - ⏸️ Video tutorial links (deferred - videos not yet created)
 - [ ] Create component showcase
   - Visual guide to all components
   - Screenshots of each component
