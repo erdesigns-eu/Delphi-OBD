@@ -1583,34 +1583,17 @@ var
   SkFont: ISkFont;
   Bounds: TRectF;
   B: TBitmap;
-
-  function CreateTypeface(const AFont: TFont): ISkTypeface;
-  var
-    Weight: Integer;
-    Slant: TSkFontSlant;
-  begin
-    Weight := 400; // Normal weight
-    if fsBold in AFont.Style then
-      Weight := 700; // Bold weight
-
-    Slant := TSkFontSlant.Upright;
-    if fsItalic in AFont.Style then
-      Slant := TSkFontSlant.Italic;
-
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant));
-  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    Typeface := CreateTypeface(Font);
+    Typeface := CreateSkTypeface(Font);
     SkFont := TSkFont.Create(Typeface, Font.Size);
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
     Paint.Color := TAlphaColors.Black;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     // Measure the text using Skia so the mask bitmap fits snugly
     W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
@@ -1644,34 +1627,17 @@ var
   SkFont: ISkFont;
   Bounds: TRectF;
   B: TBitmap;
-
-  function CreateTypeface(const AFont: TFont): ISkTypeface;
-  var
-    Weight: Integer;
-    Slant: TSkFontSlant;
-  begin
-    Weight := 400; // Normal weight
-    if fsBold in AFont.Style then
-      Weight := 700; // Bold weight
-
-    Slant := TSkFontSlant.Upright;
-    if fsItalic in AFont.Style then
-      Slant := TSkFontSlant.Italic;
-
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant));
-  end;
 begin
   // Create temporary bitmap
   B := TBitmap.Create;
   try
-    Typeface := CreateTypeface(Font);
+    Typeface := CreateSkTypeface(Font);
     SkFont := TSkFont.Create(Typeface, Font.Size);
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
     Paint.Color := TAlphaColors.Black;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     // Measure the text using Skia so the mask bitmap fits snugly
     W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));

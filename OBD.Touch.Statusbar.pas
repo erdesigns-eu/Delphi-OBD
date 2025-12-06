@@ -1579,22 +1579,6 @@ var
   SizeGripWidth, I, W, S, PanelX: Integer;
   X, Y: Single;
 
-  function CreateTypeface(const AFont: TFont): ISkTypeface;
-  var
-    Weight: Integer;
-    Slant: TSkFontSlant;
-  begin
-    Weight := 400; // Normal weight
-    if fsBold in AFont.Style then
-      Weight := 700; // Bold weight
-
-    Slant := TSkFontSlant.Upright;
-    if fsItalic in AFont.Style then
-      Slant := TSkFontSlant.Italic;
-
-    Result := TSkTypeface.MakeFromName(AFont.Name, TSkFontStyle.Create(Weight, 5, Slant));
-  end;
-
   function MeasureTextWidth(const Text: string; const AFont: TFont): Integer;
   var
     TextPaint: ISkPaint;
@@ -1604,9 +1588,8 @@ var
     TextPaint := TSkPaint.Create;
     TextPaint.AntiAlias := True;
     TextPaint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
-    TextFont := TSkFont.Create(CreateTypeface(AFont), AFont.Size);
+    TextFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
     TextFont.MeasureText(Text, Bounds, TextPaint);
     Result := Ceil(Bounds.Width);
   end;
@@ -1781,7 +1764,6 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     if Panels[I].ShowLed then
       X := LedSize + 2
@@ -1790,7 +1772,7 @@ begin
 
     if Panels[I].Style = psSimpleText then
     begin
-      Typeface := CreateTypeface(Panels[I].Font);
+      Typeface := CreateSkTypeface(Panels[I].Font);
       SkFont := TSkFont.Create(Typeface, Panels[I].Font.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].Font.Color);
       Metrics := SkFont.Metrics;
@@ -1798,7 +1780,7 @@ begin
       Canvas.DrawSimpleText(Panels[I].Text, Panels[I].PanelRect.Left + X, Y, SkFont, Paint);
     end else
     begin
-      Typeface := CreateTypeface(Panels[I].PrimaryFont);
+      Typeface := CreateSkTypeface(Panels[I].PrimaryFont);
       SkFont := TSkFont.Create(Typeface, Panels[I].PrimaryFont.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].PrimaryFont.Color);
       Metrics := SkFont.Metrics;
@@ -1807,7 +1789,7 @@ begin
 
       X := X + MeasureTextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
 
-      Typeface := CreateTypeface(Panels[I].SecondaryFont);
+      Typeface := CreateSkTypeface(Panels[I].SecondaryFont);
       SkFont := TSkFont.Create(Typeface, Panels[I].SecondaryFont.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].SecondaryFont.Color);
       Metrics := SkFont.Metrics;

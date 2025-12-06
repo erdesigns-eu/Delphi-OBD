@@ -2184,7 +2184,6 @@ begin
     Paint.AntiAlias := True;
     Paint.Color := SafeColorRefToSkColor(FMinorTicks.Font.Color);
     Paint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     NumberRadius := OuterRadius - FMinorTicks.Length - 10;
     for TickIndex := 0 to TotalTicks do
@@ -2232,7 +2231,6 @@ begin
     Paint.AntiAlias := True;
     Paint.Color := SafeColorRefToSkColor(FMajorTicks.Font.Color);
     Paint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     NumberRadius := OuterRadius - FMajorTicks.Length - 10;
     for TickIndex := 0 to TotalTicks do
@@ -2257,7 +2255,6 @@ begin
     Paint.AntiAlias := True;
     Paint.Color := SafeColorRefToSkColor(FTopCaption.Font.Color);
     Paint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     CaptionRect := TRectF.Create(0, 0, Width, (Height / 2) + FTopCaption.Offset);
     Canvas.DrawSimpleText(
@@ -2276,7 +2273,6 @@ begin
     Paint.AntiAlias := True;
     Paint.Color := SafeColorRefToSkColor(FBottomCaption.Font.Color);
     Paint.Style := TSkPaintStyle.Fill;
-    // Note: TextAlign property removed from TSkPaint in newer Skia4Delphi
 
     CaptionRect := TRectF.Create(0, (Height / 2), Width, (Height / 2) + FBottomCaption.Offset);
     Canvas.DrawSimpleText(

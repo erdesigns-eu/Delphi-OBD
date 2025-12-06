@@ -334,7 +334,7 @@ begin
   PathBuilder.AddRoundRect(RoundRect);
   // Finalize the glare path for Skia drawing
   Result := PathBuilder.Detach;
-end.
+end;
 
 //------------------------------------------------------------------------------
 // BUILD SKIA BACK BUTTON PATH
