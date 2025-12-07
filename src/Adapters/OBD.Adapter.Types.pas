@@ -65,7 +65,7 @@ type
   /// <param name="Messages">
   ///   OBD Data Messages array
   /// </param>
-  TReceiveDataMessagesEvent = procedure(Sender: TObject; Messages: TArray<IOBDDataMessage>) of object;
+  TReceiveDataMessagesEvent = procedure(Sender: TObject; const Messages: TArray<IOBDDataMessage>) of object;
 
   /// <summary>
   ///   Receive Data Message event
@@ -73,10 +73,13 @@ type
   /// <param name="Sender">
   ///   Object calling this event
   /// </param>
-  /// <param name="Data">
-  ///   OBD Data Message
+  /// <param name="DataPtr">
+  ///   Pointer to the received data buffer
   /// </param>
-  TReceiveDataEvent = procedure(Sender: TObject; Data: AnsiString) of object;
+  /// <param name="DataSize">
+  ///   Size of the received data in bytes
+  /// </param>
+  TReceiveDataEvent = procedure(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal) of object;
 
   /// <summary>
   ///   Adapter status change event
