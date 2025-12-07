@@ -313,10 +313,6 @@ type
   TOBDMatrixDisplay = class(TOBDCustomControl, IOBDAnimatable)
   private
     /// <summary>
-    ///   Background Buffer
-    /// </summary>
-    FBackgroundBuffer: TBitmap;
-    /// <summary>
     ///   Cached Skia background image to reuse across paint cycles
     /// </summary>
     FBackgroundImage: ISkImage;
@@ -957,11 +953,8 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
-  // Update the size of the background buffer
-  FBackgroundBuffer.SetSize(Width, Height);
-
   // Allocate a Skia surface for fully hardware-accelerated drawing
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
 
   // Clear the canvas using the resolved style color so the base matches styled controls
@@ -977,9 +970,9 @@ begin
     // Configure gradient paint
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -996,9 +989,9 @@ begin
   Paint := TSkPaint.Create;
   Paint.AntiAlias := True;
   Paint.BlendMode := TSkBlendMode.SrcOver;
-  Paint.Shader := TSkShader.MakeLinearGradient(
-    TSkPoint.Create(0, Border.Width),
-    TSkPoint.Create(0, (Height - Border.Width) / 2),
+  Paint.Shader := TSkShader.MakeGradientLinear(
+    TPointF.Create(0, Border.Width),
+    TPointF.Create(0, (Height - Border.Width) / 2),
     [$4BFFFFFF, $1EFFFFFF],
     nil,
     TSkTileMode.Clamp);
@@ -1019,9 +1012,9 @@ begin
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Stroke;
     Paint.StrokeWidth := Border.Width;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
-      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BorderRect.Left, BorderRect.Top),
+      TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -1033,10 +1026,8 @@ begin
     end;
   end;
 
-  // Persist the Skia-rendered background so it can be reused by the paint buffer
+  // Persist the Skia-rendered background so it can be reused across paint cycles
   FBackgroundImage := Surface.MakeImageSnapshot;
-  if FBackgroundImage <> nil then
-    FBackgroundImage.ToBitmap(FBackgroundBuffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -1301,10 +1292,6 @@ constructor TOBDMatrixDisplay.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Create background buffer
-  FBackgroundBuffer := TBitmap.Create;
-  // Set the background buffer pixel format
-  FBackgroundBuffer.PixelFormat := pf32bit;
   // Create a lightweight lock object for multithreaded access
   FCellsLock := TObject.Create;
   // Set defaults
@@ -1350,8 +1337,6 @@ begin
     // Unregister from the animation manager
     AnimationManager.UnregisterControl(Self);
   end;
-  // Free background buffer
-  FBackgroundBuffer.Free;
   // Release the cell lock
   FCellsLock.Free;
   // Free background
@@ -1646,7 +1631,7 @@ begin
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
-    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Surface := TSkSurface.MakeRaster(W, H);
     Canvas := Surface.Canvas;
     Canvas.Clear(TAlphaColors.White);
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
@@ -1690,7 +1675,7 @@ begin
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
-    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Surface := TSkSurface.MakeRaster(W, H);
     Canvas := Surface.Canvas;
     Canvas.Clear(TAlphaColors.White);
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);

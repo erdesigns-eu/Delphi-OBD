@@ -1488,21 +1488,21 @@ var
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
     case Panel.LedState of
-      lsGrayed : Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(LedRect.Left, LedRect.Top),
-        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+      lsGrayed : Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(LedRect.Left, LedRect.Top),
+        TPointF.Create(LedRect.Left, LedRect.Bottom),
         [SafeColorRefToSkColor(Panel.LedGrayedColor.FromColor), SafeColorRefToSkColor(Panel.LedGrayedColor.ToColor)],
         nil,
         TSkTileMode.Clamp);
-      lsOff    : Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(LedRect.Left, LedRect.Top),
-        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+      lsOff    : Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(LedRect.Left, LedRect.Top),
+        TPointF.Create(LedRect.Left, LedRect.Bottom),
         [SafeColorRefToSkColor(Panel.LedOffColor.FromColor), SafeColorRefToSkColor(Panel.LedOffColor.ToColor)],
         nil,
         TSkTileMode.Clamp);
-      lsOn     : Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(LedRect.Left, LedRect.Top),
-        TSkPoint.Create(LedRect.Left, LedRect.Bottom),
+      lsOn     : Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(LedRect.Left, LedRect.Top),
+        TPointF.Create(LedRect.Left, LedRect.Bottom),
         [SafeColorRefToSkColor(Panel.LedOnColor.FromColor), SafeColorRefToSkColor(Panel.LedOnColor.ToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -1526,9 +1526,9 @@ var
       Paint.AntiAlias := True;
       Paint.Style := TSkPaintStyle.Stroke;
       Paint.StrokeWidth := Panel.LedBorder.Width;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(LedBorderRect.Left, LedBorderRect.Top),
-        TSkPoint.Create(LedBorderRect.Left, LedBorderRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(LedBorderRect.Left, LedBorderRect.Top),
+        TPointF.Create(LedBorderRect.Left, LedBorderRect.Bottom),
         [SafeColorRefToSkColor(Panel.LedBorder.FromColor), SafeColorRefToSkColor(Panel.LedBorder.ToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -1546,9 +1546,9 @@ begin
     BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -1561,9 +1561,9 @@ begin
     BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
-      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BorderRect.Left, BorderRect.Top),
+      TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -1625,7 +1625,7 @@ begin
         if SizeGrip.DotShape = dsSquare then
           Canvas.DrawRect(TRectF.Create(X, Y, X + SizeGrip.DotSize, Y + SizeGrip.DotSize), Paint)
         else
-          Canvas.DrawCircle(TSkPoint.Create(X + (SizeGrip.DotSize / 2), Y + (SizeGrip.DotSize / 2)), SizeGrip.DotSize / 2, Paint);
+          Canvas.DrawCircle(TPointF.Create(X + (SizeGrip.DotSize / 2), Y + (SizeGrip.DotSize / 2)), SizeGrip.DotSize / 2, Paint);
       end;
   end;
 
