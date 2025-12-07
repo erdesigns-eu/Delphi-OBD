@@ -64,61 +64,116 @@ procedure TOBDRadioCodeToyotaAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
 begin
-  // Europe V1 (1995-2005)
+  // Japanese Market - Fujitsu Ten (1995-2005)
   Variant := FVariantManager.AddVariant(
-    'TOYOTA_EU_V1',
-    'Toyota Europe V1 (1995-2005)',
-    rcrEurope,
+    'TOYOTA_JP_FUJITSU_OLD',
+    'Toyota Japan - Fujitsu Ten (1995-2005)',
+    rcrAsia,
     1995, 2005,
     rcsvV1,
     True
   );
-  Variant.RadioModels.Add('Fujitsu Ten');
-  Variant.AlgorithmNotes := 'Basic algorithm for European market';
-  
-  // Europe V2 (2006-2015)
+  Variant.RadioModels.Add('08600');
+  Variant.RadioModels.Add('08601');
+  Variant.RadioModels.Add('08606');
+  Variant.AlgorithmNotes := 'Original Fujitsu Ten algorithm using modulo 100000';
+
+  // Japanese Market - Fujitsu Ten (2006-2012)
   Variant := FVariantManager.AddVariant(
-    'TOYOTA_EU_V2',
-    'Toyota Europe V2 (2006-2015)',
-    rcrEurope,
-    2006, 2015,
+    'TOYOTA_JP_FUJITSU_NEW',
+    'Toyota Japan - Fujitsu Ten (2006-2012)',
+    rcrAsia,
+    2006, 2012,
     rcsvV2
   );
-  Variant.RadioModels.Add('Panasonic');
-  Variant.AlgorithmNotes := 'Enhanced security algorithm';
-  
-  // Europe V3 (2016+)
+  Variant.RadioModels.Add('08606');
+  Variant.RadioModels.Add('08607');
+  Variant.RadioModels.Add('86120');
+  Variant.AlgorithmNotes := 'Updated Fujitsu Ten with enhanced security';
+
+  // Japanese Market - Panasonic (2000-2010)
   Variant := FVariantManager.AddVariant(
-    'TOYOTA_EU_V3',
-    'Toyota Europe V3 (2016+)',
-    rcrEurope,
-    2016, 9999,
-    rcsvV3
+    'TOYOTA_JP_PANASONIC',
+    'Toyota Japan - Panasonic (2000-2010)',
+    rcrAsia,
+    2000, 2010,
+    rcsvV1
   );
-  Variant.RadioModels.Add('Denso');
-  Variant.AlgorithmNotes := 'Latest security version';
-  
-  // North America
+  Variant.RadioModels.Add('CQ-');
+  Variant.RadioModels.Add('CY-');
+  Variant.AlgorithmNotes := 'Panasonic variant with different calculation method';
+
+  // Japanese Market - Denso (2005+)
   Variant := FVariantManager.AddVariant(
-    'TOYOTA_NA',
-    'Toyota North America (2000+)',
-    rcrNorthAmerica,
-    2000, 9999,
-    rcsvV2
-  );
-  Variant.RadioModels.Add('Fujitsu Ten');
-  Variant.AlgorithmNotes := 'North American market variant';
-  
-  // Asia
-  Variant := FVariantManager.AddVariant(
-    'TOYOTA_ASIA',
-    'Toyota Asia (2005+)',
+    'TOYOTA_JP_DENSO',
+    'Toyota Japan - Denso (2005+)',
     rcrAsia,
     2005, 9999,
     rcsvV2
   );
-  Variant.RadioModels.Add('Panasonic');
-  Variant.AlgorithmNotes := 'Asian market variant';
+  Variant.RadioModels.Add('86100');
+  Variant.RadioModels.Add('86120');
+  Variant.RadioModels.Add('86140');
+  Variant.AlgorithmNotes := 'Denso navigation systems with integrated security';
+
+  // North American Market - Standard (2000-2010)
+  Variant := FVariantManager.AddVariant(
+    'TOYOTA_NA_STANDARD',
+    'Toyota North America - Standard (2000-2010)',
+    rcrNorthAmerica,
+    2000, 2010,
+    rcsvV1
+  );
+  Variant.RadioModels.Add('A56805');
+  Variant.RadioModels.Add('A56836');
+  Variant.AlgorithmNotes := 'North American variant with region-specific modulo';
+
+  // North American Market - JBL Premium (2005+)
+  Variant := FVariantManager.AddVariant(
+    'TOYOTA_NA_JBL',
+    'Toyota North America - JBL Premium (2005+)',
+    rcrNorthAmerica,
+    2005, 9999,
+    rcsvV2
+  );
+  Variant.RadioModels.Add('JBL');
+  Variant.RadioModels.Add('86120-0C');
+  Variant.AlgorithmNotes := 'Premium JBL systems with enhanced algorithm';
+
+  // European Market (1998-2008)
+  Variant := FVariantManager.AddVariant(
+    'TOYOTA_EU_CLASSIC',
+    'Toyota Europe - Classic (1998-2008)',
+    rcrEurope,
+    1998, 2008,
+    rcsvV1
+  );
+  Variant.RadioModels.Add('86120-0D');
+  Variant.RadioModels.Add('86120-0E');
+  Variant.AlgorithmNotes := 'European market variant similar to Japanese';
+
+  // European Market (2009+)
+  Variant := FVariantManager.AddVariant(
+    'TOYOTA_EU_MODERN',
+    'Toyota Europe - Modern (2009+)',
+    rcrEurope,
+    2009, 9999,
+    rcsvV2
+  );
+  Variant.RadioModels.Add('86140');
+  Variant.RadioModels.Add('Touch & Go');
+  Variant.AlgorithmNotes := 'Modern European systems with updated security';
+
+  // Australian Market (2000+)
+  Variant := FVariantManager.AddVariant(
+    'TOYOTA_AU',
+    'Toyota Australia (2000+)',
+    rcrAustralia,
+    2000, 9999,
+    rcsvV1
+  );
+  Variant.RadioModels.Add('86120-3A');
+  Variant.AlgorithmNotes := 'Australian market using Japanese algorithm base';
 end;
 
 function TOBDRadioCodeToyotaAdvanced.CalculateV1(const Serial: string): string;
@@ -175,6 +230,95 @@ begin
   Code[3] := ApplyModularTransform(SerialNum * 9 + 6, 10);
   
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
+end;
+
+function TOBDRadioCodeToyotaRegional.CalculateFujitsuTen(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+begin
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * (I * 3));
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 100000);
+  Result := Format('%.5d', [Code]);
+end;
+
+function TOBDRadioCodeToyotaRegional.CalculatePanasonic(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+begin
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      // Panasonic uses alternating weights
+      if Odd(I) then
+        Code := Code + (Digit * 7)
+      else
+        Code := Code + (Digit * 3);
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 100000);
+  Result := Format('%.5d', [Code]);
+end;
+
+function TOBDRadioCodeToyotaRegional.CalculateDenso(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+  Multiplier: Integer;
+begin
+  Code := 0;
+  Multiplier := 1;
+  
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * Multiplier);
+      Multiplier := Multiplier + 2;
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 100000);
+  Result := Format('%.5d', [Code]);
+end;
+
+function TOBDRadioCodeToyotaRegional.CalculateJBL(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+begin
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      // JBL premium uses squared position weights
+      Code := Code + (Digit * (I * I));
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 100000);
+  Result := Format('%.5d', [Code]);
 end;
 
 function TOBDRadioCodeToyotaAdvanced.GetDescription: string;

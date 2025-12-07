@@ -259,21 +259,74 @@ end;
 // CALCULATE REGIONAL VARIANTS
 //------------------------------------------------------------------------------
 function TOBDRadioCodeFordAdvanced.CalculateRegionalEU(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
 begin
-  // European variant - similar to M-Series with regional adjustments
-  Result := CalculateMSeries(Serial);
+  // European variant with position-weighted calculation
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * I);
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 function TOBDRadioCodeFordAdvanced.CalculateRegionalNA(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+  Weights: array[1..6] of Integer;
 begin
-  // North American variant
-  Result := CalculateMSeries(Serial);
+  // North American variant uses different digit weighting
+  Weights[1] := 7;
+  Weights[2] := 3;
+  Weights[3] := 5;
+  Weights[4] := 2;
+  Weights[5] := 8;
+  Weights[6] := 4;
+  
+  Code := 0;
+  for I := 1 to Min(Length(Serial), 6) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * Weights[I]);
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 function TOBDRadioCodeFordAdvanced.CalculateRegionalAU(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
 begin
-  // Australian variant
-  Result := CalculateMSeries(Serial);
+  // Australian variant similar to European with slight modification
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * (I + 1));
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 //------------------------------------------------------------------------------

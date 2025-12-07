@@ -1,14 +1,14 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.RadioCode.VW.Regional.pas
+// UNIT           : OBD.RadioCode.VW.Advanced.pas
 // CONTENTS       : VW Radio Code Calculator with Regional Variants
-// VERSION        : 1.0
+// VERSION        : 2.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 12/06/2024
+// RELEASE DATE   : 07/12/2024
 //------------------------------------------------------------------------------
-unit OBD.RadioCode.VW.Regional;
+unit OBD.RadioCode.VW.Advanced;
 
 interface
 
@@ -17,9 +17,9 @@ uses
 
 type
   /// <summary>
-  ///   VW Radio Code Calculator with Regional Variant Support
+  ///   VW Radio Code Calculator - Advanced Multi-Variant
   /// </summary>
-  TOBDRadioCodeVWRegional = class(TOBDRadioCode)
+  TOBDRadioCodeVWAdvanced = class(TOBDRadioCode)
   private
     FVariantManager: TRadioCodeVariantManager;
     FCurrentVariant: TRadioCodeVariant;
@@ -44,7 +44,7 @@ type
 
 implementation
 
-constructor TOBDRadioCodeVWRegional.Create;
+constructor TOBDRadioCodeVWAdvanced.Create;
 begin
   inherited Create;
   FVariantManager := TRadioCodeVariantManager.Create('Volkswagen');
@@ -52,13 +52,13 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
-destructor TOBDRadioCodeVWRegional.Destroy;
+destructor TOBDRadioCodeVWAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
-procedure TOBDRadioCodeVWRegional.InitializeVariants;
+procedure TOBDRadioCodeVWAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
 begin
@@ -190,7 +190,7 @@ begin
   Variant.AlgorithmNotes := 'Chinese market variant with region lock';
 end;
 
-function TOBDRadioCodeVWRegional.GetDescription: string;
+function TOBDRadioCodeVWAdvanced.GetDescription: string;
 begin
   if FCurrentVariant <> nil then
     Result := Format('VW Radio Code Calculator (%s)', [FCurrentVariant.Description])
@@ -198,14 +198,14 @@ begin
     Result := 'VW Radio Code Calculator (Regional Variants)';
 end;
 
-procedure TOBDRadioCodeVWRegional.SetVariant(const VariantID: string);
+procedure TOBDRadioCodeVWAdvanced.SetVariant(const VariantID: string);
 begin
   FCurrentVariant := FVariantManager.FindVariant(VariantID);
   if FCurrentVariant = nil then
     FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
-procedure TOBDRadioCodeVWRegional.SetVariant(const Region: TRadioCodeRegion;
+procedure TOBDRadioCodeVWAdvanced.SetVariant(const Region: TRadioCodeRegion;
   const ModelYear: Integer);
 begin
   FCurrentVariant := FVariantManager.FindBestMatch(Region, ModelYear);
@@ -213,17 +213,17 @@ begin
     FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
-function TOBDRadioCodeVWRegional.GetCurrentVariant: TRadioCodeVariant;
+function TOBDRadioCodeVWAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
-function TOBDRadioCodeVWRegional.GetAvailableVariants: TRadioCodeVariantManager;
+function TOBDRadioCodeVWAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
-function TOBDRadioCodeVWRegional.CalculateGamma(const Serial: string): string;
+function TOBDRadioCodeVWAdvanced.CalculateGamma(const Serial: string): string;
 var
   Code: Integer;
   I: Integer;
@@ -251,7 +251,7 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
-function TOBDRadioCodeVWRegional.CalculateBeta(const Serial: string): string;
+function TOBDRadioCodeVWAdvanced.CalculateBeta(const Serial: string): string;
 var
   Code: Integer;
   I: Integer;
@@ -278,7 +278,7 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
-function TOBDRadioCodeVWRegional.CalculateAlpha(const Serial: string): string;
+function TOBDRadioCodeVWAdvanced.CalculateAlpha(const Serial: string): string;
 var
   Code: Integer;
   I: Integer;
@@ -309,7 +309,7 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
-function TOBDRadioCodeVWRegional.CalculateRCD(const Serial: string): string;
+function TOBDRadioCodeVWAdvanced.CalculateRCD(const Serial: string): string;
 var
   Code: Integer;
   I: Integer;
@@ -336,7 +336,7 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
-function TOBDRadioCodeVWRegional.CalculateRNS(const Serial: string): string;
+function TOBDRadioCodeVWAdvanced.CalculateRNS(const Serial: string): string;
 var
   Code: Integer;
   I: Integer;
@@ -363,7 +363,7 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
-function TOBDRadioCodeVWRegional.Validate(const Input: string;
+function TOBDRadioCodeVWAdvanced.Validate(const Input: string;
   var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -382,7 +382,7 @@ begin
   Result := True;
 end;
 
-function TOBDRadioCodeVWRegional.Calculate(const Input: string;
+function TOBDRadioCodeVWAdvanced.Calculate(const Input: string;
   var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
