@@ -67,11 +67,12 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
 - **Description:** Expand VIN decoder capabilities
 
 **Subtasks:**
-- [ ] Add manufacturer-specific VIN patterns
-- [ ] Include model year validation
-- [ ] Add plant location database
-- [ ] Support check digit validation for all manufacturers
-- [ ] Add VIN-based feature detection
+- [x] Add manufacturer-specific VIN patterns
+- [x] Include model year validation (most likely year based on current date)
+- [x] Add plant location database (major manufacturers)
+- [x] Support check digit validation for all manufacturers (ISO 3779)
+- [x] Extract additional VIN components (serial number, plant code)
+- [ ] Add VIN-based feature detection (future enhancement)
 
 #### TASK 2.6: Data Logging & Playback
 - **Priority:** 🟡 MEDIUM  

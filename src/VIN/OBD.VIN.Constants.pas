@@ -771,6 +771,12 @@ var
 var
   VINYearMap: TArray<TVINYear>;
 
+//------------------------------------------------------------------------------
+// VIN PLANT LOCATION MAP
+//------------------------------------------------------------------------------
+var
+  VINPlantLocationMap: TDictionary<string, TVINPlantLocation>;
+
 implementation
 
 //------------------------------------------------------------------------------
@@ -884,6 +890,89 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// INITIALIZE PLANT LOCATION MAP
+//------------------------------------------------------------------------------
+procedure InitializePlantLocationMap;
+var
+  Plant: TVINPlantLocation;
+begin
+  // Create dictionary for the plant location map
+  VINPlantLocationMap := TDictionary<string, TVINPlantLocation>.Create;
+  
+  // Sample plant locations for major manufacturers
+  // Format: WMI + PlantCode
+  
+  // Ford (1FA, 1FB, 1FC, 1FD, 1FM, 1FT, etc.)
+  Plant.Code := 'A'; Plant.Name := 'Atlanta Assembly'; Plant.City := 'Hapeville'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1FAA', Plant);
+  
+  Plant.Code := 'D'; Plant.Name := 'Dearborn Assembly'; Plant.City := 'Dearborn'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1FAD', Plant);
+  
+  Plant.Code := 'F'; Plant.Name := 'Flat Rock Assembly'; Plant.City := 'Flat Rock'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1FAF', Plant);
+  
+  Plant.Code := 'K'; Plant.Name := 'Kansas City Assembly'; Plant.City := 'Claycomo'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1FAK', Plant);
+  
+  Plant.Code := 'P'; Plant.Name := 'Twin Cities Assembly'; Plant.City := 'St. Paul'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1FAP', Plant);
+  
+  // GM (1G1, 1G2, 1GC, etc.)
+  Plant.Code := 'A'; Plant.Name := 'Lakewood Assembly'; Plant.City := 'Doraville'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1G1A', Plant);
+  
+  Plant.Code := 'D'; Plant.Name := 'Fairfax Assembly'; Plant.City := 'Kansas City'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1G1D', Plant);
+  
+  Plant.Code := 'F'; Plant.Name := 'Flint Assembly'; Plant.City := 'Flint'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1G1F', Plant);
+  
+  // Toyota (JT2, JT3, 4T1, 5T1, etc.)
+  Plant.Code := 'A'; Plant.Name := 'Takaoka Plant'; Plant.City := 'Toyota'; Plant.Country := 'Japan';
+  VINPlantLocationMap.Add('JT2A', Plant);
+  
+  Plant.Code := 'B'; Plant.Name := 'Tsutsumi Plant'; Plant.City := 'Toyota'; Plant.Country := 'Japan';
+  VINPlantLocationMap.Add('JT2B', Plant);
+  
+  Plant.Code := 'K'; Plant.Name := 'Georgetown Plant'; Plant.City := 'Georgetown'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('4T1K', Plant);
+  
+  // Honda (1HG, JHM, etc.)
+  Plant.Code := 'C'; Plant.Name := 'Marysville Auto Plant'; Plant.City := 'Marysville'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1HGC', Plant);
+  
+  Plant.Code := 'E'; Plant.Name := 'East Liberty Auto Plant'; Plant.City := 'East Liberty'; Plant.Country := 'USA';
+  VINPlantLocationMap.Add('1HGE', Plant);
+  
+  Plant.Code := 'A'; Plant.Name := 'Suzuka Plant'; Plant.City := 'Suzuka'; Plant.Country := 'Japan';
+  VINPlantLocationMap.Add('JHMA', Plant);
+  
+  // Mercedes-Benz (WDB, WDD, etc.)
+  Plant.Code := 'F'; Plant.Name := 'Sindelfingen Plant'; Plant.City := 'Sindelfingen'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WDBF', Plant);
+  
+  Plant.Code := 'J'; Plant.Name := 'Rastatt Plant'; Plant.City := 'Rastatt'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WDBJ', Plant);
+  
+  // BMW (WBA, WBS, etc.)
+  Plant.Code := 'A'; Plant.Name := 'Munich Plant'; Plant.City := 'Munich'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WBAA', Plant);
+  
+  Plant.Code := 'C'; Plant.Name := 'Regensburg Plant'; Plant.City := 'Regensburg'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WBAC', Plant);
+  
+  // VW (WVW, 3VW, etc.)
+  Plant.Code := 'W'; Plant.Name := 'Wolfsburg Plant'; Plant.City := 'Wolfsburg'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WVWW', Plant);
+  
+  Plant.Code := 'Z'; Plant.Name := 'Zwickau Plant'; Plant.City := 'Zwickau'; Plant.Country := 'Germany';
+  VINPlantLocationMap.Add('WVWZ', Plant);
+  
+  // Add more plant locations as needed
+end;
+
+//------------------------------------------------------------------------------
 // INITIALIZATION
 //------------------------------------------------------------------------------
 initialization
@@ -893,6 +982,8 @@ initialization
   InitializeManufacturerMap;
   // Initialize the year map
   InitializeYearMap;
+  // Initialize the plant location map
+  InitializePlantLocationMap;
 
 //------------------------------------------------------------------------------
 // FINALIZATION
@@ -902,5 +993,7 @@ finalization
   FreeAndNil(VINCountryMap);
   // Free the manufacturer map
   FreeAndNil(VINManufacturerMap);
+  // Free the plant location map
+  FreeAndNil(VINPlantLocationMap);
 
 end.

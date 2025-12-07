@@ -85,6 +85,28 @@ type
   end;
 
   /// <summary>
+  ///   VIN Plant Location
+  /// </summary>
+  TVINPlantLocation = record
+    /// <summary>
+    ///   Plant code
+    /// </summary>
+    Code: Char;
+    /// <summary>
+    ///   Plant name
+    /// </summary>
+    Name: string;
+    /// <summary>
+    ///   City
+    /// </summary>
+    City: string;
+    /// <summary>
+    ///   Country
+    /// </summary>
+    Country: string;
+  end;
+
+  /// <summary>
   ///   VIN Parse Result
   /// </summary>
   TVINParseResult = record
@@ -116,6 +138,26 @@ type
     ///   Vehicle Identifier Section
     /// </summary>
     VIS: string;
+    /// <summary>
+    ///   Plant location
+    /// </summary>
+    PlantLocation: TVINPlantLocation;
+    /// <summary>
+    ///   Check digit (position 9)
+    /// </summary>
+    CheckDigit: Char;
+    /// <summary>
+    ///   Is check digit valid?
+    /// </summary>
+    CheckDigitValid: Boolean;
+    /// <summary>
+    ///   Model year (most likely year based on current date)
+    /// </summary>
+    ModelYear: Integer;
+    /// <summary>
+    ///   Sequential production number
+    /// </summary>
+    SerialNumber: string;
     /// <summary>
     ///   Is the VIN valid?
     /// </summary>
