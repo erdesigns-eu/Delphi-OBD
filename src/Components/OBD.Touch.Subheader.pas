@@ -19,7 +19,7 @@ uses
   Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls, Vcl.Forms, System.Skia, Skia.Vcl,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Constants,
-  OBD.Connection.Types, OBD.Connection.Component;
+  OBD.Connection.Types, OBD.Connection, OBD.Connection.Component;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -288,11 +288,10 @@ type
     procedure UpdateStyleElements; override;
     procedure SettingsChanged(Sender: TObject);
     procedure PaintSkia(Canvas: ISkCanvas); override;
-    procedure HandleConnectionStateChanged(Sender: TObject; ConnectionState: TOBDConnectionState);
+    procedure HandleConnectionStateChanged(Sender: TObject; const Connected: Boolean; const ConnectionType: TOBDConnectionType);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Repaint;
     procedure Assign(Source: TPersistent); override;
   published
     property Background: TOBDTouchSubheaderBackground read FBackground write SetBackground;
@@ -309,6 +308,691 @@ type
   end;
 
 implementation
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBackground - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBackground.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBackground.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBackground - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderBackground.Create;
+begin
+  inherited Create;
+  FFromColor := DEFAULT_BACKGROUND_FROM;
+  FToColor := DEFAULT_BACKGROUND_TO;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBackground - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBackground.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderBackground then
+  begin
+    FFromColor := (Source as TOBDTouchSubheaderBackground).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBackground).ToColor;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBorder - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBorder.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBorder.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBorder.SetHeight(Value: Integer);
+begin
+  if FHeight <> Value then
+  begin
+    FHeight := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBorder - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderBorder.Create;
+begin
+  inherited Create;
+  FFromColor := DEFAULT_BORDER_FROM;
+  FToColor := DEFAULT_BORDER_TO;
+  FHeight := DEFAULT_BORDER_HEIGHT;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBorder - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBorder.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderBorder then
+  begin
+    FFromColor := (Source as TOBDTouchSubheaderBorder).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBorder).ToColor;
+    FHeight := (Source as TOBDTouchSubheaderBorder).Height;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBatteryIndicator - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBatteryIndicator.SetVisible(Value: Boolean);
+begin
+  if FVisible <> Value then
+  begin
+    FVisible := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetSize(Value: Integer);
+begin
+  if FSize <> Value then
+  begin
+    FSize := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetBorderWidth(Value: Single);
+begin
+  if FBorderWidth <> Value then
+  begin
+    FBorderWidth := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetBorderColor(Value: TColor);
+begin
+  if FBorderColor <> Value then
+  begin
+    FBorderColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetFormat(const Value: string);
+begin
+  if FFormat <> Value then
+  begin
+    FFormat := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.SetVoltage(Value: Single);
+begin
+  if FVoltage <> Value then
+  begin
+    FVoltage := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderBatteryIndicator.FontChanged(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBatteryIndicator - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderBatteryIndicator.Create;
+begin
+  inherited Create;
+  FVisible := True;
+  FSize := 24;
+  FFromColor := clLime;
+  FToColor := clGreen;
+  FBorderWidth := 1.0;
+  FBorderColor := clBlack;
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+  FFormat := '%.1fV';
+  FVoltage := 0.0;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBatteryIndicator - DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchSubheaderBatteryIndicator.Destroy;
+begin
+  FFont.Free;
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderBatteryIndicator - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderBatteryIndicator.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderBatteryIndicator then
+  begin
+    FVisible := (Source as TOBDTouchSubheaderBatteryIndicator).Visible;
+    FSize := (Source as TOBDTouchSubheaderBatteryIndicator).Size;
+    FFromColor := (Source as TOBDTouchSubheaderBatteryIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderBatteryIndicator).ToColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderBatteryIndicator).BorderWidth;
+    FBorderColor := (Source as TOBDTouchSubheaderBatteryIndicator).BorderColor;
+    FFont.Assign((Source as TOBDTouchSubheaderBatteryIndicator).Font);
+    FFormat := (Source as TOBDTouchSubheaderBatteryIndicator).Format;
+    FVoltage := (Source as TOBDTouchSubheaderBatteryIndicator).Voltage;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderVciIndicator - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderVciIndicator.SetVisible(Value: Boolean);
+begin
+  if FVisible <> Value then
+  begin
+    FVisible := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetSize(Value: Integer);
+begin
+  if FSize <> Value then
+  begin
+    FSize := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetBorderWidth(Value: Single);
+begin
+  if FBorderWidth <> Value then
+  begin
+    FBorderWidth := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetBorderColor(Value: TColor);
+begin
+  if FBorderColor <> Value then
+  begin
+    FBorderColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.SetCaption(const Value: string);
+begin
+  if FCaption <> Value then
+  begin
+    FCaption := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderVciIndicator.FontChanged(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderVciIndicator - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderVciIndicator.Create;
+begin
+  inherited Create;
+  FVisible := True;
+  FSize := 24;
+  FFromColor := clSkyBlue;
+  FToColor := clBlue;
+  FBorderWidth := 1.0;
+  FBorderColor := clBlack;
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+  FCaption := 'VCI';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderVciIndicator - DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchSubheaderVciIndicator.Destroy;
+begin
+  FFont.Free;
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderVciIndicator - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderVciIndicator.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderVciIndicator then
+  begin
+    FVisible := (Source as TOBDTouchSubheaderVciIndicator).Visible;
+    FSize := (Source as TOBDTouchSubheaderVciIndicator).Size;
+    FFromColor := (Source as TOBDTouchSubheaderVciIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderVciIndicator).ToColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderVciIndicator).BorderWidth;
+    FBorderColor := (Source as TOBDTouchSubheaderVciIndicator).BorderColor;
+    FFont.Assign((Source as TOBDTouchSubheaderVciIndicator).Font);
+    FCaption := (Source as TOBDTouchSubheaderVciIndicator).Caption;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderInternetConnectionIndicator - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetVisible(Value: Boolean);
+begin
+  if FVisible <> Value then
+  begin
+    FVisible := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetSize(Value: Integer);
+begin
+  if FSize <> Value then
+  begin
+    FSize := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderWidth(Value: Single);
+begin
+  if FBorderWidth <> Value then
+  begin
+    FBorderWidth := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderColor(Value: TColor);
+begin
+  if FBorderColor <> Value then
+  begin
+    FBorderColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.SetCaption(const Value: string);
+begin
+  if FCaption <> Value then
+  begin
+    FCaption := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderInternetConnectionIndicator.FontChanged(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderInternetConnectionIndicator - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderInternetConnectionIndicator.Create;
+begin
+  inherited Create;
+  FVisible := False;
+  FSize := 24;
+  FFromColor := clYellow;
+  FToColor := clOlive;
+  FBorderWidth := 1.0;
+  FBorderColor := clBlack;
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+  FCaption := 'NET';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderInternetConnectionIndicator - DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchSubheaderInternetConnectionIndicator.Destroy;
+begin
+  FFont.Free;
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderInternetConnectionIndicator - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderInternetConnectionIndicator.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderInternetConnectionIndicator then
+  begin
+    FVisible := (Source as TOBDTouchSubheaderInternetConnectionIndicator).Visible;
+    FSize := (Source as TOBDTouchSubheaderInternetConnectionIndicator).Size;
+    FFromColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).ToColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderInternetConnectionIndicator).BorderWidth;
+    FBorderColor := (Source as TOBDTouchSubheaderInternetConnectionIndicator).BorderColor;
+    FFont.Assign((Source as TOBDTouchSubheaderInternetConnectionIndicator).Font);
+    FCaption := (Source as TOBDTouchSubheaderInternetConnectionIndicator).Caption;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderProtocolIndicator - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderProtocolIndicator.SetVisible(Value: Boolean);
+begin
+  if FVisible <> Value then
+  begin
+    FVisible := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetSize(Value: Integer);
+begin
+  if FSize <> Value then
+  begin
+    FSize := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetFromColor(Value: TColor);
+begin
+  if FFromColor <> Value then
+  begin
+    FFromColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetToColor(Value: TColor);
+begin
+  if FToColor <> Value then
+  begin
+    FToColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetBorderWidth(Value: Single);
+begin
+  if FBorderWidth <> Value then
+  begin
+    FBorderWidth := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetBorderColor(Value: TColor);
+begin
+  if FBorderColor <> Value then
+  begin
+    FBorderColor := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.SetCaption(const Value: string);
+begin
+  if FCaption <> Value then
+  begin
+    FCaption := Value;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end;
+end;
+
+procedure TOBDTouchSubheaderProtocolIndicator.FontChanged(Sender: TObject);
+begin
+  if Assigned(FOnChange) then FOnChange(Self);
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderProtocolIndicator - CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchSubheaderProtocolIndicator.Create;
+begin
+  inherited Create;
+  FVisible := True;
+  FSize := 24;
+  FFromColor := clAqua;
+  FToColor := clTeal;
+  FBorderWidth := 1.0;
+  FBorderColor := clBlack;
+  FFont := TFont.Create;
+  FFont.OnChange := FontChanged;
+  FCaption := 'AUTO';
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderProtocolIndicator - DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchSubheaderProtocolIndicator.Destroy;
+begin
+  FFont.Free;
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheaderProtocolIndicator - ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheaderProtocolIndicator.Assign(Source: TPersistent);
+begin
+  if Source is TOBDTouchSubheaderProtocolIndicator then
+  begin
+    FVisible := (Source as TOBDTouchSubheaderProtocolIndicator).Visible;
+    FSize := (Source as TOBDTouchSubheaderProtocolIndicator).Size;
+    FFromColor := (Source as TOBDTouchSubheaderProtocolIndicator).FromColor;
+    FToColor := (Source as TOBDTouchSubheaderProtocolIndicator).ToColor;
+    FBorderWidth := (Source as TOBDTouchSubheaderProtocolIndicator).BorderWidth;
+    FBorderColor := (Source as TOBDTouchSubheaderProtocolIndicator).BorderColor;
+    FFont.Assign((Source as TOBDTouchSubheaderProtocolIndicator).Font);
+    FCaption := (Source as TOBDTouchSubheaderProtocolIndicator).Caption;
+    if Assigned(FOnChange) then FOnChange(Self);
+  end else
+    inherited;
+end;
+
+//------------------------------------------------------------------------------
+// TOBDTouchSubheader - SETTERS
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.SetBackground(Value: TOBDTouchSubheaderBackground);
+begin
+  FBackground.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetBorder(Value: TOBDTouchSubheaderBorder);
+begin
+  FBorder.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetBatteryIndicator(Value: TOBDTouchSubheaderBatteryIndicator);
+begin
+  FBatteryIndicator.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetVciIndicator(Value: TOBDTouchSubheaderVciIndicator);
+begin
+  FVciIndicator.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetInternetConnectionIndicator(Value: TOBDTouchSubheaderInternetConnectionIndicator);
+begin
+  FInternetConnectionIndicator.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetProtocolIndicator(Value: TOBDTouchSubheaderProtocolIndicator);
+begin
+  FProtocolIndicator.Assign(Value);
+end;
+
+procedure TOBDTouchSubheader.SetAutoApplyConnectionDetails(Value: Boolean);
+begin
+  if FAutoApplyConnectionDetails <> Value then
+  begin
+    FAutoApplyConnectionDetails := Value;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDTouchSubheader.SetConnectionComponent(Value: TOBDConnectionComponent);
+begin
+  if FConnectionComponent <> Value then
+  begin
+    // Remove old event handler
+    if Assigned(FConnectionComponent) then
+      FConnectionComponent.OnConnectionStateChanged := nil;
+    
+    FConnectionComponent := Value;
+    
+    // Add new event handler
+    if Assigned(FConnectionComponent) and FAutoApplyConnectionDetails then
+      FConnectionComponent.OnConnectionStateChanged := HandleConnectionStateChanged;
+    
+    Invalidate;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE CONNECTION STATE CHANGED
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.HandleConnectionStateChanged(Sender: TObject; const Connected: Boolean; const ConnectionType: TOBDConnectionType);
+begin
+  // Update indicators based on connection state
+  if FAutoApplyConnectionDetails then
+  begin
+    // Update VCI indicator
+    FVciIndicator.Visible := Connected;
+    
+    // Update protocol indicator based on connection type
+    case ConnectionType of
+      ctSerial: FProtocolIndicator.Caption := 'SERIAL';
+      ctBluetooth: FProtocolIndicator.Caption := 'BT';
+      ctWiFi: FProtocolIndicator.Caption := 'WIFI';
+      ctFTDI: FProtocolIndicator.Caption := 'FTDI';
+    else
+      FProtocolIndicator.Caption := 'AUTO';
+    end;
+    
+    Invalidate;
+  end;
+end;
 
 ﻿//------------------------------------------------------------------------------
 // UPDATE STYLE ELEMENTS
@@ -616,19 +1300,10 @@ begin
   // Free protocol indicator
   FProtocolIndicator.Free;
   // Clear connection component reference
-  if Assigned(FConnectionComponent) and (FConnectionComponent.OnConnectionStateChanged = HandleConnectionStateChanged) then
+  if Assigned(FConnectionComponent) then
     FConnectionComponent.OnConnectionStateChanged := nil;
   // Call inherited destructor
   inherited Destroy;
-end;
-
-//------------------------------------------------------------------------------
-// REPAINT
-//------------------------------------------------------------------------------
-procedure TOBDTouchSubheader.Repaint;
-begin
-  // Call inherited repaint
-  inherited;
 end;
 
 //------------------------------------------------------------------------------
