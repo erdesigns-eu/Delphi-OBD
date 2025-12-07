@@ -1014,8 +1014,6 @@ const
   BYTES_PER_PIXEL = 4; // 32-bit ARGB format
 var
   Surface: ISkSurface;
-  Canvas: ISkCanvas;
-  Paint: ISkPaint;
   BytesPerRow: Integer;
 begin
   Result := nil;
