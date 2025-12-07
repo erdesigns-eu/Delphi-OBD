@@ -1646,7 +1646,7 @@ begin
       Typeface := CreateSkTypeface(Panels[I].Font);
       SkFont := TSkFont.Create(Typeface, Panels[I].Font.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].Font.Color);
-      Metrics := SkFont.Metrics;
+      SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
       Canvas.DrawSimpleText(Panels[I].Text, Panels[I].PanelRect.Left + X, Y, SkFont, Paint);
     end else
@@ -1654,7 +1654,7 @@ begin
       Typeface := CreateSkTypeface(Panels[I].PrimaryFont);
       SkFont := TSkFont.Create(Typeface, Panels[I].PrimaryFont.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].PrimaryFont.Color);
-      Metrics := SkFont.Metrics;
+      SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
       Canvas.DrawSimpleText(Panels[I].PrimaryText, Panels[I].PanelRect.Left + X, Y, SkFont, Paint);
 
@@ -1663,7 +1663,7 @@ begin
       Typeface := CreateSkTypeface(Panels[I].SecondaryFont);
       SkFont := TSkFont.Create(Typeface, Panels[I].SecondaryFont.Size);
       Paint.Color := SafeColorRefToSkColor(Panels[I].SecondaryFont.Color);
-      Metrics := SkFont.Metrics;
+      SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
       Canvas.DrawSimpleText(Panels[I].SecondaryText, Panels[I].PanelRect.Left + X + PanelPadding, Y, SkFont, Paint);
     end;
