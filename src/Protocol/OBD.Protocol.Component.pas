@@ -695,7 +695,7 @@ end;
 //------------------------------------------------------------------------------
 // PROCESS LINES
 //------------------------------------------------------------------------------
-procedure TOBDProtocolComponent.ProcessLines(Lines: TStrings);
+procedure TOBDProtocolComponent.ProcessLines(const Lines: TStrings);
 var
   Messages: TArray<IOBDDataMessage>;
 begin

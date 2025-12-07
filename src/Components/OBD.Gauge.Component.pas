@@ -14,8 +14,8 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
-  OBD.Adapter.Types, OBD.Component.BindingHelpers, OBD.Protocol.Component,
-  OBD.CircularGauge;
+  OBD.Protocol.Types, OBD.Adapter.Types, OBD.Component.BindingHelpers,
+  OBD.Protocol.Component, OBD.CircularGauge;
 
 //------------------------------------------------------------------------------
 // TYPES
