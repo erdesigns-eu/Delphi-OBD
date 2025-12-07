@@ -1916,6 +1916,8 @@ begin
     FStartAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1936,6 +1938,8 @@ begin
     FEndAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1958,6 +1962,8 @@ begin
       FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1980,6 +1986,8 @@ begin
       FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -2003,6 +2011,8 @@ begin
     // Notify animation manager to start timer if needed
     if not (csDesigning in ComponentState) then
       AnimationManager.CheckAnimationState;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -2491,6 +2501,8 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2500,6 +2512,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2514,6 +2528,8 @@ begin
     // Notify the animation manager to check animation state
     AnimationManager.CheckAnimationState;
   end;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2554,6 +2570,8 @@ begin
     Animation.Value := FValue;
   end;
 
+  // Redraw Skia
+  Redraw;
   // Trigger a repaint to display the updated needle position
   Invalidate;
 end;
@@ -2590,6 +2608,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2603,6 +2623,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2740,6 +2762,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
