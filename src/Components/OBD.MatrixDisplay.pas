@@ -974,6 +974,10 @@ begin
   // The IDE doesn't need the optimized background cache
   if (csDesigning in ComponentState) then
     Exit;
+  
+  // Safety check: don't build snapshot with invalid dimensions
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
     
   // Allocate a Skia surface for fully hardware-accelerated drawing
   Surface := TSkSurface.MakeRaster(Width, Height);
@@ -1146,10 +1150,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.SettingsChanged(Sender: TObject);
 begin
-  // Skip invalidation at design time during construction to prevent access violations
-  if (csDesigning in ComponentState) and (csLoading in ComponentState) then
-    Exit;
-    
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
