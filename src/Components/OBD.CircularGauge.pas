@@ -2085,8 +2085,9 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
-  // Skip if in design mode and not yet loaded (avoid access violations during streaming)
-  if (csDesigning in ComponentState) and (csLoading in ComponentState) then
+  // Skip background building entirely at design time to prevent access violations
+  // The IDE doesn't need the optimized background cache
+  if (csDesigning in ComponentState) then
     Exit;
     
   // Clear and rebuild the cached background snapshot under the render lock
@@ -2473,6 +2474,10 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
+  // Skip invalidation at design time during construction to prevent access violations
+  if (csDesigning in ComponentState) and (csLoading in ComponentState) then
+    Exit;
+    
   // Invalidate the background
   InvalidateBackground;
   // Invalidate the buffer
