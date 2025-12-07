@@ -16,9 +16,9 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, System.Skia, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls, Skia.Vcl,
+  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls, Vcl.Skia,
 
-  OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -1183,9 +1183,6 @@ type
   end;
 
 implementation
-
-uses
-  System.Skia, Skia.Vcl;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
@@ -2809,6 +2806,7 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       Image: TGraphic;
       Visible: Boolean;
     end;
+
   function GraphicToSkImage(const Graphic: TGraphic): ISkImage;
   var
     Bitmap: TBitmap;
@@ -2825,6 +2823,7 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       Bitmap.Free;
     end;
   end;
+
   var
     Paint: ISkPaint;
     TabPath, GlarePath: ISkPath;
