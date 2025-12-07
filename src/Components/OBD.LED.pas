@@ -263,6 +263,12 @@ type
     ///   Cached Skia snapshot for the on LED state
     /// </summary>
     FOnImage: ISkImage;
+    /// <summary>
+    ///   Dirty flags for lazy state image generation
+    /// </summary>
+    FGrayedImageDirty: Boolean;
+    FOffImageDirty: Boolean;
+    FOnImageDirty: Boolean;
   private
     /// <summary>
     ///   State
@@ -305,10 +311,27 @@ type
     ///   Set on color
     /// </summary>
     procedure SetOnColor(Value: TOBDLedOnColor);
+    
+    /// <summary>
+    ///   Get grayed image (lazy load if dirty)
+    /// </summary>
+    function GetGrayedImage: ISkImage;
+    /// <summary>
+    ///   Get off image (lazy load if dirty)
+    /// </summary>
+    function GetOffImage: ISkImage;
+    /// <summary>
+    ///   Get on image (lazy load if dirty)
+    /// </summary>
+    function GetOnImage: ISkImage;
+    /// <summary>
+    ///   Paint LED image for specific state
+    /// </summary>
+    function PaintLedImage(State: TOBDLedState): ISkImage;
   protected
     /// <summary>
     /// <summary>
-    ///   Invalidate cached Skia LED snapshots for all states
+    ///   Invalidate cached Skia LED snapshots for all states (mark as dirty)
     /// </summary>
     procedure InvalidateColors; virtual;
     /// <summary>
@@ -578,113 +601,158 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// INVALIDATE COLOR BUFFERS
+// INVALIDATE COLOR BUFFERS (Mark all states as dirty for lazy regeneration)
 //------------------------------------------------------------------------------
 procedure TOBDLed.InvalidateColors;
-
-  function PaintLedImage(State: TOBDLedState): ISkImage;
-  var
-    BackgroundColor: TAlphaColor;
-    Surface: ISkSurface;
-    Canvas: ISkCanvas;
-    Size, X, Y, GW, GH, GX: Single;
-    BorderRect, LedRect, GlareRect: TRectF;
-    BorderPaint, FillPaint, GlarePaint: ISkPaint;
-    Colors: TArray<TAlphaColor>;
-  begin
-    // Resolve the background tint directly in Skia to avoid any GDI style drawing
-    if TStyleManager.IsCustomStyleActive then
-      BackgroundColor := SafeColorRefToSkColor(StyleServices.GetSystemColor(clWindow))
-    else
-      BackgroundColor := SafeColorRefToSkColor(Self.Color);
-
-    // Allocate a dedicated Skia surface for the LED snapshot
-    Surface := TSkSurface.MakeRaster(Width, Height);
-    Canvas := Surface.Canvas;
-
-    // Clear the surface to the desired background tint
-    Canvas.Clear(BackgroundColor);
-
-    // Calculate the size of the LED body and center it within the control bounds
-    Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2)) - (Border.Width * 2) - 2;
-    X := (Width / 2) - (Size / 2);
-    Y := (Height / 2) - (Size / 2);
-    BorderRect := TRectF.Create(X, Y, X + Size, Y + Size);
-
-    // Paint the subtle background disk behind the LED for depth
-    BorderPaint := TSkPaint.Create;
-    BorderPaint.AntiAlias := True;
-    BorderPaint.Style := TSkPaintStyle.Fill;
-    BorderPaint.Color := SafeColorRefToSkColor(clWindow);
-    Canvas.DrawOval(BorderRect, BorderPaint);
-
-    // Prepare the main LED fill rectangle and choose the gradient palette by state
-    LedRect := TRectF.Create(X + Border.Width + 2, Y + Border.Width + 2, X + Size - Border.Width - 2, Y + Size - Border.Width - 2);
-    FillPaint := TSkPaint.Create;
-    FillPaint.AntiAlias := True;
-    FillPaint.Style := TSkPaintStyle.Fill;
-    case State of
-      lsGrayed : Colors := [SafeColorRefToSkColor(GrayedColor.FromColor), SafeColorRefToSkColor(GrayedColor.ToColor)];
-      lsOff    : Colors := [SafeColorRefToSkColor(OffColor.FromColor), SafeColorRefToSkColor(OffColor.ToColor)];
-      lsOn     : Colors := [SafeColorRefToSkColor(OnColor.FromColor), SafeColorRefToSkColor(OnColor.ToColor)];
-    end;
-    FillPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(LedRect.Left, LedRect.Top), TPointF.Create(LedRect.Left, LedRect.Bottom), Colors, nil, TSkTileMode.Clamp);
-    Canvas.DrawOval(LedRect, FillPaint);
-
-    // Add a thin stroke around the LED body to highlight the rim
-    BorderPaint := TSkPaint.Create;
-    BorderPaint.AntiAlias := True;
-    BorderPaint.Style := TSkPaintStyle.Stroke;
-    BorderPaint.StrokeWidth := 1.5;
-    case State of
-      lsGrayed : BorderPaint.Color := SafeColorRefToSkColor(GrayedColor.FromColor);
-      lsOff    : BorderPaint.Color := SafeColorRefToSkColor(OffColor.FromColor);
-      lsOn     : BorderPaint.Color := SafeColorRefToSkColor(OnColor.FromColor);
-    end;
-    Canvas.DrawOval(LedRect, BorderPaint);
-
-    // Calculate the glare footprint and blend a translucent highlight across it
-    GW := Size * 0.75;
-    GH := Size * 0.5;
-    GX := (Width / 2) - (GW / 2);
-    GlareRect := TRectF.Create(GX, Y + Border.Width + 2, GX + GW, Y + Border.Width + 2 + GH);
-    GlarePaint := TSkPaint.Create;
-    GlarePaint.AntiAlias := True;
-    GlarePaint.Style := TSkPaintStyle.Fill;
-    GlarePaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(GlareRect.Left, GlareRect.Top), TPointF.Create(GlareRect.Left, GlareRect.Bottom),
-      [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
-    Canvas.DrawOval(GlareRect, GlarePaint);
-
-    // Build the outer border ring gradient to frame the LED
-    GW := Width - 1;
-    GH := Height - 1;
-    BorderRect := TRectF.Create(0, 0, GW, GH);
-    BorderPaint := TSkPaint.Create;
-    BorderPaint.AntiAlias := True;
-    BorderPaint.Style := TSkPaintStyle.Stroke;
-    BorderPaint.StrokeWidth := Border.Width;
-    BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
-      [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)], nil, TSkTileMode.Clamp);
-    Canvas.DrawOval(BorderRect, BorderPaint);
-
-    // Add an inner ring for subtle contrast and dimensionality
-    BorderRect := TRectF.Create(1, 1, GW - 1, GH - 1);
-    BorderPaint := TSkPaint.Create;
-    BorderPaint.AntiAlias := True;
-    BorderPaint.Style := TSkPaintStyle.Stroke;
-    BorderPaint.StrokeWidth := Border.Width;
-    BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
-      [SafeColorRefToSkColor(Border.ToColor), SafeColorRefToSkColor(Border.FromColor)], nil, TSkTileMode.Clamp);
-    Canvas.DrawOval(BorderRect, BorderPaint);
-
-    Result := Surface.MakeImageSnapshot;
-  end;
-
 begin
-  // Rebuild all LED state snapshots using Skia-only drawing to remove GDI usage
-  FGrayedImage := PaintLedImage(lsGrayed);
-  FOffImage := PaintLedImage(lsOff);
-  FOnImage := PaintLedImage(lsOn);
+  // Mark all state images as dirty - they will be regenerated on-demand
+  FGrayedImageDirty := True;
+  FOffImageDirty := True;
+  FOnImageDirty := True;
+  // Clear existing images to free memory
+  FGrayedImage := nil;
+  FOffImage := nil;
+  FOnImage := nil;
+end;
+
+//------------------------------------------------------------------------------
+// GET GRAYED IMAGE (Lazy load)
+//------------------------------------------------------------------------------
+function TOBDLed.GetGrayedImage: ISkImage;
+begin
+  if FGrayedImageDirty or not Assigned(FGrayedImage) then
+  begin
+    FGrayedImage := PaintLedImage(lsGrayed);
+    FGrayedImageDirty := False;
+  end;
+  Result := FGrayedImage;
+end;
+
+//------------------------------------------------------------------------------
+// GET OFF IMAGE (Lazy load)
+//------------------------------------------------------------------------------
+function TOBDLed.GetOffImage: ISkImage;
+begin
+  if FOffImageDirty or not Assigned(FOffImage) then
+  begin
+    FOffImage := PaintLedImage(lsOff);
+    FOffImageDirty := False;
+  end;
+  Result := FOffImage;
+end;
+
+//------------------------------------------------------------------------------
+// GET ON IMAGE (Lazy load)
+//------------------------------------------------------------------------------
+function TOBDLed.GetOnImage: ISkImage;
+begin
+  if FOnImageDirty or not Assigned(FOnImage) then
+  begin
+    FOnImage := PaintLedImage(lsOn);
+    FOnImageDirty := False;
+  end;
+  Result := FOnImage;
+end;
+
+//------------------------------------------------------------------------------
+// PAINT LED IMAGE FOR SPECIFIC STATE
+//------------------------------------------------------------------------------
+function TOBDLed.PaintLedImage(State: TOBDLedState): ISkImage;
+var
+  BackgroundColor: TAlphaColor;
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Size, X, Y, GW, GH, GX: Single;
+  BorderRect, LedRect, GlareRect: TRectF;
+  BorderPaint, FillPaint, GlarePaint: ISkPaint;
+  Colors: TArray<TAlphaColor>;
+begin
+  // Resolve the background tint directly in Skia to avoid any GDI style drawing
+  if TStyleManager.IsCustomStyleActive then
+    BackgroundColor := SafeColorRefToSkColor(StyleServices.GetSystemColor(clWindow))
+  else
+    BackgroundColor := SafeColorRefToSkColor(Self.Color);
+
+  // Allocate a dedicated Skia surface for the LED snapshot
+  Surface := TSkSurface.MakeRaster(Width, Height);
+  Canvas := Surface.Canvas;
+
+  // Clear the surface to the desired background tint
+  Canvas.Clear(BackgroundColor);
+
+  // Calculate the size of the LED body and center it within the control bounds
+  Size := System.Math.Min(ClientWidth - (MARGIN_FROM_BORDER * 2), ClientHeight - (MARGIN_FROM_BORDER * 2)) - (Border.Width * 2) - 2;
+  X := (Width / 2) - (Size / 2);
+  Y := (Height / 2) - (Size / 2);
+  BorderRect := TRectF.Create(X, Y, X + Size, Y + Size);
+
+  // Paint the subtle background disk behind the LED for depth
+  BorderPaint := TSkPaint.Create;
+  BorderPaint.AntiAlias := True;
+  BorderPaint.Style := TSkPaintStyle.Fill;
+  BorderPaint.Color := SafeColorRefToSkColor(clWindow);
+  Canvas.DrawOval(BorderRect, BorderPaint);
+
+  // Prepare the main LED fill rectangle and choose the gradient palette by state
+  LedRect := TRectF.Create(X + Border.Width + 2, Y + Border.Width + 2, X + Size - Border.Width - 2, Y + Size - Border.Width - 2);
+  FillPaint := TSkPaint.Create;
+  FillPaint.AntiAlias := True;
+  FillPaint.Style := TSkPaintStyle.Fill;
+  case State of
+    lsGrayed : Colors := [SafeColorRefToSkColor(GrayedColor.FromColor), SafeColorRefToSkColor(GrayedColor.ToColor)];
+    lsOff    : Colors := [SafeColorRefToSkColor(OffColor.FromColor), SafeColorRefToSkColor(OffColor.ToColor)];
+    lsOn     : Colors := [SafeColorRefToSkColor(OnColor.FromColor), SafeColorRefToSkColor(OnColor.ToColor)];
+  end;
+  FillPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(LedRect.Left, LedRect.Top), TPointF.Create(LedRect.Left, LedRect.Bottom), Colors, nil, TSkTileMode.Clamp);
+  Canvas.DrawOval(LedRect, FillPaint);
+
+  // Add a thin stroke around the LED body to highlight the rim
+  BorderPaint := TSkPaint.Create;
+  BorderPaint.AntiAlias := True;
+  BorderPaint.Style := TSkPaintStyle.Stroke;
+  BorderPaint.StrokeWidth := 1.5;
+  case State of
+    lsGrayed : BorderPaint.Color := SafeColorRefToSkColor(GrayedColor.FromColor);
+    lsOff    : BorderPaint.Color := SafeColorRefToSkColor(OffColor.FromColor);
+    lsOn     : BorderPaint.Color := SafeColorRefToSkColor(OnColor.FromColor);
+  end;
+  Canvas.DrawOval(LedRect, BorderPaint);
+
+  // Calculate the glare footprint and blend a translucent highlight across it
+  GW := Size * 0.75;
+  GH := Size * 0.5;
+  GX := (Width / 2) - (GW / 2);
+  GlareRect := TRectF.Create(GX, Y + Border.Width + 2, GX + GW, Y + Border.Width + 2 + GH);
+  GlarePaint := TSkPaint.Create;
+  GlarePaint.AntiAlias := True;
+  GlarePaint.Style := TSkPaintStyle.Fill;
+  GlarePaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(GlareRect.Left, GlareRect.Top), TPointF.Create(GlareRect.Left, GlareRect.Bottom),
+    [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
+  Canvas.DrawOval(GlareRect, GlarePaint);
+
+  // Build the outer border ring gradient to frame the LED
+  GW := Width - 1;
+  GH := Height - 1;
+  BorderRect := TRectF.Create(0, 0, GW, GH);
+  BorderPaint := TSkPaint.Create;
+  BorderPaint.AntiAlias := True;
+  BorderPaint.Style := TSkPaintStyle.Stroke;
+  BorderPaint.StrokeWidth := Border.Width;
+  BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
+    [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)], nil, TSkTileMode.Clamp);
+  Canvas.DrawOval(BorderRect, BorderPaint);
+
+  // Add an inner ring for subtle contrast and dimensionality
+  BorderRect := TRectF.Create(1, 1, GW - 1, GH - 1);
+  BorderPaint := TSkPaint.Create;
+  BorderPaint.AntiAlias := True;
+  BorderPaint.Style := TSkPaintStyle.Stroke;
+  BorderPaint.StrokeWidth := Border.Width;
+  BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
+    [SafeColorRefToSkColor(Border.ToColor), SafeColorRefToSkColor(Border.FromColor)], nil, TSkTileMode.Clamp);
+  Canvas.DrawOval(BorderRect, BorderPaint);
+
+  Result := Surface.MakeImageSnapshot;
 end;
 
 //------------------------------------------------------------------------------
@@ -695,22 +763,11 @@ var
   Image: ISkImage;
 begin
   try
-    // Select the matching Skia snapshot for the requested LED state
+    // Get the matching Skia snapshot for the requested LED state (lazy-loaded)
     case State of
-      lsGrayed : Image := FGrayedImage;
-      lsOff    : Image := FOffImage;
-      lsOn     : Image := FOnImage;
-    end;
-
-    // If a snapshot is missing (e.g. after resize), rebuild and reselect
-    if not Assigned(Image) then
-    begin
-      InvalidateColors;
-      case State of
-        lsGrayed : Image := FGrayedImage;
-        lsOff    : Image := FOffImage;
-        lsOn     : Image := FOnImage;
-      end;
+      lsGrayed : Image := GetGrayedImage;
+      lsOff    : Image := GetOffImage;
+      lsOn     : Image := GetOnImage;
     end;
 
     // Draw the Skia snapshot directly to the canvas (zero-copy rendering)
@@ -802,8 +859,10 @@ begin
   //
   Width := 25;
   Height := 25;
-  // Generate the initial Skia LED snapshots
-  InvalidateColors;
+  // Mark state images as dirty (they will be generated on first paint)
+  FGrayedImageDirty := True;
+  FOffImageDirty := True;
+  FOnImageDirty := True;
 end;
 
 //------------------------------------------------------------------------------

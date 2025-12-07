@@ -313,10 +313,6 @@ type
   TOBDMatrixDisplay = class(TOBDCustomControl, IOBDAnimatable)
   private
     /// <summary>
-    ///   Background Buffer
-    /// </summary>
-    FBackgroundBuffer: TBitmap;
-    /// <summary>
     ///   Cached Skia background image to reuse across paint cycles
     /// </summary>
     FBackgroundImage: ISkImage;
@@ -957,9 +953,6 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
-  // Update the size of the background buffer
-  FBackgroundBuffer.SetSize(Width, Height);
-
   // Allocate a Skia surface for fully hardware-accelerated drawing
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -1033,10 +1026,8 @@ begin
     end;
   end;
 
-  // Persist the Skia-rendered background so it can be reused by the paint buffer
+  // Persist the Skia-rendered background so it can be reused across paint cycles
   FBackgroundImage := Surface.MakeImageSnapshot;
-  if FBackgroundImage <> nil then
-    FBackgroundImage.ToBitmap(FBackgroundBuffer);
 end;
 
 //------------------------------------------------------------------------------
@@ -1301,10 +1292,6 @@ constructor TOBDMatrixDisplay.Create(AOwner: TComponent);
 begin
   // Call inherited constructor
   inherited Create(AOwner);
-  // Create background buffer
-  FBackgroundBuffer := TBitmap.Create;
-  // Set the background buffer pixel format
-  FBackgroundBuffer.PixelFormat := pf32bit;
   // Create a lightweight lock object for multithreaded access
   FCellsLock := TObject.Create;
   // Set defaults
@@ -1350,8 +1337,6 @@ begin
     // Unregister from the animation manager
     AnimationManager.UnregisterControl(Self);
   end;
-  // Free background buffer
-  FBackgroundBuffer.Free;
   // Release the cell lock
   FCellsLock.Free;
   // Free background

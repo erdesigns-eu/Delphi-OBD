@@ -8,6 +8,59 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
 
 ## 📋 Remaining Tasks
 
+### Phase 0: Visual Component Optimization (NEW - December 7, 2024)
+
+#### TASK 0.1: Optimize MatrixDisplay Component
+- **Priority:** 🟡 MEDIUM
+- **Estimated Effort:** 30-45 minutes
+- **Description:** Remove redundant TBitmap buffer and unnecessary format conversions
+
+**Subtasks:**
+- [ ] Remove `FBackgroundBuffer: TBitmap` field from TOBDMatrixDisplay
+- [ ] Remove `FBackgroundBuffer.SetSize(Width, Height)` call in InvalidateBackground
+- [ ] Remove `FBackgroundImage.ToBitmap(FBackgroundBuffer)` conversion (line 1039)
+- [ ] Update PaintSkia to use only `FBackgroundImage` directly
+- [ ] Test with animations (scrolling text, bitmap masks)
+- [ ] Verify memory usage reduced (~50% for background storage)
+- [ ] Update component documentation
+
+**Expected Outcome:** 50% memory reduction for cached backgrounds, 25-33% faster resize operations
+
+#### TASK 0.2: Implement Lazy State Loading for LED Component
+- **Priority:** 🟡 MEDIUM
+- **Estimated Effort:** 45-60 minutes
+- **Description:** Generate LED state images on-demand instead of pre-rendering all states
+
+**Subtasks:**
+- [ ] Add dirty flags: `FGrayedImageDirty`, `FOffImageDirty`, `FOnImageDirty: Boolean`
+- [ ] Create accessor methods: `GetGrayedImage`, `GetOffImage`, `GetOnImage`
+- [ ] Modify `InvalidateColors` to only set dirty flags
+- [ ] Implement lazy generation in accessor methods (check dirty flag, generate if needed)
+- [ ] Update `PaintSkia` to use accessor methods
+- [ ] Test with rapid state changes (lsGrayed → lsOff → lsOn cycles)
+- [ ] Measure memory savings (should be ~66% when only 1 state used)
+- [ ] Update component documentation
+
+**Expected Outcome:** 66% memory reduction when LED stays in one state, 66% faster color property changes
+
+#### TASK 0.3: Create Visual Component Optimization Guidelines
+- **Priority:** 🟢 LOW
+- **Estimated Effort:** 1-2 hours
+- **Description:** Document best practices for future visual components
+
+**Subtasks:**
+- [ ] Document Skia-only rendering pattern (no TBitmap mixing)
+- [ ] Create component development checklist
+- [ ] Add memory profiling guidelines
+- [ ] Document caching strategies (when to cache, when to regenerate)
+- [ ] Add performance testing procedures
+- [ ] Create "anti-patterns" section (what to avoid)
+- [ ] Add to README or separate GUIDELINES.md
+
+**Expected Outcome:** Consistent, optimized components in future development
+
+---
+
 ### Phase 1: Optimizations & Improvements
 
 #### TASK 1.6: Performance Profiling & Optimization
@@ -41,6 +94,196 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
 ### Phase 2: Extensions & New Features
 
 **Focus:** Add new features, protocols, and components to expand functionality.
+
+#### TASK 2.1: Non-Visual OBD Mode Components (NEW - December 7, 2024)
+- **Priority:** 🔴 HIGH
+- **Estimated Effort:** 8-10 hours (split across multiple sessions)
+- **Description:** Create non-visual components for OBD diagnostic modes following the pattern established by TOBDProtocolComponent
+
+**Overview:** 
+Implement non-visual components that wrap OBD Services (01-0A) and expose properties/events for easy IDE integration, similar to how TOBDProtocolComponent wraps protocol parsers.
+
+**Subtasks:**
+
+**2.1.1: Base OBD Service Component** (Session 1: 90-120 min)
+- [ ] Create `TOBDServiceComponent` base class
+  - Inherit from TComponent (non-visual)
+  - Add `ConnectionComponent: TOBDConnectionComponent` property with binding
+  - Add `AdapterComponent: TOBDAdapterComponent` property
+  - Implement `Execute` method for sending requests
+  - Add `OnResponse`, `OnError` events
+  - Add `AutoRefresh: Boolean` and `RefreshInterval: Cardinal` properties
+  - Implement timer for auto-refresh functionality
+  - Add thread-safety for async operations
+- [ ] Test base class with simple command
+
+**2.1.2: Service 01 Component (Live Data)** (Session 2: 90-120 min)
+- [ ] Create `TOBDService01Component`
+  - Published properties for common PIDs:
+    - `EngineRPM: Integer` (read-only)
+    - `VehicleSpeed: Integer` (read-only)
+    - `CoolantTemp: Integer` (read-only)
+    - `ThrottlePosition: Single` (read-only)
+    - `FuelLevel: Single` (read-only)
+    - etc. (20+ common PIDs)
+  - Events for each PID: `OnEngineRPMChange`, `OnVehicleSpeedChange`, etc.
+  - Method `RequestPID(APID: Byte)` for custom PIDs
+  - Method `RequestMultiplePIDs(APIDs: array of Byte)` for efficiency
+  - Auto-update properties when responses received
+- [ ] Add PID availability detection (Service 01, PID $00)
+- [ ] Test with live vehicle data
+
+**2.1.3: Service 03 Component (DTCs)** (Session 3: 60-90 min)
+- [ ] Create `TOBDService03Component`
+  - Property `DTCs: TStringList` (read-only, list of trouble codes)
+  - Property `DTCCount: Integer` (read-only)
+  - Method `RefreshDTCs` to read stored codes
+  - Event `OnDTCsChanged` when codes retrieved
+  - Method `GetDTCDescription(Code: string): string` for descriptions
+- [ ] Test with vehicles having stored DTCs
+
+**2.1.4: Service 04 Component (Clear DTCs)** (Session 3: 30-45 min)
+- [ ] Create `TOBDService04Component`
+  - Method `ClearDTCs: Boolean` with confirmation
+  - Property `RequireConfirmation: Boolean` (safety feature)
+  - Events: `OnBeforeClear`, `OnAfterClear`, `OnClearFailed`
+  - Add MIL (Check Engine Light) status check
+- [ ] Test clearing codes safely
+
+**2.1.5: Service 09 Component (Vehicle Info)** (Session 4: 60-90 min)
+- [ ] Create `TOBDService09Component`
+  - Property `VIN: string` (read-only, auto-parsed)
+  - Property `CalibrationID: string` (read-only)
+  - Property `CVN: string` (read-only, Calibration Verification Number)
+  - Property `ECUName: string` (read-only)
+  - Method `RequestVehicleInfo` to populate all
+  - Event `OnVehicleInfoRetrieved`
+- [ ] Integrate with existing VIN decoder
+- [ ] Test with multiple vehicle types
+
+**Expected Outcomes:**
+- 5+ non-visual components for common OBD operations
+- Drag-and-drop IDE support (drop on form, set properties, handle events)
+- Auto-refresh capability for live data monitoring
+- Type-safe property access (no manual parsing)
+- Event-driven architecture for responsive UIs
+
+#### TASK 2.2: ECU Flashing Component (NEW - December 7, 2024)
+- **Priority:** 🔴 HIGH
+- **Estimated Effort:** 6-8 hours (split across 3-4 sessions)
+- **Description:** Create non-visual component for ECU programming/flashing operations
+
+**Subtasks:**
+
+**2.2.1: Base Flashing Component** (Session 1: 120-150 min)
+- [ ] Create `TOBDECUFlasherComponent`
+  - Property `TargetECU: string` (PCM, TCM, ABS, etc.)
+  - Property `FirmwareFile: string` (path to .bin/.hex file)
+  - Property `BackupFile: string` (path for backup before flashing)
+  - Property `VerifyAfterWrite: Boolean` (default: true)
+  - Property `RequireVoltageCheck: Boolean` (default: true, min 12.5V)
+  - Property `MinimumVoltage: Single` (default: 12.5V)
+  - Events:
+    - `OnProgress(Percent: Integer; Status: string)`
+    - `OnPhaseChange(Phase: TFlashPhase)` (Backup, Erase, Write, Verify)
+    - `OnComplete(Success: Boolean)`
+    - `OnError(ErrorCode: Integer; ErrorMsg: string)`
+    - `OnVoltageWarning(CurrentVoltage: Single)`
+- [ ] Add flash phases enum: TFlashPhase = (fpBackup, fpErase, fpWrite, fpVerify, fpComplete)
+- [ ] Implement voltage monitoring during flash
+
+**2.2.2: Flash File Handling** (Session 2: 90-120 min)
+- [ ] Add firmware file validation
+  - Detect format (.bin, .hex, .s19, .frf)
+  - Parse and validate checksums
+  - Verify file size matches ECU memory
+  - Check compatibility with VIN/ECU type
+- [ ] Implement backup functionality
+  - Read current ECU firmware
+  - Save to backup file with metadata
+  - Add restore capability
+- [ ] Add safety checks before flashing
+
+**2.2.3: Manufacturer-Specific Algorithms** (Session 3: 120-150 min)
+- [ ] Implement seed/key algorithms
+  - Ford algorithm support
+  - GM algorithm support
+  - VAG algorithm support
+  - Auto-detect algorithm from ECU response
+- [ ] Add security access level handling
+  - Level 1: Diagnostic
+  - Level 2: Programming
+  - Level 3: Manufacturer
+- [ ] Test with seed/key calculator tools
+
+**2.2.4: Flash Operation Implementation** (Session 4: 120-150 min)
+- [ ] Implement `StartFlashing` method
+  - Enter programming mode
+  - Perform backup if enabled
+  - Erase ECU flash
+  - Write firmware blocks
+  - Verify each block
+  - Exit programming mode
+- [ ] Add progress tracking (% complete, blocks written, time remaining)
+- [ ] Implement abort/rollback functionality
+- [ ] Add detailed logging to file
+- [ ] Test with bench ECUs (safe testing)
+
+**Expected Outcomes:**
+- Safe, verified ECU flashing from IDE
+- Automatic backup before flashing
+- Voltage monitoring and safety checks
+- Support for multiple manufacturers
+- Progress tracking with abort capability
+
+#### TASK 2.3: PassThrough J2534 Component (NEW - December 7, 2024)
+- **Priority:** 🟡 MEDIUM
+- **Estimated Effort:** 4-5 hours (split across 2-3 sessions)
+- **Description:** Create non-visual component wrapping J2534 PassThrough interface
+
+**Subtasks:**
+
+**2.3.1: J2534 Component Basics** (Session 1: 90-120 min)
+- [ ] Create `TOBDJ2534Component`
+  - Property `DeviceName: string` (selected J2534 device)
+  - Property `AvailableDevices: TStringList` (discovered devices)
+  - Method `ScanForDevices` to populate available list
+  - Property `ProtocolID: TJ2534Protocol` (J1850PWM, J1850VPW, ISO9141, etc.)
+  - Property `Baudrate: Cardinal`
+  - Events: `OnDeviceConnected`, `OnDeviceDisconnected`, `OnMessageReceived`
+- [ ] Implement device enumeration from registry
+- [ ] Test device discovery
+
+**2.3.2: PassThrough Operations** (Session 2: 120-150 min)
+- [ ] Implement core J2534 functions
+  - `PassThruOpen` / `PassThruClose`
+  - `PassThruConnect` / `PassThruDisconnect`
+  - `PassThruReadMsgs` / `PassThruWriteMsgs`
+  - `PassThruStartPeriodicMsg` / `PassThruStopPeriodicMsg`
+  - `PassThruSetProgrammingVoltage`
+- [ ] Add message filtering
+  - Pass filters: Only receive matching messages
+  - Block filters: Block unwanted messages
+  - Flow control filters: For multi-frame messages
+- [ ] Implement timeout handling
+- [ ] Test with real J2534 device
+
+**2.3.3: High-Level Helpers** (Session 3: 60-90 min)
+- [ ] Add convenience methods
+  - `SendDiagnosticRequest(Data: TBytes): TBytes`
+  - `ReadDTCs: TStringList`
+  - `ClearDTCs: Boolean`
+  - `SetProgrammingVoltage(Volts: Single)`
+- [ ] Implement auto-retry on errors
+- [ ] Add connection keep-alive
+- [ ] Test with diagnostic operations
+
+**Expected Outcomes:**
+- Direct J2534 device access from IDE
+- Support for professional-grade adapters
+- Programming voltage control
+- Message filtering and flow control
+- High-level diagnostic helpers
 
 #### TASK 2.4: J1939 Protocol Enhancements
 - **Priority:** 🟡 MEDIUM
