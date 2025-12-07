@@ -37,6 +37,10 @@ type
     ///   FTDI Handle
     /// </summary
     FFTDIHandle: DWORD;
+    /// <summary>
+    ///   FT_GetStatus function pointer
+    /// </summary>
+    FFT_GetStatus: TFT_GetStatus;
   protected
     /// <summary>
     ///   Execute thread
@@ -46,7 +50,7 @@ type
     /// <summary>
     ///   Constructor
     /// </summary
-    constructor Create(CreateSuspended: Boolean; EventHandle: THandle; WindowHandle: HWND; FTDIHandle: DWORD);
+    constructor Create(CreateSuspended: Boolean; EventHandle: THandle; WindowHandle: HWND; FTDIHandle: DWORD; AFT_GetStatus: TFT_GetStatus);
   end;
 
   /// <summary>
@@ -448,7 +452,7 @@ end;
 //------------------------------------------------------------------------------
 // THREAD CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TFTDIThread.Create(CreateSuspended: Boolean; EventHandle: NativeUInt; WindowHandle: HWND; FTDIHandle: DWORD);
+constructor TFTDIThread.Create(CreateSuspended: Boolean; EventHandle: NativeUInt; WindowHandle: HWND; FTDIHandle: DWORD; AFT_GetStatus: TFT_GetStatus);
 begin
   // Inherited constructor
   inherited Create(CreateSuspended);
@@ -458,6 +462,8 @@ begin
   FWindowHandle := WindowHandle;
   // Set FTDI Handle
   FFTDIHandle := FTDIHandle;
+  // Set FT_GetStatus function pointer
+  FFT_GetStatus := AFT_GetStatus;
 end;
 
 //------------------------------------------------------------------------------
@@ -707,7 +713,7 @@ begin
     if SetupEventNotification then
     begin
       // Successfully set up event notifications, now proceed to create the event listening thread
-      FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle);
+      FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle, FFT_GetStatus);
       FEventThread.OnTerminate := EventThreadTerminate;
       // Apply FTDI device settings
       ApplyFTDISettings;
