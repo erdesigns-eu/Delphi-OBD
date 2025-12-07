@@ -109,26 +109,28 @@ begin
   Variant := FVariantManager.AddVariant(
     'FORD_M_SERIES',
     'Ford M-Series Algorithm (1995-2012)',
-    rcrGlobal,
+    rcrUnknown,
     1995, 2012,
-    'Uses lookup matrix calculation',
+    rcsvV1,
     True
   );
-  Variant.AddRadioModel('6000CD');
-  Variant.AddRadioModel('6006CDC');
+  Variant.RadioModels.Add('6000CD');
+  Variant.RadioModels.Add('6006CDC');
+  Variant.AlgorithmNotes := 'Uses lookup matrix calculation';
   
   // V-Series Lookup Table (~1M entries)
   Variant := FVariantManager.AddVariant(
     'FORD_V_LOOKUP',
     'Ford V-Series Lookup Table (All Years)',
-    rcrGlobal,
+    rcrUnknown,
     1995, 9999,
-    'Complete database lookup for V-series radios',
+    rcsvV1,
     False
   );
-  Variant.AddRadioModel('V-Series');
-  Variant.AddRadioModel('4500');
-  Variant.AddRadioModel('5000');
+  Variant.RadioModels.Add('V-Series');
+  Variant.RadioModels.Add('4500');
+  Variant.RadioModels.Add('5000');
+  Variant.AlgorithmNotes := 'Complete database lookup for V-series radios';
   
   // Regional Europe
   Variant := FVariantManager.AddVariant(
@@ -136,9 +138,10 @@ begin
     'Ford Europe Regional (2000-2015)',
     rcrEurope,
     2000, 2015,
-    'European market algorithm variation',
-    True
+    rcsvV1,
+    False
   );
+  Variant.AlgorithmNotes := 'European market algorithm variation';
   
   // Regional North America
   Variant := FVariantManager.AddVariant(
@@ -146,9 +149,10 @@ begin
     'Ford North America Regional (2000-2015)',
     rcrNorthAmerica,
     2000, 2015,
-    'North American market algorithm',
-    True
+    rcsvV1,
+    False
   );
+  Variant.AlgorithmNotes := 'North American market algorithm';
   
   // Regional Australia
   Variant := FVariantManager.AddVariant(
@@ -156,9 +160,10 @@ begin
     'Ford Australia Regional (2000-2015)',
     rcrAustralia,
     2000, 2015,
-    'Australian market algorithm',
-    True
+    rcsvV1,
+    False
   );
+  Variant.AlgorithmNotes := 'Australian market algorithm';
 end;
 
 //------------------------------------------------------------------------------
@@ -254,21 +259,74 @@ end;
 // CALCULATE REGIONAL VARIANTS
 //------------------------------------------------------------------------------
 function TOBDRadioCodeFordAdvanced.CalculateRegionalEU(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
 begin
-  // European variant - similar to M-Series with regional adjustments
-  Result := CalculateMSeries(Serial);
+  // European variant with position-weighted calculation
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * I);
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 function TOBDRadioCodeFordAdvanced.CalculateRegionalNA(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
+  Weights: array[1..6] of Integer;
 begin
-  // North American variant
-  Result := CalculateMSeries(Serial);
+  // North American variant uses different digit weighting
+  Weights[1] := 7;
+  Weights[2] := 3;
+  Weights[3] := 5;
+  Weights[4] := 2;
+  Weights[5] := 8;
+  Weights[6] := 4;
+  
+  Code := 0;
+  for I := 1 to Min(Length(Serial), 6) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * Weights[I]);
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 function TOBDRadioCodeFordAdvanced.CalculateRegionalAU(const Serial: string): string;
+var
+  Code: Integer;
+  I: Integer;
+  Digit: Integer;
 begin
-  // Australian variant
-  Result := CalculateMSeries(Serial);
+  // Australian variant similar to European with slight modification
+  Code := 0;
+  for I := 1 to Length(Serial) do
+  begin
+    if CharInSet(Serial[I], ['0'..'9']) then
+    begin
+      Digit := StrToInt(Serial[I]);
+      Code := Code + (Digit * (I + 1));
+    end;
+  end;
+  
+  Code := ApplyModularTransform(Code, 10000);
+  Result := Format('%.4d', [Code]);
 end;
 
 //------------------------------------------------------------------------------
@@ -286,8 +344,8 @@ procedure TOBDRadioCodeFordAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
 begin
-  Variant := FVariantManager.FindVariantByID(VariantID);
-  if Variant.VariantID <> '' then
+  Variant := FVariantManager.FindVariant(VariantID);
+  if Variant <> nil then
     FCurrentVariant := Variant
   else
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
@@ -298,7 +356,7 @@ var
   Variant: TRadioCodeVariant;
 begin
   Variant := FVariantManager.FindBestMatch(Region, ModelYear, '');
-  if Variant.VariantID <> '' then
+  if Variant <> nil then
     FCurrentVariant := Variant;
 end;
 
@@ -360,25 +418,28 @@ begin
   Sanitized := SanitizeInput(Input);
   if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
   
-  case FCurrentVariant.VariantID of
-    'FORD_M_SERIES':
-      Output := CalculateMSeries(Sanitized);
-    'FORD_V_LOOKUP':
-      begin
-        Output := CalculateVSeriesLookup(Sanitized, Found);
-        if not Found then
-        begin
-          ErrorMessage := 'Serial not found in V-Series database. Use Ford.V calculator for full lookup.';
-          Exit(False);
-        end;
-      end;
-    'FORD_EU':
-      Output := CalculateRegionalEU(Sanitized);
-    'FORD_NA':
-      Output := CalculateRegionalNA(Sanitized);
-    'FORD_AU':
-      Output := CalculateRegionalAU(Sanitized);
+  if FCurrentVariant = nil then
+    FCurrentVariant := FVariantManager.GetDefaultVariant;
+    
+  if FCurrentVariant.VariantID = 'FORD_M_SERIES' then
+    Output := CalculateMSeries(Sanitized)
+  else if FCurrentVariant.VariantID = 'FORD_V_LOOKUP' then
+  begin
+    Output := CalculateVSeriesLookup(Sanitized, Found);
+    if not Found then
+    begin
+      ErrorMessage := 'Serial not found in V-Series database. Use Ford.V calculator for full lookup.';
+      Exit(False);
+    end;
+  end
+  else if FCurrentVariant.VariantID = 'FORD_EU' then
+    Output := CalculateRegionalEU(Sanitized)
+  else if FCurrentVariant.VariantID = 'FORD_NA' then
+    Output := CalculateRegionalNA(Sanitized)
+  else if FCurrentVariant.VariantID = 'FORD_AU' then
+    Output := CalculateRegionalAU(Sanitized)
   else
+  begin
     ErrorMessage := 'Unknown variant: ' + FCurrentVariant.VariantID;
     Exit(False);
   end;
