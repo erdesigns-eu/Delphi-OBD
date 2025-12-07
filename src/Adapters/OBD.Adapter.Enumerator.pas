@@ -213,6 +213,25 @@ type
     ///   Cancellation event for the refresh task.
     /// </summary>
     FRefreshCancelEvent: TEvent;
+    
+    /// <summary>
+    ///   FTDI DLL Library Handle
+    /// </summary>
+    FFTDILibraryHandle: THandle;
+    /// <summary>
+    ///   FTDI Function Pointers
+    /// </summary>
+    FFT_CreateDeviceInfoList: function(NumDevs: Pointer): FT_Result; stdcall;
+    FFT_GetDeviceInfoList: function(pFT_Device_Info_List: Pointer; NumDevs: Pointer): FT_Result; stdcall;
+    
+    /// <summary>
+    ///   Load FTDI DLL dynamically
+    /// </summary>
+    function LoadFTDILibrary: Boolean;
+    /// <summary>
+    ///   Unload FTDI DLL
+    /// </summary>
+    procedure UnloadFTDILibrary;
 
     /// <summary>
     ///   Hidden window message handler
@@ -326,10 +345,49 @@ function SetupDiGetDeviceRegistryProperty(DeviceInfoSet: HDEVINFO; const DeviceI
 function SetupDiDestroyDeviceInfoList(DeviceInfoSet: HDEVINFO): BOOL; stdcall; external SETUP_API_DLL name 'SetupDiDestroyDeviceInfoList';
 
 //------------------------------------------------------------------------------
-// FTDI
+// LOAD FTDI LIBRARY DYNAMICALLY
 //------------------------------------------------------------------------------
-function FT_CreateDeviceInfoList(NumDevs: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_CreateDeviceInfoList';
-function FT_GetDeviceInfoList(pFT_Device_Info_List: Pointer; NumDevs: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetDeviceInfoList';
+function TOBDAdapterEnumerator.LoadFTDILibrary: Boolean;
+begin
+  Result := False;
+  
+  // Already loaded
+  if FFTDILibraryHandle <> 0 then
+    Exit(True);
+  
+  // Try to load the FTDI DLL
+  FFTDILibraryHandle := Winapi.Windows.LoadLibrary(FTDI_DLL);
+  if FFTDILibraryHandle = 0 then
+    Exit;
+  
+  // Load function pointers
+  @FFT_CreateDeviceInfoList := GetProcAddress(FFTDILibraryHandle, 'FT_CreateDeviceInfoList');
+  @FFT_GetDeviceInfoList := GetProcAddress(FFTDILibraryHandle, 'FT_GetDeviceInfoList');
+  
+  // Check if all required functions were loaded
+  Result := Assigned(FFT_CreateDeviceInfoList) and Assigned(FFT_GetDeviceInfoList);
+  
+  // If not all functions loaded, free the library
+  if not Result then
+  begin
+    FreeLibrary(FFTDILibraryHandle);
+    FFTDILibraryHandle := 0;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// UNLOAD FTDI LIBRARY
+//------------------------------------------------------------------------------
+procedure TOBDAdapterEnumerator.UnloadFTDILibrary;
+begin
+  if FFTDILibraryHandle <> 0 then
+  begin
+    FreeLibrary(FFTDILibraryHandle);
+    FFTDILibraryHandle := 0;
+    FFT_CreateDeviceInfoList := nil;
+    FFT_GetDeviceInfoList := nil;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // CONSTRUCTOR (SERIAL)
@@ -616,15 +674,22 @@ begin
   Result := False;
   // Clear list
   SetLength(Adapters, 0);
-  // Get the FTDI device count
-  if FT_CreateDeviceInfoList(@DeviceCount) <> FT_OK then Exit;
+  
+  // Load FTDI library if not already loaded
+  if not LoadFTDILibrary then
+    Exit; // FTDI library not available, silently return empty list
+  
+  // Get the FTDI device count using function pointer
+  if not Assigned(FFT_CreateDeviceInfoList) or (FFT_CreateDeviceInfoList(@DeviceCount) <> FT_OK) then
+    Exit;
+    
   // Load FTDI device information
   if DeviceCount > 0 then
   begin
     // Set length for list containing FTDI devices information
     SetLength(DeviceInfoList, DeviceCount);
-    // Try to populate the list
-    if FT_GetDeviceInfoList(@DeviceInfoList[0], @DeviceCount) = FT_OK then
+    // Try to populate the list using function pointer
+    if Assigned(FFT_GetDeviceInfoList) and (FFT_GetDeviceInfoList(@DeviceInfoList[0], @DeviceCount) = FT_OK) then
     begin
       // Set length of the list
       SetLength(Adapters, DeviceCount);
@@ -677,6 +742,8 @@ var
 begin
   // Call inherited constructor
   inherited Create;
+  // Initialize FTDI library handle
+  FFTDILibraryHandle := 0;
   // Create lock for guarding adapter state
   FAdaptersLock := TObject.Create;
   // Create cancellation event for background refresh
@@ -707,6 +774,8 @@ begin
     FRefreshCancelEvent.SetEvent;
     FRefreshTask.Wait;
   end;
+  // Unload FTDI library if loaded
+  UnloadFTDILibrary;
   // Release synchronization primitives
   FRefreshCancelEvent.Free;
   TObject.Free(FAdaptersLock);
