@@ -961,7 +961,7 @@ begin
   FBackgroundBuffer.SetSize(Width, Height);
 
   // Allocate a Skia surface for fully hardware-accelerated drawing
-  Surface := TSkSurface.MakeRasterN32Premul(Width, Height);
+  Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
 
   // Clear the canvas using the resolved style color so the base matches styled controls
@@ -978,8 +978,8 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -997,8 +997,8 @@ begin
   Paint.AntiAlias := True;
   Paint.BlendMode := TSkBlendMode.SrcOver;
   Paint.Shader := TSkShader.MakeLinearGradient(
-    TSkPoint.Create(0, Border.Width),
-    TSkPoint.Create(0, (Height - Border.Width) / 2),
+    TPointF.Create(0, Border.Width),
+    TPointF.Create(0, (Height - Border.Width) / 2),
     [$4BFFFFFF, $1EFFFFFF],
     nil,
     TSkTileMode.Clamp);
@@ -1020,8 +1020,8 @@ begin
     Paint.Style := TSkPaintStyle.Stroke;
     Paint.StrokeWidth := Border.Width;
     Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
-      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      TPointF.Create(BorderRect.Left, BorderRect.Top),
+      TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -1646,7 +1646,7 @@ begin
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
-    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Surface := TSkSurface.MakeRaster(W, H);
     Canvas := Surface.Canvas;
     Canvas.Clear(TAlphaColors.White);
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
@@ -1690,7 +1690,7 @@ begin
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
-    Surface := TSkSurface.MakeRasterN32Premul(W, H);
+    Surface := TSkSurface.MakeRaster(W, H);
     Canvas := Surface.Canvas;
     Canvas.Clear(TAlphaColors.White);
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
