@@ -143,6 +143,7 @@ function CreateSkRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 procedure SkImageToBitmap(const AImage: ISkImage; const ABitmap: TBitmap);
 /// <summary>
 ///   Converts a VCL bitmap to a Skia image for rendering.
+///   Note: This function may modify the input bitmap's pixel format to pf32bit if needed.
 /// </summary>
 function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
 /// <summary>
