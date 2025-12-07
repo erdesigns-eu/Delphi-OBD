@@ -21,6 +21,23 @@ uses
 
 type
   /// <summary>
+  ///   FTDI Function Pointers
+  /// </summary>
+  TFT_GetStatus = function(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall;
+  TFT_SetTimeouts = function(ftHandle: DWORD; ReadTimeout, WriteTimeout: DWORD): FT_Result; stdcall;
+  TFT_GetModemStatus = function(ftHandle: DWORD; ModemStatus: Pointer): FT_Result; stdcall;
+  TFT_GetQueueStatus = function(ftHandle: DWORD; RxBytes: Pointer): FT_Result; stdcall;
+  TFT_Read = function(ftHandle: DWORD; FTInBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
+  TFT_Write = function(ftHandle: DWORD; FTOutBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
+  TFT_SetEventNotification = function(ftHandle: DWORD; EventMask: DWORD; pvArgs: DWORD): FT_Result; stdcall;
+  TFT_OpenEx = function(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall;
+  TFT_Close = function(ftHandle: DWORD): FT_Result; stdcall;
+  TFT_ResetDevice = function(ftHandle: DWORD): FT_Result; stdcall;
+  TFT_SetBaudRate = function(ftHandle: DWORD; BaudRate: DWORD): FT_Result; stdcall;
+  TFT_SetDataCharacteristics = function(ftHandle: DWORD; WordLength, StopBits, Parity: Byte): FT_Result; stdcall;
+  TFT_SetFlowControl = function(ftHandle: DWORD; FlowControl: Word; XonChar, XoffChar: Byte): FT_Result; stdcall;
+
+  /// <summary>
   ///   FTDI (USB) Thread for events
   /// </summary>
   TFTDIThread = class(TThread)
@@ -37,6 +54,10 @@ type
     ///   FTDI Handle
     /// </summary
     FFTDIHandle: DWORD;
+    /// <summary>
+    ///   Thread-local copy of FT_GetStatus function pointer (for thread safety)
+    /// </summary>
+    FFT_GetStatus: TFT_GetStatus;
   protected
     /// <summary>
     ///   Execute thread
@@ -46,7 +67,7 @@ type
     /// <summary>
     ///   Constructor
     /// </summary
-    constructor Create(CreateSuspended: Boolean; EventHandle: THandle; WindowHandle: HWND; FTDIHandle: DWORD);
+    constructor Create(CreateSuspended: Boolean; EventHandle: THandle; WindowHandle: HWND; FTDIHandle: DWORD; AFT_GetStatus: TFT_GetStatus);
   end;
 
   /// <summary>
@@ -54,6 +75,10 @@ type
   /// </summary>
   TFTDI = class
   private
+    /// <summary>
+    ///   FTDI DLL Library Handle
+    /// </summary>
+    FLibraryHandle: THandle;
     /// <summary>
     ///   FTDI Port Handle
     /// </summary>
@@ -102,6 +127,28 @@ type
     ///   Input Buffer
     /// </summary>
     FInputBuffer: Array[0..FT_In_Buffer_Length] of Byte;
+    
+    /// <summary>
+    ///   FTDI Function Pointers
+    /// </summary>
+    FFT_GetStatus: TFT_GetStatus;
+    FFT_SetTimeouts: TFT_SetTimeouts;
+    FFT_GetModemStatus: TFT_GetModemStatus;
+    FFT_GetQueueStatus: TFT_GetQueueStatus;
+    FFT_Read: TFT_Read;
+    FFT_Write: TFT_Write;
+    FFT_SetEventNotification: TFT_SetEventNotification;
+    FFT_OpenEx: TFT_OpenEx;
+    FFT_Close: TFT_Close;
+    FFT_ResetDevice: TFT_ResetDevice;
+    FFT_SetBaudRate: TFT_SetBaudRate;
+    FFT_SetDataCharacteristics: TFT_SetDataCharacteristics;
+    FFT_SetFlowControl: TFT_SetFlowControl;
+    
+    /// <summary>
+    ///   Load FTDI DLL dynamically
+    /// </summary>
+    function LoadFTDILibrary: Boolean;
     /// <summary>
     ///   Set Read Timeout
     /// </summary>
@@ -323,21 +370,54 @@ implementation
 uses System.Math, System.StrUtils;
 
 //------------------------------------------------------------------------------
-// EXTERNAL - FTD2XX.DLL
+// CONSTANTS
 //------------------------------------------------------------------------------
-function FT_GetStatus(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetStatus';
-function FT_SetTimeouts(ftHandle: DWORD; ReadTimeout, WriteTimeout: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetTimeouts';
-function FT_GetModemStatus(ftHandle: DWORD; ModemStatus: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetModemStatus';
-function FT_GetQueueStatus(ftHandle: DWORD; RxBytes: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetQueueStatus';
-function FT_Read(ftHandle: DWORD; FTInBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_Read';
-function FT_Write(ftHandle: DWORD; FTOutBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_Write';
-function FT_SetEventNotification(ftHandle: DWORD; EventMask: DWORD; pvArgs: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetEventNotification';
-function FT_OpenEx(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_OpenEx';
-function FT_Close(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_Close';
-function FT_ResetDevice(ftHandle: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_ResetDevice';
-function FT_SetBaudRate(ftHandle: DWORD; BaudRate: DWORD): FT_Result; stdcall; external FTDI_DLL name 'FT_SetBaudRate';
-function FT_SetDataCharacteristics(ftHandle: DWORD; WordLength, StopBits, Parity: Byte): FT_Result; stdcall; external FTDI_DLL name 'FT_SetDataCharacteristics';
-function FT_SetFlowControl(ftHandle: DWORD; FlowControl: Word; XonChar, XoffChar: Byte): FT_Result; stdcall; external FTDI_DLL name 'FT_SetFlowControl';
+const
+  FTDI_DLL = 'FTD2XX.DLL';
+
+//------------------------------------------------------------------------------
+// LOAD FTDI LIBRARY DYNAMICALLY
+//------------------------------------------------------------------------------
+function TFTDI.LoadFTDILibrary: Boolean;
+begin
+  Result := False;
+  
+  // Try to load the FTDI DLL
+  FLibraryHandle := Winapi.Windows.LoadLibrary(FTDI_DLL);
+  if FLibraryHandle = 0 then
+    Exit;
+  
+  // Load all function pointers
+  @FFT_GetStatus := GetProcAddress(FLibraryHandle, 'FT_GetStatus');
+  @FFT_SetTimeouts := GetProcAddress(FLibraryHandle, 'FT_SetTimeouts');
+  @FFT_GetModemStatus := GetProcAddress(FLibraryHandle, 'FT_GetModemStatus');
+  @FFT_GetQueueStatus := GetProcAddress(FLibraryHandle, 'FT_GetQueueStatus');
+  @FFT_Read := GetProcAddress(FLibraryHandle, 'FT_Read');
+  @FFT_Write := GetProcAddress(FLibraryHandle, 'FT_Write');
+  @FFT_SetEventNotification := GetProcAddress(FLibraryHandle, 'FT_SetEventNotification');
+  @FFT_OpenEx := GetProcAddress(FLibraryHandle, 'FT_OpenEx');
+  @FFT_Close := GetProcAddress(FLibraryHandle, 'FT_Close');
+  @FFT_ResetDevice := GetProcAddress(FLibraryHandle, 'FT_ResetDevice');
+  @FFT_SetBaudRate := GetProcAddress(FLibraryHandle, 'FT_SetBaudRate');
+  @FFT_SetDataCharacteristics := GetProcAddress(FLibraryHandle, 'FT_SetDataCharacteristics');
+  @FFT_SetFlowControl := GetProcAddress(FLibraryHandle, 'FT_SetFlowControl');
+  
+  // Check if all required functions were loaded
+  Result := Assigned(FFT_GetStatus) and Assigned(FFT_SetTimeouts) and
+            Assigned(FFT_GetModemStatus) and Assigned(FFT_GetQueueStatus) and
+            Assigned(FFT_Read) and Assigned(FFT_Write) and
+            Assigned(FFT_SetEventNotification) and Assigned(FFT_OpenEx) and
+            Assigned(FFT_Close) and Assigned(FFT_ResetDevice) and
+            Assigned(FFT_SetBaudRate) and Assigned(FFT_SetDataCharacteristics) and
+            Assigned(FFT_SetFlowControl);
+  
+  // If not all functions loaded, free the library
+  if not Result then
+  begin
+    FreeLibrary(FLibraryHandle);
+    FLibraryHandle := 0;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // THREAD EXECUTE
@@ -355,15 +435,19 @@ begin
     WaitResult := WaitForSingleObject(FEventHandle, INFINITE);
     if WaitResult = WAIT_OBJECT_0 then
     begin
-      Status := FT_GetStatus(FFTDIHandle, @RxBytes, @TxBytes, @EventStatus);
-      if Status = FT_OK then
+      // Use thread-local copy of function pointer (thread-safe)
+      if Assigned(FFT_GetStatus) then
       begin
-        // Notify FTDI class there is a modem event
-        if (EventStatus and FT_EVENT_MODEM_STATUS) <> 0 then
-          PostMessage(FWindowHandle, WM_FTDI_MODEM_STATUS, 0, 0);
-        // Notify FTDI class there is data to be read
-        if RxBytes > 0 then
-          PostMessage(FWindowHandle, WM_FTDI_RX_CHAR, 0, 0);
+        Status := FFT_GetStatus(FFTDIHandle, @RxBytes, @TxBytes, @EventStatus);
+        if Status = FT_OK then
+        begin
+          // Notify FTDI class there is a modem event
+          if (EventStatus and FT_EVENT_MODEM_STATUS) <> 0 then
+            PostMessage(FWindowHandle, WM_FTDI_MODEM_STATUS, 0, 0);
+          // Notify FTDI class there is data to be read
+          if RxBytes > 0 then
+            PostMessage(FWindowHandle, WM_FTDI_RX_CHAR, 0, 0);
+        end;
       end;
     end else Break;
   end;
@@ -372,7 +456,7 @@ end;
 //------------------------------------------------------------------------------
 // THREAD CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TFTDIThread.Create(CreateSuspended: Boolean; EventHandle: NativeUInt; WindowHandle: HWND; FTDIHandle: DWORD);
+constructor TFTDIThread.Create(CreateSuspended: Boolean; EventHandle: NativeUInt; WindowHandle: HWND; FTDIHandle: DWORD; AFT_GetStatus: TFT_GetStatus);
 begin
   // Inherited constructor
   inherited Create(CreateSuspended);
@@ -382,6 +466,9 @@ begin
   FWindowHandle := WindowHandle;
   // Set FTDI Handle
   FFTDIHandle := FTDIHandle;
+  // Store thread-local copy of function pointer for thread safety
+  // This ensures the thread has a stable reference even if the parent object is destroyed
+  FFT_GetStatus := AFT_GetStatus;
 end;
 
 //------------------------------------------------------------------------------
@@ -441,19 +528,19 @@ begin
   if not Connected then Exit;
 
   // Set the READ/WRITE timeouts
-  Status := FT_SetTimeouts(FFTDIHandle, FReadTimeout, FWriteTimeout);
+  Status := FFT_SetTimeouts(FFTDIHandle, FReadTimeout, FWriteTimeout);
   if Status <> FT_OK then Exit;
 
   // Set the baud rate
-  Status := FT_SetBaudRate(FFTDIHandle, BaudRateOf(BaudRate));
+  Status := FFT_SetBaudRate(FFTDIHandle, BaudRateOf(BaudRate));
   if Status <> FT_OK then Exit;
 
   // Set data characteristics - 8 data bits, 1 stop bit, no parity
-  Status := FT_SetDataCharacteristics(FFTDIHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
+  Status := FFT_SetDataCharacteristics(FFTDIHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
   if Status <> FT_OK then Exit;
 
   // Disable flow control
-  Status := FT_SetFlowControl(FFTDIHandle, FT_FLOW_NONE, 0, 0);
+  Status := FFT_SetFlowControl(FFTDIHandle, FT_FLOW_NONE, 0, 0);
   if Status <> FT_OK then Exit;
 
   // If we make it until here, applying the settings succeeded
@@ -474,7 +561,7 @@ begin
   // Modem status change notification
   if (Msg.Msg = WM_FTDI_MODEM_STATUS) and Connected then
   begin
-    Status := FT_GetModemStatus(FFTDIHandle, @ModemStatus);
+    Status := FFT_GetModemStatus(FFTDIHandle, @ModemStatus);
     if (Status = FT_OK) then
     begin
       if (Status and $00000010) <> 0 then
@@ -499,13 +586,13 @@ begin
   if (Msg.Msg = WM_FTDI_RX_CHAR) and Connected then
   begin
     // Check how many bytes are waiting to be read
-    Status := FT_GetQueueStatus(FFTDIHandle, @RxBytes);
+    Status := FFT_GetQueueStatus(FFTDIHandle, @RxBytes);
     if (Status = FT_OK) and (RXBytes > 0) then
     begin
       // Make sure we do not exceed the buffer size
       if RXBytes > FT_In_Buffer_Size then RXBytes := FT_In_Buffer_Size;
       // Read the data out of the device
-      Status := FT_Read(FFTDIHandle, @FInputBuffer, RxBytes, @RXBytesReceived);
+      Status := FFT_Read(FFTDIHandle, @FInputBuffer, RxBytes, @RXBytesReceived);
       // If read is successfull emit event that we have new data
       if (Status = FT_OK) and Assigned(OnReceiveData) then
         OnReceiveData(Self, @FInputBuffer, RXBytesReceived);
@@ -530,6 +617,8 @@ constructor TFTDI.Create;
 begin
   // Call inherited constructor
   inherited Create;
+  // Initialize library handle
+  FLibraryHandle := 0;
   // Allocate send monitor to guard concurrent write operations
   FSendLock := TObject.Create;
   // Initialize Handle with an invalid handle value (Disconnected)
@@ -549,6 +638,12 @@ destructor TFTDI.Destroy;
 begin
   // Ensure connection is closed and resources are released
   Disconnect;
+  // Free FTDI library if loaded
+  if FLibraryHandle <> 0 then
+  begin
+    FreeLibrary(FLibraryHandle);
+    FLibraryHandle := 0;
+  end;
   // Release the send monitor
   FreeAndNil(FSendLock);
   // Release the thread's Window HANDLE
@@ -597,7 +692,7 @@ var
     // Define the events we want to be notified about
     EventMask := FT_EVENT_RXCHAR or FT_EVENT_MODEM_STATUS;
     // Call FT_SetEventNotification to set up event notification
-    Status := FT_SetEventNotification(FFTDIHandle, EventMask, FEventHandle);
+    Status := FFT_SetEventNotification(FFTDIHandle, EventMask, FEventHandle);
     // Return success status
     Result := Status = FT_OK;
   end;
@@ -607,16 +702,24 @@ begin
   Result := False;
   // Exit here when we're already connected
   if Connected then Exit;
+  // Load FTDI library if not already loaded
+  if (FLibraryHandle = 0) and not LoadFTDILibrary then
+  begin
+    if Assigned(FOnError) then
+      FOnError(Self, -1, 'FTDI library (FTD2XX.DLL) not found or could not be loaded');
+    Exit;
+  end;
   // Fill the serial number buffer with the provided serial number
   SetSerialNumberBuffer;
   // Attempt to open the FTDI device by its serial number
-  if FT_OpenEx(@SerialNumberBuffer, FT_OPEN_BY_SERIAL_NUMBER, @FFTDIHandle) = FT_OK then
+  if FFT_OpenEx(@SerialNumberBuffer, FT_OPEN_BY_SERIAL_NUMBER, @FFTDIHandle) = FT_OK then
   begin
     // Successfully opened the device, now set up event notification
     if SetupEventNotification then
     begin
       // Successfully set up event notifications, now proceed to create the event listening thread
-      FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle);
+      // Pass a copy of the function pointer for thread safety
+      FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle, FFT_GetStatus);
       FEventThread.OnTerminate := EventThreadTerminate;
       // Apply FTDI device settings
       ApplyFTDISettings;
@@ -626,7 +729,7 @@ begin
     else
     begin
       // Failed to set up event notification, close the FTDI handle
-      FT_Close(FFTDIHandle);
+      FFT_Close(FFTDIHandle);
     end;
   end;
 end;
@@ -651,7 +754,7 @@ begin
       FreeAndNil(FEventThread);
     end;
     // Close the FTDI device handle
-    FT_Close(FFTDIHandle);
+    FFT_Close(FFTDIHandle);
     // Reset the handle
     FFTDIHandle := INVALID_HANDLE_VALUE;
   end;
@@ -666,7 +769,7 @@ begin
   // Exit here if we're not connected
   if not Connected then Exit;
   // Reset Device
-  Result := FT_ResetDevice(FFTDIHandle) = FT_OK;
+  Result := FFT_ResetDevice(FFTDIHandle) = FT_OK;
 end;
 
 //------------------------------------------------------------------------------
@@ -694,7 +797,7 @@ begin
     CurrentPtr := DataPtr;
     while Remaining > 0 do
     begin
-      WriteStatus := FT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
+      WriteStatus := FFT_Write(FFTDIHandle, CurrentPtr, Remaining, @BytesWritten);
       if WriteStatus <> FT_OK then
       begin
         if Assigned(OnError) then OnError(Self, WriteStatus, Format('FT_Write failed after %d of %d bytes were sent', [Result, DataSize]));

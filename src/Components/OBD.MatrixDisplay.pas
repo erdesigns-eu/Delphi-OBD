@@ -970,6 +970,15 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
+  // Skip background building entirely at design time to prevent access violations
+  // The IDE doesn't need the optimized background cache
+  if (csDesigning in ComponentState) then
+    Exit;
+  
+  // Safety check: don't build snapshot with invalid dimensions
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
+    
   // Allocate a Skia surface for fully hardware-accelerated drawing
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;

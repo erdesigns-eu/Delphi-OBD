@@ -63,6 +63,14 @@ This quick start shows how to scaffold a Skia-enabled OBD UI with the updated pa
 **Problem**: "Skia4Delphi not found" error  
 **Solution**: Install Skia4Delphi from GetIt Package Manager
 
+**Problem**: "Cannot find specified module" error when installing DesignTime package  
+**Solution**: 
+1. Ensure Skia4Delphi is properly installed via GetIt Package Manager
+2. The packages are now configured to output to the standard Delphi BPL directory (`$(BDSCOMMONDIR)\Bpl`)
+3. This ensures the Skia DLL (libskia.dll) is accessible when the package loads
+4. First install RunTime.dpk, then DesignTime.dpk
+5. If the issue persists, verify that Skia4Delphi packages are installed in the same BPL directory
+
 ### Rendering Issues
 
 **Problem**: Blank or black components  

@@ -2085,6 +2085,15 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
+  // Skip background building entirely at design time to prevent access violations
+  // The IDE doesn't need the optimized background cache
+  if (csDesigning in ComponentState) then
+    Exit;
+  
+  // Safety check: FRenderLock might not be initialized yet during parent constructor
+  if not Assigned(FRenderLock) then
+    Exit;
+    
   // Clear and rebuild the cached background snapshot under the render lock
   TMonitor.Enter(FRenderLock);
   try
