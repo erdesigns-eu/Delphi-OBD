@@ -355,9 +355,9 @@ begin
     BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
-      TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
+      TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -370,9 +370,9 @@ begin
     BorderRect := TRectF.Create(0.0, Height - Border.Height + 0.0, Width + 0.0, Height + 0.0);
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BorderRect.Left, BorderRect.Top),
-      TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BorderRect.Left, BorderRect.Top),
+      TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -406,9 +406,9 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(BatteryRect.Left, BatteryRect.Top),
-      TSkPoint.Create(BatteryRect.Left, BatteryRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(BatteryRect.Left, BatteryRect.Top),
+      TPointF.Create(BatteryRect.Left, BatteryRect.Bottom),
       [SafeColorRefToSkColor(BatteryIndicator.FromColor), SafeColorRefToSkColor(BatteryIndicator.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -445,9 +445,9 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(VciRect.Left, VciRect.Top),
-      TSkPoint.Create(VciRect.Left, VciRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(VciRect.Left, VciRect.Top),
+      TPointF.Create(VciRect.Left, VciRect.Bottom),
       [SafeColorRefToSkColor(VciIndicator.FromColor), SafeColorRefToSkColor(VciIndicator.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -484,9 +484,9 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(InternetRect.Left, InternetRect.Top),
-      TSkPoint.Create(InternetRect.Left, InternetRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(InternetRect.Left, InternetRect.Top),
+      TPointF.Create(InternetRect.Left, InternetRect.Bottom),
       [SafeColorRefToSkColor(InternetConnectionIndicator.FromColor), SafeColorRefToSkColor(InternetConnectionIndicator.ToColor)],
       nil,
       TSkTileMode.Clamp);
@@ -514,9 +514,9 @@ begin
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Fill;
-    Paint.Shader := TSkShader.MakeLinearGradient(
-      TSkPoint.Create(ProtocolRect.Left, ProtocolRect.Top),
-      TSkPoint.Create(ProtocolRect.Left, ProtocolRect.Bottom),
+    Paint.Shader := TSkShader.MakeGradientLinear(
+      TPointF.Create(ProtocolRect.Left, ProtocolRect.Top),
+      TPointF.Create(ProtocolRect.Left, ProtocolRect.Bottom),
       [SafeColorRefToSkColor(ProtocolIndicator.FromColor), SafeColorRefToSkColor(ProtocolIndicator.ToColor)],
       nil,
       TSkTileMode.Clamp);

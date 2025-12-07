@@ -2848,9 +2848,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       BackgroundRect := TRectF.Create(0.0, 0.0, Width + 0.0, Height + 0.0);
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Top),
-        TSkPoint.Create(BackgroundRect.Left, BackgroundRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
+        TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
         [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -2863,9 +2863,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(BorderRect.Left, BorderRect.Top),
-        TSkPoint.Create(BorderRect.Left, BorderRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(BorderRect.Left, BorderRect.Top),
+        TPointF.Create(BorderRect.Left, BorderRect.Bottom),
         [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -2899,9 +2899,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Top),
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(ButtonRect.Left, ButtonRect.Top),
+        TPointF.Create(ButtonRect.Left, ButtonRect.Bottom),
         [SafeColorRefToSkColor(BodyFromColor), SafeColorRefToSkColor(BodyToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -2909,9 +2909,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Top),
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(ButtonRect.Left, ButtonRect.Top),
+        TPointF.Create(ButtonRect.Left, ButtonRect.Bottom),
         [$4BFFFFFF, $1EFFFFFF],
         nil,
         TSkTileMode.Clamp);
@@ -2961,9 +2961,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Top),
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(ButtonRect.Left, ButtonRect.Top),
+        TPointF.Create(ButtonRect.Left, ButtonRect.Bottom),
         [SafeColorRefToSkColor(BodyFromColor), SafeColorRefToSkColor(BodyToColor)],
         nil,
         TSkTileMode.Clamp);
@@ -2971,9 +2971,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Top),
-        TSkPoint.Create(ButtonRect.Left, ButtonRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(ButtonRect.Left, ButtonRect.Top),
+        TPointF.Create(ButtonRect.Left, ButtonRect.Bottom),
         [$4BFFFFFF, $1EFFFFFF],
         nil,
         TSkTileMode.Clamp);
@@ -3054,26 +3054,26 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
         Paint := TSkPaint.Create;
         Paint.AntiAlias := True;
         if not FTabs.Items[I].Enabled then
-          Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom),
+          Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom),
             [SafeColorRefToSkColor(Tab.DisabledColor.FromColor), SafeColorRefToSkColor(Tab.DisabledColor.ToColor)], nil, TSkTileMode.Clamp)
         else if TabIndex = I then
-          Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom),
+          Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom),
             [SafeColorRefToSkColor(Tab.ActiveColor.FromColor), SafeColorRefToSkColor(Tab.ActiveColor.ToColor)], nil, TSkTileMode.Clamp)
         else
           case FTabs.Items[I].TabState of
-            1: Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom),
+            1: Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom),
                   [SafeColorRefToSkColor(Tab.HotColor.FromColor), SafeColorRefToSkColor(Tab.HotColor.ToColor)], nil, TSkTileMode.Clamp);
-            2: Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom),
+            2: Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom),
                   [SafeColorRefToSkColor(Tab.PressedColor.FromColor), SafeColorRefToSkColor(Tab.PressedColor.ToColor)], nil, TSkTileMode.Clamp);
           else
-            Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom),
+            Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom),
                   [SafeColorRefToSkColor(Tab.NormalColor.FromColor), SafeColorRefToSkColor(Tab.NormalColor.ToColor)], nil, TSkTileMode.Clamp);
           end;
         Canvas.DrawPath(TabPath, Paint);
 
         Paint := TSkPaint.Create;
         Paint.AntiAlias := True;
-        Paint.Shader := TSkShader.MakeLinearGradient(TSkPoint.Create(TabRect.Left, TabRect.Top), TSkPoint.Create(TabRect.Left, TabRect.Bottom), [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
+        Paint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(TabRect.Left, TabRect.Top), TPointF.Create(TabRect.Left, TabRect.Bottom), [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
         Canvas.DrawPath(GlarePath, Paint);
 
         if Tab.BorderColor <> clNone then
@@ -3121,9 +3121,9 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;
-      Paint.Shader := TSkShader.MakeLinearGradient(
-        TSkPoint.Create(BatteryRect.Left, BatteryRect.Top),
-        TSkPoint.Create(BatteryRect.Left, BatteryRect.Bottom),
+      Paint.Shader := TSkShader.MakeGradientLinear(
+        TPointF.Create(BatteryRect.Left, BatteryRect.Top),
+        TPointF.Create(BatteryRect.Left, BatteryRect.Bottom),
         [$4BFFFFFF, $1EFFFFFF],
         nil,
         TSkTileMode.Clamp);
