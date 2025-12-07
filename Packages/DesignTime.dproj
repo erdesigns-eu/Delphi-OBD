@@ -97,7 +97,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_Description>ERDesigns OBD - Designtime Package</DCC_Description>
         <SanitizedProjectName>DesignTime</SanitizedProjectName>
-        <DCC_UnitSearchPath>Z:\Projects\Delphi\OBD\Delphi-OBD;Z:\Projects\Delphi\OBD\Delphi-OBD\Packages;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Z:\Projects\Delphi\OBD\Delphi-OBD;Z:\Projects\Delphi\OBD\Delphi-OBD\Packages;Z:\Projects\Delphi\OBD\Delphi-OBD\src;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Adapters;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Components;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Connection;Z:\Projects\Delphi\OBD\Delphi-OBD\src\CustomControls;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Forms;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Protocol;Z:\Projects\Delphi\OBD\Delphi-OBD\src\RadioCode;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Services;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Utilities;Z:\Projects\Delphi\OBD\Delphi-OBD\src\VIN;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Wizards;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
@@ -173,19 +173,19 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="vcl.dcp"/>
-        <DCCReference Include="..\OBD.CustomControl.Register.pas"/>
-        <DCCReference Include="..\OBD.Component.Editors.pas"/>
-        <DCCReference Include="..\OBD.DataModule.pas">
+        <DCCReference Include="..\src\CustomControls\OBD.CustomControl.Register.pas"/>
+        <DCCReference Include="..\src\Components\OBD.Component.Editors.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.DataModule.pas">
             <Form>OBDDataModule</Form>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\OBD.DataModule.Wizard.pas"/>
-        <DCCReference Include="..\OBD.Form.pas">
+        <DCCReference Include="..\src\Wizards\OBD.DataModule.Wizard.pas"/>
+        <DCCReference Include="..\src\Forms\OBD.Form.pas">
             <Form>OBDForm</Form>
         </DCCReference>
-        <DCCReference Include="..\OBD.Form.Wizard.pas"/>
-        <DCCReference Include="..\OBD.Mainform.Wizard.pas"/>
-        <DCCReference Include="..\OBD.Project.Wizard.pas"/>
+        <DCCReference Include="..\src\Wizards\OBD.Form.Wizard.pas"/>
+        <DCCReference Include="..\src\Wizards\OBD.Mainform.Wizard.pas"/>
+        <DCCReference Include="..\src\Wizards\OBD.Project.Wizard.pas"/>
         <RcItem Include="..\Resources\DataModule_Icon.ico">
             <ResourceType>ICON</ResourceType>
             <ResourceId>DATAMODULE</ResourceId>

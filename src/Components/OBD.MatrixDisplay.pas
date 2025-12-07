@@ -16,7 +16,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, System.Diagnostics, Vcl.Controls, 
-  WinApi.Windows, Winapi.Messages, System.Math, Vcl.Graphics, System.Skia, Skia.Vcl,
+  WinApi.Windows, Winapi.Messages, System.Math, Vcl.Graphics, System.Skia, Vcl.Skia,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.AnimationManager;
 
@@ -579,9 +579,6 @@ type
   end;
 
 implementation
-
-uses
-  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR

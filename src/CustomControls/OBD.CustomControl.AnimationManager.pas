@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.CustomControl.AnimationManager.pas
 // CONTENTS       : Shared Animation Manager for OBD Custom Controls
 // VERSION        : 1.0
@@ -18,13 +18,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, System.Diagnostics,
-  Vcl.ExtCtrls, WinApi.Windows;
-
-//------------------------------------------------------------------------------
-// FORWARD DECLARATIONS
-//------------------------------------------------------------------------------
-type
-  TOBDCustomControl = class;
+  Vcl.ExtCtrls, WinApi.Windows, WinApi.Messages;
 
 //------------------------------------------------------------------------------
 // INTERFACES

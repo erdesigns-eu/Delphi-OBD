@@ -15,8 +15,8 @@ unit OBD.LED;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Controls,
-  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Skia.Vcl,
+  System.SysUtils, System.Classes, System.Types, System.UITypes, System.Math, Vcl.Controls,
+  WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia,
 
   OBD.CustomControl, OBD.CustomControl.Helpers;
 
@@ -370,9 +370,6 @@ type
   end;
 
 implementation
-
-uses
-  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR
