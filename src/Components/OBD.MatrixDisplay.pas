@@ -794,6 +794,8 @@ begin
   begin
     // Set new cell size
     FCellSize := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -811,6 +813,8 @@ begin
   begin
     // Set new cell spacing
     FCellSpacing := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -831,6 +835,8 @@ begin
     FRows := Value;
     // Initialize cells
     InitializeCells;
+    // Redraw Skia
+    Redraw;
     // Invalidate the buffer
     Invalidate;
   end;
@@ -851,6 +857,8 @@ begin
     FCols := Value;
     // Initialize cells
     InitializeCells;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -881,6 +889,8 @@ begin
   begin
     // Set new on color
     FOnColor := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -895,6 +905,8 @@ begin
   begin
     // Set new off color
     FOffColor := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1156,6 +1168,8 @@ procedure TOBDMatrixDisplay.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1172,6 +1186,8 @@ begin
     // Notify the animation manager to check animation state
     AnimationManager.CheckAnimationState;
   end;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1205,6 +1221,8 @@ begin
     // Update last tick time
     FLastAnimationMs := CurrentMs;
     
+    // Redraw Skia
+    Redraw;
     // Trigger a repaint to display the updated display
     Invalidate;
   end;
@@ -1275,6 +1293,8 @@ begin
   inherited;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1288,6 +1308,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1404,6 +1426,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
