@@ -418,7 +418,7 @@ end;
 //------------------------------------------------------------------------------
 // SEND ANSI string
 //------------------------------------------------------------------------------
-function TWifi.SendString(S: Ansistring): Boolean;
+function TWifi.SendString(const S: Ansistring): Boolean;
 var
   L: DWORD;
 begin
@@ -499,7 +499,7 @@ end;
 //------------------------------------------------------------------------------
 function TWifiOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
 begin
-  TMonitor.Enter(FConnectionLock);
+  System.TMonitor.Enter(FConnectionLock);
   try
     Result := Connected;
     // Exit here is we're already connected
@@ -509,7 +509,7 @@ begin
     // Connect to the Wifi (TCP) Socket
     Result := FWifi.Connect(string(Params.IPAddress), Params.Port);
   finally
-    TMonitor.Exit(FConnectionLock);
+    System.TMonitor.Exit(FConnectionLock);
   end;
 end;
 
@@ -518,7 +518,7 @@ end;
 //------------------------------------------------------------------------------
 function TWifiOBDConnection.Disconnect: Boolean;
 begin
-  TMonitor.Enter(FConnectionLock);
+  System.TMonitor.Enter(FConnectionLock);
   try
     Result := Connected;
     if Result then
@@ -527,7 +527,7 @@ begin
       Result := Connected;
     end;
   finally
-    TMonitor.Exit(FConnectionLock);
+    System.TMonitor.Exit(FConnectionLock);
   end;
 end;
 

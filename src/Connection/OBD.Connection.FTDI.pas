@@ -737,7 +737,7 @@ end;
 //------------------------------------------------------------------------------
 // SEND ANSI string
 //------------------------------------------------------------------------------
-function TFTDI.SendString(S: Ansistring): Boolean;
+function TFTDI.SendString(const S: Ansistring): Boolean;
 var
   L: DWORD;
 begin

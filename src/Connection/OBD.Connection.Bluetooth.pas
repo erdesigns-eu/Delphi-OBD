@@ -471,7 +471,7 @@ end;
 //------------------------------------------------------------------------------
 // SEND ANSI string
 //------------------------------------------------------------------------------
-function TBluetooth.SendString(S: Ansistring): Boolean;
+function TBluetooth.SendString(const S: Ansistring): Boolean;
 var
   L: DWORD;
 begin

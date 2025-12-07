@@ -319,8 +319,10 @@ begin
   if Assigned(FConnection) then
   begin
     if FConnection.Connected then
-      Result := FConnection.Reconnect(Params)
-    else
+    begin
+      Result := FConnection.Disconnect;
+      Result := FConnection.Connect(Params);
+    end else
       Result := FConnection.Connect(Params);
     if Result then
       NotifyConnectionStateChanged(True);

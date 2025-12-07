@@ -130,7 +130,7 @@ type
 
 implementation
 
-uses System.Generics.Defaults, System.Generics.Collections;
+uses System.Generics.Defaults, System.Generics.Collections, System.Math;
 
 //------------------------------------------------------------------------------
 // PARSE FRAME
