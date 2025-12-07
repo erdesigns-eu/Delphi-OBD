@@ -2124,6 +2124,14 @@ var
   ArcPath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
+  // Safety check: ensure all required objects are initialized
+  // This prevents access violations if called during constructor
+  if not Assigned(FBackground) or not Assigned(FBorder) or 
+     not Assigned(FMajorTicks) or not Assigned(FMinorTicks) or
+     not Assigned(FTopCaption) or not Assigned(FBottomCaption) or
+     not Assigned(FGradientScaleItems) then
+    Exit;
+    
   // Allocate a Skia surface that holds the static gauge background
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -2364,6 +2372,14 @@ var
   PathBuilder: ISkPathBuilder;
 begin
   try
+    // Safety check: ensure all required objects are initialized before painting
+    // This prevents access violations if paint is triggered during constructor
+    if not Assigned(FBackground) or not Assigned(FBorder) or not Assigned(FNeedle) then
+    begin
+      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
+      Exit;
+    end;
+    
     // Draw the cached background image first
     BackgroundImage := AcquireBackgroundSnapshot;
     if Assigned(BackgroundImage) then

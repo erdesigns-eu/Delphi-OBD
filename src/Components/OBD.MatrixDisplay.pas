@@ -975,6 +975,10 @@ begin
   if (csDesigning in ComponentState) then
     Exit;
   
+  // Safety check: ensure required objects are initialized
+  if not Assigned(FBackground) or not Assigned(FBorder) then
+    Exit;
+  
   // Safety check: don't build snapshot with invalid dimensions
   if (Width <= 0) or (Height <= 0) then
     Exit;
@@ -1064,6 +1068,11 @@ var
   PaintOn, PaintOff: ISkPaint;
   CellRect: TRectF;
 begin
+  // Safety check: ensure FCellsLock is initialized before accessing cells
+  // This prevents access violations if paint is triggered during constructor
+  if not Assigned(FCellsLock) then
+    Exit;
+    
   // Prepare paint objects upfront to avoid allocations inside the nested loops
   PaintOn := TSkPaint.Create;
   PaintOn.Style := TSkPaintStyle.Fill;

@@ -966,15 +966,6 @@ type
   TOBDTouchHeader = class(TOBDCustomControl)
   private
     /// <summary>
-    ///   Class constructor
-    /// </summary>
-    class constructor Create;
-    /// <summary>
-    ///   Class destructor
-    /// </summary>
-    class destructor Destroy;
-  private
-    /// <summary>
     ///   Background
     /// </summary>
     FBackground: TOBDTouchHeaderBackground;
@@ -2268,22 +2259,6 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// CLASS CONSTRUCTOR
-//------------------------------------------------------------------------------
-class constructor TOBDTouchHeader.Create;
-begin
-  TCustomStyleEngine.RegisterStyleHook(TOBDTouchHeader, TPanelStyleHook);
-end;
-
-//------------------------------------------------------------------------------
-// CLASS DESTRUCTOR
-//------------------------------------------------------------------------------
-class destructor TOBDTouchHeader.Destroy;
-begin
-  TCustomStyleEngine.UnRegisterStyleHook(TOBDTouchHeader, TPanelStyleHook);
-end;
-
-//------------------------------------------------------------------------------
 // SET BACKGROUND
 //------------------------------------------------------------------------------
 procedure TOBDTouchHeader.SetBackground(Value: TOBDTouchHeaderBackground);
@@ -3199,16 +3174,17 @@ begin
   // Create back button
   FBackButton := TOBDTouchHeaderButton.Create;
   FBackButton.OnChange := SettingsChanged;
-  FBackButton.Width := DEFAULT_BACK_BUTTON_WIDTH;
   // Create action button
   FActionButton := TOBDTouchHeaderActionButton.Create;
   FActionButton.OnChange := SettingsChanged;
   // Create caption
   FCaption := TOBDTouchHeaderCaption.Create;
   FCaption.OnChange := SettingsChanged;
-  // Create tabs collection
+  // Create tabs collection (must be created before setting button properties that trigger OnChange)
   FTabs := TOBDTouchHeaderTabCollection.Create(Self);
   FTabs.OnChange := SettingsChanged;
+  // Set back button width (triggers OnChange, so must be after FTabs is created)
+  FBackButton.Width := DEFAULT_BACK_BUTTON_WIDTH;
   // Create tab settings
   FTab := TOBDTouchHeaderTab.Create;
   FTab.OnChange := SettingsChanged;
