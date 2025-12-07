@@ -2409,7 +2409,8 @@ begin
     NeedleLength := Size / 2 * FNeedle.Length;
 
     // Calculate the needle's angle based on the current value
-    if Animation.Enabled then
+    // At design time, always use FValue since animations don't run in the IDE
+    if Animation.Enabled and not (csDesigning in ComponentState) then
       ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
     else
       ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
