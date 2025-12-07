@@ -125,6 +125,37 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
   - DTC information with multiple sub-functions
   - Control DTC setting (enable/disable fault code logging)
 
+- **LIN (Local Interconnect Network) Protocol:**
+  - LIN 1.3, 2.0, 2.1, 2.2A protocol versions
+  - Protected identifier with parity calculation
+  - Classic and enhanced checksum types
+  - Unconditional, event-triggered, sporadic, and diagnostic frames
+  - Node addressing and configuration
+  - Diagnostic services (read/write by identifier, session control)
+  - Frame ID assignment and node configuration
+  - Support for 9600, 19200, 20000 bps baud rates
+
+- **FlexRay Protocol:**
+  - High-speed deterministic communication (2.5, 5, 10 Mbps)
+  - Dual-channel fault-tolerant operation (Channel A/B)
+  - Static and dynamic segment support
+  - Header and frame CRC calculation
+  - Cycle-based scheduling (0-63 cycles)
+  - Startup and sync frame support
+  - Configurable cluster parameters
+  - Diagnostic data read/write via FlexRay frames
+  - Payload up to 254 bytes per frame
+
+- **MOST (Media Oriented Systems Transport) Protocol:**
+  - MOST25 (25 Mbps), MOST50 (50 Mbps), MOST150 (150 Mbps)
+  - Control, asynchronous, streaming, and isochronous message types
+  - Function Block catalog (Audio, Video, Phone, Navigation, Diagnostics)
+  - Property get/set operations
+  - Diagnostic services integration
+  - Streaming channel management
+  - Network configuration
+  - Support for automotive infotainment systems
+
 ---
 
 ## Contributing Guidelines
