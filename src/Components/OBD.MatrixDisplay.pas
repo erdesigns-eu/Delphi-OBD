@@ -416,6 +416,10 @@ type
     ///   Executes a routine while holding the cell monitor for thread safety
     /// </summary>
     procedure ExecuteWithCellsLocked(const Action: TProc);
+    /// <summary>
+    ///   Determines whether a cell should be on based on the bitmap pixel.
+    /// </summary>
+    function IsCellOn(const ABitmap: TBitmap; const ARow, ACol: Integer; const AInversed: Boolean): Boolean;
   protected
     /// <summary>
     ///   Invalidate background (Repaint background buffer)
@@ -941,6 +945,18 @@ begin
     // Always release the monitor to prevent deadlocks
     TMonitor.Exit(FCellsLock);
   end;
+end;
+
+//------------------------------------------------------------------------------
+// IS CELL ON HELPER FUNCTION
+//------------------------------------------------------------------------------
+function TOBDMatrixDisplay.IsCellOn(const ABitmap: TBitmap; const ARow,
+  ACol: Integer; const AInversed: Boolean): Boolean;
+begin
+  if AInversed then
+    Result := ABitmap.Canvas.Pixels[ACol, ARow] <> clBlack
+  else
+    Result := ABitmap.Canvas.Pixels[ACol, ARow] = clBlack;
 end;
 
 //------------------------------------------------------------------------------
@@ -1549,15 +1565,6 @@ end;
 // LOAD BITMAP MASK
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.LoadMask(const Value: TBitmap; const Row: Integer = 0; const Col: Integer = 0; const Inversed: Boolean = False);
-
-  function IsCellOn(const Row, Col: Integer) : Boolean;
-  begin
-    if Inversed then
-      Result := Value.Canvas.Pixels[Col, Row] <> clBlack
-    else
-      Result := Value.Canvas.Pixels[Col, Row] = clBlack;
-  end;
-
 begin
   // First clear the display
   Clear;
@@ -1573,7 +1580,8 @@ begin
           // Make sure the pixel is in the range of our rows and cols
           if (Row >= 0) and ((Row + R) < Rows) and (Col >= 0) and ((Col + C) < Cols) then
             // Set the cell on/off depending on the pixel
-            FCells[Row + R, Col + C] := IsCellOn(R, C);
+            FCells[Row + R, Col + C] :=
+              IsCellOn(Value, R, C, Inversed);
         end;
     end);
 end;
