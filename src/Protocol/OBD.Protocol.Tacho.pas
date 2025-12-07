@@ -305,8 +305,10 @@ begin
   
   if Length(Response) > 10 then
   begin
-    // Parse manufacturer from response
-    IDString := string(PAnsiChar(@Response[2]));
+    // Parse manufacturer from response - safely extract string
+    SetLength(IDString, Length(Response) - 2);
+    if Length(IDString) > 0 then
+      Move(Response[2], IDString[1], Length(IDString));
     
     if Pos('VDO', IDString) > 0 then
       FManufacturer := tmVDO
