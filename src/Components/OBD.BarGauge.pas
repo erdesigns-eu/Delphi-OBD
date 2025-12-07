@@ -937,7 +937,11 @@ begin
     // Draw value label
     if FValueLabel.Visible then
     begin
-      ValueText := Format(FValueLabel.Format, [DisplayValue]);
+      try
+        ValueText := Format(FValueLabel.Format, [DisplayValue]);
+      except
+        ValueText := FormatFloat('0.##', DisplayValue);
+      end;
       Font := CreateSkFont(FValueLabel.Font);
       Paint := TSkPaint.Create;
       Paint.AntiAlias := True;

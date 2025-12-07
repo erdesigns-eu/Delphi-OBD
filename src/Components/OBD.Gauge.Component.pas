@@ -16,7 +16,8 @@ uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
   Vcl.Controls,
   OBD.Protocol.Types, OBD.Adapter.Types, OBD.Component.BindingHelpers,
-  OBD.Protocol.Component, OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge;
+  OBD.Protocol.Component, OBD.CircularGauge, OBD.CircularGauge.Variants, 
+  OBD.LinearGauge, OBD.BarGauge;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -189,7 +190,10 @@ begin
       if Assigned(FTargetControl) then
       begin
         // Apply value to any supported gauge type
-        if FTargetControl is TOBDCircularGauge then
+        // Note: Check derived classes first (more specific before base)
+        if FTargetControl is TOBDCircularGaugeEx then
+          TOBDCircularGaugeEx(FTargetControl).Value := Value
+        else if FTargetControl is TOBDCircularGauge then
           TOBDCircularGauge(FTargetControl).Value := Value
         else if FTargetControl is TOBDLinearGauge then
           TOBDLinearGauge(FTargetControl).Value := Value
@@ -269,10 +273,10 @@ procedure TOBDGaugeComponent.SetTargetControl(const Value: TControl);
 begin
   // Validate that the control is a supported gauge type
   if Assigned(Value) and not (
-    (Value is TOBDCircularGauge) or
+    (Value is TOBDCircularGauge) or  // Includes all variants (Ex, ThreeQuarter, SemiCircular)
     (Value is TOBDLinearGauge) or
     (Value is TOBDBarGauge)) then
-    raise Exception.Create('TargetControl must be a TOBDCircularGauge, TOBDLinearGauge, or TOBDBarGauge');
+    raise Exception.Create('TargetControl must be a gauge component (Circular, Linear, or Bar gauge)');
   FTargetControl := Value;
 end;
 

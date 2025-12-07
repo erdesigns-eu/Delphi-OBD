@@ -830,7 +830,7 @@ begin
   if (FFrom <> Value) then
   begin
     FFrom := Value;
-    if FFrom > FTo then FTo := Value;
+    // Don't auto-adjust To value - let user fix it
     Changed(False);
   end;
 end;

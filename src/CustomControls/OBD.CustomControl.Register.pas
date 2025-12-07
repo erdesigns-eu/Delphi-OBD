@@ -29,7 +29,8 @@ procedure Register;
 implementation
 
 uses
-  OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
+  OBD.CircularGauge, OBD.CircularGauge.Variants, OBD.LinearGauge, OBD.BarGauge, 
+  OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
   OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
@@ -75,16 +76,24 @@ procedure Register;
 begin
   // Register our own components
   RegisterComponents(ComponentPage, [
-    TOBDCircularGauge,  // Register the Circular Gauge
-    TOBDLinearGauge,    // Register the Linear Gauge
-    TOBDBarGauge,       // Register the Bar Gauge
+    // Gauge Components
+    TOBDCircularGauge,         // Register the Circular Gauge (full 360° or custom)
+    TOBDThreeQuarterGauge,     // Register the Three-Quarter Gauge (270°)
+    TOBDSemiCircularGauge,     // Register the Semi-Circular Gauge (180° bottom)
+    TOBDSemiCircularTopGauge,  // Register the Semi-Circular Top Gauge (180° top)
+    TOBDLinearGauge,           // Register the Linear Gauge (horizontal/vertical)
+    TOBDBarGauge,              // Register the Bar Gauge (fill indicator)
+    
+    // Display Components
     TOBDMatrixDisplay,  // Register the Matrix Display
     TOBDLed,            // Register the LED
 
+    // Touch Components
     TOBDTouchHeader,    // Register the Touch Header
     TOBDTouchSubheader, // Register the Touch Subheader
     TOBDTouchStatusbar, // Register the Touch Statusbar
 
+    // Non-Visual Components
     TOBDConnectionComponent, // Register the non-visual connection wrapper
     TOBDProtocolComponent,   // Register the non-visual protocol wrapper
     TOBDGaugeComponent,      // Register the non-visual gauge controller
