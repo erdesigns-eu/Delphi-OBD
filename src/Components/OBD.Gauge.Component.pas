@@ -17,7 +17,7 @@ uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
   Vcl.Controls,
   OBD.Protocol.Types, OBD.Adapter.Types, OBD.Component.BindingHelpers,
-  OBD.Protocol.Component, OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, 
+  OBD.Protocol.Component, OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge,
   OBD.DialGauge, OBD.SegmentedGauge;
 
 //------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ type
 
   /// <summary>
   ///   Non-visual controller that binds protocol messages to any gauge type
-  ///   (circular, linear, or bar), optionally auto-applying resolved values on the UI thread.
+  ///   (circular, linear, bar, dial, or segmented), optionally auto-applying resolved values on the UI thread.
   /// </summary>
   TOBDGaugeComponent = class(TComponent)
   private
@@ -122,7 +122,7 @@ type
     procedure SetGaugeValue(const Value: Single);
   published
     /// <summary>
-    ///   Target gauge control (circular, linear, or bar) that receives value updates from this component.
+    ///   Target gauge control (circular, linear, bar, dial, or segmented) that receives value updates from this component.
     /// </summary>
     property TargetControl: TControl read FTargetControl write SetTargetControl;
     /// <summary>
