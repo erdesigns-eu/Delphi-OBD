@@ -203,8 +203,14 @@ begin
   StyledColor := DefaultColor;
 
   // Try to pull the fill color from the active style so Skia clears match themed surfaces
-  if TStyleManager.IsCustomStyleActive then
-    StyleServices.GetElementColor(StyleServices.GetElementDetails(twWindowRoot), ecFillColor, StyledColor);
+  // Wrap in try-except to handle design-time issues where StyleServices might not be ready
+  try
+    if TStyleManager.IsCustomStyleActive then
+      StyleServices.GetElementColor(StyleServices.GetElementDetails(twWindowRoot), ecFillColor, StyledColor);
+  except
+    // If style services fail (e.g., at design time), just use the default color
+    StyledColor := DefaultColor;
+  end;
 
   // Convert the resolved VCL color into a Skia alpha color for fast clearing
   Result := SafeColorRefToSkColor(StyledColor);
