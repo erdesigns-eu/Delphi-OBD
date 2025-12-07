@@ -2085,6 +2085,10 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
+  // Skip if in design mode and not yet loaded (avoid access violations during streaming)
+  if (csDesigning in ComponentState) and (csLoading in ComponentState) then
+    Exit;
+    
   // Clear and rebuild the cached background snapshot under the render lock
   TMonitor.Enter(FRenderLock);
   try

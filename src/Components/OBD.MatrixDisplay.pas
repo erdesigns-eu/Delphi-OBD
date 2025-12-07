@@ -970,6 +970,10 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
+  // Skip if in design mode and not yet loaded (avoid access violations during streaming)
+  if (csDesigning in ComponentState) and (csLoading in ComponentState) then
+    Exit;
+    
   // Allocate a Skia surface for fully hardware-accelerated drawing
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
