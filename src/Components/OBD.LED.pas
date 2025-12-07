@@ -628,7 +628,7 @@ procedure TOBDLed.InvalidateColors;
       lsOff    : Colors := [SafeColorRefToSkColor(OffColor.FromColor), SafeColorRefToSkColor(OffColor.ToColor)];
       lsOn     : Colors := [SafeColorRefToSkColor(OnColor.FromColor), SafeColorRefToSkColor(OnColor.ToColor)];
     end;
-    FillPaint.Shader := TSkShader.MakeLinearGradient(TPointF.Create(LedRect.Left, LedRect.Top), TPointF.Create(LedRect.Left, LedRect.Bottom), Colors, nil, TSkTileMode.Clamp);
+    FillPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(LedRect.Left, LedRect.Top), TPointF.Create(LedRect.Left, LedRect.Bottom), Colors, nil, TSkTileMode.Clamp);
     Canvas.DrawOval(LedRect, FillPaint);
 
     // Add a thin stroke around the LED body to highlight the rim
@@ -651,7 +651,7 @@ procedure TOBDLed.InvalidateColors;
     GlarePaint := TSkPaint.Create;
     GlarePaint.AntiAlias := True;
     GlarePaint.Style := TSkPaintStyle.Fill;
-    GlarePaint.Shader := TSkShader.MakeLinearGradient(TPointF.Create(GlareRect.Left, GlareRect.Top), TPointF.Create(GlareRect.Left, GlareRect.Bottom),
+    GlarePaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(GlareRect.Left, GlareRect.Top), TPointF.Create(GlareRect.Left, GlareRect.Bottom),
       [$4BFFFFFF, $1EFFFFFF], nil, TSkTileMode.Clamp);
     Canvas.DrawOval(GlareRect, GlarePaint);
 
@@ -663,7 +663,7 @@ procedure TOBDLed.InvalidateColors;
     BorderPaint.AntiAlias := True;
     BorderPaint.Style := TSkPaintStyle.Stroke;
     BorderPaint.StrokeWidth := Border.Width;
-    BorderPaint.Shader := TSkShader.MakeLinearGradient(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
+    BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)], nil, TSkTileMode.Clamp);
     Canvas.DrawOval(BorderRect, BorderPaint);
 
@@ -673,7 +673,7 @@ procedure TOBDLed.InvalidateColors;
     BorderPaint.AntiAlias := True;
     BorderPaint.Style := TSkPaintStyle.Stroke;
     BorderPaint.StrokeWidth := Border.Width;
-    BorderPaint.Shader := TSkShader.MakeLinearGradient(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
+    BorderPaint.Shader := TSkShader.MakeGradientLinear(TPointF.Create(BorderRect.Left, BorderRect.Top), TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.ToColor), SafeColorRefToSkColor(Border.FromColor)], nil, TSkTileMode.Clamp);
     Canvas.DrawOval(BorderRect, BorderPaint);
 

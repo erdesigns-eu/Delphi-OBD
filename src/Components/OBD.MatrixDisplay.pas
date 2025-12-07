@@ -977,7 +977,7 @@ begin
     // Configure gradient paint
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
-    Paint.Shader := TSkShader.MakeLinearGradient(
+    Paint.Shader := TSkShader.MakeGradientLinear(
       TPointF.Create(BackgroundRect.Left, BackgroundRect.Top),
       TPointF.Create(BackgroundRect.Left, BackgroundRect.Bottom),
       [SafeColorRefToSkColor(Background.FromColor), SafeColorRefToSkColor(Background.ToColor)],
@@ -996,7 +996,7 @@ begin
   Paint := TSkPaint.Create;
   Paint.AntiAlias := True;
   Paint.BlendMode := TSkBlendMode.SrcOver;
-  Paint.Shader := TSkShader.MakeLinearGradient(
+  Paint.Shader := TSkShader.MakeGradientLinear(
     TPointF.Create(0, Border.Width),
     TPointF.Create(0, (Height - Border.Width) / 2),
     [$4BFFFFFF, $1EFFFFFF],
@@ -1019,7 +1019,7 @@ begin
     Paint.AntiAlias := True;
     Paint.Style := TSkPaintStyle.Stroke;
     Paint.StrokeWidth := Border.Width;
-    Paint.Shader := TSkShader.MakeLinearGradient(
+    Paint.Shader := TSkShader.MakeGradientLinear(
       TPointF.Create(BorderRect.Left, BorderRect.Top),
       TPointF.Create(BorderRect.Left, BorderRect.Bottom),
       [SafeColorRefToSkColor(Border.FromColor), SafeColorRefToSkColor(Border.ToColor)],
