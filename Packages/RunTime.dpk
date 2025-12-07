@@ -36,19 +36,34 @@ requires
 
 contains
   OBD.CustomControl.Animation in '..\src\CustomControls\OBD.CustomControl.Animation.pas',
+  OBD.CustomControl.AnimationManager in '..\src\CustomControls\OBD.CustomControl.AnimationManager.pas',
   OBD.CustomControl.Helpers in '..\src\CustomControls\OBD.CustomControl.Helpers.pas',
   OBD.CustomControl.Constants in '..\src\CustomControls\OBD.CustomControl.Constants.pas',
   OBD.CustomControl in '..\src\CustomControls\OBD.CustomControl.pas',
   OBD.Component.BindingHelpers in '..\src\Components\OBD.Component.BindingHelpers.pas',
   OBD.LED in '..\src\Components\OBD.LED.pas',
+  OBD.CircularGauge in '..\src\Components\OBD.CircularGauge.pas',
   OBD.MatrixDisplay in '..\src\Components\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\src\Components\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\src\Components\OBD.Touch.Statusbar.pas',
   OBD.Touch.Subheader in '..\src\Components\OBD.Touch.Subheader.pas',
+  OBD.Adapter.Types in '..\src\Adapters\OBD.Adapter.Types.pas',
+  OBD.Connection.Types in '..\src\Connection\OBD.Connection.Types.pas',
+  OBD.Connection.Constants in '..\src\Connection\OBD.Connection.Constants.pas',
+  OBD.Connection in '..\src\Connection\OBD.Connection.pas',
+  OBD.Connection.Serial in '..\src\Connection\OBD.Connection.Serial.pas',
+  OBD.Connection.Bluetooth in '..\src\Connection\OBD.Connection.Bluetooth.pas',
+  OBD.Connection.Wifi in '..\src\Connection\OBD.Connection.Wifi.pas',
+  OBD.Connection.FTDI in '..\src\Connection\OBD.Connection.FTDI.pas',
   OBD.Connection.Component in '..\src\Connection\OBD.Connection.Component.pas',
+  OBD.Protocol.Types in '..\src\Protocol\OBD.Protocol.Types.pas',
+  OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
+  OBD.Protocol.CAN in '..\src\Protocol\OBD.Protocol.CAN.pas',
+  OBD.Protocol.Legacy in '..\src\Protocol\OBD.Protocol.Legacy.pas',
   OBD.Protocol.Component in '..\src\Protocol\OBD.Protocol.Component.pas',
   OBD.Gauge.Component in '..\src\Components\OBD.Gauge.Component.pas',
   OBD.Header.Component in '..\src\Components\OBD.Header.Component.pas',
-  OBD.Subheader.Component in '..\src\Components\OBD.Subheader.Component.pas';
+  OBD.Subheader.Component in '..\src\Components\OBD.Subheader.Component.pas',
+  OBD.Application.Settings in '..\src\Utilities\OBD.Application.Settings.pas';
 
 end.
