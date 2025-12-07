@@ -1670,7 +1670,7 @@ begin
   B := TBitmap.Create;
   try
     Typeface := CreateSkTypeface(Font);
-    SkFont := TSkFont.Create(Typeface, Font.Size);
+    SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Font));
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
@@ -1715,7 +1715,7 @@ begin
   B := TBitmap.Create;
   try
     Typeface := CreateSkTypeface(Font);
-    SkFont := TSkFont.Create(Typeface, Font.Size);
+    SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Font));
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
