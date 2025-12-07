@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // UNIT           : OBD.Touch.Subheader.pas
 // CONTENTS       : Subheader component with Skia rendering
 // VERSION        : 2.0
@@ -16,7 +16,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls, Vcl.Forms, System.Skia, Skia.Vcl,
+  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls, Vcl.Forms, System.Skia, Vcl.Skia,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Constants,
   OBD.Connection.Types, OBD.Connection, OBD.Connection.Component;
@@ -994,7 +994,7 @@ begin
   end;
 end;
 
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // UPDATE STYLE ELEMENTS
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.UpdateStyleElements;
