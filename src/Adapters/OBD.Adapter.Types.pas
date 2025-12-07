@@ -65,7 +65,7 @@ type
   /// <param name="Messages">
   ///   OBD Data Messages array
   /// </param>
-  TReceiveDataMessagesEvent = procedure(Sender: TObject; Messages: TArray<IOBDDataMessage>) of object;
+  TReceiveDataMessagesEvent = procedure(Sender: TObject; const Messages: TArray<IOBDDataMessage>) of object;
 
   /// <summary>
   ///   Receive Data Message event
