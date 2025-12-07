@@ -17,7 +17,7 @@ interface
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
   Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, Vcl.Themes, Vcl.ExtCtrls,
-  Vcl.Forms, System.Skia, Skia.Vcl,
+  Vcl.Forms, System.Skia, Vcl.Skia,
 
   OBD.CustomControl, OBD.LED, OBD.CustomControl.Helpers, OBD.CustomControl.Constants;
 
@@ -677,7 +677,7 @@ type
 implementation
 
 uses
-  System.Math, System.Skia, Skia.Vcl;
+  System.Math;
 
 //------------------------------------------------------------------------------
 // SET FROM COLOR

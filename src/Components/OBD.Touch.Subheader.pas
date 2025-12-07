@@ -16,7 +16,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Controls, WinApi.Windows, Winapi.Messages,
-  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls, Vcl.Forms, System.Skia, Vcl.Skia,
+  Vcl.Graphics, Vcl.Themes, Vcl.ExtCtrls, Vcl.Forms, System.Skia, Vcl.Skia, System.Math,
 
   OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Constants,
   OBD.Connection.Types, OBD.Connection, OBD.Connection.Component;
