@@ -21,6 +21,23 @@ uses
 
 type
   /// <summary>
+  ///   FTDI Function Pointers
+  /// </summary>
+  TFT_GetStatus = function(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall;
+  TFT_SetTimeouts = function(ftHandle: DWORD; ReadTimeout, WriteTimeout: DWORD): FT_Result; stdcall;
+  TFT_GetModemStatus = function(ftHandle: DWORD; ModemStatus: Pointer): FT_Result; stdcall;
+  TFT_GetQueueStatus = function(ftHandle: DWORD; RxBytes: Pointer): FT_Result; stdcall;
+  TFT_Read = function(ftHandle: DWORD; FTInBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
+  TFT_Write = function(ftHandle: DWORD; FTOutBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
+  TFT_SetEventNotification = function(ftHandle: DWORD; EventMask: DWORD; pvArgs: DWORD): FT_Result; stdcall;
+  TFT_OpenEx = function(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall;
+  TFT_Close = function(ftHandle: DWORD): FT_Result; stdcall;
+  TFT_ResetDevice = function(ftHandle: DWORD): FT_Result; stdcall;
+  TFT_SetBaudRate = function(ftHandle: DWORD; BaudRate: DWORD): FT_Result; stdcall;
+  TFT_SetDataCharacteristics = function(ftHandle: DWORD; WordLength, StopBits, Parity: Byte): FT_Result; stdcall;
+  TFT_SetFlowControl = function(ftHandle: DWORD; FlowControl: Word; XonChar, XoffChar: Byte): FT_Result; stdcall;
+
+  /// <summary>
   ///   FTDI (USB) Thread for events
   /// </summary>
   TFTDIThread = class(TThread)
@@ -52,23 +69,6 @@ type
     /// </summary
     constructor Create(CreateSuspended: Boolean; EventHandle: THandle; WindowHandle: HWND; FTDIHandle: DWORD; AFT_GetStatus: TFT_GetStatus);
   end;
-
-  /// <summary>
-  ///   FTDI Function Pointers
-  /// </summary>
-  TFT_GetStatus = function(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall;
-  TFT_SetTimeouts = function(ftHandle: DWORD; ReadTimeout, WriteTimeout: DWORD): FT_Result; stdcall;
-  TFT_GetModemStatus = function(ftHandle: DWORD; ModemStatus: Pointer): FT_Result; stdcall;
-  TFT_GetQueueStatus = function(ftHandle: DWORD; RxBytes: Pointer): FT_Result; stdcall;
-  TFT_Read = function(ftHandle: DWORD; FTInBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
-  TFT_Write = function(ftHandle: DWORD; FTOutBuf: Pointer; BufferSize: LongInt; ResultPtr: Pointer): FT_Result; stdcall;
-  TFT_SetEventNotification = function(ftHandle: DWORD; EventMask: DWORD; pvArgs: DWORD): FT_Result; stdcall;
-  TFT_OpenEx = function(pvArg1: Pointer; dwFlags: DWORD; ftHandle: Pointer): FT_Result; stdcall;
-  TFT_Close = function(ftHandle: DWORD): FT_Result; stdcall;
-  TFT_ResetDevice = function(ftHandle: DWORD): FT_Result; stdcall;
-  TFT_SetBaudRate = function(ftHandle: DWORD; BaudRate: DWORD): FT_Result; stdcall;
-  TFT_SetDataCharacteristics = function(ftHandle: DWORD; WordLength, StopBits, Parity: Byte): FT_Result; stdcall;
-  TFT_SetFlowControl = function(ftHandle: DWORD; FlowControl: Word; XonChar, XoffChar: Byte): FT_Result; stdcall;
 
   /// <summary>
   ///   FTDI (USB)
