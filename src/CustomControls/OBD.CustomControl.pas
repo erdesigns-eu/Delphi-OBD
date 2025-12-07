@@ -83,6 +83,11 @@ type
     ///   Override Loaded method
     /// </summary>
     procedure Loaded; override;
+  public
+    /// <summary>
+    ///   Override Invalidate to ensure Skia canvas updates
+    /// </summary>
+    procedure Invalidate; override;
   protected
     /// <summary>
     ///   Timer proc handler
@@ -190,6 +195,20 @@ begin
   inherited;
   // Trigger repaint with new size
   Invalidate;
+end;
+
+//------------------------------------------------------------------------------
+// INVALIDATE (Override to ensure Skia redraws)
+//------------------------------------------------------------------------------
+procedure TOBDCustomControl.Invalidate;
+begin
+  // Call inherited Invalidate first to schedule Windows paint message
+  inherited Invalidate;
+  
+  // At design time, TSkCustomControl needs explicit Redraw to trigger Draw/PaintSkia
+  // Without this, Invalidate only schedules a message but doesn't force Skia redraw
+  if (csDesigning in ComponentState) and HandleAllocated then
+    Redraw;
 end;
 
 //------------------------------------------------------------------------------
