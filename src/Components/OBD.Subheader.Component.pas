@@ -15,11 +15,9 @@ interface
 uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
 
-  OBD.Adapter.Types,
-  OBD.Component.BindingHelpers,
-  OBD.Connection.Types, OBD.Connection.Component,
-  OBD.Protocol, OBD.Protocol.Component,
-  OBD.Touch.Subheader;
+  OBD.Connection, OBD.Protocol.Types, OBD.Adapter.Types,
+  OBD.Component.BindingHelpers, OBD.Connection.Types, OBD.Connection.Component,
+  OBD.Protocol, OBD.Protocol.Component, OBD.Touch.Subheader;
 
 //------------------------------------------------------------------------------
 // TYPES
