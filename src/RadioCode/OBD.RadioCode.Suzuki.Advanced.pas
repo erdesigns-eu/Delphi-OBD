@@ -123,21 +123,13 @@ end;
 
 function TOBDRadioCodeSuzukiAdvanced.CalculateV1(const Serial: string): string;
 var
-  Sanitized: string;
   D1, D2, D3, D4: Integer;
   Code: array[0..3] of Integer;
 begin
-  Result := True;
-  Output := '';
-  ErrorMessage := '';
-
-  Sanitized := SanitizeInput(Input);
-  if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
-
-  D1 := StrToInt(Sanitized[1]);
-  D2 := StrToInt(Sanitized[2]);
-  D3 := StrToInt(Sanitized[3]);
-  D4 := StrToInt(Sanitized[4]);
+  D1 := StrToInt(Serial[1]);
+  D2 := StrToInt(Serial[2]);
+  D3 := StrToInt(Serial[3]);
+  D4 := StrToInt(Serial[4]);
 
   Code[0] := ApplyModularTransform(D1 * 6 + D2 + 3, 10);
   Code[1] := ApplyModularTransform(D2 * 4 + D3 + 7, 10);
