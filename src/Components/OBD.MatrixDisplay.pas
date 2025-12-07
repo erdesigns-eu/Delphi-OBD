@@ -970,11 +970,6 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
-  // Skip background building entirely at design time to prevent access violations
-  // The IDE doesn't need the optimized background cache
-  if (csDesigning in ComponentState) then
-    Exit;
-  
   // Safety check: ensure required objects are initialized
   if not Assigned(FBackground) or not Assigned(FBorder) then
     Exit;
