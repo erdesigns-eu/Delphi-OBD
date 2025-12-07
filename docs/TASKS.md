@@ -42,24 +42,15 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
 
 **Focus:** Add new features, protocols, and components to expand functionality.
 
-#### TASK 2.4: Additional Protocol Support
+#### TASK 2.4: J1939 Protocol Enhancements
 - **Priority:** 🟡 MEDIUM
-- **Estimated Effort:** 5-8 hours per protocol
-- **Description:** Implement additional vehicle communication protocols
+- **Estimated Effort:** 3-4 hours
+- **Description:** Enhance J1939 protocol support
 
 **Subtasks:**
-- [ ] KWP2000 (ISO 14230) extended support
-  - Full diagnostic service implementation
-  - Security access procedures
-  - ECU flashing support
-- [ ] UDS (ISO 14229) protocol
-  - Diagnostic services
-  - DTC management
-  - Security and authentication
-- [ ] J1939 enhancements
-  - Parameter group number (PGN) library
-  - Transport protocol support
-  - Diagnostic messages
+- [ ] Parameter group number (PGN) library
+- [ ] Transport protocol support
+- [ ] Diagnostic messages
 
 #### TASK 2.5: Data Logging & Playback
 - **Priority:** 🟡 MEDIUM  
@@ -112,6 +103,27 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
   - Restraint system codes
   - Commercial vehicle identification
 - Enhanced TVINParseResult with comprehensive vehicle features
+
+### ✅ Additional Protocol Support (December 7, 2024)
+- **KWP2000 (ISO 14230) Extended Support:**
+  - Full diagnostic service implementation with 20+ services
+  - Security access procedures (seed/key mechanism)
+  - ECU flashing support (Request Download, Transfer Data, Request Transfer Exit)
+  - Diagnostic session control (default, programming, extended)
+  - DTC management (read, clear, status)
+  - Tester present keep-alive
+  - ECU identification and data read/write
+  
+- **UDS (ISO 14229) Protocol:**
+  - Complete Unified Diagnostic Services implementation
+  - 25+ diagnostic services (session control, security access, DTC management)
+  - Security and authentication (multiple security levels)
+  - Memory read/write operations
+  - Routine control for diagnostic procedures
+  - ECU flashing support with download/upload
+  - Response code handling with negative response support
+  - DTC information with multiple sub-functions
+  - Control DTC setting (enable/disable fault code logging)
 
 ---
 
