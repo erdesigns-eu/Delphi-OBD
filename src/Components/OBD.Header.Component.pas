@@ -289,11 +289,17 @@ end;
 // DESTRUCTOR
 //------------------------------------------------------------------------------
 destructor TOBDHeaderComponent.Destroy;
+var
+  CurrentHandler: TConnectionStateChangedEvent;
 begin
   if Assigned(FConnectionComponent) then
+  begin
+    CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
     TOBDBindingHelpers.RestoreHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
+      CurrentHandler, FChainedOnConnectionStateChanged,
       'Connection.OnConnectionStateChanged', Self, FOnBindingNotification);
+    FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
+  end;
   FBindingLock.Free;
   inherited Destroy;
 end;
@@ -330,6 +336,8 @@ end;
 // REFRESH CONNECTION BINDING
 //------------------------------------------------------------------------------
 procedure TOBDHeaderComponent.RefreshConnectionBinding;
+var
+  CurrentHandler: TConnectionStateChangedEvent;
 begin
   if not Assigned(FConnectionComponent) then
   begin
@@ -337,15 +345,17 @@ begin
     Exit;
   end;
 
+  CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
   if FAutoBindConnection then
     TOBDBindingHelpers.SwapHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
+      CurrentHandler, FChainedOnConnectionStateChanged,
       HandleConnectionStateChanged, 'Connection.OnConnectionStateChanged', Self,
       FOnBindingNotification)
   else
     TOBDBindingHelpers.RestoreHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
+      CurrentHandler, FChainedOnConnectionStateChanged,
       'Connection.OnConnectionStateChanged', Self, FOnBindingNotification);
+  FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
 end;
 
 //------------------------------------------------------------------------------
@@ -383,14 +393,20 @@ end;
 // SET CONNECTION COMPONENT
 //------------------------------------------------------------------------------
 procedure TOBDHeaderComponent.SetConnectionComponent(const Value: TOBDConnectionComponent);
+var
+  CurrentHandler: TConnectionStateChangedEvent;
 begin
   if FConnectionComponent = Value then
     Exit;
 
   if Assigned(FConnectionComponent) then
+  begin
+    CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
     TOBDBindingHelpers.RestoreHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
+      CurrentHandler, FChainedOnConnectionStateChanged,
       'Connection.OnConnectionStateChanged', Self, FOnBindingNotification);
+    FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
+  end;
 
   FConnectionComponent := Value;
   RefreshConnectionBinding;

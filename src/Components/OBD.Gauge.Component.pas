@@ -104,7 +104,7 @@ type
     ///   handlers attached.
     /// </summary>
     procedure DetachProtocol;
-  protected
+  public
     /// <summary>
     ///   Allocate synchronization primitives and initialize defaults.
     /// </summary>
@@ -113,7 +113,6 @@ type
     ///   Release bindings and synchronization primitives.
     /// </summary>
     destructor Destroy; override;
-  public
     /// <summary>
     ///   Manually apply a value to the target gauge with UI-thread marshalling.
     /// </summary>
@@ -212,6 +211,8 @@ end;
 // REFRESH PROTOCOL BINDING
 //------------------------------------------------------------------------------
 procedure TOBDGaugeComponent.RefreshProtocolBinding;
+var
+  CurrentHandler: TReceiveDataMessagesEvent;
 begin
   if not Assigned(FProtocolComponent) then
   begin
@@ -219,14 +220,16 @@ begin
     Exit;
   end;
 
+  CurrentHandler := FProtocolComponent.OnMessages;
   if FAutoBindProtocol then
     TOBDBindingHelpers.SwapHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, HandleMessages,
+      CurrentHandler, FChainedOnMessages, HandleMessages,
       'Protocol.OnMessages', Self, FOnBindingNotification)
   else
     TOBDBindingHelpers.RestoreHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, 'Protocol.OnMessages',
+      CurrentHandler, FChainedOnMessages, 'Protocol.OnMessages',
       Self, FOnBindingNotification);
+  FProtocolComponent.OnMessages := CurrentHandler;
 end;
 
 //------------------------------------------------------------------------------
@@ -282,11 +285,17 @@ end;
 // DETACH PROTOCOL
 //------------------------------------------------------------------------------
 procedure TOBDGaugeComponent.DetachProtocol;
+var
+  CurrentHandler: TReceiveDataMessagesEvent;
 begin
   if Assigned(FProtocolComponent) then
+  begin
+    CurrentHandler := FProtocolComponent.OnMessages;
     TOBDBindingHelpers.RestoreHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, 'Protocol.OnMessages',
-      Self, FOnBindingNotification)
+      CurrentHandler, FChainedOnMessages, 'Protocol.OnMessages',
+      Self, FOnBindingNotification);
+    FProtocolComponent.OnMessages := CurrentHandler;
+  end
   else
     FChainedOnMessages := nil;
 end;
