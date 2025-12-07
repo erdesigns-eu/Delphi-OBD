@@ -3,10 +3,11 @@
 // CONTENTS       : Bar/Level gauge component with Skia rendering
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : OpenAI Assistant (based on ERDesigns pattern)
+// AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 07/12/2024
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.BarGauge;
 

@@ -3,10 +3,11 @@
 // CONTENTS       : Non-visual gauge controller component
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : OpenAI Assistant
+// AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 05/02/2025
+// RELEASE DATE   : 07/12/2024
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Gauge.Component;
 
