@@ -92,11 +92,7 @@ procedure TOBDConnectionComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDConnectionComponent)),
-    procedure(const Name: string)
-    begin
-      Proc(Name);
-    end);
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDConnectionComponent)), Proc);
 end;
 
 //------------------------------------------------------------------------------
@@ -111,11 +107,7 @@ procedure TOBDProtocolComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDProtocolComponent)),
-    procedure(const Name: string)
-    begin
-      Proc(Name);
-    end);
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDProtocolComponent)), Proc);
 end;
 
 //------------------------------------------------------------------------------
@@ -130,11 +122,7 @@ procedure TOBDGaugeComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDCircularGauge)),
-    procedure(const Name: string)
-    begin
-      Proc(Name);
-    end);
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDCircularGauge)), Proc);
 end;
 
 //------------------------------------------------------------------------------

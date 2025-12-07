@@ -33,7 +33,8 @@
 requires
   rtl,
   designide,
-  vcl;
+  vcl,
+  RunTime;
 
 contains
   OBD.CustomControl.Register in '..\src\CustomControls\OBD.CustomControl.Register.pas',
