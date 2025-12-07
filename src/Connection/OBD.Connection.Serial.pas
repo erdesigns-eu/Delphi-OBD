@@ -1347,7 +1347,7 @@ end;
 //------------------------------------------------------------------------------
 // SEND ANSI string
 //------------------------------------------------------------------------------
-function TSerialPort.SendString(S: Ansistring): Boolean;
+function TSerialPort.SendString(const S: Ansistring): Boolean;
 var
   L: DWORD;
 begin
@@ -1358,7 +1358,7 @@ end;
 //------------------------------------------------------------------------------
 // SEND C-STYLE ANSI string
 //------------------------------------------------------------------------------
-function TSerialPort.SendCString(S: PAnsiChar): Boolean;
+function TSerialPort.SendCString(const S: PAnsiChar): Boolean;
 var
   L: DWORD;
 begin

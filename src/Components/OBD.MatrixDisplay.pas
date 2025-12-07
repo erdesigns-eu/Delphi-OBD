@@ -912,12 +912,12 @@ end;
 // INITIALIZE CELLS
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.InitializeCells;
-var
-  R, C: Integer;
 begin
   // Initialize the cell matrix within a monitor to allow safe concurrent access
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       // Set the length of the cells
       SetLength(FCells, FRows, FCols);
@@ -1218,6 +1218,8 @@ end;
 // GET CELL VALUE
 //------------------------------------------------------------------------------
 function TOBDMatrixDisplay.GetCell(Row: Integer; Col: Integer): Boolean;
+var
+  Res: Boolean; // Fix for E2555 Cannot capture symbol 'Result'
 begin
   // Initialize result
   Result := False;
@@ -1229,8 +1231,10 @@ begin
   ExecuteWithCellsLocked(
     procedure
     begin
-      Result := FCells[Row][Col];
+      Res := FCells[Row][Col];
     end);
+
+  Result := Res;
 end;
 
 //------------------------------------------------------------------------------
