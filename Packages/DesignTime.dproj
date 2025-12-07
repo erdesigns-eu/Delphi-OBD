@@ -173,6 +173,9 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="Skia.Package.RTL.dcp"/>
+        <DCCReference Include="Skia.Package.VCL.dcp"/>
+        <DCCReference Include="RunTime.dcp"/>
         <DCCReference Include="..\src\CustomControls\OBD.CustomControl.Register.pas"/>
         <DCCReference Include="..\src\Components\OBD.Component.Editors.pas"/>
         <DCCReference Include="..\src\Utilities\OBD.DataModule.pas">

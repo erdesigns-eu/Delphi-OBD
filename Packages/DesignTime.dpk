@@ -34,6 +34,8 @@ requires
   rtl,
   designide,
   vcl,
+  Skia.Package.RTL,
+  Skia.Package.VCL,
   RunTime;
 
 contains
