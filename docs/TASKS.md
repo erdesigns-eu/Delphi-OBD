@@ -716,6 +716,161 @@ Enable ECU programming, tuning, and firmware updates for major vehicle manufactu
 - Document known limitations and issues
 - Provide troubleshooting guides
 
+#### TASK 2.7: Linear Gauge Visual Component (NEW - December 7, 2024)
+- **Priority:** 🟡 MEDIUM
+- **Estimated Effort:** 4-5 hours
+- **Description:** Create horizontal/vertical linear gauge component with Skia rendering
+
+**Overview:**
+Implement a linear gauge component (similar to TOBDCircularGauge) that displays values using a horizontal or vertical bar with scale, ticks, slider/needle, and gradient zones. This provides an alternative visualization style for OBD data display.
+
+**Subtasks:**
+
+**2.7.1: Base Linear Gauge Component** (Session 1: 120-150 min)
+- [ ] Create `TOBDLinearGauge` class inheriting from `TOBDCustomControl`
+  - Property `Orientation: TGaugeOrientation` (Horizontal, Vertical)
+  - Property `Min: Single`, `Max: Single`, `Value: Single`
+  - Property `ScalePosition: TScalePosition` (Top, Bottom, Left, Right, None)
+  - Property `Width`, `Height` for gauge dimensions
+  - Implement IOBDAnimatable interface for smooth value transitions
+  - Add background snapshot caching (ISkImage)
+  - Thread-safe rendering with TMonitor
+- [ ] Design scale and tick mark system
+  - Major ticks with labels
+  - Minor ticks (configurable)
+  - Tick position relative to scale
+  - Font properties for labels
+  - Divider support for label values
+
+**2.7.2: Linear Gauge Visual Elements** (Session 2: 90-120 min)
+- [ ] Create property classes (following circular gauge pattern)
+  - `TOBDLinearGaugeBackground` - gradient background colors
+  - `TOBDLinearGaugeBorder` - border styling with gradient
+  - `TOBDLinearGaugeScale` - scale bar appearance
+  - `TOBDLinearGaugeTick` base class
+  - `TOBDLinearGaugeMajorTicks` - major tick configuration
+  - `TOBDLinearGaugeMinorTicks` - minor tick configuration
+  - `TOBDLinearGaugeSlider` - slider/needle properties (color, size, shape)
+  - `TOBDLinearGaugeCaption` - top/bottom or left/right captions
+- [ ] Implement gradient scale zones
+  - Collection of color zones (from/to value ranges)
+  - Configurable zone colors
+  - Zone size/thickness property
+
+**2.7.3: Rendering Implementation** (Session 3: 120-150 min)
+- [ ] Implement Skia rendering methods
+  - `BuildBackgroundSnapshot` - cache static elements
+  - `PaintSlider` - render moving slider/needle
+  - `PaintSkia` - main render method
+  - Draw scale bar with gradient
+  - Draw ticks and labels with proper positioning
+  - Draw slider at current value position
+  - Draw captions
+- [ ] Add slider shape options
+  - Rectangle (filled bar from min to value)
+  - Triangle/arrow pointer
+  - Circle indicator
+  - Line marker
+- [ ] Optimize rendering performance
+  - Cache background snapshot
+  - Only redraw slider on value changes
+  - Minimize allocations in paint loop
+
+**2.7.4: Animation and Polish** (Session 4: 60-90 min)
+- [ ] Implement animation support
+  - `TOBDLinearGaugeAnimation` properties
+  - Smooth value transitions using easing functions
+  - Integration with AnimationManager
+  - AnimationTick implementation
+- [ ] Add event handlers
+  - OnChange events for all property classes
+  - Proper invalidation and redraw
+  - Settings change handlers
+- [ ] Testing and refinement
+  - Test both horizontal and vertical orientations
+  - Test different scale positions
+  - Test animation smoothness
+  - Test with various value ranges
+  - Memory and performance profiling
+
+**Expected Outcomes:**
+- Professional linear gauge component matching circular gauge quality
+- Support for horizontal and vertical orientations
+- Smooth animations with configurable easing
+- Multiple slider/needle styles
+- Gradient color zones
+- Configurable scale and tick marks
+- Full Skia rendering for performance
+- Design-time and runtime support
+
+#### TASK 2.8: Bar/Level Gauge Visual Component (NEW - December 7, 2024)
+- **Priority:** 🟡 MEDIUM
+- **Estimated Effort:** 3-4 hours
+- **Description:** Create simple bar/level gauge component for fill-style value display
+
+**Overview:**
+Implement a simpler bar gauge component that displays values as a filled bar (like a fuel gauge or battery level indicator). This provides a clean, minimalist visualization option for dashboards.
+
+**Subtasks:**
+
+**2.8.1: Base Bar Gauge Component** (Session 1: 90-120 min)
+- [ ] Create `TOBDBarGauge` class inheriting from `TOBDCustomControl`
+  - Property `Orientation: TBarOrientation` (Horizontal, Vertical)
+  - Property `Min: Single`, `Max: Single`, `Value: Single`
+  - Property `FillDirection: TFillDirection` (LeftToRight, RightToLeft, BottomToTop, TopToBottom)
+  - Property `BarWidth: Integer` - thickness of the bar
+  - Property `CornerRadius: Single` - rounded corners
+  - Implement IOBDAnimatable interface
+  - Background snapshot caching
+- [ ] Design bar appearance system
+  - Fill color (solid or gradient)
+  - Empty/background color
+  - Border styling
+  - Optional value label overlay
+
+**2.8.2: Bar Gauge Visual Properties** (Session 2: 60-90 min)
+- [ ] Create property classes
+  - `TOBDBarGaugeFill` - fill color and gradient settings
+  - `TOBDBarGaugeBackground` - empty bar appearance
+  - `TOBDBarGaugeBorder` - border color and width
+  - `TOBDBarGaugeValueLabel` - optional value display
+  - `TOBDBarGaugeZones` - color zones at different value ranges
+- [ ] Implement zone-based coloring
+  - Green zone (0-60%)
+  - Yellow zone (60-80%)
+  - Red zone (80-100%)
+  - Configurable thresholds and colors
+
+**2.8.3: Rendering and Animation** (Session 3: 90-120 min)
+- [ ] Implement Skia rendering
+  - `BuildBackgroundSnapshot` for static elements
+  - `PaintBar` for filled portion
+  - Smooth gradient fills
+  - Rounded corners support
+  - Value label rendering
+  - Zone color transitions
+- [ ] Add animation support
+  - `TOBDBarGaugeAnimation` properties
+  - Smooth fill transitions
+  - Integration with AnimationManager
+  - Fill percentage easing
+- [ ] Testing and refinement
+  - Test all orientations and fill directions
+  - Test zone-based coloring
+  - Test animation smoothness
+  - Verify memory efficiency
+  - Performance profiling
+
+**Expected Outcomes:**
+- Simple, clean bar gauge component
+- Support for horizontal and vertical bars
+- Smooth fill animations
+- Zone-based color changes
+- Optional value label
+- Rounded corners support
+- Minimal memory footprint
+- Easy to use for basic indicators
+
 ---
 
 ## Task Priority Legend
