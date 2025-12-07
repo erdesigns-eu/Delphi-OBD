@@ -12,7 +12,7 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ## Examples Overview
 
-**Total Examples**: 8 (7 connection types + 1 advanced dashboard)
+**Total Examples**: 14 (7 connection types + 1 advanced dashboard + 6 protocol-specific examples)
 
 ### 📦 minimal/
 **Complexity**: Beginner  
@@ -123,12 +123,126 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 - Custom data resolvers
 - Live PID (Parameter ID) visualization
 - Freeze-frame data capture
-- VIN (Vehicle Identification Number) display
+- Enhanced VIN decoding with check digit validation and plant locations
 - DTC (Diagnostic Trouble Code) viewer
 - Multiple gauges and indicators
 - Advanced binding patterns
+- **NEW**: Radio code calculators for 40+ vehicle brands with multi-variant support
+- **NEW**: Advanced protocol support (KWP2000, UDS, LIN, FlexRay, MOST)
+- **NEW**: J2534 pass-through interface support
+- **NEW**: Chinese ELM327 clone detection and quirk management
 
 **Best for**: Production applications, full-featured diagnostic tools
+
+---
+
+## Protocol-Specific Examples
+
+### 🔐 kwp2000/
+**Complexity**: Advanced  
+**Protocol**: KWP2000 (ISO 14230)  
+**What it demonstrates**:
+- Keyword Protocol 2000 diagnostic services
+- Diagnostic session control (Default, Programming, Extended)
+- Security access with seed/key mechanism
+- Read/clear diagnostic trouble codes
+- ECU identification and programming
+- Data transfer for ECU flashing
+- Tester present keep-alive
+
+**Best for**: European and Asian vehicles (1990s-2010s), ECU programming
+
+---
+
+### 🔓 uds/
+**Complexity**: Advanced  
+**Protocol**: UDS (ISO 14229)  
+**What it demonstrates**:
+- Unified Diagnostic Services (modern standard)
+- Complete diagnostic session management
+- Multi-level security access (Diagnostic, Programming, Developer, Manufacturer)
+- Read DTCs with advanced sub-functions
+- Read/write data by identifier
+- Memory operations and routine control
+- ECU reset and firmware management
+
+**Best for**: Modern vehicles (2010+), advanced diagnostics, firmware updates
+
+---
+
+### 🔌 lin/
+**Complexity**: Intermediate  
+**Protocol**: LIN (ISO 17987)  
+**What it demonstrates**:
+- Local Interconnect Network (LIN 1.3, 2.0, 2.1, 2.2A)
+- Read/write data by identifier
+- Frame ID assignment and node configuration
+- Protected identifier with parity calculation
+- Classic and enhanced checksum support
+
+**Best for**: Body electronics, sensors, low-speed sub-systems
+
+---
+
+### ⚡ flexray/
+**Complexity**: Advanced  
+**Protocol**: FlexRay (ISO 17458)  
+**What it demonstrates**:
+- High-speed deterministic network (2.5-10 Mbps)
+- Static and dynamic segment communication
+- Dual-channel fault-tolerant operation (A/B channels)
+- Cluster configuration
+- Cycle-based frame scheduling
+
+**Best for**: Safety-critical systems, X-by-wire, ADAS, high-performance vehicles
+
+---
+
+### 🎵 most/
+**Complexity**: Advanced  
+**Protocol**: MOST (Media Oriented Systems Transport)  
+**What it demonstrates**:
+- MOST25/50/150 infotainment network
+- Control messages and property get/set
+- Function blocks (Audio, Video, Phone, Navigation)
+- Streaming channel management
+
+**Best for**: Infotainment systems, audio/video distribution, premium vehicles
+
+---
+
+### 🚛 tachograph/
+**Complexity**: Advanced  
+**Feature**: Digital Tachograph / Odometer  
+**What it demonstrates**:
+- EU Gen1/Gen2 Smart Tachograph support
+- Support for 8 international standards (EU, Korea, Russia, China, Brazil, Japan, Australia)
+- Support for 20+ commercial vehicle makes (Mercedes, Volvo, Scania, MAN, DAF, Freightliner, etc.)
+- Auto-detect tachograph manufacturer (VDO, Stoneridge, Denso, etc.)
+- Read odometer data (total/trip distance, speed)
+- Driver activity recording (28-day history)
+- Workshop card authentication
+- Odometer calibration and trip reset
+- VIN reading and events/faults
+- Download tachograph data (DDD format)
+
+**Best for**: Commercial vehicle fleet management, regulatory compliance, odometer verification
+
+---
+
+### 💾 ecuflashing/
+**Complexity**: Expert  
+**Feature**: ECU Security & Firmware Management  
+**What it demonstrates**:
+- Multi-level ECU security (Diagnostic, Programming, Developer, Manufacturer)
+- Security algorithms (Seed/Key, RSA, AES, HMAC)
+- Flash memory operations (erase, write, read, verify)
+- Firmware flashing with progress tracking
+- Firmware validation and backup
+- Programming voltage control
+- ECU identification (SW/HW version, serial, part number)
+
+**Best for**: ECU tuning, firmware updates, dealership programming, aftermarket calibration
 
 ## Common Configuration Steps
 

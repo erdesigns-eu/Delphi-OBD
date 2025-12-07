@@ -27,7 +27,56 @@ type
     tsNone,
     tsEU_1360_2002,    // EU Regulation 1360/2002 (Generation 1)
     tsEU_165_2014,     // EU Regulation 165/2014 (Generation 2 - Smart Tachograph)
-    tsKORETS           // Korean E-Tachograph System
+    tsKORETS,          // Korean E-Tachograph System
+    tsRussiaERA,       // Russian ERA-GLONASS System
+    tsChina_GB17691,   // China GB 17691 Heavy Duty Vehicle Standard
+    tsBrazilOBD_BR1,   // Brazilian OBD-BR1 System
+    tsJapanDPF,        // Japanese DPF/SCR Monitoring System
+    tsAustraliaADR80   // Australian ADR 80/03 System
+  );
+
+  /// <summary>
+  ///   Vehicle Make Specific Tachograph Type
+  /// </summary>
+  TTachoVehicleMake = (
+    tvmGeneric,
+    // European Makes
+    tvmMercedes,       // Mercedes-Benz (VDO, Stoneridge)
+    tvmVolvo,          // Volvo Trucks (VDO)
+    tvmScania,         // Scania (VDO)
+    tvmMAN,            // MAN Trucks (VDO, Continental)
+    tvmDAF,            // DAF Trucks (VDO)
+    tvmIveco,          // Iveco (VDO)
+    tvmRenaultTrucks,  // Renault Trucks (VDO)
+    // Asian Makes
+    tvmHino,           // Hino (Denso)
+    tvmIsuzuTruck,     // Isuzu Trucks (Denso)
+    tvmMitsubishiFuso, // Mitsubishi Fuso (Denso)
+    tvmUDTrucks,       // UD Trucks/Nissan Diesel (Yazaki)
+    tvmHyundaiTruck,   // Hyundai Trucks
+    // American Makes
+    tvmFreightliner,   // Freightliner (Cummins, Detroit Diesel)
+    tvmPeterbilt,      // Peterbilt (Cummins, Paccar)
+    tvmKenworth,       // Kenworth (Cummins, Paccar)
+    tvmInternational,  // International (Navistar)
+    tvmMack,           // Mack Trucks (Mack MP7/MP8)
+    tvmWesternStar,    // Western Star (Detroit Diesel)
+    tvmVolvoNA         // Volvo Trucks North America
+  );
+
+  /// <summary>
+  ///   Tachograph Manufacturer
+  /// </summary>
+  TTachoManufacturer = (
+    tmVDO,             // VDO/Continental (Most common in Europe)
+    tmStoneridge,      // Stoneridge Electronics
+    tmDenso,           // Denso (Common in Asian vehicles)
+    tmContinental,     // Continental
+    tmYazaki,          // Yazaki
+    tmActia,           // Actia
+    tmCummins,         // Cummins (North America)
+    tmDetroitDiesel,   // Detroit Diesel (North America)
+    tmGeneric          // Generic/Unknown
   );
 
   /// <summary>
@@ -92,6 +141,8 @@ type
   private
     FStandard: TTachoStandard;
     FSecurityLevel: Byte;
+    FVehicleMake: TTachoVehicleMake;
+    FManufacturer: TTachoManufacturer;
     
     /// <summary>
     ///   Build tachograph command
@@ -112,7 +163,22 @@ type
     function GetDisplayName: string; override;
     function GetELMID: string; override;
   public
-    constructor Create(Standard: TTachoStandard = tsEU_165_2014);
+    constructor Create(Standard: TTachoStandard = tsEU_165_2014; VehicleMake: TTachoVehicleMake = tvmGeneric; Manufacturer: TTachoManufacturer = tmGeneric);
+    
+    /// <summary>
+    ///   Auto-detect tachograph type and manufacturer
+    /// </summary>
+    function AutoDetect: Boolean;
+    
+    /// <summary>
+    ///   Get vehicle make specific protocol parameters
+    /// </summary>
+    class function GetMakeParameters(Make: TTachoVehicleMake): record
+      CANId: Cardinal;
+      BaudRate: Cardinal;
+      UseExtendedCAN: Boolean;
+      RequiresPIN: Boolean;
+    end;
     
     /// <summary>
     ///   Authenticate with workshop card
@@ -198,6 +264,16 @@ type
     ///   Security level (0 = none, 1 = driver, 2 = workshop, 3 = calibration)
     /// </summary>
     property SecurityLevel: Byte read FSecurityLevel;
+    
+    /// <summary>
+    ///   Vehicle make
+    /// </summary>
+    property VehicleMake: TTachoVehicleMake read FVehicleMake write FVehicleMake;
+    
+    /// <summary>
+    ///   Tachograph manufacturer
+    /// </summary>
+    property Manufacturer: TTachoManufacturer read FManufacturer write FManufacturer;
   end;
 
 implementation
@@ -205,11 +281,125 @@ implementation
 //------------------------------------------------------------------------------
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-constructor TTachographProtocol.Create(Standard: TTachoStandard);
+constructor TTachographProtocol.Create(Standard: TTachoStandard; VehicleMake: TTachoVehicleMake; Manufacturer: TTachoManufacturer);
 begin
   inherited Create;
   FStandard := Standard;
   FSecurityLevel := 0;
+  FVehicleMake := VehicleMake;
+  FManufacturer := Manufacturer;
+end;
+
+//------------------------------------------------------------------------------
+// AUTO DETECT
+//------------------------------------------------------------------------------
+function TTachographProtocol.AutoDetect: Boolean;
+var
+  Response: TBytes;
+  IDString: string;
+begin
+  Result := False;
+  
+  // Try to read tachograph identification
+  Response := Send(BuildCommand(tdVehicleUnit, []));
+  
+  if Length(Response) > 10 then
+  begin
+    // Parse manufacturer from response
+    IDString := string(PAnsiChar(@Response[2]));
+    
+    if Pos('VDO', IDString) > 0 then
+      FManufacturer := tmVDO
+    else if Pos('STONERIDGE', IDString) > 0 then
+      FManufacturer := tmStoneridge
+    else if Pos('DENSO', IDString) > 0 then
+      FManufacturer := tmDenso
+    else if Pos('CONTINENTAL', IDString) > 0 then
+      FManufacturer := tmContinental
+    else if Pos('YAZAKI', IDString) > 0 then
+      FManufacturer := tmYazaki
+    else if Pos('ACTIA', IDString) > 0 then
+      FManufacturer := tmActia
+    else if Pos('CUMMINS', IDString) > 0 then
+      FManufacturer := tmCummins
+    else if Pos('DETROIT', IDString) > 0 then
+      FManufacturer := tmDetroitDiesel
+    else
+      FManufacturer := tmGeneric;
+      
+    Result := True;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// GET MAKE PARAMETERS
+//------------------------------------------------------------------------------
+class function TTachographProtocol.GetMakeParameters(Make: TTachoVehicleMake): record
+  CANId: Cardinal;
+  BaudRate: Cardinal;
+  UseExtendedCAN: Boolean;
+  RequiresPIN: Boolean;
+end;
+begin
+  // Default values
+  Result.CANId := $18FEF100;
+  Result.BaudRate := 250000;
+  Result.UseExtendedCAN := True;
+  Result.RequiresPIN := True;
+  
+  case Make of
+    // European Makes
+    tvmMercedes:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 500000;
+    end;
+    tvmVolvo, tvmScania, tvmMAN:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000;
+    end;
+    tvmDAF, tvmIveco, tvmRenaultTrucks:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000;
+    end;
+    
+    // Asian Makes
+    tvmHino, tvmIsuzuTruck, tvmMitsubishiFuso:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000;
+      Result.RequiresPIN := False; // Some models
+    end;
+    tvmUDTrucks, tvmHyundaiTruck:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000;
+    end;
+    
+    // American Makes
+    tvmFreightliner, tvmWesternStar:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000; // J1939
+    end;
+    tvmPeterbilt, tvmKenworth:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000; // J1939
+    end;
+    tvmInternational, tvmMack:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 500000;
+    end;
+    tvmVolvoNA:
+    begin
+      Result.CANId := $18FEF100;
+      Result.BaudRate := 250000;
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------
