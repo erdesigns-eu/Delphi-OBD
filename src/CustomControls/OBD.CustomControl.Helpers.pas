@@ -141,6 +141,15 @@ function CreateSkRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
 ///   Converts a Skia image to a VCL bitmap for pixel access.
 /// </summary>
 procedure SkImageToBitmap(const AImage: ISkImage; const ABitmap: TBitmap);
+/// <summary>
+///   Converts a VCL bitmap to a Skia image for rendering.
+///   Note: This function may modify the input bitmap's pixel format to pf32bit if needed.
+/// </summary>
+function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+/// <summary>
+///   Converts a VCL graphic (TPicture, TBitmap, etc.) to a Skia image for rendering.
+/// </summary>
+function GraphicToSkImage(const AGraphic: TGraphic): ISkImage;
 
 implementation
 
@@ -994,6 +1003,65 @@ begin
     finally
       Paint := nil;
     end;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONVERT VCL BITMAP TO SKIA IMAGE
+//------------------------------------------------------------------------------
+function BitmapToSkImage(const ABitmap: TBitmap): ISkImage;
+const
+  BYTES_PER_PIXEL = 4; // 32-bit ARGB format
+var
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  BytesPerRow: Integer;
+begin
+  Result := nil;
+  
+  if not Assigned(ABitmap) or (ABitmap.Width = 0) or (ABitmap.Height = 0) then
+    Exit;
+  
+  // Ensure bitmap is in 32-bit format
+  if ABitmap.PixelFormat <> pf32bit then
+    ABitmap.PixelFormat := pf32bit;
+  
+  // Calculate bytes per row for 32-bit ARGB format
+  BytesPerRow := ABitmap.Width * BYTES_PER_PIXEL;
+  
+  // Create a Skia surface from the bitmap scanlines (bottom-up for Windows DIBs)
+  Surface := TSkSurface.MakeRasterDirect(
+    TSkImageInfo.Create(ABitmap.Width, ABitmap.Height), 
+    ABitmap.ScanLine[ABitmap.Height - 1], 
+    BytesPerRow);
+  
+  if Assigned(Surface) then
+  begin
+    // Create a snapshot of the surface as an immutable image
+    Result := Surface.MakeImageSnapshot;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// CONVERT VCL GRAPHIC TO SKIA IMAGE
+//------------------------------------------------------------------------------
+function GraphicToSkImage(const AGraphic: TGraphic): ISkImage;
+var
+  Bitmap: TBitmap;
+begin
+  Result := nil;
+  
+  if not Assigned(AGraphic) then
+    Exit;
+  
+  // Convert graphic to bitmap first
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.Assign(AGraphic);
+    Result := BitmapToSkImage(Bitmap);
+  finally
+    Bitmap.Free;
   end;
 end;
 
