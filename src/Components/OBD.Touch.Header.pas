@@ -2377,7 +2377,6 @@ begin
   if NeedRedraw then
   begin
     Invalidate;
-    Invalidate;
   end;
 end;
 
@@ -2479,6 +2478,7 @@ begin
   // Redraw Skia
   Redraw;
   // Invalidate buffer
+  // Paint buffer
   Invalidate;
 end;
 
@@ -2774,6 +2774,9 @@ begin
   // Redraw Skia
   Redraw;
   // Invalidate buffer
+  // if (FTabIndex > FTabs.Count) then FTabIndex := FTabs.Count -1;
+  //if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
+  // Paint buffer
   Invalidate;
 end;
 
@@ -2822,7 +2825,7 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       Canvas.DrawRect(BackgroundRect, Paint);
     end;
 
-    // Draw the border strip when enabled
+    (*// Draw the border strip when enabled
     if (Border.FromColor <> clNone) and (Border.ToColor <> clNone) then
     begin
       BorderRect := TRectF.Create(0.0, 0.0, Width + 0.0, Border.Height + 0.0);
@@ -3160,7 +3163,7 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
 
     if BatteryIndicator.Visible and BatteryShowLabel then
       DrawSkTextCentered(Canvas, Format('%d%%', [Round(BatteryIndicator.Percentage)]), BatteryIndicator.Font, TRectF.Create(BatteryCaptionRect), BatteryIndicator.Font.Color);
-      // Direct rendering to canvas - no conversion needed!
+      // Direct rendering to canvas - no conversion needed! *)
     except
       on E: Exception do
       begin
@@ -3180,7 +3183,7 @@ begin
   // Create background
   FBackground := TOBDTouchHeaderBackground.Create;
   FBackground.OnChange := SettingsChanged;
-  // Create border
+  (*// Create border
   FBorder := TOBDTouchHeaderBorder.Create;
   FBorder.OnChange := SettingsChanged;
   // Create back button
@@ -3202,7 +3205,7 @@ begin
   FTab.OnChange := SettingsChanged;
   // Create battery indicator
   FBatteryIndicator := TOBDTouchHeaderBatteryIndicator.Create;
-  FBatteryIndicator.OnChange := SettingsChanged;
+  FBatteryIndicator.OnChange := SettingsChanged; *)
   // Set defaults
   FTabIndex := -1;
   Height := DEFAULT_HEIGHT;
