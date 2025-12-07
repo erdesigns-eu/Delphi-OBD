@@ -138,6 +138,7 @@ type
     ///   Event to emit when an error occured
     /// </summary>
     FOnError: TErrorEvent;
+  protected
     /// <summary>
     ///   Synchronization object guarding event handler reads and writes
     /// </summary>
@@ -146,7 +147,6 @@ type
     ///   Synchronization object guarding connect, disconnect, and reconnect transitions.
     /// </summary>
     FConnectionLock: TObject;
-  protected
     /// <summary>
     ///   On Data Send event handler GETTER
     /// </summary>
