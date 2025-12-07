@@ -372,6 +372,8 @@ begin
   begin
     FreeLibrary(FFTDILibraryHandle);
     FFTDILibraryHandle := 0;
+    FFT_CreateDeviceInfoList := nil;
+    FFT_GetDeviceInfoList := nil;
   end;
 end;
 
