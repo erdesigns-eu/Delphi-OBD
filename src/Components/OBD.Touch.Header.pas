@@ -3250,21 +3250,24 @@ end;
 // ASSIGN
 //------------------------------------------------------------------------------
 procedure TOBDTouchHeader.Assign(Source: TPersistent);
+var
+  SourceHeader: TOBDTouchHeader;
 begin
   // Call inherited assign
   inherited;
   // Assign custom properties
   if (Source is TOBDTouchHeader) then
   begin
-    FBackground.Assign((Source as TOBDTouchHeader).Background);
-    FBorder.Assign((Source as TOBDTouchHeader).Border);
-    FBackButton.Assign((Source as TOBDTouchHeader).BackButton);
-    FActionButton.Assign((Source as TOBDTouchHeader).ActionButton);
-    FCaption.Assign((Source as TOBDTouchHeader).Caption);
-    FTabs.Assign((Source as TOBDTouchHeader).Tabs);
-    FTab.Assign((Source as TOBDTouchHeader).Tab);
-    FTabIndex := (Source as TOBDTouchHeader).TabIndex;
-    FBatteryIndicator.Assign((Source as TOBDTouchHeader).BatteryIndicator);
+    SourceHeader := TOBDTouchHeader(Source);
+    FBackground.Assign(SourceHeader.Background);
+    FBorder.Assign(SourceHeader.Border);
+    FBackButton.Assign(SourceHeader.BackButton);
+    FActionButton.Assign(SourceHeader.ActionButton);
+    FCaption.Assign(SourceHeader.Caption);
+    FTabs.Assign(SourceHeader.Tabs);
+    FTab.Assign(SourceHeader.Tab);
+    FTabIndex := SourceHeader.TabIndex;
+    FBatteryIndicator.Assign(SourceHeader.BatteryIndicator);
   end;
 end;
 
