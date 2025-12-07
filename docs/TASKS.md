@@ -62,78 +62,284 @@ This document provides a prioritized task list for the Delphi-OBD project. All r
 
 **Focus:** Add new features, protocols, and components to expand functionality.
 
-#### TASK 2.1: Non-Visual OBD Mode Components (NEW - December 7, 2024)
+#### TASK 2.1: Complete OBD Services Component (All Modes 01-0A) (NEW - December 7, 2024)
 - **Priority:** 🔴 HIGH
-- **Estimated Effort:** 8-10 hours (split across multiple sessions)
-- **Description:** Create non-visual components for OBD diagnostic modes following the pattern established by TOBDProtocolComponent
+- **Estimated Effort:** 20-25 hours (split across 12-15 sessions)
+- **Description:** Create comprehensive non-visual component wrapping ALL OBD Services (01-0A) with ALL PIDs as published properties for drag-and-drop IDE integration
 
 **Overview:** 
-Implement non-visual components that wrap OBD Services (01-0A) and expose properties/events for easy IDE integration, similar to how TOBDProtocolComponent wraps protocol parsers.
+Implement a single powerful `TOBDServicesComponent` that exposes ALL OBD diagnostic services (01-0A) with ALL their PIDs/parameters as published properties and events. This provides complete OBD functionality in a single component that can be dropped on a form in the IDE.
+
+**Architecture Decision:**
+- **Single Unified Component** vs Multiple Service Components
+- Choose: Single `TOBDServicesComponent` with sub-properties for each service
+- Rationale: Easier to use, single connection binding, coordinated refresh, cleaner IDE experience
+- Structure: `OBDServices.Service01.EngineRPM`, `OBDServices.Service03.DTCs`, etc.
 
 **Subtasks:**
 
-**2.1.1: Base OBD Service Component** (Session 1: 90-120 min)
-- [ ] Create `TOBDServiceComponent` base class
+**2.1.1: Base Services Component Architecture** (Session 1: 120-150 min)
+- [ ] Create `TOBDServicesComponent` main component
   - Inherit from TComponent (non-visual)
   - Add `ConnectionComponent: TOBDConnectionComponent` property with binding
   - Add `AdapterComponent: TOBDAdapterComponent` property
-  - Implement `Execute` method for sending requests
-  - Add `OnResponse`, `OnError` events
   - Add `AutoRefresh: Boolean` and `RefreshInterval: Cardinal` properties
   - Implement timer for auto-refresh functionality
+  - Add `OnError` event for global error handling
   - Add thread-safety for async operations
-- [ ] Test base class with simple command
+- [ ] Create internal service wrapper instances
+  - Private instances of TOBDService01 through TOBDService0A
+  - Handle initialization and cleanup
+  - Coordinate communication through adapter
+- [ ] Test base infrastructure
 
-**2.1.2: Service 01 Component (Live Data)** (Session 2: 90-120 min)
-- [ ] Create `TOBDService01Component`
-  - Published properties for common PIDs:
-    - `EngineRPM: Integer` (read-only)
-    - `VehicleSpeed: Integer` (read-only)
-    - `CoolantTemp: Integer` (read-only)
-    - `ThrottlePosition: Single` (read-only)
-    - `FuelLevel: Single` (read-only)
-    - etc. (20+ common PIDs)
-  - Events for each PID: `OnEngineRPMChange`, `OnVehicleSpeedChange`, etc.
-  - Method `RequestPID(APID: Byte)` for custom PIDs
-  - Method `RequestMultiplePIDs(APIDs: array of Byte)` for efficiency
-  - Auto-update properties when responses received
-- [ ] Add PID availability detection (Service 01, PID $00)
-- [ ] Test with live vehicle data
+**2.1.2: Service 01 Component Wrapper (Live Data - 105 PIDs)** (Sessions 2-4: 360-450 min total)
+- [ ] Create `TOBDService01Wrapper` class
+  - Wrap existing TOBDService01 with component-friendly interface
+  - **Expose ALL 105 properties as published** (currently read-only in TOBDService01):
+    - Monitor/Test Status Properties (~15 properties)
+      - `MIL: Boolean` - Malfunction Indicator Light status
+      - `DTC: Integer` - Diagnostic Trouble Code count
+      - `CommonTest`, `SparkEngineTest`, `CompressionEngineTest` objects
+    - Engine Parameters (~20 properties)
+      - `EngineRPM: Integer` - Engine speed in RPM
+      - `CalculatedEngineLoad: Double` - Engine load percentage
+      - `EngineCoolantTemperature: Integer` - Coolant temp in °C
+      - `IntakeAirTemperature: Integer` - Intake air temp in °C
+      - `RuntimeSinceEngineStart: Integer` - Runtime in seconds
+      - `TimingAdvance: Double` - Ignition timing advance
+      - `MassAirFlowRate: Double` - MAF sensor rate
+    - Fuel System (~15 properties)
+      - `FuelSystem1Status`, `FuelSystem2Status` enums
+      - `ShortTermFuelTrimBank1/2: Double` - Fuel trim percentages
+      - `LongTermFuelTrimBank1/2: Double` - Long term fuel trim
+      - `FuelPressure: Integer` - Fuel rail pressure
+      - `FuelRailPressure: Double` - Detailed fuel rail pressure
+      - `FuelRailGaugePressure: Double` - Gauge pressure
+      - `FuelType: Byte` - Fuel type code
+      - `EthanolFuelPercent: Double` - Ethanol content
+    - Vehicle Motion (~10 properties)
+      - `VehicleSpeed: Integer` - Speed in km/h
+      - `ThrottlePosition: Double` - Throttle percentage
+      - `AcceleratorPedalPositionD/E/F: Double` - Pedal positions
+      - `CommandedThrottleActuator: Double` - Actuator control
+      - `RelativeThrottlePosition: Double` - Relative position
+    - Oxygen Sensors (~25 properties)
+      - `OxygenSensorPresent2Banks`, `OxygenSensorPresent4Banks` objects
+      - 8x `OxygenSensor[1-4]Bank[1-2]VoltageFuelTrim` objects
+      - 8x `OxygenSensor[1-8]AirFuelRatioVoltage` objects
+      - 8x `OxygenSensor[1-8]AirFuelRatioCurrent` objects
+      - Trim values for all banks
+    - Temperature Sensors (~10 properties)
+      - `CatalystTemperatureSensor1/2Bank1/2: Double` - Cat temps
+      - `AmbientAirTemperature: Integer` - Outside temp
+      - `EngineOilTemperature: Integer` - Oil temp
+      - Sensor A/B temperatures
+    - Pressure Sensors (~8 properties)
+      - `IntakeManifoldAbsolutePressure: Integer` - MAP sensor
+      - `AbsoluteBarometricPressure: Integer` - Barometric pressure
+      - `EvapSystemVaporPressure: Double` - EVAP pressure
+      - Boost pressure values
+    - Emission Control (~12 properties)
+      - `CommandedSecondaryAirStatus` enum
+      - `CommandedEGR: Double`, `EGRError: Double`
+      - `CommandedEvaporativePurge: Double`
+      - `DistanceTraveledWithMILOn: Integer`
+      - `WarmUpsSinceCodesCleared: Integer`
+      - `DistanceTraveledSinceCodesCleared: Integer`
+  - **Add events for ALL property changes** (105+ events):
+    - `OnEngineRPMChange`, `OnVehicleSpeedChange`, `OnCoolantTempChange`, etc.
+    - Event fired only when value actually changes
+    - Include old and new value in event parameters
+  - **Add request methods:**
+    - `RequestPID(APID: Byte): Boolean` - Request single PID
+    - `RequestMultiplePIDs(APIDs: array of Byte): Boolean` - Multi-PID request
+    - `RequestAllSupported: Boolean` - Request all supported PIDs
+    - `RefreshCommonPIDs: Boolean` - Quick refresh of most common PIDs
+  - **Add PID management:**
+    - `IsPIDSupported(APID: Byte): Boolean` - Check if ECU supports PID
+    - `RefreshSupportedPIDs: Boolean` - Update supported PID list
+    - `SupportedPIDCount: Integer` - Number of supported PIDs
+- [ ] Implement smart caching to prevent redundant reads
+- [ ] Add selective refresh (only changed values trigger events)
+- [ ] Test with live vehicle data stream
 
-**2.1.3: Service 03 Component (DTCs)** (Session 3: 60-90 min)
-- [ ] Create `TOBDService03Component`
-  - Property `DTCs: TStringList` (read-only, list of trouble codes)
-  - Property `DTCCount: Integer` (read-only)
-  - Method `RefreshDTCs` to read stored codes
-  - Event `OnDTCsChanged` when codes retrieved
-  - Method `GetDTCDescription(Code: string): string` for descriptions
-- [ ] Test with vehicles having stored DTCs
+**2.1.3: Service 02 Component Wrapper (Freeze Frame Data)** (Session 5: 90-120 min)
+- [ ] Create `TOBDService02Wrapper` class
+  - Wrap existing TOBDService02
+  - Property `FreezeFrameCount: Integer` - Number of stored freeze frames
+  - Property `StoredDTC: string` - DTC that triggered freeze frame
+  - **Expose same 105+ properties as Service 01 but for freeze frame data**
+  - Method `RequestFreezeFrame(FrameNumber: Byte): Boolean`
+  - Method `GetAvailableFrames: TArray<Byte>`
+  - Event `OnFreezeFrameLoaded`
+- [ ] Test with vehicles having freeze frames
 
-**2.1.4: Service 04 Component (Clear DTCs)** (Session 3: 30-45 min)
-- [ ] Create `TOBDService04Component`
-  - Method `ClearDTCs: Boolean` with confirmation
-  - Property `RequireConfirmation: Boolean` (safety feature)
-  - Events: `OnBeforeClear`, `OnAfterClear`, `OnClearFailed`
-  - Add MIL (Check Engine Light) status check
-- [ ] Test clearing codes safely
+**2.1.4: Service 03 Component Wrapper (Stored DTCs)** (Session 6: 60-90 min)
+- [ ] Create `TOBDService03Wrapper` class
+  - Wrap existing TOBDService03
+  - Property `DTCs: TStringList` - List of stored codes
+  - Property `DTCCount: Integer` - Number of codes
+  - Property `MILStatus: Boolean` - Check engine light status
+  - Method `RefreshDTCs: Boolean` - Read all stored codes
+  - Method `GetDTCDescription(Code: string): string` - Code descriptions
+  - Method `ExportDTCs(Filename: string): Boolean` - Export to file
+  - Event `OnDTCsChanged(Sender: TObject; DTCs: TStringList)`
+  - Event `OnDTCAdded(Sender: TObject; DTC: string)`
+- [ ] Add DTC description database
+- [ ] Test with various fault codes
 
-**2.1.5: Service 09 Component (Vehicle Info)** (Session 4: 60-90 min)
-- [ ] Create `TOBDService09Component`
-  - Property `VIN: string` (read-only, auto-parsed)
-  - Property `CalibrationID: string` (read-only)
-  - Property `CVN: string` (read-only, Calibration Verification Number)
-  - Property `ECUName: string` (read-only)
-  - Method `RequestVehicleInfo` to populate all
-  - Event `OnVehicleInfoRetrieved`
-- [ ] Integrate with existing VIN decoder
+**2.1.5: Service 04 Component Wrapper (Clear DTCs/Reset MIL)** (Session 6: 30-45 min)
+- [ ] Create `TOBDService04Wrapper` class
+  - Wrap existing TOBDService04
+  - Property `RequireConfirmation: Boolean` - Safety confirmation
+  - Property `LastClearResult: Boolean` - Status of last clear operation
+  - Method `ClearDTCs: Boolean` - Clear all codes and reset MIL
+  - Method `ClearDTCsWithConfirmation(ConfirmProc: TFunc<Boolean>): Boolean`
+  - Event `OnBeforeClear(Sender: TObject; var AllowClear: Boolean)` - Cancellable
+  - Event `OnAfterClear(Sender: TObject; Success: Boolean)`
+  - Event `OnClearFailed(Sender: TObject; ErrorMsg: string)`
+- [ ] Add confirmation dialog support
+- [ ] Test safe clearing procedure
+
+**2.1.6: Service 05 Component Wrapper (O2 Sensor Test Results)** (Session 7: 90-120 min)
+- [ ] Create `TOBDService05Wrapper` class
+  - Wrap existing TOBDService05
+  - **Expose all oxygen sensor test results** (~40+ properties):
+    - Test results for all sensor positions (Bank 1/2, Sensor 1-4)
+    - Voltage, current, and resistance values
+    - Rich/lean switching time
+    - Test limits and pass/fail status
+  - Method `RequestO2SensorTests: Boolean`
+  - Method `GetSensorTestResult(Bank, Sensor: Byte): TO2TestResult`
+  - Event `OnO2TestsCompleted`
+- [ ] Test with vehicles supporting O2 sensor tests
+
+**2.1.7: Service 06 Component Wrapper (On-Board Test Results)** (Session 8: 60-90 min)
+- [ ] Create `TOBDService06Wrapper` class
+  - Wrap existing TOBDService06
+  - **Expose monitoring test results** (~20+ properties):
+    - Test IDs for catalyst, EVAP, O2 sensors, EGR, etc.
+    - Min/Max values and test results
+    - Pass/fail status for each test
+  - Method `RequestTestResults(TestID: Byte): Boolean`
+  - Method `GetAllTestResults: TArray<TTestResult>`
+  - Property `TestCount: Integer`
+  - Event `OnTestResultsUpdated`
+- [ ] Add test ID descriptions
+- [ ] Test with various monitoring tests
+
+**2.1.8: Service 07 Component Wrapper (Pending DTCs)** (Session 9: 45-60 min)
+- [ ] Create `TOBDService07Wrapper` class
+  - Wrap existing TOBDService07
+  - Property `PendingDTCs: TStringList` - Codes pending confirmation
+  - Property `PendingDTCCount: Integer`
+  - Method `RefreshPendingDTCs: Boolean`
+  - Method `GetDTCStatus(Code: string): string` - Pending vs Confirmed
+  - Event `OnPendingDTCsChanged`
+  - Event `OnNewPendingDTC(DTC: string)` - Alert on new pending code
+- [ ] Test with intermittent fault conditions
+
+**2.1.9: Service 08 Component Wrapper (Control On-Board Systems)** (Session 10: 90-120 min)
+- [ ] Create `TOBDService08Wrapper` class
+  - Wrap existing TOBDService08
+  - **Expose control test parameters** (~15+ properties):
+    - Available test IDs
+    - Test control parameters
+    - Test results and status
+  - Method `RequestControl(TestID: Byte): Boolean`
+  - Method `StopControl: Boolean`
+  - Method `GetAvailableTests: TArray<Byte>`
+  - Property `ActiveTestID: Byte` - Currently active test
+  - Property `TestActive: Boolean`
+  - Event `OnControlTestStarted(TestID: Byte)`
+  - Event `OnControlTestCompleted(TestID: Byte; Result: Boolean)`
+  - Event `OnControlTestFailed(TestID: Byte; Error: string)`
+- [ ] Add safety interlocks for critical tests
+- [ ] Test with supported vehicle control tests
+
+**2.1.10: Service 09 Component Wrapper (Vehicle Information)** (Session 11: 90-120 min)
+- [ ] Create `TOBDService09Wrapper` class
+  - Wrap existing TOBDService09
+  - **Expose all vehicle info PIDs** (~25+ properties):
+    - `VIN: string` - Vehicle Identification Number
+    - `CalibrationID: string` - ECU calibration ID
+    - `CalibrationVerificationNumbers: TStringList` - CVNs
+    - `ECUName: string` - ECU identification
+    - `InUsePerformanceTracking: TStringList` - Performance data
+    - `IPTSpark: TIPTSparkData` - Spark ignition tracking
+    - `IPTCompression: TIPTCompressionData` - Compression ignition tracking
+    - All PID $00-$0F info types
+  - Method `RequestVehicleInfo: Boolean` - Populate all at once
+  - Method `RequestVIN: string` - Quick VIN only
+  - Method `RequestCalibrationData: Boolean`
+  - Method `ExportVehicleInfo(Filename: string): Boolean`
+  - Event `OnVehicleInfoRetrieved(Sender: TObject)`
+  - Event `OnVINRetrieved(VIN: string)`
+- [ ] Integrate with existing TVINDecoder
+- [ ] Add info export to JSON/XML
 - [ ] Test with multiple vehicle types
 
+**2.1.11: Service 0A Component Wrapper (Permanent DTCs)** (Session 12: 45-60 min)
+- [ ] Create `TOBDService0AWrapper` class
+  - Wrap existing TOBDService0A
+  - Property `PermanentDTCs: TStringList` - Codes requiring drive cycle
+  - Property `PermanentDTCCount: Integer`
+  - Property `RequiresDriveCycle: Boolean` - Any permanent codes present
+  - Method `RefreshPermanentDTCs: Boolean`
+  - Method `GetDriveCycleStatus: string` - Explain what's needed to clear
+  - Event `OnPermanentDTCsChanged`
+  - Event `OnDriveCycleRequired` - Alert user to drive cycle needed
+- [ ] Add drive cycle instructions per manufacturer
+- [ ] Test with permanent fault conditions
+
+**2.1.12: Integration and Coordination** (Session 13: 120-150 min)
+- [ ] Wire up all service wrappers to main component
+  - Published sub-properties: `Service01`, `Service02`, ... `Service0A`
+  - Coordinate adapter communication
+  - Shared connection handling
+  - Unified error handling
+- [ ] Implement smart refresh strategies
+  - Priority queue for PIDs (common ones first)
+  - Batch multiple PID requests
+  - Avoid overwhelming slow adapters
+  - Adaptive refresh rates based on update frequency
+- [ ] Add global configuration
+  - `RefreshMode: TRefreshMode` - Auto, Manual, OnDemand
+  - `CommonPIDsOnly: Boolean` - Only refresh frequently used PIDs
+  - `EnableService[01-0A]: Boolean` - Enable/disable individual services
+- [ ] Create component registration
+- [ ] Add component icon and palette category
+
+**2.1.13: Testing and Documentation** (Sessions 14-15: 180-240 min)
+- [ ] Create comprehensive test suite
+  - Test with real vehicles
+  - Test with simulators
+  - Test all 105+ Service 01 PIDs
+  - Test all services (01-0A)
+  - Test error conditions
+  - Test rapid refresh scenarios
+- [ ] Write detailed documentation
+  - Property reference for all 250+ properties
+  - Event reference for all 150+ events
+  - Usage examples for common scenarios
+  - Performance tuning guide
+  - Troubleshooting guide
+- [ ] Create example applications
+  - Simple dashboard (5-10 properties)
+  - Full diagnostic tool (all properties)
+  - DTC reader/clearer
+  - Vehicle info viewer
+
 **Expected Outcomes:**
-- 5+ non-visual components for common OBD operations
-- Drag-and-drop IDE support (drop on form, set properties, handle events)
-- Auto-refresh capability for live data monitoring
-- Type-safe property access (no manual parsing)
-- Event-driven architecture for responsive UIs
+- Single powerful `TOBDServicesComponent` with 250+ properties
+- All OBD services (01-0A) wrapped with full PID coverage
+- 150+ events for property changes and operations
+- Drag-and-drop IDE support (zero code for basic monitoring)
+- Auto-refresh with smart batching
+- Type-safe access to all OBD data
+- Production-ready for commercial applications
+- Complete documentation and examples
 
 #### TASK 2.2: ECU Flashing Component (NEW - December 7, 2024)
 - **Priority:** 🔴 HIGH
