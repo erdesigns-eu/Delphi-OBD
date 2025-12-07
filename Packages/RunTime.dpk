@@ -32,7 +32,9 @@
 requires
   rtl,
   vcl,
-  vclimg;
+  vclimg,
+  Skia.Package.RTL,
+  Skia.Package.VCL;
 
 contains
   OBD.CustomControl.Animation in '..\src\CustomControls\OBD.CustomControl.Animation.pas',
