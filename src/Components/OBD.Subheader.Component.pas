@@ -166,6 +166,11 @@ type
     procedure HandleProtocolMessages(Sender: TObject; const Messages: TArray<IOBDDataMessage>);
   protected
     /// <summary>
+    ///   Validate component bindings after streaming.
+    /// </summary>
+    procedure Loaded; override;
+  public
+    /// <summary>
     ///   Allocate synchronization primitives and defaults.
     /// </summary>
     constructor Create(AOwner: TComponent); override;
@@ -173,11 +178,6 @@ type
     ///   Release bindings and synchronization primitives.
     /// </summary>
     destructor Destroy; override;
-    /// <summary>
-    ///   Validate component bindings after streaming.
-    /// </summary>
-    procedure Loaded; override;
-  public
     /// <summary>
     ///   Manually request application of connection captions.
     /// </summary>
