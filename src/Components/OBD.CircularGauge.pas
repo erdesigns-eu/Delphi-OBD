@@ -1916,6 +1916,8 @@ begin
     FStartAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1936,6 +1938,8 @@ begin
     FEndAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1958,6 +1962,8 @@ begin
       FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1980,6 +1986,8 @@ begin
       FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -1994,15 +2002,27 @@ begin
   begin
     if (Value < FMin) then Value := FMin;
     if (Value > FMax) then Value := FMax;
-    // Set the start value (for animation)
-    Animation.StartValue := FValue;
+    
     // Set value
     FValue := Value;
-    // Reset animation start time using stopwatch
-    FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
-    // Notify animation manager to start timer if needed
-    if not (csDesigning in ComponentState) then
+    
+    // Handle animation
+    if Animation.Enabled and not (csDesigning in ComponentState) then
+    begin
+      // Animation is enabled: set up animation parameters
+      Animation.StartValue := Animation.Value;  // Start from current animated position
+      FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
+      // Notify animation manager to start timer
       AnimationManager.CheckAnimationState;
+    end
+    else
+    begin
+      // Animation is disabled or at design time: update immediately
+      Animation.Value := FValue;
+    end;
+    
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -2085,11 +2105,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
-  // Skip background building entirely at design time to prevent access violations
-  // The IDE doesn't need the optimized background cache
-  if (csDesigning in ComponentState) then
-    Exit;
-  
   // Safety check: FRenderLock might not be initialized yet during parent constructor
   if not Assigned(FRenderLock) then
     Exit;
@@ -2124,6 +2139,14 @@ var
   ArcPath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
+  // Safety check: ensure all required objects are initialized
+  // This prevents access violations if called during constructor
+  if not Assigned(FBackground) or not Assigned(FBorder) or
+     not Assigned(FMajorTicks) or not Assigned(FMinorTicks) or
+     not Assigned(FTopCaption) or not Assigned(FBottomCaption) or
+     not Assigned(FGradientScaleItems) then
+    Exit;
+    
   // Allocate a Skia surface that holds the static gauge background
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -2364,6 +2387,14 @@ var
   PathBuilder: ISkPathBuilder;
 begin
   try
+    // Safety check: ensure all required objects are initialized before painting
+    // This prevents access violations if paint is triggered during constructor
+    if not Assigned(FBackground) or not Assigned(FBorder) or not Assigned(FNeedle) then
+    begin
+      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
+      Exit;
+    end;
+    
     // Draw the cached background image first
     BackgroundImage := AcquireBackgroundSnapshot;
     if Assigned(BackgroundImage) then
@@ -2388,7 +2419,8 @@ begin
     NeedleLength := Size / 2 * FNeedle.Length;
 
     // Calculate the needle's angle based on the current value
-    if Animation.Enabled then
+    // At design time, always use FValue since animations don't run in the IDE
+    if Animation.Enabled and not (csDesigning in ComponentState) then
       ValueAngle := ((Animation.Value - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle
     else
       ValueAngle := ((FValue - FMin) / (FMax - FMin)) * ((180 + FEndAngle) - FStartAngle) + FStartAngle;
@@ -2480,6 +2512,8 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2489,6 +2523,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2503,6 +2539,13 @@ begin
     // Notify the animation manager to check animation state
     AnimationManager.CheckAnimationState;
   end;
+  
+  // If animation is disabled, immediately set Animation.Value to current value
+  if not Animation.Enabled then
+    Animation.Value := FValue;
+  
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2543,6 +2586,8 @@ begin
     Animation.Value := FValue;
   end;
 
+  // Redraw Skia
+  Redraw;
   // Trigger a repaint to display the updated needle position
   Invalidate;
 end;
@@ -2579,6 +2624,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2592,6 +2639,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -2729,6 +2778,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;

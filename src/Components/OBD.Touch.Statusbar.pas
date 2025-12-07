@@ -1364,6 +1364,8 @@ procedure TOBDTouchStatusbar.UpdateStyleElements;
 begin
   // Call inherited
   inherited;
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1436,6 +1438,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.SettingsChanged(Sender: TObject);
 begin
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1466,7 +1470,7 @@ var
     TextPaint.AntiAlias := True;
     TextPaint.Style := TSkPaintStyle.Fill;
 
-    TextFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
+    TextFont := TSkFont.Create(CreateSkTypeface(AFont), FontSizeToPixels(AFont));
     TextFont.MeasureText(Text, Bounds, TextPaint);
     Result := Ceil(Bounds.Width);
   end;
@@ -1644,7 +1648,7 @@ begin
     if Panels[I].Style = psSimpleText then
     begin
       Typeface := CreateSkTypeface(Panels[I].Font);
-      SkFont := TSkFont.Create(Typeface, Panels[I].Font.Size);
+      SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Panels[I].Font));
       Paint.Color := SafeColorRefToSkColor(Panels[I].Font.Color);
       SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
@@ -1652,7 +1656,7 @@ begin
     end else
     begin
       Typeface := CreateSkTypeface(Panels[I].PrimaryFont);
-      SkFont := TSkFont.Create(Typeface, Panels[I].PrimaryFont.Size);
+      SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Panels[I].PrimaryFont));
       Paint.Color := SafeColorRefToSkColor(Panels[I].PrimaryFont.Color);
       SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);
@@ -1661,7 +1665,7 @@ begin
       X := X + MeasureTextWidth(Panels[I].PrimaryText, Panels[I].PrimaryFont);
 
       Typeface := CreateSkTypeface(Panels[I].SecondaryFont);
-      SkFont := TSkFont.Create(Typeface, Panels[I].SecondaryFont.Size);
+      SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Panels[I].SecondaryFont));
       Paint.Color := SafeColorRefToSkColor(Panels[I].SecondaryFont.Color);
       SkFont.GetMetrics(Metrics);
       Y := Panels[I].PanelRect.Top + Border.Height + ((Panels[I].PanelRect.Height - Border.Height) / 2) - ((Metrics.Ascent + Metrics.Descent) / 2);

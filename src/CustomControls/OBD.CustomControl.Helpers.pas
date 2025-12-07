@@ -14,7 +14,7 @@ interface
 
 uses
   WinApi.Windows, System.SysUtils, System.Types, System.UITypes, System.Skia,
-  Vcl.Graphics, Vcl.Themes;
+  Vcl.Graphics, Vcl.Themes, Vcl.Forms;
 
 
 
@@ -217,6 +217,26 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// CONVERT FONT SIZE FROM POINTS TO PIXELS
+//------------------------------------------------------------------------------
+function FontSizeToPixels(const AFont: TFont): Single;
+var
+  ScreenDPI: Integer;
+begin
+  // VCL Font.Size is in points (negative value) or pixels (positive value)
+  // For negative values (points), convert to pixels using: pixels = -points * DPI / 72
+  if AFont.Size < 0 then
+  begin
+    // Get the actual screen DPI (typically 96, but can be 120, 144, etc. for high-DPI displays)
+    ScreenDPI := Screen.PixelsPerInch;
+    // Convert points to pixels: pixels = -points * DPI / 72
+    Result := -AFont.Size * ScreenDPI / 72;
+  end
+  else
+    Result := AFont.Size;  // Already in pixels
+end;
+
+//------------------------------------------------------------------------------
 // CREATE SKIA TYPEFACE FROM VCL FONT
 //------------------------------------------------------------------------------
 function CreateSkTypeface(const AFont: TFont): ISkTypeface;
@@ -240,8 +260,9 @@ end;
 //------------------------------------------------------------------------------
 function CreateSkFont(const AFont: TFont): ISkFont;
 begin
-  // Build a Skia font from the matching typeface so downstream measurements stay consistent
-  Result := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
+  // Build a Skia font from the matching typeface with proper pixel size
+  // Convert font size from points to pixels for correct rendering
+  Result := TSkFont.Create(CreateSkTypeface(AFont), FontSizeToPixels(AFont));
 end;
 
 //------------------------------------------------------------------------------
@@ -258,7 +279,7 @@ begin
   TextPaint.AntiAlias := True;
   TextPaint.Style := TSkPaintStyle.Fill;
 
-  TextFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
+  TextFont := TSkFont.Create(CreateSkTypeface(AFont), FontSizeToPixels(AFont));
   TextFont.GetMetrics(Metrics);
 
   // Measure text width using MeasureText method
@@ -303,7 +324,7 @@ begin
   Paint.Style := TSkPaintStyle.Fill;
   Paint.Color := SafeColorRefToSkColor(Color);
 
-  SkFont := TSkFont.Create(CreateSkTypeface(AFont), AFont.Size);
+  SkFont := TSkFont.Create(CreateSkTypeface(AFont), FontSizeToPixels(AFont));
   SkFont.GetMetrics(Metrics);
   TextHeight := Metrics.Descent - Metrics.Ascent;
 

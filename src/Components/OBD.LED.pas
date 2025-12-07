@@ -563,6 +563,8 @@ begin
   begin
     // Set new state
     FState := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -791,6 +793,8 @@ procedure TOBDLed.SettingsChanged(Sender: TObject);
 begin
   // Invalidate background
   InvalidateColors;
+  // Redraw Skia
+  Redraw;
   // Invalidate buffer
   Invalidate;
 end;
@@ -804,6 +808,8 @@ begin
   inherited;
   // Invalidate color buffers
   InvalidateColors;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -817,6 +823,8 @@ begin
   inherited;
   // Invalidate color buffers
   InvalidateColors;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -904,6 +912,8 @@ begin
   end;
   // Invalidate color buffers
   InvalidateColors;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;

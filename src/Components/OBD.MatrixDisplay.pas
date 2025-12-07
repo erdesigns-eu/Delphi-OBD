@@ -794,6 +794,8 @@ begin
   begin
     // Set new cell size
     FCellSize := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -811,6 +813,8 @@ begin
   begin
     // Set new cell spacing
     FCellSpacing := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -831,6 +835,8 @@ begin
     FRows := Value;
     // Initialize cells
     InitializeCells;
+    // Redraw Skia
+    Redraw;
     // Invalidate the buffer
     Invalidate;
   end;
@@ -851,6 +857,8 @@ begin
     FCols := Value;
     // Initialize cells
     InitializeCells;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -881,6 +889,8 @@ begin
   begin
     // Set new on color
     FOnColor := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -895,6 +905,8 @@ begin
   begin
     // Set new off color
     FOffColor := Value;
+    // Redraw Skia
+    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -970,9 +982,8 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
-  // Skip background building entirely at design time to prevent access violations
-  // The IDE doesn't need the optimized background cache
-  if (csDesigning in ComponentState) then
+  // Safety check: ensure required objects are initialized
+  if not Assigned(FBackground) or not Assigned(FBorder) then
     Exit;
   
   // Safety check: don't build snapshot with invalid dimensions
@@ -1064,6 +1075,11 @@ var
   PaintOn, PaintOff: ISkPaint;
   CellRect: TRectF;
 begin
+  // Safety check: ensure FCellsLock is initialized before accessing cells
+  // This prevents access violations if paint is triggered during constructor
+  if not Assigned(FCellsLock) then
+    Exit;
+    
   // Prepare paint objects upfront to avoid allocations inside the nested loops
   PaintOn := TSkPaint.Create;
   PaintOn.Style := TSkPaintStyle.Fill;
@@ -1152,6 +1168,8 @@ procedure TOBDMatrixDisplay.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1168,6 +1186,8 @@ begin
     // Notify the animation manager to check animation state
     AnimationManager.CheckAnimationState;
   end;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1201,6 +1221,8 @@ begin
     // Update last tick time
     FLastAnimationMs := CurrentMs;
     
+    // Redraw Skia
+    Redraw;
     // Trigger a repaint to display the updated display
     Invalidate;
   end;
@@ -1271,6 +1293,8 @@ begin
   inherited;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1284,6 +1308,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1400,6 +1426,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
+  // Redraw Skia
+  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1642,7 +1670,7 @@ begin
   B := TBitmap.Create;
   try
     Typeface := CreateSkTypeface(Font);
-    SkFont := TSkFont.Create(Typeface, Font.Size);
+    SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Font));
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
@@ -1687,7 +1715,7 @@ begin
   B := TBitmap.Create;
   try
     Typeface := CreateSkTypeface(Font);
-    SkFont := TSkFont.Create(Typeface, Font.Size);
+    SkFont := TSkFont.Create(Typeface, FontSizeToPixels(Font));
 
     Paint := TSkPaint.Create;
     Paint.AntiAlias := True;
