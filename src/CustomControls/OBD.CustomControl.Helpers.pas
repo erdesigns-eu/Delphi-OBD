@@ -137,6 +137,10 @@ function CreateSizeGripPathCircle(const Rect: TRectF; DotSize: Single; DotSpacin
 ///   Builds a Skia round-rectangle path for reuse across Skia-accelerated painters.
 /// </summary>
 function CreateSkRoundRectPath(const Rect: TRectF; Corner: Single): ISkPath;
+/// <summary>
+///   Converts a Skia image to a VCL bitmap for pixel access.
+/// </summary>
+procedure SkImageToBitmap(const AImage: ISkImage; const ABitmap: TBitmap);
 
 implementation
 
@@ -953,6 +957,44 @@ begin
   PathBuilder.AddRoundRect(RoundRect);
   // Detach produces an immutable path instance that can be shared across threads safely
   Result := PathBuilder.Detach;
+end;
+
+//------------------------------------------------------------------------------
+// CONVERT SKIA IMAGE TO VCL BITMAP
+//------------------------------------------------------------------------------
+procedure SkImageToBitmap(const AImage: ISkImage; const ABitmap: TBitmap);
+const
+  BYTES_PER_PIXEL = 4; // 32-bit ARGB format
+var
+  Surface: ISkSurface;
+  Canvas: ISkCanvas;
+  Paint: ISkPaint;
+  BytesPerRow: Integer;
+begin
+  // Set bitmap dimensions and pixel format to match the Skia image
+  ABitmap.SetSize(AImage.Width, AImage.Height);
+  ABitmap.PixelFormat := pf32bit;
+  
+  // Calculate bytes per row for 32-bit ARGB format
+  BytesPerRow := ABitmap.Width * BYTES_PER_PIXEL;
+  
+  // Create a Skia surface from the bitmap scanlines (bottom-up for Windows DIBs)
+  Surface := TSkSurface.MakeRasterDirect(
+    TSkImageInfo.Create(ABitmap.Width, ABitmap.Height), 
+    ABitmap.ScanLine[ABitmap.Height - 1], 
+    BytesPerRow);
+  
+  if Assigned(Surface) then
+  begin
+    Canvas := Surface.Canvas;
+    Paint := TSkPaint.Create;
+    try
+      // Draw the Skia image onto the bitmap surface
+      Canvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.Default, Paint);
+    finally
+      Paint := nil;
+    end;
+  end;
 end;
 
 end.
