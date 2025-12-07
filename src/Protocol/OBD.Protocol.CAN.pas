@@ -326,8 +326,6 @@ var
   Frame: IOBDDataFrame;
   FF: TArray<IOBDDataFrame>;
   CF: TArray<IOBDDataFrame>;
-  Prev, Curr: IOBDDataFrame;
-  Seq: Byte;
   Indices: TArray<Byte>;
   I: Integer;
   F: IOBDDataFrame;

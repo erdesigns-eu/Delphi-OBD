@@ -128,7 +128,7 @@ type
     ///   Provides read-only access to the active connection instance.
     /// </summary>
     function GetConnectionInstance: IOBDConnection;
-  protected
+  public
     /// <summary>
     ///   Create a component instance and allocate synchronization primitives.
     /// </summary>
@@ -137,7 +137,6 @@ type
     ///   Tear down the component, disconnecting any active connection.
     /// </summary>
     destructor Destroy; override;
-  public
     /// <summary>
     ///   Connect using the current published settings and propagate events.
     /// </summary>
@@ -254,22 +253,22 @@ begin
   case FConnectionType of
     ctSerial:
     begin
-      Result.COMPort := FSerialPort;
+      Result.COMPort := ShortString(FSerialPort);
       Result.COMBaudRate := FSerialBaudRate;
     end;
     ctBluetooth:
     begin
       Result.Manager := FBluetoothManager;
-      Result.Address := FBluetoothAddress;
+      Result.Address := ShortString(FBluetoothAddress);
     end;
     ctWiFi:
     begin
-      Result.IPAddress := FIPAddress;
+      Result.IPAddress := ShortString(FIPAddress);
       Result.Port := FPort;
     end;
     ctFTDI:
     begin
-      Result.SerialNumber := FSerialNumber;
+      Result.SerialNumber := ShortString(FSerialNumber);
       Result.FTDIBaudRate := FFTDIBaudRate;
     end;
   end;
@@ -320,7 +319,7 @@ begin
   begin
     if FConnection.Connected then
     begin
-      Result := FConnection.Disconnect;
+      FConnection.Disconnect;
       Result := FConnection.Connect(Params);
     end else
       Result := FConnection.Connect(Params);

@@ -130,6 +130,11 @@ type
       const ConnectionType: TOBDConnectionType);
   protected
     /// <summary>
+    ///   Validate component bindings after streaming completes.
+    /// </summary>
+    procedure Loaded; override;
+  public
+    /// <summary>
     ///   Allocate synchronization primitives and initialize defaults.
     /// </summary>
     constructor Create(AOwner: TComponent); override;
@@ -137,11 +142,6 @@ type
     ///   Release bindings and synchronization primitives.
     /// </summary>
     destructor Destroy; override;
-    /// <summary>
-    ///   Validate component bindings after streaming completes.
-    /// </summary>
-    procedure Loaded; override;
-  public
     /// <summary>
     ///   Manually request that the controller apply the given connection state
     ///   to the target header.

@@ -498,8 +498,8 @@ begin
       begin
         RawLine := Copy(FPendingBuffer, 1, LineBreakPos - 1);
         Delete(FPendingBuffer, 1, LineBreakPos);
-        RawLine := StringReplace(RawLine, #13, '', [rfReplaceAll]);
-        RawLine := StringReplace(RawLine, #10, '', [rfReplaceAll]);
+        RawLine := AnsiString(StringReplace(string(RawLine), #13, '', [rfReplaceAll]));
+        RawLine := AnsiString(StringReplace(string(RawLine), #10, '', [rfReplaceAll]));
         if RawLine <> '' then
         begin
           FPendingLines.Add(string(RawLine));
