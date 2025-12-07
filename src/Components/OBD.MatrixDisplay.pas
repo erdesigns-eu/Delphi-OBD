@@ -988,7 +988,6 @@ begin
   // Draw a subtle glare overlay to mimic the previous glossy effect
   Paint := TSkPaint.Create;
   Paint.AntiAlias := True;
-  Paint.BlendMode := TSkBlendMode.SrcOver;
   Paint.Shader := TSkShader.MakeGradientLinear(
     TPointF.Create(0, Border.Width),
     TPointF.Create(0, (Height - Border.Width) / 2),
@@ -1035,7 +1034,7 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.PaintMatrix(const ACanvas: ISkCanvas);
 var
-  CenterX, CenterY, StartX, X, Y, R, C: Integer;
+  CenterX, CenterY, StartX, X, Y: Integer;
   PaintOn, PaintOff: ISkPaint;
   CellRect: TRectF;
 begin
@@ -1066,6 +1065,8 @@ begin
   // Lock cells so drawing remains thread-safe when animation updates come from timers
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       // Loop over rows
       for R := 0 to Rows - 1 do
@@ -1377,12 +1378,12 @@ end;
 // CLEAR DISPLAY
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.Clear;
-var
-  R, C: Integer;
 begin
   // Clear all cells inside a monitored block for safe concurrent access
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       for R := 0 to FRows - 1 do
         for C := 0 to FCols - 1 do
@@ -1394,12 +1395,12 @@ end;
 // INVERT DISPLAY
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.Invert;
-var
-  R, C: Integer;
 begin
   // Invert all cells while holding the monitor so timer callbacks cannot interleave
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       for R := 0 to FRows - 1 do
         for C := 0 to FCols - 1 do
@@ -1411,14 +1412,14 @@ end;
 // SCROLL UP
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.ScrollUp(const Loop: Boolean = True; const Step: Integer = 1);
-var
-  R, C: Integer;
 begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       if Loop then
       begin
@@ -1442,14 +1443,14 @@ end;
 // SCROLL DOWN
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.ScrollDown(const Loop: Boolean = True; const Step: Integer = 1);
-var
-  R, C: Integer;
 begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       if Loop then
       begin
@@ -1473,14 +1474,14 @@ end;
 // SCROLL LEFT
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.ScrollLeft(const Loop: Boolean = True; const Step: Integer = 1);
-var
-  R, C: Integer;
 begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       if Loop then
       begin
@@ -1510,14 +1511,14 @@ end;
 // SCROLL RIGHT
 //------------------------------------------------------------------------------
 procedure TOBDMatrixDisplay.ScrollRight(const Loop: Boolean = True; const Step: Integer = 1);
-var
-  R, C: Integer;
 begin
   // Exit when the step is negative
   if Step <= 0 then Exit;
 
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       if Loop then
       begin
@@ -1556,14 +1557,14 @@ procedure TOBDMatrixDisplay.LoadMask(const Value: TBitmap; const Row: Integer = 
       Result := Value.Canvas.Pixels[Col, Row] = clBlack;
   end;
 
-var
-  R, C: Integer;
 begin
   // First clear the display
   Clear;
   // Loop over the bitmap pixels while holding the monitor to keep state coherent
   ExecuteWithCellsLocked(
     procedure
+    var
+      R, C: Integer;
     begin
       for R := 0 to Value.Height do
         for C := 0 to Value.Width do
@@ -1627,7 +1628,8 @@ begin
     Paint.Color := TAlphaColors.Black;
 
     // Measure the text using Skia so the mask bitmap fits snugly
-    W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
+    SkFont.MeasureText(Value, Bounds, Paint);
+    W := Ceil(Bounds.Width);
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
@@ -1637,7 +1639,7 @@ begin
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
 
     // Extract the Skia-rendered text into a bitmap for cell loading
-    Surface.MakeImageSnapshot.ToBitmap(B);
+    SkImageToBitmap(Surface.MakeImageSnapshot, B);
     // Load the mask
     LoadMask(B, Row, Col, Inversed);
   finally
@@ -1671,7 +1673,8 @@ begin
     Paint.Color := TAlphaColors.Black;
 
     // Measure the text using Skia so the mask bitmap fits snugly
-    W := Ceil(SkFont.MeasureText(Value, Paint, Bounds));
+    SkFont.MeasureText(Value, Bounds, Paint);
+    W := Ceil(Bounds.Width);
     H := Ceil(Bounds.Height);
 
     // Create a Skia surface that renders the monochrome mask
@@ -1681,7 +1684,7 @@ begin
     Canvas.DrawSimpleText(Value, -Bounds.Left, -Bounds.Top, SkFont, Paint);
 
     // Extract the Skia-rendered text into a bitmap for cell loading
-    Surface.MakeImageSnapshot.ToBitmap(B);
+    SkImageToBitmap(Surface.MakeImageSnapshot, B);
     // Load the mask
     Self.LoadMaskCentered(B, Horizontal, Vertical, Inversed);
   finally
