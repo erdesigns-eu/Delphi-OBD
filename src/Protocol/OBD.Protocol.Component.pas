@@ -238,7 +238,7 @@ type
     ///   Process a caller-supplied set of lines through the configured protocol
     ///   and emit parsed messages.
     /// </summary>
-    procedure ProcessLines(Lines: TStrings);
+    procedure ProcessLines(const Lines: TStrings);
     /// <summary>
     ///   Thread-safe snapshot of ECUs parsed by the active protocol.
     /// </summary>
