@@ -38,7 +38,7 @@ type
     /// </summary
     FFTDIHandle: DWORD;
     /// <summary>
-    ///   FT_GetStatus function pointer
+    ///   Thread-local copy of FT_GetStatus function pointer (for thread safety)
     /// </summary>
     FFT_GetStatus: TFT_GetStatus;
   protected
@@ -435,15 +435,19 @@ begin
     WaitResult := WaitForSingleObject(FEventHandle, INFINITE);
     if WaitResult = WAIT_OBJECT_0 then
     begin
-      Status := FFT_GetStatus(FFTDIHandle, @RxBytes, @TxBytes, @EventStatus);
-      if Status = FT_OK then
+      // Use thread-local copy of function pointer (thread-safe)
+      if Assigned(FFT_GetStatus) then
       begin
-        // Notify FTDI class there is a modem event
-        if (EventStatus and FT_EVENT_MODEM_STATUS) <> 0 then
-          PostMessage(FWindowHandle, WM_FTDI_MODEM_STATUS, 0, 0);
-        // Notify FTDI class there is data to be read
-        if RxBytes > 0 then
-          PostMessage(FWindowHandle, WM_FTDI_RX_CHAR, 0, 0);
+        Status := FFT_GetStatus(FFTDIHandle, @RxBytes, @TxBytes, @EventStatus);
+        if Status = FT_OK then
+        begin
+          // Notify FTDI class there is a modem event
+          if (EventStatus and FT_EVENT_MODEM_STATUS) <> 0 then
+            PostMessage(FWindowHandle, WM_FTDI_MODEM_STATUS, 0, 0);
+          // Notify FTDI class there is data to be read
+          if RxBytes > 0 then
+            PostMessage(FWindowHandle, WM_FTDI_RX_CHAR, 0, 0);
+        end;
       end;
     end else Break;
   end;
@@ -462,7 +466,8 @@ begin
   FWindowHandle := WindowHandle;
   // Set FTDI Handle
   FFTDIHandle := FTDIHandle;
-  // Set FT_GetStatus function pointer
+  // Store thread-local copy of function pointer for thread safety
+  // This ensures the thread has a stable reference even if the parent object is destroyed
   FFT_GetStatus := AFT_GetStatus;
 end;
 
@@ -713,6 +718,7 @@ begin
     if SetupEventNotification then
     begin
       // Successfully set up event notifications, now proceed to create the event listening thread
+      // Pass a copy of the function pointer for thread safety
       FEventThread := TFTDIThread.Create(False, FEventHandle, FNotifyWnd, FFTDIHandle, FFT_GetStatus);
       FEventThread.OnTerminate := EventThreadTerminate;
       // Apply FTDI device settings
