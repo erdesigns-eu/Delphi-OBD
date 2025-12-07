@@ -441,7 +441,7 @@ type
     /// <summary>
     ///   Checks if the message is equal to another message.
     /// </summary>
-    function Equals(Msg: IOBDDataMessage): Boolean;
+    function Equals(Msg: IOBDDataMessage): Boolean; reintroduce;
 
     /// <summary>
     ///   Frames associated with the message.

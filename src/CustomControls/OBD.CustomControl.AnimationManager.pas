@@ -57,10 +57,6 @@ type
     /// </summary>
     FAnimatingControls: TList<IOBDAnimatable>;
     /// <summary>
-    ///   Timer for animation updates
-    /// </summary>
-    FTimer: TTimer;
-    /// <summary>
     ///   Stopwatch for high-resolution timing
     /// </summary>
     FStopwatch: TStopwatch;
