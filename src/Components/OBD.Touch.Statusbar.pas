@@ -1364,6 +1364,8 @@ procedure TOBDTouchStatusbar.UpdateStyleElements;
 begin
   // Call inherited
   inherited;
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1436,6 +1438,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchStatusbar.SettingsChanged(Sender: TObject);
 begin
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;

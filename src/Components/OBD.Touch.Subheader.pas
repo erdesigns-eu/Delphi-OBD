@@ -947,6 +947,8 @@ begin
   if FAutoApplyConnectionDetails <> Value then
   begin
     FAutoApplyConnectionDetails := Value;
+    // Redraw Skia
+    Redraw;
     Invalidate;
   end;
 end;
@@ -965,6 +967,8 @@ begin
     if Assigned(FConnectionComponent) and FAutoApplyConnectionDetails then
       FConnectionComponent.OnConnectionStateChanged := HandleConnectionStateChanged;
     
+    // Redraw Skia
+    Redraw;
     Invalidate;
   end;
 end;
@@ -990,6 +994,8 @@ begin
       FProtocolIndicator.Caption := 'AUTO';
     end;
     
+    // Redraw Skia
+    Redraw;
     Invalidate;
   end;
 end;
@@ -1001,6 +1007,8 @@ procedure TOBDTouchSubheader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1010,6 +1018,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SettingsChanged(Sender: TObject);
 begin
+  // Redraw Skia
+  Redraw;
   // Trigger repaint
   Invalidate;
 end;
