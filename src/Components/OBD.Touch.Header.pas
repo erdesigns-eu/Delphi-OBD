@@ -3186,4 +3186,99 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       end;
     end;
   end;
+
+//------------------------------------------------------------------------------
+// CONSTRUCTOR
+//------------------------------------------------------------------------------
+constructor TOBDTouchHeader.Create(AOwner: TComponent);
+begin
+  // Call inherited constructor (handles rendering setup)
+  inherited Create(AOwner);
+  // Create background
+  FBackground := TOBDTouchHeaderBackground.Create;
+  FBackground.OnChange := SettingsChanged;
+  // Create border
+  FBorder := TOBDTouchHeaderBorder.Create;
+  FBorder.OnChange := SettingsChanged;
+  // Create back button
+  FBackButton := TOBDTouchHeaderButton.Create;
+  FBackButton.OnChange := SettingsChanged;
+  FBackButton.Width := DEFAULT_BACK_BUTTON_WIDTH;
+  // Create action button
+  FActionButton := TOBDTouchHeaderActionButton.Create;
+  FActionButton.OnChange := SettingsChanged;
+  // Create caption
+  FCaption := TOBDTouchHeaderCaption.Create;
+  FCaption.OnChange := SettingsChanged;
+  // Create tabs collection
+  FTabs := TOBDTouchHeaderTabCollection.Create(Self);
+  FTabs.OnChange := SettingsChanged;
+  // Create tab settings
+  FTab := TOBDTouchHeaderTab.Create;
+  FTab.OnChange := SettingsChanged;
+  // Create battery indicator
+  FBatteryIndicator := TOBDTouchHeaderBatteryIndicator.Create;
+  FBatteryIndicator.OnChange := SettingsChanged;
+  // Set defaults
+  FTabIndex := -1;
+  Height := DEFAULT_HEIGHT;
+  Align := alTop;
+end;
+
+//------------------------------------------------------------------------------
+// DESTRUCTOR
+//------------------------------------------------------------------------------
+destructor TOBDTouchHeader.Destroy;
+begin
+  // Free background
+  FBackground.Free;
+  // Free border
+  FBorder.Free;
+  // Free back button
+  FBackButton.Free;
+  // Free action button
+  FActionButton.Free;
+  // Free caption
+  FCaption.Free;
+  // Free tabs collection
+  FTabs.Free;
+  // Free tab settings
+  FTab.Free;
+  // Free battery indicator
+  FBatteryIndicator.Free;
+  // Call inherited destructor
+  inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// REPAINT
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.Repaint;
+begin
+  // Call inherited repaint
+  inherited;
+end;
+
+//------------------------------------------------------------------------------
+// ASSIGN
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.Assign(Source: TPersistent);
+begin
+  // Call inherited assign
+  inherited;
+  // Assign custom properties
+  if (Source is TOBDTouchHeader) then
+  begin
+    FBackground.Assign((Source as TOBDTouchHeader).Background);
+    FBorder.Assign((Source as TOBDTouchHeader).Border);
+    FBackButton.Assign((Source as TOBDTouchHeader).BackButton);
+    FActionButton.Assign((Source as TOBDTouchHeader).ActionButton);
+    FCaption.Assign((Source as TOBDTouchHeader).Caption);
+    FTabs.Assign((Source as TOBDTouchHeader).Tabs);
+    FTab.Assign((Source as TOBDTouchHeader).Tab);
+    FTabIndex := (Source as TOBDTouchHeader).TabIndex;
+    FBatteryIndicator.Assign((Source as TOBDTouchHeader).BatteryIndicator);
+  end;
+end;
+
 end.
