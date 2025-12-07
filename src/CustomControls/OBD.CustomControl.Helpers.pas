@@ -990,7 +990,7 @@ begin
     Paint := TSkPaint.Create;
     try
       // Draw the Skia image onto the bitmap surface
-      Canvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.Default, Paint);
+      Canvas.DrawImage(AImage, 0, 0, TSkSamplingOptions.High, Paint);
     finally
       Paint := nil;
     end;
