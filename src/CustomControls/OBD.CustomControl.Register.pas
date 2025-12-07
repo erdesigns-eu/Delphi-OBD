@@ -29,7 +29,7 @@ procedure Register;
 implementation
 
 uses
-  OBD.CircularGauge, OBD.CircularGauge.Variants, OBD.LinearGauge, OBD.BarGauge, 
+  OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.DialGauge, OBD.SegmentedGauge,
   OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
@@ -76,29 +76,28 @@ procedure Register;
 begin
   // Register our own components
   RegisterComponents(ComponentPage, [
-    // Gauge Components
-    TOBDCircularGauge,         // Register the Circular Gauge (full 360° or custom)
-    TOBDThreeQuarterGauge,     // Register the Three-Quarter Gauge (270°)
-    TOBDSemiCircularGauge,     // Register the Semi-Circular Gauge (180° bottom)
-    TOBDSemiCircularTopGauge,  // Register the Semi-Circular Top Gauge (180° top)
-    TOBDLinearGauge,           // Register the Linear Gauge (horizontal/vertical)
-    TOBDBarGauge,              // Register the Bar Gauge (fill indicator)
+    // Gauge Components - Different visual types
+    TOBDCircularGauge,   // Circular arc gauge with needle
+    TOBDLinearGauge,     // Linear scale with slider
+    TOBDBarGauge,        // Filled bar/level indicator
+    TOBDDialGauge,       // Automotive dial/speedometer with digital display
+    TOBDSegmentedGauge,  // LED-style segmented VU meter
     
     // Display Components
-    TOBDMatrixDisplay,  // Register the Matrix Display
-    TOBDLed,            // Register the LED
+    TOBDMatrixDisplay,  // Matrix Display
+    TOBDLed,            // LED Indicator
 
     // Touch Components
-    TOBDTouchHeader,    // Register the Touch Header
-    TOBDTouchSubheader, // Register the Touch Subheader
-    TOBDTouchStatusbar, // Register the Touch Statusbar
+    TOBDTouchHeader,    // Touch Header
+    TOBDTouchSubheader, // Touch Subheader
+    TOBDTouchStatusbar, // Touch Statusbar
 
     // Non-Visual Components
-    TOBDConnectionComponent, // Register the non-visual connection wrapper
-    TOBDProtocolComponent,   // Register the non-visual protocol wrapper
-    TOBDGaugeComponent,      // Register the non-visual gauge controller
-    TOBDHeaderComponent,     // Register the non-visual header controller
-    TOBDSubheaderComponent   // Register the non-visual subheader controller
+    TOBDConnectionComponent, // Connection wrapper
+    TOBDProtocolComponent,   // Protocol wrapper
+    TOBDGaugeComponent,      // Gauge controller (supports all gauge types)
+    TOBDHeaderComponent,     // Header controller
+    TOBDSubheaderComponent   // Subheader controller
   ]);
 
   // Register our custom form

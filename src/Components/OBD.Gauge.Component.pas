@@ -17,8 +17,8 @@ uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
   Vcl.Controls,
   OBD.Protocol.Types, OBD.Adapter.Types, OBD.Component.BindingHelpers,
-  OBD.Protocol.Component, OBD.CircularGauge, OBD.CircularGauge.Variants, 
-  OBD.LinearGauge, OBD.BarGauge;
+  OBD.Protocol.Component, OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, 
+  OBD.DialGauge, OBD.SegmentedGauge;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -191,15 +191,16 @@ begin
       if Assigned(FTargetControl) then
       begin
         // Apply value to any supported gauge type
-        // Note: Check derived classes first (more specific before base)
-        if FTargetControl is TOBDCircularGaugeEx then
-          TOBDCircularGaugeEx(FTargetControl).Value := Value
-        else if FTargetControl is TOBDCircularGauge then
+        if FTargetControl is TOBDCircularGauge then
           TOBDCircularGauge(FTargetControl).Value := Value
         else if FTargetControl is TOBDLinearGauge then
           TOBDLinearGauge(FTargetControl).Value := Value
         else if FTargetControl is TOBDBarGauge then
-          TOBDBarGauge(FTargetControl).Value := Value;
+          TOBDBarGauge(FTargetControl).Value := Value
+        else if FTargetControl is TOBDDialGauge then
+          TOBDDialGauge(FTargetControl).Value := Value
+        else if FTargetControl is TOBDSegmentedGauge then
+          TOBDSegmentedGauge(FTargetControl).Value := Value;
       end;
     end);
 end;
@@ -274,10 +275,12 @@ procedure TOBDGaugeComponent.SetTargetControl(const Value: TControl);
 begin
   // Validate that the control is a supported gauge type
   if Assigned(Value) and not (
-    (Value is TOBDCircularGauge) or  // Includes all variants (Ex, ThreeQuarter, SemiCircular)
+    (Value is TOBDCircularGauge) or
     (Value is TOBDLinearGauge) or
-    (Value is TOBDBarGauge)) then
-    raise Exception.Create('TargetControl must be a gauge component (Circular, Linear, or Bar gauge)');
+    (Value is TOBDBarGauge) or
+    (Value is TOBDDialGauge) or
+    (Value is TOBDSegmentedGauge)) then
+    raise Exception.Create('TargetControl must be a gauge component (Circular, Linear, Bar, Dial, or Segmented gauge)');
   FTargetControl := Value;
 end;
 
