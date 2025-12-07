@@ -165,7 +165,7 @@ type
     /// <summary>
     ///   Handles protocol message notifications to refresh the caption.
     /// </summary>
-    procedure HandleProtocolMessages(Sender: TObject; Messages: TArray<IOBDDataMessage>);
+    procedure HandleProtocolMessages(Sender: TObject; const Messages: TArray<IOBDDataMessage>);
   protected
     /// <summary>
     ///   Allocate synchronization primitives and defaults.
@@ -424,7 +424,7 @@ end;
 // HANDLE PROTOCOL MESSAGES
 //------------------------------------------------------------------------------
 procedure TOBDSubheaderComponent.HandleProtocolMessages(Sender: TObject;
-  Messages: TArray<IOBDDataMessage>);
+  const Messages: TArray<IOBDDataMessage>);
 begin
   ApplyProtocolCaption;
   if Assigned(FChainedOnMessages) then

@@ -94,7 +94,7 @@ type
     ///   Handle parsed protocol messages and resolve a gauge value when
     ///   applicable.
     /// </summary>
-    procedure HandleMessages(Sender: TObject; Messages: TArray<IOBDDataMessage>);
+    procedure HandleMessages(Sender: TObject; const Messages: TArray<IOBDDataMessage>);
     /// <summary>
     ///   Apply the resolved value to the target gauge on the UI thread.
     /// </summary>
@@ -194,7 +194,7 @@ end;
 //------------------------------------------------------------------------------
 // HANDLE MESSAGES
 //------------------------------------------------------------------------------
-procedure TOBDGaugeComponent.HandleMessages(Sender: TObject; Messages: TArray<IOBDDataMessage>);
+procedure TOBDGaugeComponent.HandleMessages(Sender: TObject; const Messages: TArray<IOBDDataMessage>);
 var
   ResolvedValue: Single;
   Applied: Boolean;

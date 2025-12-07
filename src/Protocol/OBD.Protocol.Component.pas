@@ -13,12 +13,12 @@ unit OBD.Protocol.Component;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.SyncObjs,
+  System.Classes, System.SysUtils, System.SyncObjs, WinApi.Windows,
 
   OBD.Adapter.Types,
   OBD.Component.BindingHelpers,
-  OBD.Connection.Types, OBD.Connection.Component,
-  OBD.Protocol, OBD.Protocol.CAN, OBD.Protocol.Legacy;
+  OBD.Connection.Types, OBD.Connection, OBD.Connection.Component,
+  OBD.Protocol, OBD.Protocol.Types, OBD.Protocol.CAN, OBD.Protocol.Legacy;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -224,7 +224,7 @@ type
     ///   configured diagnostic threshold.
     /// </summary>
     procedure EnterLock(const Lock: TObject; const Context: string; const ThresholdMs: Cardinal = 15);
-  protected
+  public
     /// <summary>
     ///   Initialize the component, allocating buffers and building the default
     ///   protocol instance.
@@ -234,12 +234,11 @@ type
     ///   Tear down internal bindings, protocol instances, and buffers.
     /// </summary>
     destructor Destroy; override;
-  public
     /// <summary>
     ///   Process a caller-supplied set of lines through the configured protocol
     ///   and emit parsed messages.
     /// </summary>
-    procedure ProcessLines(Lines: TStrings);
+    procedure ProcessLines(const Lines: TStrings);
     /// <summary>
     ///   Thread-safe snapshot of ECUs parsed by the active protocol.
     /// </summary>
@@ -426,27 +425,35 @@ end;
 // ATTACH CONNECTION
 //------------------------------------------------------------------------------
 procedure TOBDProtocolComponent.AttachConnection;
+var
+  CurrentHandler: TDataReceivedEvent;
 begin
   if not Assigned(FConnectionComponent) then
     Exit;
   FConnection := FConnectionComponent.ConnectionInstance;
   if not Assigned(FConnection) then
     Exit;
-  TOBDBindingHelpers.SwapHandler<TDataReceivedEvent>(FBindingLock, FConnection.OnDataReceived,
+  CurrentHandler := FConnection.OnDataReceived;
+  TOBDBindingHelpers.SwapHandler<TDataReceivedEvent>(FBindingLock, CurrentHandler,
     FChainedOnDataReceived, HandleDataReceived, 'Connection.OnDataReceived', Self,
     FOnBindingNotification, FOnDiagnostic, 'ProtocolConnectionBinding', 20);
+  FConnection.OnDataReceived := CurrentHandler;
 end;
 
 //------------------------------------------------------------------------------
 // DETACH CONNECTION
 //------------------------------------------------------------------------------
 procedure TOBDProtocolComponent.DetachConnection;
+var
+  CurrentHandler: TDataReceivedEvent;
 begin
   if Assigned(FConnection) then
   begin
-    TOBDBindingHelpers.RestoreHandler<TDataReceivedEvent>(FBindingLock, FConnection.OnDataReceived,
+    CurrentHandler := FConnection.OnDataReceived;
+    TOBDBindingHelpers.RestoreHandler<TDataReceivedEvent>(FBindingLock, CurrentHandler,
       FChainedOnDataReceived, 'Connection.OnDataReceived', Self, FOnBindingNotification,
       FOnDiagnostic, 'ProtocolConnectionBinding', 20);
+    FConnection.OnDataReceived := CurrentHandler;
     FConnection := nil;
   end;
 end;
@@ -537,6 +544,8 @@ end;
 // DELIVER MESSAGES
 //------------------------------------------------------------------------------
 procedure TOBDProtocolComponent.DeliverMessages(const Messages: TArray<IOBDDataMessage>);
+var
+  LocalMessages: TArray<IOBDDataMessage>;
 begin
   if not Assigned(FOnMessages) or (Length(Messages) = 0) then
     Exit;
@@ -546,13 +555,16 @@ begin
     Exit;
   end;
 
+  // Copy messages to local variable for capture
+  LocalMessages := Messages;
+  
   EnterLock(FDispatchLock, 'DispatchLock.DeliverMessages');
   try
     TThread.Queue(nil,
       procedure
       begin
         if Assigned(FOnMessages) then
-          FOnMessages(Self, Messages);
+          FOnMessages(Self, LocalMessages);
       end);
   finally
     TMonitor.Exit(FDispatchLock);

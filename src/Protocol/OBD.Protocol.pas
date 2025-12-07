@@ -34,12 +34,12 @@ type
     ///   immutable snapshots gathered under a lock when running on background
     ///   threads.
     /// </summary>
-    function Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
+    function Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
     /// <summary>
     ///   Consumes parsed messages to populate the ECU list. This method is
     ///   expected to run under the parser's internal lock.
     /// </summary>
-    procedure LoadECUList(Messages: TArray<IOBDDataMessage>);
+    procedure LoadECUList(const Messages: TArray<IOBDDataMessage>);
     /// <summary>
     ///   Gets the OBD protocol name.
     /// </summary>
@@ -128,11 +128,11 @@ type
     /// <summary>
     ///   Invoke
     /// </summary>
-    function Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
+    function Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
     /// <summary>
     ///   Load ECU list
     /// </summary>
-    procedure LoadECUList(Messages: TArray<IOBDDataMessage>);
+    procedure LoadECUList(const Messages: TArray<IOBDDataMessage>);
     /// <summary>
     ///   Creates a thread-safe snapshot of loaded ECUs for read-only consumption.
     /// </summary>
@@ -258,7 +258,7 @@ begin
   end;
 end;
 
-function TOBDProtocol.Invoke(Lines: TStrings): TArray<IOBDDataMessage>;
+function TOBDProtocol.Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
 
 var
   Line: string;
@@ -343,7 +343,7 @@ end;
 //------------------------------------------------------------------------------
 // LOAD ECU LIST
 //------------------------------------------------------------------------------
-procedure TOBDProtocol.LoadECUList(Messages: TArray<IOBDDataMessage>);
+procedure TOBDProtocol.LoadECUList(const Messages: TArray<IOBDDataMessage>);
 var
   Msg: IOBDDataMessage;
 begin
