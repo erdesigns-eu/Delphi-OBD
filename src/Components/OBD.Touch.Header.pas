@@ -1110,10 +1110,6 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Override Repaint method
-    /// </summary>
-    procedure Repaint; override;
-    /// <summary>
     ///   Override assign method
     /// </summary>
     procedure Assign(Source: TPersistent); override;
@@ -3248,15 +3244,6 @@ begin
   FBatteryIndicator.Free;
   // Call inherited destructor
   inherited Destroy;
-end;
-
-//------------------------------------------------------------------------------
-// REPAINT
-//------------------------------------------------------------------------------
-procedure TOBDTouchHeader.Repaint;
-begin
-  // Call inherited repaint
-  inherited;
 end;
 
 //------------------------------------------------------------------------------
