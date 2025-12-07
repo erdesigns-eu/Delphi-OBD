@@ -14,8 +14,9 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.SyncObjs, System.Threading,
+  Vcl.Controls,
   OBD.Protocol.Types, OBD.Adapter.Types, OBD.Component.BindingHelpers,
-  OBD.Protocol.Component, OBD.CircularGauge;
+  OBD.Protocol.Component, OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -27,15 +28,15 @@ type
   TResolveGaugeValueEvent = procedure(Sender: TObject; const Messages: TArray<IOBDDataMessage>; out Value: Single; out Applied: Boolean) of object;
 
   /// <summary>
-  ///   Non-visual controller that binds protocol messages to a target circular
-  ///   gauge, optionally auto-applying resolved values on the UI thread.
+  ///   Non-visual controller that binds protocol messages to any gauge type
+  ///   (circular, linear, or bar), optionally auto-applying resolved values on the UI thread.
   /// </summary>
   TOBDGaugeComponent = class(TComponent)
   private
     /// <summary>
-    ///   Target gauge that receives value updates from resolved messages.
+    ///   Target control (any gauge type) that receives value updates from resolved messages.
     /// </summary>
-    FTargetGauge: TOBDCircularGauge;
+    FTargetControl: TControl;
     /// <summary>
     ///   Protocol component supplying parsed message events.
     /// </summary>
@@ -81,7 +82,7 @@ type
     /// <summary>
     ///   Assign a target gauge for value application.
     /// </summary>
-    procedure SetGauge(const Value: TOBDCircularGauge);
+    procedure SetTargetControl(const Value: TControl);
     /// <summary>
     ///   Toggle the auto-bind flag and refresh bindings accordingly.
     /// </summary>
@@ -119,9 +120,9 @@ type
     procedure SetGaugeValue(const Value: Single);
   published
     /// <summary>
-    ///   Target circular gauge that receives value updates from this component.
+    ///   Target gauge control (circular, linear, or bar) that receives value updates from this component.
     /// </summary>
-    property Gauge: TOBDCircularGauge read FTargetGauge write SetGauge;
+    property TargetControl: TControl read FTargetControl write SetTargetControl;
     /// <summary>
     ///   Protocol component that supplies parsed message events when auto-binding
     ///   is enabled.
@@ -180,13 +181,21 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDGaugeComponent.ApplyGaugeValue(const Value: Single);
 begin
-  if not Assigned(FTargetGauge) then
+  if not Assigned(FTargetControl) then
     Exit;
   TThread.Queue(nil,
     procedure
     begin
-      if Assigned(FTargetGauge) then
-        FTargetGauge.Value := Value;
+      if Assigned(FTargetControl) then
+      begin
+        // Apply value to any supported gauge type
+        if FTargetControl is TOBDCircularGauge then
+          TOBDCircularGauge(FTargetControl).Value := Value
+        else if FTargetControl is TOBDLinearGauge then
+          TOBDLinearGauge(FTargetControl).Value := Value
+        else if FTargetControl is TOBDBarGauge then
+          TOBDBarGauge(FTargetControl).Value := Value;
+      end;
     end);
 end;
 
@@ -254,11 +263,17 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// SET GAUGE
+// SET TARGET CONTROL
 //------------------------------------------------------------------------------
-procedure TOBDGaugeComponent.SetGauge(const Value: TOBDCircularGauge);
+procedure TOBDGaugeComponent.SetTargetControl(const Value: TControl);
 begin
-  FTargetGauge := Value;
+  // Validate that the control is a supported gauge type
+  if Assigned(Value) and not (
+    (Value is TOBDCircularGauge) or
+    (Value is TOBDLinearGauge) or
+    (Value is TOBDBarGauge)) then
+    raise Exception.Create('TargetControl must be a TOBDCircularGauge, TOBDLinearGauge, or TOBDBarGauge');
+  FTargetControl := Value;
 end;
 
 //------------------------------------------------------------------------------
