@@ -13,7 +13,7 @@ unit OBD.Component.Editors;
 interface
 
 uses
-  System.Classes, DesignIntf, DesignEditors,
+  System.Classes, System.TypInfo, DesignIntf, DesignEditors,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.CircularGauge;
 
 //------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ procedure TOBDConnectionComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(TOBDConnectionComponent,
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDConnectionComponent)),
     procedure(const Name: string)
     begin
       Proc(Name);
@@ -111,7 +111,7 @@ procedure TOBDProtocolComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(TOBDProtocolComponent,
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDProtocolComponent)),
     procedure(const Name: string)
     begin
       Proc(Name);
@@ -130,7 +130,7 @@ procedure TOBDGaugeComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
     Exit;
-  Designer.GetComponentNames(TOBDCircularGauge,
+  Designer.GetComponentNames(GetTypeData(TypeInfo(TOBDCircularGauge)),
     procedure(const Name: string)
     begin
       Proc(Name);
