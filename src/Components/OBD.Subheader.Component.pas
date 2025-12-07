@@ -458,15 +458,25 @@ end;
 // REFRESH CONNECTION BINDING
 //------------------------------------------------------------------------------
 procedure TOBDSubheaderComponent.RefreshConnectionBinding;
+var
+  CurrentHandler: TConnectionStateChangedEvent;
 begin
   if FAutoBindConnection and Assigned(FConnectionComponent) then
+  begin
+    CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
     TOBDBindingHelpers.SwapHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
-      HandleConnectionStateChanged, 'OnConnectionStateChanged', Self, FOnBindingNotification)
+      CurrentHandler, FChainedOnConnectionStateChanged,
+      HandleConnectionStateChanged, 'OnConnectionStateChanged', Self, FOnBindingNotification);
+    FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
+  end
   else if Assigned(FConnectionComponent) then
+  begin
+    CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
     TOBDBindingHelpers.RestoreHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
-      'OnConnectionStateChanged', Self, FOnBindingNotification)
+      CurrentHandler, FChainedOnConnectionStateChanged,
+      'OnConnectionStateChanged', Self, FOnBindingNotification);
+    FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
+  end
   else
     FChainedOnConnectionStateChanged := nil;
 end;
@@ -475,15 +485,25 @@ end;
 // REFRESH PROTOCOL BINDING
 //------------------------------------------------------------------------------
 procedure TOBDSubheaderComponent.RefreshProtocolBinding;
+var
+  CurrentHandler: TReceiveDataMessagesEvent;
 begin
   if FAutoBindProtocol and Assigned(FProtocolComponent) then
+  begin
+    CurrentHandler := FProtocolComponent.OnMessages;
     TOBDBindingHelpers.SwapHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, HandleProtocolMessages,
-      'OnMessages', Self, FOnBindingNotification)
+      CurrentHandler, FChainedOnMessages, HandleProtocolMessages,
+      'OnMessages', Self, FOnBindingNotification);
+    FProtocolComponent.OnMessages := CurrentHandler;
+  end
   else if Assigned(FProtocolComponent) then
+  begin
+    CurrentHandler := FProtocolComponent.OnMessages;
     TOBDBindingHelpers.RestoreHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, 'OnMessages', Self,
-      FOnBindingNotification)
+      CurrentHandler, FChainedOnMessages, 'OnMessages', Self,
+      FOnBindingNotification);
+    FProtocolComponent.OnMessages := CurrentHandler;
+  end
   else
     FChainedOnMessages := nil;
 end;
@@ -532,14 +552,20 @@ end;
 // SET CONNECTION COMPONENT
 //------------------------------------------------------------------------------
 procedure TOBDSubheaderComponent.SetConnectionComponent(const Value: TOBDConnectionComponent);
+var
+  CurrentHandler: TConnectionStateChangedEvent;
 begin
   if FConnectionComponent = Value then
     Exit;
 
   if Assigned(FConnectionComponent) then
+  begin
+    CurrentHandler := FConnectionComponent.OnConnectionStateChanged;
     TOBDBindingHelpers.RestoreHandler<TConnectionStateChangedEvent>(FBindingLock,
-      FConnectionComponent.OnConnectionStateChanged, FChainedOnConnectionStateChanged,
+      CurrentHandler, FChainedOnConnectionStateChanged,
       'OnConnectionStateChanged', Self, FOnBindingNotification);
+    FConnectionComponent.OnConnectionStateChanged := CurrentHandler;
+  end;
 
   FConnectionComponent := Value;
   RefreshConnectionBinding;
@@ -552,14 +578,20 @@ end;
 // SET PROTOCOL COMPONENT
 //------------------------------------------------------------------------------
 procedure TOBDSubheaderComponent.SetProtocolComponent(const Value: TOBDProtocolComponent);
+var
+  CurrentHandler: TReceiveDataMessagesEvent;
 begin
   if FProtocolComponent = Value then
     Exit;
 
   if Assigned(FProtocolComponent) then
+  begin
+    CurrentHandler := FProtocolComponent.OnMessages;
     TOBDBindingHelpers.RestoreHandler<TReceiveDataMessagesEvent>(FBindingLock,
-      FProtocolComponent.OnMessages, FChainedOnMessages, 'OnMessages', Self,
+      CurrentHandler, FChainedOnMessages, 'OnMessages', Self,
       FOnBindingNotification);
+    FProtocolComponent.OnMessages := CurrentHandler;
+  end;
 
   FProtocolComponent := Value;
   RefreshProtocolBinding;
