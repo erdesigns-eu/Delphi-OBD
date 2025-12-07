@@ -2002,15 +2002,25 @@ begin
   begin
     if (Value < FMin) then Value := FMin;
     if (Value > FMax) then Value := FMax;
-    // Set the start value (for animation)
-    Animation.StartValue := FValue;
+    
     // Set value
     FValue := Value;
-    // Reset animation start time using stopwatch
-    FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
-    // Notify animation manager to start timer if needed
-    if not (csDesigning in ComponentState) then
+    
+    // Handle animation
+    if Animation.Enabled and not (csDesigning in ComponentState) then
+    begin
+      // Animation is enabled: set up animation parameters
+      Animation.StartValue := Animation.Value;  // Start from current animated position
+      FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
+      // Notify animation manager to start timer
       AnimationManager.CheckAnimationState;
+    end
+    else
+    begin
+      // Animation is disabled or at design time: update immediately
+      Animation.Value := FValue;
+    end;
+    
     // Redraw Skia
     Redraw;
     // Invalidate buffer
@@ -2529,6 +2539,11 @@ begin
     // Notify the animation manager to check animation state
     AnimationManager.CheckAnimationState;
   end;
+  
+  // If animation is disabled, immediately set Animation.Value to current value
+  if not Animation.Enabled then
+    Animation.Value := FValue;
+  
   // Redraw Skia
   Redraw;
   // Invalidate the buffer
