@@ -98,6 +98,7 @@
         <DCC_Description>ERDesigns OBD - Designtime Package</DCC_Description>
         <SanitizedProjectName>DesignTime</SanitizedProjectName>
         <DCC_UnitSearchPath>Z:\Projects\Delphi\OBD\Delphi-OBD;Z:\Projects\Delphi\OBD\Delphi-OBD\Packages;Z:\Projects\Delphi\OBD\Delphi-OBD\src;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Adapters;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Components;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Connection;Z:\Projects\Delphi\OBD\Delphi-OBD\src\CustomControls;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Forms;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Protocol;Z:\Projects\Delphi\OBD\Delphi-OBD\src\RadioCode;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Services;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Utilities;Z:\Projects\Delphi\OBD\Delphi-OBD\src\VIN;Z:\Projects\Delphi\OBD\Delphi-OBD\src\Wizards;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
@@ -133,9 +134,11 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;vcl;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>rtl;vcl;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\Win64</DCC_BplOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -143,6 +146,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\Win64x</DCC_BplOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -159,6 +163,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_Description>ERDesigns OBD - Designtime Package</DCC_Description>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>

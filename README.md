@@ -40,9 +40,15 @@ The repository is organized into logical folders for better maintainability:
 
 ### Installation
 
-1. Add the `src` folder and its subfolders to your Delphi library path
-2. Install the package from the `Packages` folder
-3. Start using the components and classes in your project
+1. **Install Skia4Delphi**: First, install Skia4Delphi from GetIt Package Manager (required dependency)
+2. **Add to Library Path**: Add the `src` folder and its subfolders to your Delphi library path
+3. **Install Packages**: 
+   - First, compile and install `Packages\RunTime.dpk`
+   - Then, compile and install `Packages\DesignTime.dpk`
+   - The packages are configured to output to the standard Delphi BPL directory (`$(BDSCOMMONDIR)\Bpl`)
+4. Start using the components and classes in your project
+
+**Note**: The packages require Skia4Delphi to be installed first. The package output directory is set to the standard Delphi BPL folder, ensuring that the Skia DLL is accessible when loading the packages.
 
 ### Basic Usage
 
