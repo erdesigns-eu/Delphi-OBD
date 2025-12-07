@@ -1566,8 +1566,8 @@ begin
     var
       R, C: Integer;
     begin
-      for R := 0 to Value.Height do
-        for C := 0 to Value.Width do
+      for R := 0 to Value.Height - 1 do
+        for C := 0 to Value.Width - 1 do
         begin
           // Make sure the pixel is in the range of our rows and cols
           if (Row >= 0) and ((Row + R) < Rows) and (Col >= 0) and ((Col + C) < Cols) then
