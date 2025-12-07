@@ -58,6 +58,10 @@ type
     ///   Get the most likely model year based on current date
     /// </summary>
     class function GetModelYear(const YearCode: Char): Integer;
+    /// <summary>
+    ///   Detect vehicle features from VIN (manufacturer-specific patterns)
+    /// </summary>
+    class function DetectFeatures(const VIN: string; const WMI: string; const VDS: string): TVINFeatures;
   public
     /// <summary>
     ///   Validate a VIN
@@ -264,6 +268,147 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// DETECT FEATURES FROM VIN
+//------------------------------------------------------------------------------
+class function TOBDVinDecoder.DetectFeatures(const VIN: string; const WMI: string; const VDS: string): TVINFeatures;
+var
+  Position4, Position5, Position6, Position7, Position8: Char;
+begin
+  // Initialize with defaults
+  Result.VehicleType := vtUnknown;
+  Result.EngineDisplacement := '';
+  Result.EngineType := '';
+  Result.BodyStyle := '';
+  Result.DriveType := '';
+  Result.Transmission := '';
+  Result.RestraintSystem := '';
+  Result.IsCommercial := False;
+  Result.Notes := '';
+  
+  if Length(VDS) < 6 then
+    Exit;
+  
+  // Extract VDS positions for analysis
+  Position4 := VDS[1];  // Position 4 of VIN
+  Position5 := VDS[2];  // Position 5 of VIN
+  Position6 := VDS[3];  // Position 6 of VIN
+  Position7 := VDS[4];  // Position 7 of VIN
+  Position8 := VDS[5];  // Position 8 of VIN
+  
+  // Detect vehicle type based on common patterns
+  // Ford patterns (1F*)
+  if (WMI[1] = '1') and (WMI[2] = 'F') then
+  begin
+    case Position4 of
+      'A', 'B': Result.VehicleType := vtPassengerCar;
+      'C', 'D': Result.VehicleType := vtTruck;
+      'E': Result.VehicleType := vtVan;
+      'J', 'K', 'L': Result.VehicleType := vtSUV;
+      'M': Result.VehicleType := vtTruck;
+      'T': Result.VehicleType := vtTruck;
+    end;
+    Result.RestraintSystem := Position8;
+  end
+  // GM patterns (1G*)
+  else if (WMI[1] = '1') and (WMI[2] = 'G') then
+  begin
+    case Position4 of
+      '1': Result.VehicleType := vtPassengerCar;
+      'C', 'D', 'E': Result.VehicleType := vtTruck;
+      'K': Result.VehicleType := vtSUV;
+      'T': Result.VehicleType := vtTruck;
+      'W': Result.VehicleType := vtVan;
+    end;
+    
+    // GM Drive type (position 6)
+    case Position6 of
+      'F': Result.DriveType := 'FWD';
+      'R': Result.DriveType := 'RWD';
+      'A', 'K': Result.DriveType := 'AWD';
+    end;
+  end
+  // Toyota/Lexus patterns (4T*, 5T*, JT*)
+  else if ((WMI[1] = '4') or (WMI[1] = '5') or (WMI[1] = 'J')) and (WMI[2] = 'T') then
+  begin
+    case Position4 of
+      '1', '2', '3': Result.VehicleType := vtPassengerCar;
+      '4', '5': Result.VehicleType := vtTruck;
+      '6', '7': Result.VehicleType := vtSUV;
+      'B': Result.VehicleType := vtVan;
+      'E': Result.VehicleType := vtElectric;
+    end;
+    
+    // Toyota engine detection (position 5)
+    case Position5 of
+      'A': Result.EngineType := '4-cylinder';
+      'B': Result.EngineType := '4-cylinder Turbo';
+      'C': Result.EngineType := '6-cylinder';
+      'D': Result.EngineType := 'V6';
+      'E': Result.EngineType := 'V8';
+      'H': Result.EngineType := 'Hybrid';
+    end;
+  end
+  // Honda/Acura patterns (1H*, JH*)
+  else if ((WMI[1] = '1') or (WMI[1] = 'J')) and (WMI[2] = 'H') then
+  begin
+    case Position4 of
+      'C', 'D', 'E', 'F', 'G': Result.VehicleType := vtPassengerCar;
+      'J', 'K': Result.VehicleType := vtSUV;
+      'T': Result.VehicleType := vtTruck;
+    end;
+    
+    // Honda engine type
+    if CharInSet(Position5, ['1', '2', '3', '4']) then
+      Result.EngineType := '4-cylinder'
+    else if CharInSet(Position5, ['5', '6']) then
+      Result.EngineType := 'V6'
+    else if Position5 = 'H' then
+      Result.EngineType := 'Hybrid';
+  end
+  // BMW patterns (WB*)
+  else if (WMI[1] = 'W') and (WMI[2] = 'B') then
+  begin
+    case Position4 of
+      'A': Result.VehicleType := vtPassengerCar;
+      'S', 'X': Result.VehicleType := vtSUV;
+    end;
+    
+    Result.BodyStyle := 'BMW Series ' + Position5;
+  end
+  // Mercedes-Benz patterns (WD*)
+  else if (WMI[1] = 'W') and (WMI[2] = 'D') then
+  begin
+    case Position4 of
+      'B', 'C', 'D': Result.VehicleType := vtPassengerCar;
+      'J': Result.VehicleType := vtSUV;
+      'F': Result.VehicleType := vtVan;
+    end;
+  end
+  // Volkswagen patterns (WV*, 3V*)
+  else if ((WMI[1] = 'W') or (WMI[1] = '3')) and (WMI[2] = 'V') then
+  begin
+    case Position4 of
+      'W', 'Z': Result.VehicleType := vtPassengerCar;
+      '1', '2': Result.VehicleType := vtSUV;
+    end;
+  end;
+  
+  // Detect electric vehicles from VDS patterns
+  if CharInSet(Position5, ['E', 'V']) or CharInSet(Position8, ['E']) then
+  begin
+    if Result.VehicleType = vtUnknown then
+      Result.VehicleType := vtElectric;
+    Result.Notes := 'Possible electric or plug-in hybrid vehicle';
+  end;
+  
+  // Detect commercial vehicles
+  if CharInSet(Position4, ['T', 'M']) or CharInSet(Position5, ['C', 'M']) then
+  begin
+    Result.IsCommercial := True;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 // VALIDATE VIN
 //------------------------------------------------------------------------------
 class function TOBDVinDecoder.Validate(const VIN: string; var ErrorMessage: string): Boolean;
@@ -304,6 +449,17 @@ class function TOBDVinDecoder.Parse(const VIN: string): TVINParseResult;
 //|   WMI     |         VDS           |             VIS               |
 //+-----------+-------------------+---+---+---+-----------------------+
 const
+  UnknownFeatures: TVINFeatures = (
+    VehicleType       : vtUnknown;
+    EngineDisplacement: '';
+    EngineType        : '';
+    BodyStyle         : '';
+    DriveType         : '';
+    Transmission      : '';
+    RestraintSystem   : '';
+    IsCommercial      : False;
+    Notes             : ''
+  );
   UnknownVIN: TVINParseResult = (
     Region          : (RangeStart: #0; RangeEnd: #0; Name: '');
     Country         : (RangeStart: ''; RangeEnd: ''; Name: ''; Code: '');
@@ -317,6 +473,17 @@ const
     CheckDigitValid : False;
     ModelYear       : 0;
     SerialNumber    : '';
+    Features        : (
+      VehicleType       : vtUnknown;
+      EngineDisplacement: '';
+      EngineType        : '';
+      BodyStyle         : '';
+      DriveType         : '';
+      Transmission      : '';
+      RestraintSystem   : '';
+      IsCommercial      : False;
+      Notes             : ''
+    );
     Valid           : False;
     ErrorMessage    : ''
   );
@@ -358,6 +525,8 @@ begin
     Result.Year := GetYears(VIN[10]);
     // Get most likely model year
     Result.ModelYear := GetModelYear(VIN[10]);
+    // Detect vehicle features from VIN
+    Result.Features := DetectFeatures(VIN, Result.WMI, Result.VDS);
   end;
 end;
 

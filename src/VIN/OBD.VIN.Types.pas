@@ -107,6 +107,63 @@ type
   end;
 
   /// <summary>
+  ///   Vehicle Type
+  /// </summary>
+  TVINVehicleType = (
+    vtUnknown,
+    vtPassengerCar,
+    vtTruck,
+    vtSUV,
+    vtVan,
+    vtBus,
+    vtMotorcycle,
+    vtElectric,
+    vtHybrid
+  );
+
+  /// <summary>
+  ///   VIN-based Vehicle Features
+  /// </summary>
+  TVINFeatures = record
+    /// <summary>
+    ///   Vehicle type detected from VDS
+    /// </summary>
+    VehicleType: TVINVehicleType;
+    /// <summary>
+    ///   Engine displacement (liters) if detectable
+    /// </summary>
+    EngineDisplacement: string;
+    /// <summary>
+    ///   Engine type description if detectable
+    /// </summary>
+    EngineType: string;
+    /// <summary>
+    ///   Body style if detectable
+    /// </summary>
+    BodyStyle: string;
+    /// <summary>
+    ///   Drive type (FWD, RWD, AWD, 4WD) if detectable
+    /// </summary>
+    DriveType: string;
+    /// <summary>
+    ///   Transmission type if detectable
+    /// </summary>
+    Transmission: string;
+    /// <summary>
+    ///   Safety/restraint system code
+    /// </summary>
+    RestraintSystem: string;
+    /// <summary>
+    ///   Is this a commercial/fleet vehicle?
+    /// </summary>
+    IsCommercial: Boolean;
+    /// <summary>
+    ///   Additional notes about detected features
+    /// </summary>
+    Notes: string;
+  end;
+
+  /// <summary>
   ///   VIN Parse Result
   /// </summary>
   TVINParseResult = record
@@ -158,6 +215,10 @@ type
     ///   Sequential production number
     /// </summary>
     SerialNumber: string;
+    /// <summary>
+    ///   Vehicle features detected from VIN
+    /// </summary>
+    Features: TVINFeatures;
     /// <summary>
     ///   Is the VIN valid?
     /// </summary>
