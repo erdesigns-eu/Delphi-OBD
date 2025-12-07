@@ -323,6 +323,12 @@ implementation
 uses System.Math, System.StrUtils;
 
 //------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
+const
+  FTDI_DLL = 'FTD2XX.DLL';
+
+//------------------------------------------------------------------------------
 // EXTERNAL - FTD2XX.DLL
 //------------------------------------------------------------------------------
 function FT_GetStatus(ftHandle: DWORD; RxBytes, TxBytes, EventStatus: Pointer): FT_Result; stdcall; external FTDI_DLL name 'FT_GetStatus';
