@@ -2324,7 +2324,7 @@ begin
     FTabIndex := Value;
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2421,7 +2421,7 @@ begin
   begin
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2464,7 +2464,7 @@ begin
   begin
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2478,8 +2478,6 @@ begin
   inherited;
   // Redraw Skia
   Redraw;
-  // Paint buffer
-  Invalidate;
   // Invalidate buffer
   Invalidate;
 end;
@@ -2570,7 +2568,7 @@ begin
   begin
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2669,7 +2667,7 @@ begin
   begin
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2760,7 +2758,7 @@ begin
   begin
     // Redraw Skia
     Redraw;
-    Invalidate;
+    // Invalidate buffer
     Invalidate;
   end;
 end;
@@ -2775,8 +2773,6 @@ begin
   if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
   // Redraw Skia
   Redraw;
-  // Paint buffer
-  Invalidate;
   // Invalidate buffer
   Invalidate;
 end;
