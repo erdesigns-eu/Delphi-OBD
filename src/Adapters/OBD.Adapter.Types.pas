@@ -73,10 +73,13 @@ type
   /// <param name="Sender">
   ///   Object calling this event
   /// </param>
-  /// <param name="Data">
-  ///   OBD Data Message
+  /// <param name="DataPtr">
+  ///   Pointer to the received data buffer
   /// </param>
-  TReceiveDataEvent = procedure(Sender: TObject; Data: AnsiString) of object;
+  /// <param name="DataSize">
+  ///   Size of the received data in bytes
+  /// </param>
+  TReceiveDataEvent = procedure(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal) of object;
 
   /// <summary>
   ///   Adapter status change event
