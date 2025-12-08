@@ -31,6 +31,7 @@ implementation
 uses
   OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.DialGauge, OBD.SegmentedGauge,
   OBD.SevenSegmentDisplay, OBD.ConnectorIndicator, OBD.MILIndicator,
+  OBD.BoostGauge, OBD.TimingAdvanceGauge, OBD.FuelTrimGraph,
   OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
@@ -83,6 +84,11 @@ begin
     TOBDBarGauge,        // Filled bar/level indicator
     TOBDDialGauge,       // Automotive dial/speedometer with digital display
     TOBDSegmentedGauge,  // LED-style segmented VU meter
+    
+    // Specialized Gauges & Graphs
+    TOBDBoostGauge,          // Boost/vacuum gauge with negative values
+    TOBDTimingAdvanceGauge,  // Timing advance visualization with optimal zone
+    TOBDFuelTrimGraph,       // Fuel trim graph (STFT vs LTFT)
     
     // OBD-Specific Display Components
     TOBDSevenSegmentDisplay,  // Classic 7-segment LED display for numeric values
