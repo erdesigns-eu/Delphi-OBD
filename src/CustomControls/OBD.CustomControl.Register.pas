@@ -30,6 +30,7 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.DialGauge, OBD.SegmentedGauge,
+  OBD.SevenSegmentDisplay, OBD.ConnectorIndicator, OBD.MILIndicator,
   OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
@@ -82,6 +83,11 @@ begin
     TOBDBarGauge,        // Filled bar/level indicator
     TOBDDialGauge,       // Automotive dial/speedometer with digital display
     TOBDSegmentedGauge,  // LED-style segmented VU meter
+    
+    // OBD-Specific Display Components
+    TOBDSevenSegmentDisplay,  // Classic 7-segment LED display for numeric values
+    TOBDConnectorIndicator,   // OBD-II 16-pin connector with pin status
+    TOBDMILIndicator,         // Malfunction Indicator Lamp (Check Engine Light)
     
     // Display Components
     TOBDMatrixDisplay,  // Matrix Display
