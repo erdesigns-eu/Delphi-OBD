@@ -123,6 +123,7 @@ type
     FShowMinorTicks: Boolean;
     FMajorTickStep: Single;
     FMinorTickStep: Single;
+    FFont: TFont;
     procedure SetMin(Value: Single);
     procedure SetMax(Value: Single);
     procedure SetValue(Value: Single);
@@ -136,8 +137,10 @@ type
     procedure SetShowMinorTicks(Value: Boolean);
     procedure SetMajorTickStep(Value: Single);
     procedure SetMinorTickStep(Value: Single);
+    procedure SetFont(Value: TFont);
     procedure OnColorsChanged(Sender: TObject);
     procedure OnAnimationChanged(Sender: TObject);
+    procedure OnFontChanged(Sender: TObject);
   protected
     procedure InvalidateBackground; virtual;
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -166,6 +169,7 @@ type
     property ShowMinorTicks: Boolean read FShowMinorTicks write SetShowMinorTicks default True;
     property MajorTickStep: Single read FMajorTickStep write SetMajorTickStep;
     property MinorTickStep: Single read FMinorTickStep write SetMinorTickStep;
+    property Font: TFont read FFont write SetFont;
     property Align;
     property Anchors;
     property Visible;
@@ -369,12 +373,18 @@ begin
   FAnimation := TOBDTimingAdvanceGaugeAnimation.Create(Self);
   FAnimation.OnChange := OnAnimationChanged;
   
+  FFont := TFont.Create;
+  FFont.Name := 'Segoe UI';
+  FFont.Size := 10;
+  FFont.OnChange := OnFontChanged;
+  
   Width := 300;
   Height := 300;
 end;
 
 destructor TOBDTimingAdvanceGauge.Destroy;
 begin
+  FFont.Free;
   FAnimation.Free;
   FColors.Free;
   FRenderLock.Free;
@@ -555,9 +565,21 @@ begin
   begin
     FMinorTickStep := Value;
     InvalidateBackground;
+    Redraw;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDTimingAdvanceGauge.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDTimingAdvanceGauge.OnFontChanged(Sender: TObject);
+begin
+  InvalidateBackground;
   Redraw;
   Invalidate;
-  end;
 end;
 
 procedure TOBDTimingAdvanceGauge.AnimationTick(ElapsedMs: Int64);
@@ -701,13 +723,14 @@ begin
   end;
   
   // Draw labels
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 14);
+  Font := CreateSkFont(FFont);
   TextRect := RectF(CenterX - 60, CenterY + 40, CenterX + 60, CenterY + 60);
+  Paint.Color := SafeColorRefToSkColor(FColors.Text);
   Canvas.DrawSimpleText('TIMING ADVANCE', TextRect.CenterPoint.X, TextRect.CenterPoint.Y,
                        Font, Paint, TSkTextAlign.Center);
   
   TextRect := RectF(CenterX - 40, CenterY + 55, CenterX + 40, CenterY + 75);
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Normal), 12);
+  Font := CreateSkFont(FFont);
   Canvas.DrawSimpleText('(Degrees)', TextRect.CenterPoint.X, TextRect.CenterPoint.Y,
                        Font, Paint, TSkTextAlign.Center);
   
@@ -761,8 +784,8 @@ begin
   // Draw digital display
   if FShowDigitalDisplay then
   begin
-    Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 24);
-    Paint.Color := FColors.Needle;
+    Font := CreateSkFont(FFont);
+    Paint.Color := SafeColorRefToSkColor(FColors.Needle);
     TextRect := RectF(CenterX - 50, CenterY - 30, CenterX + 50, CenterY - 5);
     Canvas.DrawSimpleText(FormatFloat('0.0°', FAnimationValue), TextRect.CenterPoint.X, TextRect.CenterPoint.Y,
                          Font, Paint, TSkTextAlign.Center);
