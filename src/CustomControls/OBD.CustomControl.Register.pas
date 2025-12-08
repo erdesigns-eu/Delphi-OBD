@@ -29,7 +29,11 @@ procedure Register;
 implementation
 
 uses
-  OBD.CircularGauge, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
+  OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.DialGauge, OBD.SegmentedGauge,
+  OBD.SevenSegmentDisplay, OBD.ConnectorIndicator, OBD.MILIndicator,
+  OBD.BoostGauge, OBD.TimingAdvanceGauge, OBD.FuelTrimGraph,
+  OBD.VoltageMonitor, OBD.ProtocolIndicator, OBD.ConnectionStatus,
+  OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
   OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
@@ -75,19 +79,38 @@ procedure Register;
 begin
   // Register our own components
   RegisterComponents(ComponentPage, [
-    TOBDCircularGauge,  // Register the Circular Gauge
-    TOBDMatrixDisplay,  // Register the Matrix Display
-    TOBDLed,            // Register the LED
+    // Gauge Components - Different visual types
+    TOBDCircularGauge,   // Circular arc gauge with needle
+    TOBDLinearGauge,     // Linear scale with slider
+    TOBDBarGauge,        // Filled bar/level indicator
+    TOBDDialGauge,       // Automotive dial/speedometer with digital display
+    TOBDSegmentedGauge,  // LED-style segmented VU meter
+    
+    // Specialized Gauges & Graphs
+    TOBDBoostGauge,          // Boost/vacuum gauge with negative values
+    TOBDTimingAdvanceGauge,  // Timing advance visualization with optimal zone
+    TOBDFuelTrimGraph,       // Fuel trim graph (STFT vs LTFT)
+    
+    // OBD-Specific Display Components
+    TOBDSevenSegmentDisplay,  // Classic 7-segment LED display for numeric values
+    TOBDConnectorIndicator,   // OBD-II 16-pin connector with pin status
+    TOBDMILIndicator,         // Malfunction Indicator Lamp (Check Engine Light)
+    
+    // Display Components
+    TOBDMatrixDisplay,  // Matrix Display
+    TOBDLed,            // LED Indicator
 
-    TOBDTouchHeader,    // Register the Touch Header
-    TOBDTouchSubheader, // Register the Touch Subheader
-    TOBDTouchStatusbar, // Register the Touch Statusbar
+    // Touch Components
+    TOBDTouchHeader,    // Touch Header
+    TOBDTouchSubheader, // Touch Subheader
+    TOBDTouchStatusbar, // Touch Statusbar
 
-    TOBDConnectionComponent, // Register the non-visual connection wrapper
-    TOBDProtocolComponent,   // Register the non-visual protocol wrapper
-    TOBDGaugeComponent,      // Register the non-visual gauge controller
-    TOBDHeaderComponent,     // Register the non-visual header controller
-    TOBDSubheaderComponent   // Register the non-visual subheader controller
+    // Non-Visual Components
+    TOBDConnectionComponent, // Connection wrapper
+    TOBDProtocolComponent,   // Protocol wrapper
+    TOBDGaugeComponent,      // Gauge controller (supports all gauge types)
+    TOBDHeaderComponent,     // Header controller
+    TOBDSubheaderComponent   // Subheader controller
   ]);
 
   // Register our custom form
