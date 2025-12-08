@@ -564,7 +564,7 @@ var
 begin
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
-  Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+  Canvas.Clear(SafeColorRefToSkColor(FColors.ConnectorColor));
   
   // Calculate connector dimensions
   PinWidth := (8 * FPinSize + 7 * FPinSpacing);
@@ -701,7 +701,7 @@ begin
     if Assigned(BackgroundImage) then
       Canvas.DrawImage(BackgroundImage, 0, 0)
     else
-      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+      Canvas.Clear(SafeColorRefToSkColor(FColors.ConnectorColor));
     
     // Draw all pins
     for I := 0 to FPins.Count - 1 do
@@ -719,7 +719,7 @@ begin
     end;
   except
     on E: Exception do
-      Canvas.Clear(ResolveStyledBackgroundColor(Self.Color));
+      Canvas.Clear(SafeColorRefToSkColor(FColors.ConnectorColor));
   end;
 end;
 

@@ -635,7 +635,7 @@ begin
     Y := MARGIN_FROM_BORDER;
     
     // Draw digits
-    CurrentAlpha := EaseValue(FAnimationProgress, anQuartEaseOut);
+    CurrentAlpha := FAnimationProgress;
     PrevAlpha := 1.0 - CurrentAlpha;
     
     for I := 1 to FDigitCount do
@@ -660,6 +660,7 @@ end;
 procedure TOBDSevenSegmentDisplay.AnimationTick(ElapsedMs: Int64);
 var
   CurrentMs, Elapsed: Int64;
+  Progress: Single;
   EasingFunction: TOBDCustomControlAnimationEasingFunction;
 begin
   if not FAnimation.Enabled then
@@ -668,9 +669,12 @@ begin
   CurrentMs := FStopwatch.ElapsedMilliseconds;
   Elapsed := CurrentMs - FAnimationStartMs;
   
+  EasingFunction := GetEasingFunction(FAnimation.&Type);
+  
   if Elapsed < FAnimation.Duration then
   begin
-    FAnimationProgress := Elapsed / FAnimation.Duration;
+    Progress := Elapsed / FAnimation.Duration;
+    FAnimationProgress := EasingFunction(Progress);
     FAnimationValue := FValue;
   end
   else

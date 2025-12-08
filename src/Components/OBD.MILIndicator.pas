@@ -563,8 +563,7 @@ begin
     end
     else if FAnimation.Enabled and (FAnimationProgress < 1.0) then
     begin
-      Alpha := FAnimationStartValue + (FAnimationTargetValue - FAnimationStartValue) * 
-               EaseValue(FAnimationProgress, FAnimation.&Type);
+      Alpha := FAnimationStartValue + (FAnimationTargetValue - FAnimationStartValue) * FAnimationProgress;
     end
     else
     begin
@@ -582,6 +581,8 @@ end;
 procedure TOBDMILIndicator.AnimationTick(ElapsedMs: Int64);
 var
   CurrentMs, Elapsed: Int64;
+  Progress: Single;
+  EasingFunction: TOBDCustomControlAnimationEasingFunction;
 begin
   CurrentMs := FStopwatch.ElapsedMilliseconds;
   
@@ -589,8 +590,13 @@ begin
   if FAnimation.Enabled and (FAnimationProgress < 1.0) then
   begin
     Elapsed := CurrentMs - FAnimationStartMs;
+    EasingFunction := GetEasingFunction(FAnimation.&Type);
+    
     if Elapsed < FAnimation.Duration then
-      FAnimationProgress := Elapsed / FAnimation.Duration
+    begin
+      Progress := Elapsed / FAnimation.Duration;
+      FAnimationProgress := EasingFunction(Progress);
+    end
     else
       FAnimationProgress := 1.0;
   end;
