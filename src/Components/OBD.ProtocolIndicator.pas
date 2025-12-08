@@ -67,10 +67,17 @@ type
     FProtocol: TOBDProtocolType;
     FShowDescription: Boolean;
     FColors: TOBDProtocolIndicatorColors;
+    FTitleFont: TFont;
+    FNameFont: TFont;
+    FDescriptionFont: TFont;
     procedure SetProtocol(Value: TOBDProtocolType);
     procedure SetShowDescription(Value: Boolean);
     procedure SetColors(Value: TOBDProtocolIndicatorColors);
+    procedure SetTitleFont(Value: TFont);
+    procedure SetNameFont(Value: TFont);
+    procedure SetDescriptionFont(Value: TFont);
     procedure OnColorsChanged(Sender: TObject);
+    procedure OnFontChanged(Sender: TObject);
   protected
     procedure InvalidateBackground; virtual;
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -85,6 +92,9 @@ type
     property Protocol: TOBDProtocolType read FProtocol write SetProtocol default ptNone;
     property ShowDescription: Boolean read FShowDescription write SetShowDescription default True;
     property Colors: TOBDProtocolIndicatorColors read FColors write SetColors;
+    property TitleFont: TFont read FTitleFont write SetTitleFont;
+    property NameFont: TFont read FNameFont write SetNameFont;
+    property DescriptionFont: TFont read FDescriptionFont write SetDescriptionFont;
     property Align;
     property Anchors;
     property Visible;
@@ -191,12 +201,33 @@ begin
   FColors := TOBDProtocolIndicatorColors.Create(Self);
   FColors.OnChange := OnColorsChanged;
   
+  // Create fonts with default values
+  FTitleFont := TFont.Create;
+  FTitleFont.Name := 'Segoe UI';
+  FTitleFont.Style := [fsBold];
+  FTitleFont.Size := 12;
+  FTitleFont.OnChange := OnFontChanged;
+  
+  FNameFont := TFont.Create;
+  FNameFont.Name := 'Segoe UI';
+  FNameFont.Style := [fsBold];
+  FNameFont.Size := 20;
+  FNameFont.OnChange := OnFontChanged;
+  
+  FDescriptionFont := TFont.Create;
+  FDescriptionFont.Name := 'Segoe UI';
+  FDescriptionFont.Size := 12;
+  FDescriptionFont.OnChange := OnFontChanged;
+  
   Width := 300;
   Height := 100;
 end;
 
 destructor TOBDProtocolIndicator.Destroy;
 begin
+  FTitleFont.Free;
+  FNameFont.Free;
+  FDescriptionFont.Free;
   FColors.Free;
   FRenderLock.Free;
   inherited;
@@ -261,7 +292,27 @@ begin
   FColors.Assign(Value);
 end;
 
+procedure TOBDProtocolIndicator.SetTitleFont(Value: TFont);
+begin
+  FTitleFont.Assign(Value);
+end;
 
+procedure TOBDProtocolIndicator.SetNameFont(Value: TFont);
+begin
+  FNameFont.Assign(Value);
+end;
+
+procedure TOBDProtocolIndicator.SetDescriptionFont(Value: TFont);
+begin
+  FDescriptionFont.Assign(Value);
+end;
+
+procedure TOBDProtocolIndicator.OnFontChanged(Sender: TObject);
+begin
+  InvalidateBackground;
+  Redraw;
+  Invalidate;
+end;
 
 function TOBDProtocolIndicator.AcquireBackgroundSnapshot: ISkImage;
 begin
@@ -280,7 +331,6 @@ var
   Surface: ISkSurface;
   Canvas: ISkCanvas;
   Paint: ISkPaint;
-  TitleFont: TFont;
 begin
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -297,16 +347,8 @@ begin
   Paint.StrokeWidth := 2;
   Canvas.DrawRect(RectF(1, 1, Width - 1, Height - 1), Paint);
   
-  // Title
-  TitleFont := TFont.Create;
-  try
-    TitleFont.Name := 'Segoe UI';
-    TitleFont.Style := [fsBold];
-    TitleFont.Size := 12;
-    DrawSkTextCentered(Canvas, 'PROTOCOL', TitleFont, RectF(10, 10, Width / 2, 30), FColors.Text, TSkTextAlign.Left);
-  finally
-    TitleFont.Free;
-  end;
+  // Title - use persistent font property
+  DrawSkTextCentered(Canvas, 'PROTOCOL', FTitleFont, RectF(10, 10, Width / 2, 30), FColors.Text, TSkTextAlign.Left);
   
   FBackgroundSnapshot := Surface.MakeImageSnapshot;
 end;
@@ -317,7 +359,6 @@ var
   Paint: ISkPaint;
   IndicatorColor: TColor;
   TextY: Single;
-  NameFont, DescFont: TFont;
   NameRect, DescRect: TRectF;
 begin
   Background := AcquireBackgroundSnapshot;
@@ -332,35 +373,19 @@ begin
   Paint.Color := SafeColorRefToSkColor(IndicatorColor);
   Canvas.DrawCircle(Width - 20, 20, 8, Paint);
   
-  // Protocol name
-  NameFont := TFont.Create;
-  try
-    NameFont.Name := 'Segoe UI';
-    NameFont.Style := [fsBold];
-    NameFont.Size := 20;
-    
-    TextY := Height / 2;
-    if FShowDescription then
-      TextY := Height / 2 - 10;
-    
-    NameRect := RectF(10, TextY - 15, Width - 10, TextY + 15);
-    DrawSkTextCentered(Canvas, GetProtocolTypeName(FProtocol), NameFont, NameRect, FColors.Text);
-  finally
-    NameFont.Free;
-  end;
+  // Protocol name - use persistent font property
+  TextY := Height / 2;
+  if FShowDescription then
+    TextY := Height / 2 - 10;
   
-  // Description
+  NameRect := RectF(10, TextY - 15, Width - 10, TextY + 15);
+  DrawSkTextCentered(Canvas, GetProtocolTypeName(FProtocol), FNameFont, NameRect, FColors.Text);
+  
+  // Description - use persistent font property
   if FShowDescription then
   begin
-    DescFont := TFont.Create;
-    try
-      DescFont.Name := 'Segoe UI';
-      DescFont.Size := 12;
-      DescRect := RectF(10, Height / 2 + 5, Width - 10, Height / 2 + 25);
-      DrawSkTextCentered(Canvas, GetProtocolTypeDescription(FProtocol), DescFont, DescRect, FColors.Text);
-    finally
-      DescFont.Free;
-    end;
+    DescRect := RectF(10, Height / 2 + 5, Width - 10, Height / 2 + 25);
+    DrawSkTextCentered(Canvas, GetProtocolTypeDescription(FProtocol), FDescriptionFont, DescRect, FColors.Text);
   end;
 end;
 
