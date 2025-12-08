@@ -123,6 +123,7 @@ type
     FShowMinorTicks: Boolean;
     FMajorTickStep: Single;
     FMinorTickStep: Single;
+    FFont: TFont;
     procedure SetMin(Value: Single);
     procedure SetMax(Value: Single);
     procedure SetValue(Value: Single);
@@ -137,8 +138,10 @@ type
     procedure SetShowMinorTicks(Value: Boolean);
     procedure SetMajorTickStep(Value: Single);
     procedure SetMinorTickStep(Value: Single);
+    procedure SetFont(Value: TFont);
     procedure OnColorsChanged(Sender: TObject);
     procedure OnAnimationChanged(Sender: TObject);
+    procedure OnFontChanged(Sender: TObject);
   protected
     procedure InvalidateBackground; virtual;
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -168,6 +171,7 @@ type
     property ShowMinorTicks: Boolean read FShowMinorTicks write SetShowMinorTicks default True;
     property MajorTickStep: Single read FMajorTickStep write SetMajorTickStep;
     property MinorTickStep: Single read FMinorTickStep write SetMinorTickStep;
+    property Font: TFont read FFont write SetFont;
     property Align;
     property Anchors;
     property Visible;
@@ -372,12 +376,18 @@ begin
   FAnimation := TOBDBoostGaugeAnimation.Create(Self);
   FAnimation.OnChange := OnAnimationChanged;
   
+  FFont := TFont.Create;
+  FFont.Name := 'Segoe UI';
+  FFont.Size := 10;
+  FFont.OnChange := OnFontChanged;
+  
   Width := 300;
   Height := 300;
 end;
 
 destructor TOBDBoostGauge.Destroy;
 begin
+  FFont.Free;
   FAnimation.Free;
   FColors.Free;
   FRenderLock.Free;
@@ -565,6 +575,18 @@ begin
   end;
 end;
 
+procedure TOBDBoostGauge.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDBoostGauge.OnFontChanged(Sender: TObject);
+begin
+  InvalidateBackground;
+  Redraw;
+  Invalidate;
+end;
+
 procedure TOBDBoostGauge.SetMinorTickStep(Value: Single);
 begin
   if FMinorTickStep <> Value then
@@ -695,8 +717,8 @@ begin
   end;
   
   // Draw ticks and labels
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Normal), 12);
-  Paint.Color := FColors.Text;
+  Font := CreateSkFont(FFont);
+  Paint.Color := SafeColorRefToSkColor(FColors.Text);
   Paint.StrokeWidth := 2;
   
   if FShowMajorTicks then
@@ -727,7 +749,7 @@ begin
   // Draw unit label
   if FUnit <> '' then
   begin
-    Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 14);
+    Font := CreateSkFont(FFont);
     TextRect := RectF(CenterX - 40, CenterY + 40, CenterX + 40, CenterY + 60);
     Canvas.DrawSimpleText(FUnit, TextRect.CenterPoint.X, TextRect.CenterPoint.Y,
                          Font, Paint, TSkTextAlign.Center);
