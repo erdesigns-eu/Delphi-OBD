@@ -15,6 +15,27 @@ interface
 uses WinApi.Windows, System.Classes, System.SysUtils;
 
 //------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
+type
+  /// <summary>
+  ///   OBD Protocol types enumeration
+  /// </summary>
+  TOBDProtocolType = (
+    ptNone,                       // No protocol / not connected
+    ptISO9141_2,                  // ISO 9141-2 (5 baud init)
+    ptISO14230_4_KWP,             // ISO 14230-4 KWP (5 baud init)
+    ptISO14230_4_KWP_FAST,        // ISO 14230-4 KWP (fast init)
+    ptISO15765_4_CAN_11bit_500k,  // ISO 15765-4 CAN (11 bit ID, 500 kbaud)
+    ptISO15765_4_CAN_29bit_500k,  // ISO 15765-4 CAN (29 bit ID, 500 kbaud)
+    ptISO15765_4_CAN_11bit_250k,  // ISO 15765-4 CAN (11 bit ID, 250 kbaud)
+    ptISO15765_4_CAN_29bit_250k,  // ISO 15765-4 CAN (29 bit ID, 250 kbaud)
+    ptSAE_J1850_PWM,              // SAE J1850 PWM (41.6 kbaud)
+    ptSAE_J1850_VPW,              // SAE J1850 VPW (10.4 kbaud)
+    ptJ1939                       // J1939 (CAN-based heavy duty vehicle protocol)
+  );
+
+//------------------------------------------------------------------------------
 // INTERFACES
 //------------------------------------------------------------------------------
 type
@@ -751,6 +772,54 @@ begin
   IsSameFrames := Length(Msg.Frames) = Length(FFrames);
   // Set the result
   Result := IsSameECU and IsSameData and IsSameFrames;
+end;
+
+//------------------------------------------------------------------------------
+// HELPER FUNCTIONS FOR PROTOCOL TYPE
+//------------------------------------------------------------------------------
+
+/// <summary>
+///   Get the display name for a protocol type
+/// </summary>
+function GetProtocolTypeName(ProtocolType: TOBDProtocolType): string;
+begin
+  case ProtocolType of
+    ptNone:                       Result := 'NO PROTOCOL';
+    ptISO9141_2:                  Result := 'ISO 9141-2';
+    ptISO14230_4_KWP:             Result := 'ISO 14230-4 KWP';
+    ptISO14230_4_KWP_FAST:        Result := 'ISO 14230-4 KWP FAST';
+    ptISO15765_4_CAN_11bit_500k:  Result := 'CAN 11bit 500k';
+    ptISO15765_4_CAN_29bit_500k:  Result := 'CAN 29bit 500k';
+    ptISO15765_4_CAN_11bit_250k:  Result := 'CAN 11bit 250k';
+    ptISO15765_4_CAN_29bit_250k:  Result := 'CAN 29bit 250k';
+    ptSAE_J1850_PWM:              Result := 'SAE J1850 PWM';
+    ptSAE_J1850_VPW:              Result := 'SAE J1850 VPW';
+    ptJ1939:                      Result := 'J1939';
+  else
+    Result := 'UNKNOWN';
+  end;
+end;
+
+/// <summary>
+///   Get the description for a protocol type
+/// </summary>
+function GetProtocolTypeDescription(ProtocolType: TOBDProtocolType): string;
+begin
+  case ProtocolType of
+    ptNone:                       Result := 'Not Connected';
+    ptISO9141_2:                  Result := '5 baud init, 10.4 kbaud';
+    ptISO14230_4_KWP:             Result := 'Keyword Protocol, 5 baud init';
+    ptISO14230_4_KWP_FAST:        Result := 'Keyword Protocol, fast init';
+    ptISO15765_4_CAN_11bit_500k:  Result := 'Controller Area Network, 500 kbaud';
+    ptISO15765_4_CAN_29bit_500k:  Result := 'Controller Area Network, 500 kbaud';
+    ptISO15765_4_CAN_11bit_250k:  Result := 'Controller Area Network, 250 kbaud';
+    ptISO15765_4_CAN_29bit_250k:  Result := 'Controller Area Network, 250 kbaud';
+    ptSAE_J1850_PWM:              Result := 'Pulse Width Modulation, 41.6 kbaud';
+    ptSAE_J1850_VPW:              Result := 'Variable Pulse Width, 10.4 kbaud';
+    ptJ1939:                      Result := 'Heavy duty vehicle protocol';
+  else
+    Result := '';
+  end;
 end;
 
 end.

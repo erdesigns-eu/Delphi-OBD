@@ -32,6 +32,7 @@ uses
   OBD.CircularGauge, OBD.LinearGauge, OBD.BarGauge, OBD.DialGauge, OBD.SegmentedGauge,
   OBD.SevenSegmentDisplay, OBD.ConnectorIndicator, OBD.MILIndicator,
   OBD.BoostGauge, OBD.TimingAdvanceGauge, OBD.FuelTrimGraph,
+  OBD.VoltageMonitor, OBD.ProtocolIndicator, OBD.ConnectionStatus,
   OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
