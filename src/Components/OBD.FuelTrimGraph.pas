@@ -385,12 +385,16 @@ procedure TOBDFuelTrimGraph.Loaded;
 begin
   inherited;
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDFuelTrimGraph.Resize;
 begin
   inherited;
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDFuelTrimGraph.InvalidateBackground;
@@ -401,16 +405,18 @@ begin
   finally
     TMonitor.Exit(FRenderLock);
   end;
-  Invalidate;
 end;
 
 procedure TOBDFuelTrimGraph.OnColorsChanged(Sender: TObject);
 begin
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDFuelTrimGraph.OnAnimationChanged(Sender: TObject);
 begin
+  Redraw;
   Invalidate;
 end;
 
@@ -420,6 +426,8 @@ begin
   begin
     FMin := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -429,6 +437,8 @@ begin
   begin
     FMax := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -445,6 +455,7 @@ begin
     finally
       TMonitor.Exit(FRenderLock);
     end;
+    Redraw;
     Invalidate;
   end;
 end;
@@ -455,6 +466,8 @@ begin
   begin
     FShowGrid := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -464,6 +477,8 @@ begin
   begin
     FShowZeroLine := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -472,6 +487,7 @@ begin
   if FShowLegend <> Value then
   begin
     FShowLegend := Value;
+    Redraw;
     Invalidate;
   end;
 end;
@@ -520,6 +536,7 @@ begin
     TMonitor.Exit(FRenderLock);
   end;
   
+  Redraw;
   Invalidate;
 end;
 
@@ -531,6 +548,7 @@ begin
   finally
     TMonitor.Exit(FRenderLock);
   end;
+  Redraw;
   Invalidate;
 end;
 
@@ -564,6 +582,7 @@ begin
   EasingFunc := GetEasingFunction(FAnimation.EasingType);
   FAnimatedSTFT := FStartSTFT + (FTargetSTFT - FStartSTFT) * EasingFunc(Progress);
   FAnimatedLTFT := FStartLTFT + (FTargetLTFT - FStartLTFT) * EasingFunc(Progress);
+  Redraw;
   Invalidate;
 end;
 

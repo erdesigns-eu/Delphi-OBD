@@ -385,12 +385,16 @@ procedure TOBDTimingAdvanceGauge.Loaded;
 begin
   inherited;
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDTimingAdvanceGauge.Resize;
 begin
   inherited;
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDTimingAdvanceGauge.InvalidateBackground;
@@ -401,16 +405,18 @@ begin
   finally
     TMonitor.Exit(FRenderLock);
   end;
-  Invalidate;
 end;
 
 procedure TOBDTimingAdvanceGauge.OnColorsChanged(Sender: TObject);
 begin
   InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDTimingAdvanceGauge.OnAnimationChanged(Sender: TObject);
 begin
+  Redraw;
   Invalidate;
 end;
 
@@ -420,6 +426,8 @@ begin
   begin
     FMin := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -429,6 +437,8 @@ begin
   begin
     FMax := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -448,6 +458,7 @@ begin
     begin
       FValue := Value;
       FAnimationValue := Value;
+      Redraw;
       Invalidate;
     end;
   end;
@@ -459,6 +470,8 @@ begin
   begin
     FOptimalMin := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -468,6 +481,8 @@ begin
   begin
     FOptimalMax := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -477,6 +492,8 @@ begin
   begin
     FShowOptimalZone := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -505,6 +522,8 @@ begin
   begin
     FShowMajorTicks := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -514,6 +533,8 @@ begin
   begin
     FShowMinorTicks := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -523,6 +544,8 @@ begin
   begin
     FMajorTickStep := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -532,6 +555,8 @@ begin
   begin
     FMinorTickStep := Value;
     InvalidateBackground;
+  Redraw;
+  Invalidate;
   end;
 end;
 
@@ -553,6 +578,7 @@ begin
   
   EasingFunc := GetEasingFunction(FAnimation.EasingType);
   FAnimationValue := FAnimationStartValue + (FValue - FAnimationStartValue) * EasingFunc(Progress);
+  Redraw;
   Invalidate;
 end;
 
