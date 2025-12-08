@@ -128,6 +128,7 @@ type
     FTargetLTFT: Single;
     FStartSTFT: Single;
     FStartLTFT: Single;
+    FFont: TFont;
     procedure SetMin(Value: Single);
     procedure SetMax(Value: Single);
     procedure SetMaxSamples(Value: Integer);
@@ -136,8 +137,10 @@ type
     procedure SetShowLegend(Value: Boolean);
     procedure SetColors(Value: TOBDFuelTrimGraphColors);
     procedure SetAnimation(Value: TOBDFuelTrimGraphAnimation);
+    procedure SetFont(Value: TFont);
     procedure OnColorsChanged(Sender: TObject);
     procedure OnAnimationChanged(Sender: TObject);
+    procedure OnFontChanged(Sender: TObject);
   protected
     procedure InvalidateBackground; virtual;
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -165,6 +168,7 @@ type
     property ShowLegend: Boolean read FShowLegend write SetShowLegend default True;
     property Colors: TOBDFuelTrimGraphColors read FColors write SetColors;
     property Animation: TOBDFuelTrimGraphAnimation read FAnimation write SetAnimation;
+    property Font: TFont read FFont write SetFont;
     property Align;
     property Anchors;
     property Visible;
@@ -368,12 +372,18 @@ begin
   FAnimation := TOBDFuelTrimGraphAnimation.Create(Self);
   FAnimation.OnChange := OnAnimationChanged;
   
+  FFont := TFont.Create;
+  FFont.Name := 'Segoe UI';
+  FFont.Size := 10;
+  FFont.OnChange := OnFontChanged;
+  
   Width := 400;
   Height := 300;
 end;
 
 destructor TOBDFuelTrimGraph.Destroy;
 begin
+  FFont.Free;
   FAnimation.Free;
   FColors.Free;
   FDataPoints.Free;
@@ -490,6 +500,18 @@ begin
     Redraw;
     Invalidate;
   end;
+end;
+
+procedure TOBDFuelTrimGraph.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDFuelTrimGraph.OnFontChanged(Sender: TObject);
+begin
+  InvalidateBackground;
+  Redraw;
+  Invalidate;
 end;
 
 procedure TOBDFuelTrimGraph.SetColors(Value: TOBDFuelTrimGraphColors);
@@ -659,8 +681,8 @@ begin
   end;
   
   // Y-axis labels
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Normal), 10);
-  Paint.Color := FColors.Text;
+  Font := CreateSkFont(FFont);
+  Paint.Color := SafeColorRefToSkColor(FColors.Text);
   Paint.Style := TSkPaintStyle.Fill;
   
   for I := 0 to 4 do
@@ -671,7 +693,7 @@ begin
   end;
   
   // Labels
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 12);
+  Font := CreateSkFont(FFont);
   Canvas.DrawSimpleText('Fuel Trim (%)', GraphRect.CenterPoint.X, Height - 10,
                        Font, Paint, TSkTextAlign.Center);
   
@@ -744,22 +766,22 @@ begin
   // Draw legend
   if FShowLegend then
   begin
-    Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Normal), 11);
+    Font := CreateSkFont(FFont);
     Paint.Style := TSkPaintStyle.Fill;
     LegendY := 25;
     
     // STFT legend
-    Paint.Color := FColors.STFT;
+    Paint.Color := SafeColorRefToSkColor(FColors.STFT);
     Canvas.DrawRect(RectF(GraphRect.Right - 120, LegendY - 5, GraphRect.Right - 100, LegendY + 5), Paint);
-    Paint.Color := FColors.Text;
+    Paint.Color := SafeColorRefToSkColor(FColors.Text);
     Canvas.DrawSimpleText(Format('STFT: %.1f%%', [FAnimatedSTFT]), GraphRect.Right - 95, LegendY,
                          Font, Paint, TSkTextAlign.Left);
     
     // LTFT legend
     LegendY := LegendY + 20;
-    Paint.Color := FColors.LTFT;
+    Paint.Color := SafeColorRefToSkColor(FColors.LTFT);
     Canvas.DrawRect(RectF(GraphRect.Right - 120, LegendY - 5, GraphRect.Right - 100, LegendY + 5), Paint);
-    Paint.Color := FColors.Text;
+    Paint.Color := SafeColorRefToSkColor(FColors.Text);
     Canvas.DrawSimpleText(Format('LTFT: %.1f%%', [FAnimatedLTFT]), GraphRect.Right - 95, LegendY,
                          Font, Paint, TSkTextAlign.Left);
   end;

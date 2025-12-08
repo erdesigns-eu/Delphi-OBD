@@ -125,6 +125,7 @@ type
     FAnimationValue: Single;
     FAnimationStartValue: Single;
     FShowStatusText: Boolean;
+    FFont: TFont;
     procedure SetMin(Value: Single);
     procedure SetMax(Value: Single);
     procedure SetValue(Value: Single);
@@ -137,8 +138,10 @@ type
     procedure SetColors(Value: TOBDVoltageMonitorColors);
     procedure SetAnimation(Value: TOBDVoltageMonitorAnimation);
     procedure SetShowStatusText(Value: Boolean);
+    procedure SetFont(Value: TFont);
     procedure OnColorsChanged(Sender: TObject);
     procedure OnAnimationChanged(Sender: TObject);
+    procedure OnFontChanged(Sender: TObject);
     function GetVoltageStatus: TOBDVoltageStatus;
     function GetStatusColor: TColor;
     function GetStatusText: string;
@@ -171,6 +174,7 @@ type
     property ShowStatusText: Boolean read FShowStatusText write SetShowStatusText default True;
     property Colors: TOBDVoltageMonitorColors read FColors write SetColors;
     property Animation: TOBDVoltageMonitorAnimation read FAnimation write SetAnimation;
+    property Font: TFont read FFont write SetFont;
     property Align;
     property Anchors;
     property Visible;
@@ -373,12 +377,18 @@ begin
   FAnimation := TOBDVoltageMonitorAnimation.Create(Self);
   FAnimation.OnChange := OnAnimationChanged;
   
+  FFont := TFont.Create;
+  FFont.Name := 'Segoe UI';
+  FFont.Size := 10;
+  FFont.OnChange := OnFontChanged;
+  
   Width := 300;
   Height := 200;
 end;
 
 destructor TOBDVoltageMonitor.Destroy;
 begin
+  FFont.Free;
   FAnimation.Free;
   FColors.Free;
   FRenderLock.Free;
@@ -539,6 +549,18 @@ begin
   end;
 end;
 
+procedure TOBDVoltageMonitor.SetFont(Value: TFont);
+begin
+  FFont.Assign(Value);
+end;
+
+procedure TOBDVoltageMonitor.OnFontChanged(Sender: TObject);
+begin
+  InvalidateBackground;
+  Redraw;
+  Invalidate;
+end;
+
 procedure TOBDVoltageMonitor.SetColors(Value: TOBDVoltageMonitorColors);
 begin
   FColors.Assign(Value);
@@ -688,8 +710,8 @@ begin
   Canvas.DrawRect(BarRect, Paint);
   
   // Scale labels
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Normal), 10);
-  Paint.Color := FColors.Text;
+  Font := CreateSkFont(FFont);
+  Paint.Color := SafeColorRefToSkColor(FColors.Text);
   Paint.Style := TSkPaintStyle.Fill;
   
   Canvas.DrawSimpleText(FormatFloat('0.0', FMin), BarRect.Left, BarRect.Bottom + 15,
@@ -698,7 +720,7 @@ begin
                        Font, Paint, TSkTextAlign.Right);
   
   // Title
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 14);
+  Font := CreateSkFont(FFont);
   Canvas.DrawSimpleText('BATTERY VOLTAGE', Width / 2, 20,
                        Font, Paint, TSkTextAlign.Center);
   
@@ -732,8 +754,8 @@ begin
   // Draw digital display
   if FShowDigitalDisplay then
   begin
-    Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 48);
-    Paint.Color := StatusColor;
+    Font := CreateSkFont(FFont);
+    Paint.Color := SafeColorRefToSkColor(StatusColor);
     Canvas.DrawSimpleText(FormatFloat('0.00', FAnimationValue) + 'V', Width / 2, Height / 2 - 20,
                          Font, Paint, TSkTextAlign.Center);
   end;
@@ -741,8 +763,8 @@ begin
   // Draw status text
   if FShowStatusText then
   begin
-    Font := TSkFont.Create(TSkTypeface.MakeFromName('Segoe UI', TSkFontStyle.Bold), 12);
-    Paint.Color := StatusColor;
+    Font := CreateSkFont(FFont);
+    Paint.Color := SafeColorRefToSkColor(StatusColor);
     Canvas.DrawSimpleText(GetStatusText, Width / 2, Height / 2 + 20,
                          Font, Paint, TSkTextAlign.Center);
   end;
