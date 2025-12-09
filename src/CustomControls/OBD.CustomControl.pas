@@ -206,12 +206,12 @@ procedure TOBDCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF; 
 var
   BufferCanvas: ISkCanvas;
 begin
-  // Recreate back buffer if size changed or first draw
-  if not Assigned(FBackBuffer) or 
-     (FBackBuffer.Width <> Width) or (FBackBuffer.Height <> Height) then
+  // Recreate back buffer if invalid flag set, size changed, or first draw
+  if FBackBufferInvalid or not Assigned(FBackBuffer) or 
+     (FBackBuffer.Width <> Round(Width)) or (FBackBuffer.Height <> Round(Height)) then
   begin
     // Create a new back buffer surface with current dimensions
-    FBackBuffer := TSkSurface.MakeRaster(Width, Height);
+    FBackBuffer := TSkSurface.MakeRaster(Round(Width), Round(Height));
     FBackBufferInvalid := False;
   end;
   
@@ -308,6 +308,9 @@ begin
     // Deallocate window handle
     DeallocateHWnd(FWindowHandle);
   end;
+  // Clear back buffer references
+  FBackBufferImage := nil;
+  FBackBuffer := nil;
   // Call inherited destructor
   inherited Destroy;
 end;
