@@ -13,7 +13,9 @@
 // NOTE           : This component serves as a base for Skia-rendered components.
 //                  It provides timer-based rendering for animations and on-demand
 //                  rendering for static content. Child classes override PaintSkia
-//                  to render directly using Skia's canvas.
+//                  to render directly using Skia's canvas. Double buffering is used
+//                  to prevent flickering: content is rendered to a back buffer first,
+//                  then copied atomically to the screen.
 //------------------------------------------------------------------------------
 unit OBD.CustomControl;
 
@@ -204,28 +206,29 @@ procedure TOBDCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF; 
 var
   BufferCanvas: ISkCanvas;
 begin
-  // Recreate back buffer if needed (size changed or first draw)
-  if FBackBufferInvalid or not Assigned(FBackBuffer) or 
+  // Recreate back buffer if size changed or first draw
+  if not Assigned(FBackBuffer) or 
      (FBackBuffer.Width <> Width) or (FBackBuffer.Height <> Height) then
   begin
     // Create a new back buffer surface with current dimensions
     FBackBuffer := TSkSurface.MakeRaster(Width, Height);
     FBackBufferInvalid := False;
-    
-    if Assigned(FBackBuffer) then
-    begin
-      // Get the canvas from the back buffer
-      BufferCanvas := FBackBuffer.Canvas;
-      // Render to the back buffer
-      PaintSkia(BufferCanvas);
-      // Create an immutable snapshot
-      FBackBufferImage := FBackBuffer.MakeImageSnapshot;
-    end;
   end;
   
-  // Draw the back buffer image to the screen (atomic operation, no flickering)
-  if Assigned(FBackBufferImage) then
-    ACanvas.DrawImage(FBackBufferImage, 0, 0);
+  // Always render to the back buffer first (prevents flickering)
+  if Assigned(FBackBuffer) then
+  begin
+    // Get the canvas from the back buffer
+    BufferCanvas := FBackBuffer.Canvas;
+    // Render to the back buffer
+    PaintSkia(BufferCanvas);
+    // Create an immutable snapshot for atomic display
+    FBackBufferImage := FBackBuffer.MakeImageSnapshot;
+    
+    // Draw the back buffer image to the screen (atomic operation, no flickering)
+    if Assigned(FBackBufferImage) then
+      ACanvas.DrawImage(FBackBufferImage, 0, 0);
+  end;
 end;
 
 //------------------------------------------------------------------------------
