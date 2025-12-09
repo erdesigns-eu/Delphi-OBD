@@ -1916,10 +1916,8 @@ begin
     FStartAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -1938,10 +1936,8 @@ begin
     FEndAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -1962,10 +1958,8 @@ begin
       FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -1986,10 +1980,8 @@ begin
       FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2021,10 +2013,8 @@ begin
       Animation.Value := FValue;
     end;
     
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2512,10 +2502,8 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2523,10 +2511,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2544,10 +2530,8 @@ begin
   if not Animation.Enabled then
     Animation.Value := FValue;
   
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2586,10 +2570,8 @@ begin
     Animation.Value := FValue;
   end;
 
-  // Redraw Skia
+  // Redraw Skia (also invalidates and triggers repaint)
   Redraw;
-  // Trigger a repaint to display the updated needle position
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2624,10 +2606,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2639,10 +2619,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2778,10 +2756,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate the buffer
-  Invalidate;
 end;
 
 end.

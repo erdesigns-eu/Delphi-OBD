@@ -947,9 +947,8 @@ begin
   if FAutoApplyConnectionDetails <> Value then
   begin
     FAutoApplyConnectionDetails := Value;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    Invalidate;
   end;
 end;
 
@@ -967,9 +966,8 @@ begin
     if Assigned(FConnectionComponent) and FAutoApplyConnectionDetails then
       FConnectionComponent.OnConnectionStateChanged := HandleConnectionStateChanged;
     
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    Invalidate;
   end;
 end;
 
@@ -994,9 +992,8 @@ begin
       FProtocolIndicator.Caption := 'AUTO';
     end;
     
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    Invalidate;
   end;
 end;
 
