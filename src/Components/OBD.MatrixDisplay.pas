@@ -794,10 +794,8 @@ begin
   begin
     // Set new cell size
     FCellSize := Value;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -813,10 +811,8 @@ begin
   begin
     // Set new cell spacing
     FCellSpacing := Value;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -835,10 +831,8 @@ begin
     FRows := Value;
     // Initialize cells
     InitializeCells;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate the buffer
-    Invalidate;
   end;
 end;
 
@@ -889,10 +883,8 @@ begin
   begin
     // Set new on color
     FOnColor := Value;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 

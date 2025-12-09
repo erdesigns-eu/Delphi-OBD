@@ -2322,10 +2322,8 @@ begin
   if (FTabIndex <> Value) and (Value >= -1) and (Value < FTabs.Count) then
   begin
     FTabIndex := Value;
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2418,10 +2416,8 @@ begin
   // If we need to redraw, then update the buffer and invalidate
   if NeedRedraw then
   begin
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2458,13 +2454,11 @@ begin
     NeedRedraw := True;
   end;
 
-  // If we need to redraw, then update the buffer and invalidate
+  // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2475,11 +2469,8 @@ procedure TOBDTouchHeader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate buffer
-  // Paint buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2563,13 +2554,11 @@ begin
     end;
   end;
 
-  // If we need to redraw, then update the buffer and invalidate
+  // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2662,13 +2651,11 @@ begin
     end;
   end;
 
-  // If we need to redraw, then update the buffer and invalidate
+  // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2753,13 +2740,11 @@ begin
     end;
   end;
 
-  // If we need to redraw, then update the buffer and invalidate
+  // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia
+    // Redraw Skia (also invalidates)
     Redraw;
-    // Invalidate buffer
-    Invalidate;
   end;
 end;
 
@@ -2771,13 +2756,8 @@ begin
   // Reset tab index
   if (FTabIndex > FTabs.Count) then FTabIndex := FTabs.Count -1;
   if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
-  // Redraw Skia
+  // Redraw Skia (also invalidates)
   Redraw;
-  // Invalidate buffer
-  // if (FTabIndex > FTabs.Count) then FTabIndex := FTabs.Count -1;
-  //if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
-  // Paint buffer
-  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
