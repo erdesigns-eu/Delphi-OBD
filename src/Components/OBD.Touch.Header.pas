@@ -2325,7 +2325,7 @@ begin
     // Redraw Skia (also invalidates)
     Redraw;
   end;
-end.
+end;
 
 //------------------------------------------------------------------------------
 // SET BATTERY INDICATOR
@@ -2758,7 +2758,7 @@ begin
   if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
   // Redraw Skia (also invalidates)
   Redraw;
-end.
+end;
 
 //------------------------------------------------------------------------------
 // PAINT BUFFER

@@ -208,7 +208,7 @@ var
 begin
   // Recreate back buffer if invalid flag set, size changed, or first draw
   if FBackBufferInvalid or not Assigned(FBackBuffer) or 
-     (FBackBuffer.Width <> Round(Width)) or (FBackBuffer.Height <> Round(Height)) then
+     (Assigned(FBackBuffer) and ((FBackBuffer.Width <> Round(Width)) or (FBackBuffer.Height <> Round(Height)))) then
   begin
     // Create a new back buffer surface with current dimensions
     FBackBuffer := TSkSurface.MakeRaster(Round(Width), Round(Height));

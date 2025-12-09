@@ -797,7 +797,7 @@ begin
     // Redraw Skia (also invalidates)
     Redraw;
   end;
-end.
+end;
 
 //------------------------------------------------------------------------------
 // SET CELL SPACING
