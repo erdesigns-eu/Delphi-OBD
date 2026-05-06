@@ -99,7 +99,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 ### New components (each: `src/Components/`, design-time registration, example, XML docs)
 - [x] **🟠 M** `TOBDLinearGauge` — horizontal/vertical bar gauge (boost, fuel, coolant). *(v2.2)*
   *DoD:* `src/Components/OBD.LinearGauge.pas` ships horizontal + vertical orientation, normal + reversed fill direction, gradient bar (BarColorFrom→BarColorTo), styled background + border, optional caption + units + value text, ease-out cubic transitions on `Value`. Registered on the IDE component palette and in `RunTime.dpk` / `.dproj`. Smoke tests cover construction, Min/Max/Value clamping, and orientation/direction toggles.
-- [ ] **🟠 M** `TOBDTachometer` — needle gauge with redline arc + shift light.
+- [x] **🟠 M** `TOBDTachometer` — needle gauge with redline arc + shift light. *(v2.2)*
+  *DoD:* `src/Components/OBD.Tachometer.pas` ships an analog RPM gauge with redline arc, shift light at 12 o'clock, configurable major + minor tick intervals, tick-label divisor, eased Value transitions. `ShiftLightActive` exposed as a public property so callers can drive an external LED. Registered + smoke-tested.
 - [ ] **🟠 L** `TOBDTrendGraph` — live time-series chart, ring-buffer backed, multi-series.
 - [ ] **🟠 M** `TOBDDtcList` — virtualized DTC list (P/B/C/U codes, severity colors, freeze-frame popup).
 - [ ] **🟠 M** `TOBDTerminal` — live ELM327/protocol conversation viewer with ANSI color + filtering.

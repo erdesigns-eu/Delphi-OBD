@@ -29,6 +29,8 @@ type
     [Test] procedure LinearGauge_ConstructsAndAcceptsMinMaxValue;
     [Test] procedure LinearGauge_ValueIsClampedIntoRange;
     [Test] procedure LinearGauge_OrientationAndDirectionToggle;
+    [Test] procedure Tachometer_ConstructsWithRpmDefaults;
+    [Test] procedure Tachometer_ShiftLightActiveAboveShiftPoint;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -42,6 +44,7 @@ uses
   System.Classes,
   OBD.CircularGauge,
   OBD.LinearGauge,
+  OBD.Tachometer,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -135,6 +138,43 @@ begin
     Assert.AreEqual(Ord(ldReversed), Ord(G.Direction));
   finally
     G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Tachometer_ConstructsWithRpmDefaults;
+var
+  T: TOBDTachometer;
+begin
+  T := TOBDTachometer.Create(nil);
+  try
+    Assert.AreEqual(Single(0),    T.Min);
+    Assert.AreEqual(Single(8000), T.Max);
+    Assert.AreEqual(Single(6500), T.RedlineFrom);
+    Assert.AreEqual(Single(6000), T.ShiftPoint);
+    Assert.IsFalse(T.ShiftLightActive,
+      'ShiftLight must be off at default RPM (0)');
+  finally
+    T.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Tachometer_ShiftLightActiveAboveShiftPoint;
+var
+  T: TOBDTachometer;
+begin
+  T := TOBDTachometer.Create(nil);
+  try
+    // Disable animation so DisplayValue tracks Value immediately.
+    T.AnimationEnabled := False;
+    T.ShiftPoint := 5000;
+    T.Value := 4500;
+    Assert.IsFalse(T.ShiftLightActive,
+      'ShiftLight off below ShiftPoint');
+    T.Value := 5500;
+    Assert.IsTrue(T.ShiftLightActive,
+      'ShiftLight on above ShiftPoint');
+  finally
+    T.Free;
   end;
 end;
 

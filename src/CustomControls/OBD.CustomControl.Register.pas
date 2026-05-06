@@ -29,7 +29,7 @@ procedure Register;
 implementation
 
 uses
-  OBD.CircularGauge, OBD.LinearGauge, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
+  OBD.CircularGauge, OBD.LinearGauge, OBD.Tachometer, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
   OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
@@ -77,6 +77,7 @@ begin
   RegisterComponents(ComponentPage, [
     TOBDCircularGauge,  // Register the Circular Gauge
     TOBDLinearGauge,    // Register the Linear (bar) Gauge
+    TOBDTachometer,     // Register the Tachometer
     TOBDMatrixDisplay,  // Register the Matrix Display
     TOBDLed,            // Register the LED
 
