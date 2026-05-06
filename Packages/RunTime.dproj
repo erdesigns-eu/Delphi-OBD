@@ -147,6 +147,7 @@
         <DCCReference Include="..\src\Components\OBD.Component.BindingHelpers.pas"/>
         <DCCReference Include="..\src\Components\OBD.LED.pas"/>
         <DCCReference Include="..\src\Components\OBD.CircularGauge.pas"/>
+        <DCCReference Include="..\src\Components\OBD.LinearGauge.pas"/>
         <DCCReference Include="..\src\Components\OBD.MatrixDisplay.pas"/>
         <DCCReference Include="..\src\Components\OBD.Touch.Header.pas"/>
         <DCCReference Include="..\src\Components\OBD.Touch.Statusbar.pas"/>

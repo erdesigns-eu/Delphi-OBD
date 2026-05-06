@@ -26,6 +26,9 @@ type
   public
     [Test] procedure CircularGauge_ConstructsAndAcceptsMinMaxValue;
     [Test] procedure CircularGauge_ValueIsClampedIntoRange;
+    [Test] procedure LinearGauge_ConstructsAndAcceptsMinMaxValue;
+    [Test] procedure LinearGauge_ValueIsClampedIntoRange;
+    [Test] procedure LinearGauge_OrientationAndDirectionToggle;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -38,6 +41,7 @@ implementation
 uses
   System.Classes,
   OBD.CircularGauge,
+  OBD.LinearGauge,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -80,6 +84,55 @@ begin
     G.Max := 70;
     G.Value := 80;
     Assert.IsTrue(G.Value <= 70, 'Max ceiling must keep Value below Max');
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.LinearGauge_ConstructsAndAcceptsMinMaxValue;
+var
+  G: TOBDLinearGauge;
+begin
+  G := TOBDLinearGauge.Create(nil);
+  try
+    G.Min := 0;
+    G.Max := 200;
+    G.Value := 75;
+    Assert.AreEqual(Single(0),   G.Min);
+    Assert.AreEqual(Single(200), G.Max);
+    Assert.AreEqual(Single(75),  G.Value);
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.LinearGauge_ValueIsClampedIntoRange;
+var
+  G: TOBDLinearGauge;
+begin
+  G := TOBDLinearGauge.Create(nil);
+  try
+    G.Min := 0;
+    G.Max := 100;
+    G.Value := 200;
+    Assert.AreEqual(Single(100), G.Value, 'over-Max value must clamp to Max');
+    G.Value := -10;
+    Assert.AreEqual(Single(0), G.Value, 'under-Min value must clamp to Min');
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.LinearGauge_OrientationAndDirectionToggle;
+var
+  G: TOBDLinearGauge;
+begin
+  G := TOBDLinearGauge.Create(nil);
+  try
+    G.Orientation := loVertical;
+    Assert.AreEqual(Ord(loVertical), Ord(G.Orientation));
+    G.Direction := ldReversed;
+    Assert.AreEqual(Ord(ldReversed), Ord(G.Direction));
   finally
     G.Free;
   end;

@@ -44,6 +44,7 @@ contains
   OBD.Component.BindingHelpers in '..\src\Components\OBD.Component.BindingHelpers.pas',
   OBD.LED in '..\src\Components\OBD.LED.pas',
   OBD.CircularGauge in '..\src\Components\OBD.CircularGauge.pas',
+  OBD.LinearGauge in '..\src\Components\OBD.LinearGauge.pas',
   OBD.MatrixDisplay in '..\src\Components\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\src\Components\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\src\Components\OBD.Touch.Statusbar.pas',

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `TOBDLinearGauge` (`src/Components/OBD.LinearGauge.pas`) — horizontal/vertical bar gauge with gradient fill, normal/reversed direction, optional caption + units + value text, eased `Value` transitions. Registered on the IDE palette and exercised by `Tests.Components.Smoke`.
+
+### Changed
+- Removed `OBD.CustomControl.AnimationManager.pas` and the `IOBDAnimatable` interface contract on `TOBDCircularGauge` / `TOBDMatrixDisplay`. Each component now interpolates animated state directly inside `PaintSkia` using its existing `TStopwatch`; the inherited `TOBDCustomControl` timer keeps firing `Invalidate` at `FramesPerSecond` Hz so every paint observes the current state.
+
 ## [2.1.0] - 2026-05-06 — Foundation
 
 ### Added

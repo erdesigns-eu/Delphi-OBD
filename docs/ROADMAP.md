@@ -97,7 +97,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 > Goal: close the visual-component gaps so users don't reach for TChart or roll their own.
 
 ### New components (each: `src/Components/`, design-time registration, example, XML docs)
-- [ ] **🟠 M** `TOBDLinearGauge` — horizontal/vertical bar gauge (boost, fuel, coolant).
+- [x] **🟠 M** `TOBDLinearGauge` — horizontal/vertical bar gauge (boost, fuel, coolant). *(v2.2)*
+  *DoD:* `src/Components/OBD.LinearGauge.pas` ships horizontal + vertical orientation, normal + reversed fill direction, gradient bar (BarColorFrom→BarColorTo), styled background + border, optional caption + units + value text, ease-out cubic transitions on `Value`. Registered on the IDE component palette and in `RunTime.dpk` / `.dproj`. Smoke tests cover construction, Min/Max/Value clamping, and orientation/direction toggles.
 - [ ] **🟠 M** `TOBDTachometer` — needle gauge with redline arc + shift light.
 - [ ] **🟠 L** `TOBDTrendGraph` — live time-series chart, ring-buffer backed, multi-series.
 - [ ] **🟠 M** `TOBDDtcList` — virtualized DTC list (P/B/C/U codes, severity colors, freeze-frame popup).
