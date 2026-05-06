@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-05-06 — Foundation
+
 ### Added
 - DUnitX test harness (`tests/Tests.dpr`) with TestInsight and console-mode runners.
 - Smoke fixture (`Tests.Smoke.pas`) that proves the rig is alive.
@@ -33,4 +35,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.1.0...HEAD
+[2.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.0.0...v2.1.0

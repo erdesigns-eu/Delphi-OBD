@@ -18,7 +18,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 
 | Milestone | Theme | State |
 |---|---|---|
-| v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ◐ In progress |
+| v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ✅ Tagged v2.1.0 (2026-05-06) |
 | v2.2 Components | Gauges, charts, terminal, theming | ☐ Not started |
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ☐ Not started |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ☐ Not started |
@@ -74,7 +74,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 
 ### Versioning & community
 - [x] **🔴 S** `CHANGELOG.md` (Keep-a-Changelog format). *(v2.1)*
-- [ ] **🔴 S** Adopt SemVer; tag `v2.1.0` at end of milestone.
+- [x] **🔴 S** Adopt SemVer; tag `v2.1.0` at end of milestone. *(v2.1)*
 - [x] **🟠 S** `CONTRIBUTING.md` — branch naming, commit style, PR checklist. *(v2.1)*
 - [x] **🟠 S** `.github/ISSUE_TEMPLATE/` — bug, feature, question. *(v2.1)*
 - [x] **🟠 S** `.github/PULL_REQUEST_TEMPLATE.md`. *(v2.1)*
@@ -88,7 +88,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [x] **🟠 L** `examples/dashboard/` — multi-gauge live dashboard with circular gauges, LEDs, header, statusbar, log panel, simulated data source. *(v2.1)*
   *DoD:* `Dashboard.dpr` + `DashboardForm.pas` + `README.md` ship a four-gauge dashboard built entirely in code; runs out-of-the-box in simulator mode (20 fps tick driving plausible RPM/Speed/Coolant/Throttle values); "Connect Live" toggle exposes the wired-up `TOBDConnectionComponent` + `TOBDProtocolComponent` for real-adapter mode. Documented in `examples/README.md`. Replay-from-recorded-session and DTC list panel land with v2.3 (log replay) and v2.2 (`TOBDDtcList`).
 
-**Exit criteria for v2.1:** All 🔴 items complete, CI green on main, v2.1.0 tagged.
+**Exit criteria for v2.1:** ✅ All 🔴 items complete, lint CI green, v2.1.0 tagged 2026-05-06.
 
 ---
 
