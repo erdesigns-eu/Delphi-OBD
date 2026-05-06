@@ -30,7 +30,7 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.LinearGauge, OBD.Tachometer, OBD.TrendGraph,
-  OBD.DtcList, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
+  OBD.DtcList, OBD.Terminal, OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
   OBD.Project.Wizard, OBD.Mainform.Wizard, OBD.Form.Wizard, OBD.DataModule.Wizard;
@@ -81,6 +81,7 @@ begin
     TOBDTachometer,     // Register the Tachometer
     TOBDTrendGraph,     // Register the live trend graph
     TOBDDtcList,        // Register the DTC list
+    TOBDTerminal,       // Register the conversation terminal
     TOBDMatrixDisplay,  // Register the Matrix Display
     TOBDLed,            // Register the LED
 

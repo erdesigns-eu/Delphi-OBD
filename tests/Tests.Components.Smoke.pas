@@ -36,6 +36,8 @@ type
     [Test] procedure TrendGraph_ResizeMaxSamplesPreservesRecent;
     [Test] procedure DtcList_AddRemoveClear;
     [Test] procedure DtcList_SelectedIndexClampsOnRemove;
+    [Test] procedure Terminal_LogMethodsAppendInOrder;
+    [Test] procedure Terminal_MaxLinesEvictsOldest;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -52,6 +54,7 @@ uses
   OBD.Tachometer,
   OBD.TrendGraph,
   OBD.DtcList,
+  OBD.Terminal,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -285,6 +288,44 @@ begin
       'SelectedIndex must remain in range after RemoveItem');
   finally
     L.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Terminal_LogMethodsAppendInOrder;
+var
+  T: TOBDTerminal;
+begin
+  T := TOBDTerminal.Create(nil);
+  try
+    T.LogSent('AT Z');
+    T.LogReceived('ELM327 v1.5');
+    T.LogInfo('protocol auto');
+    T.LogError('NO DATA');
+    Assert.AreEqual(4, T.LineCount);
+    Assert.AreEqual('AT Z',         T.GetLine(0).Text);
+    Assert.AreEqual(Ord(tdSent),    Ord(T.GetLine(0).Direction));
+    Assert.AreEqual(Ord(tdReceived),Ord(T.GetLine(1).Direction));
+    Assert.AreEqual(Ord(tdInfo),    Ord(T.GetLine(2).Direction));
+    Assert.AreEqual(Ord(tdError),   Ord(T.GetLine(3).Direction));
+  finally
+    T.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Terminal_MaxLinesEvictsOldest;
+var
+  T: TOBDTerminal;
+  I: Integer;
+begin
+  T := TOBDTerminal.Create(nil);
+  try
+    T.MaxLines := 3;
+    for I := 1 to 5 do T.LogSent('cmd ' + IntToStr(I));
+    Assert.AreEqual(3, T.LineCount, 'buffer must cap at MaxLines');
+    Assert.AreEqual('cmd 3', T.GetLine(0).Text, 'oldest two evicted');
+    Assert.AreEqual('cmd 5', T.GetLine(2).Text);
+  finally
+    T.Free;
   end;
 end;
 

@@ -48,6 +48,7 @@ contains
   OBD.Tachometer in '..\src\Components\OBD.Tachometer.pas',
   OBD.TrendGraph in '..\src\Components\OBD.TrendGraph.pas',
   OBD.DtcList in '..\src\Components\OBD.DtcList.pas',
+  OBD.Terminal in '..\src\Components\OBD.Terminal.pas',
   OBD.MatrixDisplay in '..\src\Components\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\src\Components\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\src\Components\OBD.Touch.Statusbar.pas',

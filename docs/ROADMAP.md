@@ -105,7 +105,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `src/Components/OBD.TrendGraph.pas` ships per-series ring buffer (`AddSeries`/`PushValue`/`ClearSamples`/`RemoveSeries`), per-series Min/Max range so unlike-unit series share a plot, configurable `MaxSamples`, optional grid + legend + border, anti-aliased Skia stroke. Ring-buffer overwrite + resize semantics are smoke-tested.
 - [x] **🟠 M** `TOBDDtcList` — virtualized DTC list (P/B/C/U codes, severity colors, click + double-click events). *(v2.2)*
   *DoD:* `src/Components/OBD.DtcList.pas` ships row virtualization (only visible rows render), header row, severity stripe + status badge, mouse-wheel scrolling with auto-thumb scroll-bar, alternate-row striping, selection highlight. `OnDtcClick` / `OnDtcDoubleClick` events expose host hooks for a freeze-frame viewer. `EnsureVisible(Index)` for programmatic scroll. Smoke tests cover add/remove/clear and selection clamping.
-- [ ] **🟠 M** `TOBDTerminal` — live ELM327/protocol conversation viewer with ANSI color + filtering.
+- [x] **🟠 M** `TOBDTerminal` — live ELM327/protocol conversation viewer with direction-coloured rows. *(v2.2)*
+  *DoD:* `src/Components/OBD.Terminal.pas` ships an append-only line buffer with four entry points (`LogSent`, `LogReceived`, `LogInfo`, `LogError`), direction prefix glyphs, monospace font, optional timestamps, mouse-wheel scrolling, auto-thumb scroll-bar, and follow-tail behaviour that auto-scrolls only when the user is already at the bottom. ANSI-colour parsing + filtering tracked as a v2.3 follow-up.
 - [ ] **🟢 S** `TOBDKnob` — rotary input.
 - [ ] **🟢 S** `TOBDSegmentedSwitch` — touch-style multi-state toggle.
 
