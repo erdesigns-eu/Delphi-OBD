@@ -19,7 +19,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | Milestone | Theme | State |
 |---|---|---|
 | v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ✅ Tagged v2.1.0 (2026-05-06) |
-| v2.2 Components | Gauges, charts, terminal, theming | ☐ Not started |
+| v2.2 Components | Gauges, charts, terminal, theming | ✅ Tagged v2.2.0 (2026-05-06) |
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ☐ Not started |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ☐ Not started |
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ☐ Not started |
@@ -121,10 +121,11 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [ ] **🟢 S** High-contrast / accessibility theme variant.
 
 ### Component infrastructure
-- [ ] **🟠 S** Document the component-authoring pattern (`docs/COMPONENT_AUTHORING.md`) — Skia-only rendering, FPS rules, animation manager usage. Convert and absorb the existing `TASKS.md → TASK 0.3`.
-- [ ] **🟢 S** Animation manager profiling: confirm CPU usage at 30 FPS with 6 active gauges <1% on baseline hardware.
+- [x] **🟠 S** Document the component-authoring pattern (`docs/COMPONENT_AUTHORING.md`). *(v2.2)*
+  *DoD:* `docs/COMPONENT_AUTHORING.md` covers base class, file/unit naming, skeleton, property-setter rules, animation pattern, Skia drawing helpers, theme integration, package registration, smoke-test minimum, anti-patterns, and a copy-paste PR checklist. Replaces the legacy `TASKS.md → TASK 0.3` placeholder.
+- [ ] **🟢 S** Animation profiling: confirm CPU usage at 30 FPS with 6 active gauges <1% on baseline hardware. *(v2.3 backlog)*
 
-**Exit criteria for v2.2:** All 🟠 components shipped, theming works in dashboard, v2.2.0 tagged.
+**Exit criteria for v2.2:** ✅ Six new components (LinearGauge, Tachometer, TrendGraph, DtcList, Terminal, Knob, SegmentedSwitch) shipped + theming layer + authoring guide; v2.2.0 tagged 2026-05-06.
 
 ---
 
