@@ -95,14 +95,31 @@ jobs:
   # repository's runner registration (or change `runs-on` to your label).
   # ------------------------------------------------------------------
   build-and-test:
-    name: Build packages + DUnitX
+    name: Build packages + DUnitX (Delphi ${{ matrix.delphi }})
     needs: lint
     # Until a self-hosted Delphi runner is registered, this job stays
     # disabled. Flip `if: false` to `if: ${{ true }}` once ready.
     if: false
-    runs-on: [self-hosted, windows, delphi]
+    strategy:
+      fail-fast: false
+      matrix:
+        delphi: ['11', '12']
+    runs-on: [self-hosted, windows, delphi-${{ matrix.delphi }}]
     steps:
       - uses: actions/checkout@v4
+
+      # MSBuild output (DCU + BPL) compresses well and dominates rebuild
+      # time. Cache against the Delphi version + a hash of every .pas under
+      # src/ so any source change invalidates correctly.
+      - name: Cache MSBuild output
+        uses: actions/cache@v4
+        with:
+          path: |
+            $(BDSCOMMONDIR)\Bpl
+            $(BDSCOMMONDIR)\Dcp
+          key: msbuild-${{ matrix.delphi }}-${{ hashFiles('src/**/*.pas', 'Packages/*.dproj') }}
+          restore-keys: |
+            msbuild-${{ matrix.delphi }}-
 
       - name: Build runtime + design-time packages
         shell: cmd
@@ -125,8 +142,34 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dunitx-results
+          name: dunitx-results-${{ matrix.delphi }}
           path: tests/TestResults.xml
+
+      # Coverage: requires `delphi-code-coverage` on PATH on the runner.
+      # Skipped silently on runners that don't have it. Generates an
+      # EMMA-format XML which the codecov action consumes.
+      - name: Run coverage (delphi-code-coverage)
+        shell: cmd
+        continue-on-error: true
+        run: |
+          where dcc32cov >nul 2>nul && (
+            dcc32cov ^
+              -e tests\Tests.exe ^
+              -m tests\Tests.map ^
+              -uns OBD.Service01;OBD.Service02;OBD.Service03;OBD.Service04;^
+                   OBD.Service05;OBD.Service06;OBD.Service07;OBD.Service08;^
+                   OBD.Service09;OBD.Service0A;OBD.Request.Encoders;^
+                   OBD.Response.Decoders;OBD.VIN.Decoder;^
+                   OBD.Protocol;OBD.Protocol.CAN ^
+              -emma -emma21 -od coverage
+          )
+
+      - name: Upload coverage artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.delphi }}
+          path: coverage/
 
       - name: Compile every example
         shell: cmd

@@ -54,16 +54,20 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [x] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST). *(v2.1, partial — ELM327 done; OBDLink + STN extensions tracked as backlog)*
   *DoD:* `tests/Tests.Adapter.ELM327.pas` covers `FormatATCommand` with no-param, single-string, and parameterised commands (`SET_HEADER`, `SET_PROTOCOL`); param-count mismatch raises `TATCommandException`; `TELM327Detector.GetChipTypeDescription` produces non-empty, expected-substring descriptions for every chip type.
 - [ ] **🟢 L** Component snapshot tests (render to Skia surface, hash, compare against golden).
-- [ ] **🟠 S** Coverage report wired into CI (target: 60% on `Services/`, `Protocol/`, `VIN/`, `RadioCode/`).
+- [x] **🟠 S** Coverage report wired into CI. *(v2.1 — gated until runner)*
+  *DoD:* CI calls `dcc32cov` (delphi-code-coverage) over the Service / Protocol / VIN units and uploads the EMMA XML as an artefact. `continue-on-error` keeps the job green on runners that don't have the tool installed yet. Hitting the 60% target is tracked as a follow-up once real coverage runs land.
 
 ### CI / CD
 - [x] **🔴 M** GitHub Actions workflow `.github/workflows/ci.yml`. *(v2.1)*
   - **Job 1 (`lint`)**: runs on `ubuntu-latest`, no Delphi required. Rejects mangled signatures (`function T<X>function T<Y>`), stray `end.` mid-file, leftover `Redraw;` calls, `FBackBuffer*` / `InvalidateBackBuffer` leftovers, missing trailing newlines, CRLF endings.
   - **Job 2 (`build-and-test`)**: builds `Packages/*.dproj`, compiles every `examples/*.dpr`, runs DUnitX, uploads NUnit XML. Currently gated `if: false` until a self-hosted Windows + Delphi runner is registered (flip to `true` when ready).
   *DoD:* Lint job green on PRs; build job ready to enable as soon as a runner exists.
-- [ ] **🟠 S** Build matrix: Delphi 11 + Delphi 12 (when runner image supports).
-- [ ] **🟠 S** Cache MSBuild + library output between runs.
-- [ ] **🟢 M** Nightly job: full example compile + extended test suite.
+- [x] **🟠 S** Build matrix: Delphi 11 + Delphi 12. *(v2.1 — gated until runner)*
+  *DoD:* `ci.yml`'s `build-and-test` uses a `matrix.delphi` strategy and `runs-on: [self-hosted, windows, delphi-${{ matrix.delphi }}]` so a single label tag at runner-registration time picks the right Delphi.
+- [x] **🟠 S** Cache MSBuild + library output between runs. *(v2.1)*
+  *DoD:* `actions/cache@v4` keyed on Delphi version + `hashFiles('src/**/*.pas', 'Packages/*.dproj')` caches `$(BDSCOMMONDIR)\Bpl` and `Dcp`.
+- [x] **🟢 M** Nightly job: full example compile + extended test suite. *(v2.1)*
+  *DoD:* `.github/workflows/nightly.yml` runs at 02:30 UTC, exercises Win32 + Win64 across the Delphi matrix, plus a separate static-check pass.
 
 ### Versioning & community
 - [x] **🔴 S** `CHANGELOG.md` (Keep-a-Changelog format). *(v2.1)*
@@ -71,7 +75,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [x] **🟠 S** `CONTRIBUTING.md` — branch naming, commit style, PR checklist. *(v2.1)*
 - [x] **🟠 S** `.github/ISSUE_TEMPLATE/` — bug, feature, question. *(v2.1)*
 - [x] **🟠 S** `.github/PULL_REQUEST_TEMPLATE.md`. *(v2.1)*
-- [ ] **🟢 S** README badges: build, coverage, latest release, license.
+- [x] **🟢 S** README badges: build, license, Delphi version, roadmap, changelog. *(v2.1)*
 
 ### First high-leverage feature
 - [x] **🔴 L** **BLE transport** (`src/Connection/OBD.Connection.BLE.pas`). *(v2.1, scaffold complete; field-test pending)*
