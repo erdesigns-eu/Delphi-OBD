@@ -78,8 +78,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `TBluetoothLE` GATT wrapper (discover by address, find service, write + notify characteristics, subscribe). `TBluetoothLEOBDConnection` mirrors the classic-Bluetooth surface and plugs into `TOBDConnectionComponent` via the new `ctBluetoothLE` connection-type. Defaults match the FFE0/FFE1 ELM327 BLE clone family; constants for Nordic UART (NUS) provided. Hardware verification against Vgate iCar Pro BLE + OBDLink MX+ tracked as a follow-up; example under `examples/connection_ble/` follows once verified.
 
 ### Reference dashboard
-- [ ] **🟠 L** `examples/dashboard/` — multi-gauge live dashboard with circular gauge, LED, header, log panel, DTC list, simulated/replay data source.
-  *DoD:* Runs end-to-end against ELM327 sim; documented in `examples/README.md`.
+- [x] **🟠 L** `examples/dashboard/` — multi-gauge live dashboard with circular gauges, LEDs, header, statusbar, log panel, simulated data source. *(v2.1)*
+  *DoD:* `Dashboard.dpr` + `DashboardForm.pas` + `README.md` ship a four-gauge dashboard built entirely in code; runs out-of-the-box in simulator mode (20 fps tick driving plausible RPM/Speed/Coolant/Throttle values); "Connect Live" toggle exposes the wired-up `TOBDConnectionComponent` + `TOBDProtocolComponent` for real-adapter mode. Documented in `examples/README.md`. Replay-from-recorded-session and DTC list panel land with v2.3 (log replay) and v2.2 (`TOBDDtcList`).
 
 **Exit criteria for v2.1:** All 🔴 items complete, CI green on main, v2.1.0 tagged.
 

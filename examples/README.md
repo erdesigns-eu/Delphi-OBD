@@ -40,6 +40,21 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### 🚀 dashboard/
+**Complexity**: Intermediate
+**Connection**: Simulator by default; live mode via the connection component
+**What it demonstrates**:
+- Multi-pane diagnostic dashboard built **entirely in code** (no `.dfm`)
+- Four `TOBDCircularGauge` instances (RPM, Speed, Coolant Temp, Throttle)
+- Three `TOBDLed` indicators (MIL, Connected, Error)
+- Touch header + statusbar + log memo
+- 20 fps simulator tick that drives gauges with no adapter attached
+- "Simulate" / "Connect Live" mode toggle
+
+**Best for**: Reference end-to-end app; reads top-to-bottom as a tutorial.
+
+---
+
 ### 🔌 serial/
 **Complexity**: Intermediate  
 **Connection**: Serial (COM port)  
