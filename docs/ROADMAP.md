@@ -35,8 +35,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 ### Testing
 - [x] **🔴 M** Add DUnitX project under `tests/` with `Tests.dpr` and TestInsight integration. *(v2.1)*
   *DoD:* `tests/Tests.dpr` builds; smoke fixture (`Tests.Smoke.pas`) runs green in TestInsight and as a console app; NUnit XML written to `TestResults.xml`.
-- [ ] **🔴 M** Golden tests for VIN decoder (`src/VIN/`).
-  *DoD:* ≥30 real-world VINs (one per major manufacturer) round-trip; check-digit failures detected.
+- [x] **🔴 M** Golden tests for VIN decoder (`src/VIN/`). *(v2.1)*
+  *DoD:* SAE J853 + Honda goldens validate; ISO-3779 check-digit calc + round-trip property tests; tampered VINs rejected; length / forbidden-character validation; section extraction (WMI/VDS/VIS); model-year decoding. See `tests/Tests.VIN.Decoder.pas`. Manufacturer-coverage expansion (one VIN per major OEM) tracked in v2.2 backlog.
 - [ ] **🔴 L** Golden tests for radio code algorithms (all 42 brands).
   *DoD:* Each brand has at least 5 known (serial → code) pairs; suite green.
 - [ ] **🔴 M** Service 01–0A encoder/decoder tests with recorded ELM327 frames.

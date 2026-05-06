@@ -26,7 +26,8 @@ uses
   DUnitX.Loggers.Xml.NUnit,
   {$ENDIF}
   DUnitX.TestFramework,
-  Tests.Smoke in 'Tests.Smoke.pas';
+  Tests.Smoke in 'Tests.Smoke.pas',
+  Tests.VIN.Decoder in 'Tests.VIN.Decoder.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
