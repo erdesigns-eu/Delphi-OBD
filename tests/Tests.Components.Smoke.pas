@@ -34,6 +34,8 @@ type
     [Test] procedure TrendGraph_AddSeries_AndPushValues;
     [Test] procedure TrendGraph_RingBufferOverwritesOldest;
     [Test] procedure TrendGraph_ResizeMaxSamplesPreservesRecent;
+    [Test] procedure DtcList_AddRemoveClear;
+    [Test] procedure DtcList_SelectedIndexClampsOnRemove;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -49,6 +51,7 @@ uses
   OBD.LinearGauge,
   OBD.Tachometer,
   OBD.TrendGraph,
+  OBD.DtcList,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -241,6 +244,47 @@ begin
     Assert.AreEqual(Single(8), G.Series[0].Values[3]);
   finally
     G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.DtcList_AddRemoveClear;
+var
+  L: TOBDDtcList;
+begin
+  L := TOBDDtcList.Create(nil);
+  try
+    Assert.AreEqual(0, L.ItemCount);
+    L.AddItem('P0301', 'Cylinder 1 misfire detected', dsWarning, dsActive);
+    L.AddItem('P0420', 'Catalyst efficiency below threshold', dsCritical, dsActive);
+    L.AddItem('B1234', 'Body code', dsInfo, dsHistory);
+    Assert.AreEqual(3, L.ItemCount);
+    Assert.AreEqual('P0301', L.Items[0].Code);
+    L.RemoveItem(1);
+    Assert.AreEqual(2, L.ItemCount);
+    Assert.AreEqual('B1234', L.Items[1].Code);
+    L.ClearItems;
+    Assert.AreEqual(0, L.ItemCount);
+    Assert.AreEqual(-1, L.SelectedIndex);
+  finally
+    L.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.DtcList_SelectedIndexClampsOnRemove;
+var
+  L: TOBDDtcList;
+begin
+  L := TOBDDtcList.Create(nil);
+  try
+    L.AddItem('P0001', 'first');
+    L.AddItem('P0002', 'second');
+    L.AddItem('P0003', 'third');
+    L.SelectedIndex := 2;
+    L.RemoveItem(2);  // last item gone — selection must clamp
+    Assert.IsTrue(L.SelectedIndex < L.ItemCount,
+      'SelectedIndex must remain in range after RemoveItem');
+  finally
+    L.Free;
   end;
 end;
 

@@ -103,7 +103,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `src/Components/OBD.Tachometer.pas` ships an analog RPM gauge with redline arc, shift light at 12 o'clock, configurable major + minor tick intervals, tick-label divisor, eased Value transitions. `ShiftLightActive` exposed as a public property so callers can drive an external LED. Registered + smoke-tested.
 - [x] **🟠 L** `TOBDTrendGraph` — live time-series chart, ring-buffer backed, multi-series. *(v2.2)*
   *DoD:* `src/Components/OBD.TrendGraph.pas` ships per-series ring buffer (`AddSeries`/`PushValue`/`ClearSamples`/`RemoveSeries`), per-series Min/Max range so unlike-unit series share a plot, configurable `MaxSamples`, optional grid + legend + border, anti-aliased Skia stroke. Ring-buffer overwrite + resize semantics are smoke-tested.
-- [ ] **🟠 M** `TOBDDtcList` — virtualized DTC list (P/B/C/U codes, severity colors, freeze-frame popup).
+- [x] **🟠 M** `TOBDDtcList` — virtualized DTC list (P/B/C/U codes, severity colors, click + double-click events). *(v2.2)*
+  *DoD:* `src/Components/OBD.DtcList.pas` ships row virtualization (only visible rows render), header row, severity stripe + status badge, mouse-wheel scrolling with auto-thumb scroll-bar, alternate-row striping, selection highlight. `OnDtcClick` / `OnDtcDoubleClick` events expose host hooks for a freeze-frame viewer. `EnsureVisible(Index)` for programmatic scroll. Smoke tests cover add/remove/clear and selection clamping.
 - [ ] **🟠 M** `TOBDTerminal` — live ELM327/protocol conversation viewer with ANSI color + filtering.
 - [ ] **🟢 S** `TOBDKnob` — rotary input.
 - [ ] **🟢 S** `TOBDSegmentedSwitch` — touch-style multi-state toggle.
