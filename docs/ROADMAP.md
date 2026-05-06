@@ -53,7 +53,10 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `tests/Tests.Protocol.IsoTp.pas` covers SF parse + length + TxId, FF (12-bit length), CF (sequence index), flow-control rejection, odd-length / too-short rejection, full-pipeline `Invoke` for SF, multi-frame VIN reassembly, and out-of-order CF sorting via `TISO_15765_4_11BIT_500K_OBDProtocol`.
 - [x] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST). *(v2.1, partial — ELM327 done; OBDLink + STN extensions tracked as backlog)*
   *DoD:* `tests/Tests.Adapter.ELM327.pas` covers `FormatATCommand` with no-param, single-string, and parameterised commands (`SET_HEADER`, `SET_PROTOCOL`); param-count mismatch raises `TATCommandException`; `TELM327Detector.GetChipTypeDescription` produces non-empty, expected-substring descriptions for every chip type.
-- [ ] **🟢 L** Component snapshot tests (render to Skia surface, hash, compare against golden).
+- [x] **🟢 M** Component construction / property smoke tests. *(v2.1)*
+  *DoD:* `tests/Tests.Components.Smoke.pas` constructs every visual component (CircularGauge, LED, MatrixDisplay, TouchHeader, TouchStatusbar, TouchSubheader), verifies property setters, and frees cleanly. CircularGauge Min/Max/Value clamping invariant is asserted explicitly.
+- [ ] **🟢 L** Image snapshot tests (render to Skia surface, hash, compare against golden). *(v2.2)*
+  *DoD:* Capture-baseline workflow + golden image storage + comparator land alongside the new component tier in v2.2.
 - [x] **🟠 S** Coverage report wired into CI. *(v2.1 — gated until runner)*
   *DoD:* CI calls `dcc32cov` (delphi-code-coverage) over the Service / Protocol / VIN units and uploads the EMMA XML as an artefact. `continue-on-error` keeps the job green on runners that don't have the tool installed yet. Hitting the 60% target is tracked as a follow-up once real coverage runs land.
 

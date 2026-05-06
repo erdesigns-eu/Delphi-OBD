@@ -33,7 +33,8 @@ uses
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
-  Tests.Adapter.ELM327 in 'Tests.Adapter.ELM327.pas';
+  Tests.Adapter.ELM327 in 'Tests.Adapter.ELM327.pas',
+  Tests.Components.Smoke in 'Tests.Components.Smoke.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
