@@ -37,8 +37,12 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `tests/Tests.dpr` builds; smoke fixture (`Tests.Smoke.pas`) runs green in TestInsight and as a console app; NUnit XML written to `TestResults.xml`.
 - [x] **🔴 M** Golden tests for VIN decoder (`src/VIN/`). *(v2.1)*
   *DoD:* SAE J853 + Honda goldens validate; ISO-3779 check-digit calc + round-trip property tests; tampered VINs rejected; length / forbidden-character validation; section extraction (WMI/VDS/VIS); model-year decoding. See `tests/Tests.VIN.Decoder.pas`. Manufacturer-coverage expansion (one VIN per major OEM) tracked in v2.2 backlog.
-- [ ] **🔴 L** Golden tests for radio code algorithms (all 42 brands).
-  *DoD:* Each brand has at least 5 known (serial → code) pairs; suite green.
+- [x] **🔴 M** Universal smoke tests for all 42 radio code calculators (description, deterministic, empty-input rejection). *(v2.1)*
+  *DoD:* `tests/Tests.RadioCode.Smoke.pas` exercises every `TOBDRadioCode*Advanced` + `Becker4`/`Becker5`/`FordV` class.
+- [x] **🟠 M** Golden tests for `TOBDRadioCodeBecker4` (deterministic lookup table). *(v2.1)*
+  *DoD:* `tests/Tests.RadioCode.Becker4.pas` covers fixed indices, determinism, invalid-input rejection, whitespace trimming.
+- [ ] **🟠 L** Per-brand serial→code goldens (≥5 pairs per brand) for the algorithmic calculators (Audi, BMW, Mercedes, VW, Opel, Renault, Peugeot, Citroën, Ford, Honda, Nissan, …).
+  *DoD:* Verified pairs sourced from maintainer / dealer database; one fixture per brand.
 - [ ] **🔴 M** Service 01–0A encoder/decoder tests with recorded ELM327 frames.
   *DoD:* All standard PIDs in Service 01 + DTC parsing in Service 03 covered.
 - [ ] **🟠 M** ISO-TP framing tests (single-frame, first/consecutive, flow control).
