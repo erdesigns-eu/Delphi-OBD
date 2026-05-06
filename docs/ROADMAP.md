@@ -18,7 +18,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 
 | Milestone | Theme | State |
 |---|---|---|
-| v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ☐ Not started |
+| v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ◐ In progress |
 | v2.2 Components | Gauges, charts, terminal, theming | ☐ Not started |
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ☐ Not started |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ☐ Not started |
@@ -33,8 +33,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 > adding more features.
 
 ### Testing
-- [ ] **🔴 M** Add DUnitX project under `tests/` with `Tests.dpk` and TestInsight integration.
-  *DoD:* `tests/Tests.dproj` builds; one trivial green test runs in TestInsight.
+- [x] **🔴 M** Add DUnitX project under `tests/` with `Tests.dpr` and TestInsight integration. *(v2.1)*
+  *DoD:* `tests/Tests.dpr` builds; smoke fixture (`Tests.Smoke.pas`) runs green in TestInsight and as a console app; NUnit XML written to `TestResults.xml`.
 - [ ] **🔴 M** Golden tests for VIN decoder (`src/VIN/`).
   *DoD:* ≥30 real-world VINs (one per major manufacturer) round-trip; check-digit failures detected.
 - [ ] **🔴 L** Golden tests for radio code algorithms (all 42 brands).
