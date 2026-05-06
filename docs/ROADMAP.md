@@ -51,7 +51,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* All `function TOBDfunction TOBD…Decoder.Parse(Data: TBytes;Decoder.Parse(...)` artefacts replaced with valid Pascal signatures matching the IOBD interface declarations.
 - [x] **🟠 M** ISO-TP framing tests (single-frame, first/consecutive, flow control). *(v2.1)*
   *DoD:* `tests/Tests.Protocol.IsoTp.pas` covers SF parse + length + TxId, FF (12-bit length), CF (sequence index), flow-control rejection, odd-length / too-short rejection, full-pipeline `Invoke` for SF, multi-frame VIN reassembly, and out-of-order CF sorting via `TISO_15765_4_11BIT_500K_OBDProtocol`.
-- [ ] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST).
+- [x] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST). *(v2.1, partial — ELM327 done; OBDLink + STN extensions tracked as backlog)*
+  *DoD:* `tests/Tests.Adapter.ELM327.pas` covers `FormatATCommand` with no-param, single-string, and parameterised commands (`SET_HEADER`, `SET_PROTOCOL`); param-count mismatch raises `TATCommandException`; `TELM327Detector.GetChipTypeDescription` produces non-empty, expected-substring descriptions for every chip type.
 - [ ] **🟢 L** Component snapshot tests (render to Skia surface, hash, compare against golden).
 - [ ] **🟠 S** Coverage report wired into CI (target: 60% on `Services/`, `Protocol/`, `VIN/`, `RadioCode/`).
 

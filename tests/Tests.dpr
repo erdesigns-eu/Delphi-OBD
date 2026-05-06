@@ -32,7 +32,8 @@ uses
   Tests.RadioCode.Becker4 in 'Tests.RadioCode.Becker4.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
-  Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas';
+  Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
+  Tests.Adapter.ELM327 in 'Tests.Adapter.ELM327.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
