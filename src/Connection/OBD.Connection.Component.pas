@@ -15,7 +15,8 @@ interface
 uses
   System.Classes, System.SyncObjs, System.Bluetooth,
   OBD.Connection.Types, OBD.Connection, OBD.Connection.Serial,
-  OBD.Connection.Bluetooth, OBD.Connection.Wifi, OBD.Connection.FTDI;
+  OBD.Connection.Bluetooth, OBD.Connection.BLE, OBD.Connection.Wifi,
+  OBD.Connection.FTDI;
 
 //------------------------------------------------------------------------------
 // CLASSES
@@ -56,6 +57,27 @@ type
     ///   Bluetooth MAC address used when <c>ConnectionType</c> equals <c>ctBluetooth</c>.
     /// </summary>
     FBluetoothAddress: string;
+    /// <summary>
+    ///   Bluetooth LE manager reference used to perform discovery when
+    ///   <c>ConnectionType</c> equals <c>ctBluetoothLE</c>.
+    /// </summary>
+    FBluetoothLEManager: TBluetoothLEManager;
+    /// <summary>
+    ///   BLE device address (MAC) used when <c>ctBluetoothLE</c> is selected.
+    /// </summary>
+    FBluetoothLEAddress: string;
+    /// <summary>
+    ///   GATT service UUID for BLE adapters. Empty falls back to FFE0.
+    /// </summary>
+    FBluetoothLEServiceUUID: string;
+    /// <summary>
+    ///   GATT write-characteristic UUID. Empty falls back to FFE1.
+    /// </summary>
+    FBluetoothLEWriteCharUUID: string;
+    /// <summary>
+    ///   GATT notify-characteristic UUID. Empty falls back to FFE1.
+    /// </summary>
+    FBluetoothLENotifyCharUUID: string;
     /// <summary>
     ///   IP address used when <c>ConnectionType</c> equals <c>ctWiFi</c>.
     /// </summary>
@@ -175,6 +197,27 @@ type
     /// </summary>
     property BluetoothAddress: string read FBluetoothAddress write FBluetoothAddress;
     /// <summary>
+    ///   Bluetooth Low Energy manager reference used when connecting via
+    ///   <c>ctBluetoothLE</c>.
+    /// </summary>
+    property BluetoothLEManager: TBluetoothLEManager read FBluetoothLEManager write FBluetoothLEManager;
+    /// <summary>
+    ///   Bluetooth Low Energy device address (MAC) for <c>ctBluetoothLE</c>.
+    /// </summary>
+    property BluetoothLEAddress: string read FBluetoothLEAddress write FBluetoothLEAddress;
+    /// <summary>
+    ///   Optional GATT service UUID override (defaults to FFE0).
+    /// </summary>
+    property BluetoothLEServiceUUID: string read FBluetoothLEServiceUUID write FBluetoothLEServiceUUID;
+    /// <summary>
+    ///   Optional GATT write-characteristic UUID override (defaults to FFE1).
+    /// </summary>
+    property BluetoothLEWriteCharUUID: string read FBluetoothLEWriteCharUUID write FBluetoothLEWriteCharUUID;
+    /// <summary>
+    ///   Optional GATT notify-characteristic UUID override (defaults to FFE1).
+    /// </summary>
+    property BluetoothLENotifyCharUUID: string read FBluetoothLENotifyCharUUID write FBluetoothLENotifyCharUUID;
+    /// <summary>
     ///   IP address used when connecting via <c>ctWiFi</c>.
     /// </summary>
     property IPAddress: string read FIPAddress write FIPAddress;
@@ -237,6 +280,8 @@ begin
       Result := TSerialOBDConnection.Create;
     ctBluetooth:
       Result := TBluetoothOBDConnection.Create;
+    ctBluetoothLE:
+      Result := TBluetoothLEOBDConnection.Create;
     ctWiFi:
       Result := TWifiOBDConnection.Create;
     ctFTDI:
@@ -260,6 +305,14 @@ begin
     begin
       Result.Manager := FBluetoothManager;
       Result.Address := ShortString(FBluetoothAddress);
+    end;
+    ctBluetoothLE:
+    begin
+      Result.LEManager := FBluetoothLEManager;
+      Result.LEAddress := ShortString(FBluetoothLEAddress);
+      Result.ServiceUUID := ShortString(FBluetoothLEServiceUUID);
+      Result.WriteCharUUID := ShortString(FBluetoothLEWriteCharUUID);
+      Result.NotifyCharUUID := ShortString(FBluetoothLENotifyCharUUID);
     end;
     ctWiFi:
     begin

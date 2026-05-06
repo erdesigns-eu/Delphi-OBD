@@ -158,6 +158,7 @@
         <DCCReference Include="..\src\Connection\OBD.Connection.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.Serial.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.Bluetooth.pas"/>
+        <DCCReference Include="..\src\Connection\OBD.Connection.BLE.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.Wifi.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.FTDI.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.Component.pas"/>

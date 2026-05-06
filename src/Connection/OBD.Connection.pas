@@ -19,7 +19,7 @@ uses
 // CONNECTION TYPES
 //------------------------------------------------------------------------------
 type
-  TOBDConnectionType = (ctUnknown, ctSerial, ctBluetooth, ctWiFi, ctFTDI);
+  TOBDConnectionType = (ctUnknown, ctSerial, ctBluetooth, ctBluetoothLE, ctWiFi, ctFTDI);
 
 //------------------------------------------------------------------------------
 // CONNECTION PARAMETER TYPES
@@ -27,10 +27,15 @@ type
 type
   TOBDConnectionParams = record
     case ConnectionType: TOBDConnectionType of
-      ctSerial    : (COMPort: string[255]; COMBaudRate: TBaudRate);       // For Serial (COM PORT)
-      ctBluetooth : (Manager: TBluetoothManager; Address: string[255]);   // For Bluetooth
-      ctWiFi      : (IPAddress: string[255]; Port: Integer);              // For WiFi
-      ctFTDI      : (SerialNumber: string[255]; FTDIBaudRate: TBaudRate); // For FTDI (USB)
+      ctSerial      : (COMPort: string[255]; COMBaudRate: TBaudRate);       // For Serial (COM PORT)
+      ctBluetooth   : (Manager: TBluetoothManager; Address: string[255]);   // For classic Bluetooth (RFCOMM)
+      ctBluetoothLE : (LEManager: TBluetoothLEManager;                       // For Bluetooth Low Energy (GATT)
+                       LEAddress: string[255];
+                       ServiceUUID: string[64];                              // empty → FFE0 default
+                       WriteCharUUID: string[64];                            // empty → FFE1 default
+                       NotifyCharUUID: string[64]);                          // empty → FFE1 default
+      ctWiFi        : (IPAddress: string[255]; Port: Integer);              // For WiFi
+      ctFTDI        : (SerialNumber: string[255]; FTDIBaudRate: TBaudRate); // For FTDI (USB)
   end;
 
 //------------------------------------------------------------------------------

@@ -74,8 +74,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [ ] **🟢 S** README badges: build, coverage, latest release, license.
 
 ### First high-leverage feature
-- [ ] **🔴 L** **BLE transport** (`src/Connection/OBD.Connection.BLE.pas`).
-  *DoD:* Connects to Vgate iCar Pro BLE + OBDLink MX+ (Windows GATT API); example app under `examples/connection_ble/`.
+- [x] **🔴 L** **BLE transport** (`src/Connection/OBD.Connection.BLE.pas`). *(v2.1, scaffold complete; field-test pending)*
+  *DoD:* `TBluetoothLE` GATT wrapper (discover by address, find service, write + notify characteristics, subscribe). `TBluetoothLEOBDConnection` mirrors the classic-Bluetooth surface and plugs into `TOBDConnectionComponent` via the new `ctBluetoothLE` connection-type. Defaults match the FFE0/FFE1 ELM327 BLE clone family; constants for Nordic UART (NUS) provided. Hardware verification against Vgate iCar Pro BLE + OBDLink MX+ tracked as a follow-up; example under `examples/connection_ble/` follows once verified.
 
 ### Reference dashboard
 - [ ] **🟠 L** `examples/dashboard/` — multi-gauge live dashboard with circular gauge, LED, header, log panel, DTC list, simulated/replay data source.

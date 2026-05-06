@@ -55,6 +55,7 @@ contains
   OBD.Connection in '..\src\Connection\OBD.Connection.pas',
   OBD.Connection.Serial in '..\src\Connection\OBD.Connection.Serial.pas',
   OBD.Connection.Bluetooth in '..\src\Connection\OBD.Connection.Bluetooth.pas',
+  OBD.Connection.BLE in '..\src\Connection\OBD.Connection.BLE.pas',
   OBD.Connection.Wifi in '..\src\Connection\OBD.Connection.Wifi.pas',
   OBD.Connection.FTDI in '..\src\Connection\OBD.Connection.FTDI.pas',
   OBD.Connection.Component in '..\src\Connection\OBD.Connection.Component.pas',
