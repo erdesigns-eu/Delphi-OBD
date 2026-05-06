@@ -49,7 +49,8 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 ### Code repair surfaced during testing
 - [x] **🔴 S** Repair 42 corrupted `Parse` signatures in `OBD.Response.Decoders.pas`. *(v2.1)*
   *DoD:* All `function TOBDfunction TOBD…Decoder.Parse(Data: TBytes;Decoder.Parse(...)` artefacts replaced with valid Pascal signatures matching the IOBD interface declarations.
-- [ ] **🟠 M** ISO-TP framing tests (single-frame, first/consecutive, flow control).
+- [x] **🟠 M** ISO-TP framing tests (single-frame, first/consecutive, flow control). *(v2.1)*
+  *DoD:* `tests/Tests.Protocol.IsoTp.pas` covers SF parse + length + TxId, FF (12-bit length), CF (sequence index), flow-control rejection, odd-length / too-short rejection, full-pipeline `Invoke` for SF, multi-frame VIN reassembly, and out-of-order CF sorting via `TISO_15765_4_11BIT_500K_OBDProtocol`.
 - [ ] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST).
 - [ ] **🟢 L** Component snapshot tests (render to Skia surface, hash, compare against golden).
 - [ ] **🟠 S** Coverage report wired into CI (target: 60% on `Services/`, `Protocol/`, `VIN/`, `RadioCode/`).
