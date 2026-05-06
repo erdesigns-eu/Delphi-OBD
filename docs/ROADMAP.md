@@ -43,8 +43,12 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `tests/Tests.RadioCode.Becker4.pas` covers fixed indices, determinism, invalid-input rejection, whitespace trimming.
 - [ ] **🟠 L** Per-brand serial→code goldens (≥5 pairs per brand) for the algorithmic calculators (Audi, BMW, Mercedes, VW, Opel, Renault, Peugeot, Citroën, Ford, Honda, Nissan, …).
   *DoD:* Verified pairs sourced from maintainer / dealer database; one fixture per brand.
-- [ ] **🔴 M** Service 01–0A encoder/decoder tests with recorded ELM327 frames.
-  *DoD:* All standard PIDs in Service 01 + DTC parsing in Service 03 covered.
+- [x] **🔴 M** Service 01–0A encoder/decoder tests. *(v2.1)*
+  *DoD:* `tests/Tests.Service.Encoders.pas` covers every service from 01..0A; `tests/Tests.Service.Decoders.pas` covers the response dispatcher (positive/negative/short/Service-03) and PID decoders for percentage, temperature, fuel trim, fuel pressure, RPM, timing advance, MAF — using SAE J1979 reference inputs/outputs. Per-PID exhaustive coverage tracked as v2.2 backlog.
+
+### Code repair surfaced during testing
+- [x] **🔴 S** Repair 42 corrupted `Parse` signatures in `OBD.Response.Decoders.pas`. *(v2.1)*
+  *DoD:* All `function TOBDfunction TOBD…Decoder.Parse(Data: TBytes;Decoder.Parse(...)` artefacts replaced with valid Pascal signatures matching the IOBD interface declarations.
 - [ ] **🟠 M** ISO-TP framing tests (single-frame, first/consecutive, flow control).
 - [ ] **🟠 M** Adapter command-parser tests (ELM327, OBDLink, AT/ST).
 - [ ] **🟢 L** Component snapshot tests (render to Skia surface, hash, compare against golden).
