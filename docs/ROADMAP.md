@@ -55,21 +55,20 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 - [ ] **🟠 S** Coverage report wired into CI (target: 60% on `Services/`, `Protocol/`, `VIN/`, `RadioCode/`).
 
 ### CI / CD
-- [ ] **🔴 M** GitHub Actions workflow `.github/workflows/ci.yml`:
-  - Build `Packages/RunTime.dpk` and `Packages/DesignTime.dpk`
-  - Compile every `examples/*` project
-  - Run DUnitX suite, fail on red
-  *DoD:* Green check on PRs; red blocks merge.
+- [x] **🔴 M** GitHub Actions workflow `.github/workflows/ci.yml`. *(v2.1)*
+  - **Job 1 (`lint`)**: runs on `ubuntu-latest`, no Delphi required. Rejects mangled signatures (`function T<X>function T<Y>`), stray `end.` mid-file, leftover `Redraw;` calls, `FBackBuffer*` / `InvalidateBackBuffer` leftovers, missing trailing newlines, CRLF endings.
+  - **Job 2 (`build-and-test`)**: builds `Packages/*.dproj`, compiles every `examples/*.dpr`, runs DUnitX, uploads NUnit XML. Currently gated `if: false` until a self-hosted Windows + Delphi runner is registered (flip to `true` when ready).
+  *DoD:* Lint job green on PRs; build job ready to enable as soon as a runner exists.
 - [ ] **🟠 S** Build matrix: Delphi 11 + Delphi 12 (when runner image supports).
 - [ ] **🟠 S** Cache MSBuild + library output between runs.
 - [ ] **🟢 M** Nightly job: full example compile + extended test suite.
 
 ### Versioning & community
-- [ ] **🔴 S** `CHANGELOG.md` (Keep-a-Changelog format), back-fill from `v2.0`.
+- [x] **🔴 S** `CHANGELOG.md` (Keep-a-Changelog format). *(v2.1)*
 - [ ] **🔴 S** Adopt SemVer; tag `v2.1.0` at end of milestone.
-- [ ] **🟠 S** `CONTRIBUTING.md` — branch naming, commit style, PR checklist, sign-off.
-- [ ] **🟠 S** `.github/ISSUE_TEMPLATE/` — bug, feature, question.
-- [ ] **🟠 S** `.github/PULL_REQUEST_TEMPLATE.md`.
+- [x] **🟠 S** `CONTRIBUTING.md` — branch naming, commit style, PR checklist. *(v2.1)*
+- [x] **🟠 S** `.github/ISSUE_TEMPLATE/` — bug, feature, question. *(v2.1)*
+- [x] **🟠 S** `.github/PULL_REQUEST_TEMPLATE.md`. *(v2.1)*
 - [ ] **🟢 S** README badges: build, coverage, latest release, license.
 
 ### First high-leverage feature

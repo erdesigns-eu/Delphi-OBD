@@ -1,0 +1,39 @@
+name: Feature request
+description: Propose a new feature or extension.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case before the proposed solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: |
+        How should it work from a user's perspective? Pseudocode,
+        component sketches, API examples — whatever helps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: roadmap
+    attributes:
+      label: Does this fit an existing roadmap milestone?
+      options:
+        - "v2.1 Foundation"
+        - "v2.2 Components"
+        - "v2.3 Async & Logging"
+        - "v2.4 Distribution & Docs"
+        - "v2.5 Hardening"
+        - "v3.0 FMX & Mobile"
+        - "Backlog / not sure"
