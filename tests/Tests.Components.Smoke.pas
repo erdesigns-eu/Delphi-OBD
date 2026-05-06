@@ -31,6 +31,9 @@ type
     [Test] procedure LinearGauge_OrientationAndDirectionToggle;
     [Test] procedure Tachometer_ConstructsWithRpmDefaults;
     [Test] procedure Tachometer_ShiftLightActiveAboveShiftPoint;
+    [Test] procedure TrendGraph_AddSeries_AndPushValues;
+    [Test] procedure TrendGraph_RingBufferOverwritesOldest;
+    [Test] procedure TrendGraph_ResizeMaxSamplesPreservesRecent;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -45,6 +48,7 @@ uses
   OBD.CircularGauge,
   OBD.LinearGauge,
   OBD.Tachometer,
+  OBD.TrendGraph,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -175,6 +179,68 @@ begin
       'ShiftLight on above ShiftPoint');
   finally
     T.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.TrendGraph_AddSeries_AndPushValues;
+var
+  G: TOBDTrendGraph;
+  Idx: Integer;
+begin
+  G := TOBDTrendGraph.Create(nil);
+  try
+    G.MaxSamples := 16;
+    Idx := G.AddSeries('RPM', $00FF0000, 0, 8000);
+    Assert.AreEqual(0, Idx);
+    Assert.AreEqual(1, G.SeriesCount);
+    G.PushValue(Idx, 1500);
+    G.PushValue(Idx, 2000);
+    G.PushValue(Idx, 2500);
+    Assert.AreEqual(3, G.Series[0].Count);
+    Assert.AreEqual(Single(1500), G.Series[0].Values[0], 'oldest sample');
+    Assert.AreEqual(Single(2500), G.Series[0].Values[2], 'newest sample');
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.TrendGraph_RingBufferOverwritesOldest;
+var
+  G: TOBDTrendGraph;
+  Idx, I: Integer;
+begin
+  G := TOBDTrendGraph.Create(nil);
+  try
+    G.MaxSamples := 4;
+    Idx := G.AddSeries('test', clRed, 0, 100);
+    for I := 1 to 6 do G.PushValue(Idx, I);
+    // After pushing 6 values into a buffer of 4, oldest two are gone:
+    // expected sequence: 3, 4, 5, 6
+    Assert.AreEqual(4, G.Series[0].Count);
+    Assert.AreEqual(Single(3), G.Series[0].Values[0]);
+    Assert.AreEqual(Single(6), G.Series[0].Values[3]);
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.TrendGraph_ResizeMaxSamplesPreservesRecent;
+var
+  G: TOBDTrendGraph;
+  Idx, I: Integer;
+begin
+  G := TOBDTrendGraph.Create(nil);
+  try
+    G.MaxSamples := 8;
+    Idx := G.AddSeries('test', clRed, 0, 100);
+    for I := 1 to 8 do G.PushValue(Idx, I);
+    G.MaxSamples := 4;
+    // Resize keeps the most recent 4 samples: 5, 6, 7, 8
+    Assert.AreEqual(4, G.Series[0].Count);
+    Assert.AreEqual(Single(5), G.Series[0].Values[0]);
+    Assert.AreEqual(Single(8), G.Series[0].Values[3]);
+  finally
+    G.Free;
   end;
 end;
 

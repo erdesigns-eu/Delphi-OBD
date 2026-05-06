@@ -46,6 +46,7 @@ contains
   OBD.CircularGauge in '..\src\Components\OBD.CircularGauge.pas',
   OBD.LinearGauge in '..\src\Components\OBD.LinearGauge.pas',
   OBD.Tachometer in '..\src\Components\OBD.Tachometer.pas',
+  OBD.TrendGraph in '..\src\Components\OBD.TrendGraph.pas',
   OBD.MatrixDisplay in '..\src\Components\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\src\Components\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\src\Components\OBD.Touch.Statusbar.pas',

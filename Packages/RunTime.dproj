@@ -149,6 +149,7 @@
         <DCCReference Include="..\src\Components\OBD.CircularGauge.pas"/>
         <DCCReference Include="..\src\Components\OBD.LinearGauge.pas"/>
         <DCCReference Include="..\src\Components\OBD.Tachometer.pas"/>
+        <DCCReference Include="..\src\Components\OBD.TrendGraph.pas"/>
         <DCCReference Include="..\src\Components\OBD.MatrixDisplay.pas"/>
         <DCCReference Include="..\src\Components\OBD.Touch.Header.pas"/>
         <DCCReference Include="..\src\Components\OBD.Touch.Statusbar.pas"/>
