@@ -1916,8 +1916,8 @@ begin
     FStartAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1936,8 +1936,8 @@ begin
     FEndAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1958,8 +1958,8 @@ begin
       FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1980,8 +1980,8 @@ begin
       FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -2013,8 +2013,8 @@ begin
       Animation.Value := FValue;
     end;
     
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -2095,10 +2095,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
-  // Safety check: FRenderLock might not be initialized yet during parent constructor
-  if not Assigned(FRenderLock) then
-    Exit;
-    
   // Clear and rebuild the cached background snapshot under the render lock
   TMonitor.Enter(FRenderLock);
   try
@@ -2129,14 +2125,6 @@ var
   ArcPath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
-  // Safety check: ensure all required objects are initialized
-  // This prevents access violations if called during constructor
-  if not Assigned(FBackground) or not Assigned(FBorder) or
-     not Assigned(FMajorTicks) or not Assigned(FMinorTicks) or
-     not Assigned(FTopCaption) or not Assigned(FBottomCaption) or
-     not Assigned(FGradientScaleItems) then
-    Exit;
-    
   // Allocate a Skia surface that holds the static gauge background
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -2377,14 +2365,6 @@ var
   PathBuilder: ISkPathBuilder;
 begin
   try
-    // Safety check: ensure all required objects are initialized before painting
-    // This prevents access violations if paint is triggered during constructor
-    if not Assigned(FBackground) or not Assigned(FBorder) or not Assigned(FNeedle) then
-    begin
-      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
-      Exit;
-    end;
-    
     // Draw the cached background image first
     BackgroundImage := AcquireBackgroundSnapshot;
     if Assigned(BackgroundImage) then
@@ -2502,8 +2482,8 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2511,8 +2491,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2530,8 +2510,8 @@ begin
   if not Animation.Enabled then
     Animation.Value := FValue;
   
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2570,8 +2550,8 @@ begin
     Animation.Value := FValue;
   end;
 
-  // Redraw Skia (also invalidates and triggers repaint)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2606,8 +2586,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2619,8 +2599,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2756,8 +2736,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 end.

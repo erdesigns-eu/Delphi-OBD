@@ -966,6 +966,15 @@ type
   TOBDTouchHeader = class(TOBDCustomControl)
   private
     /// <summary>
+    ///   Class constructor
+    /// </summary>
+    class constructor Create;
+    /// <summary>
+    ///   Class destructor
+    /// </summary>
+    class destructor Destroy;
+  private
+    /// <summary>
     ///   Background
     /// </summary>
     FBackground: TOBDTouchHeaderBackground;
@@ -1100,6 +1109,10 @@ type
     /// </summary>
     destructor Destroy; override;
 
+    /// <summary>
+    ///   Override Repaint method
+    /// </summary>
+    procedure Repaint; override;
     /// <summary>
     ///   Override assign method
     /// </summary>
@@ -2322,8 +2335,8 @@ begin
   if (FTabIndex <> Value) and (Value >= -1) and (Value < FTabs.Count) then
   begin
     FTabIndex := Value;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2416,8 +2429,8 @@ begin
   // If we need to redraw, then update the buffer and invalidate
   if NeedRedraw then
   begin
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2457,8 +2470,8 @@ begin
   // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2469,8 +2482,8 @@ procedure TOBDTouchHeader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2557,8 +2570,8 @@ begin
   // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2654,8 +2667,8 @@ begin
   // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2743,8 +2756,8 @@ begin
   // If we need to redraw, then update the buffer
   if NeedRedraw then
   begin
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -2756,8 +2769,8 @@ begin
   // Reset tab index
   if (FTabIndex > FTabs.Count) then FTabIndex := FTabs.Count -1;
   if (FTabs.Count > 0) and (FTabIndex = -1) then FTabIndex := 0;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -3152,6 +3165,33 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
       end;
     end;
   end;
+
+//------------------------------------------------------------------------------
+// CLASS CONSTRUCTOR
+//------------------------------------------------------------------------------
+class constructor TOBDTouchHeader.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TOBDTouchHeader, TPanelStyleHook);
+end;
+
+//------------------------------------------------------------------------------
+// CLASS DESTRUCTOR
+//------------------------------------------------------------------------------
+class destructor TOBDTouchHeader.Destroy;
+begin
+  TCustomStyleEngine.UnRegisterStyleHook(TOBDTouchHeader, TPanelStyleHook);
+end;
+
+//------------------------------------------------------------------------------
+// REPAINT
+//------------------------------------------------------------------------------
+procedure TOBDTouchHeader.Repaint;
+begin
+  // Call inherited repaint
+  inherited;
+  // Invalidate
+  Invalidate;
+end;
 
 //------------------------------------------------------------------------------
 // CONSTRUCTOR

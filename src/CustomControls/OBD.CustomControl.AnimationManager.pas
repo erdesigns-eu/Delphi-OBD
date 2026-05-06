@@ -150,7 +150,7 @@ begin
   FAnimatingControls := TList<IOBDAnimatable>.Create;
   FStopwatch := TStopwatch.Create;
   FLastTickMs := 0;
-  FTargetFPS := 60; // Default to 60 FPS
+  FTargetFPS := 30; // Default to 30 FPS
   FWindowHandle := AllocateHWnd(TimerProc);
   FTimerHandle := 0;
 end;
@@ -220,9 +220,9 @@ begin
       MaxFPS := Control.GetFramesPerSecond;
   end;
 
-  // Cap at 60 FPS to avoid excessive CPU usage
-  if MaxFPS > 60 then
-    MaxFPS := 60;
+  // Cap at 30 FPS to avoid excessive CPU usage
+  if MaxFPS > 30 then
+    MaxFPS := 30;
 
   FTargetFPS := MaxFPS;
 
