@@ -141,7 +141,6 @@
         <DCCReference Include="Skia.Package.RTL.dcp"/>
         <DCCReference Include="Skia.Package.VCL.dcp"/>
         <DCCReference Include="..\src\CustomControls\OBD.CustomControl.Animation.pas"/>
-        <DCCReference Include="..\src\CustomControls\OBD.CustomControl.AnimationManager.pas"/>
         <DCCReference Include="..\src\CustomControls\OBD.CustomControl.Helpers.pas"/>
         <DCCReference Include="..\src\CustomControls\OBD.CustomControl.Constants.pas"/>
         <DCCReference Include="..\src\CustomControls\OBD.CustomControl.pas"/>
