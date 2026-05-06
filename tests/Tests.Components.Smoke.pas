@@ -42,6 +42,8 @@ type
     [Test] procedure Knob_OnChangeFires;
     [Test] procedure SegmentedSwitch_AddSegmentsAndSelect;
     [Test] procedure SegmentedSwitch_SelectedIndexClamps;
+    [Test] procedure Theme_DarkAppliesToTrendGraph;
+    [Test] procedure Theme_LightAppliesToTachometer;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -61,6 +63,7 @@ uses
   OBD.Terminal,
   OBD.Knob,
   OBD.SegmentedSwitch,
+  OBD.Theme,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -420,6 +423,44 @@ begin
     Assert.AreEqual(0, S.SelectedIndex);
   finally
     S.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Theme_DarkAppliesToTrendGraph;
+var
+  Theme: TOBDTheme;
+  G: TOBDTrendGraph;
+begin
+  Theme := TOBDTheme.Dark;
+  G := TOBDTrendGraph.Create(nil);
+  try
+    G.BackgroundColor := clRed; // intentional dirty value to verify overwrite
+    Theme.Apply(G);
+    Assert.AreEqual(Theme.ChromeBackground, G.BackgroundColor);
+    Assert.AreEqual(Theme.GridLine, G.GridColor);
+    Assert.AreEqual(Theme.ChromeBorder, G.BorderColor);
+    Assert.AreEqual(Theme.ChromeText, G.TextColor);
+  finally
+    G.Free;
+    Theme.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Theme_LightAppliesToTachometer;
+var
+  Theme: TOBDTheme;
+  T: TOBDTachometer;
+begin
+  Theme := TOBDTheme.Light;
+  T := TOBDTachometer.Create(nil);
+  try
+    Theme.Apply(T);
+    Assert.AreEqual(Theme.ChromeBackground, T.BackgroundColor);
+    Assert.AreEqual(Theme.SeverityCritical, T.RedlineColor);
+    Assert.AreEqual(Theme.AccentPrimary, T.NeedleColor);
+  finally
+    T.Free;
+    Theme.Free;
   end;
 end;
 

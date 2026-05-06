@@ -113,9 +113,11 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `src/Components/OBD.SegmentedSwitch.pas` ships TStringList-driven segments, click-to-select, rounded active background, vertical dividers between inactive segments, `OnChange` event, SelectedIndex clamping.
 
 ### Theming & polish
-- [ ] **🟠 M** `TOBDTheme` central palette object; centralize the scattered `DEFAULT_*_COLOR_FROM/TO` constants.
-- [ ] **🟠 M** Built-in dark theme; theme switch in dashboard example.
-- [ ] **🟢 S** Per-component `Theme` property override.
+- [x] **🟠 M** `TOBDTheme` central palette object. *(v2.2)*
+  *DoD:* `src/CustomControls/OBD.Theme.pas` ships a `TOBDTheme` with role-named slots (chrome / plot / accent / severity / selection), explicit per-component `Apply` methods (no RTTI), and an `ApplyToTree(Form)` helper that walks the control tree.
+- [x] **🟠 M** Built-in dark + light themes. *(v2.2)*
+  *DoD:* `TOBDTheme.Dark` and `TOBDTheme.Light` factory class methods. Smoke-tested against Tachometer + TrendGraph.
+- [ ] **🟢 S** Per-component `Theme` property override (apply by reference instead of copy). *(v2.3 backlog)*
 - [ ] **🟢 S** High-contrast / accessibility theme variant.
 
 ### Component infrastructure

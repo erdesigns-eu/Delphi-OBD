@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TOBDTerminal` (`src/Components/OBD.Terminal.pas`) — live monospace conversation viewer for ELM327 / protocol traffic. Four entry points (`LogSent`, `LogReceived`, `LogInfo`, `LogError`), per-direction colours, optional timestamps, follow-tail auto-scroll, MaxLines eviction.
 - `TOBDKnob` (`src/Components/OBD.Knob.pas`) — rotary input. Drag-to-rotate, mouse-wheel stepping, snap-to-step, configurable arc start + sweep, `OnChange` event.
 - `TOBDSegmentedSwitch` (`src/Components/OBD.SegmentedSwitch.pas`) — iOS-style multi-state toggle backed by a `TStringList` of segments. Click to select, `OnChange` event, SelectedIndex clamping on segment changes.
+- `TOBDTheme` (`src/CustomControls/OBD.Theme.pas`) — central palette with role-named slots (chrome / plot / accent / severity / selection). Explicit `Apply(component)` overloads for every shipped v2.2 component plus an `ApplyToTree(Form)` helper that walks the entire control tree. Two factory themes ship out of the box: `TOBDTheme.Dark` and `TOBDTheme.Light`.
 
 ### Changed
 - Removed `OBD.CustomControl.AnimationManager.pas` and the `IOBDAnimatable` interface contract on `TOBDCircularGauge` / `TOBDMatrixDisplay`. Each component now interpolates animated state directly inside `PaintSkia` using its existing `TStopwatch`; the inherited `TOBDCustomControl` timer keeps firing `Invalidate` at `FramesPerSecond` Hz so every paint observes the current state.
