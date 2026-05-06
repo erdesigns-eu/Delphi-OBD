@@ -1,0 +1,276 @@
+//------------------------------------------------------------------------------
+// UNIT           : OBD.SegmentedSwitch.pas
+// CONTENTS       : Touch-style multi-state segmented toggle
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 06/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
+// NOTE           : iOS-style segmented control. Click a segment to make it
+//                  active. Suitable for "AT command set | OBD command set"
+//                  toggles, mode pickers and small enumerated state UIs.
+//------------------------------------------------------------------------------
+unit OBD.SegmentedSwitch;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, System.Types, System.UITypes, System.Math,
+  Vcl.Controls, Vcl.Graphics, WinApi.Windows, Winapi.Messages,
+  System.Skia, Vcl.Skia,
+
+  OBD.CustomControl, OBD.CustomControl.Helpers;
+
+const
+  SS_DEFAULT_BACKGROUND   = $00282828;
+  SS_DEFAULT_BORDER       = $00404040;
+  SS_DEFAULT_ACTIVE_BG    = TColor($001F8FE6);
+  SS_DEFAULT_ACTIVE_TEXT  = clWhite;
+  SS_DEFAULT_INACTIVE_TEXT = clWhite;
+  SS_DEFAULT_RADIUS       = 6;
+
+type
+  TOBDSegmentedChangeEvent = procedure(Sender: TObject; const Index: Integer) of object;
+
+  /// <summary>
+  ///   Segmented toggle. Set <c>Segments</c> to a comma-/newline-separated
+  ///   list, set <c>SelectedIndex</c> to choose, hook <c>OnChange</c> to
+  ///   react to user clicks.
+  /// </summary>
+  TOBDSegmentedSwitch = class(TOBDCustomControl)
+  private
+    FSegments: TStringList;
+    FSelectedIndex: Integer;
+    FBackgroundColor: TColor;
+    FBorderColor: TColor;
+    FActiveColor: TColor;
+    FActiveTextColor: TColor;
+    FInactiveTextColor: TColor;
+    FCornerRadius: Integer;
+    FOnChange: TOBDSegmentedChangeEvent;
+
+    procedure SegmentsChanged(Sender: TObject);
+    procedure SetSegments(const AValue: TStringList);
+    procedure SetSelectedIndex(const AValue: Integer);
+    procedure SetBackgroundColor(const AValue: TColor);
+    procedure SetBorderColor(const AValue: TColor);
+    procedure SetActiveColor(const AValue: TColor);
+    procedure SetActiveTextColor(const AValue: TColor);
+    procedure SetInactiveTextColor(const AValue: TColor);
+    procedure SetCornerRadius(const AValue: Integer);
+
+    function SegmentWidth: Single;
+    function IndexAt(X: Integer): Integer;
+
+  protected
+    procedure PaintSkia(Canvas: ISkCanvas); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  published
+    property Segments: TStringList read FSegments write SetSegments;
+    property SelectedIndex: Integer read FSelectedIndex write SetSelectedIndex default 0;
+    property BackgroundColor: TColor read FBackgroundColor write SetBackgroundColor default SS_DEFAULT_BACKGROUND;
+    property BorderColor: TColor read FBorderColor write SetBorderColor default SS_DEFAULT_BORDER;
+    property ActiveColor: TColor read FActiveColor write SetActiveColor default SS_DEFAULT_ACTIVE_BG;
+    property ActiveTextColor: TColor read FActiveTextColor write SetActiveTextColor default SS_DEFAULT_ACTIVE_TEXT;
+    property InactiveTextColor: TColor read FInactiveTextColor write SetInactiveTextColor default SS_DEFAULT_INACTIVE_TEXT;
+    property CornerRadius: Integer read FCornerRadius write SetCornerRadius default SS_DEFAULT_RADIUS;
+
+    property OnChange: TOBDSegmentedChangeEvent read FOnChange write FOnChange;
+  end;
+
+implementation
+
+constructor TOBDSegmentedSwitch.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FSegments := TStringList.Create;
+  FSegments.OnChange := SegmentsChanged;
+  FSelectedIndex := 0;
+  FBackgroundColor := SS_DEFAULT_BACKGROUND;
+  FBorderColor := SS_DEFAULT_BORDER;
+  FActiveColor := SS_DEFAULT_ACTIVE_BG;
+  FActiveTextColor := SS_DEFAULT_ACTIVE_TEXT;
+  FInactiveTextColor := SS_DEFAULT_INACTIVE_TEXT;
+  FCornerRadius := SS_DEFAULT_RADIUS;
+
+  TabStop := True;
+  Width := 240;
+  Height := 32;
+end;
+
+destructor TOBDSegmentedSwitch.Destroy;
+begin
+  FSegments.Free;
+  inherited;
+end;
+
+procedure TOBDSegmentedSwitch.SegmentsChanged(Sender: TObject);
+begin
+  if FSelectedIndex >= FSegments.Count then
+    FSelectedIndex := FSegments.Count - 1;
+  if FSelectedIndex < 0 then FSelectedIndex := 0;
+  Invalidate;
+end;
+
+procedure TOBDSegmentedSwitch.SetSegments(const AValue: TStringList);
+begin
+  FSegments.Assign(AValue);
+end;
+
+procedure TOBDSegmentedSwitch.SetSelectedIndex(const AValue: Integer);
+var
+  Clamped: Integer;
+begin
+  Clamped := AValue;
+  if Clamped < 0 then Clamped := 0;
+  if Clamped >= FSegments.Count then Clamped := FSegments.Count - 1;
+  if FSelectedIndex <> Clamped then
+  begin
+    FSelectedIndex := Clamped;
+    Invalidate;
+    if Assigned(FOnChange) then FOnChange(Self, FSelectedIndex);
+  end;
+end;
+
+procedure TOBDSegmentedSwitch.SetBackgroundColor(const AValue: TColor);
+begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+
+procedure TOBDSegmentedSwitch.SetBorderColor(const AValue: TColor);
+begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+
+procedure TOBDSegmentedSwitch.SetActiveColor(const AValue: TColor);
+begin if FActiveColor <> AValue then begin FActiveColor := AValue; Invalidate; end; end;
+
+procedure TOBDSegmentedSwitch.SetActiveTextColor(const AValue: TColor);
+begin if FActiveTextColor <> AValue then begin FActiveTextColor := AValue; Invalidate; end; end;
+
+procedure TOBDSegmentedSwitch.SetInactiveTextColor(const AValue: TColor);
+begin if FInactiveTextColor <> AValue then begin FInactiveTextColor := AValue; Invalidate; end; end;
+
+procedure TOBDSegmentedSwitch.SetCornerRadius(const AValue: Integer);
+begin if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue; Invalidate; end; end;
+
+function TOBDSegmentedSwitch.SegmentWidth: Single;
+begin
+  if FSegments.Count = 0 then Exit(0);
+  Result := Width / FSegments.Count;
+end;
+
+function TOBDSegmentedSwitch.IndexAt(X: Integer): Integer;
+var
+  W: Single;
+begin
+  Result := -1;
+  W := SegmentWidth;
+  if W <= 0 then Exit;
+  Result := Trunc(X / W);
+  if Result < 0 then Result := 0;
+  if Result >= FSegments.Count then Result := FSegments.Count - 1;
+end;
+
+procedure TOBDSegmentedSwitch.MouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var Idx: Integer;
+begin
+  inherited;
+  if not Focused then SetFocus;
+  if Button <> mbLeft then Exit;
+  Idx := IndexAt(X);
+  if Idx >= 0 then SetSelectedIndex(Idx);
+end;
+
+procedure TOBDSegmentedSwitch.PaintSkia(Canvas: ISkCanvas);
+var
+  Bounds, ActiveRect, SegRect: TRectF;
+  Paint: ISkPaint;
+  Font: ISkFont;
+  W, X: Single;
+  I: Integer;
+  Lbl: string;
+  TextW: Single;
+  TextColor: TColor;
+begin
+  Bounds := RectF(0, 0, Width, Height);
+
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Fill;
+  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
+  Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
+
+  W := SegmentWidth;
+  if W <= 0 then
+  begin
+    // Empty Segments — still draw the border so users see the control.
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Stroke;
+    Paint.StrokeWidth := 1;
+    Paint.Color := SafeColorRefToSkColor(FBorderColor);
+    Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
+    Exit;
+  end;
+
+  // Active segment background.
+  if (FSelectedIndex >= 0) and (FSelectedIndex < FSegments.Count) then
+  begin
+    ActiveRect := RectF(FSelectedIndex * W + 2, 2,
+                        (FSelectedIndex + 1) * W - 2, Height - 2);
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Style := TSkPaintStyle.Fill;
+    Paint.Color := SafeColorRefToSkColor(FActiveColor);
+    Canvas.DrawRoundRect(ActiveRect,
+      System.Math.Max(0, FCornerRadius - 2),
+      System.Math.Max(0, FCornerRadius - 2), Paint);
+  end;
+
+  // Segment labels + dividers.
+  Font := TSkFont.Create(TSkTypeface.MakeDefault, 13);
+  for I := 0 to FSegments.Count - 1 do
+  begin
+    SegRect := RectF(I * W, 0, (I + 1) * W, Height);
+
+    if I = FSelectedIndex then
+      TextColor := FActiveTextColor
+    else
+      TextColor := FInactiveTextColor;
+
+    Lbl := FSegments[I];
+    Paint := TSkPaint.Create;
+    Paint.AntiAlias := True;
+    Paint.Color := SafeColorRefToSkColor(TextColor);
+    TextW := Font.MeasureText(Lbl, Paint);
+    Canvas.DrawSimpleText(Lbl,
+      SegRect.Left + (W - TextW) / 2,
+      Height / 2 + Font.Size / 3,
+      Font, Paint);
+
+    // Vertical divider between inactive segments.
+    if (I > 0) and (I <> FSelectedIndex) and (I - 1 <> FSelectedIndex) then
+    begin
+      X := I * W;
+      Paint := TSkPaint.Create;
+      Paint.AntiAlias := False;
+      Paint.Style := TSkPaintStyle.Stroke;
+      Paint.StrokeWidth := 1;
+      Paint.Color := SafeColorRefToSkColor(FBorderColor);
+      Canvas.DrawLine(X, 6, X, Height - 6, Paint);
+    end;
+  end;
+
+  // Outer border.
+  Paint := TSkPaint.Create;
+  Paint.AntiAlias := True;
+  Paint.Style := TSkPaintStyle.Stroke;
+  Paint.StrokeWidth := 1;
+  Paint.Color := SafeColorRefToSkColor(FBorderColor);
+  Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
+end;
+
+end.

@@ -38,6 +38,10 @@ type
     [Test] procedure DtcList_SelectedIndexClampsOnRemove;
     [Test] procedure Terminal_LogMethodsAppendInOrder;
     [Test] procedure Terminal_MaxLinesEvictsOldest;
+    [Test] procedure Knob_ValueClampsAndSnaps;
+    [Test] procedure Knob_OnChangeFires;
+    [Test] procedure SegmentedSwitch_AddSegmentsAndSelect;
+    [Test] procedure SegmentedSwitch_SelectedIndexClamps;
     [Test] procedure Led_ConstructsAndAcceptsState;
     [Test] procedure MatrixDisplay_Constructs;
     [Test] procedure TouchHeader_Constructs;
@@ -55,6 +59,8 @@ uses
   OBD.TrendGraph,
   OBD.DtcList,
   OBD.Terminal,
+  OBD.Knob,
+  OBD.SegmentedSwitch,
   OBD.LED,
   OBD.MatrixDisplay,
   OBD.Touch.Header,
@@ -326,6 +332,94 @@ begin
     Assert.AreEqual('cmd 5', T.GetLine(2).Text);
   finally
     T.Free;
+  end;
+end;
+
+type
+  // Helper for capturing OnChange events on the Knob without a global var.
+  TKnobChangeRecorder = class
+  public
+    LastValue: Single;
+    Fired: Boolean;
+    procedure HandleChange(Sender: TObject; const Value: Single);
+  end;
+
+procedure TKnobChangeRecorder.HandleChange(Sender: TObject; const Value: Single);
+begin
+  Fired := True;
+  LastValue := Value;
+end;
+
+procedure TComponentSmokeTests.Knob_ValueClampsAndSnaps;
+var
+  K: TOBDKnob;
+begin
+  K := TOBDKnob.Create(nil);
+  try
+    K.Min := 0;
+    K.Max := 100;
+    K.Step := 5;
+    K.Value := 17;
+    Assert.AreEqual(Single(15), K.Value, 'Value snaps to nearest Step');
+    K.Value := 200;
+    Assert.AreEqual(Single(100), K.Value, 'Value clamps to Max');
+    K.Value := -10;
+    Assert.AreEqual(Single(0), K.Value, 'Value clamps to Min');
+  finally
+    K.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.Knob_OnChangeFires;
+var
+  K: TOBDKnob;
+  Recorder: TKnobChangeRecorder;
+begin
+  Recorder := TKnobChangeRecorder.Create;
+  K := TOBDKnob.Create(nil);
+  try
+    K.Step := 1;
+    K.OnChange := Recorder.HandleChange;
+    K.Value := 25;
+    Assert.IsTrue(Recorder.Fired, 'OnChange must fire on Value change');
+    Assert.AreEqual(Single(25), Recorder.LastValue);
+  finally
+    K.Free;
+    Recorder.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.SegmentedSwitch_AddSegmentsAndSelect;
+var
+  S: TOBDSegmentedSwitch;
+begin
+  S := TOBDSegmentedSwitch.Create(nil);
+  try
+    S.Segments.Add('AT');
+    S.Segments.Add('OBD');
+    S.Segments.Add('UDS');
+    Assert.AreEqual(3, S.Segments.Count);
+    S.SelectedIndex := 1;
+    Assert.AreEqual(1, S.SelectedIndex);
+  finally
+    S.Free;
+  end;
+end;
+
+procedure TComponentSmokeTests.SegmentedSwitch_SelectedIndexClamps;
+var
+  S: TOBDSegmentedSwitch;
+begin
+  S := TOBDSegmentedSwitch.Create(nil);
+  try
+    S.Segments.Add('one');
+    S.Segments.Add('two');
+    S.SelectedIndex := 5;  // out-of-range — clamp
+    Assert.AreEqual(1, S.SelectedIndex);
+    S.SelectedIndex := -3; // negative — clamp to 0
+    Assert.AreEqual(0, S.SelectedIndex);
+  finally
+    S.Free;
   end;
 end;
 

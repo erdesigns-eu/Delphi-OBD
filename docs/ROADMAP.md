@@ -107,8 +107,10 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `src/Components/OBD.DtcList.pas` ships row virtualization (only visible rows render), header row, severity stripe + status badge, mouse-wheel scrolling with auto-thumb scroll-bar, alternate-row striping, selection highlight. `OnDtcClick` / `OnDtcDoubleClick` events expose host hooks for a freeze-frame viewer. `EnsureVisible(Index)` for programmatic scroll. Smoke tests cover add/remove/clear and selection clamping.
 - [x] **🟠 M** `TOBDTerminal` — live ELM327/protocol conversation viewer with direction-coloured rows. *(v2.2)*
   *DoD:* `src/Components/OBD.Terminal.pas` ships an append-only line buffer with four entry points (`LogSent`, `LogReceived`, `LogInfo`, `LogError`), direction prefix glyphs, monospace font, optional timestamps, mouse-wheel scrolling, auto-thumb scroll-bar, and follow-tail behaviour that auto-scrolls only when the user is already at the bottom. ANSI-colour parsing + filtering tracked as a v2.3 follow-up.
-- [ ] **🟢 S** `TOBDKnob` — rotary input.
-- [ ] **🟢 S** `TOBDSegmentedSwitch` — touch-style multi-state toggle.
+- [x] **🟢 S** `TOBDKnob` — rotary input. *(v2.2)*
+  *DoD:* `src/Components/OBD.Knob.pas` ships drag-to-rotate, mouse-wheel stepping, configurable Min/Max/Step (with snap-to-step), arc start + sweep, ring + active-arc + body + indicator-dot rendering, `OnChange` event.
+- [x] **🟢 S** `TOBDSegmentedSwitch` — touch-style multi-state toggle. *(v2.2)*
+  *DoD:* `src/Components/OBD.SegmentedSwitch.pas` ships TStringList-driven segments, click-to-select, rounded active background, vertical dividers between inactive segments, `OnChange` event, SelectedIndex clamping.
 
 ### Theming & polish
 - [ ] **🟠 M** `TOBDTheme` central palette object; centralize the scattered `DEFAULT_*_COLOR_FROM/TO` constants.

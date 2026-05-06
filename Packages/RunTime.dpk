@@ -49,6 +49,8 @@ contains
   OBD.TrendGraph in '..\src\Components\OBD.TrendGraph.pas',
   OBD.DtcList in '..\src\Components\OBD.DtcList.pas',
   OBD.Terminal in '..\src\Components\OBD.Terminal.pas',
+  OBD.Knob in '..\src\Components\OBD.Knob.pas',
+  OBD.SegmentedSwitch in '..\src\Components\OBD.SegmentedSwitch.pas',
   OBD.MatrixDisplay in '..\src\Components\OBD.MatrixDisplay.pas',
   OBD.Touch.Header in '..\src\Components\OBD.Touch.Header.pas',
   OBD.Touch.Statusbar in '..\src\Components\OBD.Touch.Statusbar.pas',
