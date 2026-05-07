@@ -1,0 +1,24 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "VW Audi Group DTC starter (P1 / B1 / U1 ranges)",
+  "default_source": "ross-tech-wiki / community",
+  "dtcs": [
+    { "code": "P1296", "severity": "warning",  "description": "Cooling System Malfunction (VAG)",
+      "possible_causes": ["Stuck-open thermostat", "Coolant level sensor wiring"], "verified": false },
+    { "code": "P1602", "severity": "info",     "description": "Voltage Supply Terminal 30 (battery) — Low",
+      "possible_causes": ["Weak battery", "Loose battery clamp"], "verified": false },
+    { "code": "P1611", "severity": "warning",  "description": "MIL Request Signal Active — TCM",
+      "possible_causes": ["Transmission DTC stored in TCM"], "verified": false },
+    { "code": "P1796", "severity": "warning",  "description": "Output Speed Sensor 'A' Circuit Range/Performance",
+      "possible_causes": ["DSG mechatronic unit fault"], "verified": false },
+    { "code": "P164A", "severity": "warning",  "description": "Camshaft Adjustment, Bank 1 — Tight",
+      "possible_causes": ["Worn timing chain", "Sticking cam phaser"], "verified": false },
+    { "code": "P179B", "severity": "warning",  "description": "Pressure Sensor for Brake Booster — Implausible",
+      "verified": false },
+    { "code": "B1086", "severity": "warning",  "description": "Internal Control Module Memory Checksum Error (BCM)",
+      "verified": false },
+    { "code": "U1111", "severity": "critical", "description": "Function Restriction Due to Communication Disturbance",
+      "verified": false }
+  ]
+}

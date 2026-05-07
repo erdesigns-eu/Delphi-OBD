@@ -1,0 +1,16 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "GM DTC starter (Tech 2 / GDS-2 common P1 / B / U codes)",
+  "default_source": "tis2web-public / gmlan-public",
+  "dtcs": [
+    { "code": "P0599", "severity": "warning",  "description": "Thermostat Heater Control Circuit High (GM)", "verified": false },
+    { "code": "P1101", "severity": "warning",  "description": "Intake Air Flow System Performance (GM)", "verified": false },
+    { "code": "P1133", "severity": "warning",  "description": "HO2S Insufficient Switching Bank 1 Sensor 1 (GM)", "verified": false },
+    { "code": "P1216", "severity": "warning",  "description": "Fuel Solenoid Response Time Short (GM Diesel)", "verified": false },
+    { "code": "P175D", "severity": "warning",  "description": "Trans Pump Motor — Performance (GM 6Lxx)", "verified": false },
+    { "code": "B0026", "severity": "warning",  "description": "Driver Frontal Stage 1 Deployment Control (GM SDM)", "verified": false },
+    { "code": "C0561", "severity": "warning",  "description": "ABS System Disabled — TC Switch Active (GM)", "verified": false },
+    { "code": "U0101", "severity": "critical", "description": "Lost Communication With TCM (GMLAN)", "verified": false }
+  ]
+}

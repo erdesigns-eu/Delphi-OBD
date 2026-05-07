@@ -18,7 +18,8 @@ unit OBD.OEM.Stellantis;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey,
+  OBD.OEM.DTC;
 
 type
   /// <summary>
@@ -43,6 +44,8 @@ type
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
+    function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -53,7 +56,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
 function TOBDStellantisSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
@@ -87,6 +90,16 @@ begin
   // wiTech use proprietary algorithms — replace at startup.
   Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
+
+procedure TOBDOEMExtensionStellantis.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  inherited;
+  MergeDtcCatalog('dtc-iso-15031.json', Cat);
+  MergeDtcCatalog(DtcCatalogFileName, Cat);
+end;
+
+function TOBDOEMExtensionStellantis.DtcCatalogFileName: string;
+begin Result := 'dtc-stellantis.json'; end;
 
 function TOBDOEMExtensionStellantis.ManufacturerKey: string;
 begin Result := 'STLA'; end;

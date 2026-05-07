@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Stellantis DTC starter (DiagBox / wiTech common P1 / B / U codes)",
+  "default_source": "alfaobd-community / diagbox-public",
+  "dtcs": [
+    { "code": "P0606", "severity": "warning",  "description": "PCM Processor Internal Performance Failure (Stellantis)", "verified": false },
+    { "code": "P1004", "severity": "warning",  "description": "Short Runner Valve Control — Performance (FCA)", "verified": false },
+    { "code": "P1294", "severity": "warning",  "description": "Target Idle Not Reached (FCA)", "verified": false },
+    { "code": "P1456", "severity": "warning",  "description": "Evaporative Emission System Leak Detected — Fuel Tank (FCA)", "verified": false },
+    { "code": "P2173", "severity": "warning",  "description": "High Air Flow / Vacuum Leak Detected — Slow Accumulation (FCA)", "verified": false },
+    { "code": "B1003", "severity": "warning",  "description": "PSA BSI — Battery Voltage Out Of Range", "verified": false },
+    { "code": "U1100", "severity": "critical", "description": "PSA — Lost Communication With BSI", "verified": false }
+  ]
+}

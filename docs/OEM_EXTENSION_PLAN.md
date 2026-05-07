@@ -220,6 +220,14 @@ end;
 Source: AlldataDIY / Mitchell1 public summaries, vendor service
 manuals where available.
 
+> **v3.7 status:** ✅ Shipped. `OBD.OEM.DTC` provides ISO 15031-5
+> wire-format helpers (`FormatDtc`, `EncodeDtc`, `IsManufacturerDtc`)
+> and a `TOBDDtcCatalog` with O(1) lookup. The universal P0xxx /
+> U0xxx baseline ships verified against SAE J2012; per-OEM starters
+> ship `verified: false`. Each `IOBDOEMExtension` exposes
+> `DescribeDTC(Code)` for one-shot lookup and `DtcCatalog` for bulk
+> queries. Production users append entries via `Cat.Add(Entry)`.
+
 ---
 
 ## Phase 3 — Coding / variant-write encoders (🟠 L per OEM)

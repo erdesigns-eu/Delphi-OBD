@@ -17,7 +17,8 @@ unit OBD.OEM.GM;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey,
+  OBD.OEM.DTC;
 
 type
   /// <summary>
@@ -40,6 +41,8 @@ type
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
+    function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -50,7 +53,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
 function TOBDGMSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
@@ -88,6 +91,16 @@ begin
   Reg.RegisterAlgorithm($01, TOBDSeedKeyConstant.Create(K,
     'GMLAN Class B trial-mode constant key', 'gmlan-public', False));
 end;
+
+procedure TOBDOEMExtensionGM.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  inherited;
+  MergeDtcCatalog('dtc-iso-15031.json', Cat);
+  MergeDtcCatalog(DtcCatalogFileName, Cat);
+end;
+
+function TOBDOEMExtensionGM.DtcCatalogFileName: string;
+begin Result := 'dtc-gm.json'; end;
 
 function TOBDOEMExtensionGM.ManufacturerKey: string;
 begin Result := 'GM'; end;

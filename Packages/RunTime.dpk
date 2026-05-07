@@ -111,6 +111,8 @@ contains
   OBD.OEM.Catalog.Loader in '..\src\Services\OBD.OEM.Catalog.Loader.pas',
   OBD.OEM.Session in '..\src\Services\OBD.OEM.Session.pas',
   OBD.OEM.Session.Runner in '..\src\Services\OBD.OEM.Session.Runner.pas',
-  OBD.OEM.SeedKey in '..\src\Services\OBD.OEM.SeedKey.pas';
+  OBD.OEM.SeedKey in '..\src\Services\OBD.OEM.SeedKey.pas',
+  OBD.OEM.DTC in '..\src\Services\OBD.OEM.DTC.pas',
+  OBD.OEM.DTC.Loader in '..\src\Services\OBD.OEM.DTC.Loader.pas';
 
 end.

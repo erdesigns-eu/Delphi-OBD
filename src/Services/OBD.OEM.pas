@@ -22,7 +22,7 @@ interface
 uses
   System.SysUtils, System.Classes, System.SyncObjs,
   System.Generics.Collections, System.Generics.Defaults,
-  OBD.OEM.Session, OBD.OEM.SeedKey;
+  OBD.OEM.Session, OBD.OEM.SeedKey, OBD.OEM.DTC;
 
 type
   /// <summary>One entry in an OEM's Data Identifier (DID) catalog.</summary>
@@ -126,6 +126,17 @@ type
     /// users replace the default starter algorithm with their NDA-
     /// protected real one via <c>RegisterAlgorithm</c>.</summary>
     function SeedKeyRegistry: TOBDSeedKeyRegistry;
+
+    /// <summary>Per-OEM DTC catalog. The standard SAE J2012 / ISO
+    /// 15031-6 P0xxx range is loaded as a baseline overlay; OEM
+    /// units add their P1xxx / B / C / U entries. Returns the same
+    /// catalog instance across calls — callers can register
+    /// additional entries at runtime.</summary>
+    function DtcCatalog: TOBDDtcCatalog;
+
+    /// <summary>Convenience: look up <c>Code</c> in <c>DtcCatalog</c>.</summary>
+    function DescribeDTC(const Code: string;
+      out Entry: TOBDDtcCatalogEntry): Boolean;
   end;
 
   /// <summary>
@@ -166,8 +177,11 @@ type
     FSessionLock: TCriticalSection;
     FSeedKeyRegistry: TOBDSeedKeyRegistry;
     FSeedKeyLock: TCriticalSection;
+    FDtcCatalog: TOBDDtcCatalog;
+    FDtcLock: TCriticalSection;
     procedure EnsureCatalog;
     procedure EnsureSeedKeyRegistry;
+    procedure EnsureDtcCatalog;
   protected
     /// <summary>
     ///   Subclasses populate <c>DIDs</c>, <c>Routines</c>, and the
@@ -195,6 +209,9 @@ type
     function CatalogForECU(const Address: Word): TOBDOEMSubCatalog; virtual;
     function SessionNegotiator: IOBDSessionNegotiator; virtual;
     function SeedKeyRegistry: TOBDSeedKeyRegistry; virtual;
+    function DtcCatalog: TOBDDtcCatalog; virtual;
+    function DescribeDTC(const Code: string;
+      out Entry: TOBDDtcCatalogEntry): Boolean; virtual;
   protected
     /// <summary>Override-point: subclasses return their OEM-specific
     /// negotiator. Default returns a fresh
@@ -204,6 +221,15 @@ type
     /// their default starter algorithms. Called once on first access
     /// to <c>SeedKeyRegistry</c>. Default is a no-op (empty registry).</summary>
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); virtual;
+    /// <summary>Override-point: subclasses load their per-OEM DTC
+    /// catalog into <c>Cat</c>. Default loads the universal SAE J2012
+    /// / ISO 15031-6 baseline (<c>catalogs/dtc-iso-15031.json</c>);
+    /// OEM units chain to <c>inherited</c> and append their own.</summary>
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); virtual;
+    /// <summary>The catalog filename loaded by the default
+    /// <c>SeedDefaultDtcCatalog</c>; OEMs override to point at their
+    /// own per-OEM file (e.g. <c>'dtc-vw.json'</c>).</summary>
+    function DtcCatalogFileName: string; virtual;
   end;
 
 /// <summary>Builder helper used by JSON catalog readers.</summary>
@@ -302,11 +328,14 @@ begin
   FCatalogLock := TCriticalSection.Create;
   FSessionLock := TCriticalSection.Create;
   FSeedKeyLock := TCriticalSection.Create;
+  FDtcLock := TCriticalSection.Create;
 end;
 
 destructor TOBDOEMExtensionBase.Destroy;
 begin
   FSessionNegotiator := nil;
+  FDtcCatalog.Free;
+  FDtcLock.Free;
   FSeedKeyRegistry.Free;
   FSeedKeyLock.Free;
   FSessionLock.Free;
@@ -339,6 +368,47 @@ function TOBDOEMExtensionBase.SeedKeyRegistry: TOBDSeedKeyRegistry;
 begin
   EnsureSeedKeyRegistry;
   Result := FSeedKeyRegistry;
+end;
+
+function TOBDOEMExtensionBase.DtcCatalogFileName: string;
+begin
+  // Override in OEM subclasses to point at the per-OEM DTC catalog;
+  // empty string means "no OEM overlay, baseline only".
+  Result := '';
+end;
+
+procedure TOBDOEMExtensionBase.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  // Subclasses chain to inherited and append their own entries; the
+  // base behaviour is to leave the catalog empty here. The actual
+  // file loading lives in OBD.OEM.DTC.Loader so this unit stays
+  // dependency-free.
+end;
+
+procedure TOBDOEMExtensionBase.EnsureDtcCatalog;
+begin
+  FDtcLock.Enter;
+  try
+    if FDtcCatalog = nil then
+    begin
+      FDtcCatalog := TOBDDtcCatalog.Create;
+      SeedDefaultDtcCatalog(FDtcCatalog);
+    end;
+  finally
+    FDtcLock.Leave;
+  end;
+end;
+
+function TOBDOEMExtensionBase.DtcCatalog: TOBDDtcCatalog;
+begin
+  EnsureDtcCatalog;
+  Result := FDtcCatalog;
+end;
+
+function TOBDOEMExtensionBase.DescribeDTC(const Code: string;
+  out Entry: TOBDDtcCatalogEntry): Boolean;
+begin
+  Result := DtcCatalog.FindByCode(Code, Entry);
 end;
 
 function TOBDOEMExtensionBase.CreateSessionNegotiator: IOBDSessionNegotiator;

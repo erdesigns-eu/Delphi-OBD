@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-05-07 — OEM Catalog Phase 2 (DTC catalogs)
+
+### Added
+- **`OBD.OEM.DTC`** — Diagnostic Trouble Code framework. `TOBDDtcCatalog` provides O(1) `FindByCode` over an indexed list of `TOBDDtcCatalogEntry` records (`Code`, `Severity`, `Description`, `PossibleCauses`, `RepairHints`, `Source`, `Verified`). Severities: `dtcSeverityInfo` / `Warning` / `Critical` / `Unknown`.
+- ISO 15031-5 / SAE J2012 wire-format helpers: `FormatDtc(High, Low)` / `FormatDtc(TBytes)` decode the two-byte DTC into the canonical 5-character form (`P0301`, `B22A8`, `U0100`); `EncodeDtc(string)` round-trips back to bytes; `IsManufacturerDtc` flags the P1xxx / P3xxx / B1xxx / B3xxx / C1xxx / C3xxx / U1xxx / U3xxx ranges.
+- JSON catalog format mirrors the v3.3 DID schema (provenance via `source` + `verified`). Supports both the canonical `{ default_source, dtcs: [...] }` envelope and a bare `[...]` array for trivial files.
+- `OBD.OEM.DTC.Loader.MergeDtcCatalog(file, catalog)` reuses the catalog search path from v3.3 so DTC files live alongside the DID files in `catalogs/`.
+- **`catalogs/dtc-iso-15031.json`** — universal SAE J2012 / ISO 15031-6 baseline of 47 P0xxx + U0xxx entries (misfires, oxygen sensors, EVAP, EGR, catalyst, transmission, communication-loss codes), all `verified: true`.
+- **Per-OEM DTC starters** (all `verified: false`): `dtc-vw.json` (VAG cooling / TCM / DSG / mechatronic), `dtc-bmw.json` (VANOS / Valvetronic / DDE diesel boost / FlexRay), `dtc-mercedes.json` (CDI fuel / ESP / SRS / ESM), `dtc-ford.json` (KAM / EVAP / throttle limp), `dtc-gm.json` (HO2S / Tech 2 trans / SDM airbag), `dtc-stellantis.json` (FCA + PSA EVAP / BSI). 7-9 entries each, sourced from public service-manual summaries.
+- `IOBDOEMExtension.DtcCatalog` + `DescribeDTC(Code, out Entry)` — every extension exposes its lazily-loaded catalog (universal baseline + per-OEM overlay) and a one-shot lookup helper. Production callers register additional entries on the catalog at runtime via `Cat.Add(Entry)`.
+- `Tests.OEM.DTC` — 20 new test cases: every encoding case (P / C / B / U letters, manufacturer first-digits 1 + 3, byte round-trip, malformed-input rejection, manufacturer-vs-SAE detection, severity round-trip), and the catalog (top-level envelope vs bare array, case-insensitive lookup with whitespace trimming, duplicate-code replacement, possible-causes / repair-hints capture, default-source propagation, verified-flag default).
+
+### Changed
+- `IOBDOEMExtension` gains `DtcCatalog` + `DescribeDTC`. `TOBDOEMExtensionBase` adds the lazy catalog accessor + virtual `SeedDefaultDtcCatalog` and `DtcCatalogFileName` override-points; all six OEM extensions chain to a baseline `dtc-iso-15031.json` load and append their per-OEM overlay.
+- `Packages/RunTime.dpk` adds `OBD.OEM.DTC` and `OBD.OEM.DTC.Loader`.
+
+### Notes
+- The universal `dtc-iso-15031.json` baseline is `verified: true` against SAE J2012 — safe to surface in production diagnostics. Per-OEM starters remain `verified: false` until cross-validated against an OEM service manual; the same provenance contract as v3.3 applies.
+- Phase 3 (coding / variant-write encoders — VW long coding, BMW FA, Mercedes SCN, Ford AsBuilt) is the next milestone.
+
 ## [3.6.0] - 2026-05-07 — OEM Catalog Phase 1.4 (seed-key plug-ins)
 
 ### Added

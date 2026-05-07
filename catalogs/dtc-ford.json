@@ -1,0 +1,21 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Ford DTC starter (FDRS / IDS common P1 / B / U codes)",
+  "default_source": "forscan-community / motorcraft-pubs",
+  "dtcs": [
+    { "code": "P1131", "severity": "warning",  "description": "Lack of Upstream Heated Oxygen Sensor Switches — Indicates Lean (Ford)",
+      "verified": false },
+    { "code": "P1450", "severity": "warning",  "description": "Unable to Bleed Up Fuel Tank Vacuum (Ford EVAP)",
+      "verified": false },
+    { "code": "P1633", "severity": "info",     "description": "Keep-Alive Power Voltage Too Low (Ford KAM)",
+      "verified": false },
+    { "code": "P2106", "severity": "warning",  "description": "Throttle Actuator Control System — Forced Limited Power (Ford)",
+      "verified": false },
+    { "code": "P2110", "severity": "critical", "description": "Throttle Actuator Control System — Forced Limited RPM",
+      "verified": false },
+    { "code": "B1318", "severity": "info",     "description": "Battery Voltage Low (Ford BCM)", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Control Module Communication Bus 'A' Off (Ford HS-CAN)",
+      "verified": false }
+  ]
+}

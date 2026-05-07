@@ -1,0 +1,22 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Mercedes-Benz DTC starter (XENTRY common P1 / B / U codes)",
+  "default_source": "xentry-community / hhtwin-leak",
+  "dtcs": [
+    { "code": "P0089", "severity": "warning",  "description": "Fuel Pressure Regulator Performance (CDI / GDI)",
+      "verified": false },
+    { "code": "P1245", "severity": "warning",  "description": "Mercedes Crankshaft Position Sensor — Implausible",
+      "verified": false },
+    { "code": "P1450", "severity": "warning",  "description": "Mercedes EVAP Purge Valve — Electrical Fault",
+      "verified": false },
+    { "code": "P2004", "severity": "warning",  "description": "Intake Manifold Runner Control — Stuck Open Bank 1",
+      "verified": false },
+    { "code": "B1009", "severity": "warning",  "description": "Mercedes ESM (Driver Door) — Communication Lost",
+      "verified": false },
+    { "code": "C1525", "severity": "warning",  "description": "Mercedes ESP — Wheel Speed Sensor Plausibility (FL)",
+      "verified": false },
+    { "code": "U0129", "severity": "critical", "description": "Lost Communication With Brake System Control Module (Mercedes ESP)",
+      "verified": false }
+  ]
+}

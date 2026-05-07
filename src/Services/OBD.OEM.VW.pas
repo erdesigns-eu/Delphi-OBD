@@ -16,7 +16,8 @@ unit OBD.OEM.VW;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey,
+  OBD.OEM.DTC;
 
 type
   /// <summary>VAG-specific session negotiator. Adds the
@@ -39,6 +40,8 @@ type
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
+    function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -49,7 +52,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
 function TOBDVWSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
@@ -106,6 +109,16 @@ begin
   // algorithm via RegisterAlgorithm.
   Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
+
+procedure TOBDOEMExtensionVW.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  inherited;
+  MergeDtcCatalog('dtc-iso-15031.json', Cat);
+  MergeDtcCatalog(DtcCatalogFileName, Cat);
+end;
+
+function TOBDOEMExtensionVW.DtcCatalogFileName: string;
+begin Result := 'dtc-vw.json'; end;
 
 function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;
 function TOBDOEMExtensionVW.DisplayName: string; begin Result := 'Volkswagen Audi Group'; end;

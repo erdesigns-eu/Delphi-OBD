@@ -1,0 +1,22 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "BMW DTC starter (DME / DSC / CAS / KOMBI common codes)",
+  "default_source": "esys-community / bimmer-utility",
+  "dtcs": [
+    { "code": "P10DF", "severity": "warning",  "description": "VANOS Solenoid Bank 1 — Stuck Open (BMW)",
+      "possible_causes": ["Carbon buildup on intake VANOS", "Sticky solenoid"], "verified": false },
+    { "code": "P10E1", "severity": "warning",  "description": "VANOS Solenoid Bank 1 — Stuck Closed", "verified": false },
+    { "code": "P0492", "severity": "warning",  "description": "Secondary Air Injection System — Insufficient Flow Bank 2 (BMW N62/N63)",
+      "verified": false },
+    { "code": "P1248", "severity": "warning",  "description": "BMW DDE Boost Pressure — Below Limit (Diesel)",
+      "verified": false },
+    { "code": "P1734", "severity": "warning",  "description": "EGS Pressure Solenoid 5 — Electrical (ZF8HP)", "verified": false },
+    { "code": "P15F0", "severity": "warning",  "description": "Eccentric Shaft Sensor (Valvetronic) — Plausibility",
+      "verified": false },
+    { "code": "P30FF", "severity": "info",     "description": "Hybrid Battery State-of-Charge Low (i3 / i8)", "verified": false },
+    { "code": "B7F8A", "severity": "warning",  "description": "Tire Pressure Indicator (RDC) — Pressure Below Threshold",
+      "verified": false },
+    { "code": "U10E8", "severity": "critical", "description": "FlexRay — Bus Off Error Frame (FRMs / chassis)", "verified": false }
+  ]
+}

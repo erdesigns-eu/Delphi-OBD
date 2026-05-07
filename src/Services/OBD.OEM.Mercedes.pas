@@ -18,7 +18,8 @@ unit OBD.OEM.Mercedes;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey,
+  OBD.OEM.DTC;
 
 type
   /// <summary>
@@ -42,6 +43,8 @@ type
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
+    function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -52,7 +55,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
 function TOBDMercedesSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
@@ -93,6 +96,16 @@ begin
   // XENTRY's modern algorithm is NDA-protected — replace at startup.
   Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
+
+procedure TOBDOEMExtensionMercedes.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  inherited;
+  MergeDtcCatalog('dtc-iso-15031.json', Cat);
+  MergeDtcCatalog(DtcCatalogFileName, Cat);
+end;
+
+function TOBDOEMExtensionMercedes.DtcCatalogFileName: string;
+begin Result := 'dtc-mercedes.json'; end;
 
 function TOBDOEMExtensionMercedes.ManufacturerKey: string;
 begin Result := 'MB'; end;

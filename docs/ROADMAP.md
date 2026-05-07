@@ -30,6 +30,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.4 OEM Catalog Phase 1.2 | Per-ECU sub-catalogs: TOBDOEMECU, ECUs / CatalogForECU on IOBDOEMExtension, JSON `ecus` block + per-entry `ecu_address`, ECU maps shipped for all 6 OEMs | ✅ Tagged v3.4.0 (2026-05-07) |
 | v3.5 OEM Catalog Phase 1.3 | Session negotiation: IOBDSessionNegotiator + 6 per-OEM choreographies (VW SH+CRA, BMW E-Sys 1500 ms heartbeat, Mercedes XENTRY F198 probe, Ford FDRS ST 32, GM Tech 2 SP 6, Stellantis DiagBox F198), plan runner with tester-present heartbeat thread | ✅ Tagged v3.5.0 (2026-05-07) |
 | v3.6 OEM Catalog Phase 1.4 | Seed-Key plug-ins: TOBDSeedKeyRegistry per OEM, 4 reference algorithms (KWP2000 two's-complement, XOR mask, byte-rotate, constant-key), wire-frame helpers (RequestSeedFrame / SendKeyFrame / ExtractSeed), 6 per-OEM starter registrations | ✅ Tagged v3.6.0 (2026-05-07) |
+| v3.7 OEM Catalog Phase 2   | DTC catalogs: ISO 15031-5 wire encoding helpers, TOBDDtcCatalog with provenance flags, 47-entry verified universal P0xxx/U0xxx baseline + 7-9-entry per-OEM starters, IOBDOEMExtension.DescribeDTC / DtcCatalog | ✅ Tagged v3.7.0 (2026-05-07) |
 
 ---
 

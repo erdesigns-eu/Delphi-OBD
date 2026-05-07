@@ -11,7 +11,8 @@ unit OBD.OEM.Ford;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey,
+  OBD.OEM.DTC;
 
 type
   /// <summary>
@@ -35,6 +36,8 @@ type
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
+    function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -45,7 +48,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
 function TOBDFordSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
@@ -89,6 +92,16 @@ begin
     1, 3, Mask, 'Ford community byte-rotate placeholder',
     'forscan-community', False));
 end;
+
+procedure TOBDOEMExtensionFord.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
+begin
+  inherited;
+  MergeDtcCatalog('dtc-iso-15031.json', Cat);
+  MergeDtcCatalog(DtcCatalogFileName, Cat);
+end;
+
+function TOBDOEMExtensionFord.DtcCatalogFileName: string;
+begin Result := 'dtc-ford.json'; end;
 
 function TOBDOEMExtensionFord.ManufacturerKey: string;
 begin Result := 'FORD'; end;

@@ -50,7 +50,8 @@ uses
   Tests.Security.Nonce in 'Tests.Security.Nonce.pas',
   Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas',
   Tests.OEM.Session in 'Tests.OEM.Session.pas',
-  Tests.OEM.SeedKey in 'Tests.OEM.SeedKey.pas';
+  Tests.OEM.SeedKey in 'Tests.OEM.SeedKey.pas',
+  Tests.OEM.DTC in 'Tests.OEM.DTC.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
