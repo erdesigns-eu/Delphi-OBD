@@ -352,6 +352,21 @@ fixtures don't.
 
 ## Phase 6 — DoIP / FlexRay / per-bus extensions (🟢 L per OEM)
 
+> **v3.11 status (Phase 6.1):** ✅ High-level
+> `TOBDDiagSession` wrapper shipped — composes Session +
+> SeedKey + DID + RoutineControl + heartbeat lifecycle into a
+> tool-callable API.
+>
+> **v3.12 status (Phase 6.2):** ✅ DoIP shipped.
+> `OBD.OEM.DoIP` provides ISO 13400-2 frame builders /
+> parsers (header with version-inversion check; routing
+> activation request / response v2010 + v2012; vehicle ident +
+> announcement; alive-check; diagnostic-message UDS wrapping).
+> The next layer up — auto-discovery via UDP broadcast,
+> CAN-FD-vs-CAN bus selection, FlexRay channel adaptation —
+> belongs to the connection layer (`OBD.Connection.UDP` etc.)
+> rather than this unit.
+
 Modern (post-2018) cars run UDS over multiple buses simultaneously
 (CAN + CAN-FD + DoIP + FlexRay). Each requires:
 - Per-bus address mapping

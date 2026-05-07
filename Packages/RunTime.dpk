@@ -121,6 +121,7 @@ contains
   OBD.OEM.Coding.Ford in '..\src\Services\OBD.OEM.Coding.Ford.pas',
   OBD.OEM.RoutineControl in '..\src\Services\OBD.OEM.RoutineControl.pas',
   OBD.OEM.Captures in '..\src\Services\OBD.OEM.Captures.pas',
-  OBD.OEM.DiagSession in '..\src\Services\OBD.OEM.DiagSession.pas';
+  OBD.OEM.DiagSession in '..\src\Services\OBD.OEM.DiagSession.pas',
+  OBD.OEM.DoIP in '..\src\Services\OBD.OEM.DoIP.pas';
 
 end.

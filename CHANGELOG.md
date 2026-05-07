@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.12.0] - 2026-05-07 — OEM Catalog Phase 6.2 (DoIP / ISO 13400-2)
+
+### Added
+- **`OBD.OEM.DoIP`** — ISO 13400-2 frame builders + parsers for the Ethernet transport modern (post-2018) cars use for UDS:
+  - `BuildDoIPHeader` / `ParseDoIPHeader` — the 8-byte protocol header (Version + InvVersion + PayloadType + PayloadLength) with the inversion check.
+  - `BuildRoutingActivationRequest` (default + WWH-OBD + central-security + OEM-specific activation types) and `ParseRoutingActivationResponse` (handles both 2010 9-byte and 2012 13-byte payload variants — the OEM-specific 4-byte tail).
+  - `BuildVehicleIdentRequest` (broadcast on UDP/13400) + `BuildVehicleIdentRequestByVIN` + `ParseVehicleAnnouncement` returning VIN, logical address, EID, GID, FurtherActionRequired, optional sync status.
+  - `BuildAliveCheckRequest` / `BuildAliveCheckResponse`.
+  - `BuildDiagnosticMessage(Source, Target, UserData)` / `ParseDiagnosticMessage` — wraps an arbitrary UDS request in the DoIP envelope so a `TOBDDiagSession` (v3.11) can use a TCP DoIP connection identically to a CAN connection.
+- Enums for the documented payload types, activation types, and routing-response codes (success, vehicle-confirmation, all 7 standard rejection codes).
+- `Tests.OEM.DoIP` — 22 new test cases: header (version-inversion encoding + check, big-endian payload-type / length round-trip, malformed inversion + short-buffer rejection), routing activation (default + OEM-specific activation type, v2010 + v2012 response parsing, truncation rejection, wrong-payload-type returns False), vehicle ident (empty payload broadcast, VIN-too-short rejection, VIN round-trip, VehicleAnnouncement field extraction including 17-char VIN + 6-byte EID/GID + sync status), diagnostic message (UDS wrapping with header + addresses, empty-user-data rejection, address + payload extraction, full round-trip, alive-check pair).
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.DoIP`.
+
+### Notes
+- The DoIP unit is transport-agnostic by design — it produces and consumes byte arrays. Pair it with the existing `OBD.Connection.UDP` / `OBD.Connection.Wifi` for the actual sockets, and the `TOBDDiagSession` wrapper drives the UDS layer on top exactly the same way it does for CAN.
+- Phase 7 (ODX-D import + golden-test helper) is the final milestone in `docs/OEM_EXTENSION_PLAN.md`.
+
 ## [3.11.0] - 2026-05-07 — OEM Catalog Phase 6.1 (high-level diagnostic session)
 
 ### Added
