@@ -33,7 +33,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;
 function TOBDOEMExtensionVW.DisplayName: string; begin Result := 'Volkswagen Audi Group'; end;
@@ -80,6 +80,11 @@ begin
     Routine($0302, 'output_test',                'VAG output test'),
     Routine($FF00, 'erase_memory',               'Pre-flash erase')
   ];
+
+  // Merge JSON catalog overrides + extensions. JSON entries win on
+  // conflict; missing files leave the hard-coded set untouched.
+  MergeCatalogJSON('vw.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionVW.DecodeDID(const DID: Word;

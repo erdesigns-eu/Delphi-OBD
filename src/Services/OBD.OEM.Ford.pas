@@ -28,7 +28,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionFord.ManufacturerKey: string;
 begin Result := 'FORD'; end;
@@ -88,6 +88,9 @@ begin
     Routine($FF01, 'check_programming_deps', 'Cross-ECU dependency check'),
     Routine($FF02, 'verify_checksum',        'Post-flash checksum verification')
   ];
+
+  MergeCatalogJSON('ford.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionFord.DecodeDID(const DID: Word;

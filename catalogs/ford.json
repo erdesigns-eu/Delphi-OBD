@@ -1,0 +1,44 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "FORD",
+  "display_name": "Ford Motor Company",
+  "applicable_wmis": ["1FA","1FB","1FC","1FD","1FM","1FT","2FA","2FT","3FA","3FT","1LN","5LM","1MR","6FP","WF0"],
+  "default_source": "forscan-community / motorcraft-pubs",
+  "dids": [
+    { "did": "0xDD00", "name": "vehicle_mileage",      "description": "Vehicle mileage in km (32-bit BE)",                "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xDE00", "name": "fuel_level_percent",   "description": "Fuel tank level percent",                          "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
+    { "did": "0xDE01", "name": "engine_run_time",      "description": "Engine run time in seconds (32-bit BE)",           "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "seconds" } },
+    { "did": "0xDE02", "name": "battery_voltage",      "description": "Battery voltage in mV",                            "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xDE03", "name": "intake_air_temp",      "description": "Intake air temperature (°C)",                       "source": "community-pr",      "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xDE04", "name": "transmission_temp",    "description": "Transmission fluid temperature (°C)",               "source": "community-pr",      "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xDE05", "name": "engine_oil_temp",      "description": "Engine oil temperature (°C)",                       "source": "community-pr",      "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+
+    { "did": "0xDF00", "name": "pcm_strategy_id",      "description": "PCM strategy identifier (ASCII)",                   "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xDF01", "name": "calibration_id",       "description": "Engine calibration ID (CALID)",                     "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xDF02", "name": "calibration_verification", "description": "CVN — calibration verification number",         "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xDF03", "name": "vid_block",            "description": "VID block (vehicle identification ASCII map)",      "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0xF1A0", "name": "asbuilt_5byte_block",  "description": "AsBuilt 5-byte block (Ford coding)",                 "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0xF1A1", "name": "asbuilt_5byte_checksum","description": "AsBuilt 5-byte block checksum",                     "source": "forscan-community", "verified": false,
+      "decoder": { "kind": "hex" } }
+  ],
+  "routines": [
+    { "id": "0x0202", "name": "kam_reset",            "description": "Keep-Alive Memory reset",          "source": "forscan-community", "verified": false },
+    { "id": "0x0203", "name": "fuel_trim_reset",      "description": "Reset adaptive fuel trim",          "source": "forscan-community", "verified": false },
+    { "id": "0x0207", "name": "sas_calibration",      "description": "Steering angle sensor reset",       "source": "community-pr",      "verified": false },
+    { "id": "0x0208", "name": "tpms_relearn",         "description": "Tire-pressure monitoring relearn",  "source": "community-pr",      "verified": false }
+  ]
+}

@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionGM.ManufacturerKey: string;
 begin Result := 'GM'; end;
@@ -97,6 +97,9 @@ begin
     Routine($FF01, 'check_dependencies',    'Cross-ECU dependency check'),
     Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
   ];
+
+  MergeCatalogJSON('gm.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionGM.DecodeDID(const DID: Word;

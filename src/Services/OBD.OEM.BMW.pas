@@ -33,7 +33,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionBMW.ManufacturerKey: string; begin Result := 'BMW'; end;
 function TOBDOEMExtensionBMW.DisplayName: string; begin Result := 'Bayerische Motoren Werke'; end;
@@ -72,6 +72,9 @@ begin
     Routine($0202, 'service_function',       'Service-mode flag'),
     Routine($FF00, 'erase_memory',           'Pre-flash erase')
   ];
+
+  MergeCatalogJSON('bmw.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionBMW.DecodeDID(const DID: Word;

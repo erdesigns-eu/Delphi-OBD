@@ -1,0 +1,58 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "BMW",
+  "display_name": "Bayerische Motoren Werke",
+  "applicable_wmis": ["WBA", "WBS", "WBY", "WMW", "5UX", "4US"],
+  "default_source": "bimmer-utility / esys-community",
+  "dids": [
+    { "did": "0xF100", "name": "i_stufe_werks",          "description": "Factory I-Stufe (build version, ASCII)",                  "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF101", "name": "i_stufe_aktuell",        "description": "Current I-Stufe (last programmed level)",                "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "fa_assembly",            "description": "Vehicle order (FA, freight assembly) — option codes",    "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A3", "name": "fa_short_form",          "description": "FA short-form summary",                                  "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A4", "name": "ecu_partition_summary",  "description": "ECU partition / SWE summary",                            "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0xD050", "name": "mileage_km",             "description": "Vehicle mileage in km (32-bit big-endian)",              "source": "esys-community", "verified": false,
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage",        "description": "Battery voltage in mV",                                  "source": "esys-community", "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "ambient_temperature",    "description": "Ambient temperature (°C)",                               "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD053", "name": "engine_runtime_hours",   "description": "Engine runtime in seconds (32-bit)",                     "source": "community-pr", "verified": false,
+      "decoder": { "kind": "seconds" } },
+    { "did": "0xD054", "name": "fuel_level_percent",     "description": "Fuel level percent",                                     "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
+
+    { "did": "0xD200", "name": "dme_software_id",        "description": "DME (engine control) software ID",                        "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD201", "name": "dsc_module_id",          "description": "DSC (dynamic stability control) module ID",              "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD202", "name": "egs_module_id",          "description": "EGS (transmission) module ID",                            "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD203", "name": "kombi_module_id",        "description": "KOMBI (instrument cluster) module ID",                    "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD204", "name": "frm_module_id",          "description": "FRM (footwell module) ID",                                "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD205", "name": "cas_module_id",          "description": "CAS (car access system / immo) module ID",                "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0xC010", "name": "cas_immo_status",        "description": "CAS immobilizer status (bitmask)",                        "source": "community-pr", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0xC011", "name": "cas_key_count",          "description": "Number of keys synced to CAS",                            "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8" } },
+
+    { "did": "0xE001", "name": "vehicle_identification_short", "description": "Short vehicle identification (model code)",         "source": "esys-community", "verified": false,
+      "decoder": { "kind": "ascii" } }
+  ],
+  "routines": [
+    { "id": "0x0F03", "name": "fa_write",                  "description": "Write FA / vehicle order",          "source": "esys-community", "verified": false },
+    { "id": "0x0202", "name": "service_function",          "description": "Service-mode flag",                  "source": "community-pr",   "verified": false },
+    { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning",            "source": "community-pr",   "verified": false },
+    { "id": "0x0F00", "name": "sas_calibration",           "description": "Steering-angle sensor calibration",  "source": "community-pr",   "verified": false }
+  ]
+}

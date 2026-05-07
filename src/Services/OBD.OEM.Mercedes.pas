@@ -35,7 +35,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionMercedes.ManufacturerKey: string;
 begin Result := 'MB'; end;
@@ -95,6 +95,9 @@ begin
     Routine($FF02, 'verify_programming_checksum',
                    'Post-flash checksum verification')
   ];
+
+  MergeCatalogJSON('mercedes.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionMercedes.DecodeDID(const DID: Word;

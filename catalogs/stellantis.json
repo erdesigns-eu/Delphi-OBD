@@ -1,0 +1,42 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "STLA",
+  "display_name": "Stellantis (FCA + PSA)",
+  "applicable_wmis": [
+    "1C3","1C4","1C6","2C3","2C4","3C3","3C4","3C6",
+    "1D4","1D7","2D4","2D8","3D4",
+    "1J4","1J8","1RR",
+    "ZFA","ZFB","ZFC","9BD","ZAR","ZAM",
+    "VF3","VF7","VR1","W0L","VXR"
+  ],
+  "default_source": "alfaobd-community / diagbox-public",
+  "dids": [
+    { "did": "0x1A02", "name": "mileage_km_24bit",   "description": "Mileage in km (24-bit big-endian)",        "source": "diagbox-public",     "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0x1B01", "name": "fuel_level_percent", "description": "Fuel tank level percent",                  "source": "diagbox-public",     "verified": false,
+      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
+    { "did": "0x1B02", "name": "engine_run_time",    "description": "Engine run time seconds (32-bit BE)",      "source": "diagbox-public",     "verified": false,
+      "decoder": { "kind": "seconds" } },
+    { "did": "0x1B03", "name": "battery_voltage",    "description": "Battery voltage in mV",                    "source": "diagbox-public",     "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0x1B04", "name": "engine_coolant_temp","description": "Engine coolant temperature (°C)",           "source": "alfaobd-community", "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+
+    { "did": "0xF198", "name": "last_workshop_code", "description": "Last workshop code (PSA: BSI, FCA: wiTech)","source": "alfaobd-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF199", "name": "programming_date",   "description": "Last programming date (YYMMDD BCD)",       "source": "alfaobd-community", "verified": false,
+      "decoder": { "kind": "bcd_date" } },
+    { "did": "0xF1A8", "name": "fca_calibration_id", "description": "FCA calibration ID (ASCII)",                "source": "alfaobd-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "psa_brand_code",     "description": "PSA brand id / model fingerprint (ASCII)",  "source": "diagbox-public",     "verified": false,
+      "decoder": { "kind": "ascii" } }
+  ],
+  "routines": [
+    { "id": "0x0202", "name": "reset_service_indicator", "description": "Reset service-due indicator",     "source": "diagbox-public",     "verified": false },
+    { "id": "0x0203", "name": "reset_adaptations",       "description": "Reset adaptive learning",          "source": "alfaobd-community", "verified": false },
+    { "id": "0x0F00", "name": "sas_calibration",         "description": "Steering-angle sensor calibration","source": "community-pr",       "verified": false },
+    { "id": "0x0F01", "name": "bsi_telecoding",          "description": "PSA BSI telecoding",                "source": "diagbox-public",     "verified": false },
+    { "id": "0x0F02", "name": "witech_proxi_align",      "description": "FCA wiTech proxi alignment",        "source": "alfaobd-community", "verified": false }
+  ]
+}

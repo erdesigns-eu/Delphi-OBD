@@ -1,0 +1,47 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "MB",
+  "display_name": "Mercedes-Benz Group",
+  "applicable_wmis": ["WDB", "WDC", "WDD", "WDF", "WD3", "WD4", "4JG"],
+  "default_source": "xentry-community / hhtwin-leak",
+  "dids": [
+    { "did": "0x0202", "name": "mileage_km_24bit",        "description": "Mileage in km (24-bit big-endian, common on legacy MB)",     "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0x0203", "name": "engine_runtime_seconds",  "description": "Engine running time (32-bit big-endian seconds)",            "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "seconds" } },
+
+    { "did": "0xF19E", "name": "programming_status",      "description": "Programming status enum",                                    "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "enum", "size": 1,
+                   "values": { "0x00": "OK", "0x01": "INTERRUPTED", "0x02": "CHECKSUM_INVALID", "0x03": "HW_INCOMPATIBLE" } } },
+
+    { "did": "0xF1A0", "name": "mb_long_coding",          "description": "Mercedes long-coding bytes (newer NTG/HU)",                  "source": "community-pr", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0xF1A1", "name": "mb_workshop_code",        "description": "Mercedes workshop code (last writer)",                       "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "mb_dataset_id",           "description": "Mercedes SCN dataset ID",                                    "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A8", "name": "mb_calibration_id",       "description": "Mercedes calibration identifier",                            "source": "xentry-community", "verified": false,
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0xF40C", "name": "engine_rpm",              "description": "Engine RPM",                                                 "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" } },
+    { "did": "0xF405", "name": "battery_voltage",         "description": "Battery voltage in mV",                                      "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xF40D", "name": "vehicle_speed",           "description": "Vehicle speed in km/h",                                      "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint16_be", "unit": "km/h" } },
+    { "did": "0xF407", "name": "engine_coolant_temp",     "description": "Engine coolant temperature (°C)",                            "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+
+    { "did": "0xD030", "name": "atf_temperature",         "description": "Automatic transmission fluid temperature (°C)",              "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
+    { "did": "0xD031", "name": "transmission_gear",       "description": "Currently selected gear",                                    "source": "community-pr", "verified": false,
+      "decoder": { "kind": "uint8" } }
+  ],
+  "routines": [
+    { "id": "0x0203", "name": "reset_adaptations",   "description": "Reset adaptive learning",            "source": "xentry-community", "verified": false },
+    { "id": "0x0301", "name": "basic_setting",       "description": "XENTRY basic setting routine",       "source": "xentry-community", "verified": false },
+    { "id": "0x0302", "name": "output_test",         "description": "XENTRY actuator test",               "source": "xentry-community", "verified": false },
+    { "id": "0x0F00", "name": "sas_calibration",     "description": "Steering-angle sensor calibration",  "source": "community-pr",     "verified": false }
+  ]
+}

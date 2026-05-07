@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "GM",
+  "display_name": "General Motors",
+  "applicable_wmis": ["1G1","1G2","1G4","1G6","1G8","1GC","1GT","2G1","2GT","3G1","3GT","5GR","6G1"],
+  "default_source": "tis2web-public / gmlan-public",
+  "dids": [
+    { "did": "0x1981", "name": "mileage_km",            "description": "Vehicle mileage in km (32-bit BE)",        "source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0x1982", "name": "engine_run_time",       "description": "Engine run time seconds (32-bit BE)",      "source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "seconds" } },
+    { "did": "0x1983", "name": "battery_voltage",       "description": "Battery voltage in mV",                    "source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0x1984", "name": "fuel_level_percent",    "description": "Fuel tank level percent",                  "source": "community-pr",   "verified": false,
+      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
+    { "did": "0x1985", "name": "engine_coolant_temp",   "description": "Coolant temperature (°C)",                 "source": "community-pr",   "verified": false,
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+
+    { "did": "0xF1A0", "name": "broadcast_code",        "description": "GM broadcast code (model-year tag, ASCII)","source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "cvn_list",              "description": "Calibration Verification Number list",     "source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0xF1A4", "name": "engineering_part_number","description": "GM engineering part number (ASCII)",       "source": "tis2web-public", "verified": false,
+      "decoder": { "kind": "ascii" } }
+  ],
+  "routines": [
+    { "id": "0x0203", "name": "reset_adaptations",     "description": "Reset adaptive learning",            "source": "community-pr",   "verified": false },
+    { "id": "0x0204", "name": "crank_relearn",         "description": "Crank position relearn",              "source": "tis2web-public", "verified": false },
+    { "id": "0x0205", "name": "tps_relearn",           "description": "Throttle-position-sensor relearn",    "source": "tis2web-public", "verified": false },
+    { "id": "0x0F00", "name": "sas_calibration",       "description": "Steering-angle sensor calibration",   "source": "community-pr",   "verified": false },
+    { "id": "0x0F01", "name": "bcm_relearn",           "description": "Body-control-module immobilizer relearn", "source": "community-pr","verified": false }
+  ]
+}

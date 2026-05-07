@@ -35,7 +35,7 @@ type
 implementation
 
 uses
-  OBD.OEM.Helpers;
+  OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
 
 function TOBDOEMExtensionStellantis.ManufacturerKey: string;
 begin Result := 'STLA'; end;
@@ -108,6 +108,9 @@ begin
     Routine($FF00, 'erase_memory',            'Pre-flash erase'),
     Routine($FF02, 'verify_checksum',         'Post-flash checksum verification')
   ];
+
+  MergeCatalogJSON('stellantis.json', DIDs, Routines);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
 end;
 
 function TOBDOEMExtensionStellantis.DecodeDID(const DID: Word;

@@ -47,7 +47,8 @@ uses
   Tests.OEM.Extra in 'Tests.OEM.Extra.pas',
   Tests.ECU.Signature.BCrypt in 'Tests.ECU.Signature.BCrypt.pas',
   Tests.ECU.Signature.OpenSSL in 'Tests.ECU.Signature.OpenSSL.pas',
-  Tests.Security.Nonce in 'Tests.Security.Nonce.pas';
+  Tests.Security.Nonce in 'Tests.Security.Nonce.pas',
+  Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

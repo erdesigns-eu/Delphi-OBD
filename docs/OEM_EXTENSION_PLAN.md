@@ -21,8 +21,26 @@ Priority key: 🔴 must-have for production use · 🟠 high-value · 🟢 nice-
 
 ### 1.1 Scale the DID catalogs (🔴 L per OEM)
 
-What's missing today: ~15 DIDs per OEM. What production needs:
-~200–500 per OEM, organised per-ECU.
+> **v3.3 status:** ✅ Infrastructure shipped. The JSON catalog
+> format + loader + CSV importer are in place; `catalogs/`
+> contains a verified ISO 14229-1 baseline (`uds-standard.json`,
+> 31 entries, all `verified: true`) and the verified ISO 15031-6
+> OBD-II PID set (`obd2-pids.json`, 60+ entries, all verified),
+> plus seeded per-OEM catalogs (`vw.json`, `bmw.json`,
+> `mercedes.json`, `ford.json`, `gm.json`, `stellantis.json`)
+> with community-sourced entries flagged `verified: false`. The
+> framework now grows by community PR editing JSON files — no
+> Pascal recompile required. Per-OEM catalogs combined with the
+> universal UDS overlay run to several hundred entries today;
+> production scale-up means filling each OEM's
+> `verified: false` entries to `verified: true` with citation
+> in `source`, plus adding the manufacturer-specific F-block /
+> D-block ranges that aren't yet covered. See
+> [`docs/CATALOG_FORMAT.md`](CATALOG_FORMAT.md).
+
+What's missing today: ~15 hand-coded DIDs per OEM hard-coded into
+`BuildCatalog` (still in place as fallback). What production
+needs: ~200–500 per OEM, organised per-ECU, with citations.
 
 Sources to mine:
 - **Public ODX-D / PDX files** — the ASAM ODX standard format. VW

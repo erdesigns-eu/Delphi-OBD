@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-05-06 — OEM Catalog Phase 1.1 (DID scale-up infrastructure)
+
+### Added
+- **External JSON catalog format** for OEM extensions, documented in `docs/CATALOG_FORMAT.md`. Schema v1 includes per-entry `source` and `verified` provenance flags so callers can filter unverified community data out of production-critical paths.
+- `OBD.OEM.Catalog.JSON` (`src/Services/`) — `TOBDOEMJSONCatalog` loads and walks a v1 catalog file. Supports decoder kinds: `ascii`, `hex`, `uint8/16_be/32_be`, `int16_be`, `int32_be`, `bcd_date`, `enum` (with size + value lookup map), `bitmask` (with size + bit-name map), `seconds`. `DecodePayload(DID, Bytes)` formats raw ECU bytes per the catalog's decoder spec.
+- `OBD.OEM.Catalog.CSV` — `TOBDCatalogCSVImporter` ingests RFC-4180 CSV with mandatory `did,name,description` columns plus optional `source,verified,ecu_address,decoder` columns. Decoder column accepts an embedded JSON sub-object via standard CSV double-quote escaping. Emits a v1 JSON catalog ready to drop into `catalogs/`.
+- `OBD.OEM.Catalog.Loader` — bridges the JSON loader into `TOBDOEMExtensionBase.BuildCatalog`. Each OEM's extension calls `MergeCatalogJSON('<oem>.json', DIDs, Routines)` after populating its hard-coded fallback. JSON entries win on DID conflict; missing files leave the hard-coded set untouched (so binaries deployed without the catalog folder still work).
+- `catalogs/uds-standard.json` — verified ISO 14229-1 universal F1xx range (31 DIDs + 4 routines, all `verified: true` against the ISO Annex F table).
+- `catalogs/obd2-pids.json` — verified ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs (60+ entries, all verified, full unit conversions for RPM, MAF, fuel trim, oxygen sensors, fuel rate, catalyst temperatures, …).
+- `catalogs/{vw,bmw,mercedes,ford,gm,stellantis}.json` — seeded per-OEM catalogs with community-sourced entries (all `verified: false`, with `source` cited per entry: ross-tech-wiki, esys-community, xentry-community, forscan-community, tis2web-public, alfaobd-community, diagbox-public, community-pr).
+- All six existing OEM extensions (`OBD.OEM.VW`, `.BMW`, `.Mercedes`, `.Ford`, `.GM`, `.Stellantis`) now merge their JSON catalog + the universal `uds-standard.json` overlay on top of the hard-coded fallback. Per-OEM combined coverage jumps from ~15 hard-coded entries to 60–100+ entries depending on the manufacturer.
+- `tools/import-csv/ImportCSV.dpr` — small console tool (`ImportCSV <key> <display> <wmis> <input.csv> <output.json>`) that drives `TOBDCatalogCSVImporter` for community catalog contributors who keep their data as CSV.
+- `Tests.OEM.Catalog` — 16 test cases covering JSON parsing, every decoder kind (uint/int/ascii/hex/bcd_date/enum/bitmask/seconds), CSV → JSON round-trip, embedded-JSON decoder columns, comment lines, missing-mandatory-column rejection, default-source propagation, verified-flag default.
+
+### Notes
+- This milestone ships the **infrastructure + provenance** for catalog growth, not a full OEM build-out. The `verified: false` entries in the per-OEM catalogs are starter community data and must NOT be trusted for production-critical decisions (flashing, security access). The path to `verified: true` is documented in `docs/CATALOG_FORMAT.md` (cite the OEM spec, or contribute a cross-validating capture in `tests/fixtures/`).
+- Future phases of the OEM extension plan (1.2 per-ECU sub-catalogs, 1.3 session negotiation, 1.4 seed-key plugins, 2 DTC catalogs, 3 coding encoders, 4 routine schemas, 5 real-capture test fixtures, 6 multi-bus, 7 ODX importer) are tracked in `docs/OEM_EXTENSION_PLAN.md` as separate future milestones.
+
 ## [3.2.0] - 2026-05-06 — Production Crypto + OEM Coverage (Proposal C)
 
 ### Added
@@ -130,7 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.3.0...HEAD
+[3.3.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.2.0...v3.3.0
 [3.2.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.1.0...v3.2.0
 [3.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.0.0...v3.1.0
 [3.0.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...v3.0.0
