@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "HONDA",
+  "display_name": "Honda Motor Co. (incl. Acura)",
+  "applicable_wmis": ["JHM","JHL","JHF","JH4","1HG","19U","19V","2HG","2HK","2HN","3HG","5J6","5FN","5FP"],
+  "default_source": "hds-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "pcm",     "common_name": "PCM — Powertrain Control" },
+    { "address": "0x7E1", "name": "tcm",     "common_name": "TCM — Transmission Control" },
+    { "address": "0x7E2", "name": "abs",     "common_name": "VSA / ABS" },
+    { "address": "0x7E3", "name": "srs",     "common_name": "SRS / Airbag" },
+    { "address": "0x7E4", "name": "bcm",     "common_name": "BCM — Body Control" },
+    { "address": "0x7E5", "name": "cluster", "common_name": "Gauge Control" },
+    { "address": "0x7E6", "name": "hvac",    "common_name": "Climate Control" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "honda_chassis_code", "description": "Honda chassis code (e.g. FK7, RZ4)", "ecu_address": "0x7E4",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "honda_factory_code", "description": "Honda factory / build plant code", "ecu_address": "0x7E4",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "engine_coolant_temperature", "description": "Coolant temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD053", "name": "throttle_position_pct", "description": "Throttle position (%)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "idle_relearn", "description": "Idle-air-control relearn (HDS)", "ecu_address": "0x7E0" }
+  ]
+}

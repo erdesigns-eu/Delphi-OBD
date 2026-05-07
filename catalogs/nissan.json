@@ -1,0 +1,39 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "NISSAN",
+  "display_name": "Nissan Motor (incl. Infiniti, Datsun)",
+  "applicable_wmis": ["JN1","JN6","JN8","1N4","1N6","3N1","5N1","5BZ","JNK","JNR","JNX","MNT"],
+  "default_source": "consult-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "ecm",     "common_name": "ECM — Engine Control" },
+    { "address": "0x7E1", "name": "tcm",     "common_name": "TCM — Transmission Control" },
+    { "address": "0x740", "name": "bcm",     "common_name": "BCM — Body Control" },
+    { "address": "0x745", "name": "ipdm",    "common_name": "IPDM E/R — Power Distribution" },
+    { "address": "0x763", "name": "abs",     "common_name": "ABS / VDC" },
+    { "address": "0x75A", "name": "cluster", "common_name": "Combination Meter" },
+    { "address": "0x75D", "name": "srs",     "common_name": "SRS / Airbag" },
+    { "address": "0x768", "name": "avm",     "common_name": "AVM — Around-View Monitor" },
+    { "address": "0x793", "name": "evcc",    "common_name": "EV Charge Controller (Leaf / Ariya)" }
+  ],
+  "dids": [
+    { "did": "0xF1A1", "name": "nissan_chassis_code", "description": "Nissan chassis code (e.g. T32, R35)", "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "nissan_market_code",  "description": "Nissan market / region code",        "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x75A",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "engine_coolant_temperature", "description": "Coolant temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD060", "name": "ev_pack_voltage", "description": "Leaf / Ariya pack voltage (V)", "ecu_address": "0x793",
+      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
+    { "did": "0xD061", "name": "ev_pack_soc",     "description": "Leaf / Ariya pack SOC (%)",     "ecu_address": "0x793",
+      "decoder": { "kind": "uint8",    "scale": 0.5, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "idle_relearn",  "description": "Idle volume relearn (Consult III+)", "ecu_address": "0x7E0" },
+    { "id": "0x0205", "name": "tps_relearn",   "description": "Throttle valve closed-position relearn", "ecu_address": "0x7E0" }
+  ]
+}

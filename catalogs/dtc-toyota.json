@@ -1,0 +1,16 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Toyota / Lexus DTC starter",
+  "default_source": "techstream-community / techinfo-public",
+  "dtcs": [
+    { "code": "P1135", "severity": "warning", "description": "Air-Fuel Ratio Sensor Heater Circuit (Bank 1 Sensor 1, Toyota)", "verified": false },
+    { "code": "P1349", "severity": "warning", "description": "VVT System Malfunction Bank 1 (Toyota dual VVT-i)", "verified": false },
+    { "code": "P1604", "severity": "warning", "description": "Startability Malfunction (Toyota lean-misfire startup)", "verified": false },
+    { "code": "P3000", "severity": "critical", "description": "HV Battery Control System (Toyota Prius / hybrid)", "verified": false },
+    { "code": "P0A80", "severity": "critical", "description": "Replace Hybrid Battery Pack (Toyota / Lexus hybrid)", "verified": false },
+    { "code": "B1421", "severity": "warning", "description": "Driver-side seatbelt buckle switch circuit (Toyota)", "verified": false },
+    { "code": "C1201", "severity": "warning", "description": "ECM communication malfunction (Toyota ABS/VSC)", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Control Module Communication Bus 'A' Off (Toyota CAN)", "verified": false }
+  ]
+}

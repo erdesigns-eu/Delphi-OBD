@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "MAZDA",
+  "display_name": "Mazda Motor Corporation",
+  "applicable_wmis": ["JM1","JM3","JM7","JMZ","4F2","4F4"],
+  "default_source": "mmds-community / forscan-mazda",
+  "ecus": [
+    { "address": "0x7E0", "name": "pcm",     "common_name": "PCM — Powertrain Control" },
+    { "address": "0x7E1", "name": "tcm",     "common_name": "TCM — Transmission Control" },
+    { "address": "0x726", "name": "rbcm",    "common_name": "RBCM — Rear Body Control" },
+    { "address": "0x731", "name": "bcm",     "common_name": "BCM — Body Control" },
+    { "address": "0x741", "name": "abs",     "common_name": "ABS / DSC" },
+    { "address": "0x732", "name": "srs",     "common_name": "SRS / Airbag" },
+    { "address": "0x720", "name": "cluster", "common_name": "Instrument Cluster" },
+    { "address": "0x7E5", "name": "hvac",    "common_name": "Climate Control" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "mazda_as_built_code", "description": "Mazda As-Built configuration code", "ecu_address": "0x731",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "mazda_market_code", "description": "Mazda market / region code", "ecu_address": "0x731",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x720",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "engine_coolant_temperature", "description": "Coolant temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "idle_relearn", "description": "Idle re-learn (M-MDS)", "ecu_address": "0x7E0" }
+  ]
+}

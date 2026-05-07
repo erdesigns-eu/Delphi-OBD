@@ -1,0 +1,32 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "SUBARU",
+  "display_name": "Subaru Corporation",
+  "applicable_wmis": ["JF1","JF2","JF3","4S3","4S4"],
+  "default_source": "ssm-community / openecu-public",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "Engine ECU (ECM)" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCU / CVT control" },
+    { "address": "0x7E2", "name": "awd",          "common_name": "AWD / ATV controller" },
+    { "address": "0x7B0", "name": "abs",          "common_name": "ABS / VDC" },
+    { "address": "0x7C0", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x7C8", "name": "cluster",      "common_name": "Combination Meter" },
+    { "address": "0x7C4", "name": "body",         "common_name": "Body Integrated Unit" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "subaru_chassis_code", "description": "Subaru chassis code (e.g. GP, SK)", "ecu_address": "0x7C8",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x7C8",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "boost_pressure", "description": "Boost pressure (kPa, turbo)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0xD053", "name": "afr_target", "description": "Target air/fuel ratio", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001 } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "cvt_relearn", "description": "CVT clutch-pressure relearn (SSM4)", "ecu_address": "0x7E1" }
+  ]
+}

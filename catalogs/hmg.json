@@ -1,0 +1,40 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "HMG",
+  "display_name": "Hyundai Motor Group (Hyundai / Kia / Genesis)",
+  "applicable_wmis": ["KMH","KM8","KMF","KMT","5NP","5NM","5NX","KNA","KND","KNH","KNB","5XX","5XY","KNF","KMK"],
+  "default_source": "gds-community / kds-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",        "common_name": "Engine ECU (EMS)" },
+    { "address": "0x7E1", "name": "transmission",  "common_name": "Transmission Control (TCU)" },
+    { "address": "0x7E2", "name": "ems_secondary", "common_name": "Secondary engine controller" },
+    { "address": "0x7D1", "name": "abs",           "common_name": "ABS / VDC / ESC" },
+    { "address": "0x7D2", "name": "srs",           "common_name": "SRS / Airbag" },
+    { "address": "0x780", "name": "cluster",       "common_name": "Instrument Cluster" },
+    { "address": "0x7A0", "name": "bcm",           "common_name": "BCM" },
+    { "address": "0x7B0", "name": "icm",           "common_name": "Integrated Central Module" },
+    { "address": "0x7C0", "name": "hvac",          "common_name": "Climate Control" },
+    { "address": "0x7E5", "name": "evcc",          "common_name": "EV Charge Controller" }
+  ],
+  "dids": [
+    { "did": "0xF193", "name": "hmg_rom_id",              "description": "HMG ROM ID (calibration tag)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A0", "name": "hmg_calibration_id",      "description": "HMG calibration ID",          "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "hmg_vehicle_option_code", "description": "Vehicle-option / trim code",  "ecu_address": "0x7A0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x780",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD060", "name": "ev_battery_soc", "description": "EV battery state of charge (%)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } },
+    { "did": "0xD061", "name": "ev_battery_soh", "description": "EV battery state of health (%)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "crank_relearn", "description": "Crankshaft position relearn", "ecu_address": "0x7E0" },
+    { "id": "0x0F01", "name": "sjb_relearn",   "description": "Smart Junction Box relearn",  "ecu_address": "0x7A0" }
+  ]
+}

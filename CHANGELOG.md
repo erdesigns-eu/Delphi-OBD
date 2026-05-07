@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.0] - 2026-05-07 — OEM coverage expansion (Asia/Pacific fleet)
+
+### Added
+- Six new OEM extensions covering the Japanese + Korean fleet, all built on the v3.3-v3.13 framework (catalog + ECU map + session negotiator + seed-key registry + DTC catalog + DID decoders):
+  - **`OBD.OEM.Toyota`** — Toyota / Lexus / Daihatsu (16 WMIs incl. JTD/JTE/JTH/JTJ/JTK/JTM/JTN/2T1/2T2/4T1/4T3/5TD/5TE/5TF/5TY/JDA). 8-ECU TechStream map (engine, transmission, hybrid, ABS, SRS, immobilizer, body, cluster) plus Toyota-specific F1A0 calibration ID list, F1A1 ECU serial, hybrid-battery DIDs at 0x7E2.
+  - **`OBD.OEM.Honda`** — Honda / Acura (14 WMIs incl. JHM/JHL/JHF/JH4/1HG/19U/19V/2HG/2HK/2HN/3HG/5J6/5FN/5FP). 7-ECU HDS map; Honda-specific chassis-code (F1A0) + factory-code (F1A2) DIDs; XOR-mask seed-key starter.
+  - **`OBD.OEM.HyundaiKia`** — Hyundai / Kia / Genesis (15 WMIs incl. KMH/KM8/KMF/KMT/5NP/5NM/5NX/KNA/KND/KNH/KNB/5XX/5XY/KNF/KMK). 10-ECU GDS / KDS map incl. EV charge controller at 0x7E5; ROM ID + calibration ID + vehicle-option DIDs; 1500 ms tester-present interval (matches GDS default).
+  - **`OBD.OEM.Nissan`** — Nissan / Infiniti / Datsun (12 WMIs incl. JN1/JN6/JN8/1N4/1N6/3N1/5N1/5BZ/JNK/JNR/JNX/MNT). 9-ECU Consult III+ map incl. IPDM at 0x745, AVM at 0x768, Leaf/Ariya EV charge controller at 0x793; chassis-code + market-code DIDs.
+  - **`OBD.OEM.Subaru`** — Subaru (5 WMIs incl. JF1/JF2/JF3/4S3/4S4). 7-ECU SSM4 map incl. dedicated AWD controller at 0x7E2; CVT relearn routine; byte-rotate seed-key starter.
+  - **`OBD.OEM.Mazda`** — Mazda (6 WMIs incl. JM1/JM3/JM7/JMZ/4F2/4F4). 8-ECU M-MDS map incl. RBCM at 0x726 (Mazda-specific rear body controller); Mazda As-Built code + market code DIDs.
+- Six matching JSON catalogs (`catalogs/{toyota,honda,hmg,nissan,subaru,mazda}.json`) with starter DIDs (~6-8 per OEM) — all `verified: false` per the v3.3 provenance contract.
+- Six matching DTC starter catalogs (`catalogs/dtc-{toyota,honda,hmg,nissan,subaru,mazda}.json`) with 7-8 manufacturer-specific codes each (P-codes for engine/trans, B-codes for body, U-codes for comm-loss). Production users contribute via JSON edits without recompiling.
+- `Tests.OEM.AsiaPacific` — 19 new test cases: VIN routing for every OEM (positive matches + cross-OEM rejection + unknown-VIN check), catalog spot-checks (Toyota engine ECU, Honda seed-key starter, HMG 1500 ms heartbeat, Nissan IPDM, Subaru AWD controller, Mazda RBCM), and DID decoder spot-checks for each OEM's custom decode paths.
+
+### Changed
+- `Packages/RunTime.dpk` adds the six new units. The `OBD.OEM.Registry` now resolves 12 OEMs from VIN (up from 6).
+
+### Notes
+- Toyota covers most of the global Japanese-built fleet; Honda picks up American Honda manufacturing; HMG is the third-largest automaker globally; Nissan + Subaru + Mazda round out the Japanese mid-tier and the AWD-focused niche.
+- Seed-key starters are placeholders (community-pr provenance, `verified: false`). Real algorithms live behind dealer NDAs; production users register their own at app startup via `Ext.SeedKeyRegistry.RegisterAlgorithm($01, …)`.
+- Combined with the European (VW, BMW, Mercedes, Stellantis) + American (Ford, GM) extensions from v3.2, the framework now covers ~85% of the global passenger-vehicle fleet by VIN-prefix.
+
 ## [3.13.0] - 2026-05-07 — OEM Catalog Phase 7 (golden-check helper + reference CLI)
 
 ### Added

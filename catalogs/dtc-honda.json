@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Honda / Acura DTC starter",
+  "default_source": "hds-community",
+  "dtcs": [
+    { "code": "P1456", "severity": "info",    "description": "EVAP Emission Control System Leak Detected — Fuel Tank (Honda)", "verified": false },
+    { "code": "P1457", "severity": "info",    "description": "EVAP Emission Control System Leak Detected — Canister (Honda)", "verified": false },
+    { "code": "P1259", "severity": "warning", "description": "VTEC System Malfunction Bank 1 (Honda)", "verified": false },
+    { "code": "P1399", "severity": "warning", "description": "Random Cylinder Misfire Detected (Honda)", "verified": false },
+    { "code": "P162F", "severity": "warning", "description": "Steering wheel angle sensor calibration not learned (Honda)", "verified": false },
+    { "code": "B1131", "severity": "warning", "description": "Driver airbag deployment loop resistance high (Honda)", "verified": false },
+    { "code": "U0028", "severity": "critical", "description": "F-CAN Bus Off (Honda body bus)", "verified": false }
+  ]
+}

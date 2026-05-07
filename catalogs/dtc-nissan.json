@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Nissan / Infiniti DTC starter",
+  "default_source": "consult-community",
+  "dtcs": [
+    { "code": "P1273", "severity": "warning", "description": "Air-Fuel Ratio Sensor 1 Lean (Bank 1, Nissan)", "verified": false },
+    { "code": "P1574", "severity": "warning", "description": "ASCD vehicle speed sensor (Nissan cruise control)", "verified": false },
+    { "code": "P0746", "severity": "warning", "description": "Pressure Control Solenoid Performance — Stuck Off (Nissan CVT/RE5)", "verified": false },
+    { "code": "P17F0", "severity": "warning", "description": "CVT Judder Diagnosis — limited (Nissan JATCO CVT)", "verified": false },
+    { "code": "B2618", "severity": "warning", "description": "BCM communication error (Nissan)", "verified": false },
+    { "code": "C1130", "severity": "warning", "description": "Engine signal lost (Nissan ABS)", "verified": false },
+    { "code": "U1000", "severity": "critical", "description": "Lost Communication With Engine Control Module (Nissan CAN)", "verified": false }
+  ]
+}

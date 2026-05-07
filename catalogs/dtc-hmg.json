@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Hyundai / Kia / Genesis DTC starter",
+  "default_source": "gds-community / kds-community",
+  "dtcs": [
+    { "code": "P1326", "severity": "critical", "description": "Glow plug control module — Theta II rod-bearing knock sensor detection (Hyundai/Kia)", "verified": false },
+    { "code": "P1693", "severity": "warning",  "description": "Trouble Code in Other Module (Hyundai/Kia gateway DTC)", "verified": false },
+    { "code": "P11A6", "severity": "warning",  "description": "Air Mass Sensor Performance — high (Hyundai)", "verified": false },
+    { "code": "P2AAB", "severity": "warning",  "description": "Cylinder 1 air/fuel imbalance (Hyundai/Kia GDI)", "verified": false },
+    { "code": "B1101", "severity": "warning",  "description": "Battery Voltage Low (Hyundai/Kia BCM)", "verified": false },
+    { "code": "C1604", "severity": "warning",  "description": "ECM Hardware Fault (Hyundai/Kia HCU)", "verified": false },
+    { "code": "U0184", "severity": "warning",  "description": "Lost Communication With Radio (Hyundai/Kia)", "verified": false }
+  ]
+}

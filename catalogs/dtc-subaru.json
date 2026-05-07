@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Subaru DTC starter",
+  "default_source": "ssm-community / openecu-public",
+  "dtcs": [
+    { "code": "P0021", "severity": "warning", "description": "Camshaft Position Timing Over-Advanced (Bank 2, Subaru EJ/FB)", "verified": false },
+    { "code": "P0420", "severity": "warning", "description": "Catalyst System Efficiency Below Threshold Bank 1 (Subaru — common pre-cat ageing)", "verified": false },
+    { "code": "P1086", "severity": "warning", "description": "Active Valve Control System (AVCS) Bank 1 — Subaru variable valve timing", "verified": false },
+    { "code": "P0700", "severity": "warning", "description": "Transmission Control System Malfunction (Subaru CVT MIL request)", "verified": false },
+    { "code": "C0021", "severity": "warning", "description": "Wheel Speed Sensor Front Left Circuit (Subaru ABS)", "verified": false },
+    { "code": "B0024", "severity": "warning", "description": "Front Passenger Frontal Stage 1 Deployment Control (Subaru SRS)", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Control Module Communication Bus 'A' Off (Subaru high-speed CAN)", "verified": false }
+  ]
+}

@@ -123,6 +123,12 @@ contains
   OBD.OEM.Captures in '..\src\Services\OBD.OEM.Captures.pas',
   OBD.OEM.DiagSession in '..\src\Services\OBD.OEM.DiagSession.pas',
   OBD.OEM.DoIP in '..\src\Services\OBD.OEM.DoIP.pas',
-  OBD.OEM.GoldenCheck in '..\src\Services\OBD.OEM.GoldenCheck.pas';
+  OBD.OEM.GoldenCheck in '..\src\Services\OBD.OEM.GoldenCheck.pas',
+  OBD.OEM.Toyota in '..\src\Services\OBD.OEM.Toyota.pas',
+  OBD.OEM.Honda in '..\src\Services\OBD.OEM.Honda.pas',
+  OBD.OEM.HyundaiKia in '..\src\Services\OBD.OEM.HyundaiKia.pas',
+  OBD.OEM.Nissan in '..\src\Services\OBD.OEM.Nissan.pas',
+  OBD.OEM.Subaru in '..\src\Services\OBD.OEM.Subaru.pas',
+  OBD.OEM.Mazda in '..\src\Services\OBD.OEM.Mazda.pas';
 
 end.
