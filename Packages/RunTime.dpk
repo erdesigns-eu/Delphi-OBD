@@ -152,6 +152,9 @@ contains
   OBD.OEM.Iveco in '..\src\Services\OBD.OEM.Iveco.pas',
   OBD.OEM.Isuzu in '..\src\Services\OBD.OEM.Isuzu.pas',
   OBD.OEM.Rivian in '..\src\Services\OBD.OEM.Rivian.pas',
-  OBD.OEM.Polestar in '..\src\Services\OBD.OEM.Polestar.pas';
+  OBD.OEM.Polestar in '..\src\Services\OBD.OEM.Polestar.pas',
+  OBD.ReadinessMonitor in '..\src\Services\OBD.ReadinessMonitor.pas',
+  OBD.FreezeFrame in '..\src\Services\OBD.FreezeFrame.pas',
+  OBD.VehicleHealth in '..\src\Services\OBD.VehicleHealth.pas';
 
 end.

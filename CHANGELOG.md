@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.23.0] - 2026-05-07 — OBD-II application helpers (readiness + freeze-frame + vehicle health)
+
+### Added
+- **`OBD.ReadinessMonitor`** — decoder for SAE J1979 PID 0x01 (Monitor Status Since Codes Cleared). Returns a `TOBDReadinessReport` with MIL state, DTC count, and per-monitor readiness state for **17 monitor kinds** covering both spark-ignition (catalyst, heated catalyst, EVAP, secondary air, A/C refrigerant, oxygen sensor, oxygen sensor heater, EGR) and compression-ignition (NMHC catalyst, NOx aftertreatment, boost pressure, exhaust gas sensor, PM filter, EGR/VVT diesel) layouts plus the three universal continuous monitors (misfire, fuel system, components). `FormatReadinessSummary` produces a one-line status-bar string like `"MIL off, 0 DTCs, 5/8 readiness monitors complete (spark-ignition)"`.
+- **`OBD.FreezeFrame`** — Service 02 wire helpers. `BuildFreezeFrameRequest(PID, FrameNum)` builds the `02 PID FrameNum` request; `ParseFreezeFrameResponse(bytes, expectedPID)` parses the `42 PID FrameNum DATA…` reply (with negative-NRC / wrong-SID / wrong-PID error paths) into a `TOBDFreezeFrameEntry`. `FormatFreezeFrameTriggerDTC` decodes the 2-byte payload of PID 0x02 (the DTC that triggered the freeze frame) into the canonical 5-character form, reusing the v3.7 ISO 15031-5 encoder.
+- **`OBD.VehicleHealth`** — high-level `TOBDHealthCapture.Capture` orchestrator that aggregates everything an app actually wants in one call:
+  - VIN read (Service 09 PID 02) → auto-resolve OEM extension via `TOBDOEMRegistry.FindByVIN`.
+  - Active DTCs (Service 03), each annotated with the OEM catalog's description + severity.
+  - Pending DTCs (Service 07), same annotation pipeline.
+  - Readiness monitors (PID 0x01) decoded through `OBD.ReadinessMonitor`.
+  - Live values: battery voltage (PID 0x42), engine RPM (PID 0x0C), vehicle speed (PID 0x0D), coolant temperature (PID 0x05), engine load (PID 0x04).
+  - **Computed health score 0..100** with a documented penalty rubric (MIL on -10, critical DTC -20, warning DTC -8, info DTC -3, unknown DTC -10, pending DTC -2, each not-ready monitor -1; clamped to 0).
+  - One-line summary string suitable for a status bar.
+- Each step is **best-effort** — a failed read populates the matching `*Error` field but doesn't abort the rest, so tools surface the partial result as "we got X but Y failed". This is exactly the contract a real diagnostic tool's "snapshot" button needs.
+- `Tests.OBD.Helpers` — 17 new test cases. ReadinessMonitor (10): all-zeros baseline, MIL+DTC count, continuous monitor ready / not-ready, gasoline non-continuous catalyst, diesel-flag-and-monitors set, too-short rejection, summary-string format, monitor-kind / state name canonicalization. FreezeFrame (7): request encoding, positive-response parsing, too-short / wrong-SID / wrong-PID rejection, negative-NRC handling, trigger-DTC round-trip.
+
+### Changed
+- `Packages/RunTime.dpk` adds the three new units.
+- `tests/Tests.dpr` registers `Tests.OBD.Helpers`.
+
+### Notes
+- This is the **application-enabling** milestone. Tools built on the framework can now call:
+  ```pascal
+  Capture := TOBDHealthCapture.Create(Async);
+  Snap := Capture.Capture;
+  StatusBar.SimpleText := Snap.SummaryLine;
+  // Snap.HealthScore drives the colour-coded indicator
+  // Snap.ActiveDTCs feeds the DTC list view
+  // Snap.Readiness powers the readiness-monitor grid
+  // Snap.BatteryVoltage / EngineRPM / etc. feed the live gauges
+  ```
+- The reference VCL tool (`examples/diagtool`) shipped in v3.20 already exposes the lower-level primitives (Service 03 read, PID 0x05 / 0x0C / 0x0D / 0x42 polling, DescribeDTC); a future milestone (v3.24+) will add a "Snapshot" tab that calls the v3.23 `TOBDHealthCapture` directly.
+- `TOBDHealthCapture` is intentionally stateless — each `Capture` call re-reads everything. Production tools that want a live dashboard should run a polling loop on a worker thread and use the framework's existing async primitives.
+
 ## [3.22.0] - 2026-05-07 — Premium / EV / heavy-commercial OEMs
 
 ### Added (6 new OEM extensions)
