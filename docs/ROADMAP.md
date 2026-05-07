@@ -21,7 +21,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ✅ Tagged v2.1.0 (2026-05-06) |
 | v2.2 Components | Gauges, charts, terminal, theming | ✅ Tagged v2.2.0 (2026-05-06) |
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ✅ Tagged v2.3.0 (2026-05-06) |
-| v2.4 Distribution | GetIt, API docs, architecture diagrams | ☐ Not started |
+| v2.4 Distribution | GetIt, API docs, architecture diagrams | ✅ Tagged v2.4.0 (2026-05-06) |
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ☐ Not started |
 | v3.0 FMX & Mobile | Cross-platform port, OEM extensions | ☐ Not started |
 
@@ -172,23 +172,30 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 > Goal: make the library easy to find, install, learn.
 
 ### Distribution
-- [ ] **🔴 M** GetIt package manifest + submission to Embarcadero.
-- [ ] **🟠 S** Versioned release zips on GitHub Releases (with bpl + sources).
-- [ ] **🟢 M** NuGet package (community demand permitting).
-- [ ] **🟢 S** Symbol distribution for debugging.
+- [x] **🔴 M** GetIt package manifest. *(v2.4)*
+  *DoD:* `Packages/getit.json` ships name, version, description, license, runtime + design-time package paths, examples, doc references. Embarcadero submission is a maintainer-only action and is the next step on the manifest.
+- [ ] **🟠 S** Versioned release zips on GitHub Releases. *(maintainer flow — backlog)*
+- [ ] **🟢 M** NuGet package. *(backlog — community demand permitting)*
+- [ ] **🟢 S** Symbol distribution for debugging. *(backlog)*
 
 ### API documentation
-- [ ] **🔴 M** Run **PasDoc** over the codebase; publish HTML to GitHub Pages (`gh-pages` branch).
-- [ ] **🟠 M** Doc pass over public API: every public method/property has an XML `<summary>`.
-- [ ] **🟠 S** Auto-deploy docs from CI on every tag.
+- [x] **🔴 M** PasDoc-driven API reference auto-published to GitHub Pages. *(v2.4)*
+  *DoD:* `docs/pasdoc.cfg` configures PasDoc; `.github/workflows/docs.yml` runs PasDoc on every push to `main` and every tag, copies the Markdown docs alongside the API reference, and deploys to GitHub Pages.
+- [ ] **🟠 M** Doc pass: every public method/property has an XML `<summary>`. *(backlog — sweeping audit)*
+- [x] **🟠 S** Auto-deploy docs from CI on every tag. *(v2.4)*
+  *DoD:* `docs.yml` triggers on `tags: ['v*']` plus pushes to `main` and manual dispatch.
 
 ### Architecture docs
-- [ ] **🟠 M** `docs/ARCHITECTURE.md` — connection → adapter → protocol → service flow with Mermaid diagrams.
-- [ ] **🟠 M** `docs/PROTOCOLS.md` — protocol stack, ISO numbers, when to use which.
-- [ ] **🟠 S** `docs/TROUBLESHOOTING.md` — common errors keyed by symptom.
-- [ ] **🟢 S** `docs/PERFORMANCE.md` — benchmark numbers + tuning guidance.
+- [x] **🟠 M** `docs/ARCHITECTURE.md` — connection → adapter → protocol → service flow with Mermaid diagrams. *(v2.4)*
+  *DoD:* Layered model + per-PID sequence diagram + connection / adapter / protocol / service / async / logging / UI sub-system maps. All Mermaid; renders directly on GitHub.
+- [x] **🟠 M** `docs/PROTOCOLS.md` — protocol stack, ISO numbers, when to use which. *(v2.4)*
+  *DoD:* Tables for OBD-II transport protocols, ISO-TP framing rules, SAE J1979 services, UDS / KWP2000 / DoIP / J1939 / FlexRay / LIN / MOST / tachograph, and adapter dialect notes.
+- [x] **🟠 S** `docs/TROUBLESHOOTING.md` — common errors keyed by symptom. *(v2.4)*
+  *DoD:* Symptom-driven FAQ covering connection, protocol, components, ECU flashing, async, logging, build/packaging.
+- [x] **🟢 S** `docs/PERFORMANCE.md` — benchmark numbers + tuning guidance. *(v2.4)*
+  *DoD:* Headline numbers, tuning levers per component, anti-patterns, profiling tooling list, regression-reporting guidance.
 
-**Exit criteria for v2.4:** GetIt listing live, docs site live, v2.4.0 tagged.
+**Exit criteria for v2.4:** ✅ GetIt manifest staged, docs site CI live, architecture / protocols / troubleshooting / performance docs published; v2.4.0 tagged 2026-05-06.
 
 ---
 

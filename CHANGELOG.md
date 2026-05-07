@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-05-06 — Distribution & Docs
+
+### Added
+- `Packages/getit.json` — GetIt package manifest (name, version, runtime + design-time paths, examples, doc references). Submission to Embarcadero is the maintainer-side follow-up.
+- `.github/workflows/docs.yml` — automated PasDoc API-reference build + GitHub Pages deploy on every push to main and every tag. `docs/pasdoc.cfg` carries the PasDoc configuration.
+- `docs/ARCHITECTURE.md` — full architectural overview with Mermaid diagrams (layered model, per-PID sequence diagram, connection / adapter / protocol / service / async / logging / UI maps).
+- `docs/PROTOCOLS.md` — protocol-stack reference: OBD-II transports, ISO-TP framing, SAE J1979 services, UDS/KWP2000/DoIP/J1939/FlexRay/LIN/MOST/tachograph, adapter dialect notes.
+- `docs/TROUBLESHOOTING.md` — symptom-keyed FAQ across connection, protocol, components, ECU flashing, async, logging, build/packaging.
+- `docs/PERFORMANCE.md` — headline numbers, per-component tuning levers, anti-patterns, profiling tooling, regression-reporting guidance.
+
 ## [2.3.0] - 2026-05-06 — Async & Logging
 
 ### Added
@@ -61,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...HEAD
+[2.4.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...v2.4.0
 [2.3.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.2.0...v2.3.0
 [2.2.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.1.0...v2.2.0
 [2.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.0.0...v2.1.0
