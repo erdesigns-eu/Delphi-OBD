@@ -122,6 +122,7 @@ contains
   OBD.OEM.RoutineControl in '..\src\Services\OBD.OEM.RoutineControl.pas',
   OBD.OEM.Captures in '..\src\Services\OBD.OEM.Captures.pas',
   OBD.OEM.DiagSession in '..\src\Services\OBD.OEM.DiagSession.pas',
-  OBD.OEM.DoIP in '..\src\Services\OBD.OEM.DoIP.pas';
+  OBD.OEM.DoIP in '..\src\Services\OBD.OEM.DoIP.pas',
+  OBD.OEM.GoldenCheck in '..\src\Services\OBD.OEM.GoldenCheck.pas';
 
 end.

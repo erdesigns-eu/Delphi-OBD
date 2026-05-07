@@ -36,6 +36,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.10 OEM Catalog Phase 5  | Capture-replay validation: OBD.OEM.Captures pairs Sent → Received from .obdlog, extracts SID / DID / payload, runs 0x22 reads through Ext.DecodeDID; 4 sample synthetic captures + 12 tests | ✅ Tagged v3.10.0 (2026-05-07) |
 | v3.11 OEM Catalog Phase 6.1| High-level TOBDDiagSession wrapper: BeginSession + EndSession + UnlockSecurityAccess + ReadDID + StartRoutine / Stop / RequestResults; owns the tester-present heartbeat lifecycle, threads NRCs into LastError | ✅ Tagged v3.11.0 (2026-05-07) |
 | v3.12 OEM Catalog Phase 6.2| DoIP / ISO 13400-2: 8-byte header + version inversion, RoutingActivation request / response (v2010 + v2012 OEM tail), VehicleIdent + Announcement, AliveCheck, DiagnosticMessage UDS wrapping | ✅ Tagged v3.12.0 (2026-05-07) |
+| v3.13 OEM Catalog Phase 7  | Golden-vector spot-check helper (TOBDGoldenVector + CheckGoldenVectors) with curated per-OEM suites (VW + BMW + MB + Ford); reference CLI (examples/diagsession_console) showing the end-to-end TOBDDiagSession API | ✅ Tagged v3.13.0 (2026-05-07) — closes the 7-phase OEM extension plan |
 
 ---
 

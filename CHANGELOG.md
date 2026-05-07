@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.13.0] - 2026-05-07 — OEM Catalog Phase 7 (golden-check helper + reference CLI)
+
+### Added
+- **`OBD.OEM.GoldenCheck`** — framework-neutral spot-check helper. `CheckGoldenVectors(Ext, Vectors)` runs each `(DID, Payload, ExpectedSubstring, Description)` tuple through the OEM extension's `DecodeDID` and returns a list of `TOBDGoldenFailure` records with the actual output and a pre-formatted reason — empty when every vector passed. Callers decide whether to `Assert.Fail` the batch, surface the count, or post-process.
+- `Tests.OEM.GoldenCheck` — 4 helper-behaviour tests (passes / missing-substring / empty-output / empty-substring matches non-empty), plus `TPerOEMGoldenTests` with curated golden vectors for all four shipping OEM extensions (VW + BMW + Mercedes + Ford), 12 vectors total covering VIN, mileage, battery voltage, manufacturing date, programming status. These are the spot-check suite to run before tagging.
+- **`examples/diagsession_console/DiagSessionDemo.dpr`** — small reference console tool that drives `TOBDDiagSession` end-to-end against any ELM327-compatible adapter on a serial port. Demonstrates the v3.11 high-level API: connect, pick OEM extension by VIN prefix, `BeginSession(sstExtendedDiagnostic, $7E0)`, `ReadDID(F190 / F189 / D050)` with decoded output, `EndSession`. ~75 lines — the canonical "hello, OEM" template a tool-builder copy-pastes from.
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.GoldenCheck`.
+
+### Notes
+- This closes the seven-phase OEM extension plan started in v3.3. Every phase is now ✅ in `docs/OEM_EXTENSION_PLAN.md`. The framework now ships:
+  - DID + routine + DTC catalogs with provenance flags (v3.3 + v3.7)
+  - Per-ECU sub-catalogs (v3.4)
+  - Per-OEM session negotiators + plan runner with heartbeat (v3.5)
+  - Pluggable seed-key algorithms (v3.6)
+  - VW long coding / BMW FA + I-Stufe / MB SCN / Ford AsBuilt codecs (v3.8)
+  - UDS RoutineControl framework (v3.9)
+  - Capture-replay validation (v3.10)
+  - High-level `TOBDDiagSession` wrapper (v3.11)
+  - DoIP / ISO 13400-2 frame builders + parsers (v3.12)
+  - Golden-vector spot-checks + reference CLI (v3.13)
+- Future growth lives along the orthogonal axes documented across `docs/OEM_EXTENSION_PLAN.md`: scaling each per-OEM JSON catalog from `verified: false` starter to `verified: true` production data, registering NDA-protected seed-key algorithms at app startup, and contributing real ECU captures into `tests/fixtures/captures/`. The framework no longer needs structural work to absorb that growth.
+
 ## [3.12.0] - 2026-05-07 — OEM Catalog Phase 6.2 (DoIP / ISO 13400-2)
 
 ### Added

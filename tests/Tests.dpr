@@ -56,7 +56,8 @@ uses
   Tests.OEM.RoutineControl in 'Tests.OEM.RoutineControl.pas',
   Tests.OEM.Captures in 'Tests.OEM.Captures.pas',
   Tests.OEM.DiagSession in 'Tests.OEM.DiagSession.pas',
-  Tests.OEM.DoIP in 'Tests.OEM.DoIP.pas';
+  Tests.OEM.DoIP in 'Tests.OEM.DoIP.pas',
+  Tests.OEM.GoldenCheck in 'Tests.OEM.GoldenCheck.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

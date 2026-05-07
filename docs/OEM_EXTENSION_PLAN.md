@@ -381,6 +381,16 @@ Goes hand-in-hand with the heavy-duty work in Proposal D from
 
 ## Phase 7 — Tooling for catalog authoring (🟢 M)
 
+> **v3.13 status:** ✅ Shipped. The CSV importer (v3.3) covers
+> the bulk-add path; `OBD.OEM.GoldenCheck` is the spot-check
+> harness for catch-regressions-before-tagging; and
+> `examples/diagsession_console/` is the reference template a
+> tool-builder copy-pastes. Real ODX-D 2.2 import is intentionally
+> deferred — the spec is wide and most maintainers find the JSON
+> catalog easier to edit by hand than to round-trip through ODX.
+> Contributing community ODX exports stripped to JSON via the
+> CSV path is the supported route.
+
 When a maintainer wants to add 200 DIDs at once, hand-typing is
 painful. Tools to build:
 
