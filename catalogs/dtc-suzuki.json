@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Suzuki / Maruti DTC starter",
+  "default_source": "sdt-community",
+  "dtcs": [
+    { "code": "P0335", "severity": "critical", "description": "Crankshaft Position Sensor (Suzuki M-engine common failure)", "verified": false },
+    { "code": "P0351", "severity": "warning",  "description": "Ignition Coil A Primary/Secondary Circuit (Suzuki K-engine)", "verified": false },
+    { "code": "P1450", "severity": "info",     "description": "EVAP System Vent Solenoid Stuck Closed (Suzuki)", "verified": false },
+    { "code": "P2138", "severity": "warning",  "description": "Throttle Pedal Position Sensor Correlation (Maruti / Suzuki ETC)", "verified": false },
+    { "code": "B1135", "severity": "warning",  "description": "Battery voltage low (Suzuki SDM)", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Control Module Communication Bus 'A' Off (Suzuki HS-CAN)", "verified": false }
+  ]
+}

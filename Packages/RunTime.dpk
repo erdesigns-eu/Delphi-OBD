@@ -129,6 +129,11 @@ contains
   OBD.OEM.HyundaiKia in '..\src\Services\OBD.OEM.HyundaiKia.pas',
   OBD.OEM.Nissan in '..\src\Services\OBD.OEM.Nissan.pas',
   OBD.OEM.Subaru in '..\src\Services\OBD.OEM.Subaru.pas',
-  OBD.OEM.Mazda in '..\src\Services\OBD.OEM.Mazda.pas';
+  OBD.OEM.Mazda in '..\src\Services\OBD.OEM.Mazda.pas',
+  OBD.OEM.Renault in '..\src\Services\OBD.OEM.Renault.pas',
+  OBD.OEM.Volvo in '..\src\Services\OBD.OEM.Volvo.pas',
+  OBD.OEM.Tesla in '..\src\Services\OBD.OEM.Tesla.pas',
+  OBD.OEM.Suzuki in '..\src\Services\OBD.OEM.Suzuki.pas',
+  OBD.OEM.Mitsubishi in '..\src\Services\OBD.OEM.Mitsubishi.pas';
 
 end.

@@ -38,6 +38,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.12 OEM Catalog Phase 6.2| DoIP / ISO 13400-2: 8-byte header + version inversion, RoutingActivation request / response (v2010 + v2012 OEM tail), VehicleIdent + Announcement, AliveCheck, DiagnosticMessage UDS wrapping | ✅ Tagged v3.12.0 (2026-05-07) |
 | v3.13 OEM Catalog Phase 7  | Golden-vector spot-check helper (TOBDGoldenVector + CheckGoldenVectors) with curated per-OEM suites (VW + BMW + MB + Ford); reference CLI (examples/diagsession_console) showing the end-to-end TOBDDiagSession API | ✅ Tagged v3.13.0 (2026-05-07) — closes the 7-phase OEM extension plan |
 | v3.14 OEM coverage expansion | Asia/Pacific fleet: Toyota, Honda, Hyundai/Kia/Genesis, Nissan/Infiniti, Subaru, Mazda. Each: full ECU map, session negotiator, seed-key starter, DID + DTC starters, VIN routing for ~70 WMIs combined | ✅ Tagged v3.14.0 (2026-05-07) |
+| v3.15 More OEMs + catalog enrichment | Renault Group, Volvo Cars, Tesla, Suzuki, Mitsubishi (5 new OEMs). VR1 moved from Stellantis to Renault. Universal obd2-pids catalog +17 verified entries; universal DTC catalog +47 verified entries. Total OEMs now 17 covering ~95% global passenger fleet | ✅ Tagged v3.15.0 (2026-05-07) |
 
 ---
 

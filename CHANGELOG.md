@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-05-07 — More OEMs + universal catalog enrichment
+
+### Added (5 new OEM extensions)
+- **`OBD.OEM.Renault`** — Renault Group: Renault SA + Dacia + Alpine + Renault Korea (11 WMIs incl. VF1/VF2/VS5/VR1/3W2/UU1/UU3/UU6/VFA/VFD/KNM). 9-ECU CLIP map (UCH at 0x760, instrument cluster, ABS, SRS, climate, PAS, EVCC for Zoe/Megane E-Tech). Renault calibration ID + market code + options-block DIDs; `'RNLT'` XOR-mask seed-key starter.
+- **`OBD.OEM.Volvo`** — Volvo Cars (Geely-owned, separate from Volvo Trucks) (6 WMIs incl. YV1/YV4/LYV/LVS/LVY/7JR). 10-ECU VIDA / DiCE map (CEM at 0x740, DIM cluster, Sensus IHU, EVCC for EX30/EX90). Build week + factory + PNO option DIDs; **5000 ms** tester-present interval (matches VIDA's extended session).
+- **`OBD.OEM.Tesla`** — Tesla, Inc. (4 WMIs incl. 5YJ/LRW/XP7/7SA — Fremont + Shanghai + Berlin + Austin). 8-ECU map covering Powertrain, Vehicle Gateway, BMS at 0x782, Autopilot at 0x724, Cabin/IHU, Charge Port. Tesla firmware version + hardware-platform DIDs; battery-pack voltage / SOC / SOH; charge status enum.
+- **`OBD.OEM.Suzuki`** — Suzuki Motor Corp + Maruti Suzuki India (9 WMIs incl. JS1/JS2/JSA/JSB/TSM/LSJ/MA3/MBH/ML8). 7-ECU SDT-II map; Suzuki/Maruti chassis-code DID; KWP2000 two's-complement seed-key starter.
+- **`OBD.OEM.Mitsubishi`** — Mitsubishi Motors (8 WMIs incl. JA3/JA4/JMB/JMY/4A3/4A4/MMB/6MM). 8-ECU MUT-III map incl. AWC for Outlander PHEV at 0x762, ETACS body controller; SST DCT calibration routine; chassis-code + market-code DIDs.
+- Five matching JSON catalogs (`catalogs/{renault,volvo,tesla,suzuki,mitsubishi}.json`) and DTC starters (`catalogs/dtc-{renault,volvo,tesla,suzuki,mitsubishi}.json`) — each with 5-8 manufacturer-specific entries.
+
+### Fixed
+- **WMI `VR1` moved from Stellantis to Renault.** VR1 is the Renault Tangier (Morocco) plant — incorrectly listed under Stellantis since v3.2 (the Stellantis-Renault confusion: PSA + FCA = Stellantis; Renault is separate). The fix updates both `OBD.OEM.Stellantis.ApplicableToVIN` and `catalogs/stellantis.json`. Regression guard test `StellantisNoLongerClaimsVR1` lives in `Tests.OEM.Extras2`.
+
+### Added (universal catalog enrichment)
+- **`catalogs/obd2-pids.json` — 17 new verified entries** filling gaps in the SAE J1979 / ISO 15031-6 ranges 0x60-0xA6: dual-MAF (0x66), EGR temperature, boost / VGT control, exhaust pressure, EGT bank 1 + 2 (0x78 + 0x79), engine run-time variants (0x7E + 0x7F), NOx sensor (0x83), hybrid/EV system data (0x9A), diesel after-treatment (0x9B), odometer PID (0xA6). Brings the universal OBD-II catalog to ~80 verified entries.
+- **`catalogs/dtc-iso-15031.json` — 47 new verified P-codes + U-codes** covering camshaft phasing (P0011/P0014/P0016/P0017), fuel-rail pressure (P0087/P0088/P0190), MAP / TPS sensor faults (P0107-P0123), oxygen sensors (P0030-P0150 range), turbocharger boost (P0234/P0299), cylinder 7+8 misfire, glow-plug, EGR / SAI, EVAP small-leak (P0442), idle control, system voltage, ECM internal failure, fuel pump, transmission torque-converter clutch, DPF (P2002), post-cat fuel trim, IAT correlation, CAN bus-off (U0073), MS-CAN (U0010), instrument cluster comm-loss (U0155). Brings the universal DTC catalog to ~95 verified entries.
+
+### Changed
+- `Packages/RunTime.dpk` adds the 5 new OEM units. The OEM registry now resolves **17 OEMs from VIN** covering ~95% of the global passenger fleet by WMI prefix.
+
+### Notes
+- `Tests.OEM.Extras2` ships 21 new test cases: VIN routing for the 5 new OEMs, regression guard for the Stellantis VR1 fix, catalog spot-checks (ECU map presence, Volvo extended heartbeat, Tesla autopilot ECU, Mitsubishi AWC), decoder spot-checks (Renault calibration ID, Volvo PNO code, Tesla firmware version, Suzuki + Mitsubishi chassis codes), and universal-catalog growth assertions (odometer + NOx PIDs present, P0017 + P2002 verified DTCs present).
+- Every per-OEM starter remains `verified: false` per the v3.3 provenance contract; universal SAE / ISO entries are `verified: true`.
+
 ## [3.14.0] - 2026-05-07 — OEM coverage expansion (Asia/Pacific fleet)
 
 ### Added

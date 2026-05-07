@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Volvo Cars DTC starter",
+  "default_source": "vida-community",
+  "dtcs": [
+    { "code": "ECM-901A", "severity": "warning", "description": "Volvo ECM-901A — Camshaft signal implausible (T5/T6 SI6)", "verified": false },
+    { "code": "BCM-0019", "severity": "warning", "description": "Volvo BCM-0019 — Battery voltage outside calibrated range", "verified": false },
+    { "code": "P0524",    "severity": "critical","description": "Engine Oil Pressure Too Low (common Volvo D5 / D4 PCV)", "verified": false },
+    { "code": "P0420",    "severity": "warning", "description": "Catalyst System Efficiency Below Threshold Bank 1 (Volvo SPA)", "verified": false },
+    { "code": "P164A",    "severity": "warning", "description": "Camshaft Phaser Solenoid Bank 1 (Volvo VEA Drive-E)", "verified": false },
+    { "code": "B0100",    "severity": "warning", "description": "Volvo Driver Frontal Stage 1 (SRS)", "verified": false },
+    { "code": "U0184",    "severity": "warning", "description": "Lost Communication With Sensus / IHU", "verified": false }
+  ]
+}

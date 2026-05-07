@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "MITSU",
+  "display_name": "Mitsubishi Motors Corp.",
+  "applicable_wmis": ["JA3","JA4","JMB","JMY","4A3","4A4","MMB","6MM"],
+  "default_source": "mut-iii-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "Engine ECU" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCM (incl. SST DCT)" },
+    { "address": "0x7B0", "name": "abs",          "common_name": "ASC / ABS" },
+    { "address": "0x7C0", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x7C4", "name": "etacs",        "common_name": "ETACS — Body Control" },
+    { "address": "0x7C8", "name": "cluster",      "common_name": "Combination Meter" },
+    { "address": "0x762", "name": "awc",          "common_name": "AWC — Active Wheel Control" },
+    { "address": "0x7E5", "name": "evcc",         "common_name": "EV Charge Controller" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "mitsu_chassis_code", "description": "Chassis code (e.g. CW6W)", "ecu_address": "0x7C8",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "mitsu_market_code", "description": "Market / region code", "ecu_address": "0x7C8",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x7C8",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD060", "name": "phev_pack_soc", "description": "Outlander PHEV pack SOC (%)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "sst_dct_calibration", "description": "SST DCT calibration (MUT-III)", "ecu_address": "0x7E1" }
+  ]
+}

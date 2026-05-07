@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Tesla DTC starter",
+  "default_source": "tesla-toolbox-community",
+  "dtcs": [
+    { "code": "BMS_a066",  "severity": "critical", "description": "Tesla BMS_a066 — HV battery contactor weld detected", "verified": false },
+    { "code": "BMS_w168",  "severity": "warning",  "description": "Tesla BMS_w168 — HV battery temperature high (degraded charging)", "verified": false },
+    { "code": "DI_w130",   "severity": "warning",  "description": "Tesla DI_w130 — Drive inverter over-temperature, power limited", "verified": false },
+    { "code": "GTW_a005",  "severity": "warning",  "description": "Tesla GTW_a005 — Vehicle Gateway communication fault", "verified": false },
+    { "code": "VCFRONT_a172", "severity": "warning", "description": "Tesla VCFRONT_a172 — Charge port latch motor fault", "verified": false },
+    { "code": "PARKBR_a001", "severity": "warning", "description": "Tesla PARKBR_a001 — Parking brake actuator fault", "verified": false }
+  ]
+}

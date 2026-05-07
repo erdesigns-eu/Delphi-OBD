@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "TESLA",
+  "display_name": "Tesla, Inc.",
+  "applicable_wmis": ["5YJ","LRW","XP7","7SA"],
+  "default_source": "tesla-toolbox-community",
+  "ecus": [
+    { "address": "0x7DF", "name": "gateway",       "common_name": "OBD-II broadcast (functional)" },
+    { "address": "0x7E0", "name": "powertrain",    "common_name": "Powertrain Controller" },
+    { "address": "0x7E1", "name": "gateway_p",     "common_name": "Vehicle Gateway" },
+    { "address": "0x782", "name": "bms",           "common_name": "BMS — Battery Management" },
+    { "address": "0x724", "name": "autopilot",     "common_name": "Autopilot ECU (HW3 / HW4)" },
+    { "address": "0x762", "name": "driver_door",   "common_name": "Driver-side body controller" },
+    { "address": "0x772", "name": "cabin",         "common_name": "Cabin / Touchscreen IHU" },
+    { "address": "0x792", "name": "charging",      "common_name": "Charge Port Controller" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "tesla_firmware_version", "description": "Firmware version string (Tesla Toolbox)", "ecu_address": "0x7E1",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "tesla_hardware_id", "description": "Tesla hardware platform (HW1/2.5/3/4)", "ecu_address": "0x724",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "battery_pack_voltage", "description": "HV pack voltage (Tesla)", "ecu_address": "0x782",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
+    { "did": "0xD051", "name": "battery_pack_soc", "description": "HV pack state of charge (%)", "ecu_address": "0x782",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD052", "name": "battery_pack_soh", "description": "HV pack state of health (%)", "ecu_address": "0x782",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD060", "name": "charge_status", "description": "Charge port status enum", "ecu_address": "0x792",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "charging", "0x02": "full", "0x03": "fault"} } }
+  ],
+  "routines": []
+}

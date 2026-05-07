@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Renault / Dacia / Alpine DTC starter",
+  "default_source": "clip-community / dialogys-public",
+  "dtcs": [
+    { "code": "P1497", "severity": "warning", "description": "Renault EGR Position Sensor — Plausibility (1.5 dCi)", "verified": false },
+    { "code": "P11AB", "severity": "warning", "description": "DPF Differential Pressure Sensor — Range/Performance (Renault dCi)", "verified": false },
+    { "code": "P0299", "severity": "warning", "description": "Turbocharger Underboost (common Renault TCe)", "verified": false },
+    { "code": "P2509", "severity": "warning", "description": "ECM/PCM Power Input Signal Intermittent (Renault — alternator wear)", "verified": false },
+    { "code": "DF080", "severity": "warning", "description": "Renault — Coolant temperature sensor circuit (CLIP DF code)", "verified": false },
+    { "code": "DF112", "severity": "warning", "description": "Renault — UCH internal CAN H/W fault", "verified": false },
+    { "code": "U2102", "severity": "critical", "description": "Lost Communication With ABS Module (Renault CAN-H)", "verified": false }
+  ]
+}

@@ -58,7 +58,8 @@ uses
   Tests.OEM.DiagSession in 'Tests.OEM.DiagSession.pas',
   Tests.OEM.DoIP in 'Tests.OEM.DoIP.pas',
   Tests.OEM.GoldenCheck in 'Tests.OEM.GoldenCheck.pas',
-  Tests.OEM.AsiaPacific in 'Tests.OEM.AsiaPacific.pas';
+  Tests.OEM.AsiaPacific in 'Tests.OEM.AsiaPacific.pas',
+  Tests.OEM.Extras2 in 'Tests.OEM.Extras2.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

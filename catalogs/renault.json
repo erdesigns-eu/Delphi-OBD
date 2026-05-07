@@ -1,0 +1,39 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "RNLT",
+  "display_name": "Renault Group (Renault / Dacia / Alpine)",
+  "applicable_wmis": ["VF1","VF2","VS5","VR1","3W2","UU1","UU3","UU6","VFA","VFD","KNM"],
+  "default_source": "clip-community / dialogys-public",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCU — Transmission Control" },
+    { "address": "0x760", "name": "uch",          "common_name": "UCH — Unité Centrale Habitacle" },
+    { "address": "0x762", "name": "cluster",      "common_name": "Instrument Cluster (TdB)" },
+    { "address": "0x763", "name": "abs",          "common_name": "ABS / ESP" },
+    { "address": "0x765", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x768", "name": "climate",      "common_name": "Climate Control" },
+    { "address": "0x772", "name": "pas",          "common_name": "PAS — Power-Assisted Steering" },
+    { "address": "0x785", "name": "evcc",         "common_name": "EV Charge Controller" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "renault_calibration_id", "description": "Renault calibration ID", "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "renault_market_code",    "description": "Renault market / fleet code", "ecu_address": "0x760",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "renault_options_block",  "description": "Factory options block", "ecu_address": "0x760",
+      "decoder": { "kind": "hex" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x762",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD060", "name": "ev_pack_voltage", "description": "Zoe / Megane E-Tech pack voltage (V)", "ecu_address": "0x785",
+      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
+    { "did": "0xD061", "name": "ev_pack_soc", "description": "Zoe / Megane E-Tech pack SOC (%)", "ecu_address": "0x785",
+      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0205", "name": "tps_relearn",         "description": "Throttle-pedal learning (CLIP)", "ecu_address": "0x7E0" },
+    { "id": "0x0F01", "name": "auto_clutch_relearn", "description": "AMT clutch-touchpoint relearn", "ecu_address": "0x7E1" }
+  ]
+}

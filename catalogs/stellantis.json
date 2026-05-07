@@ -8,7 +8,7 @@
     "1D4","1D7","2D4","2D8","3D4",
     "1J4","1J8","1RR",
     "ZFA","ZFB","ZFC","9BD","ZAR","ZAM",
-    "VF3","VF7","VR1","W0L","VXR"
+    "VF3","VF7","W0L","VXR"
   ],
   "default_source": "alfaobd-community / diagbox-public",
   "ecus": [

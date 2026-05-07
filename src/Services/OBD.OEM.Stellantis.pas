@@ -136,8 +136,10 @@ begin
     (WMI = 'ZFA') or (WMI = 'ZFB') or (WMI = 'ZFC') or (WMI = '9BD') or
     (WMI = 'ZAR') or (WMI = 'ZAM') or
     // PSA-side
-    (WMI = 'VF3') or (WMI = 'VF7') or (WMI = 'VR1') or
+    (WMI = 'VF3') or (WMI = 'VF7') or
     (WMI = 'W0L') or (WMI = 'VXR');
+    // VR1 (Renault Tangier Morocco) was incorrectly listed here in
+    // v3.2 — it belongs to OBD.OEM.Renault and was moved in v3.15.
 end;
 
 procedure TOBDOEMExtensionStellantis.BuildCatalog(

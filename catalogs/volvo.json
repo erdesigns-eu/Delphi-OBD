@@ -1,0 +1,40 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "VOLVO",
+  "display_name": "Volvo Cars (Geely)",
+  "applicable_wmis": ["YV1","YV4","LYV","LVS","LVY","7JR"],
+  "default_source": "vida-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCM — Aisin / Geartronic" },
+    { "address": "0x740", "name": "cem",          "common_name": "CEM — Central Electronic Module" },
+    { "address": "0x742", "name": "cluster",      "common_name": "DIM — Driver Information Module" },
+    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x762", "name": "abs",          "common_name": "ABS / DSTC" },
+    { "address": "0x765", "name": "pdm",          "common_name": "PDM — Power Door Module" },
+    { "address": "0x768", "name": "climate",      "common_name": "CCM — Climate Control" },
+    { "address": "0x770", "name": "sensus",       "common_name": "Sensus / IHU — Infotainment" },
+    { "address": "0x785", "name": "evcc",         "common_name": "EV Charge Controller" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "volvo_struct_week",  "description": "Volvo build week (YYWW)", "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "volvo_factory_code", "description": "Volvo factory code",      "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "volvo_pno_code",     "description": "Volvo PNO option block",  "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x742",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD052", "name": "engine_oil_temperature", "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD060", "name": "ev_pack_soh", "description": "EV battery state of health (%, EX30 / EX90)", "ecu_address": "0x785",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "epb_service",  "description": "Electronic Parking Brake service-mode toggle", "ecu_address": "0x762" },
+    { "id": "0x0F02", "name": "rdc_relearn",  "description": "TPMS / RDC sensor relearn", "ecu_address": "0x762" }
+  ]
+}
