@@ -22,7 +22,7 @@ interface
 uses
   System.SysUtils, System.Classes, System.SyncObjs,
   System.Generics.Collections, System.Generics.Defaults,
-  OBD.OEM.Session;
+  OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>One entry in an OEM's Data Identifier (DID) catalog.</summary>
@@ -120,6 +120,12 @@ type
     /// The default is <c>TOBDStandardSessionNegotiator</c> (plain ISO
     /// 14229); OEMs that diverge return their own implementation.</summary>
     function SessionNegotiator: IOBDSessionNegotiator;
+
+    /// <summary>Per-OEM seed-key algorithm registry keyed by
+    /// SecurityAccess level (the odd byte in <c>27 LL</c>). Production
+    /// users replace the default starter algorithm with their NDA-
+    /// protected real one via <c>RegisterAlgorithm</c>.</summary>
+    function SeedKeyRegistry: TOBDSeedKeyRegistry;
   end;
 
   /// <summary>
@@ -158,7 +164,10 @@ type
     FCatalogLock: TCriticalSection;
     FSessionNegotiator: IOBDSessionNegotiator;
     FSessionLock: TCriticalSection;
+    FSeedKeyRegistry: TOBDSeedKeyRegistry;
+    FSeedKeyLock: TCriticalSection;
     procedure EnsureCatalog;
+    procedure EnsureSeedKeyRegistry;
   protected
     /// <summary>
     ///   Subclasses populate <c>DIDs</c>, <c>Routines</c>, and the
@@ -185,11 +194,16 @@ type
     function ECUs: TArray<TOBDOEMECU>; virtual;
     function CatalogForECU(const Address: Word): TOBDOEMSubCatalog; virtual;
     function SessionNegotiator: IOBDSessionNegotiator; virtual;
+    function SeedKeyRegistry: TOBDSeedKeyRegistry; virtual;
   protected
     /// <summary>Override-point: subclasses return their OEM-specific
     /// negotiator. Default returns a fresh
     /// <c>TOBDStandardSessionNegotiator</c>.</summary>
     function CreateSessionNegotiator: IOBDSessionNegotiator; virtual;
+    /// <summary>Override-point: subclasses populate <c>Reg</c> with
+    /// their default starter algorithms. Called once on first access
+    /// to <c>SeedKeyRegistry</c>. Default is a no-op (empty registry).</summary>
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); virtual;
   end;
 
 /// <summary>Builder helper used by JSON catalog readers.</summary>
@@ -287,14 +301,44 @@ begin
   inherited Create;
   FCatalogLock := TCriticalSection.Create;
   FSessionLock := TCriticalSection.Create;
+  FSeedKeyLock := TCriticalSection.Create;
 end;
 
 destructor TOBDOEMExtensionBase.Destroy;
 begin
   FSessionNegotiator := nil;
+  FSeedKeyRegistry.Free;
+  FSeedKeyLock.Free;
   FSessionLock.Free;
   FCatalogLock.Free;
   inherited;
+end;
+
+procedure TOBDOEMExtensionBase.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+begin
+  // Default: no algorithms. Subclasses override to register their
+  // starter set; production users call RegisterAlgorithm after.
+end;
+
+procedure TOBDOEMExtensionBase.EnsureSeedKeyRegistry;
+begin
+  FSeedKeyLock.Enter;
+  try
+    if FSeedKeyRegistry = nil then
+    begin
+      FSeedKeyRegistry := TOBDSeedKeyRegistry.Create;
+      SeedDefaultSeedKeyAlgorithms(FSeedKeyRegistry);
+    end;
+  finally
+    FSeedKeyLock.Leave;
+  end;
+end;
+
+function TOBDOEMExtensionBase.SeedKeyRegistry: TOBDSeedKeyRegistry;
+begin
+  EnsureSeedKeyRegistry;
+  Result := FSeedKeyRegistry;
 end;
 
 function TOBDOEMExtensionBase.CreateSessionNegotiator: IOBDSessionNegotiator;

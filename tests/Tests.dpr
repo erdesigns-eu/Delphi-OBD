@@ -49,7 +49,8 @@ uses
   Tests.ECU.Signature.OpenSSL in 'Tests.ECU.Signature.OpenSSL.pas',
   Tests.Security.Nonce in 'Tests.Security.Nonce.pas',
   Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas',
-  Tests.OEM.Session in 'Tests.OEM.Session.pas';
+  Tests.OEM.Session in 'Tests.OEM.Session.pas',
+  Tests.OEM.SeedKey in 'Tests.OEM.SeedKey.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

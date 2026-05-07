@@ -11,7 +11,7 @@ unit OBD.OEM.Ford;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>
@@ -34,6 +34,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -70,6 +71,23 @@ end;
 function TOBDOEMExtensionFord.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDFordSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionFord.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+const
+  // Public Ford ELM-bypass mask used in the ForScan documentation
+  // for pre-2010 PCMs (Visteon supplier). FDRS modules use a
+  // proprietary algorithm — replace at startup for production.
+  MASK: array[0..1] of Byte = ($EF, $CD);
+var
+  Mask: TBytes;
+begin
+  SetLength(Mask, Length(MASK));
+  Move(MASK[0], Mask[0], Length(MASK));
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyByteRotate.Create(
+    1, 3, Mask, 'Ford community byte-rotate placeholder',
+    'forscan-community', False));
 end;
 
 function TOBDOEMExtensionFord.ManufacturerKey: string;

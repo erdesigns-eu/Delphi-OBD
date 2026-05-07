@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-05-07 — OEM Catalog Phase 1.4 (seed-key plug-ins)
+
+### Added
+- **`OBD.OEM.SeedKey`** — pluggable SecurityAccess (UDS service 0x27) algorithm framework. `IOBDSeedKeyAlgorithm` is a pure function (`ComputeKey(Seed, Level)`); `TOBDSeedKeyRegistry` maps levels (the odd byte in `27 LL`) to one or more candidate algorithms. Newer registrations win, so production users plug their NDA-protected real algorithm in at startup and the public starter steps aside automatically.
+- Reference algorithm classes (publicly-documented, all `verified: false`):
+  - `TOBDSeedKeyKWP2000TwosComplement` — `key = (NOT seed) + 1` byte-wise with carry; the ISO 14229 textbook example. Several legacy KWP2000 modules accept it verbatim.
+  - `TOBDSeedKeyXorMask` — `key[i] = seed[i] XOR mask[i]` with the mask tiled when shorter than the seed; covers a class of aftermarket bypass dongles.
+  - `TOBDSeedKeyByteRotate` — caller-supplied shift, rotate (0..7) and mask; approximates publicly-described pre-UDS Ford / GM Class B variants.
+  - `TOBDSeedKeyConstant` — fixed key independent of seed; useful for lab fixtures and the few pre-2010 modules that accept Level 1 with a constant.
+- Frame helpers: `RequestSeedFrame(Level)`, `SendKeyFrame(Level, Key)`, `ExtractSeed(Response, Level)` — round-trip the wire format with explicit error reporting (rejects even seed-request levels, wrong SID, level mismatch, empty key).
+- `IOBDOEMExtension.SeedKeyRegistry` — every OEM extension exposes its registry; `TOBDOEMExtensionBase` lazily instantiates and seeds it via the new `SeedDefaultSeedKeyAlgorithms` override-point.
+- All six OEM extensions ship a default starter algorithm at Level 1: VW + Mercedes + Stellantis use the KWP2000 two's-complement; BMW uses an XOR-mask placeholder from bimmer-utility; Ford uses a byte-rotate placeholder from the ForScan documentation; GM uses the public GMLAN Class B trial-mode constant. All `verified: false`.
+- `Tests.OEM.SeedKey` — 28 new test cases: the four reference algorithms (textbook two's-complement vector, byte-wise carry across 0x12345678 → 0xEDCBA988, XOR mask tiling, rotation behaviour, constant-key seed-independence, empty-input rejection), the registry (register / find / find-all / unregister / level enumeration / clear / LIFO precedence), the frame helpers (request seed, send key, extract seed, every error path), and the per-OEM hookup (each of the six extensions has a starter at Level 1; production override shadows the starter; starters are unverified).
+
+### Changed
+- `IOBDOEMExtension` gains `SeedKeyRegistry: TOBDSeedKeyRegistry`. `TOBDOEMExtensionBase.Destroy` cleans the per-instance registry up.
+- `Packages/RunTime.dpk` adds `OBD.OEM.SeedKey`.
+
+### Notes
+- **Real seed-key algorithms remain NDA-protected by every OEM.** Nothing shipped here will unlock a production ECU; the starters exist so the broader SecurityAccess flow (request → seed → key → respond) can be exercised end-to-end against a simulated ECU. Production users register their own algorithm at app startup; `RegisterAlgorithm` returns the new entry to the head of the level's list, so the public starter is automatically shadowed.
+- Phase 2 (DTC catalogs — manufacturer-specific P1xxx / B / C / U codes) is the next milestone in `docs/OEM_EXTENSION_PLAN.md`.
+
 ## [3.5.0] - 2026-05-07 — OEM Catalog Phase 1.3 (session negotiation)
 
 ### Added

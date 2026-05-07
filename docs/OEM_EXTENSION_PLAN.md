@@ -154,6 +154,16 @@ if PlanRes.Success then
 
 ### 1.4 Seed-Key algorithm pluggability (🔴 M per OEM)
 
+> **v3.6 status:** ✅ Shipped. `OBD.OEM.SeedKey` provides
+> `IOBDSeedKeyAlgorithm` + per-OEM `TOBDSeedKeyRegistry` plus four
+> public reference algorithms (KWP2000 two's-complement, XOR mask,
+> byte-rotate, constant) and frame helpers
+> (`RequestSeedFrame`, `SendKeyFrame`, `ExtractSeed`). Each OEM
+> extension registers a `verified: false` starter at Level 1;
+> production users replace it via `Ext.SeedKeyRegistry.RegisterAlgorithm`.
+> Real algorithms remain NDA-protected — nothing shipped here will
+> unlock a production ECU.
+
 UDS `27 01/03/05/...` returns a seed; tester sends back the key.
 The algorithm is:
 - Proprietary per OEM

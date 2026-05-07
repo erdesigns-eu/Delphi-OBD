@@ -18,7 +18,7 @@ unit OBD.OEM.Mercedes;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>
@@ -41,6 +41,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -82,6 +83,15 @@ end;
 function TOBDOEMExtensionMercedes.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDMercedesSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionMercedes.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+begin
+  // Pre-XENTRY HHTwin / Star Diagnosis modules accepted the textbook
+  // two's-complement on legacy KWP2000 ECUs (e.g. EZS / EIS readers).
+  // XENTRY's modern algorithm is NDA-protected — replace at startup.
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
 function TOBDOEMExtensionMercedes.ManufacturerKey: string;

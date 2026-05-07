@@ -16,7 +16,7 @@ unit OBD.OEM.BMW;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>
@@ -41,6 +41,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -75,6 +76,23 @@ end;
 function TOBDOEMExtensionBMW.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDBMWSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionBMW.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+const
+  // Documented placeholder XOR mask — used by the bimmer-utility
+  // tutorial flow to demonstrate the SecurityAccess exchange against
+  // a simulated DME. Real E-Sys algorithms ship inside ISTA and are
+  // NDA-protected; production users replace this entry.
+  PUBLIC_MASK: array[0..3] of Byte = ($A5, $5A, $C3, $3C);
+var
+  Mask: TBytes;
+begin
+  SetLength(Mask, Length(PUBLIC_MASK));
+  Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyXorMask.Create(Mask,
+    'BMW community XOR-mask placeholder', 'community-pr', False));
 end;
 
 function TOBDOEMExtensionBMW.ManufacturerKey: string; begin Result := 'BMW'; end;

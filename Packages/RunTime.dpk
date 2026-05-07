@@ -110,6 +110,7 @@ contains
   OBD.OEM.Catalog.CSV in '..\src\Services\OBD.OEM.Catalog.CSV.pas',
   OBD.OEM.Catalog.Loader in '..\src\Services\OBD.OEM.Catalog.Loader.pas',
   OBD.OEM.Session in '..\src\Services\OBD.OEM.Session.pas',
-  OBD.OEM.Session.Runner in '..\src\Services\OBD.OEM.Session.Runner.pas';
+  OBD.OEM.Session.Runner in '..\src\Services\OBD.OEM.Session.Runner.pas',
+  OBD.OEM.SeedKey in '..\src\Services\OBD.OEM.SeedKey.pas';
 
 end.

@@ -16,7 +16,7 @@ unit OBD.OEM.VW;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>VAG-specific session negotiator. Adds the
@@ -38,6 +38,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -94,6 +95,16 @@ end;
 function TOBDOEMExtensionVW.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDVWSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionVW.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+begin
+  // Legacy VAG KWP2000 components (pre-2008 instrument clusters,
+  // some MED9 ECMs) accept the textbook two's-complement at Level 1.
+  // Verified=False — production users plug in their proprietary
+  // algorithm via RegisterAlgorithm.
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
 function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;

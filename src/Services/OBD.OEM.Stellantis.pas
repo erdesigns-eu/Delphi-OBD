@@ -18,7 +18,7 @@ unit OBD.OEM.Stellantis;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>
@@ -42,6 +42,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -76,6 +77,15 @@ end;
 function TOBDOEMExtensionStellantis.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDStellantisSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionStellantis.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+begin
+  // PSA legacy BSI / FCA legacy Body Computer modules accepted the
+  // KWP2000 textbook two's-complement at Level 1. Modern DiagBox /
+  // wiTech use proprietary algorithms — replace at startup.
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
 function TOBDOEMExtensionStellantis.ManufacturerKey: string;

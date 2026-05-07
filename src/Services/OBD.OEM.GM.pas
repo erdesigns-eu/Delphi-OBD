@@ -17,7 +17,7 @@ unit OBD.OEM.GM;
 interface
 
 uses
-  System.SysUtils, OBD.OEM, OBD.OEM.Session;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey;
 
 type
   /// <summary>
@@ -39,6 +39,7 @@ type
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -70,6 +71,22 @@ end;
 function TOBDOEMExtensionGM.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDGMSessionNegotiator.Create;
+end;
+
+procedure TOBDOEMExtensionGM.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+const
+  // Some pre-2010 GMLAN body modules accepted a fixed 4-byte key at
+  // Level 1 (GMLAN AllNodes "trial" mode). The constant below is
+  // documented in the public GMLAN Class B reference.
+  CONST_KEY: array[0..3] of Byte = ($00, $00, $00, $00);
+var
+  K: TBytes;
+begin
+  SetLength(K, Length(CONST_KEY));
+  Move(CONST_KEY[0], K[0], Length(CONST_KEY));
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyConstant.Create(K,
+    'GMLAN Class B trial-mode constant key', 'gmlan-public', False));
 end;
 
 function TOBDOEMExtensionGM.ManufacturerKey: string;
