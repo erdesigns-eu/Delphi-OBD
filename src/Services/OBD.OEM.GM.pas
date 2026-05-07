@@ -23,7 +23,8 @@ type
   TOBDOEMExtensionGM = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -66,8 +67,23 @@ end;
 
 procedure TOBDOEMExtensionGM.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // GM Global B / Global A bus map. The Tech 2 / GDS-2 module list maps
+  // ECUs to GMLAN ARB-IDs; the canonical UDS request set is below.
+  ECUs := [
+    ECU($7E0, 'ecm',           'ECM — Engine Control'),
+    ECU($7E1, 'tcm',           'TCM — Transmission Control'),
+    ECU($241, 'ebcm',          'EBCM — ABS / Stability'),
+    ECU($242, 'sdm',           'SDM — Sensing Diagnostic Module (Airbag)'),
+    ECU($243, 'bcm',           'BCM — Body Control Module'),
+    ECU($244, 'ipc',           'IPC — Instrument Panel Cluster'),
+    ECU($245, 'eps',           'EPS — Electric Power Steering'),
+    ECU($246, 'hvac',          'HVAC — Climate'),
+    ECU($247, 'radio',         'Radio / Infotainment')
+  ];
+
   // GM Global B: standard UDS DIDs for ECU identification + GM-specific
   // calibration block (CVN list, broadcast code).
   DIDs := [
@@ -98,8 +114,8 @@ begin
     Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
   ];
 
-  MergeCatalogJSON('gm.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('gm.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionGM.DecodeDID(const DID: Word;

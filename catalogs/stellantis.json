@@ -11,6 +11,17 @@
     "VF3","VF7","VR1","W0L","VXR"
   ],
   "default_source": "alfaobd-community / diagbox-public",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "Engine ECU" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "Transmission" },
+    { "address": "0x652", "name": "bsi",          "common_name": "PSA BSI — Body System Interface" },
+    { "address": "0x658", "name": "cluster_psa",  "common_name": "PSA Instrument Cluster (NAC/RNEG)" },
+    { "address": "0x7A2", "name": "bcm_fca",      "common_name": "FCA Body Computer Module" },
+    { "address": "0x7A0", "name": "cluster_fca",  "common_name": "FCA Instrument Cluster" },
+    { "address": "0x760", "name": "abs",          "common_name": "ABS / ESP" },
+    { "address": "0x731", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x793", "name": "gateway",      "common_name": "CAN Gateway" }
+  ],
   "dids": [
     { "did": "0x1A02", "name": "mileage_km_24bit",   "description": "Mileage in km (24-bit big-endian)",        "source": "diagbox-public",     "verified": false,
       "decoder": { "kind": "hex" } },

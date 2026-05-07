@@ -5,6 +5,17 @@
   "display_name": "General Motors",
   "applicable_wmis": ["1G1","1G2","1G4","1G6","1G8","1GC","1GT","2G1","2GT","3G1","3GT","5GR","6G1"],
   "default_source": "tis2web-public / gmlan-public",
+  "ecus": [
+    { "address": "0x7E0", "name": "ecm",   "common_name": "ECM — Engine Control" },
+    { "address": "0x7E1", "name": "tcm",   "common_name": "TCM — Transmission Control" },
+    { "address": "0x241", "name": "ebcm",  "common_name": "EBCM — ABS / Stability" },
+    { "address": "0x242", "name": "sdm",   "common_name": "SDM — Sensing Diagnostic Module (Airbag)" },
+    { "address": "0x243", "name": "bcm",   "common_name": "BCM — Body Control Module" },
+    { "address": "0x244", "name": "ipc",   "common_name": "IPC — Instrument Panel Cluster" },
+    { "address": "0x245", "name": "eps",   "common_name": "EPS — Electric Power Steering" },
+    { "address": "0x246", "name": "hvac",  "common_name": "HVAC — Climate" },
+    { "address": "0x247", "name": "radio", "common_name": "Radio / Infotainment" }
+  ],
   "dids": [
     { "did": "0x1981", "name": "mileage_km",            "description": "Vehicle mileage in km (32-bit BE)",        "source": "tis2web-public", "verified": false,
       "decoder": { "kind": "uint32_be", "unit": "km" } },

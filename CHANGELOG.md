@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-05-07 — OEM Catalog Phase 1.2 (per-ECU sub-catalogs)
+
+### Added
+- **Per-ECU sub-catalogs.** `IOBDOEMExtension` gains `ECUs: TArray<TOBDOEMECU>` and `CatalogForECU(Address): TOBDOEMSubCatalog`. The framework now models the vehicle bus map: each catalogued DID and routine carries an `EcuAddress` field, and callers can request the subset that applies to a single ECU (engine 0x7E0 vs transmission 0x7E1 vs cluster 0x40, …) instead of walking a flat catalog where 0xF187 means whatever the answering ECU said.
+- `TOBDOEMECU` record (`Address`, `Name`, `CommonName`) — describes one ECU on the bus. Helper `ECU(addr, name, common_name)` mirrors the existing `DID()` / `Routine()` builders.
+- `TOBDOEMSubCatalog` record (`EcuAddress`, `DIDs`, `Routines`) — the filtered view returned by `CatalogForECU`. Globals (entries with `EcuAddress = 0`) flow through to every ECU; ECU-scoped entries are added when the address matches.
+- JSON catalog schema additions: top-level `ecus` array (declares the bus map), top-level `default_ecu_address` (propagates to entries that omit `ecu_address`), and `ecu_address` is now also valid on routine entries. Schema documented in `docs/CATALOG_FORMAT.md`.
+- `MergeCatalogJSON(file, var DIDs, var Routines, var ECUs)` overload merges the loaded `ecus` block alongside the DID + Routine merges. The original two-argument overload still works for callers that don't need the ECU map.
+- All six OEM Pascal extensions (`OBD.OEM.{VW,BMW,Mercedes,Ford,GM,Stellantis}`) ship a hard-coded ECU map covering powertrain (engine, transmission), chassis (ABS / ESP / SRS), body (BCM / cluster / climate), and gateway addresses. Per-OEM `catalogs/<oem>.json` files now carry the same `ecus` block; the seed VW + BMW catalogs additionally annotate `ecu_address` per DID and per routine where the scope is known.
+- `Tests.OEM.Catalog.TPerECUTests` — 7 new test cases: ECU list parsing, per-DID `ecu_address`, default-address propagation, explicit-address override, routine `ecu_address` parsing, `CatalogForECU` filter behaviour for scoped entries, and global-entry flow-through to every sub-catalog.
+
+### Changed
+- `TOBDOEMExtensionBase.BuildCatalog` signature gains a third `var ECUs: TArray<TOBDOEMECU>` parameter so subclasses populate DIDs, Routines, and the ECU map in a single hook. Callers outside this repository that subclassed `TOBDOEMExtensionBase` will need a one-line signature update.
+- `OBD.OEM.Helpers.DID()` and `Routine()` zero-initialise their result records (so the new `EcuAddress` field is always defined) and gain three-argument overloads `DID(addr, name, desc, ecu_addr)` / `Routine(id, name, desc, ecu_addr)` for inline scoping.
+
+### Notes
+- The ECU addresses shipped in the hard-coded Pascal maps and the seeded JSON `ecus` blocks are based on public-knowledge UDS request IDs (ISO 15765-4 0x7E0-0x7E7 for emissions, vendor-specific ranges from ross-tech, esys-community, forscan-community, tis2web-public, alfaobd / diagbox, xentry-community references). Per-DID `ecu_address` annotations remain `verified: false` until cross-checked against OEM specs or capture fixtures — the same provenance contract that landed in v3.3 applies.
+- Phase 1.3 (manufacturer-specific session negotiation: `BeginSession` / `EndSession` / `StartTesterPresent` per OEM) is the next milestone in `docs/OEM_EXTENSION_PLAN.md`.
+
 ## [3.3.0] - 2026-05-06 — OEM Catalog Phase 1.1 (DID scale-up infrastructure)
 
 ### Added

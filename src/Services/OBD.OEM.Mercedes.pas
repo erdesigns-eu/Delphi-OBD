@@ -24,7 +24,8 @@ type
   TOBDOEMExtensionMercedes = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -58,8 +59,23 @@ end;
 
 procedure TOBDOEMExtensionMercedes.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // XENTRY ECU bus map. Mercedes uses the ISO 15765-4 11-bit standard
+  // OBD addresses for emissions ECUs (0x7E0-0x7E7) and a private 0x6xx
+  // / 0x5xx range for body / chassis on each model platform.
+  ECUs := [
+    ECU($7E0, 'engine',         'Engine ECU (ME / CDI)'),
+    ECU($7E1, 'transmission',   'Transmission (722.x / 7G-Tronic)'),
+    ECU($7E2, 'me_secondary',   'Secondary engine controller (V-engines)'),
+    ECU($620, 'esp',            'ESP / Brakes'),
+    ECU($630, 'srs',            'SRS / Airbag'),
+    ECU($640, 'cluster',        'Instrument Cluster (IC)'),
+    ECU($660, 'eis',            'EIS — Electronic Ignition Switch'),
+    ECU($6F1, 'tester',         'Tester (functional address)')
+  ];
+
   // Mercedes XENTRY exposes most ECU metadata via standard UDS DIDs;
   // the F1xx range covers the SAE J2010 ISO mappings and is portable
   // across many vendors. Daimler-specific variant-coding lives in
@@ -96,8 +112,8 @@ begin
                    'Post-flash checksum verification')
   ];
 
-  MergeCatalogJSON('mercedes.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('mercedes.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionMercedes.DecodeDID(const DID: Word;

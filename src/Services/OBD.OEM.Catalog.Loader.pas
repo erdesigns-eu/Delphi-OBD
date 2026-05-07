@@ -48,7 +48,18 @@ function ResolveCatalogPath(const FileName: string): string;
 /// </summary>
 procedure MergeCatalogJSON(const FileName: string;
   var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>); overload;
+
+/// <summary>
+///   Same as the two-argument overload but additionally merges any
+///   <c>ecus</c> array from the JSON into the OEM extension's ECU map.
+///   Existing ECUs (matched by Address) are replaced; new ones are
+///   appended.
+/// </summary>
+procedure MergeCatalogJSON(const FileName: string;
+  var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>); overload;
 
 implementation
 
@@ -131,9 +142,41 @@ begin
   end;
 end;
 
+procedure MergeECUs(var Existing: TArray<TOBDOEMECU>;
+  const Loaded: TArray<TOBDOEMECU>);
+var
+  I, J: Integer;
+  Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if Existing[J].Address = Loaded[I].Address then
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
+    if not Found then
+      Existing := Existing + [Loaded[I]];
+  end;
+end;
+
 procedure MergeCatalogJSON(const FileName: string;
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>);
+var
+  Discard: TArray<TOBDOEMECU>;
+begin
+  Discard := nil;
+  MergeCatalogJSON(FileName, DIDs, Routines, Discard);
+end;
+
+procedure MergeCatalogJSON(const FileName: string;
+  var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 var
   Path: string;
   Catalog: TOBDOEMJSONCatalog;
@@ -145,6 +188,7 @@ begin
     try
       MergeDIDs(DIDs, Catalog.AsBaseDIDs);
       MergeRoutines(Routines, Catalog.AsBaseRoutines);
+      MergeECUs(ECUs, Catalog.AsBaseECUs);
     finally
       Catalog.Free;
     end;

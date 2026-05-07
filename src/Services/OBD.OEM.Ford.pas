@@ -17,7 +17,8 @@ type
   TOBDOEMExtensionFord = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -56,8 +57,24 @@ end;
 
 procedure TOBDOEMExtensionFord.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // Ford IDS / FDRS bus map. Powertrain ECUs use ISO 15765-4 standard
+  // 0x7E0-7E7 addresses; HS-CAN body modules use 0x726, 0x731, 0x733;
+  // MS-CAN modules sit in the 0x7XX range too.
+  ECUs := [
+    ECU($7E0, 'pcm',           'PCM — Powertrain Control'),
+    ECU($7E1, 'tcm',           'TCM — Transmission Control'),
+    ECU($7E2, 'pcm_secondary', 'Secondary PCM (V-engines)'),
+    ECU($760, 'abs',           'ABS / Stability'),
+    ECU($720, 'rcm',           'RCM — Restraints Control'),
+    ECU($726, 'ipc',           'IPC — Instrument Panel Cluster'),
+    ECU($731, 'bcm',           'BCM — Body Control Module'),
+    ECU($733, 'gwm',           'GWM — Gateway Module'),
+    ECU($740, 'hvac',          'HVAC — Climate Control')
+  ];
+
   // Ford IDS / FDRS exposes ECU identity through the standard F1xx range
   // plus Ford-specific D-block DIDs.
   DIDs := [
@@ -89,8 +106,8 @@ begin
     Routine($FF02, 'verify_checksum',        'Post-flash checksum verification')
   ];
 
-  MergeCatalogJSON('ford.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('ford.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionFord.DecodeDID(const DID: Word;

@@ -22,7 +22,8 @@ type
   TOBDOEMExtensionBMW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -51,8 +52,22 @@ begin
 end;
 
 procedure TOBDOEMExtensionBMW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // BMW UDS bus map. Addresses follow ISO-TP physical request IDs as
+  // used by ENET (E-Sys) over DoIP and on the K-CAN/PT-CAN networks.
+  // Naming matches the ISTA / E-Sys SWE short codes.
+  ECUs := [
+    ECU($12,  'dme',     'DME — Engine ECU'),
+    ECU($07,  'egs',     'EGS — Transmission'),
+    ECU($29,  'dsc',     'DSC — Stability Control'),
+    ECU($40,  'kombi',   'KOMBI — Instrument Cluster'),
+    ECU($60,  'frm',     'FRM — Footwell Module'),
+    ECU($72,  'cas',     'CAS — Car Access System'),
+    ECU($10,  'gateway', 'ZGW — Central Gateway')
+  ];
+
   DIDs := [
     DID($F100, 'i_stufe_werks',           'Factory I-Stufe (build version)'),
     DID($F101, 'i_stufe_aktuell',         'Current I-Stufe'),
@@ -73,8 +88,8 @@ begin
     Routine($FF00, 'erase_memory',           'Pre-flash erase')
   ];
 
-  MergeCatalogJSON('bmw.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('bmw.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionBMW.DecodeDID(const DID: Word;

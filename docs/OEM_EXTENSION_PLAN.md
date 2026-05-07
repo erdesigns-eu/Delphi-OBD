@@ -65,10 +65,24 @@ bitmap status fields).
 
 ### 1.2 Add per-ECU sub-catalogs (🔴 L per OEM)
 
+> **v3.4 status:** ✅ Infrastructure shipped. `IOBDOEMExtension`
+> now exposes `ECUs` and `CatalogForECU(Address)`; `TOBDOEMECU` is
+> in place; `TOBDOEMDataIdentifier` and `TOBDOEMRoutine` carry an
+> `EcuAddress` field (0 = global). The JSON catalog format gained
+> a top-level `ecus` array and `default_ecu_address` field, and
+> `ecu_address` is recognised on both DID and routine entries.
+> All six OEM extensions ship a hard-coded ECU bus map (engine,
+> transmission, ABS, BCM, cluster, gateway, …); the seed VW + BMW
+> JSON catalogs scope existing entries by ECU address. Production
+> scale-up = the same provenance contract as Phase 1.1: cite
+> `source` and flip `verified: false` → `verified: true` for each
+> per-DID `ecu_address` annotation against an OEM spec or capture
+> fixture.
+
 Right now every catalog is flat — DID 0xF187 means the same thing
 regardless of which ECU answers. In reality each ECU (engine,
 transmission, ABS, body, gateway, cluster, BCM) has its own DID
-overlay. Modeling:
+overlay. Modeling (now shipped in v3.4):
 
 ```pascal
 TOBDOEMECU = record

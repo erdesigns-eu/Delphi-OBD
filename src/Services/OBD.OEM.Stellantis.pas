@@ -24,7 +24,8 @@ type
   TOBDOEMExtensionStellantis = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -78,8 +79,24 @@ end;
 
 procedure TOBDOEMExtensionStellantis.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // Stellantis covers PSA (DiagBox/Lexia), FCA (wiTech), and Opel/
+  // Vauxhall (TIS2Web). Powertrain ECUs use the standard 0x7E0 range;
+  // PSA BSI sits at 0x652, FCA Body Computer at 0x7A2.
+  ECUs := [
+    ECU($7E0, 'engine',         'Engine ECU'),
+    ECU($7E1, 'transmission',   'Transmission'),
+    ECU($652, 'bsi',            'PSA BSI — Body System Interface'),
+    ECU($658, 'cluster_psa',    'PSA Instrument Cluster (NAC/RNEG)'),
+    ECU($7A2, 'bcm_fca',        'FCA Body Computer Module'),
+    ECU($7A0, 'cluster_fca',    'FCA Instrument Cluster'),
+    ECU($760, 'abs',            'ABS / ESP'),
+    ECU($731, 'srs',            'SRS / Airbag'),
+    ECU($793, 'gateway',        'CAN Gateway')
+  ];
+
   DIDs := [
     DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
     DID($F187, 'spare_part_number',         'Stellantis service part number'),
@@ -109,8 +126,8 @@ begin
     Routine($FF02, 'verify_checksum',         'Post-flash checksum verification')
   ];
 
-  MergeCatalogJSON('stellantis.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('stellantis.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionStellantis.DecodeDID(const DID: Word;

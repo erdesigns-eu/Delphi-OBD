@@ -5,6 +5,16 @@
   "display_name": "Mercedes-Benz Group",
   "applicable_wmis": ["WDB", "WDC", "WDD", "WDF", "WD3", "WD4", "4JG"],
   "default_source": "xentry-community / hhtwin-leak",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",         "common_name": "Engine ECU (ME / CDI)" },
+    { "address": "0x7E1", "name": "transmission",   "common_name": "Transmission (722.x / 7G-Tronic)" },
+    { "address": "0x7E2", "name": "me_secondary",   "common_name": "Secondary engine controller" },
+    { "address": "0x620", "name": "esp",            "common_name": "ESP / Brakes" },
+    { "address": "0x630", "name": "srs",            "common_name": "SRS / Airbag" },
+    { "address": "0x640", "name": "cluster",        "common_name": "Instrument Cluster (IC)" },
+    { "address": "0x660", "name": "eis",            "common_name": "EIS — Electronic Ignition Switch" },
+    { "address": "0x6F1", "name": "tester",         "common_name": "Tester (functional address)" }
+  ],
   "dids": [
     { "did": "0x0202", "name": "mileage_km_24bit",        "description": "Mileage in km (24-bit big-endian, common on legacy MB)",     "source": "xentry-community", "verified": false,
       "decoder": { "kind": "hex" } },

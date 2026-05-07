@@ -76,9 +76,33 @@ recompile required.
 | `display_name`       | yes      | Display-friendly manufacturer name. |
 | `applicable_wmis`    | yes      | Array of 3-character WMIs that resolve to this catalog. |
 | `default_source`     | no       | Used when an entry omits `source`. |
+| `default_ecu_address`| no       | Used when an entry omits `ecu_address`. Hex (`0x7E0`) or decimal. Useful for files that scope an entire DID bank to one ECU. |
+| `ecus`               | no       | Array describing the ECU bus map (see below). Added in catalog v1, schema-stable since v3.4. |
 | `dids`               | no       | Array of DID entries (see below). |
 | `routines`           | no       | Array of RoutineControl entries. |
 | `dtc_ranges`         | no       | Array of DTC range descriptors. |
+
+### ECU entry
+
+| Field         | Required | Notes |
+|---------------|----------|-------|
+| `address`     | yes      | UDS physical request CAN-ID (e.g. `0x7E0`) or vendor-specific short address (BMW `0x12`). Hex string or integer. |
+| `name`        | yes      | Snake_case key (`engine`, `transmission`, `cluster`). |
+| `common_name` | no       | Display label (`Engine ECU`, `Motor Steuergerät`). Defaults to `name`. |
+
+```json
+"ecus": [
+  { "address": "0x7E0", "name": "engine",       "common_name": "Engine ECU" },
+  { "address": "0x7E1", "name": "transmission", "common_name": "Transmission ECU" },
+  { "address": "0x40",  "name": "cluster",      "common_name": "Instrument Cluster" }
+]
+```
+
+A DID or routine that names an `ecu_address` matching one of these
+rows is scoped to that ECU; entries with `ecu_address` omitted stay
+global (or inherit `default_ecu_address`). Pascal callers retrieve a
+filtered view via `Ext.CatalogForECU($7E0)`, which returns DIDs +
+routines for that ECU plus any global entries.
 
 ### DID entry
 
@@ -89,7 +113,7 @@ recompile required.
 | `description` | yes      | Human-readable. |
 | `source`      | no       | URL or token (`iso-14229-1`, `ross-tech-wiki`, `obd-eleven-public`, `community-pr-#42`). Defaults to `default_source`. |
 | `verified`    | no       | `true` if the entry has been confirmed against an OEM spec; `false` (default) for community / starter data. Surfaces in audit-grade callers as a quality flag. |
-| `ecu_address` | no       | Restrict the entry to a specific UDS ECU address (e.g. `0x7E0` for engine). Omit for cross-ECU. |
+| `ecu_address` | no       | Restrict the entry to a specific UDS ECU address (e.g. `0x7E0` for engine). Omit for cross-ECU. Defaults to `default_ecu_address` (top-level) when present, otherwise `0` (global). |
 | `decoder`     | no       | See **Decoder kinds** below. |
 
 ### Decoder kinds

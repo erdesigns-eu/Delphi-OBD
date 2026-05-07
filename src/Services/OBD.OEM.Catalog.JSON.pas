@@ -78,6 +78,13 @@ type
     Description: string;
     Source: string;
     Verified: Boolean;
+    EcuAddress: Word;       // 0 = not scoped
+  end;
+
+  TOBDOEMECUEntry = record
+    Address: Word;
+    Name: string;
+    CommonName: string;
   end;
 
   TOBDOEMDtcRange = record
@@ -97,15 +104,18 @@ type
     FDisplayName: string;
     FApplicableWMIs: TArray<string>;
     FDefaultSource: string;
+    FDefaultEcuAddress: Word;
     FDIDs: TList<TOBDOEMDIDEntry>;
     FRoutines: TList<TOBDOEMRoutineEntry>;
     FDtcRanges: TList<TOBDOEMDtcRange>;
+    FECUs: TList<TOBDOEMECUEntry>;
     function ParseHexOrInt(const S: string): Cardinal;
     function ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
     procedure LoadFromJSON(Root: TJSONObject);
     procedure LoadDIDs(Arr: TJSONArray);
     procedure LoadRoutines(Arr: TJSONArray);
     procedure LoadDtcRanges(Arr: TJSONArray);
+    procedure LoadECUs(Arr: TJSONArray);
   public
     constructor Create(const FilePath: string); overload;
     constructor CreateFromText(const JsonText: string); overload;
@@ -124,17 +134,23 @@ type
     /// <summary>Find a DID; returns False if absent.</summary>
     function FindDID(const DID: Word; out Entry: TOBDOEMDIDEntry): Boolean;
 
+    /// <summary>ECUs declared by the catalog (top-level <c>ecus</c> array).</summary>
+    function AsBaseECUs: TArray<TOBDOEMECU>;
+
     property Version: Integer read FVersion;
     property ManufacturerKey: string read FManufacturerKey;
     property DisplayName: string read FDisplayName;
     property ApplicableWMIs: TArray<string> read FApplicableWMIs;
     property DefaultSource: string read FDefaultSource;
+    property DefaultEcuAddress: Word read FDefaultEcuAddress;
     function DIDCount: Integer;
     function DID(Index: Integer): TOBDOEMDIDEntry;
     function RoutineCount: Integer;
     function Routine(Index: Integer): TOBDOEMRoutineEntry;
     function DtcRangeCount: Integer;
     function DtcRange(Index: Integer): TOBDOEMDtcRange;
+    function ECUCount: Integer;
+    function ECU(Index: Integer): TOBDOEMECUEntry;
   end;
 
 implementation
@@ -160,6 +176,7 @@ begin
   FDIDs := TList<TOBDOEMDIDEntry>.Create;
   FRoutines := TList<TOBDOEMRoutineEntry>.Create;
   FDtcRanges := TList<TOBDOEMDtcRange>.Create;
+  FECUs := TList<TOBDOEMECUEntry>.Create;
 
   Value := TJSONObject.ParseJSONValue(JsonText);
   if not (Value is TJSONObject) then
@@ -184,6 +201,7 @@ begin
   FDIDs.Free;
   FRoutines.Free;
   FDtcRanges.Free;
+  FECUs.Free;
   inherited;
 end;
 
@@ -268,6 +286,10 @@ begin
   FManufacturerKey := Root.GetValue<string>('manufacturer_key', '');
   FDisplayName := Root.GetValue<string>('display_name', '');
   FDefaultSource := Root.GetValue<string>('default_source', '');
+  FDefaultEcuAddress := 0;
+  if Assigned(Root.GetValue('default_ecu_address')) then
+    FDefaultEcuAddress :=
+      ParseHexOrInt(Root.GetValue<string>('default_ecu_address', '0'));
 
   WMIArr := Root.GetValue<TJSONArray>('applicable_wmis');
   if Assigned(WMIArr) then
@@ -276,6 +298,12 @@ begin
     for I := 0 to WMIArr.Count - 1 do
       FApplicableWMIs[I] := WMIArr.Items[I].Value;
   end;
+
+  // Load ECUs first so per-DID/routine entries can reference an
+  // already-known address — not strictly required for parsing but
+  // useful when validation lands later.
+  Arr := Root.GetValue<TJSONArray>('ecus');
+  if Assigned(Arr) then LoadECUs(Arr);
 
   Arr := Root.GetValue<TJSONArray>('dids');
   if Assigned(Arr) then LoadDIDs(Arr);
@@ -305,7 +333,10 @@ begin
     Entry.Source := Item.GetValue<string>('source', FDefaultSource);
     Entry.Verified := Item.GetValue<Boolean>('verified', False);
     EcuStr := Item.GetValue<string>('ecu_address', '');
-    if EcuStr <> '' then Entry.EcuAddress := ParseHexOrInt(EcuStr);
+    if EcuStr <> '' then
+      Entry.EcuAddress := ParseHexOrInt(EcuStr)
+    else
+      Entry.EcuAddress := FDefaultEcuAddress;
     Entry.Decoder := ParseDecoder(Item.GetValue<TJSONObject>('decoder'));
     FDIDs.Add(Entry);
   end;
@@ -316,6 +347,7 @@ var
   I: Integer;
   Item: TJSONObject;
   Entry: TOBDOEMRoutineEntry;
+  EcuStr: string;
 begin
   for I := 0 to Arr.Count - 1 do
   begin
@@ -327,7 +359,30 @@ begin
     Entry.Description := Item.GetValue<string>('description', '');
     Entry.Source := Item.GetValue<string>('source', FDefaultSource);
     Entry.Verified := Item.GetValue<Boolean>('verified', False);
+    EcuStr := Item.GetValue<string>('ecu_address', '');
+    if EcuStr <> '' then
+      Entry.EcuAddress := ParseHexOrInt(EcuStr)
+    else
+      Entry.EcuAddress := FDefaultEcuAddress;
     FRoutines.Add(Entry);
+  end;
+end;
+
+procedure TOBDOEMJSONCatalog.LoadECUs(Arr: TJSONArray);
+var
+  I: Integer;
+  Item: TJSONObject;
+  Entry: TOBDOEMECUEntry;
+begin
+  for I := 0 to Arr.Count - 1 do
+  begin
+    if not (Arr.Items[I] is TJSONObject) then Continue;
+    Item := TJSONObject(Arr.Items[I]);
+    Entry := Default(TOBDOEMECUEntry);
+    Entry.Address := ParseHexOrInt(Item.GetValue<string>('address', '0'));
+    Entry.Name := Item.GetValue<string>('name', '');
+    Entry.CommonName := Item.GetValue<string>('common_name', Entry.Name);
+    FECUs.Add(Entry);
   end;
 end;
 
@@ -360,9 +415,11 @@ begin
   SetLength(Result, FDIDs.Count);
   for I := 0 to FDIDs.Count - 1 do
   begin
+    Out_ := Default(TOBDOEMDataIdentifier);
     Out_.DID := FDIDs[I].DID;
     Out_.Name := FDIDs[I].Name;
     Out_.Description := FDIDs[I].Description;
+    Out_.EcuAddress := FDIDs[I].EcuAddress;
     Result[I] := Out_;
   end;
 end;
@@ -375,11 +432,22 @@ begin
   SetLength(Result, FRoutines.Count);
   for I := 0 to FRoutines.Count - 1 do
   begin
+    Out_ := Default(TOBDOEMRoutine);
     Out_.Identifier := FRoutines[I].Identifier;
     Out_.Name := FRoutines[I].Name;
     Out_.Description := FRoutines[I].Description;
+    Out_.EcuAddress := FRoutines[I].EcuAddress;
     Result[I] := Out_;
   end;
+end;
+
+function TOBDOEMJSONCatalog.AsBaseECUs: TArray<TOBDOEMECU>;
+var
+  I: Integer;
+begin
+  SetLength(Result, FECUs.Count);
+  for I := 0 to FECUs.Count - 1 do
+    Result[I] := MakeOEMECU(FECUs[I].Address, FECUs[I].Name, FECUs[I].CommonName);
 end;
 
 function TOBDOEMJSONCatalog.FindDID(const DID: Word;
@@ -547,5 +615,11 @@ begin Result := FDtcRanges.Count; end;
 
 function TOBDOEMJSONCatalog.DtcRange(Index: Integer): TOBDOEMDtcRange;
 begin Result := FDtcRanges[Index]; end;
+
+function TOBDOEMJSONCatalog.ECUCount: Integer;
+begin Result := FECUs.Count; end;
+
+function TOBDOEMJSONCatalog.ECU(Index: Integer): TOBDOEMECUEntry;
+begin Result := FECUs[Index]; end;
 
 end.

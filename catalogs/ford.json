@@ -5,6 +5,17 @@
   "display_name": "Ford Motor Company",
   "applicable_wmis": ["1FA","1FB","1FC","1FD","1FM","1FT","2FA","2FT","3FA","3FT","1LN","5LM","1MR","6FP","WF0"],
   "default_source": "forscan-community / motorcraft-pubs",
+  "ecus": [
+    { "address": "0x7E0", "name": "pcm",           "common_name": "PCM — Powertrain Control" },
+    { "address": "0x7E1", "name": "tcm",           "common_name": "TCM — Transmission Control" },
+    { "address": "0x7E2", "name": "pcm_secondary", "common_name": "Secondary PCM (V-engines)" },
+    { "address": "0x760", "name": "abs",           "common_name": "ABS / Stability" },
+    { "address": "0x720", "name": "rcm",           "common_name": "RCM — Restraints Control" },
+    { "address": "0x726", "name": "ipc",           "common_name": "IPC — Instrument Panel Cluster" },
+    { "address": "0x731", "name": "bcm",           "common_name": "BCM — Body Control Module" },
+    { "address": "0x733", "name": "gwm",           "common_name": "GWM — Gateway Module" },
+    { "address": "0x740", "name": "hvac",          "common_name": "HVAC — Climate Control" }
+  ],
   "dids": [
     { "did": "0xDD00", "name": "vehicle_mileage",      "description": "Vehicle mileage in km (32-bit BE)",                "source": "forscan-community", "verified": false,
       "decoder": { "kind": "uint32_be", "unit": "km" } },

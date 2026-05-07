@@ -36,11 +36,23 @@ type
     [Test] procedure SkipsCommentLines;
   end;
 
+  [TestFixture]
+  TPerECUTests = class
+  public
+    [Test] procedure LoadsECUList;
+    [Test] procedure ParsesPerDIDEcuAddress;
+    [Test] procedure DefaultEcuAddressPropagates;
+    [Test] procedure ExplicitAddressOverridesDefault;
+    [Test] procedure RoutineEcuAddressLoaded;
+    [Test] procedure ExtensionFiltersByECU;
+    [Test] procedure ExtensionGlobalsFlowToAllECUs;
+  end;
+
 implementation
 
 uses
   System.SysUtils, System.JSON, System.Classes,
-  OBD.OEM.Catalog.JSON, OBD.OEM.Catalog.CSV;
+  OBD.OEM, OBD.OEM.Catalog.JSON, OBD.OEM.Catalog.CSV;
 
 const
   MINIMAL_CATALOG: string =
@@ -383,8 +395,212 @@ begin
   end;
 end;
 
+//==============================================================================
+// Per-ECU sub-catalogs (Phase 1.2 / v3.4)
+//==============================================================================
+const
+  // Catalog without default_ecu_address: omitted entries stay global (0).
+  ECU_CATALOG: string =
+    '{' +
+    '"version": 1,' +
+    '"manufacturer_key": "T",' +
+    '"display_name": "Test",' +
+    '"applicable_wmis": ["XXX"],' +
+    '"ecus": [' +
+    ' {"address": "0x7E0", "name": "engine",       "common_name": "Engine ECU"},' +
+    ' {"address": "0x7E1", "name": "transmission", "common_name": "Transmission"},' +
+    ' {"address": "0x40",  "name": "cluster",      "common_name": "Instrument Cluster"}' +
+    '],' +
+    '"dids": [' +
+    ' {"did": "0xF190", "name": "vin",           "description": "VIN"},' +
+    ' {"did": "0xF40C", "name": "engine_rpm",    "description": "RPM",  "ecu_address": "0x7E0"},' +
+    ' {"did": "0x0260", "name": "gear_position", "description": "Gear", "ecu_address": "0x7E1"},' +
+    ' {"did": "0xD050", "name": "mileage",       "description": "km",   "ecu_address": "0x40"}' +
+    '],' +
+    '"routines": [' +
+    ' {"id": "0x0203", "name": "reset_adapt", "description": "reset", "ecu_address": "0x7E0"},' +
+    ' {"id": "0xFF00", "name": "erase_memory","description": "erase"}' +
+    ']' +
+    '}';
+
+  // Catalog WITH default_ecu_address — omitted entries inherit it.
+  DEFAULT_SCOPED_CATALOG: string =
+    '{' +
+    '"version": 1, "manufacturer_key": "T", "display_name": "T",' +
+    ' "applicable_wmis": ["XXX"], "default_ecu_address": "0x7E0",' +
+    ' "dids": [' +
+    '  {"did": "0xF190", "name": "vin", "description": "VIN"},' +
+    '  {"did": "0xD050", "name": "mileage", "description": "km", "ecu_address": "0x40"}' +
+    ' ]' +
+    '}';
+
+type
+  /// <summary>
+  ///   Concrete extension that picks up <c>ECU_CATALOG</c> via
+  ///   <c>BuildCatalog</c>. Used for the <c>CatalogForECU</c> filter
+  ///   tests — bypasses the file-system loader.
+  /// </summary>
+  TTestECUExtension = class(TOBDOEMExtensionBase)
+  protected
+    procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
+  public
+    function ManufacturerKey: string; override;
+    function DisplayName: string; override;
+    function ApplicableToVIN(const VIN: string): Boolean; override;
+  end;
+
+procedure TTestECUExtension.BuildCatalog(
+  var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
+var
+  Cat: TOBDOEMJSONCatalog;
+begin
+  Cat := TOBDOEMJSONCatalog.CreateFromText(ECU_CATALOG);
+  try
+    DIDs := Cat.AsBaseDIDs;
+    Routines := Cat.AsBaseRoutines;
+    ECUs := Cat.AsBaseECUs;
+  finally
+    Cat.Free;
+  end;
+end;
+
+function TTestECUExtension.ManufacturerKey: string; begin Result := 'T'; end;
+function TTestECUExtension.DisplayName: string; begin Result := 'Test'; end;
+function TTestECUExtension.ApplicableToVIN(const VIN: string): Boolean;
+begin Result := False; end;
+
+procedure TPerECUTests.LoadsECUList;
+var Cat: TOBDOEMJSONCatalog;
+begin
+  Cat := TOBDOEMJSONCatalog.CreateFromText(ECU_CATALOG);
+  try
+    Assert.AreEqual(3, Cat.ECUCount);
+    Assert.AreEqual(Word($7E0), Cat.ECU(0).Address);
+    Assert.AreEqual('engine', Cat.ECU(0).Name);
+    Assert.AreEqual('Instrument Cluster', Cat.ECU(2).CommonName);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TPerECUTests.ParsesPerDIDEcuAddress;
+var
+  Cat: TOBDOEMJSONCatalog;
+  Entry: TOBDOEMDIDEntry;
+begin
+  Cat := TOBDOEMJSONCatalog.CreateFromText(ECU_CATALOG);
+  try
+    Assert.IsTrue(Cat.FindDID($0260, Entry));
+    Assert.AreEqual(Word($7E1), Entry.EcuAddress);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TPerECUTests.DefaultEcuAddressPropagates;
+var
+  Cat: TOBDOEMJSONCatalog;
+  Entry: TOBDOEMDIDEntry;
+begin
+  // F190 omits ecu_address but the catalog declares default 0x7E0.
+  Cat := TOBDOEMJSONCatalog.CreateFromText(DEFAULT_SCOPED_CATALOG);
+  try
+    Assert.IsTrue(Cat.FindDID($F190, Entry));
+    Assert.AreEqual(Word($7E0), Entry.EcuAddress);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TPerECUTests.ExplicitAddressOverridesDefault;
+var
+  Cat: TOBDOEMJSONCatalog;
+  Entry: TOBDOEMDIDEntry;
+begin
+  Cat := TOBDOEMJSONCatalog.CreateFromText(DEFAULT_SCOPED_CATALOG);
+  try
+    Assert.IsTrue(Cat.FindDID($D050, Entry));
+    Assert.AreEqual(Word($40), Entry.EcuAddress);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TPerECUTests.RoutineEcuAddressLoaded;
+var
+  Cat: TOBDOEMJSONCatalog;
+  R: TOBDOEMRoutineEntry;
+  I: Integer;
+  Found: Boolean;
+begin
+  Cat := TOBDOEMJSONCatalog.CreateFromText(ECU_CATALOG);
+  try
+    Found := False;
+    for I := 0 to Cat.RoutineCount - 1 do
+      if Cat.Routine(I).Identifier = $0203 then
+      begin
+        R := Cat.Routine(I);
+        Found := True;
+        Break;
+      end;
+    Assert.IsTrue(Found, 'reset_adapt routine should be present');
+    Assert.AreEqual(Word($7E0), R.EcuAddress);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TPerECUTests.ExtensionFiltersByECU;
+var
+  Ext: IOBDOEMExtension;
+  Sub: TOBDOEMSubCatalog;
+  D: TOBDOEMDataIdentifier;
+  HasGear, HasMileage, HasRPM: Boolean;
+begin
+  Ext := TTestECUExtension.Create;
+  Sub := Ext.CatalogForECU($7E1);
+  HasGear := False;
+  HasMileage := False;
+  HasRPM := False;
+  for D in Sub.DIDs do
+  begin
+    if D.DID = $0260 then HasGear := True;
+    if D.DID = $D050 then HasMileage := True;
+    if D.DID = $F40C then HasRPM := True;
+  end;
+  // 0x0260 (gear) is scoped to 0x7E1 → present
+  // 0xD050 (mileage) is scoped to 0x40 → absent
+  // 0xF40C (rpm) is scoped to 0x7E0 (default) → absent on 0x7E1
+  Assert.IsTrue(HasGear, 'gear_position should be in 0x7E1 sub-catalog');
+  Assert.IsFalse(HasMileage, 'mileage (cluster) should NOT be in 0x7E1 sub-catalog');
+  Assert.IsFalse(HasRPM, 'rpm (engine) should NOT be in 0x7E1 sub-catalog');
+end;
+
+procedure TPerECUTests.ExtensionGlobalsFlowToAllECUs;
+var
+  Ext: IOBDOEMExtension;
+  Sub: TOBDOEMSubCatalog;
+  R: TOBDOEMRoutine;
+  HasErase: Boolean;
+begin
+  Ext := TTestECUExtension.Create;
+  // 0xFF00 erase_memory has no ecu_address — it's global, so it must
+  // appear in every sub-catalog the caller asks for.
+  Sub := Ext.CatalogForECU($40);
+  HasErase := False;
+  for R in Sub.Routines do
+    if R.Identifier = $FF00 then HasErase := True;
+  Assert.IsTrue(HasErase,
+    'global erase_memory should flow into every ECU sub-catalog');
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TJSONCatalogTests);
   TDUnitX.RegisterTestFixture(TCSVImporterTests);
+  TDUnitX.RegisterTestFixture(TPerECUTests);
 
 end.

@@ -29,6 +29,9 @@ type
     DID: Word;
     Name: string;        // human-readable ("battery_voltage")
     Description: string; // longer prose
+    /// <summary>UDS request address that owns this DID. 0 = global /
+    /// applies across all ECUs (the v3.3 flat-catalog default).</summary>
+    EcuAddress: Word;
   end;
 
   /// <summary>One entry in an OEM's RoutineControl (SID $31) catalog.</summary>
@@ -36,6 +39,33 @@ type
     Identifier: Word;
     Name: string;
     Description: string;
+    /// <summary>UDS request address that owns this routine. 0 = global.</summary>
+    EcuAddress: Word;
+  end;
+
+  /// <summary>
+  ///   One ECU on the vehicle bus. <c>Address</c> is the UDS physical
+  ///   request CAN-ID (e.g. <c>0x7E0</c> for engine on 11-bit ISO
+  ///   15765-4). <c>Name</c> is the snake_case key (<c>engine</c>,
+  ///   <c>transmission</c>, <c>abs</c>, <c>cluster</c>); <c>CommonName</c>
+  ///   is the display label (<c>Engine ECU</c>, <c>Motor Steuergerät</c>).
+  /// </summary>
+  TOBDOEMECU = record
+    Address: Word;
+    Name: string;
+    CommonName: string;
+  end;
+
+  /// <summary>
+  ///   The subset of an OEM catalog that applies to a single ECU.
+  ///   Returned by <c>IOBDOEMExtension.CatalogForECU</c>; entries with
+  ///   <c>EcuAddress = 0</c> in the parent catalog are inherited as
+  ///   global, ECU-scoped entries are added on top.
+  /// </summary>
+  TOBDOEMSubCatalog = record
+    EcuAddress: Word;
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+    Routines: TArray<TOBDOEMRoutine>;
   end;
 
   /// <summary>
@@ -74,6 +104,16 @@ type
     /// <summary>Lookup helpers — return False if the entry isn't catalogued.</summary>
     function FindDID(const DID: Word; out Entry: TOBDOEMDataIdentifier): Boolean;
     function FindRoutine(const Id: Word; out Entry: TOBDOEMRoutine): Boolean;
+
+    /// <summary>The ECUs this manufacturer's diagnostics target. May be
+    /// empty for OEMs that haven't been ECU-mapped yet — callers then
+    /// fall back to the flat catalog.</summary>
+    function ECUs: TArray<TOBDOEMECU>;
+
+    /// <summary>Catalog filtered to one ECU. Includes globally-scoped
+    /// entries (EcuAddress=0 in the flat catalog) plus entries that
+    /// match <c>Address</c> exactly.</summary>
+    function CatalogForECU(const Address: Word): TOBDOEMSubCatalog;
   end;
 
   /// <summary>
@@ -107,17 +147,22 @@ type
   strict private
     FDIDs: TArray<TOBDOEMDataIdentifier>;
     FRoutines: TArray<TOBDOEMRoutine>;
+    FECUs: TArray<TOBDOEMECU>;
     FCatalogLoaded: Boolean;
     FCatalogLock: TCriticalSection;
     procedure EnsureCatalog;
   protected
     /// <summary>
-    ///   Subclasses populate <c>DIDs</c> and <c>Routines</c> the first
-    ///   time the catalog is read. Lazy so unit-init isn't slowed by
-    ///   building catalogs that may never be queried.
+    ///   Subclasses populate <c>DIDs</c>, <c>Routines</c>, and the
+    ///   optional <c>ECUs</c> bus map on first access. Lazy so unit-init
+    ///   isn't slowed by building catalogs that may never be queried.
+    ///   The third parameter was added in v3.4 (Phase 1.2) for per-ECU
+    ///   sub-catalogs; subclasses that don't need it just leave it
+    ///   untouched (default <c>nil</c>).
     /// </summary>
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); virtual; abstract;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); virtual; abstract;
   public
     constructor Create;
     destructor Destroy; override;
@@ -129,7 +174,12 @@ type
     function DecodeDID(const DID: Word; const Payload: TBytes): string; virtual;
     function FindDID(const DID: Word; out Entry: TOBDOEMDataIdentifier): Boolean; virtual;
     function FindRoutine(const Id: Word; out Entry: TOBDOEMRoutine): Boolean; virtual;
+    function ECUs: TArray<TOBDOEMECU>; virtual;
+    function CatalogForECU(const Address: Word): TOBDOEMSubCatalog; virtual;
   end;
+
+/// <summary>Builder helper used by JSON catalog readers.</summary>
+function MakeOEMECU(const Address: Word; const Name, CommonName: string): TOBDOEMECU;
 
 implementation
 
@@ -235,11 +285,44 @@ begin
   FCatalogLock.Enter;
   try
     if FCatalogLoaded then Exit;
-    BuildCatalog(FDIDs, FRoutines);
+    BuildCatalog(FDIDs, FRoutines, FECUs);
     FCatalogLoaded := True;
   finally
     FCatalogLock.Leave;
   end;
+end;
+
+function TOBDOEMExtensionBase.ECUs: TArray<TOBDOEMECU>;
+begin
+  EnsureCatalog;
+  Result := FECUs;
+end;
+
+function TOBDOEMExtensionBase.CatalogForECU(
+  const Address: Word): TOBDOEMSubCatalog;
+var
+  D: TOBDOEMDataIdentifier;
+  R: TOBDOEMRoutine;
+begin
+  EnsureCatalog;
+  Result := Default(TOBDOEMSubCatalog);
+  Result.EcuAddress := Address;
+  // Globals (EcuAddress = 0) flow through to every ECU; ECU-scoped
+  // entries are added when the address matches. Address = 0 returns
+  // everything (callers asking "what's catalogued at all?").
+  for D in FDIDs do
+    if (D.EcuAddress = 0) or (Address = 0) or (D.EcuAddress = Address) then
+      Result.DIDs := Result.DIDs + [D];
+  for R in FRoutines do
+    if (R.EcuAddress = 0) or (Address = 0) or (R.EcuAddress = Address) then
+      Result.Routines := Result.Routines + [R];
+end;
+
+function MakeOEMECU(const Address: Word; const Name, CommonName: string): TOBDOEMECU;
+begin
+  Result.Address := Address;
+  Result.Name := Name;
+  Result.CommonName := CommonName;
 end;
 
 function TOBDOEMExtensionBase.DataIdentifiers: TArray<TOBDOEMDataIdentifier>;

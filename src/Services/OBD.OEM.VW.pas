@@ -22,7 +22,8 @@ type
   TOBDOEMExtensionVW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>); override;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -54,8 +55,24 @@ begin
 end;
 
 procedure TOBDOEMExtensionVW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 begin
+  // VAG ECU bus map. The 0x7Ex set is the ISO 15765-4 11-bit physical
+  // request range; VAG-specific addresses (0x71x, 0x72x, 0x74x) come
+  // from the public ross-tech / VCDS module-address tables. A
+  // production deployment overlays these via vw.json's `ecus` block.
+  ECUs := [
+    ECU($7E0, 'engine',         'Engine ECU'),
+    ECU($7E1, 'transmission',   'Transmission ECU'),
+    ECU($7E2, 'body',           'Body Control Module'),
+    ECU($710, 'abs',            'ABS / ESP'),
+    ECU($712, 'steering_angle', 'Steering Angle Sensor'),
+    ECU($714, 'cluster',        'Instrument Cluster (KOMBI)'),
+    ECU($740, 'climate',        'Climate Control'),
+    ECU($744, 'gateway',        'CAN Gateway')
+  ];
+
   // Common VAG UDS DIDs. These are documented in the public ODX-D
   // descriptors that ship with VAG diagnostic tools (reference only —
   // exact semantics vary by ECU and model year).
@@ -83,8 +100,8 @@ begin
 
   // Merge JSON catalog overrides + extensions. JSON entries win on
   // conflict; missing files leave the hard-coded set untouched.
-  MergeCatalogJSON('vw.json', DIDs, Routines);
-  MergeCatalogJSON('uds-standard.json', DIDs, Routines);
+  MergeCatalogJSON('vw.json', DIDs, Routines, ECUs);
+  MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
 function TOBDOEMExtensionVW.DecodeDID(const DID: Word;
