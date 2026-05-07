@@ -63,7 +63,8 @@ uses
   Tests.OEM.HD in 'Tests.OEM.HD.pas',
   Tests.OEM.China in 'Tests.OEM.China.pas',
   Tests.OEM.CatalogSmoke in 'Tests.OEM.CatalogSmoke.pas',
-  Tests.OEM.SupplierRouting in 'Tests.OEM.SupplierRouting.pas';
+  Tests.OEM.SupplierRouting in 'Tests.OEM.SupplierRouting.pas',
+  Tests.OEM.Premium in 'Tests.OEM.Premium.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

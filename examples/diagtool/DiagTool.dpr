@@ -25,7 +25,9 @@ uses
   OBD.OEM.Cummins, OBD.OEM.DetroitDiesel, OBD.OEM.PACCAR,
   OBD.OEM.VolvoTrucks, OBD.OEM.Scania, OBD.OEM.MAN,
   OBD.OEM.BYD, OBD.OEM.Geely, OBD.OEM.NIO,
-  OBD.OEM.Xpeng, OBD.OEM.GreatWall;
+  OBD.OEM.Xpeng, OBD.OEM.GreatWall,
+  OBD.OEM.Porsche, OBD.OEM.JLR, OBD.OEM.Iveco,
+  OBD.OEM.Isuzu, OBD.OEM.Rivian, OBD.OEM.Polestar;
 
 {$R *.res}
 

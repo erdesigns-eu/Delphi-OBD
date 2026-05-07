@@ -1,0 +1,23 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Iveco DTC starter (J1939 SPN-FMI + EASY)",
+  "default_source": "iveco-easy-community",
+  "dtcs": [
+    { "code": "SPN0094-FMI4",  "severity": "warning",  "description": "Iveco — Engine fuel delivery pressure circuit voltage low (Cursor)", "verified": false },
+    { "code": "SPN0157-FMI3",  "severity": "warning",  "description": "Iveco Cursor — High-pressure rail sensor voltage high", "verified": false },
+    { "code": "SPN0411-FMI4",  "severity": "warning",  "description": "Iveco — EGR differential pressure sensor low", "verified": false },
+    { "code": "SPN3251-FMI16", "severity": "warning",  "description": "Iveco — DPF differential pressure high (regen needed)", "verified": false },
+    { "code": "SPN3361-FMI3",  "severity": "warning",  "description": "Iveco ACM — DEF dosing valve circuit voltage high", "verified": false },
+    { "code": "SPN3719-FMI16", "severity": "critical", "description": "Iveco — DPF soot load most severe (parked regen mandatory)", "verified": false },
+    { "code": "SPN5246-FMI16", "severity": "critical", "description": "Iveco SCR — system inducement (5 mph derate)", "verified": false },
+    { "code": "SPN5394-FMI31", "severity": "warning",  "description": "Iveco — DEF dosing unit not responding", "verified": false },
+    { "code": "SPN5571-FMI16", "severity": "critical", "description": "Iveco — DEF inducement engaged (engine power derate)", "verified": false },
+    { "code": "SPN6713-FMI31", "severity": "warning",  "description": "Iveco — Aftertreatment regeneration interrupted", "verified": false },
+    { "code": "P157C", "severity": "warning", "description": "Daily 3.0 — Diesel exhaust fluid heater performance", "verified": false },
+    { "code": "P0299", "severity": "warning", "description": "Iveco Cursor — Turbocharger underboost", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Iveco — High-speed CAN bus 'A' off", "verified": false },
+    { "code": "U0146", "severity": "warning",  "description": "Iveco — Lost communication with gateway / VCM", "verified": false },
+    { "code": "B1318", "severity": "info", "description": "Iveco BCM — Battery voltage low", "verified": false }
+  ]
+}

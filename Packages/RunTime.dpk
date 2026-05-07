@@ -146,6 +146,12 @@ contains
   OBD.OEM.Geely in '..\src\Services\OBD.OEM.Geely.pas',
   OBD.OEM.NIO in '..\src\Services\OBD.OEM.NIO.pas',
   OBD.OEM.Xpeng in '..\src\Services\OBD.OEM.Xpeng.pas',
-  OBD.OEM.GreatWall in '..\src\Services\OBD.OEM.GreatWall.pas';
+  OBD.OEM.GreatWall in '..\src\Services\OBD.OEM.GreatWall.pas',
+  OBD.OEM.Porsche in '..\src\Services\OBD.OEM.Porsche.pas',
+  OBD.OEM.JLR in '..\src\Services\OBD.OEM.JLR.pas',
+  OBD.OEM.Iveco in '..\src\Services\OBD.OEM.Iveco.pas',
+  OBD.OEM.Isuzu in '..\src\Services\OBD.OEM.Isuzu.pas',
+  OBD.OEM.Rivian in '..\src\Services\OBD.OEM.Rivian.pas',
+  OBD.OEM.Polestar in '..\src\Services\OBD.OEM.Polestar.pas';
 
 end.

@@ -45,6 +45,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.19 Engine-OEM auto-routing | IOBDOEMExtension.ApplicableToECUSupplier + TOBDOEMRegistry.FindByECUSupplier — engine OEMs (Cummins, Detroit Diesel) now route on J1939 PGN 65259 'Make' / ISO 14229 DID 0xF18A instead of always returning False from ApplicableToVIN | ✅ Tagged v3.19.0 (2026-05-07) |
 | v3.20 Reference VCL diagnostic tool | examples/diagtool — full programmatic VCL app with connection wizard, OEM auto-detect via VIN, session control, live-data dashboard, DTC reader with catalog lookup, DID browser, routine runner. All 28 OEM extensions self-register | ✅ Tagged v3.20.0 (2026-05-07) |
 | v3.21 Catalog deepening (round 2) | +54 verified P/U codes in dtc-iso-15031 (149 total verified universal DTCs); +5 verified PIDs in obd2-pids (85 total); +14 per-OEM entries across VW/BMW/Ford. Citation discipline: every universal entry cites SAE J2012 / J1979 / ISO 15031-6 | ✅ Tagged v3.21.0 (2026-05-07) |
+| v3.22 Premium / EV / heavy-commercial OEMs | 6 new full-depth extensions: Porsche (PIWIS, 16 ECUs, 27 DIDs), JLR (Topix, 17 ECUs, 23 DIDs), Iveco (Cursor + EuroTronic, 14 ECUs, 20 DIDs), Isuzu (4HK1/RZ4E, 11 ECUs, 20 DIDs), Rivian (quad-motor R1, 16 ECUs, 22 DIDs), Polestar (CMA/SEA, 15 ECUs, 23 DIDs). 100 DTC entries combined. Total OEMs now 34 | ✅ Tagged v3.22.0 (2026-05-07) |
 
 ---
 

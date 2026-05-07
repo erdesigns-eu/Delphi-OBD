@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Porsche DTC starter (PIWIS)",
+  "default_source": "piwis-community",
+  "dtcs": [
+    { "code": "P0420", "severity": "warning",  "description": "Catalyst System Efficiency Bank 1 (common 9X1 Cayman)", "verified": false },
+    { "code": "P0430", "severity": "warning",  "description": "Catalyst System Efficiency Bank 2 (Porsche M96/M97)", "verified": false },
+    { "code": "P0524", "severity": "critical", "description": "Engine Oil Pressure Low (Porsche M96/M97 IMS-related)", "verified": false },
+    { "code": "P0301", "severity": "critical", "description": "Cylinder 1 Misfire (Porsche common after coil failure)", "verified": false },
+    { "code": "P0302", "severity": "critical", "description": "Cylinder 2 Misfire", "verified": false },
+    { "code": "P0303", "severity": "critical", "description": "Cylinder 3 Misfire", "verified": false },
+    { "code": "P0304", "severity": "critical", "description": "Cylinder 4 Misfire", "verified": false },
+    { "code": "P0305", "severity": "critical", "description": "Cylinder 5 Misfire (flat-six 911 / 718 GTS 4.0)", "verified": false },
+    { "code": "P0306", "severity": "critical", "description": "Cylinder 6 Misfire", "verified": false },
+    { "code": "P164A", "severity": "warning",  "description": "Camshaft phaser solenoid (Porsche 9A1 / MA1)", "verified": false },
+    { "code": "P0299", "severity": "warning",  "description": "Turbocharger Underboost (911 Turbo / Cayenne / Macan T)", "verified": false },
+    { "code": "P0234", "severity": "critical", "description": "Turbocharger Overboost (Porsche)", "verified": false },
+    { "code": "P0AA6", "severity": "critical", "description": "Hybrid Battery Voltage System Isolation Fault (Taycan / 911 hybrid)", "verified": false },
+    { "code": "P0A0F", "severity": "critical", "description": "Engine Failed To Start (Taycan range-extender / 918)", "verified": false },
+    { "code": "P0D38", "severity": "warning",  "description": "On-board charger DC/DC performance (Taycan)", "verified": false },
+    { "code": "P0AFA", "severity": "warning",  "description": "Hybrid battery cell voltage delta out of range (Taycan)", "verified": false },
+    { "code": "P0AFE", "severity": "warning",  "description": "Hybrid battery cooling-system performance (Taycan)", "verified": false },
+    { "code": "B100D", "severity": "warning",  "description": "Porsche PCM front-camera obstructed", "verified": false },
+    { "code": "B105F", "severity": "warning",  "description": "Porsche PASM ride-height sensor open circuit", "verified": false },
+    { "code": "C1A20", "severity": "warning",  "description": "Porsche PCCB ceramic-brake controller fault", "verified": false },
+    { "code": "U1A00", "severity": "warning",  "description": "Porsche CAN-FD Powertrain Bus performance fault", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Porsche — Powertrain CAN bus 'A' off", "verified": false }
+  ]
+}

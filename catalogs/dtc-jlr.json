@@ -1,0 +1,26 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Jaguar Land Rover DTC starter",
+  "default_source": "sdd-community / topix-public",
+  "dtcs": [
+    { "code": "P0299", "severity": "warning",  "description": "Turbocharger Underboost (JLR Ingenium 2.0/3.0)", "verified": false },
+    { "code": "P0420", "severity": "warning",  "description": "Catalyst Efficiency Bank 1 (JLR AJ-V8 / Ingenium)", "verified": false },
+    { "code": "P0430", "severity": "warning",  "description": "Catalyst Efficiency Bank 2 (JLR AJ-V8 / SVR 5.0 SC)", "verified": false },
+    { "code": "P0741", "severity": "warning",  "description": "Torque Converter Clutch Performance (JLR ZF8HP)", "verified": false },
+    { "code": "P0011", "severity": "warning",  "description": "Camshaft Position 'A' Timing Over-Advanced (JLR Ingenium)", "verified": false },
+    { "code": "P008A", "severity": "warning",  "description": "Low-pressure fuel system pressure too low (JLR Ingenium GTDi)", "verified": false },
+    { "code": "P018C", "severity": "warning",  "description": "Fuel pressure sensor 'B' (high-pressure rail) JLR", "verified": false },
+    { "code": "P0AA6", "severity": "critical", "description": "I-Pace HV Battery Voltage System Isolation Fault", "verified": false },
+    { "code": "P0A0F", "severity": "critical", "description": "Range Rover EV — engine failed to start (range extender)", "verified": false },
+    { "code": "P0D38", "severity": "warning",  "description": "I-Pace on-board charger DC/DC performance", "verified": false },
+    { "code": "U0146", "severity": "warning",  "description": "Lost Communication With Gateway 'A' (JLR JaguarDrive Control)", "verified": false },
+    { "code": "U0184", "severity": "warning",  "description": "Lost Communication With Audio Front Control (Pivi Pro)", "verified": false },
+    { "code": "U0316", "severity": "warning",  "description": "Lost Communication With Telematics Module (TCB)", "verified": false },
+    { "code": "C1A20", "severity": "warning",  "description": "Air-suspension compressor fault (Range Rover L405 / L460)", "verified": false },
+    { "code": "C1A21", "severity": "warning",  "description": "Air-suspension reservoir pressure too low", "verified": false },
+    { "code": "C1A22", "severity": "warning",  "description": "Air-suspension air-leak detected — front-left", "verified": false },
+    { "code": "B116F", "severity": "warning",  "description": "JLR keyless-entry — pushbutton circuit", "verified": false },
+    { "code": "B11D0", "severity": "warning",  "description": "JLR Pivi Pro — touchscreen calibration drift", "verified": false }
+  ]
+}

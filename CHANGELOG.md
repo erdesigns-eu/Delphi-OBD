@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.22.0] - 2026-05-07 — Premium / EV / heavy-commercial OEMs
+
+### Added (6 new OEM extensions)
+- **`OBD.OEM.Porsche`** — Porsche AG (2 WMIs: WP0 + WP1, Stuttgart Zuffenhausen + Leipzig). Separate from VW Group because PIWIS is its own toolchain. **16-ECU map** covering DME engine + PDK transmission + PASM active suspension + PDCC active anti-roll + Taycan electric front/rear inverters + HV battery + PCM + climate + SRS + PCCB ceramic-brake + ESP + LWL fiber-bus + KESSY. **27 DIDs** including model code, paint code, interior code, M-Nummern options, factory commission, PCM PNO block, oil pressure / level / temperature / runtime, charge-air boost, Taycan pack voltage / SOC / SOH / range / charge status, PDK clutch wear, PASM ride heights, PCCB disc temperatures. **9 routines** (PDK calibration, PASM, PDCC, SAS, TPMS, KESSY relearn, battery register).
+- **`OBD.OEM.JLR`** — Jaguar Land Rover (4 WMIs: SAJ Castle Bromwich + SAL Solihull + SAD Halewood + MA1 Pune India). **17-ECU map** including PCM + TCM + RDM rear drive (RR BEV) + EV charge controller + EV motor + IPC + HUD + CJB + RJB + ABS/DSC + ASM active suspension + SRS + TCB telematics + ATC climate + Pivi Pro IVI + ADAS + smart key. **23 DIDs** including model code, assembly plant, calibration ID, Topix release, factory options, vehicle mileage, oil temperature / life, runtime, boost pressure, fuel level, ambient temp, I-Pace HV pack voltage / SOC / SOH / range / charge status, four-corner air-suspension heights, Terrain Response selected mode enum. **9 routines** (oil-life reset, SAS, air-suspension calibration, battery registration, DPF regen, smart-key relearn, brake bleed).
+- **`OBD.OEM.Iveco`** — Iveco S.p.A. (2 WMIs: ZCF Italy + VCF Spain). **14-ECU map** with FPT Cursor / NEF / S-FE engine + EuroTronic / HI-TRONIX AMT + power steering + Knorr-Bremse EBS + Intarder retarder + DID + body computer + VCM + BCM + ACM aftertreatment + TPMS + forward radar + eDaily EV charge + drive motor. **20 DIDs** with model code, emissions package, engine serial, chassis serial, options, mileage, engine hours, oil pressure / temperature, fuel rate / lifetime, boost, coolant temp, DEF tank level / quality, DPF soot load / temperatures / distance-since-regen, eDaily HV pack voltage / SOC / motor temp. **7 routines**.
+- **`OBD.OEM.Isuzu`** — Isuzu Motors (7 WMIs: JAA / JAB / JAL / JAN / JAH Japan, 5RY / 4GD US Charlotte MI). **11-ECU map** for engine ECM (4HK1 / 6HK1 / 6WG1 / RZ4E / 4JJ1) + Aisin / MZW / Smoother AT + power steering + ABS / ESC + Telma retarder + IDD cluster + body computer + ASC stability + cab body + aftertreatment + TPMS. **20 DIDs** with chassis code, engine code, calibration ID, emissions family, mileage, engine hours, oil pressure / temperature, coolant temp, RPM, boost, common-rail pressure, fuel rate / lifetime, DEF tank level, DPF soot load / inlet+outlet temp / distance-since-regen, transmission oil temp + clutch wear, 24 V battery voltage. **7 routines**.
+- **`OBD.OEM.Rivian`** — Rivian Automotive (1 WMI: 7PD Normal IL). **16-ECU map** including VCU + four motor inverters (FL / FR / RL / RR for the quad-motor R1) + driver display + Driver+ ADAS + camera fusion + BCM + rear body / Gear Tunnel / Tailgate + heat pump + central gateway + BMS + charge port + thermal management + air-suspension. **22 DIDs** including model code, drivetrain (Quad / Dual / Performance Dual / Tri-motor), battery pack ID, software release, mileage, 12 V battery voltage, HV pack voltage / SOC / SOH / temp min/max, remaining range, recent consumption, charge status, charge-session kWh, four motor temperatures, four-corner air-suspension heights, drive-mode enum (All-Purpose / Conserve / Sport / Off-Road Auto / Off-Road Rally / Off-Road Drift / Off-Road Rock Crawl / Tow). **5 routines**.
+- **`OBD.OEM.Polestar`** — Polestar Performance AB / Geely (2 WMIs: LPS Polestar 2 + LFP Polestar 4 — does NOT collide with Volvo Cars). **15-ECU map** with CEM + DIM + HUD + SRS + ABS + PDM + climate / heat pump + Sensus Android Automotive IHU + TCAM telematics + BMS + on-board charger + front + rear motor inverters + Pilot Assist + Luminar lidar (P3 / P4). **23 DIDs** including model code, drivetrain, motor package, software release, options, mileage, ambient temp, range, consumption average, HV pack voltage / SOC / SOH / temp min/max, charge status / session kWh, motor temps, front + rear axle torque request, brake-pad remaining. **6 routines**.
+
+### Added (DTC starters, 100 entries combined)
+- `dtc-porsche.json`: 22 codes (cylinder misfires P0301-P0306, hybrid system on Taycan, ceramic brakes, KESSY, CAN-FD bus).
+- `dtc-jlr.json`: 18 codes (Ingenium turbo, AJ-V8 catalysts, ZF8HP TCC, I-Pace HV system, air suspension compressor + leak + reservoir, Pivi Pro touchscreen, telematics).
+- `dtc-iveco.json`: 15 codes (Cursor fuel rail, EGR, J1939 SPN-FMI for DPF / SCR / DEF inducement, Daily 3.0 DEF heater).
+- `dtc-isuzu.json`: 17 codes (4HK1/6HK1 VGT, RZ4E fuel rail, MZW transmission, J1939 SPN-FMI for DPF / SCR).
+- `dtc-rivian.json`: 14 codes (HV isolation, drive-motor temp, DC/DC, VCU CRC, BMS comm, IVI, air suspension, quad-motor torque vectoring).
+- `dtc-polestar.json`: 14 codes (HV isolation, motor temp, DC/DC, battery cooling, BMS / IHU / TCAM comm-loss).
+
+### Tests
+- `Tests.OEM.Premium` — 19 new test cases: VIN routing for all 6 OEMs (Porsche WP0/WP1, JLR all 4 plants, Iveco IT/ES, Isuzu JP/US, Rivian Normal IL, Polestar non-Volvo-Cars), Polestar-vs-Volvo-Cars collision guard, catalog spot-checks (Porsche PDK + PASM, JLR air-suspension routine, Iveco FPT engine, Isuzu aftertreatment ECU, Rivian quad-motor count, Polestar EVCC + Pilot Assist), decoder spot-checks for each OEM's distinguishing DID.
+
+### Changed
+- `Packages/RunTime.dpk` adds the 6 new units. The OEM registry now resolves **34 OEMs** total — 23 passenger + 6 heavy-duty + 5 Chinese.
+- `examples/diagtool/DiagTool.dpr` self-registers the 6 new extensions in its uses clause so VIN-based routing in the reference VCL tool covers them out of the box.
+
+### Notes
+- Catalogs ship the depth tool-builders actually need: ~30 DIDs and ~6-9 routines per OEM, similar to the established VW (52) / BMW (43) / Ford (35) / Toyota (32) catalogs from prior milestones. Combined v3.22 contribution: **185 new DID + routine entries + 100 new DTC entries** across 12 JSON catalogs.
+- Per-OEM entries remain `verified: false` per the v3.3 provenance contract — sourced from the published community references the v3.18 vocabulary documents (piwis-community, sdd-community / topix-public, iveco-easy-community, idss-community, rivian-community, polestar-community).
+- All 12 new catalog files validated to parse cleanly via external `json.load`.
+
 ## [3.21.0] - 2026-05-07 — Catalog deepening (round 2)
 
 ### Added (universal catalogs)
