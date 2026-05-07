@@ -232,6 +232,17 @@ manuals where available.
 
 ## Phase 3 — Coding / variant-write encoders (🟠 L per OEM)
 
+> **v3.8 status:** ✅ Codec primitives shipped. Five units —
+> `OBD.OEM.Coding` (shared base), `OBD.OEM.Coding.VW` (long
+> coding), `OBD.OEM.Coding.BMW` (FA + I-Stufe),
+> `OBD.OEM.Coding.Mercedes` (SCN), and `OBD.OEM.Coding.Ford`
+> (AsBuilt blocks with FORScan checksum) — model the wire format
+> on each side. The next layer up (per-controller bit-name maps
+> for VAG long coding, per-FIN SCN dictionaries) belongs to
+> caller-supplied data files; many of those are NDA-protected so
+> the framework provides the editing surface and lets production
+> users overlay their semantics.
+
 For dealer-style ECU coding:
 
 - **VW long coding** — bit-field strings, e.g.

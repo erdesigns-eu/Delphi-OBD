@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-05-07 — OEM Catalog Phase 3 (coding / variant-write encoders)
+
+### Added
+- **`OBD.OEM.Coding`** — shared base for OEM coding codecs. Exposes `HexStringToBytes` (strips whitespace + `-_:.` separators, rejects odd-length / non-hex), `BytesToHexString` (with optional separator), and bit-level `GetBit` / `SetBit` over a `TBytes`.
+- **`OBD.OEM.Coding.VW`** — `TOBDVWLongCoding` mutable VAG long-coding string. Constructed from the hex returned by DID 0xF1A0 / 0xF1AF, gives byte and bit accessors, `HasNonZeroByte` for the dealer-tools "is this fresh coding?" check, and round-trips back via `ToHex`. Length is per-controller and fixed at construction; out-of-range writes raise `EOBDCodingError`.
+- **`OBD.OEM.Coding.BMW`** — two records:
+  - `TOBDBMWFA` — vehicle-order option list. Parses comma / semicolon / whitespace-separated tokens, normalises to upper case, de-duplicates on add, sorts on `ToString` so equal orders always serialise identically (audit-friendly).
+  - `TOBDBMWIStufe` — `Project-YY-MM-Build` versioning quad. `Parse` validates each segment; `CompareTo` orders by Project → Year → Month → Build; `AtLeast` returns False across different projects (you should never compare an F-series to a G-series I-Stufe).
+- **`OBD.OEM.Coding.Mercedes`** — `TOBDMercedesSCN` structured SCN (Standard-Codierung-Nummer). The framework treats segments as opaque strings — Hardware / Project / Build — and only validates the structure (3 segments, alphanumeric-only). Per-segment semantics live in caller-supplied lookup tables since they're FIN-keyed and NDA-protected.
+- **`OBD.OEM.Coding.Ford`** — `TOBDFordAsBuiltBlock` for the per-DID 5-byte format used by FORScan / IDS exports. `ComputeChecksum` implements the documented FORScan algorithm (sum of all 5 data bytes mod 256); `IsValid` validates a parsed block; `Reseal` recomputes after editing. `ParseFordAsBuiltText` walks a multi-line export, skipping blank lines and `;` / `#` comments.
+- `Tests.OEM.Coding` — 38 new test cases: hex/bit helpers (round-trip, separator stripping, odd-length rejection, bad-character rejection, bit operations + out-of-range), VW long coding (construction, byte/bit ops, has-non-zero detection, hex round-trip, snapshot independence, out-of-range rejection), BMW FA (parsing, dedup, normalisation, removal, sort-on-serialise, case-insensitive lookup, empty rejection), BMW I-Stufe (parse round-trip, malformed input rejection, ordering by Y/M/Build, cross-project AtLeast, zero-padding), Mercedes SCN (3-segment parsing, segment-count rejection, illegal-character rejection, upper-casing, round-trip), Ford AsBuilt (checksum algorithm, line parsing, missing-checksum rejection, reseal-after-edit, comment skipping, round-trip).
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.Coding`, `.VW`, `.BMW`, `.Mercedes`, `.Ford`.
+
+### Notes
+- These are the codec primitives — the wire format on each side. Per-controller bit-name maps for VW long coding and per-FIN SCN dictionaries belong to caller-supplied data files (and in many cases NDA-protected OEM catalogs); the framework gives you the mutable structure plus byte / bit accessors so an application can layer its own UI on top.
+- Phase 4 (RoutineControl argument schemas — input encoders + output decoders) is the next milestone.
+
 ## [3.7.0] - 2026-05-07 — OEM Catalog Phase 2 (DTC catalogs)
 
 ### Added

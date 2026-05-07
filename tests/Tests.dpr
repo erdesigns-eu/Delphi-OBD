@@ -51,7 +51,8 @@ uses
   Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas',
   Tests.OEM.Session in 'Tests.OEM.Session.pas',
   Tests.OEM.SeedKey in 'Tests.OEM.SeedKey.pas',
-  Tests.OEM.DTC in 'Tests.OEM.DTC.pas';
+  Tests.OEM.DTC in 'Tests.OEM.DTC.pas',
+  Tests.OEM.Coding in 'Tests.OEM.Coding.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

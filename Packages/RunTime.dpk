@@ -113,6 +113,11 @@ contains
   OBD.OEM.Session.Runner in '..\src\Services\OBD.OEM.Session.Runner.pas',
   OBD.OEM.SeedKey in '..\src\Services\OBD.OEM.SeedKey.pas',
   OBD.OEM.DTC in '..\src\Services\OBD.OEM.DTC.pas',
-  OBD.OEM.DTC.Loader in '..\src\Services\OBD.OEM.DTC.Loader.pas';
+  OBD.OEM.DTC.Loader in '..\src\Services\OBD.OEM.DTC.Loader.pas',
+  OBD.OEM.Coding in '..\src\Services\OBD.OEM.Coding.pas',
+  OBD.OEM.Coding.VW in '..\src\Services\OBD.OEM.Coding.VW.pas',
+  OBD.OEM.Coding.BMW in '..\src\Services\OBD.OEM.Coding.BMW.pas',
+  OBD.OEM.Coding.Mercedes in '..\src\Services\OBD.OEM.Coding.Mercedes.pas',
+  OBD.OEM.Coding.Ford in '..\src\Services\OBD.OEM.Coding.Ford.pas';
 
 end.
