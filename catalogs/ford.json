@@ -63,7 +63,16 @@
     { "did": "0xDF03", "name": "ford_pats_status",       "description": "PATS (Passive Anti-Theft) status enum", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
       "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "alarm", "0x03": "fault"} } },
     { "did": "0xDF04", "name": "ford_keys_count",        "description": "Number of programmed keys (Ford PATS)", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
-      "decoder": { "kind": "uint8" } }
+      "decoder": { "kind": "uint8" } },
+
+    { "did": "0xDE08", "name": "ford_ecoboost_intake_air_temp", "description": "EcoBoost intake-air temperature (after intercooler, °C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xDE09", "name": "ford_engine_runtime_lifetime", "description": "Engine runtime lifetime (h, Ford Tier-3)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
+    { "did": "0xDE0A", "name": "ford_oil_life_remaining",     "description": "Oil life remaining (%, Ford IPC)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x726",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xDF05", "name": "ford_powertrain_immo_status", "description": "Powertrain immobilizer status (PATS)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "fault"} } }
   ],
   "routines": [
     { "id": "0x0202", "name": "kam_reset",            "description": "Keep-Alive Memory reset",          "source": "forscan-community", "verified": false },

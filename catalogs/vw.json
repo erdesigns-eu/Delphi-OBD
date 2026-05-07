@@ -84,7 +84,18 @@
     { "did": "0x028E", "name": "vag_dsg_clutch_wear_k1",      "description": "DSG clutch K1 wear (%)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E1",
       "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
     { "did": "0x028F", "name": "vag_dsg_clutch_wear_k2",      "description": "DSG clutch K2 wear (%)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E1",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+
+    { "did": "0xF430", "name": "vag_diesel_rail_pressure",    "description": "Diesel common-rail pressure (bar)", "source": "ross-tech-wiki/Long_coding_helper", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "bar" } },
+    { "did": "0xF431", "name": "vag_adblue_tank_level",       "description": "AdBlue tank level (%, VAG TDI Euro 6d)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
+    { "did": "0xF433", "name": "vag_dpf_distance_since_regen","description": "Distance since last DPF regeneration (km)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "unit": "km" } },
+    { "did": "0xF435", "name": "vag_charge_air_temperature",  "description": "Charge-air (intercooler) temperature (°C)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0x0290", "name": "vag_dsg_oil_pressure",        "description": "DSG oil pressure (bar)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "bar" } }
   ],
   "routines": [
     { "id": "0x0203", "name": "reset_long_term_fuel_trim", "description": "Reset adaptive trims",            "source": "ross-tech-wiki",  "verified": false, "ecu_address": "0x7E0" },

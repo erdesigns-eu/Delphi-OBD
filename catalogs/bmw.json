@@ -77,7 +77,18 @@
     { "did": "0xD401", "name": "bmw_egs_clutch_wear", "description": "EGS clutch wear estimate (%)", "source": "esys-community", "verified": false, "ecu_address": "0x07",
       "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
     { "did": "0xC100", "name": "bmw_dsc_yaw_rate", "description": "DSC yaw-rate sensor (°/s, signed)", "source": "esys-community", "verified": false, "ecu_address": "0x29",
-      "decoder": { "kind": "int16_be", "scale": 0.0125, "unit": "deg/s" } }
+      "decoder": { "kind": "int16_be", "scale": 0.0125, "unit": "deg/s" } },
+
+    { "did": "0xD305", "name": "bmw_oil_quality",         "description": "Engine oil quality (%, BMW CBS)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x40",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD306", "name": "bmw_remaining_oil_distance","description": "Remaining distance to next oil service (km)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x40",
+      "decoder": { "kind": "uint16_be", "unit": "km" } },
+    { "did": "0xD307", "name": "bmw_brake_pad_front_remaining_pct","description": "Front brake-pad remaining (%)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x40",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD308", "name": "bmw_brake_pad_rear_remaining_pct", "description": "Rear brake-pad remaining (%)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x40",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD500", "name": "bmw_xdrive_torque_split",  "description": "xDrive torque split (% to rear)", "source": "esys-community", "verified": false, "ecu_address": "0x29",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
   ],
   "routines": [
     { "id": "0x0F03", "name": "fa_write",                  "description": "Write FA / vehicle order",          "source": "esys-community", "verified": false, "ecu_address": "0x10" },

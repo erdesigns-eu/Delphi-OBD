@@ -44,6 +44,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.18 Catalog deepening + verification protocol | ~70 new DID + routine entries across 17 passenger OEM catalogs (VW + BMW + Ford + Toyota deepened significantly; MB, GM, Stellantis, Honda, HMG, Nissan, Subaru, Mazda, Renault, Volvo each grow). Acceptable-citations table and provenance vocabulary added to CATALOG_FORMAT.md. New catalog-load smoke fixture covers all 31 shipped JSON catalogs | ✅ Tagged v3.18.0 (2026-05-07) |
 | v3.19 Engine-OEM auto-routing | IOBDOEMExtension.ApplicableToECUSupplier + TOBDOEMRegistry.FindByECUSupplier — engine OEMs (Cummins, Detroit Diesel) now route on J1939 PGN 65259 'Make' / ISO 14229 DID 0xF18A instead of always returning False from ApplicableToVIN | ✅ Tagged v3.19.0 (2026-05-07) |
 | v3.20 Reference VCL diagnostic tool | examples/diagtool — full programmatic VCL app with connection wizard, OEM auto-detect via VIN, session control, live-data dashboard, DTC reader with catalog lookup, DID browser, routine runner. All 28 OEM extensions self-register | ✅ Tagged v3.20.0 (2026-05-07) |
+| v3.21 Catalog deepening (round 2) | +54 verified P/U codes in dtc-iso-15031 (149 total verified universal DTCs); +5 verified PIDs in obd2-pids (85 total); +14 per-OEM entries across VW/BMW/Ford. Citation discipline: every universal entry cites SAE J2012 / J1979 / ISO 15031-6 | ✅ Tagged v3.21.0 (2026-05-07) |
 
 ---
 

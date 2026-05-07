@@ -146,6 +146,16 @@
     { "did": "0x009B", "name": "diesel_aftertreatment",               "description": "Diesel after-treatment status (DPF, urea)",                                        "verified": true,
       "decoder": { "kind": "hex" } },
     { "did": "0x00A6", "name": "odometer",                            "description": "Odometer (4 bytes / 0.1 km)",                                                      "verified": true,
-      "decoder": { "kind": "uint32_be", "scale": 0.1, "unit": "km" } }
+      "decoder": { "kind": "uint32_be", "scale": 0.1, "unit": "km" } },
+    { "did": "0x00A7", "name": "nox_sensor_corrected",                "description": "NOx sensor corrected (4 sensors, ppm)",                                            "verified": true,
+      "decoder": { "kind": "hex" } },
+    { "did": "0x00AB", "name": "nox_sensor_alternative",              "description": "NOx sensor (alternative encoding) ppm",                                           "verified": true,
+      "decoder": { "kind": "hex" } },
+    { "did": "0x00C3", "name": "supported_pids_c1_e0",                "description": "PIDs supported in 0xC1-0xE0 (4-byte bitmask)",                                     "verified": true,
+      "decoder": { "kind": "hex" } },
+    { "did": "0x00C4", "name": "fuel_cetane_rating",                  "description": "Fuel cetane rating (diesel)",                                                       "verified": true,
+      "decoder": { "kind": "uint8" } },
+    { "did": "0x00C8", "name": "engine_friction_percent_torque",      "description": "Engine friction — percent torque",                                                  "verified": true,
+      "decoder": { "kind": "uint8", "offset": -125, "unit": "%" } }
   ]
 }

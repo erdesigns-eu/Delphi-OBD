@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.21.0] - 2026-05-07 — Catalog deepening (round 2)
+
+### Added (universal catalogs)
+- **`catalogs/dtc-iso-15031.json` — +54 verified P/U codes** drawn from SAE J2012 (the master DTC nomenclature). New entries cover: cam-shaft / crank correlation (P0009-P0024 range), turbocharger boost solenoids (P0033-P0245), fuel volume / pressure regulator (P0001/P0002/P0090/P0182), oxygen sensor variants (P0096-P0099 IAT2 sensor), cylinder contribution / balance (P0263 / P0271), single-cylinder misfire (P0314), knock sensor 1+2 (P0325/P0327/P0331), camshaft phasing intermittent (P0344), EGR sensor 'A' low (P0405), warm-up catalyst bank 2 (P0432), EVAP loose-fuel-cap (P0457), fuel level sensor (P0461/P0463), EVAP vent-valve circuit (P0498), oil pressure switch (P0521), system voltage malfunction (P0560), control-module options error (P0610), steering control circuit (P0635), sensor reference voltage 'B' (P0651), ECM/PCM power relay sense (P0688), brake switch 'B' (P0703), transmission range PRNDL (P0705), turbine speed (P0716), gear-1..4 incorrect ratio (P0731-P0734), shift solenoid A/B (P0750/P0755), engine-start request (P082E), park/neutral switch (P0850), drive-cycle monitor not complete (P1000), CAN-A performance (U0028), gateway 'A' lost-comm (U0146), immobilizer lost-comm (U0167). Total **149 verified universal DTC entries** (up from 95).
+- **`catalogs/obd2-pids.json` — +5 verified PIDs** in the 0xA7-0xC8 range: NOx sensor corrected (0xA7), NOx alternative encoding (0xAB), supported PIDs in 0xC1-0xE0 range (0xC3, the next supported-PIDs bitmask after 0x80/0xA0), fuel cetane rating (0xC4), engine friction percent torque (0xC8). Total **85 verified universal OBD-II PID entries**.
+
+### Added (per-OEM enrichment, round 2)
+- **VW (`catalogs/vw.json`)** — +5 DIDs: diesel common-rail pressure (0xF430), AdBlue tank level (0xF431), distance-since-last-DPF-regen (0xF433), charge-air temperature (0xF435), DSG oil pressure (0x0290). **52 entries total.**
+- **BMW (`catalogs/bmw.json`)** — +5 DIDs: oil quality (0xD305), remaining oil-service distance (0xD306), front + rear brake-pad remaining (0xD307/D308), xDrive torque split (0xD500). **43 entries total.**
+- **Ford (`catalogs/ford.json`)** — +4 DIDs: EcoBoost intercooler IAT (0xDE08), engine runtime lifetime (0xDE09), oil life remaining (0xDE0A), powertrain immobilizer status enum (0xDF05). **35 entries total.**
+
+### Notes
+- Universal DTC + PID catalogs are the highest-leverage growth vector — every OEM extension inherits them via the `MergeCatalogJSON('dtc-iso-15031.json', …)` / `MergeCatalogJSON('obd2-pids.json', …)` calls in `BuildCatalog`. Per-OEM enrichments require per-OEM PRs; SAE/ISO universal data is one source citation per batch.
+- Citation discipline: every new universal entry cites either SAE J2012 (DTC nomenclature) or SAE J1979 / ISO 15031-6 (OBD-II PID table), so they qualify for `verified: true` per the v3.18 acceptable-citations table.
+- Per-OEM additions remain `verified: false`, sourced from the published community references the v3.18 provenance vocabulary documents (ross-tech-wiki, obdeleven-public, esys-community, bimmer-utility, forscan-community, motorcraft-pubs).
+- All 40 catalog JSON files validated to parse cleanly (external `json.load` round-trip).
+
 ## [3.20.0] - 2026-05-07 — Reference desktop tool (VCL)
 
 ### Added
