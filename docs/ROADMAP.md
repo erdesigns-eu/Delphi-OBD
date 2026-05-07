@@ -33,6 +33,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.7 OEM Catalog Phase 2   | DTC catalogs: ISO 15031-5 wire encoding helpers, TOBDDtcCatalog with provenance flags, 47-entry verified universal P0xxx/U0xxx baseline + 7-9-entry per-OEM starters, IOBDOEMExtension.DescribeDTC / DtcCatalog | ✅ Tagged v3.7.0 (2026-05-07) |
 | v3.8 OEM Catalog Phase 3   | Coding / variant-write encoders: VW long-coding (TOBDVWLongCoding), BMW FA + I-Stufe (TOBDBMWFA, TOBDBMWIStufe), Mercedes SCN (TOBDMercedesSCN), Ford AsBuilt blocks with FORScan checksum (TOBDFordAsBuiltBlock + ParseFordAsBuiltText) | ✅ Tagged v3.8.0 (2026-05-07) |
 | v3.9 OEM Catalog Phase 4   | RoutineControl (UDS 0x31) framework: TOBDRoutineRequestBuilder + TOBDRoutineResponseReader, BuildStartRoutine / Stop / RequestResults / ParseRoutineResponse, TOBDRoutineSchema + DecodeRoutineOutput | ✅ Tagged v3.9.0 (2026-05-07) |
+| v3.10 OEM Catalog Phase 5  | Capture-replay validation: OBD.OEM.Captures pairs Sent → Received from .obdlog, extracts SID / DID / payload, runs 0x22 reads through Ext.DecodeDID; 4 sample synthetic captures + 12 tests | ✅ Tagged v3.10.0 (2026-05-07) |
 
 ---
 

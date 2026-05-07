@@ -322,6 +322,16 @@ runtime so callers don't manually splice byte arrays.
 
 ## Phase 5 — Test coverage from real captures (🔴 M per OEM)
 
+> **v3.10 status:** ✅ Validation framework shipped.
+> `OBD.OEM.Captures` walks a `TOBDReplayer` and pairs each
+> Sent → next-Received line, extracts the UDS service ID + DID +
+> payload, and runs 0x22 ReadDataByIdentifier pairs through the
+> OEM extension's `DecodeDID`. Synthetic fixtures live in
+> `tests/fixtures/captures/` (one per OEM, exercising VIN, mileage,
+> I-Stufe, programming status, calibration ID, plus a deliberate
+> negative response). Real ECU captures donated by the community
+> drop straight into the same path.
+
 For each OEM, capture a representative real-world session via
 `TOBDRecorder` (the `.obdlog` format from v2.3) covering:
 - Session start

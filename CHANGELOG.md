@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-05-07 — OEM Catalog Phase 5 (capture-replay validation)
+
+### Added
+- **`OBD.OEM.Captures`** — replay-driven validation of OEM extensions against recorded `.obdlog` conversations. Walks a `TOBDReplayer`'s entries, pairs each Sent line with its next Received line, normalises ELM327 framing (multi-line `0:` / `1:` prefixes, `SEARCHING…`, prompts), extracts the UDS service ID + DID + payload from the request and the matching response, and runs every `0x22 ReadDataByIdentifier` pair through the OEM extension's `DecodeDID`.
+- `TOBDCapturePair` — one structured request/response from the conversation: `RequestText`, `ResponseText`, `ServiceID`, `DID` (when 0x22), `PayloadBytes` (with the SID + DID echo stripped on positive replies), `IsNegative` + `NegativeResponseCode` for `7F SID NRC` replies.
+- `TOBDCaptureDecoded` — the validator's per-pair report: which OEM catalog entry it matched (`DidIsCatalogued` + `DidName`) and the decoder's `Display` output. Negative replies and non-0x22 service IDs flow through with their pair attached for caller-side post-processing.
+- High-level helpers: `ExtractCapturePairs(entries)`, `ValidateAgainstExtension(pairs, ext)`, `ValidateCaptureFile(path, ext)` for the round-trip "give me a `.obdlog`, give me an OEM extension, tell me what each pair decodes to". `NormalizeResponseText` is exposed so callers can pre-process recorded data outside the validator.
+- `tests/fixtures/captures/sample-{vw,bmw,mercedes,ford}.obdlog` — synthetic conversations exercising VIN reads, mileage, I-Stufe, programming-status, calibration-id, and a deliberate negative response per file. Cover the most common DIDs the v3.4 + v3.7 catalogs already decode.
+- `Tests.OEM.Captures` — 12 new test cases. Extract layer: ELM multi-line stripping, prompt / SEARCHING handling, request/response pairing, DID extraction from `22 HiDID LoDID`, negative-response capture, response-echo stripping for non-0x22 services, hanging-request handling. Validator layer: VW capture decodes the F190 VIN read and surfaces the negative reply; BMW capture decodes I-Stufe + mileage; Mercedes capture decodes the F19E programming-status enum; Ford capture decodes the calibration-ID DF01; negative responses round-trip the NRC byte.
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.Captures`.
+
+### Notes
+- The shipped fixtures are synthetic — exactly the bytes a real ECU would return for the catalogued DIDs, but hand-authored. Real ECU captures donated by the community are the natural growth path; the framework already accepts whatever `TOBDRecorder.SaveToFile` produces, so contributors only need to capture-and-commit.
+- Phase 6 (DoIP / FlexRay / multi-bus extensions on top of the existing protocol layer) is the next milestone.
+
 ## [3.9.0] - 2026-05-07 — OEM Catalog Phase 4 (RoutineControl schemas)
 
 ### Added
