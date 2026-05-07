@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.20.0] - 2026-05-07 — Reference desktop tool (VCL)
+
+### Added
+- **`examples/diagtool/`** — full reference VCL diagnostic tool that exercises every shipping framework API end-to-end. Built programmatically (no `.dfm`) so the project has just two files (`DiagTool.dpr` + `DiagTool.MainForm.pas`) — drop them into any Delphi 11/12 VCL project as a starter template.
+- **Connection wizard** — port + baud combo boxes drive `TOBDConnectionSerial` / `TOBDConnectionAsync` lifecycle (Connect / Disconnect with proper teardown).
+- **OEM auto-detect** — Read VIN button issues OBD-II Service 09 PID 02; the response routes through `TOBDOEMRegistry.FindByVIN` and the form labels update to show display name + manufacturer key + the chosen session negotiator.
+- **Session control** — Extended → button calls `TOBDDiagSession.BeginSession(sstExtendedDiagnostic, $7E0)` so the OEM-specific choreography (VW SH+CRA / BMW E-Sys / Mercedes XENTRY F198 / Ford ST 32 / GM SP 6 / Stellantis F198) and the heartbeat thread come for free. End Session reverses cleanly.
+- **Live Data tab** — refreshes battery voltage / engine RPM / vehicle speed / coolant temperature via standard SAE J1979 Service 01 PIDs (0x42 / 0x0C / 0x0D / 0x05).
+- **DTCs tab** — Service 03 read populates a list; Service 04 clear is gated by a confirmation dialog. Selecting a code calls `IOBDOEMExtension.DescribeDTC` and the right-pane memo shows the catalog entry (description + severity + possible causes + repair hints + source + verified flag).
+- **DIDs tab** — combo-box auto-populates from the OEM's `DataIdentifiers` catalog (universal `uds-standard.json` entries + per-OEM overlay). Read DID issues `TOBDDiagSession.ReadDID`, runs the response through `IOBDOEMExtension.DecodeDID`, and appends a transcript line per read.
+- **Routines tab** — combo-box of catalogued `RoutineControl` identifiers; Start (31 01) issues `TOBDDiagSession.StartRoutine` and prints the status payload.
+- All 28 OEM extensions self-register via the `.dpr` uses clause so VIN-based routing works for any of the 17 passenger / 6 heavy-duty / 5 Chinese OEMs.
+- `examples/diagtool/README.md` documents the architecture, the build steps, and the deliberate limitations (single-ECU model, no SecurityAccess UI, synchronous reads on the UI thread for clarity).
+
+### Changed
+- Nothing. The tool consumes the framework as-is.
+
+### Notes
+- The companion console example (`examples/diagsession_console`, v3.13) is the minimal proof-of-concept; the v3.20 VCL tool is the proof-of-product showing every framework API in one place. Together they cover the spectrum from "bare-minimum integration" to "ship-ready GUI tool".
+
 ## [3.19.0] - 2026-05-07 — Engine-OEM auto-routing
 
 ### Added
