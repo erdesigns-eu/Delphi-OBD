@@ -1,0 +1,35 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "GEELY",
+  "display_name": "Geely Auto / Lynk & Co",
+  "applicable_wmis": ["LB3","LFM","LJV","LBE","LGZ"],
+  "default_source": "geely-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCU — Transmission Control" },
+    { "address": "0x7E2", "name": "hybrid",       "common_name": "Hybrid Vehicle Control (PHEV)" },
+    { "address": "0x7E5", "name": "evcc",         "common_name": "EV Charge Controller (Geometry / Zeekr)" },
+    { "address": "0x720", "name": "cluster",      "common_name": "Instrument Cluster" },
+    { "address": "0x740", "name": "bcm",          "common_name": "BCM" },
+    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x762", "name": "abs",          "common_name": "ABS / ESP" },
+    { "address": "0x768", "name": "climate",      "common_name": "Climate Control" },
+    { "address": "0x724", "name": "adas",         "common_name": "ADAS / driver-assistance" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "geely_platform_code", "description": "Geely platform code (CMA / SEA / SPA / BMA)", "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "geely_market_code",   "description": "Geely market / region code",                  "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage",     "description": "Vehicle mileage (km)", "ecu_address": "0x720",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage",     "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD060", "name": "ev_pack_voltage",     "description": "EV pack voltage (V, Geometry / Zeekr)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
+    { "did": "0xD061", "name": "ev_pack_soc",         "description": "EV pack SOC (%)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } }
+  ],
+  "routines": []
+}

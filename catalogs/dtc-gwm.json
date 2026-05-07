@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Great Wall Motor DTC starter",
+  "default_source": "gwm-community",
+  "dtcs": [
+    { "code": "P0299", "severity": "warning", "description": "GWM 2.0T (GW4N20) — Turbo underboost", "verified": false },
+    { "code": "P0420", "severity": "warning", "description": "Catalyst System Efficiency Bank 1 (Haval / WEY)", "verified": false },
+    { "code": "P0741", "severity": "warning", "description": "Torque Converter Clutch Performance (GWM 9HAT)", "verified": false },
+    { "code": "P0A80", "severity": "critical", "description": "Replace Hybrid Battery Pack (Hi4 / ORA)", "verified": false },
+    { "code": "U0293", "severity": "critical", "description": "Lost Communication With BMS (ORA / Coffee EV)", "verified": false },
+    { "code": "B100F", "severity": "warning", "description": "GWM Coffee Pilot — front-camera obstructed", "verified": false }
+  ]
+}

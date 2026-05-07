@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "XPENG",
+  "display_name": "Xpeng Motors (XPeng Inc.)",
+  "applicable_wmis": ["LJY","LMZ"],
+  "default_source": "xpeng-community",
+  "ecus": [
+    { "address": "0x7E0", "name": "vcu",          "common_name": "VCU — Vehicle Control Unit" },
+    { "address": "0x710", "name": "motor_front",  "common_name": "Front Motor Inverter" },
+    { "address": "0x712", "name": "motor_rear",   "common_name": "Rear Motor Inverter" },
+    { "address": "0x782", "name": "bms",          "common_name": "BMS — Battery Management" },
+    { "address": "0x792", "name": "charge",       "common_name": "Charge Port + AC/DC charger" },
+    { "address": "0x720", "name": "cluster",      "common_name": "Instrument Cluster" },
+    { "address": "0x724", "name": "xpilot",       "common_name": "XPILOT — Xpeng ADAS computer" },
+    { "address": "0x762", "name": "bcm",          "common_name": "BCM" },
+    { "address": "0x768", "name": "climate",      "common_name": "Climate Control / Heat Pump" },
+    { "address": "0x770", "name": "xui",          "common_name": "Xmart OS — Cabin computer" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "xpeng_model_code",     "description": "Xpeng model code (e.g. P7, G6, X9)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "xpeng_xpilot_version", "description": "XPILOT software version", "ecu_address": "0x724",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "battery_pack_voltage", "description": "Pack voltage (V)", "ecu_address": "0x782",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
+    { "did": "0xD051", "name": "battery_pack_soc",     "description": "Pack SOC (%)", "ecu_address": "0x782",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD060", "name": "charge_status", "description": "Charge port status", "ecu_address": "0x792",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } }
+  ],
+  "routines": []
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Xpeng DTC starter",
+  "default_source": "xpeng-community",
+  "dtcs": [
+    { "code": "P0A0F", "severity": "warning", "description": "Engine fail to start (not applicable on EV — should never fire)", "verified": false },
+    { "code": "P0A2A", "severity": "warning", "description": "Drive Motor 'A' Temperature Sensor Circuit (Xpeng)", "verified": false },
+    { "code": "P0D38", "severity": "warning", "description": "On-board charger DC/DC performance (Xpeng)", "verified": false },
+    { "code": "U0293", "severity": "critical", "description": "Lost Communication With BMS (Xpeng)", "verified": false },
+    { "code": "B153F", "severity": "warning", "description": "Xpeng XPILOT front-radar — performance degraded", "verified": false },
+    { "code": "C141C", "severity": "warning", "description": "Xpeng — ESP / yaw-rate plausibility", "verified": false }
+  ]
+}

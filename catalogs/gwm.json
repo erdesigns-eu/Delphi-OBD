@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "GWM",
+  "display_name": "Great Wall Motor (Haval / WEY / ORA / Tank / Poer)",
+  "applicable_wmis": ["LGW","LGE","LGT","X9X"],
+  "default_source": "gwm-community / e-drive-toolbox-leak",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
+    { "address": "0x7E1", "name": "transmission", "common_name": "TCU — incl. 9HAT" },
+    { "address": "0x7E2", "name": "hybrid",       "common_name": "GWM Hi4 hybrid controller (PHEV)" },
+    { "address": "0x7E5", "name": "evcc",         "common_name": "EV Charge Controller (ORA / Coffee EV)" },
+    { "address": "0x720", "name": "cluster",      "common_name": "Instrument Cluster" },
+    { "address": "0x740", "name": "bcm",          "common_name": "BCM" },
+    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
+    { "address": "0x762", "name": "abs",          "common_name": "ABS / ESP" },
+    { "address": "0x768", "name": "climate",      "common_name": "Climate Control" },
+    { "address": "0x724", "name": "adas",         "common_name": "ADAS / Coffee Pilot" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "gwm_brand_code",    "description": "GWM brand code (HAVAL/WEY/ORA/TANK/POER)", "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "gwm_platform_code", "description": "GWM platform code (Lemon / Tank / Coffee)", "ecu_address": "0x740",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage (km)", "ecu_address": "0x720",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD051", "name": "battery_voltage", "description": "12 V battery voltage (mV)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD060", "name": "ev_pack_voltage", "description": "ORA / Coffee EV pack voltage (V)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } }
+  ],
+  "routines": []
+}

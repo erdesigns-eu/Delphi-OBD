@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.0] - 2026-05-07 — Chinese OEMs (BYD / Geely / NIO / Xpeng / GWM)
+
+### Added (5 new Chinese OEM extensions)
+- **`OBD.OEM.BYD`** — BYD Auto Co. Ltd. (3 WMIs: L6T, LGX, 8GA — Xi'an + Changsha + Brazil). 9-ECU e-Platform 3.0 map: VCU + drive motor + Blade-battery BMS at 0x782 + charge port + iBooster electronic brake + DiPilot driver assistance + climate. Blade battery pack ID + model code DIDs; pack voltage / SOC / SOH; charge-status enum.
+- **`OBD.OEM.Geely`** — Geely Auto + Lynk & Co + Zeekr (5 WMIs: LB3, LFM, LJV, LBE, LGZ). 10-ECU map across CMA / SEA / SPA / BMA platforms. Geely platform code + market code DIDs; covers ICE + PHEV (Hi4-shared) + Geometry/Zeekr EV charge controller. Volvo Cars (Geely-owned) stays on `OBD.OEM.Volvo` — collision guard test included.
+- **`OBD.OEM.NIO`** — NIO Inc. (2 WMIs: LJN, LBL). EV-only; 10-ECU map for the Hefei plant: VCU + dual-motor (front + rear inverters) + swappable BMS at 0x782 + charge port + Aquila autonomous-driving sensor suite + Banyan/Aspen IVI computer (NOMI). NIO model code + battery-swap pack ID DIDs; pre-swap handshake routine for the NIO Power Swap network.
+- **`OBD.OEM.Xpeng`** — Xpeng Motors (2 WMIs: LJY, LMZ — Zhaoqing + Guangzhou). EV-only; 10-ECU map covering the XPILOT ADAS computer + dual-motor stack + Xmart OS cabin computer. Xpeng model code + XPILOT software version DIDs.
+- **`OBD.OEM.GreatWall`** — Great Wall Motor (4 WMIs: LGW, LGE, LGT, X9X). Covers the five GWM brands (Haval / WEY / ORA / Tank / Poer) on one platform. 10-ECU map incl. Hi4 hybrid controller, ORA / Coffee EV charge controller, Coffee Pilot ADAS. GWM brand code + platform code (Lemon / Tank / Coffee) DIDs.
+- Five matching JSON catalogs (`catalogs/{byd,geely,nio,xpeng,gwm}.json`) and DTC starters (`catalogs/dtc-{byd,geely,nio,xpeng,gwm}.json`). EV-specific decoders for pack voltage, SOC, SOH, charge-status enum.
+
+### Changed
+- `Packages/RunTime.dpk` adds the 5 new units. The OEM registry now resolves **28 OEMs** total (17 passenger + 6 heavy-duty + 5 Chinese).
+
+### Notes
+- `Tests.OEM.China` ships 16 new test cases: VIN routing for all 5 OEMs (Volvo-Cars-vs-Geely-Zeekr collision guard included), catalog spot-checks (BYD Blade BMS at 0x782, NIO Aquila, Xpeng XPILOT, GWM Hi4 hybrid, Geely EVCC), decoder spot-checks for each OEM's distinguishing DID.
+- WMI assignments for Chinese OEMs are issued by MIIT under GB 16735 and are sometimes inconsistently documented across sources. The shipped set covers the most-cited assignments per OEM; production users add edge-case WMIs via `OBD.OEM.<OEM>.ApplicableToVIN` overrides if needed.
+
 ## [3.16.0] - 2026-05-07 — Heavy-duty (J1939) OEM extensions
 
 ### Added (6 new heavy-duty OEM extensions)

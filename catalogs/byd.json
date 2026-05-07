@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "BYD",
+  "display_name": "BYD Auto Co. Ltd.",
+  "applicable_wmis": ["L6T","LGX","8GA"],
+  "default_source": "byd-community / star-diagnostic-leak",
+  "ecus": [
+    { "address": "0x7E0", "name": "vcu",     "common_name": "VCU — Vehicle Control Unit" },
+    { "address": "0x710", "name": "motor",   "common_name": "Drive Motor Inverter" },
+    { "address": "0x720", "name": "cluster", "common_name": "Instrument Cluster" },
+    { "address": "0x782", "name": "bms",     "common_name": "BMS — Blade Battery" },
+    { "address": "0x792", "name": "charge",  "common_name": "Charge Port + AC/DC charger" },
+    { "address": "0x762", "name": "body",    "common_name": "BCM — Body Control" },
+    { "address": "0x768", "name": "climate", "common_name": "Climate Control / Heat Pump" },
+    { "address": "0x774", "name": "iboost",  "common_name": "iBooster — electronic brake assist" },
+    { "address": "0x724", "name": "dipilot", "common_name": "DiPilot — driver assistance" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "byd_model_code",       "description": "BYD model code (e.g. SC1, EA1)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "byd_battery_pack_id",  "description": "Blade battery pack ID",        "ecu_address": "0x782",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "battery_pack_voltage", "description": "Blade pack voltage (V)",        "ecu_address": "0x782",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
+    { "did": "0xD051", "name": "battery_pack_soc",     "description": "Blade pack SOC (%)",            "ecu_address": "0x782",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD052", "name": "battery_pack_soh",     "description": "Blade pack SOH (%)",            "ecu_address": "0x782",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD060", "name": "charge_status",        "description": "Charge port status enum",       "ecu_address": "0x792",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } }
+  ],
+  "routines": []
+}

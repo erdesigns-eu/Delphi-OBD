@@ -141,6 +141,11 @@ contains
   OBD.OEM.PACCAR in '..\src\Services\OBD.OEM.PACCAR.pas',
   OBD.OEM.VolvoTrucks in '..\src\Services\OBD.OEM.VolvoTrucks.pas',
   OBD.OEM.Scania in '..\src\Services\OBD.OEM.Scania.pas',
-  OBD.OEM.MAN in '..\src\Services\OBD.OEM.MAN.pas';
+  OBD.OEM.MAN in '..\src\Services\OBD.OEM.MAN.pas',
+  OBD.OEM.BYD in '..\src\Services\OBD.OEM.BYD.pas',
+  OBD.OEM.Geely in '..\src\Services\OBD.OEM.Geely.pas',
+  OBD.OEM.NIO in '..\src\Services\OBD.OEM.NIO.pas',
+  OBD.OEM.Xpeng in '..\src\Services\OBD.OEM.Xpeng.pas',
+  OBD.OEM.GreatWall in '..\src\Services\OBD.OEM.GreatWall.pas';
 
 end.

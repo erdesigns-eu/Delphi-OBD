@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Geely / Lynk & Co DTC starter",
+  "default_source": "geely-community",
+  "dtcs": [
+    { "code": "P0299", "severity": "warning", "description": "Geely 1.5T / 2.0T — Turbo underboost (Volvo-shared engine)", "verified": false },
+    { "code": "P0420", "severity": "warning", "description": "Catalyst System Efficiency Bank 1 (Geely / Lynk & Co)", "verified": false },
+    { "code": "P0A80", "severity": "critical", "description": "Replace Hybrid Battery Pack (Geely Geometry / Zeekr PHEV)", "verified": false },
+    { "code": "U010C", "severity": "warning", "description": "Lost Communication With Glow Plug Module (Geely diesel)", "verified": false },
+    { "code": "B201A", "severity": "warning", "description": "Lynk & Co — Driver-side seat-position sensor open circuit", "verified": false },
+    { "code": "C141C", "severity": "warning", "description": "Geely — ESP yaw-rate sensor plausibility", "verified": false }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "NIO DTC starter",
+  "default_source": "nio-community",
+  "dtcs": [
+    { "code": "P0A0F", "severity": "warning", "description": "Engine failed to start (NIO range-extender variant)", "verified": false },
+    { "code": "P0AA6", "severity": "critical", "description": "Hybrid Battery Voltage System Isolation Fault (NIO swap pack)", "verified": false },
+    { "code": "P0D29", "severity": "warning", "description": "AC charging coupler latch fault (NIO Type-2 / GB-AC)", "verified": false },
+    { "code": "U0293", "severity": "critical", "description": "Lost Communication With BMS (NIO swap pack timeout)", "verified": false },
+    { "code": "B142F", "severity": "warning", "description": "NIO Aquila lidar — front-left module heater fault", "verified": false },
+    { "code": "C2003", "severity": "warning", "description": "NIO — Steering position sensor calibration not learned", "verified": false }
+  ]
+}

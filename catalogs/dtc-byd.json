@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "BYD Auto DTC starter",
+  "default_source": "byd-community",
+  "dtcs": [
+    { "code": "P0AA6", "severity": "critical", "description": "Hybrid Battery Voltage System Isolation Fault (BYD blade pack)", "verified": false },
+    { "code": "P0A2A", "severity": "warning",  "description": "Drive Motor 'A' Temperature Sensor Circuit (BYD)", "verified": false },
+    { "code": "P0D38", "severity": "warning",  "description": "DC/DC Converter Performance (BYD on-board charger)", "verified": false },
+    { "code": "P1FFF", "severity": "warning",  "description": "BYD VCU internal CRC mismatch", "verified": false },
+    { "code": "U0293", "severity": "critical", "description": "Lost Communication With BMS (BYD blade pack)", "verified": false },
+    { "code": "B100F", "severity": "warning",  "description": "BYD DiPilot front-camera lens obstructed", "verified": false }
+  ]
+}
