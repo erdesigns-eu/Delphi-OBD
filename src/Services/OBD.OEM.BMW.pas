@@ -16,14 +16,31 @@ unit OBD.OEM.BMW;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>
+  ///   BMW E-Sys / ISTA choreography. Both the extended-diagnostic
+  ///   and programming sessions expect a SecurityAccess (27 01) right
+  ///   after the session-control reply for any coding or programming.
+  ///   The negotiator itself only emits 10 03 / 10 02 — the actual
+  ///   security-access seed/key dance happens in Phase 1.4. Tester-
+  ///   present interval is 2000 ms by default but BMW recommends 1500
+  ///   for older (E-series) DMEs.
+  /// </summary>
+  TOBDBMWSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function RequiresSecurityAccess(SessionType: TOBDSessionType): Boolean; override;
+    function DefaultTesterPresentMs: Cardinal; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionBMW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -35,6 +52,30 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDBMWSessionNegotiator.RequiresSecurityAccess(
+  SessionType: TOBDSessionType): Boolean;
+begin
+  // E-Sys treats both extended-diagnostic and programming as
+  // privileged: most coding writes need 27 01 success first.
+  Result := SessionType in [sstExtendedDiagnostic, sstProgramming,
+                            sstOEMSpecific1, sstOEMSpecific2];
+end;
+
+function TOBDBMWSessionNegotiator.DefaultTesterPresentMs: Cardinal;
+begin
+  Result := 1500;  // E-series DMEs occasionally drop sessions at 2000 ms.
+end;
+
+function TOBDBMWSessionNegotiator.DisplayName: string;
+begin
+  Result := 'BMW E-Sys / ISTA';
+end;
+
+function TOBDOEMExtensionBMW.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDBMWSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionBMW.ManufacturerKey: string; begin Result := 'BMW'; end;
 function TOBDOEMExtensionBMW.DisplayName: string; begin Result := 'Bayerische Motoren Werke'; end;

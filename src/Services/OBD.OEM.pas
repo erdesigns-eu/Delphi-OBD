@@ -21,7 +21,8 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.SyncObjs,
-  System.Generics.Collections, System.Generics.Defaults;
+  System.Generics.Collections, System.Generics.Defaults,
+  OBD.OEM.Session;
 
 type
   /// <summary>One entry in an OEM's Data Identifier (DID) catalog.</summary>
@@ -114,6 +115,11 @@ type
     /// entries (EcuAddress=0 in the flat catalog) plus entries that
     /// match <c>Address</c> exactly.</summary>
     function CatalogForECU(const Address: Word): TOBDOEMSubCatalog;
+
+    /// <summary>The session-negotiation choreography this OEM expects.
+    /// The default is <c>TOBDStandardSessionNegotiator</c> (plain ISO
+    /// 14229); OEMs that diverge return their own implementation.</summary>
+    function SessionNegotiator: IOBDSessionNegotiator;
   end;
 
   /// <summary>
@@ -150,6 +156,8 @@ type
     FECUs: TArray<TOBDOEMECU>;
     FCatalogLoaded: Boolean;
     FCatalogLock: TCriticalSection;
+    FSessionNegotiator: IOBDSessionNegotiator;
+    FSessionLock: TCriticalSection;
     procedure EnsureCatalog;
   protected
     /// <summary>
@@ -176,6 +184,12 @@ type
     function FindRoutine(const Id: Word; out Entry: TOBDOEMRoutine): Boolean; virtual;
     function ECUs: TArray<TOBDOEMECU>; virtual;
     function CatalogForECU(const Address: Word): TOBDOEMSubCatalog; virtual;
+    function SessionNegotiator: IOBDSessionNegotiator; virtual;
+  protected
+    /// <summary>Override-point: subclasses return their OEM-specific
+    /// negotiator. Default returns a fresh
+    /// <c>TOBDStandardSessionNegotiator</c>.</summary>
+    function CreateSessionNegotiator: IOBDSessionNegotiator; virtual;
   end;
 
 /// <summary>Builder helper used by JSON catalog readers.</summary>
@@ -272,12 +286,35 @@ constructor TOBDOEMExtensionBase.Create;
 begin
   inherited Create;
   FCatalogLock := TCriticalSection.Create;
+  FSessionLock := TCriticalSection.Create;
 end;
 
 destructor TOBDOEMExtensionBase.Destroy;
 begin
+  FSessionNegotiator := nil;
+  FSessionLock.Free;
   FCatalogLock.Free;
   inherited;
+end;
+
+function TOBDOEMExtensionBase.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDStandardSessionNegotiator.Create;
+end;
+
+function TOBDOEMExtensionBase.SessionNegotiator: IOBDSessionNegotiator;
+begin
+  // Lazy + cached. Negotiators are immutable and cheap, but caching
+  // means callers can keep a reference across many calls without us
+  // re-allocating; matches the catalog's lazy-build semantics.
+  FSessionLock.Enter;
+  try
+    if FSessionNegotiator = nil then
+      FSessionNegotiator := CreateSessionNegotiator;
+    Result := FSessionNegotiator;
+  finally
+    FSessionLock.Leave;
+  end;
 end;
 
 procedure TOBDOEMExtensionBase.EnsureCatalog;

@@ -18,14 +18,30 @@ unit OBD.OEM.Stellantis;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>
+  ///   Stellantis blends DiagBox (PSA) and wiTech (FCA). The shared
+  ///   choreography is plain 10 03 with a follow-up 22 F198 for PSA-
+  ///   side ECUs (BSI / NAC) and nothing for FCA-side. We always
+  ///   send the F198 read — FCA modules tolerate it (they reply
+  ///   "0x7F 22 31 — requestOutOfRange" which the runner treats as
+  ///   non-fatal because the step's <c>ExpectedResponse</c> is empty).
+  /// </summary>
+  TOBDStellantisSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionStellantis = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -37,6 +53,30 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDStellantisSessionNegotiator.BeginSessionPlan(
+  SessionType: TOBDSessionType;
+  const ECUAddress: Word): TOBDSessionPlan;
+begin
+  Result := inherited BeginSessionPlan(SessionType, ECUAddress);
+  if SessionType = sstDefault then Exit;
+  // PSA DiagBox always probes F198 after 10 03. ExpectedResponse left
+  // empty so FCA's negative-response 7F 22 31 doesn't fail the plan.
+  Result.Steps := Result.Steps + [
+    UDSStep(TBytes.Create($22, $F1, $98),
+      'Stellantis workshop-code probe (PSA only — FCA may NACK)')
+  ];
+end;
+
+function TOBDStellantisSessionNegotiator.DisplayName: string;
+begin
+  Result := 'Stellantis DiagBox / wiTech';
+end;
+
+function TOBDOEMExtensionStellantis.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDStellantisSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionStellantis.ManufacturerKey: string;
 begin Result := 'STLA'; end;

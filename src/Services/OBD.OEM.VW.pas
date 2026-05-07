@@ -16,14 +16,28 @@ unit OBD.OEM.VW;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>VAG-specific session negotiator. Adds the
+  /// <c>AT SH &lt;ECU&gt;</c> + <c>AT CRA &lt;ECU+8&gt;</c> handshake
+  /// before the UDS request because VCDS and ODIS have always set
+  /// both, and some MQB-platform ECUs reject the session-control
+  /// request if CRA is wrong. Tester-present interval is 2000 ms
+  /// (matches ODIS service mode 2).</summary>
+  TOBDVWSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionVW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -35,6 +49,52 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDVWSessionNegotiator.BeginSessionPlan(
+  SessionType: TOBDSessionType;
+  const ECUAddress: Word): TOBDSessionPlan;
+var
+  Sub: Byte;
+  Steps: TArray<TOBDSessionStep>;
+  ResponseAddr: Word;
+begin
+  Result := Default(TOBDSessionPlan);
+  Sub := SessionTypeByte(SessionType);
+  Steps := nil;
+
+  if ECUAddress <> 0 then
+  begin
+    ResponseAddr := ECUAddress + 8;  // ISO 15765-4: response = request + 8
+    Steps := Steps + [
+      ATStep('SH ' + FormatHeader(ECUAddress),
+             Format('Set request header to 0x%s', [FormatHeader(ECUAddress)])),
+      ATStep('CRA ' + FormatHeader(ResponseAddr),
+             Format('Filter response to 0x%s', [FormatHeader(ResponseAddr)]))
+    ];
+  end;
+
+  Steps := Steps + [
+    UDSStep(TBytes.Create($10, Sub), TBytes.Create($50, Sub),
+      Format('VAG DiagnosticSessionControl 0x%.2X', [Sub]))
+  ];
+
+  Result.Steps := Steps;
+  if SessionType = sstDefault then
+    Result.TesterPresentMs := 0
+  else
+    Result.TesterPresentMs := DefaultTesterPresentMs;
+  Result.TesterPresentRequest := TBytes.Create($3E, $80);
+end;
+
+function TOBDVWSessionNegotiator.DisplayName: string;
+begin
+  Result := 'VAG (ODIS / VCDS)';
+end;
+
+function TOBDOEMExtensionVW.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDVWSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;
 function TOBDOEMExtensionVW.DisplayName: string; begin Result := 'Volkswagen Audi Group'; end;

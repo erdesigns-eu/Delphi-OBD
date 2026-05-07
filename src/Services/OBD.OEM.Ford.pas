@@ -11,14 +11,29 @@ unit OBD.OEM.Ford;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>
+  ///   Ford IDS / FDRS choreography. Programming sessions still use
+  ///   the standard 10 02 sub-function, but the FDRS workflow
+  ///   prepends an <c>AT ST 32</c> (3.2 second timeout) to absorb the
+  ///   long ECU-pause that Ford modules take when entering
+  ///   programming. Tester-present interval is 2000 ms.
+  /// </summary>
+  TOBDFordSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionFord = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -30,6 +45,32 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDFordSessionNegotiator.BeginSessionPlan(
+  SessionType: TOBDSessionType;
+  const ECUAddress: Word): TOBDSessionPlan;
+begin
+  Result := inherited BeginSessionPlan(SessionType, ECUAddress);
+  if SessionType = sstProgramming then
+  begin
+    // Prepend AT ST 32 — sets the ELM327 OBD response timeout to
+    // 3.2 s (50 * 4 ms units, rounded). FDRS waits this long after
+    // 10 02 before the ECU stabilises into programming mode.
+    Result.Steps := [
+      ATStep('ST 32', 'Extend ELM327 OBD timeout to ~3.2 s for programming')
+    ] + Result.Steps;
+  end;
+end;
+
+function TOBDFordSessionNegotiator.DisplayName: string;
+begin
+  Result := 'Ford IDS / FDRS';
+end;
+
+function TOBDOEMExtensionFord.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDFordSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionFord.ManufacturerKey: string;
 begin Result := 'FORD'; end;

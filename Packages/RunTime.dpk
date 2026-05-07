@@ -108,6 +108,8 @@ contains
   OBD.Security.Nonce in '..\src\Utilities\OBD.Security.Nonce.pas',
   OBD.OEM.Catalog.JSON in '..\src\Services\OBD.OEM.Catalog.JSON.pas',
   OBD.OEM.Catalog.CSV in '..\src\Services\OBD.OEM.Catalog.CSV.pas',
-  OBD.OEM.Catalog.Loader in '..\src\Services\OBD.OEM.Catalog.Loader.pas';
+  OBD.OEM.Catalog.Loader in '..\src\Services\OBD.OEM.Catalog.Loader.pas',
+  OBD.OEM.Session in '..\src\Services\OBD.OEM.Session.pas',
+  OBD.OEM.Session.Runner in '..\src\Services\OBD.OEM.Session.Runner.pas';
 
 end.

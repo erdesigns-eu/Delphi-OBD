@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-05-07 — OEM Catalog Phase 1.3 (session negotiation)
+
+### Added
+- **`OBD.OEM.Session`** — manufacturer-specific session-negotiation framework. `IOBDSessionNegotiator` describes an OEM's choreography for entering / leaving each diagnostic session as a *plan* (an ordered list of adapter and UDS steps plus a tester-present heartbeat spec). Plans are pure data, so the OEM core stays free of async dependencies.
+- `TOBDSessionType` enum: `sstDefault`, `sstProgramming`, `sstExtendedDiagnostic`, `sstSafetySystem`, plus two reserved OEM-specific slots (`sstOEMSpecific1` / `sstOEMSpecific2`) for vendor session subtypes that don't fit the ISO 14229 four.
+- `TOBDStandardSessionNegotiator` — pure ISO 14229 reference implementation (10 03 / 10 01, 3E 80 every 2000 ms, optional `AT SH <ECU>` header step). Used as the default for every extension that doesn't override.
+- Six OEM negotiators, each modelling published service-tool behaviour:
+  - `TOBDVWSessionNegotiator` — emits `AT SH <ECU>` + `AT CRA <ECU+8>` before 10 03 (matches ODIS / VCDS).
+  - `TOBDBMWSessionNegotiator` — flags `RequiresSecurityAccess` for both extended diagnostic and programming (matches E-Sys); 1500 ms tester-present interval for older E-series DMEs.
+  - `TOBDMercedesSessionNegotiator` — appends a 22 F1 98 workshop-code probe after 10 03 (XENTRY default); 1500 ms heartbeat.
+  - `TOBDFordSessionNegotiator` — prepends `AT ST 32` (≈3.2 s adapter timeout) for programming sessions to absorb the FDRS pause.
+  - `TOBDGMSessionNegotiator` — locks the ELM327 to ISO 15765-4 11/500 (`AT SP 6`) before opening a session.
+  - `TOBDStellantisSessionNegotiator` — appends 22 F1 98 with an empty `ExpectedResponse` so PSA's required probe doesn't fail on FCA modules that NACK it.
+- `IOBDOEMExtension.SessionNegotiator` — every extension exposes its negotiator; `TOBDOEMExtensionBase` caches the instance lazily and lets subclasses override `CreateSessionNegotiator`.
+- **`OBD.OEM.Session.Runner`** — async-first plan executor:
+  - `TOBDSessionRunner.Execute(Plan)` walks each step against `TOBDConnectionAsync`, awaits its `IOBDFuture<string>` reply, and validates the response against the step's `ExpectedResponse` prefix (empty prefix = "any non-empty reply passes" — that's what lets Stellantis' optional F198 step tolerate FCA NACKs).
+  - `TOBDSessionRunResult` returns a per-step audit trail (response text, success flag, error, wall-clock duration) so callers can log exactly which step failed and what the ECU said.
+  - `TOBDTesterPresentThread` — fire-and-forget heartbeat thread driven by the plan's `TesterPresentMs` / `TesterPresentRequest`. Exits cleanly on `StopGracefully` (cancels in-flight futures + waits for the thread to drain) and self-terminates if the connection drops, so a closed adapter doesn't spin.
+- `Tests.OEM.Session` — 18 new test cases covering: standard negotiator (header step, default-vs-non-default heartbeat, EndSession 10 01, security-access flags, zero-address omits header) and the six per-OEM negotiators (VW SH+CRA, BMW security-access flags + 1500 ms heartbeat, Mercedes F198 probe, Ford ST 32 only on programming, GM SP 6 prefix, Stellantis F198 with empty `ExpectedResponse`); plus extension-level checks that each OEM resolves to the correct negotiator and the negotiator is cached across calls.
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.Session` and `OBD.OEM.Session.Runner`.
+
+### Notes
+- The session negotiators describe the *protocol* choreography; security-access (seed-key) is intentionally out of scope here and lands in Phase 1.4 (`IOBDSeedKeyAlgorithm` registry per OEM / level).
+- The runner is exercised end-to-end against a mock connection in Phase 1.4 once seed-key plays the second half of the session-entry handshake. The plan layer (negotiator outputs) is fully covered today.
+
 ## [3.4.0] - 2026-05-07 — OEM Catalog Phase 1.2 (per-ECU sub-catalogs)
 
 ### Added

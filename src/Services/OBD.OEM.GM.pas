@@ -17,14 +17,28 @@ unit OBD.OEM.GM;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>
+  ///   GM Global B negotiator. GMLAN UDS uses standard 10 03 / 10 02
+  ///   but Tech 2 always asserts <c>AT SP 6</c> (ISO 15765-4 11/500)
+  ///   first to lock the protocol — relevant when the adapter was
+  ///   left on auto-protocol from a different vehicle.
+  /// </summary>
+  TOBDGMSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionGM = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -36,6 +50,27 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDGMSessionNegotiator.BeginSessionPlan(
+  SessionType: TOBDSessionType;
+  const ECUAddress: Word): TOBDSessionPlan;
+begin
+  Result := inherited BeginSessionPlan(SessionType, ECUAddress);
+  if SessionType = sstDefault then Exit;
+  Result.Steps := [
+    ATStep('SP 6', 'Lock ELM327 to ISO 15765-4 11-bit/500 kbps (GMLAN)')
+  ] + Result.Steps;
+end;
+
+function TOBDGMSessionNegotiator.DisplayName: string;
+begin
+  Result := 'GM Tech 2 / GDS-2';
+end;
+
+function TOBDOEMExtensionGM.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDGMSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionGM.ManufacturerKey: string;
 begin Result := 'GM'; end;

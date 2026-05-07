@@ -18,14 +18,29 @@ unit OBD.OEM.Mercedes;
 interface
 
 uses
-  System.SysUtils, OBD.OEM;
+  System.SysUtils, OBD.OEM, OBD.OEM.Session;
 
 type
+  /// <summary>
+  ///   XENTRY-style Mercedes negotiator. Reads F198 (workshop code)
+  ///   immediately after the session-control reply because Daimler
+  ///   ECUs gate routines on a known last-writer ID. Tester-present
+  ///   interval is 1500 ms (matches XENTRY default).
+  /// </summary>
+  TOBDMercedesSessionNegotiator = class(TOBDStandardSessionNegotiator)
+  public
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan; override;
+    function DefaultTesterPresentMs: Cardinal; override;
+    function DisplayName: string; override;
+  end;
+
   TOBDOEMExtensionMercedes = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    function CreateSessionNegotiator: IOBDSessionNegotiator; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
@@ -37,6 +52,37 @@ implementation
 
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader;
+
+function TOBDMercedesSessionNegotiator.BeginSessionPlan(
+  SessionType: TOBDSessionType;
+  const ECUAddress: Word): TOBDSessionPlan;
+begin
+  Result := inherited BeginSessionPlan(SessionType, ECUAddress);
+  if SessionType = sstDefault then Exit;
+
+  // Append a 22 F198 read — XENTRY relies on the response to log the
+  // last writer; many ECUs refuse subsequent routines if it's
+  // skipped after entering extended/programming.
+  Result.Steps := Result.Steps + [
+    UDSStep(TBytes.Create($22, $F1, $98), TBytes.Create($62, $F1, $98),
+      'XENTRY workshop-code probe (DID F198)')
+  ];
+end;
+
+function TOBDMercedesSessionNegotiator.DefaultTesterPresentMs: Cardinal;
+begin
+  Result := 1500;
+end;
+
+function TOBDMercedesSessionNegotiator.DisplayName: string;
+begin
+  Result := 'Mercedes XENTRY';
+end;
+
+function TOBDOEMExtensionMercedes.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDMercedesSessionNegotiator.Create;
+end;
 
 function TOBDOEMExtensionMercedes.ManufacturerKey: string;
 begin Result := 'MB'; end;

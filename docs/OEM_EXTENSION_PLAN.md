@@ -102,30 +102,55 @@ shape but scoped. Lookup becomes
 
 ### 1.3 Manufacturer-specific session negotiation (🔴 M per OEM)
 
+> **v3.5 status:** ✅ Shipped. The choreography is modelled as
+> *plans* (data) rather than as connection-coupled futures, so the
+> OEM core stays free of async dependencies. `IOBDSessionNegotiator`
+> exposes `BeginSessionPlan`, `EndSessionPlan`,
+> `RequiresSecurityAccess`, `DefaultTesterPresentMs`, `DisplayName`.
+> A separate `OBD.OEM.Session.Runner` unit consumes the plan against
+> `TOBDConnectionAsync` and runs the tester-present heartbeat as
+> `TOBDTesterPresentThread`. Per-OEM negotiators ship for VW, BMW,
+> Mercedes, Ford, GM, Stellantis. Phase 1.4 (seed-key) plugs into
+> the same negotiator via `RequiresSecurityAccess`.
+
 UDS service `10 03` (extended diagnostic session) is universal but
 the choreography around it varies:
 
-- VW: header set via `AT SH 7E0`, then `10 03`, then 2-second
-  TesterPresent heartbeat.
-- BMW: `10 03` followed by `27 01` security access for most
-  programming routines.
-- Mercedes: `10 03` then `22 F198` (workshop code) before any
-  routine fires.
-- Ford: `10 02` for programming session; `10 03` is
-  read-only-extended.
+- VW: `AT SH <ECU>` + `AT CRA <ECU+8>`, then `10 03`, 2 s heartbeat.
+- BMW: `10 03` requires `27 01` security access for most coding
+  routines (extended *and* programming); E-series DMEs need a
+  1500 ms heartbeat.
+- Mercedes: `10 03` then `22 F198` (workshop code probe);
+  XENTRY heartbeat is 1500 ms.
+- Ford: `10 02` for programming, prepended with `AT ST 32` so the
+  ELM327 absorbs FDRS's long ECU pause.
+- GM: `AT SP 6` to lock GMLAN before opening the session.
+- Stellantis: `10 03` plus an optional `22 F198` probe (PSA DiagBox
+  always; FCA wiTech NACKs and the runner tolerates it).
 
-Add to the interface:
+Public API:
 ```pascal
-function BeginSession(const Conn: TOBDConnectionAsync;
-  SessionType: TOBDSessionType;
-  Token: IOBDCancellationToken): IOBDFuture<Boolean>;
-function EndSession(const Conn: TOBDConnectionAsync): IOBDFuture<Boolean>;
-function StartTesterPresent(IntervalMs: Integer = 2000): TThread;
+type
+  IOBDSessionNegotiator = interface
+    function BeginSessionPlan(SessionType: TOBDSessionType;
+      const ECUAddress: Word): TOBDSessionPlan;
+    function EndSessionPlan(const ECUAddress: Word): TOBDSessionPlan;
+    function RequiresSecurityAccess(SessionType: TOBDSessionType): Boolean;
+    function DefaultTesterPresentMs: Cardinal;
+    function DisplayName: string;
+  end;
+
+  // Returned by IOBDOEMExtension.SessionNegotiator
 ```
 
-Each OEM implements its own choreography. Where the OEM has multiple
-session types, expose them as named constants on the extension's
-class.
+The runner:
+```pascal
+Runner := TOBDSessionRunner.Create(ConnAsync);
+PlanRes := Runner.Execute(Ext.SessionNegotiator.BeginSessionPlan(
+  sstExtendedDiagnostic, $7E0));
+if PlanRes.Success then
+  Heartbeat := Runner.StartTesterPresent(...)
+```
 
 ### 1.4 Seed-Key algorithm pluggability (🔴 M per OEM)
 

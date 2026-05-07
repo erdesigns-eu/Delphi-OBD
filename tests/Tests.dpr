@@ -48,7 +48,8 @@ uses
   Tests.ECU.Signature.BCrypt in 'Tests.ECU.Signature.BCrypt.pas',
   Tests.ECU.Signature.OpenSSL in 'Tests.ECU.Signature.OpenSSL.pas',
   Tests.Security.Nonce in 'Tests.Security.Nonce.pas',
-  Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas';
+  Tests.OEM.Catalog in 'Tests.OEM.Catalog.pas',
+  Tests.OEM.Session in 'Tests.OEM.Session.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

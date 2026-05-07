@@ -28,6 +28,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.2 Production Crypto + OEM Coverage | BCrypt + OpenSSL + HSM verifiers, anti-replay nonce, 4 more OEMs, console flashing example | ✅ Tagged v3.2.0 (2026-05-06) |
 | v3.3 OEM Catalog Phase 1.1 | JSON catalog format + loader + CSV importer + verified ISO 14229-1 + ISO 15031-6 catalogs + 6 seeded per-OEM catalogs | ✅ Tagged v3.3.0 (2026-05-06) |
 | v3.4 OEM Catalog Phase 1.2 | Per-ECU sub-catalogs: TOBDOEMECU, ECUs / CatalogForECU on IOBDOEMExtension, JSON `ecus` block + per-entry `ecu_address`, ECU maps shipped for all 6 OEMs | ✅ Tagged v3.4.0 (2026-05-07) |
+| v3.5 OEM Catalog Phase 1.3 | Session negotiation: IOBDSessionNegotiator + 6 per-OEM choreographies (VW SH+CRA, BMW E-Sys 1500 ms heartbeat, Mercedes XENTRY F198 probe, Ford FDRS ST 32, GM Tech 2 SP 6, Stellantis DiagBox F198), plan runner with tester-present heartbeat thread | ✅ Tagged v3.5.0 (2026-05-07) |
 
 ---
 
