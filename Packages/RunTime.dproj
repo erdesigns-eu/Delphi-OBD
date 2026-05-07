@@ -184,6 +184,11 @@
         <DCCReference Include="..\src\Utilities\OBD.Logger.Sinks.pas"/>
         <DCCReference Include="..\src\Components\OBD.LogViewer.pas"/>
         <DCCReference Include="..\src\Services\OBD.Service.Recorder.pas"/>
+        <DCCReference Include="..\src\Services\OBD.ECU.Signature.pas"/>
+        <DCCReference Include="..\src\Services\OBD.ECU.Flashing.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.SecureSettings.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.Audit.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.Security.AttemptCounter.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

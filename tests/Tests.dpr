@@ -37,7 +37,12 @@ uses
   Tests.Components.Smoke in 'Tests.Components.Smoke.pas',
   Tests.Async in 'Tests.Async.pas',
   Tests.Logger.Sinks in 'Tests.Logger.Sinks.pas',
-  Tests.Service.Recorder in 'Tests.Service.Recorder.pas';
+  Tests.Service.Recorder in 'Tests.Service.Recorder.pas',
+  Tests.ECU.Signature in 'Tests.ECU.Signature.pas',
+  Tests.ECU.Flashing in 'Tests.ECU.Flashing.pas',
+  Tests.SecureSettings in 'Tests.SecureSettings.pas',
+  Tests.Audit in 'Tests.Audit.pas',
+  Tests.Security.AttemptCounter in 'Tests.Security.AttemptCounter.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

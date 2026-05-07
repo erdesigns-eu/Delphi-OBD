@@ -80,6 +80,11 @@ contains
   OBD.Protocol.Async in '..\src\Protocol\OBD.Protocol.Async.pas',
   OBD.Logger.Sinks in '..\src\Utilities\OBD.Logger.Sinks.pas',
   OBD.LogViewer in '..\src\Components\OBD.LogViewer.pas',
-  OBD.Service.Recorder in '..\src\Services\OBD.Service.Recorder.pas';
+  OBD.Service.Recorder in '..\src\Services\OBD.Service.Recorder.pas',
+  OBD.ECU.Signature in '..\src\Services\OBD.ECU.Signature.pas',
+  OBD.ECU.Flashing in '..\src\Services\OBD.ECU.Flashing.pas',
+  OBD.SecureSettings in '..\src\Utilities\OBD.SecureSettings.pas',
+  OBD.Audit in '..\src\Utilities\OBD.Audit.pas',
+  OBD.Security.AttemptCounter in '..\src\Utilities\OBD.Security.AttemptCounter.pas';
 
 end.

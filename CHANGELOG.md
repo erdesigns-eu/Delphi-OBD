@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-05-06 — Hardening & ECU
+
+### Added
+- `TOBDECUFlashing` (`src/Services/OBD.ECU.Flashing.pas`) — first-class flashing coordinator. Runs the strict pre-check → signature → snapshot → erase → write → finalise → verify pipeline; OEM-specific I/O plugs in via `OnHealthCheck` / `OnSnapshot` / `OnWriteChunk` / `OnFinalise` / `OnVerifyEcu`. Snapshot persists to `BackupPath`; `BlockSize` chunks the stream; `RequestCancel` honoured at every stage boundary; automatic rollback re-writes the snapshot on write/finalise/verify failure. Stage / progress / completed / failed events expose UI hooks.
+- `IFirmwareSignatureVerifier` + `TOBDSha256SignatureVerifier` (constant-time hash compare) + `TOBDPermissiveSignatureVerifier` (development only) in `src/Services/OBD.ECU.Signature.pas`. `ComputeSha256` helper for one-liners.
+- `TOBDSecureSettings` (`src/Utilities/OBD.SecureSettings.pas`) — DPAPI-encrypted INI storage. Wraps `CryptProtectData` / `CryptUnprotectData` (current-user scope). Plaintext never touches disk; failed decryption falls back to caller-supplied default rather than raising. Standalone `DPAPIEncrypt` / `DPAPIDecrypt` exported for ad-hoc byte-level use.
+- `TOBDAuditRecorder` (`src/Utilities/OBD.Audit.pas`) — structured audit events routed through the configured `TOBDLogger` with `SourceTag = "audit"` and JSON-serialised payload (actor / action / resource / outcome / detail). Outcomes map onto log levels: success → Info, failure → Error, denied → Warning.
+- `TOBDAttemptCounter` (`src/Utilities/OBD.Security.AttemptCounter.pas`) — per-identity exponential back-off lockout. `BaseLockoutSeconds` doubles per failure beyond `FreeAttempts`, capped at `MaxLockoutSeconds`. Thread-safe; identities don't interfere.
+- 32 new tests across `Tests.ECU.Signature`, `Tests.ECU.Flashing`, `Tests.SecureSettings`, `Tests.Audit`, `Tests.Security.AttemptCounter` exercising real DPAPI round-trips, golden SHA-256 vectors, every flashing-failure path with rollback verification, lockout math, and JSON audit shape.
+
 ## [2.4.0] - 2026-05-06 — Distribution & Docs
 
 ### Added
@@ -71,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...HEAD
+[2.5.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...v2.5.0
 [2.4.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...v2.4.0
 [2.3.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.2.0...v2.3.0
 [2.2.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.1.0...v2.2.0

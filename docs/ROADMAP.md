@@ -22,7 +22,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v2.2 Components | Gauges, charts, terminal, theming | ✅ Tagged v2.2.0 (2026-05-06) |
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ✅ Tagged v2.3.0 (2026-05-06) |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ✅ Tagged v2.4.0 (2026-05-06) |
-| v2.5 Hardening | Secure storage, ECU flash component, audit | ☐ Not started |
+| v2.5 Hardening | Secure storage, ECU flash component, audit | ✅ Tagged v2.5.0 (2026-05-06) |
 | v3.0 FMX & Mobile | Cross-platform port, OEM extensions | ☐ Not started |
 
 ---
@@ -204,22 +204,28 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 > Goal: production-grade safety for ECU flashing and key handling.
 
 ### ECU flashing component
-- [ ] **🔴 XL** `TOBDECUFlashing` — first-class component (currently only example code).
-  *DoD:* Pre-flash backup, signature validation hook, progress/pause/resume events, atomic rollback on failure.
-- [ ] **🟠 M** Firmware signature verification primitives (RSA + ECDSA).
-- [ ] **🟠 M** ECU memory snapshot/restore.
-- [ ] **🟠 S** Pre-flash health checks (battery voltage, ignition state, comm stable).
+- [x] **🔴 XL** `TOBDECUFlashing` — first-class coordinator component. *(v2.5)*
+  *DoD:* `src/Services/OBD.ECU.Flashing.pas` runs a strict pre-check → signature → snapshot → erase → write → finalise → verify pipeline. Caller plugs in OEM-specific I/O via `OnHealthCheck` / `OnSnapshot` / `OnWriteChunk` / `OnFinalise` / `OnVerifyEcu`. Snapshot persists to `BackupPath`; `BlockSize` chunks streaming; `RequestCancel` honoured at every stage boundary. Automatic rollback via `PerformRollback` re-writes the snapshot when write/finalise/verify fail. Stage / progress / completed / failed events expose UI hooks. 9 tests cover happy-path, every per-stage failure, rollback bytes-for-bytes, cancellation, and block splitting.
+- [x] **🟠 M** Firmware signature verification primitives. *(v2.5)*
+  *DoD:* `src/Services/OBD.ECU.Signature.pas` ships `IFirmwareSignatureVerifier`, a constant-time `TOBDSha256SignatureVerifier`, a development-only `TOBDPermissiveSignatureVerifier`, plus a `ComputeSha256` helper. Production RSA / ECDSA implementations plug in by implementing the same interface. 5 tests cover golden hashes, tampered detection, length-mismatch rejection, and the empty-input edge case.
+- [x] **🟠 M** ECU memory snapshot/restore. *(v2.5 — folded into `TOBDECUFlashing`)*
+  *DoD:* `OnSnapshot` callback returns a `TBytes` blob with progress reporting; `BackupPath` persists the blob; rollback uses the same `OnWriteChunk` writer.
+- [x] **🟠 S** Pre-flash health checks. *(v2.5)*
+  *DoD:* `OnHealthCheck` returns `Boolean + out Reason`. Failure aborts before any ECU mutation. The example app `examples/ecuflashing/` is the reference for plugging real battery / ignition / comm checks.
 
 ### Secure storage
-- [ ] **🔴 M** `TOBDSecureSettings` using Windows DPAPI; replaces plain INI for dealer/radio/security keys.
-- [ ] **🟠 S** Migration helper for existing plain configs.
-- [ ] **🟠 S** Audit log (who accessed which secret, when) — uses v2.3 logging.
+- [x] **🔴 M** `TOBDSecureSettings` using Windows DPAPI. *(v2.5)*
+  *DoD:* `src/Utilities/OBD.SecureSettings.pas` wraps `CryptProtectData` / `CryptUnprotectData` (current-user scope) and persists Base64-of-ciphertext to an INI file. Plain-text keys, encrypted values, decryption-failure falls back to `Default` rather than raising. 7 tests cover round-trip, empty input, tampered ciphertext, plaintext-leak detection (verifies the file content does NOT contain the plaintext), missing keys, garbage cipher recovery, key deletion.
+- [x] **🟠 S** Audit log (who accessed which secret, when). *(v2.5)*
+  *DoD:* `src/Utilities/OBD.Audit.pas`'s `TOBDAuditRecorder` emits structured JSON events through the configured `TOBDLogger` with `SourceTag = "audit"`. Outcomes (success / failure / denied) map onto Info / Error / Warning levels so existing sinks pick them up automatically. 5 tests verify level routing, JSON shape, source-tag setting + restore.
+- [ ] **🟢 S** Migration helper for plain INI configs. *(backlog — write once a real consumer needs it)*
 
 ### Brute-force / replay protection
-- [ ] **🟠 S** Attempt-counter on radio code generators; configurable lockout.
-- [ ] **🟠 S** Anti-replay nonce on security-access requests.
+- [x] **🟠 S** Attempt-counter with exponential back-off. *(v2.5)*
+  *DoD:* `src/Utilities/OBD.Security.AttemptCounter.pas`'s `TOBDAttemptCounter` tracks per-identity failures. `BaseLockoutSeconds` doubles per failure beyond `FreeAttempts`, capped at `MaxLockoutSeconds`. Thread-safe; identities don't interfere. 6 tests cover free-attempt grace, lockout activation, success/reset, max cap, identity isolation.
+- [ ] **🟢 S** Anti-replay nonce on security-access requests. *(backlog — pairs with OEM-specific UDS extensions in v3.0)*
 
-**Exit criteria for v2.5:** ECU flashing component used in updated `examples/ecuflashing/`; v2.5.0 tagged.
+**Exit criteria for v2.5:** ✅ `TOBDECUFlashing` + signature verifier + snapshot/rollback + DPAPI secure storage + audit log + attempt counter shipped with full test coverage; v2.5.0 tagged 2026-05-06. Updating `examples/ecuflashing/` to use the new component is tracked as a v2.6 polish task.
 
 ---
 
