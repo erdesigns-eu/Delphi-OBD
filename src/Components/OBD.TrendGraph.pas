@@ -24,7 +24,8 @@ uses
   System.UITypes, Vcl.Controls, Vcl.Graphics, WinApi.Windows, Winapi.Messages,
   System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers,
+  OBD.Render.TrendGraph;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -113,11 +114,6 @@ type
 
     function GetSeriesCount: Integer;
     function GetSeries(Index: Integer): TOBDTrendSeries;
-
-    procedure DrawSeries(Canvas: ISkCanvas; const Plot: TRectF;
-      Series: TOBDTrendSeries);
-    procedure DrawGrid(Canvas: ISkCanvas; const Plot: TRectF);
-    procedure DrawLegend(Canvas: ISkCanvas; const Bounds: TRectF; Font: ISkFont);
 
   protected
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -342,173 +338,50 @@ procedure TOBDTrendGraph.SetStrokeWidth(const AValue: Single);
 begin if (AValue > 0) and (FStrokeWidth <> AValue) then begin FStrokeWidth := AValue; Invalidate; end; end;
 
 //------------------------------------------------------------------------------
-// DRAW HELPERS
 //------------------------------------------------------------------------------
-procedure TOBDTrendGraph.DrawGrid(Canvas: ISkCanvas; const Plot: TRectF);
-const
-  H_LINES = 4;   // horizontal grid lines (incl. middle)
-  V_LINES = 4;
-var
-  Paint: ISkPaint;
-  I: Integer;
-  Y, X, Step: Single;
-begin
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := 1;
-  Paint.Color := SafeColorRefToSkColor(FGridColor);
-
-  Step := (Plot.Bottom - Plot.Top) / H_LINES;
-  for I := 1 to H_LINES - 1 do
-  begin
-    Y := Plot.Top + Step * I;
-    Canvas.DrawLine(Plot.Left, Y, Plot.Right, Y, Paint);
-  end;
-
-  Step := (Plot.Right - Plot.Left) / V_LINES;
-  for I := 1 to V_LINES - 1 do
-  begin
-    X := Plot.Left + Step * I;
-    Canvas.DrawLine(X, Plot.Top, X, Plot.Bottom, Paint);
-  end;
-end;
-
-procedure TOBDTrendGraph.DrawSeries(Canvas: ISkCanvas; const Plot: TRectF;
-  Series: TOBDTrendSeries);
-var
-  Path: ISkPathBuilder;
-  Paint: ISkPaint;
-  I: Integer;
-  Span: Single;
-  X, Y, V: Single;
-begin
-  if Series.Count < 2 then Exit;
-
-  Span := Series.Max - Series.Min;
-  if Span <= 0 then Exit;
-
-  Path := TSkPathBuilder.Create;
-  for I := 0 to Series.Count - 1 do
-  begin
-    // Scroll right-to-left so the newest sample sits on the right edge
-    // and the buffer "fills from the right".
-    X := Plot.Right -
-      ((Series.Capacity - 1 - (Series.Count - 1 - I)) /
-       (Series.Capacity - 1)) * (Plot.Right - Plot.Left);
-
-    V := Series.Values[I];
-    if V < Series.Min then V := Series.Min;
-    if V > Series.Max then V := Series.Max;
-    Y := Plot.Bottom - ((V - Series.Min) / Span) * (Plot.Bottom - Plot.Top);
-
-    if I = 0 then
-      Path.MoveTo(X, Y)
-    else
-      Path.LineTo(X, Y);
-  end;
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := FStrokeWidth;
-  Paint.StrokeJoin := TSkStrokeJoin.Round;
-  Paint.StrokeCap := TSkStrokeCap.Round;
-  Paint.Color := SafeColorRefToSkColor(Series.Color);
-  Canvas.DrawPath(Path.Detach, Paint);
-end;
-
-procedure TOBDTrendGraph.DrawLegend(Canvas: ISkCanvas; const Bounds: TRectF;
-  Font: ISkFont);
-var
-  Paint, Swatch: ISkPaint;
-  I: Integer;
-  X: Single;
-  S: TOBDTrendSeries;
-  Lbl: string;
-  W: Single;
-begin
-  if FSeries.Count = 0 then Exit;
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTextColor);
-
-  X := Bounds.Left;
-  for I := 0 to FSeries.Count - 1 do
-  begin
-    S := FSeries[I];
-    Swatch := TSkPaint.Create;
-    Swatch.AntiAlias := True;
-    Swatch.Color := SafeColorRefToSkColor(S.Color);
-    Canvas.DrawRect(RectF(X, Bounds.Top + 4, X + 12, Bounds.Top + 12), Swatch);
-
-    Lbl := S.Name;
-    if Lbl = '' then Lbl := 'Series ' + IntToStr(I + 1);
-    W := Font.MeasureText(Lbl, Paint);
-    Canvas.DrawSimpleText(Lbl, X + 16, Bounds.Top + 13, Font, Paint);
-    X := X + 16 + W + 12;
-    if X > Bounds.Right - 60 then Break;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// PAINT SKIA
+// PAINT SKIA (delegates to the framework-neutral renderer)
 //------------------------------------------------------------------------------
 procedure TOBDTrendGraph.PaintSkia(Canvas: ISkCanvas);
 var
-  Bounds, Plot, LegendRect: TRectF;
-  Paint: ISkPaint;
-  Font: ISkFont;
-  S: TOBDTrendSeries;
+  State: TOBDTrendGraphRenderState;
+  Views: TArray<TOBDTrendSeriesView>;
+  I, J: Integer;
+  Source: TOBDTrendSeries;
+  View: TOBDTrendSeriesView;
 begin
-  Bounds := RectF(0, 0, Width, Height);
-  if (Bounds.Right <= 0) or (Bounds.Bottom <= 0) then Exit;
-
-  // Background.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawRect(Bounds, Paint);
-
-  // Plot area = bounds - padding - legend strip.
-  Plot := RectF(Bounds.Left + TG_DEFAULT_PADDING,
-                Bounds.Top + TG_DEFAULT_PADDING,
-                Bounds.Right - TG_DEFAULT_PADDING,
-                Bounds.Bottom - TG_DEFAULT_PADDING);
-
-  if FShowLegend then
+  // Marshal every series into the framework-neutral view shape. The
+  // ring buffer's logical-index access already returns oldest-first.
+  SetLength(Views, FSeries.Count);
+  for I := 0 to FSeries.Count - 1 do
   begin
-    LegendRect := RectF(Plot.Left, Plot.Bottom - TG_DEFAULT_LEGEND_HEIGHT,
-                        Plot.Right, Plot.Bottom);
-    Plot.Bottom := Plot.Bottom - TG_DEFAULT_LEGEND_HEIGHT;
-  end
-  else
-    LegendRect := RectF(0, 0, 0, 0);
-
-  if (Plot.Right <= Plot.Left) or (Plot.Bottom <= Plot.Top) then Exit;
-
-  if FShowGrid then DrawGrid(Canvas, Plot);
-
-  for S in FSeries do
-    DrawSeries(Canvas, Plot, S);
-
-  if FShowBorder then
-  begin
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := False;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := 1;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawRect(Plot, Paint);
+    Source := FSeries[I];
+    View.Name := Source.Name;
+    View.Color := SafeColorRefToSkColor(Source.Color);
+    View.Min := Source.Min;
+    View.Max := Source.Max;
+    View.Capacity := Source.Capacity;
+    SetLength(View.Samples, Source.Count);
+    for J := 0 to Source.Count - 1 do
+      View.Samples[J] := Source.Values[J];
+    Views[I] := View;
   end;
 
-  if FShowLegend then
-  begin
-    Font := TSkFont.Create(TSkTypeface.MakeDefault, 11);
-    DrawLegend(Canvas, LegendRect, Font);
-  end;
+  State.Width := Width;
+  State.Height := Height;
+  State.Series := Views;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.GridColor := SafeColorRefToSkColor(FGridColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.StrokeWidth := FStrokeWidth;
+  State.Padding := TG_DEFAULT_PADDING;
+  State.LegendHeight := TG_DEFAULT_LEGEND_HEIGHT;
+  State.ShowGrid := FShowGrid;
+  State.ShowLegend := FShowLegend;
+  State.ShowBorder := FShowBorder;
+
+  RenderTrendGraph(Canvas, State);
 end;
+
 
 end.

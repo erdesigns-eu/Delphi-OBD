@@ -23,7 +23,7 @@ uses
   System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.Themes, WinApi.Windows,
   Winapi.Messages, System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.Render.Tachometer;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -394,199 +394,41 @@ begin if (FAnimationDurationMs <> AValue) and (AValue >= 0) then begin FAnimatio
 //------------------------------------------------------------------------------
 procedure TOBDTachometer.PaintSkia(Canvas: ISkCanvas);
 var
-  Cx, Cy, R, RingThick, TickRadius, NeedleLen: Single;
-  ArcRect: TRectF;
-  Paint: ISkPaint;
-  Font, BigFont: ISkFont;
-  Tick: Single;
-  ValueFrac, RedlineFrac, Angle, AngleRad: Single;
-  TickAngleRad: Single;
-  TickInner, TickOuter: TPointF;
-  TickHalfLen: Single;
-  Lbl, ValueText: string;
-  LblWidth: Single;
-  ShiftCx, ShiftCy, ShiftR: Single;
+  State: TOBDTachometerRenderState;
 begin
   UpdateAnimationValue;
 
-  if (Width <= 4) or (Height <= 4) then Exit;
+  // Marshal published properties into the framework-neutral state record.
+  // Painting itself lives in OBD.Render.Tachometer so the FMX wrapper
+  // calls the same renderer.
+  State.Width := Width;
+  State.Height := Height;
+  State.Min := FMin;
+  State.Max := FMax;
+  State.DisplayValue := FDisplayValue;
+  State.RedlineFrom := FRedlineFrom;
+  State.ShiftPoint := FShiftPoint;
+  State.StartAngle := FStartAngle;
+  State.SweepAngle := FSweepAngle;
+  State.MajorTickInterval := FMajorTickInterval;
+  State.MinorTickInterval := FMinorTickInterval;
+  State.TickLabelDivisor := FTickLabelDivisor;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.RingColor := SafeColorRefToSkColor(FRingColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.TickColor := SafeColorRefToSkColor(FTickColor);
+  State.RedlineColor := SafeColorRefToSkColor(FRedlineColor);
+  State.NeedleColor := SafeColorRefToSkColor(FNeedleColor);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.ShiftLightColorOff := SafeColorRefToSkColor(FShiftLightColorOff);
+  State.ShiftLightColorOn := SafeColorRefToSkColor(FShiftLightColorOn);
+  State.Caption := FCaption;
+  State.Units := FUnits;
+  State.ShowShiftLight := FShowShiftLight;
 
-  Cx := Width / 2;
-  Cy := Height / 2;
-  R := System.Math.Min(Width, Height) / 2 - 4;
-  if R < 8 then Exit;
-
-  RingThick := R * 0.10;
-  TickRadius := R - RingThick - 4;
-  NeedleLen := TickRadius - 8;
-
-  // Background fill.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawCircle(Cx, Cy, R, Paint);
-
-  // Ring (background arc) — drawn full sweep first, redline overlays it.
-  ArcRect := RectF(Cx - R + RingThick / 2, Cy - R + RingThick / 2,
-                   Cx + R - RingThick / 2, Cy + R - RingThick / 2);
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := RingThick;
-  Paint.StrokeCap := TSkStrokeCap.Butt;
-  Paint.Color := SafeColorRefToSkColor(FRingColor);
-  Canvas.DrawArc(ArcRect, FStartAngle, FSweepAngle, False, Paint);
-
-  // Redline arc — only the segment from RedlineFrom..Max.
-  if (FRedlineFrom > FMin) and (FRedlineFrom < FMax) then
-  begin
-    RedlineFrac := ValueToFraction(FRedlineFrom);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := RingThick;
-    Paint.StrokeCap := TSkStrokeCap.Butt;
-    Paint.Color := SafeColorRefToSkColor(FRedlineColor);
-    Canvas.DrawArc(ArcRect,
-      FStartAngle + RedlineFrac * FSweepAngle,
-      (1 - RedlineFrac) * FSweepAngle, False, Paint);
-  end;
-
-  // Outer border circle.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := 1;
-  Paint.Color := SafeColorRefToSkColor(FBorderColor);
-  Canvas.DrawCircle(Cx, Cy, R, Paint);
-
-  // Tick marks + labels.
-  Font := TSkFont.Create(TSkTypeface.MakeDefault, System.Math.Max(10, R * 0.10));
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTickColor);
-
-  Tick := FMin;
-  while Tick <= FMax + 0.0001 do
-  begin
-    ValueFrac := ValueToFraction(Tick);
-    Angle := FStartAngle + ValueFrac * FSweepAngle;
-    TickAngleRad := DegToRad(Angle);
-
-    TickHalfLen := R * 0.06;
-    TickInner.X := Cx + Cos(TickAngleRad) * (TickRadius - TickHalfLen);
-    TickInner.Y := Cy + Sin(TickAngleRad) * (TickRadius - TickHalfLen);
-    TickOuter.X := Cx + Cos(TickAngleRad) * TickRadius;
-    TickOuter.Y := Cy + Sin(TickAngleRad) * TickRadius;
-
-    Paint.StrokeWidth := 2;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Canvas.DrawLine(TickInner.X, TickInner.Y, TickOuter.X, TickOuter.Y, Paint);
-
-    // Major-tick label.
-    Lbl := IntToStr(Round(Tick / FTickLabelDivisor));
-    LblWidth := Font.MeasureText(Lbl, Paint);
-    Paint.Style := TSkPaintStyle.Fill;
-    Canvas.DrawSimpleText(Lbl,
-      Cx + Cos(TickAngleRad) * (TickRadius - TickHalfLen - LblWidth) - LblWidth / 2,
-      Cy + Sin(TickAngleRad) * (TickRadius - TickHalfLen - 12) + Font.Size / 2,
-      Font, Paint);
-
-    Tick := Tick + FMajorTickInterval;
-  end;
-
-  // Minor ticks (no labels).
-  Tick := FMin;
-  while Tick <= FMax + 0.0001 do
-  begin
-    if System.Frac(Tick / FMajorTickInterval) > 0.001 then
-    begin
-      ValueFrac := ValueToFraction(Tick);
-      Angle := FStartAngle + ValueFrac * FSweepAngle;
-      TickAngleRad := DegToRad(Angle);
-
-      TickHalfLen := R * 0.03;
-      TickInner.X := Cx + Cos(TickAngleRad) * (TickRadius - TickHalfLen);
-      TickInner.Y := Cy + Sin(TickAngleRad) * (TickRadius - TickHalfLen);
-      TickOuter.X := Cx + Cos(TickAngleRad) * TickRadius;
-      TickOuter.Y := Cy + Sin(TickAngleRad) * TickRadius;
-
-      Paint.StrokeWidth := 1;
-      Paint.Style := TSkPaintStyle.Stroke;
-      Canvas.DrawLine(TickInner.X, TickInner.Y, TickOuter.X, TickOuter.Y, Paint);
-    end;
-    Tick := Tick + FMinorTickInterval;
-  end;
-
-  // Caption + numeric value.
-  BigFont := TSkFont.Create(TSkTypeface.MakeDefault, System.Math.Max(14, R * 0.18));
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTextColor);
-
-  if FCaption <> '' then
-    Canvas.DrawSimpleText(FCaption,
-      Cx - Font.MeasureText(FCaption, Paint) / 2,
-      Cy - R * 0.30,
-      Font, Paint);
-
-  ValueText := IntToStr(Round(FDisplayValue));
-  if FUnits <> '' then
-    ValueText := ValueText + ' ' + FUnits;
-  Canvas.DrawSimpleText(ValueText,
-    Cx - BigFont.MeasureText(ValueText, Paint) / 2,
-    Cy + R * 0.45,
-    BigFont, Paint);
-
-  // Needle.
-  AngleRad := DegToRad(FStartAngle + ValueToFraction(FDisplayValue) * FSweepAngle);
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := System.Math.Max(2, R * 0.03);
-  Paint.StrokeCap := TSkStrokeCap.Round;
-  Paint.Color := SafeColorRefToSkColor(FNeedleColor);
-  Canvas.DrawLine(Cx, Cy,
-    Cx + Cos(AngleRad) * NeedleLen,
-    Cy + Sin(AngleRad) * NeedleLen, Paint);
-
-  // Pivot cap.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBorderColor);
-  Canvas.DrawCircle(Cx, Cy, System.Math.Max(4, R * 0.08), Paint);
-
-  // Shift light at the top (12 o'clock).
-  if FShowShiftLight then
-  begin
-    ShiftR := System.Math.Max(4, R * 0.08);
-    ShiftCx := Cx;
-    ShiftCy := Cy - R + RingThick / 2 - ShiftR - 6;
-    if ShiftCy < ShiftR + 2 then
-      ShiftCy := ShiftR + 2;
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    if ShiftLightActive then
-      Paint.Color := SafeColorRefToSkColor(FShiftLightColorOn)
-    else
-      Paint.Color := SafeColorRefToSkColor(FShiftLightColorOff);
-    Canvas.DrawCircle(ShiftCx, ShiftCy, ShiftR, Paint);
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := 1;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawCircle(ShiftCx, ShiftCy, ShiftR, Paint);
-  end;
+  RenderTachometer(Canvas, State);
 end;
+
 
 //------------------------------------------------------------------------------
 // ASSIGN
