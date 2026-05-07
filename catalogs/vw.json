@@ -65,7 +65,26 @@
     { "did": "0x06F1", "name": "vag_security_access_seed_l1","description": "Security access seed for level 1",                            "source": "community-pr", "verified": false,
       "decoder": { "kind": "hex" } },
     { "did": "0x06F2", "name": "vag_security_access_seed_l3","description": "Security access seed for level 3 (programming)",            "source": "community-pr", "verified": false,
-      "decoder": { "kind": "hex" } }
+      "decoder": { "kind": "hex" } },
+
+    { "did": "0xF1A6", "name": "vag_long_coding_extended_v2", "description": "VAG MQBevo extended long coding (post-MY2020)", "source": "obdeleven-public", "verified": false,
+      "decoder": { "kind": "hex" } },
+    { "did": "0xF40B", "name": "vag_oil_pressure",            "description": "Engine oil pressure (kPa)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0xF418", "name": "vag_lambda_bank1_sensor1",    "description": "Lambda Bank 1 Sensor 1 voltage (mV)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xF420", "name": "vag_dpf_soot_load",           "description": "DPF soot load (%, VAG TDI)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
+    { "did": "0xF421", "name": "vag_egr_actual_position",     "description": "EGR valve actual position (%)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xF422", "name": "vag_turbo_actual_pressure",   "description": "Turbocharger actual boost pressure (kPa)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0x028A", "name": "vag_dsg_temperature",         "description": "DSG transmission oil temperature (°C)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
+    { "did": "0x028E", "name": "vag_dsg_clutch_wear_k1",      "description": "DSG clutch K1 wear (%)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0x028F", "name": "vag_dsg_clutch_wear_k2",      "description": "DSG clutch K2 wear (%)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
   ],
   "routines": [
     { "id": "0x0203", "name": "reset_long_term_fuel_trim", "description": "Reset adaptive trims",            "source": "ross-tech-wiki",  "verified": false, "ecu_address": "0x7E0" },
@@ -73,6 +92,11 @@
     { "id": "0x0302", "name": "output_test",               "description": "VAG actuator / output test",      "source": "ross-tech-wiki",  "verified": false },
     { "id": "0x0F00", "name": "sas_calibration",           "description": "Steering-angle sensor reset",     "source": "community-pr",    "verified": false, "ecu_address": "0x712" },
     { "id": "0x0F01", "name": "lwr_calibration",           "description": "Headlight range adjustment",      "source": "community-pr",    "verified": false, "ecu_address": "0x7E2" },
-    { "id": "0x0F03", "name": "vagcom_login",              "description": "VAG-COM login (legacy KWP2000)",  "source": "ross-tech-wiki",  "verified": false }
+    { "id": "0x0F03", "name": "vagcom_login",              "description": "VAG-COM login (legacy KWP2000)",  "source": "ross-tech-wiki",  "verified": false },
+    { "id": "0x0203", "name": "reset_kessy_proximity",     "description": "VAG MQB KESSY proximity-sensor relearn", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E2" },
+    { "id": "0x0F02", "name": "epb_service",               "description": "Electronic parking brake service-mode (VAG MQB)", "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x710" },
+    { "id": "0x0F04", "name": "haldex_calibration",        "description": "Haldex / 4MOTION clutch calibration",  "source": "ross-tech-wiki", "verified": false, "ecu_address": "0x7E2" },
+    { "id": "0x0F05", "name": "dpf_regen_force",           "description": "Forced DPF regeneration (VAG TDI / EA288)", "source": "obdeleven-public", "verified": false, "ecu_address": "0x7E0" },
+    { "id": "0x0F06", "name": "vagcom_security_27_03",     "description": "Security access level 3 — programming (VAG)", "source": "ross-tech-wiki", "verified": false }
   ]
 }

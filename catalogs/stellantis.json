@@ -48,6 +48,9 @@
     { "id": "0x0203", "name": "reset_adaptations",       "description": "Reset adaptive learning",          "source": "alfaobd-community", "verified": false },
     { "id": "0x0F00", "name": "sas_calibration",         "description": "Steering-angle sensor calibration","source": "community-pr",       "verified": false },
     { "id": "0x0F01", "name": "bsi_telecoding",          "description": "PSA BSI telecoding",                "source": "diagbox-public",     "verified": false },
-    { "id": "0x0F02", "name": "witech_proxi_align",      "description": "FCA wiTech proxi alignment",        "source": "alfaobd-community", "verified": false }
+    { "id": "0x0F02", "name": "witech_proxi_align",      "description": "FCA wiTech proxi alignment",        "source": "alfaobd-community", "verified": false },
+    { "id": "0x0F03", "name": "stla_dpf_force_regen",    "description": "Forced DPF regeneration (Stellantis diesel)", "source": "diagbox-public", "verified": false, "ecu_address": "0x7E0" },
+    { "id": "0x0F04", "name": "stla_oil_life_reset",     "description": "Reset oil maintenance reminder",    "source": "alfaobd-community", "verified": false },
+    { "id": "0x0F05", "name": "psa_bsi_battery_reg",     "description": "PSA BSI battery registration",       "source": "diagbox-public", "verified": false, "ecu_address": "0x652" }
   ]
 }

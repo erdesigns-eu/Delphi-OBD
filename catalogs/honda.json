@@ -27,8 +27,17 @@
       "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
     { "did": "0xD053", "name": "throttle_position_pct", "description": "Throttle position (%)", "ecu_address": "0x7E0",
       "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
+,
+    { "did": "0xD054", "name": "honda_engine_runtime", "description": "Engine runtime since key-on (s)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be", "unit": "s" } },
+    { "did": "0xD055", "name": "honda_oil_life_pct",   "description": "Oil life remaining (%, Honda IPC)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD060", "name": "honda_hybrid_battery_soc", "description": "IMA / hybrid battery SOC (%, CR-Z / Insight / Accord Hybrid)", "ecu_address": "0x7E2",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
   ],
   "routines": [
-    { "id": "0x0204", "name": "idle_relearn", "description": "Idle-air-control relearn (HDS)", "ecu_address": "0x7E0" }
+    { "id": "0x0204", "name": "idle_relearn", "description": "Idle-air-control relearn (HDS)", "ecu_address": "0x7E0" },
+    { "id": "0x0205", "name": "honda_oil_life_reset", "description": "Reset oil maintenance reminder", "ecu_address": "0x7E5" },
+    { "id": "0x0F00", "name": "honda_sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x7E2" }
   ]
 }

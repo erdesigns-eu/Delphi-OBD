@@ -31,10 +31,19 @@
     { "did": "0xD060", "name": "ev_battery_soc", "description": "EV battery state of charge (%)", "ecu_address": "0x7E5",
       "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } },
     { "did": "0xD061", "name": "ev_battery_soh", "description": "EV battery state of health (%)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } }
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
+
+    { "did": "0xD062", "name": "hmg_motor_temperature", "description": "Drive motor temperature (°C, HMG E-GMP)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD063", "name": "hmg_charge_status",     "description": "Charge port status (HMG E-GMP, Ioniq / EV6)", "ecu_address": "0x7E5",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "swap", "0x04": "fault"} } },
+    { "did": "0xD064", "name": "hmg_remaining_range_km","description": "EV remaining range (km, GOM)", "ecu_address": "0x780",
+      "decoder": { "kind": "uint16_be", "unit": "km" } }
   ],
   "routines": [
     { "id": "0x0204", "name": "crank_relearn", "description": "Crankshaft position relearn", "ecu_address": "0x7E0" },
-    { "id": "0x0F01", "name": "sjb_relearn",   "description": "Smart Junction Box relearn",  "ecu_address": "0x7A0" }
+    { "id": "0x0F01", "name": "sjb_relearn",   "description": "Smart Junction Box relearn",  "ecu_address": "0x7A0" },
+    { "id": "0x0F02", "name": "hmg_battery_register", "description": "12V battery registration (HMG)", "ecu_address": "0x7A0" },
+    { "id": "0x0F03", "name": "hmg_dpf_force_regen",  "description": "Forced DPF regeneration (HMG diesel)", "ecu_address": "0x7E0" }
   ]
 }

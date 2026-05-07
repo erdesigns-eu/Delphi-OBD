@@ -33,13 +33,26 @@
     { "did": "0xF1A2", "name": "cvn_list",              "description": "Calibration Verification Number list",     "source": "tis2web-public", "verified": false,
       "decoder": { "kind": "hex" } },
     { "did": "0xF1A4", "name": "engineering_part_number","description": "GM engineering part number (ASCII)",       "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "ascii" } }
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0x1984", "name": "gm_engine_run_time", "description": "Engine run time (s, GMLAN)", "source": "tis2web-public", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be", "unit": "s" } },
+    { "did": "0x1985", "name": "gm_oil_pressure", "description": "Engine oil pressure (kPa)", "source": "gmlan-public", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0x1986", "name": "gm_oil_life_remaining", "description": "Oil life remaining (%, GM IPC)", "source": "tis2web-public", "verified": false, "ecu_address": "0x244",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0x1987", "name": "gm_throttle_position", "description": "Throttle position (%, GM ETC)", "source": "gmlan-public", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xC100", "name": "gm_immo_status", "description": "GM PassKey / PassLock immobilizer status", "source": "tis2web-public", "verified": false, "ecu_address": "0x243",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "fault"} } }
   ],
   "routines": [
     { "id": "0x0203", "name": "reset_adaptations",     "description": "Reset adaptive learning",            "source": "community-pr",   "verified": false },
     { "id": "0x0204", "name": "crank_relearn",         "description": "Crank position relearn",              "source": "tis2web-public", "verified": false },
     { "id": "0x0205", "name": "tps_relearn",           "description": "Throttle-position-sensor relearn",    "source": "tis2web-public", "verified": false },
     { "id": "0x0F00", "name": "sas_calibration",       "description": "Steering-angle sensor calibration",   "source": "community-pr",   "verified": false },
-    { "id": "0x0F01", "name": "bcm_relearn",           "description": "Body-control-module immobilizer relearn", "source": "community-pr","verified": false }
+    { "id": "0x0F01", "name": "bcm_relearn",           "description": "Body-control-module immobilizer relearn", "source": "community-pr","verified": false },
+    { "id": "0x0F02", "name": "gm_oil_life_reset",     "description": "Reset oil life monitor (GM IPC)",     "source": "tis2web-public", "verified": false, "ecu_address": "0x244" },
+    { "id": "0x0F03", "name": "gm_passkey_relearn",    "description": "PassKey / PassLock relearn (GM BCM)", "source": "tis2web-public", "verified": false, "ecu_address": "0x243" }
   ]
 }

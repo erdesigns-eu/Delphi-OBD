@@ -24,9 +24,18 @@
     { "did": "0xD052", "name": "boost_pressure", "description": "Boost pressure (kPa, turbo)", "ecu_address": "0x7E0",
       "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
     { "did": "0xD053", "name": "afr_target", "description": "Target air/fuel ratio", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001 } }
+      "decoder": { "kind": "uint16_be", "scale": 0.001 } },
+
+    { "did": "0xD054", "name": "subaru_engine_oil_temp", "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD055", "name": "subaru_atf_temp",        "description": "AT / CVT fluid temperature (°C)", "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
+    { "did": "0xD060", "name": "subaru_awd_torque_split","description": "AWD front:rear torque split (% to rear)", "ecu_address": "0x7E2",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
   ],
   "routines": [
-    { "id": "0x0204", "name": "cvt_relearn", "description": "CVT clutch-pressure relearn (SSM4)", "ecu_address": "0x7E1" }
+    { "id": "0x0204", "name": "cvt_relearn", "description": "CVT clutch-pressure relearn (SSM4)", "ecu_address": "0x7E1" },
+    { "id": "0x0F00", "name": "subaru_sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x7B0" },
+    { "id": "0x0F03", "name": "subaru_battery_register", "description": "Battery registration after replacement", "ecu_address": "0x7C4" }
   ]
 }

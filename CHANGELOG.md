@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.18.0] - 2026-05-07 — Catalog deepening + verification protocol
+
+### Added (per-OEM catalog enrichment)
+Across the existing 17 passenger OEM catalogs, **~70 new DID + routine entries** were added (all `verified: false` per the v3.3 provenance contract until cross-validated). Highlights:
+- **VW (`catalogs/vw.json`)** — +9 DIDs incl. oil pressure (0xF40B), Lambda Bank 1 Sensor 1, DPF soot load (0xF420), EGR actual position, turbo actual boost, DSG transmission oil temp + DSG K1/K2 clutch wear (0x028E/F). +5 routines: KESSY proximity relearn, EPB service, Haldex calibration, DPF force-regen, security access level 3.
+- **BMW (`catalogs/bmw.json`)** — +10 DIDs incl. DME / EGS software ID, oil level mm, oil temp, charge-air temp + boost, engine runtime, EGS oil temp + clutch wear, DSC yaw rate (0xC100). +5 routines: EZS / KESSY relearn, EMF / EPB service, RDC tire-pressure relearn, BMS battery registration, BMW TPI DPF regen.
+- **Ford (`catalogs/ford.json`)** — +9 DIDs incl. engine hours, engine starts, IAT / ECT / throttle, EcoBoost MAP, PowerStroke DPF soot load, PATS status enum + key count. +5 routines: PCM KAM reset, oil life reset, PATS key program, DPF force-regen, EPB service.
+- **Toyota (`catalogs/toyota.json`)** — +8 DIDs incl. engine run time, throttle / IAT / ECT, hybrid inverter temp, hybrid battery max + min block voltage, vehicle grade. +3 routines: smart-key relearn, hybrid battery test, oil maintenance reset.
+- **Mercedes-Benz** — +5 DIDs (oil pressure, oil level mm, DPF soot load, AdBlue tank level, steering angle). +3 routines (EIS relearn, DPF regen, battery registration).
+- **GM** — +5 DIDs (engine run time, oil pressure, oil life, throttle, immobilizer status enum). +2 routines (oil life reset, PassKey relearn).
+- **Stellantis** — +3 routines (DPF regen, oil life reset, PSA BSI battery reg).
+- **Honda + HMG + Nissan + Subaru + Mazda + Renault + Volvo** — 3 DIDs + 2-3 routines each: oil life, hybrid / EV pack data, brand-specific routines (battery registration, SAS calibration, oil-life reset, DPF regen).
+
+### Added (verification protocol)
+- **`docs/CATALOG_FORMAT.md`** gains a comprehensive **acceptable-citations table** documenting what `source` values qualify an entry for `verified: true` (ISO standard / SAE standard / capture fixture / OEM-published spec — and explicitly excluding NDA-protected dealer DBs and "I tried it and it worked").
+- A **provenance vocabulary table** lists every `source` token the shipped catalogs use (~30 entries: ISO / SAE / GMLAN / TIS2Web / Motorcraft / ForScan / Ross-Tech / OBDeleven / E-Sys / bimmer-utility / XENTRY / HHTwin / Techstream / HDS / GDS / KDS / Consult / SSM / OpenECU / M-MDS / CLIP / VIDA / Tesla Toolbox / SDT / MUT-III / INSITE / DDDL / DAVIE4 / PTT / SDP3 / MAN-cats / BYD / Geely / NIO / Xpeng / GWM communities) so PR authors know which token is appropriate without reading the full source.
+- New **`Tests.OEM.CatalogSmoke`** fixture: cycles every shipped JSON catalog through `TOBDOEMJSONCatalog.Create` and asserts the file parses without raising, declares a non-empty `manufacturer_key` (where applicable), and contributes at least one DID or routine. The regression guard that catches a trailing-comma typo or a bad decoder kind before tagging — **31 catalogs covered**.
+
+### Changed
+- `tests/Tests.dpr` registers the new smoke fixture.
+
+### Notes
+- Production callers filter `Verified` for production-critical paths:
+  ```pascal
+  for D in Ext.DataIdentifiers do
+    if D.Verified then UseInProduction(D);
+  ```
+- Universal `uds-standard.json` + `obd2-pids.json` + `dtc-iso-15031.json` remain the largest pools of `verified: true` entries (built from ISO / SAE published tables). Per-OEM catalogs grow toward `verified: true` as community contributors cite published specs in their PRs.
+
 ## [3.17.0] - 2026-05-07 — Chinese OEMs (BYD / Geely / NIO / Xpeng / GWM)
 
 ### Added (5 new Chinese OEM extensions)

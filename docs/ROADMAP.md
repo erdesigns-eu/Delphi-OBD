@@ -41,6 +41,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.15 More OEMs + catalog enrichment | Renault Group, Volvo Cars, Tesla, Suzuki, Mitsubishi (5 new OEMs). VR1 moved from Stellantis to Renault. Universal obd2-pids catalog +17 verified entries; universal DTC catalog +47 verified entries. Total OEMs now 17 covering ~95% global passenger fleet | ✅ Tagged v3.15.0 (2026-05-07) |
 | v3.16 Heavy-duty (J1939) OEMs | 6 new HD extensions: Cummins + Detroit Diesel (engine-only), PACCAR (Peterbilt/Kenworth/DAF/Leyland), Volvo Trucks (Mack + Renault Trucks), Scania, MAN. Shared OBD.OEM.HD base (3000 ms heartbeat, J1939 source-address constants, SPN-FMI helpers, DM1 packed-DTC parser). Total OEMs now 23 | ✅ Tagged v3.16.0 (2026-05-07) |
 | v3.17 Chinese OEMs | 5 new EV-focused extensions: BYD (Blade battery + DiPilot), Geely / Lynk & Co / Zeekr, NIO (Aquila AD + battery-swap), Xpeng (XPILOT ADAS), Great Wall (Haval/WEY/ORA/Tank/Poer + Hi4 hybrid). Total OEMs now 28 | ✅ Tagged v3.17.0 (2026-05-07) |
+| v3.18 Catalog deepening + verification protocol | ~70 new DID + routine entries across 17 passenger OEM catalogs (VW + BMW + Ford + Toyota deepened significantly; MB, GM, Stellantis, Honda, HMG, Nissan, Subaru, Mazda, Renault, Volvo each grow). Acceptable-citations table and provenance vocabulary added to CATALOG_FORMAT.md. New catalog-load smoke fixture covers all 31 shipped JSON catalogs | ✅ Tagged v3.18.0 (2026-05-07) |
 
 ---
 

@@ -56,12 +56,38 @@
       "decoder": { "kind": "uint8" } },
 
     { "did": "0xE001", "name": "vehicle_identification_short", "description": "Short vehicle identification (model code)",        "source": "esys-community", "verified": false, "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } }
+      "decoder": { "kind": "ascii" } },
+
+    { "did": "0xD200", "name": "bmw_dme_software_id",  "description": "DME software ID (engine controller)", "source": "esys-community", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD202", "name": "bmw_egs_software_id",  "description": "EGS / ZF8HP software ID", "source": "esys-community", "verified": false, "ecu_address": "0x07",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD300", "name": "bmw_engine_oil_level", "description": "Engine oil level (mm above dipstick min)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "mm" } },
+    { "did": "0xD301", "name": "bmw_engine_oil_temp",  "description": "Engine oil temperature (°C)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD302", "name": "bmw_charge_air_temp",  "description": "Charge-air temperature (°C, BMW N20/N55/B58)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD303", "name": "bmw_charge_air_pressure", "description": "Charge-air boost pressure (kPa)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0xD304", "name": "bmw_engine_runtime", "description": "Engine runtime since DME flash (s)", "source": "esys-community", "verified": false, "ecu_address": "0x12",
+      "decoder": { "kind": "uint32_be", "unit": "s" } },
+    { "did": "0xD400", "name": "bmw_egs_oil_temp", "description": "EGS / ZF8HP transmission oil temperature (°C)", "source": "esys-community", "verified": false, "ecu_address": "0x07",
+      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
+    { "did": "0xD401", "name": "bmw_egs_clutch_wear", "description": "EGS clutch wear estimate (%)", "source": "esys-community", "verified": false, "ecu_address": "0x07",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xC100", "name": "bmw_dsc_yaw_rate", "description": "DSC yaw-rate sensor (°/s, signed)", "source": "esys-community", "verified": false, "ecu_address": "0x29",
+      "decoder": { "kind": "int16_be", "scale": 0.0125, "unit": "deg/s" } }
   ],
   "routines": [
     { "id": "0x0F03", "name": "fa_write",                  "description": "Write FA / vehicle order",          "source": "esys-community", "verified": false, "ecu_address": "0x10" },
     { "id": "0x0202", "name": "service_function",          "description": "Service-mode flag",                  "source": "community-pr",   "verified": false },
     { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning",            "source": "community-pr",   "verified": false, "ecu_address": "0x12" },
-    { "id": "0x0F00", "name": "sas_calibration",           "description": "Steering-angle sensor calibration",  "source": "community-pr",   "verified": false, "ecu_address": "0x29" }
+    { "id": "0x0F00", "name": "sas_calibration",           "description": "Steering-angle sensor calibration",  "source": "community-pr",   "verified": false, "ecu_address": "0x29" },
+    { "id": "0x0F01", "name": "ezs_kessy_relearn",         "description": "EZS / KESSY proximity relearn (BMW)", "source": "esys-community", "verified": false, "ecu_address": "0x72" },
+    { "id": "0x0F02", "name": "epb_service",               "description": "EMF / EPB electronic parking-brake service-mode toggle", "source": "esys-community", "verified": false, "ecu_address": "0x29" },
+    { "id": "0x0F04", "name": "rdc_relearn",               "description": "RDC tire-pressure sensor relearn", "source": "esys-community", "verified": false, "ecu_address": "0x40" },
+    { "id": "0x0F05", "name": "battery_registration",      "description": "Battery registration after replacement (BMW BMS)", "source": "bimmer-utility", "verified": false, "ecu_address": "0x40" },
+    { "id": "0x0F06", "name": "tpi_dpf_regen",             "description": "Forced DPF regeneration (BMW TPI / N57 / B47 diesel)", "source": "esys-community", "verified": false, "ecu_address": "0x12" }
   ]
 }

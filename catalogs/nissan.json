@@ -30,10 +30,19 @@
     { "did": "0xD060", "name": "ev_pack_voltage", "description": "Leaf / Ariya pack voltage (V)", "ecu_address": "0x793",
       "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
     { "did": "0xD061", "name": "ev_pack_soc",     "description": "Leaf / Ariya pack SOC (%)",     "ecu_address": "0x793",
-      "decoder": { "kind": "uint8",    "scale": 0.5, "unit": "%" } }
+      "decoder": { "kind": "uint8",    "scale": 0.5, "unit": "%" } },
+
+    { "did": "0xD062", "name": "nissan_leaf_battery_temp", "description": "Leaf / Ariya battery pack temperature (°C)", "ecu_address": "0x793",
+      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "C" } },
+    { "did": "0xD063", "name": "nissan_leaf_capacity_bars","description": "Leaf battery capacity bars (12 = new)", "ecu_address": "0x793",
+      "decoder": { "kind": "uint8" } },
+    { "did": "0xD070", "name": "nissan_cvt_oil_temp",      "description": "CVT JATCO transmission oil temperature (°C)", "ecu_address": "0x7E1",
+      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } }
   ],
   "routines": [
     { "id": "0x0204", "name": "idle_relearn",  "description": "Idle volume relearn (Consult III+)", "ecu_address": "0x7E0" },
-    { "id": "0x0205", "name": "tps_relearn",   "description": "Throttle valve closed-position relearn", "ecu_address": "0x7E0" }
+    { "id": "0x0205", "name": "tps_relearn",   "description": "Throttle valve closed-position relearn", "ecu_address": "0x7E0" },
+    { "id": "0x0F00", "name": "nissan_sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x763" },
+    { "id": "0x0F02", "name": "nissan_battery_register", "description": "BCM battery registration (Nissan)", "ecu_address": "0x740" }
   ]
 }

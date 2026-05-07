@@ -25,9 +25,18 @@
     { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
       "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
     { "did": "0xD052", "name": "engine_coolant_temperature", "description": "Coolant temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } }
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+
+    { "did": "0xD053", "name": "mazda_skyactiv_compression_ratio", "description": "Mazda SkyActiv compression ratio readback (debug)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.1 } },
+    { "did": "0xD054", "name": "mazda_oil_life_pct", "description": "Oil life remaining (%, Mazda IPC)", "ecu_address": "0x720",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD060", "name": "mazda_idle_air_actual", "description": "Idle air control actual position", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8" } }
   ],
   "routines": [
-    { "id": "0x0204", "name": "idle_relearn", "description": "Idle re-learn (M-MDS)", "ecu_address": "0x7E0" }
+    { "id": "0x0204", "name": "idle_relearn", "description": "Idle re-learn (M-MDS)", "ecu_address": "0x7E0" },
+    { "id": "0x0F00", "name": "mazda_sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x741" },
+    { "id": "0x0F02", "name": "mazda_oil_life_reset", "description": "Reset oil life monitor (Mazda IPC)", "ecu_address": "0x720" }
   ]
 }

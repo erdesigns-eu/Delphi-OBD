@@ -31,10 +31,19 @@
     { "did": "0xD052", "name": "engine_oil_temperature", "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
       "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
     { "did": "0xD060", "name": "ev_pack_soh", "description": "EV battery state of health (%, EX30 / EX90)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } }
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
+
+    { "did": "0xD053", "name": "volvo_oil_life_pct",     "description": "Oil life remaining (%, Volvo DIM)", "ecu_address": "0x742",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD054", "name": "volvo_charge_status",    "description": "Charge port status (Volvo Recharge)", "ecu_address": "0x785",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
+    { "did": "0xD055", "name": "volvo_remaining_range_km","description": "Volvo Recharge — remaining range (km)", "ecu_address": "0x785",
+      "decoder": { "kind": "uint16_be", "unit": "km" } }
   ],
   "routines": [
     { "id": "0x0204", "name": "epb_service",  "description": "Electronic Parking Brake service-mode toggle", "ecu_address": "0x762" },
-    { "id": "0x0F02", "name": "rdc_relearn",  "description": "TPMS / RDC sensor relearn", "ecu_address": "0x762" }
+    { "id": "0x0F02", "name": "rdc_relearn",  "description": "TPMS / RDC sensor relearn", "ecu_address": "0x762" },
+    { "id": "0x0F03", "name": "volvo_battery_register", "description": "Battery registration (Volvo CEM)", "ecu_address": "0x740" },
+    { "id": "0x0F04", "name": "volvo_oil_life_reset",   "description": "Reset oil life monitor", "ecu_address": "0x742" }
   ]
 }

@@ -31,10 +31,30 @@
     { "did": "0xD060", "name": "hybrid_battery_soc", "description": "Hybrid battery state of charge (%)", "ecu_address": "0x7E2",
       "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
     { "did": "0xD061", "name": "hybrid_battery_voltage", "description": "Hybrid battery voltage (V)", "ecu_address": "0x7E2",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } }
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
+
+    { "did": "0xD053", "name": "toyota_engine_run_time", "description": "Engine running time since key-on (s)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be", "unit": "s" } },
+    { "did": "0xD054", "name": "toyota_throttle_position", "description": "Throttle position (%)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD055", "name": "toyota_intake_air_temperature", "description": "IAT (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD056", "name": "toyota_engine_coolant_temperature", "description": "Coolant temperature (°C)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD062", "name": "hybrid_inverter_temperature", "description": "Hybrid inverter temp (°C, Prius / RAV4 hybrid)", "ecu_address": "0x7E2",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xD063", "name": "hybrid_battery_block_voltage_max", "description": "Highest hybrid battery block voltage (V)", "ecu_address": "0x7E2",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xD064", "name": "hybrid_battery_block_voltage_min", "description": "Lowest hybrid battery block voltage (V)", "ecu_address": "0x7E2",
+      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
+    { "did": "0xF1A4", "name": "toyota_vehicle_grade",    "description": "Toyota grade / variant (e.g. LE / SE / XLE)", "ecu_address": "0x7C8",
+      "decoder": { "kind": "ascii" } }
   ],
   "routines": [
     { "id": "0x0204", "name": "crank_relearn",   "description": "Crankshaft position relearn",  "ecu_address": "0x7E0" },
-    { "id": "0x0205", "name": "tps_relearn",     "description": "Throttle-position-sensor relearn", "ecu_address": "0x7E0" }
+    { "id": "0x0205", "name": "tps_relearn",     "description": "Throttle-position-sensor relearn", "ecu_address": "0x7E0" },
+    { "id": "0x0206", "name": "smart_key_relearn", "description": "Toyota smart-key proximity relearn", "ecu_address": "0x758" },
+    { "id": "0x0207", "name": "hybrid_battery_test", "description": "Hybrid battery block-voltage test (TechStream)", "ecu_address": "0x7E2" },
+    { "id": "0x020A", "name": "toyota_oil_maintenance_reset", "description": "Reset oil maintenance reminder (Toyota cluster)", "ecu_address": "0x7C8" }
   ]
 }

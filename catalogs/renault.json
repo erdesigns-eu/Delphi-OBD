@@ -30,10 +30,19 @@
     { "did": "0xD060", "name": "ev_pack_voltage", "description": "Zoe / Megane E-Tech pack voltage (V)", "ecu_address": "0x785",
       "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
     { "did": "0xD061", "name": "ev_pack_soc", "description": "Zoe / Megane E-Tech pack SOC (%)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } }
+      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } },
+
+    { "did": "0xD062", "name": "renault_dpf_soot_load", "description": "DPF soot load (%, Renault dCi)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
+    { "did": "0xD063", "name": "renault_oil_life_pct",  "description": "Oil life remaining (%)", "ecu_address": "0x762",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xD064", "name": "renault_egr_actual",    "description": "EGR valve actual position (%)", "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
   ],
   "routines": [
     { "id": "0x0205", "name": "tps_relearn",         "description": "Throttle-pedal learning (CLIP)", "ecu_address": "0x7E0" },
-    { "id": "0x0F01", "name": "auto_clutch_relearn", "description": "AMT clutch-touchpoint relearn", "ecu_address": "0x7E1" }
+    { "id": "0x0F01", "name": "auto_clutch_relearn", "description": "AMT clutch-touchpoint relearn", "ecu_address": "0x7E1" },
+    { "id": "0x0F02", "name": "renault_after_2nd_key","description": "After-sale 2nd-key code injection (CLIP)", "ecu_address": "0x760" },
+    { "id": "0x0F03", "name": "renault_dpf_force_regen","description": "Forced DPF regeneration (Renault dCi)", "ecu_address": "0x7E0" }
   ]
 }

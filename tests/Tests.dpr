@@ -61,7 +61,8 @@ uses
   Tests.OEM.AsiaPacific in 'Tests.OEM.AsiaPacific.pas',
   Tests.OEM.Extras2 in 'Tests.OEM.Extras2.pas',
   Tests.OEM.HD in 'Tests.OEM.HD.pas',
-  Tests.OEM.China in 'Tests.OEM.China.pas';
+  Tests.OEM.China in 'Tests.OEM.China.pas',
+  Tests.OEM.CatalogSmoke in 'Tests.OEM.CatalogSmoke.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

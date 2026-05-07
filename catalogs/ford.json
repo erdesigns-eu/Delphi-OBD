@@ -44,12 +44,36 @@
     { "did": "0xF1A0", "name": "asbuilt_5byte_block",  "description": "AsBuilt 5-byte block (Ford coding)",                 "source": "forscan-community", "verified": false,
       "decoder": { "kind": "hex" } },
     { "did": "0xF1A1", "name": "asbuilt_5byte_checksum","description": "AsBuilt 5-byte block checksum",                     "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "hex" } }
+      "decoder": { "kind": "hex" } },
+
+    { "did": "0xDD01", "name": "ford_engine_hours", "description": "Engine running hours (Ford PCM)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
+    { "did": "0xDD02", "name": "ford_engine_starts","description": "Engine start count (lifetime)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint32_be" } },
+    { "did": "0xDE03", "name": "ford_iat_intake_air_temperature", "description": "IAT intake air temperature (°C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xDE04", "name": "ford_ect_coolant_temperature", "description": "Engine coolant temperature (°C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
+    { "did": "0xDE05", "name": "ford_throttle_position", "description": "Throttle position (%, Ford ETC)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
+    { "did": "0xDE06", "name": "ford_boost_pressure",    "description": "EcoBoost manifold absolute pressure (kPa)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
+    { "did": "0xDE07", "name": "ford_dpf_soot_load",     "description": "Ford 6.7 PowerStroke / 3.0 EcoDiesel DPF soot load (%)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x7E0",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
+    { "did": "0xDF03", "name": "ford_pats_status",       "description": "PATS (Passive Anti-Theft) status enum", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
+      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "alarm", "0x03": "fault"} } },
+    { "did": "0xDF04", "name": "ford_keys_count",        "description": "Number of programmed keys (Ford PATS)", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
+      "decoder": { "kind": "uint8" } }
   ],
   "routines": [
     { "id": "0x0202", "name": "kam_reset",            "description": "Keep-Alive Memory reset",          "source": "forscan-community", "verified": false },
     { "id": "0x0203", "name": "fuel_trim_reset",      "description": "Reset adaptive fuel trim",          "source": "forscan-community", "verified": false },
     { "id": "0x0207", "name": "sas_calibration",      "description": "Steering angle sensor reset",       "source": "community-pr",      "verified": false },
-    { "id": "0x0208", "name": "tpms_relearn",         "description": "Tire-pressure monitoring relearn",  "source": "community-pr",      "verified": false }
+    { "id": "0x0208", "name": "tpms_relearn",         "description": "Tire-pressure monitoring relearn",  "source": "community-pr",      "verified": false },
+    { "id": "0x0209", "name": "ford_pcm_kam_reset",   "description": "PCM KAM reset (Ford-specific)",     "source": "forscan-community", "verified": false, "ecu_address": "0x7E0" },
+    { "id": "0x020A", "name": "ford_oil_life_reset",  "description": "Reset oil life monitor (Ford IPC)", "source": "forscan-community", "verified": false, "ecu_address": "0x726" },
+    { "id": "0x020B", "name": "ford_pats_key_program","description": "Program new PATS key (Ford)",       "source": "forscan-community", "verified": false, "ecu_address": "0x731" },
+    { "id": "0x0F02", "name": "ford_dpf_force_regen", "description": "Forced DPF regeneration (Ford diesel)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x7E0" },
+    { "id": "0x0F03", "name": "ford_epb_service",     "description": "Electronic parking brake service-mode (Ford)", "source": "forscan-community", "verified": false }
   ]
 }
