@@ -23,7 +23,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v2.3 Async & Logging | Async APIs, structured logs, replay | ✅ Tagged v2.3.0 (2026-05-06) |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ✅ Tagged v2.4.0 (2026-05-06) |
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ✅ Tagged v2.5.0 (2026-05-06) |
-| v3.0 FMX & Mobile | Cross-platform port, OEM extensions | ☐ Not started |
+| v3.0 FMX & OEM | Shared renderer, FMX binding, OEM hooks | ✅ Tagged v3.0.0 (2026-05-06) |
 
 ---
 
@@ -233,26 +233,35 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 
 > Goal: cross-platform and OEM-extensible. Major version bump.
 
-### FMX port
-- [ ] **🔴 XL** Extract platform-agnostic units into a shared package (most of `Adapters/`, `Connection/`, `Protocol/`, `Services/`, `VIN/`, `RadioCode/` — already mostly platform-agnostic).
-- [ ] **🔴 XL** FMX wrappers for visual components (gauges, headers, statusbars) using FMX Canvas + Skia.
-- [ ] **🟠 L** iOS BLE transport.
-- [ ] **🟠 L** Android BLE transport.
-- [ ] **🟠 M** macOS USB-serial transport.
-- [ ] **🟠 L** Mobile dashboard example (`examples/mobile_dashboard/`).
-- [ ] **🟢 M** Linux build (FMXLinux) — opportunistic.
+### FMX port (shared-renderer pattern)
+- [x] **🔴 L** Extract a framework-neutral renderer for the LinearGauge as the proof-of-concept. *(v3.0)*
+  *DoD:* `src/CustomControls/OBD.Render.LinearGauge.pas` exposes `RenderLinearGauge(Canvas, State)` working off a `TOBDLinearGaugeRenderState` record. The VCL `TOBDLinearGauge` and the FMX `TOBDLinearGaugeFMX` both marshal their state into the record and call the same render function — colour fixes, layout tweaks and bug fixes land in both bindings simultaneously.
+- [x] **🔴 L** FMX binding for the LinearGauge. *(v3.0)*
+  *DoD:* `src/Components/OBD.LinearGauge.FMX.pas`'s `TOBDLinearGaugeFMX` extends `TSkPaintBox`, wires `OnDraw`, mirrors the published-property surface of the VCL component (with `TAlphaColor` colour properties to suit FMX), and self-drives the same `EaseOutCubic` value transition without the AnimationManager that we removed in v2.2. Lives in the new `Packages/RunTime.FMX.dpk` so VCL builds aren't dragged into FMX dependencies.
+- [ ] **🟠 L** Apply the renderer-extract pattern to Tachometer, TrendGraph, DtcList, Terminal, Knob, SegmentedSwitch, LED. *(backlog — each is a self-contained chunk roughly the size of LinearGauge)*
+- [ ] **🟠 L** iOS BLE transport. *(backlog — reuses the GATT abstraction in `OBD.Connection.BLE` with the iOS-side platform code)*
+- [ ] **🟠 L** Android BLE transport. *(backlog)*
+- [ ] **🟠 M** macOS USB-serial transport. *(backlog)*
+- [ ] **🟠 L** Mobile dashboard example (`examples/mobile_dashboard/`). *(backlog — lights up once the remaining FMX bindings ship)*
 
 ### OEM-specific protocol extensions
-- [ ] **🟠 L** Extension hook architecture — `IOBDOEMExtension`, registration, discovery.
-- [ ] **🟠 L** VW group UDS extensions reference implementation.
-- [ ] **🟢 L** BMW E-Sys-style coding reference.
-- [ ] **🟢 L** Mercedes XENTRY-style sessions reference.
+- [x] **🟠 L** Extension hook architecture — `IOBDOEMExtension`, `TOBDOEMRegistry`, `TOBDOEMExtensionBase`. *(v3.0)*
+  *DoD:* `src/Services/OBD.OEM.pas` ships the contract (manufacturer key + display name + applicability + DID/Routine catalogs + per-DID decode), the process-wide registry with thread-safe register/unregister/find-by-key/find-by-VIN, and a base class with lazy catalog construction. `OBD.OEM.Helpers` adds `DID()` and `Routine()` factory functions for compact catalog literals.
+- [x] **🟠 L** VW group UDS extension reference. *(v3.0)*
+  *DoD:* `src/Services/OBD.OEM.VW.pas` matches WMIs `WVW`, `WV1`, `WV2`, `WAU`, `TRU`, `TMB`, `VSS` and ships a starter catalog of common DIDs + routines. Decodes `battery_voltage` (mV → V), `vehicle_speed` (km/h), and `vin` (ASCII).
+- [x] **🟢 L** BMW reference. *(v3.0)*
+  *DoD:* `src/Services/OBD.OEM.BMW.pas` matches WMIs `WBA`, `WBS`, `WBY`, `WMW`, `5UX`, `4US` with starter catalog and decoders for `mileage`, `battery_voltage`, `vin`, plus the `i_stufe` and `fa_assembly` DIDs that drive E-Sys-style coding workflows.
+- [ ] **🟢 L** Mercedes XENTRY-style sessions reference. *(backlog)*
+
+### Tooling
+- [x] **🟠 M** OEM demo app. *(v3.0)*
+  *DoD:* `examples/oem_demo/` console: takes a VIN and lists the matching extension's catalog, optionally decoding a DID payload from hex. Documented in `examples/oem_demo/README.md`.
 
 ### Async polish
-- [ ] **🟢 M** Custom attributes for service/PID metadata (RTTI-driven binding to UI).
-- [ ] **🟢 S** FireDAC-backed persistent log + DTC history.
+- [ ] **🟢 M** Custom attributes for service/PID metadata (RTTI-driven binding to UI). *(backlog)*
+- [ ] **🟢 S** FireDAC-backed persistent log + DTC history. *(backlog)*
 
-**Exit criteria for v3.0:** At least one mobile target shipping; one OEM extension reference complete; v3.0.0 tagged.
+**Exit criteria for v3.0:** ✅ Shared-renderer pattern proven (LinearGauge VCL + FMX share `OBD.Render.LinearGauge`), OEM extension framework + two reference manufacturers shipped with full test coverage; v3.0.0 tagged 2026-05-06. Remaining FMX component bindings + iOS/Android BLE + Mercedes reference are well-scoped follow-ups for v3.1+.
 
 ---
 

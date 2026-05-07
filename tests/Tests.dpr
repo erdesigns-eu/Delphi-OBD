@@ -42,7 +42,8 @@ uses
   Tests.ECU.Flashing in 'Tests.ECU.Flashing.pas',
   Tests.SecureSettings in 'Tests.SecureSettings.pas',
   Tests.Audit in 'Tests.Audit.pas',
-  Tests.Security.AttemptCounter in 'Tests.Security.AttemptCounter.pas';
+  Tests.Security.AttemptCounter in 'Tests.Security.AttemptCounter.pas',
+  Tests.OEM in 'Tests.OEM.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

@@ -55,6 +55,19 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### 🏷️ oem_demo/
+**Complexity**: Beginner
+**Connection**: None (registry lookup only)
+**What it demonstrates**:
+- `IOBDOEMExtension` framework + `TOBDOEMRegistry` lookup by VIN
+- Reference VW group + BMW extensions
+- DID + RoutineControl catalog inspection
+- Per-DID payload decoding with unit conversion
+
+**Best for**: Adding manufacturer-specific UDS coverage to your project.
+
+---
+
 ### ⏯️ replay/
 **Complexity**: Beginner
 **Connection**: None (reads `.obdlog` files)

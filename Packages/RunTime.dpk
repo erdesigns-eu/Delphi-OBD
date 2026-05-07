@@ -85,6 +85,11 @@ contains
   OBD.ECU.Flashing in '..\src\Services\OBD.ECU.Flashing.pas',
   OBD.SecureSettings in '..\src\Utilities\OBD.SecureSettings.pas',
   OBD.Audit in '..\src\Utilities\OBD.Audit.pas',
-  OBD.Security.AttemptCounter in '..\src\Utilities\OBD.Security.AttemptCounter.pas';
+  OBD.Security.AttemptCounter in '..\src\Utilities\OBD.Security.AttemptCounter.pas',
+  OBD.Render.LinearGauge in '..\src\CustomControls\OBD.Render.LinearGauge.pas',
+  OBD.OEM in '..\src\Services\OBD.OEM.pas',
+  OBD.OEM.Helpers in '..\src\Services\OBD.OEM.Helpers.pas',
+  OBD.OEM.VW in '..\src\Services\OBD.OEM.VW.pas',
+  OBD.OEM.BMW in '..\src\Services\OBD.OEM.BMW.pas';
 
 end.

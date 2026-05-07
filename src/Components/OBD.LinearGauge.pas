@@ -25,7 +25,20 @@ uses
   Vcl.Controls, Vcl.Graphics, Vcl.Themes, WinApi.Windows, Winapi.Messages,
   System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers,
+  OBD.Render.LinearGauge;
+
+type
+  // Re-export the renderer types so existing callers that only `uses
+  // OBD.LinearGauge` continue to compile.
+  TOBDLinearGaugeOrientation = OBD.Render.LinearGauge.TOBDLinearGaugeOrientation;
+  TOBDLinearGaugeDirection = OBD.Render.LinearGauge.TOBDLinearGaugeDirection;
+
+const
+  loHorizontal = OBD.Render.LinearGauge.loHorizontal;
+  loVertical   = OBD.Render.LinearGauge.loVertical;
+  ldNormal     = OBD.Render.LinearGauge.ldNormal;
+  ldReversed   = OBD.Render.LinearGauge.ldReversed;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -55,23 +68,12 @@ const
   LG_DEFAULT_TEXT_COLOR = clWhite;
 
 //------------------------------------------------------------------------------
-// TYPES
+// CLASS
 //------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Bar orientation.
-  /// </summary>
-  TOBDLinearGaugeOrientation = (loHorizontal, loVertical);
-
-  /// <summary>
-  ///   Direction of fill growth.
-  ///     <c>ldNormal</c>  — horizontal: fills left → right; vertical: bottom → top.
-  ///     <c>ldReversed</c> — horizontal: fills right → left; vertical: top → bottom.
-  /// </summary>
-  TOBDLinearGaugeDirection = (ldNormal, ldReversed);
-
-  /// <summary>
-  ///   Linear (bar) gauge.
+  ///   Linear (bar) gauge — VCL binding around the framework-neutral
+  ///   <c>OBD.Render.LinearGauge</c> renderer.
   /// </summary>
   TOBDLinearGauge = class(TOBDCustomControl)
   private
@@ -456,163 +458,35 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDLinearGauge.PaintSkia(Canvas: ISkCanvas);
 var
-  W, H: Single;
-  TextHeight: Single;
-  BarLeft, BarTop, BarRight, BarBottom: Single;
-  Frame, Fill: TRectF;
-  Fraction: Single;
-  Paint: ISkPaint;
-  Gradient: ISkShader;
-  Font: ISkFont;
-  TextValue, TextCaption: string;
-  TextWidth: Single;
-  GradStart, GradEnd: TPointF;
+  State: TOBDLinearGaugeRenderState;
 begin
   // Refresh the eased display value before drawing.
   UpdateAnimationValue;
 
-  W := Width;
-  H := Height;
-  if (W <= 0) or (H <= 0) then Exit;
+  // Marshal published properties into the framework-neutral state
+  // record. The actual painting lives in OBD.Render.LinearGauge so the
+  // FMX wrapper can call the same renderer.
+  State.Width := Width;
+  State.Height := Height;
+  State.Min := FMin;
+  State.Max := FMax;
+  State.DisplayValue := FDisplayValue;
+  State.Orientation := FOrientation;
+  State.Direction := FDirection;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.BarColorFrom := SafeColorRefToSkColor(FBarColorFrom);
+  State.BarColorTo := SafeColorRefToSkColor(FBarColorTo);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.OuterClearColor := SafeColorRefToSkColor(LG_DEFAULT_BACKGROUND_COLOR);
+  State.BorderWidth := FBorderWidth;
+  State.CornerRadius := FCornerRadius;
+  State.Padding := FPadding;
+  State.Caption := FCaption;
+  State.Units := FUnits;
+  State.ShowValue := FShowValue;
 
-  Canvas.Clear(SafeColorRefToSkColor(LG_DEFAULT_BACKGROUND_COLOR));
-
-  // Caption + value strings share a single font configuration.
-  Font := TSkFont.Create(TSkTypeface.MakeDefault, 12);
-  TextHeight := Font.Size + 4;
-
-  TextCaption := FCaption;
-  if FShowValue then
-    TextValue := Format('%.0f%s', [FDisplayValue, FUnits])
-  else
-    TextValue := '';
-
-  // ---- Compute the bar rectangle. Caption sits above (horizontal) or
-  // beside (vertical) and value text sits opposite. Layout is intentionally
-  // simple — callers wanting fancy alignment can host the gauge themselves.
-  if FOrientation = loHorizontal then
-  begin
-    BarLeft := FPadding;
-    BarRight := W - FPadding;
-    if TextCaption <> '' then
-      BarTop := FPadding + TextHeight
-    else
-      BarTop := FPadding;
-    if FShowValue then
-      BarBottom := H - FPadding - TextHeight
-    else
-      BarBottom := H - FPadding;
-  end
-  else
-  begin
-    BarTop := FPadding;
-    BarBottom := H - FPadding;
-    if TextCaption <> '' then
-      BarLeft := FPadding + 64
-    else
-      BarLeft := FPadding;
-    if FShowValue then
-      BarRight := W - FPadding - 64
-    else
-      BarRight := W - FPadding;
-  end;
-
-  if (BarRight <= BarLeft) or (BarBottom <= BarTop) then Exit;
-
-  Frame := RectF(BarLeft, BarTop, BarRight, BarBottom);
-
-  // ---- Paint background frame.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Paint.Style := TSkPaintStyle.Fill;
-  Canvas.DrawRoundRect(Frame, FCornerRadius, FCornerRadius, Paint);
-
-  // ---- Paint filled bar.
-  Fraction := ValueToFraction(FDisplayValue);
-  if Fraction > 0 then
-  begin
-    Fill := Frame;
-    case FOrientation of
-      loHorizontal:
-        if FDirection = ldNormal then
-          Fill.Right := Fill.Left + (Fill.Right - Fill.Left) * Fraction
-        else
-          Fill.Left := Fill.Right - (Fill.Right - Fill.Left) * Fraction;
-      loVertical:
-        if FDirection = ldNormal then
-          Fill.Top := Fill.Bottom - (Fill.Bottom - Fill.Top) * Fraction
-        else
-          Fill.Bottom := Fill.Top + (Fill.Bottom - Fill.Top) * Fraction;
-    end;
-
-    // Gradient runs along the bar's primary axis so the colour pair
-    // BarColorFrom→BarColorTo always reads as cool→hot regardless of
-    // direction.
-    if FOrientation = loHorizontal then
-    begin
-      GradStart := PointF(Frame.Left, Frame.Top);
-      GradEnd := PointF(Frame.Right, Frame.Top);
-    end
-    else
-    begin
-      GradStart := PointF(Frame.Left, Frame.Bottom);
-      GradEnd := PointF(Frame.Left, Frame.Top);
-    end;
-
-    Gradient := TSkShader.MakeGradientLinear(
-      GradStart, GradEnd,
-      SafeColorRefToSkColor(FBarColorFrom),
-      SafeColorRefToSkColor(FBarColorTo),
-      TSkTileMode.Clamp);
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Shader := Gradient;
-    Canvas.Save;
-    try
-      Canvas.ClipRoundRect(Frame, FCornerRadius, FCornerRadius, True);
-      Canvas.DrawRect(Fill, Paint);
-    finally
-      Canvas.Restore;
-    end;
-  end;
-
-  // ---- Paint border on top.
-  if FBorderWidth > 0 then
-  begin
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := FBorderWidth;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawRoundRect(Frame, FCornerRadius, FCornerRadius, Paint);
-  end;
-
-  // ---- Caption + value labels.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTextColor);
-
-  if (TextCaption <> '') and (FOrientation = loHorizontal) then
-    Canvas.DrawSimpleText(TextCaption, Frame.Left, Frame.Top - 4, Font, Paint);
-
-  if (TextCaption <> '') and (FOrientation = loVertical) then
-    Canvas.DrawSimpleText(TextCaption, FPadding, Frame.Top + (Frame.Bottom - Frame.Top) / 2, Font, Paint);
-
-  if TextValue <> '' then
-  begin
-    TextWidth := Font.MeasureText(TextValue, Paint);
-    if FOrientation = loHorizontal then
-      Canvas.DrawSimpleText(TextValue, Frame.Right - TextWidth,
-        Frame.Bottom + TextHeight - 4, Font, Paint)
-    else
-      Canvas.DrawSimpleText(TextValue,
-        Frame.Right + 4,
-        Frame.Top + (Frame.Bottom - Frame.Top) / 2,
-        Font, Paint);
-  end;
+  RenderLinearGauge(Canvas, State);
 end;
 
 //------------------------------------------------------------------------------

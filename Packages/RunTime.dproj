@@ -189,6 +189,11 @@
         <DCCReference Include="..\src\Utilities\OBD.SecureSettings.pas"/>
         <DCCReference Include="..\src\Utilities\OBD.Audit.pas"/>
         <DCCReference Include="..\src\Utilities\OBD.Security.AttemptCounter.pas"/>
+        <DCCReference Include="..\src\CustomControls\OBD.Render.LinearGauge.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.Helpers.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.VW.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.BMW.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-05-06 — FMX & OEM extensions
+
+### Added
+- `OBD.Render.LinearGauge` — framework-neutral Skia renderer that the VCL `TOBDLinearGauge` and the new FMX `TOBDLinearGaugeFMX` both delegate to. Establishes the renderer-extract pattern that the remaining v3.1+ FMX bindings will follow.
+- `TOBDLinearGaugeFMX` (`src/Components/OBD.LinearGauge.FMX.pas`) — first FMX visual component. Extends `TSkPaintBox`, mirrors the VCL property surface with `TAlphaColor` colours, drives its own ease-out-cubic value transition via `TStopwatch`. Lives in the new `Packages/RunTime.FMX.dpk` so VCL builds aren't dragged into FMX dependencies.
+- `IOBDOEMExtension` + `TOBDOEMRegistry` + `TOBDOEMExtensionBase` (`src/Services/OBD.OEM.pas`) — extension framework for manufacturer-specific UDS coverage. Contract covers manufacturer key + display name, applicability check (typically by VIN WMI), DID + RoutineControl catalogs, per-DID decode. Registry is thread-safe and lookups are by VIN, by manufacturer key, or by enumerating `All`.
+- `OBD.OEM.Helpers` — `DID()` and `Routine()` factory helpers for compact `[DID($1234, 'name', 'desc'), …]` literals when building catalogs.
+- `OBD.OEM.VW` — reference VW Group extension (matches WVW / WV1 / WV2 / WAU / TRU / TMB / VSS WMIs). Ships a starter catalog of common UDS DIDs + routines and decodes `battery_voltage`, `vehicle_speed`, and `vin`.
+- `OBD.OEM.BMW` — reference BMW extension (WBA / WBS / WBY / WMW / 5UX / 4US WMIs). Catalog includes `i_stufe` and `fa_assembly` DIDs (the inputs to E-Sys-style coding) and decodes `mileage`, `battery_voltage`, `vin`.
+- `examples/oem_demo/` — console example: take a VIN, list the matching extension's catalog, optionally decode a DID payload from hex.
+- `Tests.OEM` — 12 tests covering registry register/unregister/find, VIN matching for VW + BMW, idempotent register, unknown-DID fallback, all the implemented DID decoders.
+
+### Changed
+- `TOBDLinearGauge.PaintSkia` now marshals its state into a `TOBDLinearGaugeRenderState` and calls `OBD.Render.LinearGauge.RenderLinearGauge`. Behaviour and published API unchanged; the rendering code moved.
+
 ## [2.5.0] - 2026-05-06 — Hardening & ECU
 
 ### Added
@@ -81,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.0.0...HEAD
+[3.0.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...v3.0.0
 [2.5.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...v2.5.0
 [2.4.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...v2.4.0
 [2.3.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.2.0...v2.3.0
