@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "MAN Truck & Bus DTC starter (J1939 SPN-FMI + MAN-cats)",
+  "default_source": "mancats-community",
+  "dtcs": [
+    { "code": "SPN0094-FMI4",  "severity": "warning", "description": "MAN — Fuel delivery pressure circuit voltage low (D26 / D08)", "verified": false },
+    { "code": "SPN0157-FMI3",  "severity": "warning", "description": "MAN — High-pressure fuel rail sensor voltage high", "verified": false },
+    { "code": "SPN1761-FMI18", "severity": "warning", "description": "MAN — DEF tank level low (refill warning)", "verified": false },
+    { "code": "SPN3251-FMI16", "severity": "warning", "description": "MAN — DPF differential pressure high (regen needed)", "verified": false },
+    { "code": "SPN3719-FMI16", "severity": "critical","description": "MAN — DPF soot load most severe (parked regen mandatory)", "verified": false },
+    { "code": "SPN5571-FMI16", "severity": "critical","description": "MAN — DEF inducement engaged (engine power derate)", "verified": false },
+    { "code": "SPN0639-FMI19", "severity": "critical","description": "MAN — J1939 backbone communication abnormal update rate", "verified": false }
+  ]
+}

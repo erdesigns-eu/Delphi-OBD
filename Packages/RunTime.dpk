@@ -134,6 +134,13 @@ contains
   OBD.OEM.Volvo in '..\src\Services\OBD.OEM.Volvo.pas',
   OBD.OEM.Tesla in '..\src\Services\OBD.OEM.Tesla.pas',
   OBD.OEM.Suzuki in '..\src\Services\OBD.OEM.Suzuki.pas',
-  OBD.OEM.Mitsubishi in '..\src\Services\OBD.OEM.Mitsubishi.pas';
+  OBD.OEM.Mitsubishi in '..\src\Services\OBD.OEM.Mitsubishi.pas',
+  OBD.OEM.HD in '..\src\Services\OBD.OEM.HD.pas',
+  OBD.OEM.Cummins in '..\src\Services\OBD.OEM.Cummins.pas',
+  OBD.OEM.DetroitDiesel in '..\src\Services\OBD.OEM.DetroitDiesel.pas',
+  OBD.OEM.PACCAR in '..\src\Services\OBD.OEM.PACCAR.pas',
+  OBD.OEM.VolvoTrucks in '..\src\Services\OBD.OEM.VolvoTrucks.pas',
+  OBD.OEM.Scania in '..\src\Services\OBD.OEM.Scania.pas',
+  OBD.OEM.MAN in '..\src\Services\OBD.OEM.MAN.pas';
 
 end.

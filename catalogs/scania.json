@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "SCANIA",
+  "display_name": "Scania AB (Traton Group)",
+  "applicable_wmis": ["VLU","YS2","XLE","9BS"],
+  "default_source": "sdp3-community",
+  "ecus": [
+    { "address": "0x00", "name": "ems",     "common_name": "EMS — DC09/13/16 engine controller" },
+    { "address": "0x03", "name": "opc",     "common_name": "OPC — Opticruise" },
+    { "address": "0x0B", "name": "ebs",     "common_name": "EBS — Electronic Braking" },
+    { "address": "0x0F", "name": "retarder","common_name": "Scania retarder" },
+    { "address": "0x17", "name": "icl",     "common_name": "ICL — Instrument Cluster" },
+    { "address": "0x31", "name": "coo",     "common_name": "COO — Coordinator" },
+    { "address": "0x42", "name": "acm",     "common_name": "ACM — Aftertreatment Control" },
+    { "address": "0x52", "name": "awd",     "common_name": "AWD — Forward Radar" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "scania_chassis_number", "description": "Scania chassis number", "ecu_address": "0x31",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "scania_specification_code", "description": "Specification / option code", "ecu_address": "0x31",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A4", "name": "scania_engine_serial", "description": "Engine serial number", "ecu_address": "0x00",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage (km)", "ecu_address": "0x17",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD060", "name": "def_tank_level", "description": "DEF tank level (%)", "ecu_address": "0x42",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "forced_dpf_regen", "description": "Forced parked DPF regeneration", "ecu_address": "0x42" },
+    { "id": "0x0205", "name": "opticruise_calibration", "description": "Opticruise calibration", "ecu_address": "0x03" }
+  ]
+}

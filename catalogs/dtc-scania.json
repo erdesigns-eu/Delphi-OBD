@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Scania DTC starter (J1939 SPN-FMI + SDP3)",
+  "default_source": "sdp3-community",
+  "dtcs": [
+    { "code": "SPN0102-FMI3",  "severity": "warning", "description": "Scania — Charge-air pressure sensor circuit voltage high", "verified": false },
+    { "code": "SPN0651-FMI5",  "severity": "warning", "description": "Scania — Cylinder 1 injector circuit open", "verified": false },
+    { "code": "SPN3251-FMI16", "severity": "warning", "description": "Scania — DPF differential pressure high (regen needed)", "verified": false },
+    { "code": "SPN3361-FMI4",  "severity": "warning", "description": "Scania ACM — DEF dosing valve circuit voltage low", "verified": false },
+    { "code": "SPN5246-FMI16", "severity": "critical","description": "Scania — SCR system inducement (5 mph derate)", "verified": false },
+    { "code": "SPN5394-FMI31", "severity": "warning", "description": "Scania — DEF dosing unit overheating", "verified": false }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "PACCAR DTC starter (Peterbilt / Kenworth / DAF)",
+  "default_source": "davie4-community",
+  "dtcs": [
+    { "code": "SPN0100-FMI18", "severity": "warning", "description": "PACCAR MX — Engine oil pressure low warning", "verified": false },
+    { "code": "SPN0639-FMI19", "severity": "critical","description": "PACCAR — J1939 network communication abnormal update rate", "verified": false },
+    { "code": "SPN1209-FMI4",  "severity": "warning", "description": "PACCAR — Engine exhaust gas pressure 1 sensor circuit voltage low", "verified": false },
+    { "code": "SPN3697-FMI4",  "severity": "warning", "description": "PACCAR — DPF lamp command circuit voltage low", "verified": false },
+    { "code": "SPN5394-FMI7",  "severity": "warning", "description": "PACCAR — DEF dosing unit not responding", "verified": false },
+    { "code": "SPN5571-FMI16", "severity": "critical","description": "PACCAR — DEF tank level low — engine inducement engaged", "verified": false },
+    { "code": "SPN6713-FMI31", "severity": "warning", "description": "PACCAR MX-13 — Aftertreatment regeneration interrupted", "verified": false }
+  ]
+}

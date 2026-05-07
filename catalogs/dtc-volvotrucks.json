@@ -1,0 +1,15 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Volvo Trucks / Mack / Renault Trucks DTC starter",
+  "default_source": "ptt-community",
+  "dtcs": [
+    { "code": "MID128-PSID235-FMI3",  "severity": "warning", "description": "Volvo / Mack — EMS / EMC engine speed sensor 1 input voltage high", "verified": false },
+    { "code": "MID128-PSID236-FMI4",  "severity": "warning", "description": "Volvo / Mack — Engine speed sensor 2 input voltage low", "verified": false },
+    { "code": "SPN3251-FMI0",         "severity": "warning", "description": "Volvo Trucks — DPF differential pressure above normal", "verified": false },
+    { "code": "SPN3719-FMI16",        "severity": "critical","description": "Volvo Trucks — Particulate trap soot load most severe", "verified": false },
+    { "code": "SPN3361-FMI3",         "severity": "warning", "description": "Volvo Trucks — DEF dosing valve circuit voltage high", "verified": false },
+    { "code": "SPN5571-FMI17",        "severity": "critical","description": "Volvo Trucks — DEF inducement (forced derate)", "verified": false },
+    { "code": "SPN0190-FMI16",        "severity": "warning", "description": "Volvo Trucks — Engine speed above normal range", "verified": false }
+  ]
+}

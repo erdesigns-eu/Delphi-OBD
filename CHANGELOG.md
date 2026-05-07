@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.16.0] - 2026-05-07 — Heavy-duty (J1939) OEM extensions
+
+### Added (6 new heavy-duty OEM extensions)
+- **`OBD.OEM.HD`** — shared base for J1939-coupled OEMs. `TOBDHDSessionNegotiator` widens the tester-present heartbeat to 3000 ms so UDS-on-J1939 doesn't race with the broadcast DM1 stream. Constants for the J1939-71 source-address allocations the framework references (`J1939_ADDR_ENGINE_1` = 0, `J1939_ADDR_TRANSMISSION_1` = 3, `J1939_ADDR_BRAKES_SYSTEM` = 11, `J1939_ADDR_AFTERTREATMENT_1` = 66, …). Helpers `FormatSPNFMI(SPN, FMI)` and `ParseDM1DTC(Bytes, Offset)` round-trip the DM1 packed-DTC layout into the canonical `"SPN0094-FMI4"` string used by the catalog.
+- **`OBD.OEM.Cummins`** — engine-only OEM (X15 / L9 / B6.7 / ISX15 / ISL9). No VIN match — resolved via `TOBDOEMRegistry.FindByKey('CUMMINS')` once the engine OEM is detected from PGN 65259 (component identification). 3-ECU map (engine + DPF/SCR aftertreatment); engine serial + calibration ID + DEF tank level + DPF soot load DIDs.
+- **`OBD.OEM.DetroitDiesel`** — engine-only (DD13 / DD15 / DD16 with GHG17 emissions package). Daimler Truck NA brand; appears as the ECM on Freightliner Cascadia / Western Star. 4-ECU map (MCM + DT12 AMT + DPF + SCR); Detroit-specific calibration / emissions-family DIDs.
+- **`OBD.OEM.PACCAR`** — Peterbilt + Kenworth + DAF + Leyland (8 WMIs incl. 1XP/1NP/5KJ/1NK/1XK/2NK/XLR/SCB). 7-ECU map (engine, transmission, Bendix/Wabco brakes, Driver Information Cluster, Cab + Body controllers, aftertreatment); chassis code + factory code DIDs.
+- **`OBD.OEM.VolvoTrucks`** — Volvo Trucks + Mack Trucks + Renault Trucks (9 WMIs incl. 4V4/YV2/4V2/1M1/1M2/4V5/4V1/VG6/VF6). Separate from Volvo Cars (Geely-owned, covered in `OBD.OEM.Volvo`). 8-ECU map (EMS/EMC + I-Shift/mDRIVE + EBS + MID 140 + MID 144 VECU + aftertreatment + TPMS); chassis code + emissions-package DIDs.
+- **`OBD.OEM.Scania`** — Scania AB / Traton (4 WMIs: VLU, YS2, XLE, 9BS). 8-ECU map (EMS DC09/13/16 + Opticruise OPC + EBS + retarder + ICL + COO coordinator + ACM aftertreatment + AWD forward radar); chassis number + specification code + engine serial DIDs.
+- **`OBD.OEM.MAN`** — MAN Truck & Bus / Traton (2 WMIs: WMA, 9BW). 8-ECU map (EDC + TipMatic + EBS + PriTarder retarder + ZBR central computer + FHRR driver assist + BWS body computer + ACM); MAN-specific chassis code + factory options + engine serial DIDs.
+- Six matching JSON catalogs (`catalogs/{cummins,detroit,paccar,volvotrucks,scania,man}.json`) with starter DIDs (engine hours / fuel used / DEF tank level / DPF soot load) — all `verified: false` per the v3.3 provenance contract. Six matching DTC starters using the SPN-FMI canonical form (`SPN0094-FMI4`, `SPN3251-FMI16`, `SPN5571-FMI16`, …) covering common heavy-duty fault codes: low fuel rail pressure, DPF differential pressure / soot load, DEF inducement, J1939 communication abnormal update rate.
+
+### Changed
+- `Packages/RunTime.dpk` adds the 6 HD units + the shared `OBD.OEM.HD` base. The OEM registry now resolves **23 OEMs** total — 17 passenger + 6 heavy-duty.
+
+### Notes
+- Engine-only OEMs (Cummins, Detroit Diesel) intentionally return `False` from `ApplicableToVIN` since they don't ship vehicles. Production callers detect the engine OEM from the J1939 component-identification PGN (or DID 0xF18A on UDS-capable trucks) and resolve via `TOBDOEMRegistry.FindByKey(…)`. Phase 8 (engine-OEM auto-routing from a J1939 component-identification probe) is a natural follow-up.
+- `Tests.OEM.HD` ships 22 new test cases: SPN-FMI helper round-trip, `ParseDM1DTC` decoding (including a vector for SPN 0148 / FMI 4), VIN routing for all six OEMs (incl. Volvo-Trucks-vs-Volvo-Cars disambiguation guard), 3000 ms heartbeat assertion, ECU-map presence checks (Cummins engine ECM at J1939 address 0, Detroit DPF + SCR, Volvo I-Shift + MID 140, Scania OPC, MAN PriTarder), `FindByKey` resolution, and decoder spot-checks for each OEM's chassis-code DID.
+
 ## [3.15.0] - 2026-05-07 — More OEMs + universal catalog enrichment
 
 ### Added (5 new OEM extensions)

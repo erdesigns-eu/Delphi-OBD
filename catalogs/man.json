@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "version": 1,
+  "manufacturer_key": "MAN",
+  "display_name": "MAN Truck & Bus SE (Traton Group)",
+  "applicable_wmis": ["WMA","9BW"],
+  "default_source": "mancats-community",
+  "ecus": [
+    { "address": "0x00", "name": "edc",      "common_name": "EDC — Engine Control" },
+    { "address": "0x03", "name": "tipmatic", "common_name": "TipMatic / TraXon" },
+    { "address": "0x0B", "name": "ebs",      "common_name": "EBS — Electronic Braking" },
+    { "address": "0x0F", "name": "retarder", "common_name": "PriTarder retarder" },
+    { "address": "0x17", "name": "zbr",      "common_name": "ZBR — Central Vehicle Computer" },
+    { "address": "0x31", "name": "fhrr",     "common_name": "FHRR — Driver assist" },
+    { "address": "0x35", "name": "bws",      "common_name": "BWS — Body Computer" },
+    { "address": "0x42", "name": "acm",      "common_name": "ACM — Aftertreatment Control" }
+  ],
+  "dids": [
+    { "did": "0xF1A0", "name": "man_chassis_code", "description": "MAN chassis code (TGX/TGS/TGE)", "ecu_address": "0x35",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1A2", "name": "man_engine_serial", "description": "MAN engine serial", "ecu_address": "0x00",
+      "decoder": { "kind": "ascii" } },
+    { "did": "0xF1B0", "name": "man_factory_options", "description": "MAN factory option block", "ecu_address": "0x35",
+      "decoder": { "kind": "hex" } },
+    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage (km)", "ecu_address": "0x17",
+      "decoder": { "kind": "uint32_be", "unit": "km" } },
+    { "did": "0xD060", "name": "def_tank_level", "description": "DEF tank level (%)", "ecu_address": "0x42",
+      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } }
+  ],
+  "routines": [
+    { "id": "0x0204", "name": "forced_dpf_regen", "description": "Forced parked DPF regeneration", "ecu_address": "0x42" }
+  ]
+}

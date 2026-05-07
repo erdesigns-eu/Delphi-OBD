@@ -1,0 +1,16 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Cummins DTC starter (J1939 SPN-FMI)",
+  "default_source": "insite-community / cummins-tsb-public",
+  "dtcs": [
+    { "code": "SPN0094-FMI4",  "severity": "warning", "description": "Cummins — Engine fuel delivery pressure circuit voltage low (X15 / ISX15)", "verified": false },
+    { "code": "SPN0157-FMI3",  "severity": "warning", "description": "Cummins — Engine fuel injector metering rail #1 pressure circuit voltage high", "verified": false },
+    { "code": "SPN0411-FMI3",  "severity": "warning", "description": "Cummins — EGR differential pressure sensor circuit voltage high", "verified": false },
+    { "code": "SPN3055-FMI18", "severity": "critical","description": "Cummins — Aftertreatment 1 fuel pressure low (DOC fuel-doser)", "verified": false },
+    { "code": "SPN3251-FMI0",  "severity": "warning", "description": "Cummins — DPF differential pressure data above normal (regen needed)", "verified": false },
+    { "code": "SPN3358-FMI3",  "severity": "warning", "description": "Cummins — EGR throttle position sensor voltage high", "verified": false },
+    { "code": "SPN3719-FMI16", "severity": "critical","description": "Cummins — Particulate trap soot load most severe", "verified": false },
+    { "code": "SPN5246-FMI0",  "severity": "critical","description": "Cummins — Aftertreatment SCR operator inducement severity (5 mph derate)", "verified": false }
+  ]
+}
