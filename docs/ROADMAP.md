@@ -32,6 +32,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.6 OEM Catalog Phase 1.4 | Seed-Key plug-ins: TOBDSeedKeyRegistry per OEM, 4 reference algorithms (KWP2000 two's-complement, XOR mask, byte-rotate, constant-key), wire-frame helpers (RequestSeedFrame / SendKeyFrame / ExtractSeed), 6 per-OEM starter registrations | ✅ Tagged v3.6.0 (2026-05-07) |
 | v3.7 OEM Catalog Phase 2   | DTC catalogs: ISO 15031-5 wire encoding helpers, TOBDDtcCatalog with provenance flags, 47-entry verified universal P0xxx/U0xxx baseline + 7-9-entry per-OEM starters, IOBDOEMExtension.DescribeDTC / DtcCatalog | ✅ Tagged v3.7.0 (2026-05-07) |
 | v3.8 OEM Catalog Phase 3   | Coding / variant-write encoders: VW long-coding (TOBDVWLongCoding), BMW FA + I-Stufe (TOBDBMWFA, TOBDBMWIStufe), Mercedes SCN (TOBDMercedesSCN), Ford AsBuilt blocks with FORScan checksum (TOBDFordAsBuiltBlock + ParseFordAsBuiltText) | ✅ Tagged v3.8.0 (2026-05-07) |
+| v3.9 OEM Catalog Phase 4   | RoutineControl (UDS 0x31) framework: TOBDRoutineRequestBuilder + TOBDRoutineResponseReader, BuildStartRoutine / Stop / RequestResults / ParseRoutineResponse, TOBDRoutineSchema + DecodeRoutineOutput | ✅ Tagged v3.9.0 (2026-05-07) |
 
 ---
 

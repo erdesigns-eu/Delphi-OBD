@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-05-07 — OEM Catalog Phase 4 (RoutineControl schemas)
+
+### Added
+- **`OBD.OEM.RoutineControl`** — UDS Service 0x31 (RoutineControl) wire helpers + argument schemas. Implements ISO 14229-1 §10.5.4 end-to-end: build a request, parse the positive / negative response, and project the status payload through a per-routine field schema for human-readable rendering.
+- `TOBDRoutineRequestBuilder` — fluent builder for the request payload. `AddUInt8`, `AddUInt16BE`, `AddUInt32BE`, `AddInt16BE`, `AddInt32BE`, `AddAscii(s, FixedLength)` (zero-pads and rejects too-long input), `AddRawBytes`, `AddBcdDate(YY, MM, DD)`, `AddBcdYear`. `ToFrame(SubFunction, RID)` wraps the payload as `31 SF HiRID LoRID …`; `Clear` resets for re-use.
+- `TOBDRoutineResponseReader` — cursor-based reader for the response status payload. `ReadUInt8 / ReadUInt16BE / ReadUInt32BE / ReadInt16BE / ReadInt32BE / ReadAscii(N) / ReadHexBytes(N) / ReadBcdDate`. `ReadAscii` strips trailing `#0` padding (the way most ECU firmware writes ASCII). Under-reads raise `EOBDRoutineError` with cursor + remaining-byte info for easier debugging.
+- Top-level wire helpers: `BuildStartRoutine(RID, [InputData])`, `BuildStopRoutine(RID)`, `BuildRequestRoutineResults(RID)`, and `ParseRoutineResponse(Response, ExpectedSF, ExpectedRID)`. The parser distinguishes positive `71 SF RID …` replies (returns the status payload as `TBytes`) from negative `7F 31 NRC` replies (raises `EOBDRoutineError` with the NRC in the message) and from short / wrong-SID replies.
+- `TOBDRoutineSchema` + `TOBDRoutineField` + `TOBDRoutineFieldKind` — output schemas mirror the v3.3 DID decoder format (uint8/16BE/32BE, int variants, ASCII, hex, BCD date, enum with named values, bitmask with bit names). `DecodeRoutineOutput(Schema, Bytes)` walks the response and produces one `TOBDDecodedField` per output (`Display` string + `Raw` slice). Truncated responses decode the prefix only — useful when an OEM optionally trails extra status bytes.
+- `Tests.OEM.RoutineControl` — 27 new test cases covering: builder (uint/int big-endian round-trip, signed -1 → 0xFF FF FF FF, ASCII pad + too-long rejection, BCD date / year, ToFrame wrapping, Clear), reader (multi-byte BE, ASCII zero-pad strip, BCD date, hex slice, under-read rejection, HasMore tracking), wire frames (start with / without data, stop, request-results, parse positive, parse rejects wrong SID / SF / RID, parse on negative response, empty status payload), and schema decoding (uint8 with scale + offset + unit, ASCII + uint32 mileage, bitmask with named bits, enum with hex fallback, truncation handling).
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.RoutineControl`.
+
+### Notes
+- `TOBDRoutineSchema` is the structural primitive — production callers typically pair it with a per-OEM `TDictionary<Word, TOBDRoutineSchema>` keyed by RID (Phase 4.1, future). The framework intentionally doesn't ship an OEM-wide schema registry yet because real schemas live in OEM-private ODX files.
+- Phase 5 (real-capture `.obdlog` test fixtures cross-validating the catalog decoders) is the next milestone.
+
 ## [3.8.0] - 2026-05-07 — OEM Catalog Phase 3 (coding / variant-write encoders)
 
 ### Added

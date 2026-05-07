@@ -276,6 +276,17 @@ Each ships a `TLongCoding` / `TFA` / etc. record with `LoadFromBytes`
 
 ## Phase 4 — Routine argument schemas (🟠 M per OEM)
 
+> **v3.9 status:** ✅ Wire helpers + schema framework shipped.
+> `OBD.OEM.RoutineControl` provides `TOBDRoutineRequestBuilder`
+> and `TOBDRoutineResponseReader` for the bytes-side, the wire
+> helpers (`BuildStartRoutine` / `BuildStopRoutine` /
+> `BuildRequestRoutineResults` / `ParseRoutineResponse` with NRC
+> handling), and `TOBDRoutineSchema` + `DecodeRoutineOutput` for
+> projecting status payloads through the same field-kind set the
+> v3.3 DID decoders use. The next layer up — a per-OEM registry
+> of schemas keyed by RID — is intentionally deferred since the
+> real-world schemas live in OEM-private ODX files.
+
 Today routines are catalog entries with just an identifier and a
 description. Real RoutineControl ($31) takes input parameters and
 returns structured output:
