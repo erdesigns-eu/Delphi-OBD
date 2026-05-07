@@ -15,7 +15,11 @@ uses
   OBD.OEM in '..\..\src\Services\OBD.OEM.pas',
   OBD.OEM.Helpers in '..\..\src\Services\OBD.OEM.Helpers.pas',
   OBD.OEM.VW in '..\..\src\Services\OBD.OEM.VW.pas',
-  OBD.OEM.BMW in '..\..\src\Services\OBD.OEM.BMW.pas';
+  OBD.OEM.BMW in '..\..\src\Services\OBD.OEM.BMW.pas',
+  OBD.OEM.Mercedes in '..\..\src\Services\OBD.OEM.Mercedes.pas',
+  OBD.OEM.Ford in '..\..\src\Services\OBD.OEM.Ford.pas',
+  OBD.OEM.GM in '..\..\src\Services\OBD.OEM.GM.pas',
+  OBD.OEM.Stellantis in '..\..\src\Services\OBD.OEM.Stellantis.pas';
 
 procedure ListCatalog(const Ext: IOBDOEMExtension);
 var

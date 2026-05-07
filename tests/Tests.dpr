@@ -43,7 +43,11 @@ uses
   Tests.SecureSettings in 'Tests.SecureSettings.pas',
   Tests.Audit in 'Tests.Audit.pas',
   Tests.Security.AttemptCounter in 'Tests.Security.AttemptCounter.pas',
-  Tests.OEM in 'Tests.OEM.pas';
+  Tests.OEM in 'Tests.OEM.pas',
+  Tests.OEM.Extra in 'Tests.OEM.Extra.pas',
+  Tests.ECU.Signature.BCrypt in 'Tests.ECU.Signature.BCrypt.pas',
+  Tests.ECU.Signature.OpenSSL in 'Tests.ECU.Signature.OpenSSL.pas',
+  Tests.Security.Nonce in 'Tests.Security.Nonce.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

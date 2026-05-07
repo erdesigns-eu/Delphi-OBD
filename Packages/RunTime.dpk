@@ -97,6 +97,14 @@ contains
   OBD.OEM in '..\src\Services\OBD.OEM.pas',
   OBD.OEM.Helpers in '..\src\Services\OBD.OEM.Helpers.pas',
   OBD.OEM.VW in '..\src\Services\OBD.OEM.VW.pas',
-  OBD.OEM.BMW in '..\src\Services\OBD.OEM.BMW.pas';
+  OBD.OEM.BMW in '..\src\Services\OBD.OEM.BMW.pas',
+  OBD.OEM.Mercedes in '..\src\Services\OBD.OEM.Mercedes.pas',
+  OBD.OEM.Ford in '..\src\Services\OBD.OEM.Ford.pas',
+  OBD.OEM.GM in '..\src\Services\OBD.OEM.GM.pas',
+  OBD.OEM.Stellantis in '..\src\Services\OBD.OEM.Stellantis.pas',
+  OBD.ECU.Signature.BCrypt in '..\src\Services\OBD.ECU.Signature.BCrypt.pas',
+  OBD.ECU.Signature.OpenSSL in '..\src\Services\OBD.ECU.Signature.OpenSSL.pas',
+  OBD.ECU.Signature.HSM in '..\src\Services\OBD.ECU.Signature.HSM.pas',
+  OBD.Security.Nonce in '..\src\Utilities\OBD.Security.Nonce.pas';
 
 end.

@@ -1,0 +1,324 @@
+# OEM Extension Build-Out Plan
+
+The v3.0/v3.2 OEM extensions (`OBD.OEM.VW`, `OBD.OEM.BMW`,
+`OBD.OEM.Mercedes`, `OBD.OEM.Ford`, `OBD.OEM.GM`,
+`OBD.OEM.Stellantis`) are deliberately **starter catalogs**: ~15
+DIDs, ~6 routines, and unit conversions for the most common
+identifiers. They prove the registry contract and let an app pick
+the right manufacturer by VIN — but they are nowhere near what a
+real diagnostic tool needs.
+
+This document is the menu for building them out. Every item is
+self-contained, sized, and ranked. Pick the items that match your
+target market.
+
+Effort key: **S** ≤1 day · **M** 2–5 days · **L** 1–2 weeks · **XL** >2 weeks.
+Priority key: 🔴 must-have for production use · 🟠 high-value · 🟢 nice-to-have.
+
+---
+
+## Phase 1 — Make them useful (per OEM)
+
+### 1.1 Scale the DID catalogs (🔴 L per OEM)
+
+What's missing today: ~15 DIDs per OEM. What production needs:
+~200–500 per OEM, organised per-ECU.
+
+Sources to mine:
+- **Public ODX-D / PDX files** — the ASAM ODX standard format. VW
+  Group, Daimler, and BMW ship some on the dealer side; the
+  community has reverse-engineered many.
+- **Open-source diagnostic projects:**
+  - VAG-COM / Ross-Tech long-coding databases (VW Group)
+  - bimmer-utility / E-Sys community FDL files (BMW)
+  - ForScan datasets (Ford)
+  - GDS-2 / TIS2Web public references (GM)
+  - DiagBox / Lexia community DBs (PSA), Mopar/Wijack (FCA)
+- **SAE J2178** — common DTC subset
+- **ISO 15031-6** — common DID subset
+
+Per OEM, ship a flat catalog of:
+```
+DID($XXXX, 'name', 'description')
+```
+plus per-DID decode functions for fields with unit conversions
+(temperatures, voltages, percentages, BCD dates, ASCII strings,
+bitmap status fields).
+
+### 1.2 Add per-ECU sub-catalogs (🔴 L per OEM)
+
+Right now every catalog is flat — DID 0xF187 means the same thing
+regardless of which ECU answers. In reality each ECU (engine,
+transmission, ABS, body, gateway, cluster, BCM) has its own DID
+overlay. Modeling:
+
+```pascal
+TOBDOEMECU = record
+  Address: Word;        // diagnostic CAN ID (0x7E0..0x7EF for OBD-II)
+  Name: string;         // 'Engine', 'TCU', 'BCM_Gateway'
+  CommonName: string;   // VW: '01-Engine', BMW: 'DME'
+end;
+
+IOBDOEMExtension = ...  // existing
+  function ECUs: TArray<TOBDOEMECU>;
+  function CatalogForECU(const Address: Word): TOBDOEMSubCatalog;
+```
+
+Each `TOBDOEMSubCatalog` is the existing flat (DIDs / Routines)
+shape but scoped. Lookup becomes
+`Ext.CatalogForECU($7E0).FindDID($F187)`.
+
+### 1.3 Manufacturer-specific session negotiation (🔴 M per OEM)
+
+UDS service `10 03` (extended diagnostic session) is universal but
+the choreography around it varies:
+
+- VW: header set via `AT SH 7E0`, then `10 03`, then 2-second
+  TesterPresent heartbeat.
+- BMW: `10 03` followed by `27 01` security access for most
+  programming routines.
+- Mercedes: `10 03` then `22 F198` (workshop code) before any
+  routine fires.
+- Ford: `10 02` for programming session; `10 03` is
+  read-only-extended.
+
+Add to the interface:
+```pascal
+function BeginSession(const Conn: TOBDConnectionAsync;
+  SessionType: TOBDSessionType;
+  Token: IOBDCancellationToken): IOBDFuture<Boolean>;
+function EndSession(const Conn: TOBDConnectionAsync): IOBDFuture<Boolean>;
+function StartTesterPresent(IntervalMs: Integer = 2000): TThread;
+```
+
+Each OEM implements its own choreography. Where the OEM has multiple
+session types, expose them as named constants on the extension's
+class.
+
+### 1.4 Seed-Key algorithm pluggability (🔴 M per OEM)
+
+UDS `27 01/03/05/...` returns a seed; tester sends back the key.
+The algorithm is:
+- Proprietary per OEM
+- Sometimes per-ECU
+- Sometimes per-level (Level 1 / Level 11 / Level 31 etc.)
+- Usually **NDA-protected** — production users supply their own
+
+Recommended interface:
+```pascal
+IOBDSeedKeyAlgorithm = interface
+  ['{...}']
+  function ComputeKey(const Seed: TBytes; Level: Byte): TBytes;
+  function Description: string;
+end;
+
+TOBDOEMExtensionBase
+  procedure RegisterSeedKey(Level: Byte;
+    const Algo: IOBDSeedKeyAlgorithm);
+  function FindSeedKey(Level: Byte): IOBDSeedKeyAlgorithm;
+end;
+```
+
+Ship the publicly-documented algorithms as default registrations
+(e.g. some VAG components, some legacy GM, the OBD-II Level 1
+known-key for a few ECUs). Production users `RegisterSeedKey()`
+their own implementations at startup.
+
+**Effort:** M per OEM (interface + 1-2 default algorithms).
+Production seed-key collections that reach reality are XL.
+
+---
+
+## Phase 2 — DTC catalogs (🟠 L per OEM)
+
+SAE-standard `P0xxx` codes are universal; `Pxxxx` manufacturer
+codes (P1XXX, P2XXX, P3XXX) and `B/C/U` codes are OEM-specific.
+Build out:
+
+```pascal
+TOBDDtcCatalogEntry = record
+  Code: string;           // 'P0301', 'P1234', 'B22A8'
+  Severity: TOBDDtcSeverity;
+  Description: string;    // 'Cylinder 1 misfire detected'
+  Possible Causes: TArray<string>;
+  Repair Hints: string;
+end;
+
+IOBDOEMExtension
+  function DTC(const Code: string): TOBDDtcCatalogEntry;
+  function AllDTCs: TArray<TOBDDtcCatalogEntry>;
+end;
+```
+
+Source: AlldataDIY / Mitchell1 public summaries, vendor service
+manuals where available.
+
+---
+
+## Phase 3 — Coding / variant-write encoders (🟠 L per OEM)
+
+For dealer-style ECU coding:
+
+- **VW long coding** — bit-field strings, e.g.
+  `0204110030480500030C0000400048410200`. Per-byte bit mappings.
+- **BMW FA (vehicle order)** — option-code strings:
+  `205E,8FA,255,2VB,2VL,4U6,...`. Each token is a build flag.
+- **BMW I-Stufe** — version triplet: `F020-21-03-630`.
+- **Mercedes SCN** — Standard-Codierung-Nummer, lookup-table
+  driven per FIN.
+- **Ford AsBuilt blocks** — 5-byte DID + checksum encoding per
+  module.
+
+Each needs:
+- A reader (raw bytes → high-level dictionary)
+- A writer (dictionary → raw bytes)
+- Validation (does this combination of options make sense?)
+
+Suggest one unit per coding system:
+```
+OBD.OEM.VW.LongCoding.pas
+OBD.OEM.BMW.FA.pas
+OBD.OEM.BMW.IStufe.pas
+OBD.OEM.Mercedes.SCN.pas
+OBD.OEM.Ford.AsBuilt.pas
+```
+
+Each ships a `TLongCoding` / `TFA` / etc. record with `LoadFromBytes`
++ `ToBytes` + `Diff(a, b)` + `Apply(name, value)` operators.
+
+---
+
+## Phase 4 — Routine argument schemas (🟠 M per OEM)
+
+Today routines are catalog entries with just an identifier and a
+description. Real RoutineControl ($31) takes input parameters and
+returns structured output:
+
+```
+$31 01 02 03 0A 0B
+       ^^^^^ Routine ID (Reset adaptations, $0203)
+             ^^^^^ Parameters (e.g. specific learn block)
+```
+
+Add to the catalog:
+```pascal
+TOBDOEMRoutine = record
+  Identifier: Word;
+  Name: string;
+  Description: string;
+  Inputs: TArray<TOBDFieldSpec>;     // {name, type, optional?}
+  Outputs: TArray<TOBDFieldSpec>;
+end;
+
+TOBDFieldSpec = record
+  Name: string;
+  Kind: (fkUInt8, fkUInt16, fkUInt32, fkAscii, fkBitMask, fkEnum);
+  EnumValues: TArray<string>;       // for fkEnum
+  Optional: Boolean;
+end;
+```
+
+Generate input encoders / output decoders from these specs at
+runtime so callers don't manually splice byte arrays.
+
+---
+
+## Phase 5 — Test coverage from real captures (🔴 M per OEM)
+
+For each OEM, capture a representative real-world session via
+`TOBDRecorder` (the `.obdlog` format from v2.3) covering:
+- Session start
+- Read identification DIDs (VIN, software version, mileage)
+- Read DTCs
+- A handful of live data reads
+- Routine control (e.g. service indicator reset)
+
+Convert each into a regression test that exercises the extension
+against the captured frames. This means:
+- Real OEM-specific decoders are tested against real ECU bytes
+- Future refactors can't silently regress decoding
+
+The recorder + replayer infrastructure already exists. The
+fixtures don't.
+
+---
+
+## Phase 6 — DoIP / FlexRay / per-bus extensions (🟢 L per OEM)
+
+Modern (post-2018) cars run UDS over multiple buses simultaneously
+(CAN + CAN-FD + DoIP + FlexRay). Each requires:
+- Per-bus address mapping
+- Per-bus session-level differences (DoIP requires routing
+  activation before any UDS traffic)
+- DoIP-specific health-checks (link-up, routing-table)
+
+Goes hand-in-hand with the heavy-duty work in Proposal D from
+`docs/PROPOSALS.md`.
+
+---
+
+## Phase 7 — Tooling for catalog authoring (🟢 M)
+
+When a maintainer wants to add 200 DIDs at once, hand-typing is
+painful. Tools to build:
+
+1. `tools/odx-import/` — parses ASAM ODX-D 2.2 XML and emits
+   Pascal `TArray<TOBDOEMDataIdentifier>` literals.
+2. `tools/csv-import/` — same from a flat CSV (community
+   collections often live here).
+3. A per-OEM unit test that spot-checks the imported catalog
+   against a small set of golden values, so import bugs surface
+   immediately.
+
+---
+
+## Recommended order
+
+If you want to use the framework on real cars **today**:
+
+1. **Phase 1.1** for the OEM(s) you target — gives you 200+ DIDs
+   that decode cleanly. (1–2 weeks per OEM.)
+2. **Phase 1.3** session negotiation — gets you reliably into
+   extended-session mode. (M per OEM.)
+3. **Phase 2** DTC catalog — gives users meaningful DTC text
+   instead of raw codes. (L per OEM.)
+4. **Phase 1.4** seed-key plugins for the levels you have access
+   to. (M.)
+5. **Phase 5** test coverage from real captures. (M per OEM.)
+6. **Phase 1.2** per-ECU sub-catalogs once Phase 1.1 saturates.
+7. **Phase 3** coding encoders for the dealer-style features your
+   users want.
+
+A "production-ready single OEM" milestone is roughly **5–8 weeks
+of focused work** per manufacturer. Two together (e.g. VAG + BMW
+since they're the European bread-and-butter pair) is ~**3 months**.
+
+If you want to **monetise** the framework downstream — sell
+diagnostic tools / dealer plugins — Phases 1–5 are the bare
+minimum that lets a customer actually finish an inspection
+without dropping into a different tool.
+
+---
+
+## Where to start
+
+Tell me which OEM you care about most and which phase, and I'll
+sequence the next milestone. My pick if you want maximum
+real-world coverage per hour of work:
+
+> **v3.3: VW Group Phase 1.1 + 1.3 + DTC catalog**
+> Reason: VAG group has the largest available public dataset
+> (Ross-Tech, OBDeleven, VCDS), the simplest seed-key story
+> (most ECUs run a known algorithm), and the broadest
+> European fleet coverage. One milestone takes the VW
+> extension from "starter" to "production-grade for
+> identification + DTC reads".
+
+Or, alternative:
+
+> **v3.3: All six OEMs: Phase 1.3 (session) + Phase 1.4
+> (seed-key plumbing) only**
+> Reason: gets every OEM to "can negotiate a session and
+> attempt security access" — the breadth-first floor that
+> unlocks every later DID/routine. Doesn't add DIDs yet but
+> makes the existing catalogs actually reachable.

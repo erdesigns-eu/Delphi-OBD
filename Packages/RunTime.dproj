@@ -201,6 +201,14 @@
         <DCCReference Include="..\src\Services\OBD.OEM.Helpers.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.VW.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.BMW.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.Mercedes.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.Ford.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.GM.pas"/>
+        <DCCReference Include="..\src\Services\OBD.OEM.Stellantis.pas"/>
+        <DCCReference Include="..\src\Services\OBD.ECU.Signature.BCrypt.pas"/>
+        <DCCReference Include="..\src\Services\OBD.ECU.Signature.OpenSSL.pas"/>
+        <DCCReference Include="..\src\Services\OBD.ECU.Signature.HSM.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.Security.Nonce.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

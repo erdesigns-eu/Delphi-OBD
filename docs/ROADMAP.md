@@ -25,6 +25,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ✅ Tagged v2.5.0 (2026-05-06) |
 | v3.0 FMX & OEM | Shared renderer, FMX binding, OEM hooks | ✅ Tagged v3.0.0 (2026-05-06) |
 | v3.1 FMX Component Completion | Remaining 6 FMX bindings + DesignTime FMX + mobile dashboard | ✅ Tagged v3.1.0 (2026-05-06) |
+| v3.2 Production Crypto + OEM Coverage | BCrypt + OpenSSL + HSM verifiers, anti-replay nonce, 4 more OEMs, console flashing example | ✅ Tagged v3.2.0 (2026-05-06) |
 
 ---
 

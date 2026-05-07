@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-05-06 — Production Crypto + OEM Coverage (Proposal C)
+
+### Added
+- `TOBDBCryptVerifier` (`src/Services/OBD.ECU.Signature.BCrypt.pas`) — production-grade firmware verification via Windows CNG (BCrypt). Handles **RSA-PKCS1-SHA256** and **ECDSA-P256-SHA256** out of the box. Imports SubjectPublicKeyInfo DER blobs through `CryptImportPublicKeyInfoEx2`; auto-detects the algorithm from the OID. ECDSA signatures in OpenSSL's ASN.1 DER form are transcoded to the fixed-size R||S the BCrypt API expects. No external DLLs — `crypt32.dll` and `bcrypt.dll` ship with every supported Windows version.
+- `TOBDOpenSSLVerifier` (`src/Services/OBD.ECU.Signature.OpenSSL.pas`) — alternative verifier for shops that already ship OpenSSL or need RSA-PSS / non-stock curves. Dynamically loads `libcrypto-3.dll` (or v1.1 fallback) so projects without OpenSSL on the path don't fail to start; throws `EOBDOpenSSLNotAvailable` on construction when the library is missing.
+- `IOBDHSMSession` + `TOBDHSMVerifier` (`src/Services/OBD.ECU.Signature.HSM.pas`) — contract for plug-in HSM-backed verification (PKCS#11, AWS CloudHSM, Azure Key Vault). Concrete sessions live in caller code; the framework exposes them as plain `IFirmwareSignatureVerifier` instances that slot into `TOBDECUFlashing` like any other.
+- `TOBDNonceVault` (`src/Utilities/OBD.Security.Nonce.pas`) — anti-replay primitive: cryptographically-random nonces (Windows `RtlGenRandom`), TTL-based expiry, single-use redemption. Distinguishes unknown / expired / replay error states so audit logs can record which case fired.
+- Four new OEM extensions: `OBD.OEM.Mercedes` (XENTRY-style — covers WDB / WDC / WDD / WDF / WD3 / WD4 / 4JG WMIs), `OBD.OEM.Ford` (covers 1FA-1FT, 2FA, 2FT, 3FA, 3FT, 1LN, 5LM, 1MR, 6FP, WF0), `OBD.OEM.GM` (Global B / GMLAN — covers 1G1, 1G2, 1G4, 1G6, 1G8, 1GC, 1GT, 2G1, 2GT, 3G1, 3GT, 5GR, 6G1), `OBD.OEM.Stellantis` (FCA + PSA — covers 1C3-1C6, 2C3-3C4, 1D4-3D4, 1J4/1J8, 1RR, ZFA-ZFC, 9BD, ZAR, ZAM, VF3, VF7, VR1, W0L, VXR). Each ships an initial DID + RoutineControl catalog and per-DID decoders for VIN, mileage, battery voltage, programming dates / status. **These are starter catalogs** — real production coverage is documented in [`docs/OEM_EXTENSION_PLAN.md`](docs/OEM_EXTENSION_PLAN.md).
+- `examples/ecuflashing_console/` — end-to-end console example that loads firmware + signature + DER public key from disk, constructs `TOBDBCryptVerifier`, drives `TOBDECUFlashing` through every stage against a simulated ECU. Shows exactly which four callbacks need to be replaced with real OEM UDS sequences.
+- `tests/fixtures/` — real RSA-2048 + ECDSA-P256 test vectors generated with OpenSSL 3.0 (DER public keys, signatures of "hello world"). Embedded in the test runner via `test-fixtures.inc` so the BCrypt + OpenSSL verifiers are exercised against actual cryptographic operations on the Windows runner.
+- `Tests.ECU.Signature.BCrypt`, `Tests.ECU.Signature.OpenSSL`, `Tests.Security.Nonce`, `Tests.OEM.Extra` — 25+ new test cases covering verify-pass, tampered-firmware, tampered-signature, empty-input rejection (verifiers); issue / redeem / replay-rejection / expiry / reset (nonce); VIN routing and DID decoding for the four new OEMs.
+- `docs/OEM_EXTENSION_PLAN.md` — concrete plan for taking the OEM catalogs from "starter" to "production-grade" via 7 phases (DID scale-up, per-ECU sub-catalogs, session negotiation, seed-key plugins, DTC catalogs, coding encoders, real-capture test fixtures, ODX/CSV import tooling).
+
 ## [3.1.0] - 2026-05-06 — FMX Component Completion (Proposal A)
 
 ### Added
@@ -117,7 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.2.0...HEAD
+[3.2.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.1.0...v3.2.0
 [3.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.0.0...v3.1.0
 [3.0.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...v3.0.0
 [2.5.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...v2.5.0

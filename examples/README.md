@@ -70,6 +70,23 @@ the renderer-extract pattern proven across all v3.1 FMX bindings.
 
 ---
 
+### ⚙️ ecuflashing_console/
+**Complexity**: Intermediate
+**Connection**: Simulated ECU
+**What it demonstrates**:
+- End-to-end `TOBDECUFlashing` pipeline against a fake ECU
+- Real RSA-PKCS1-SHA256 / ECDSA-P256 signature verification via
+  Windows BCrypt — no external DLLs
+- Pre-check, snapshot, signature gate, blocked write, finalise,
+  post-flash verify, automatic rollback on failure
+- Snapshot persistence to disk
+
+**Best for**: Wiring the flashing pipeline to your own OEM-specific
+UDS sequence; shows what the four host-side callbacks need to
+return.
+
+---
+
 ### 🏷️ oem_demo/
 **Complexity**: Beginner
 **Connection**: None (registry lookup only)
