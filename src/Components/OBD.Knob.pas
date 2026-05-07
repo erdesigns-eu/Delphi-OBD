@@ -22,7 +22,7 @@ uses
   Vcl.Controls, Vcl.Graphics, WinApi.Windows, Winapi.Messages,
   System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.Render.Knob;
 
 const
   KNOB_DEFAULT_MIN: Single = 0;
@@ -297,98 +297,29 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// PAINT
+// PAINT (delegates to the framework-neutral renderer)
 //------------------------------------------------------------------------------
 procedure TOBDKnob.PaintSkia(Canvas: ISkCanvas);
 var
-  Cx, Cy, R, RingThick, BodyR, IndicatorR: Single;
-  Frac, AngleRad: Single;
-  ArcRect: TRectF;
-  Paint: ISkPaint;
-  Font: ISkFont;
-  Lbl: string;
-  W: Single;
+  State: TOBDKnobRenderState;
 begin
-  if (Width <= 4) or (Height <= 4) then Exit;
-
-  Cx := Width / 2;
-  Cy := Height / 2;
-  R := System.Math.Min(Width, Height) / 2 - 4;
-  if R < 8 then Exit;
-
-  RingThick := System.Math.Max(3, R * 0.10);
-  BodyR := R - RingThick - 4;
-  IndicatorR := System.Math.Max(2, R * 0.06);
-
-  // Background.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawCircle(Cx, Cy, R, Paint);
-
-  // Ring background.
-  ArcRect := RectF(Cx - R + RingThick / 2, Cy - R + RingThick / 2,
-                   Cx + R - RingThick / 2, Cy + R - RingThick / 2);
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := RingThick;
-  Paint.StrokeCap := TSkStrokeCap.Round;
-  Paint.Color := SafeColorRefToSkColor(FRingColor);
-  Canvas.DrawArc(ArcRect, FStartAngle, FSweepAngle, False, Paint);
-
-  // Active arc.
-  Frac := ValueToFraction(FValue);
-  if Frac > 0 then
-  begin
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := RingThick;
-    Paint.StrokeCap := TSkStrokeCap.Round;
-    Paint.Color := SafeColorRefToSkColor(FActiveRingColor);
-    Canvas.DrawArc(ArcRect, FStartAngle, Frac * FSweepAngle, False, Paint);
-  end;
-
-  // Knob body.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBodyColor);
-  Canvas.DrawCircle(Cx, Cy, BodyR, Paint);
-
-  // Indicator dot near the body edge at value position.
-  AngleRad := DegToRad(FStartAngle + Frac * FSweepAngle);
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FIndicatorColor);
-  Canvas.DrawCircle(
-    Cx + Cos(AngleRad) * (BodyR - IndicatorR - 4),
-    Cy + Sin(AngleRad) * (BodyR - IndicatorR - 4),
-    IndicatorR, Paint);
-
-  // Caption + numeric value.
-  Font := TSkFont.Create(TSkTypeface.MakeDefault, System.Math.Max(10, R * 0.18));
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTextColor);
-
-  if FShowValue then
-  begin
-    Lbl := FormatFloat('0.##', FValue);
-    W := Font.MeasureText(Lbl, Paint);
-    Canvas.DrawSimpleText(Lbl, Cx - W / 2, Cy + Font.Size / 3, Font, Paint);
-  end;
-
-  if FCaption <> '' then
-  begin
-    Font := TSkFont.Create(TSkTypeface.MakeDefault, System.Math.Max(9, R * 0.13));
-    W := Font.MeasureText(FCaption, Paint);
-    Canvas.DrawSimpleText(FCaption, Cx - W / 2, Cy - BodyR + Font.Size + 2,
-      Font, Paint);
-  end;
+  State.Width := Width;
+  State.Height := Height;
+  State.Min := FMin;
+  State.Max := FMax;
+  State.Value := FValue;
+  State.StartAngle := FStartAngle;
+  State.SweepAngle := FSweepAngle;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.BodyColor := SafeColorRefToSkColor(FBodyColor);
+  State.RingColor := SafeColorRefToSkColor(FRingColor);
+  State.ActiveRingColor := SafeColorRefToSkColor(FActiveRingColor);
+  State.IndicatorColor := SafeColorRefToSkColor(FIndicatorColor);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.Caption := FCaption;
+  State.ShowValue := FShowValue;
+  RenderKnob(Canvas, State);
 end;
+
 
 end.

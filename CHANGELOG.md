@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-05-06 — FMX Component Completion (Proposal A)
+
+### Added
+- Framework-neutral renderer for every visual component, in `src/CustomControls/`:
+  - `OBD.Render.Tachometer`, `OBD.Render.TrendGraph`, `OBD.Render.DtcList`,
+  - `OBD.Render.Terminal`, `OBD.Render.Knob`, `OBD.Render.SegmentedSwitch`,
+  - `OBD.Render.LED`. Each ships a flat `TOBD<Name>RenderState` record and a `Render<Name>(Canvas, State)` function. VCL and FMX bindings both marshal their state into the record and delegate.
+- FMX bindings, in `src/Components/`:
+  - `OBD.Tachometer.FMX`, `OBD.TrendGraph.FMX`, `OBD.DtcList.FMX`,
+  - `OBD.Terminal.FMX`, `OBD.Knob.FMX`, `OBD.SegmentedSwitch.FMX`,
+  - `OBD.LED.FMX`. Each extends `TSkPaintBox`, mirrors the VCL property surface with `TAlphaColor` colours, self-drives transitions via `TStopwatch` where applicable, handles FMX-style mouse / wheel / focus events.
+- `Packages/RunTime.FMX.dpk` updated to ship every renderer + FMX binding.
+- `Packages/DesignTime.FMX.dpk` (new) — IDE registration via `OBD.CustomControl.Register.FMX`. Drops every FMX component on the same "ERDesigns OBD" palette page as the VCL set.
+- `examples/mobile_dashboard/` — FMX dashboard exercising all eight FMX components (Tachometer, three LinearGauges, TrendGraph with two series, DtcList, Terminal, two LEDs, SegmentedSwitch, Knob). Built entirely in code; runs on Win32, Win64, macOS, iOS, Android.
+
+### Changed
+- Every VCL component listed above now marshals its `PaintSkia` state into the matching renderer record and delegates. Public API unchanged. Private `DrawSeries` / `DrawGrid` / `DrawLegend` (TrendGraph), `DrawRow` / `ColorForSeverity` / `StatusLabel` (DtcList), and `ColorForDirection` / `PrefixForDirection` (Terminal) helpers removed — their logic moved into the renderer.
+
+### Notes
+- VCL `TOBDLed` keeps its existing snapshot-cache path because it integrates with VCL `TStyleManager`. The new FMX `TOBDLedFMX` uses the renderer directly. Unifying the two paths is a v3.2+ task that needs a platform-neutral style abstraction.
+
 ## [3.0.0] - 2026-05-06 — FMX & OEM extensions
 
 ### Added
@@ -96,7 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.1.0...HEAD
+[3.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v3.0.0...v3.1.0
 [3.0.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.5.0...v3.0.0
 [2.5.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.4.0...v2.5.0
 [2.4.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...v2.4.0

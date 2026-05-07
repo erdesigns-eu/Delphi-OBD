@@ -21,7 +21,8 @@ uses
   Vcl.Controls, Vcl.Graphics, WinApi.Windows, Winapi.Messages,
   System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers,
+  OBD.Render.SegmentedSwitch;
 
 const
   SS_DEFAULT_BACKGROUND   = $00282828;
@@ -184,93 +185,30 @@ begin
   if Idx >= 0 then SetSelectedIndex(Idx);
 end;
 
+//------------------------------------------------------------------------------
+// PAINT (delegates to the framework-neutral renderer)
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.PaintSkia(Canvas: ISkCanvas);
 var
-  Bounds, ActiveRect, SegRect: TRectF;
-  Paint: ISkPaint;
-  Font: ISkFont;
-  W, X: Single;
+  State: TOBDSegmentedSwitchRenderState;
   I: Integer;
-  Lbl: string;
-  TextW: Single;
-  TextColor: TColor;
+  Items: TArray<string>;
 begin
-  Bounds := RectF(0, 0, Width, Height);
+  SetLength(Items, FSegments.Count);
+  for I := 0 to FSegments.Count - 1 do Items[I] := FSegments[I];
 
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
+  State.Width := Width;
+  State.Height := Height;
+  State.Segments := Items;
+  State.SelectedIndex := FSelectedIndex;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.ActiveColor := SafeColorRefToSkColor(FActiveColor);
+  State.ActiveTextColor := SafeColorRefToSkColor(FActiveTextColor);
+  State.InactiveTextColor := SafeColorRefToSkColor(FInactiveTextColor);
+  State.CornerRadius := FCornerRadius;
 
-  W := SegmentWidth;
-  if W <= 0 then
-  begin
-    // Empty Segments — still draw the border so users see the control.
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Stroke;
-    Paint.StrokeWidth := 1;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
-    Exit;
-  end;
-
-  // Active segment background.
-  if (FSelectedIndex >= 0) and (FSelectedIndex < FSegments.Count) then
-  begin
-    ActiveRect := RectF(FSelectedIndex * W + 2, 2,
-                        (FSelectedIndex + 1) * W - 2, Height - 2);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FActiveColor);
-    Canvas.DrawRoundRect(ActiveRect,
-      System.Math.Max(0, FCornerRadius - 2),
-      System.Math.Max(0, FCornerRadius - 2), Paint);
-  end;
-
-  // Segment labels + dividers.
-  Font := TSkFont.Create(TSkTypeface.MakeDefault, 13);
-  for I := 0 to FSegments.Count - 1 do
-  begin
-    SegRect := RectF(I * W, 0, (I + 1) * W, Height);
-
-    if I = FSelectedIndex then
-      TextColor := FActiveTextColor
-    else
-      TextColor := FInactiveTextColor;
-
-    Lbl := FSegments[I];
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Color := SafeColorRefToSkColor(TextColor);
-    TextW := Font.MeasureText(Lbl, Paint);
-    Canvas.DrawSimpleText(Lbl,
-      SegRect.Left + (W - TextW) / 2,
-      Height / 2 + Font.Size / 3,
-      Font, Paint);
-
-    // Vertical divider between inactive segments.
-    if (I > 0) and (I <> FSelectedIndex) and (I - 1 <> FSelectedIndex) then
-    begin
-      X := I * W;
-      Paint := TSkPaint.Create;
-      Paint.AntiAlias := False;
-      Paint.Style := TSkPaintStyle.Stroke;
-      Paint.StrokeWidth := 1;
-      Paint.Color := SafeColorRefToSkColor(FBorderColor);
-      Canvas.DrawLine(X, 6, X, Height - 6, Paint);
-    end;
-  end;
-
-  // Outer border.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := 1;
-  Paint.Color := SafeColorRefToSkColor(FBorderColor);
-  Canvas.DrawRoundRect(Bounds, FCornerRadius, FCornerRadius, Paint);
+  RenderSegmentedSwitch(Canvas, State);
 end;
 
 end.

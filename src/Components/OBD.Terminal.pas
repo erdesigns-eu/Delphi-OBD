@@ -22,7 +22,7 @@ uses
   System.Generics.Collections, Vcl.Controls, Vcl.Graphics,
   WinApi.Windows, Winapi.Messages, System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.Render.Terminal;
 
 //------------------------------------------------------------------------------
 // CONSTANTS / TYPES
@@ -42,8 +42,16 @@ const
   TERM_SCROLLBAR_WIDTH           = 8;
 
 type
-  TOBDTerminalDirection = (tdSent, tdReceived, tdInfo, tdError);
+  // Re-export the renderer's enum so `uses OBD.Terminal` still works.
+  TOBDTerminalDirection = OBD.Render.Terminal.TOBDTerminalDirection;
 
+const
+  tdSent     = OBD.Render.Terminal.tdSent;
+  tdReceived = OBD.Render.Terminal.tdReceived;
+  tdInfo     = OBD.Render.Terminal.tdInfo;
+  tdError    = OBD.Render.Terminal.tdError;
+
+type
   TOBDTerminalLine = record
     Direction: TOBDTerminalDirection;
     Text: string;
@@ -91,8 +99,6 @@ type
     function ContentHeight: Integer;
     function MaxScroll: Integer;
     procedure ClampScroll;
-    function ColorForDirection(D: TOBDTerminalDirection): TColor;
-    function PrefixForDirection(D: TOBDTerminalDirection): string;
     procedure AppendLine(const ALine: TOBDTerminalLine);
 
   protected
@@ -285,28 +291,6 @@ begin
   FFollowTail := FScrollY >= MaxScroll;
 end;
 
-function TOBDTerminal.ColorForDirection(D: TOBDTerminalDirection): TColor;
-begin
-  case D of
-    tdSent:     Result := FSentColor;
-    tdReceived: Result := FReceivedColor;
-    tdInfo:     Result := FInfoColor;
-    tdError:    Result := FErrorColor;
-  else          Result := FTextColor;
-  end;
-end;
-
-function TOBDTerminal.PrefixForDirection(D: TOBDTerminalDirection): string;
-begin
-  case D of
-    tdSent:     Result := '> ';
-    tdReceived: Result := '< ';
-    tdInfo:     Result := '  ';
-    tdError:    Result := '! ';
-  else          Result := '  ';
-  end;
-end;
-
 //------------------------------------------------------------------------------
 // SETTERS
 //------------------------------------------------------------------------------
@@ -373,112 +357,43 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// PAINT SKIA
+// PAINT SKIA (delegates to the framework-neutral renderer)
 //------------------------------------------------------------------------------
 procedure TOBDTerminal.PaintSkia(Canvas: ISkCanvas);
 var
-  Bounds, ScrollTrack, ScrollThumb: TRectF;
-  Paint: ISkPaint;
-  Font: ISkFont;
-  StartIdx, EndIdx, I: Integer;
-  Y: Single;
-  L: TOBDTerminalLine;
-  Prefix, TS, FullText: string;
-  TSWidth: Single;
-  ContentH, ListH: Integer;
-  ThumbH, ThumbY: Single;
+  State: TOBDTerminalRenderState;
+  Views: TArray<TOBDTerminalLineView>;
+  I: Integer;
+  V: TOBDTerminalLineView;
 begin
-  Bounds := RectF(0, 0, Width, Height);
-
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawRect(Bounds, Paint);
-
-  Font := TSkFont.Create(TSkTypeface.MakeFromName('Consolas',
-    TSkFontStyle.Normal), FFontSize);
-  if Font.Typeface = nil then
-    Font := TSkFont.Create(TSkTypeface.MakeDefault, FFontSize);
-
-  // Compute visible window of lines.
-  StartIdx := FScrollY div LineHeight;
-  EndIdx := StartIdx + VisibleLineCount + 1;
-  if StartIdx < 0 then StartIdx := 0;
-  if EndIdx > FLines.Count - 1 then EndIdx := FLines.Count - 1;
-
-  Canvas.Save;
-  try
-    Canvas.ClipRect(RectF(TERM_DEFAULT_PADDING, TERM_DEFAULT_PADDING,
-                          Width - TERM_DEFAULT_PADDING - TERM_SCROLLBAR_WIDTH,
-                          Height - TERM_DEFAULT_PADDING));
-
-    for I := StartIdx to EndIdx do
-    begin
-      L := FLines[I];
-      Y := TERM_DEFAULT_PADDING +
-           (I * LineHeight) - FScrollY + Font.Size;
-
-      Prefix := PrefixForDirection(L.Direction);
-
-      // Optional timestamp in dim grey.
-      if FShowTimestamps then
-      begin
-        TS := FormatDateTime('hh:nn:ss.zzz', L.Timestamp) + '  ';
-        Paint := TSkPaint.Create;
-        Paint.AntiAlias := True;
-        Paint.Color := SafeColorRefToSkColor(FTimestampColor);
-        Canvas.DrawSimpleText(TS, TERM_DEFAULT_PADDING, Y, Font, Paint);
-        TSWidth := Font.MeasureText(TS, Paint);
-      end
-      else
-        TSWidth := 0;
-
-      Paint := TSkPaint.Create;
-      Paint.AntiAlias := True;
-      Paint.Color := SafeColorRefToSkColor(ColorForDirection(L.Direction));
-      FullText := Prefix + L.Text;
-      Canvas.DrawSimpleText(FullText,
-        TERM_DEFAULT_PADDING + TSWidth, Y, Font, Paint);
-    end;
-  finally
-    Canvas.Restore;
-  end;
-
-  // Scrollbar.
-  ListH := VisibleLineCount * LineHeight;
-  ContentH := ContentHeight;
-  if ContentH > ListH then
+  SetLength(Views, FLines.Count);
+  for I := 0 to FLines.Count - 1 do
   begin
-    ScrollTrack := RectF(Width - TERM_SCROLLBAR_WIDTH, TERM_DEFAULT_PADDING,
-                         Width - 1, Height - TERM_DEFAULT_PADDING);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := False;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawRect(ScrollTrack, Paint);
-
-    ThumbH := System.Math.Max(20, (ListH / ContentH) *
-      (ScrollTrack.Bottom - ScrollTrack.Top));
-    ThumbY := ScrollTrack.Top +
-      (FScrollY / System.Math.Max(1, MaxScroll)) *
-      ((ScrollTrack.Bottom - ScrollTrack.Top) - ThumbH);
-    ScrollThumb := RectF(ScrollTrack.Left + 1, ThumbY,
-                         ScrollTrack.Right - 1, ThumbY + ThumbH);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FTextColor);
-    Canvas.DrawRoundRect(ScrollThumb, 2, 2, Paint);
+    V.Direction := FLines[I].Direction;
+    V.Text := FLines[I].Text;
+    V.Timestamp := FLines[I].Timestamp;
+    Views[I] := V;
   end;
 
-  // Outer border.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := 1;
-  Paint.Color := SafeColorRefToSkColor(FBorderColor);
-  Canvas.DrawRect(Bounds, Paint);
+  State.Width := Width;
+  State.Height := Height;
+  State.Lines := Views;
+  State.ScrollY := FScrollY;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.TimestampColor := SafeColorRefToSkColor(FTimestampColor);
+  State.SentColor := SafeColorRefToSkColor(FSentColor);
+  State.ReceivedColor := SafeColorRefToSkColor(FReceivedColor);
+  State.InfoColor := SafeColorRefToSkColor(FInfoColor);
+  State.ErrorColor := SafeColorRefToSkColor(FErrorColor);
+  State.FontSize := FFontSize;
+  State.Padding := TERM_DEFAULT_PADDING;
+  State.ScrollbarWidth := TERM_SCROLLBAR_WIDTH;
+  State.ShowTimestamps := FShowTimestamps;
+
+  RenderTerminal(Canvas, State);
 end;
+
 
 end.

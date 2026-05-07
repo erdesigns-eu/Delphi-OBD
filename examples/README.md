@@ -55,6 +55,21 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### 📱 mobile_dashboard/
+**Complexity**: Intermediate
+**Connection**: Simulator (Proposal B in docs/PROPOSALS.md adds live transports)
+**What it demonstrates**:
+- FMX dashboard exercising **every** v3.1 FMX component
+  (LinearGauge, Tachometer, TrendGraph, DtcList, Terminal, Knob,
+  SegmentedSwitch, LED)
+- Runs on Win32, Win64, macOS, iOS, Android — same source, same
+  shared renderers as the VCL components
+
+**Best for**: Mobile / cross-platform diagnostic apps; reference for
+the renderer-extract pattern proven across all v3.1 FMX bindings.
+
+---
+
 ### 🏷️ oem_demo/
 **Complexity**: Beginner
 **Connection**: None (registry lookup only)

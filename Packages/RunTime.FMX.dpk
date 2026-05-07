@@ -37,6 +37,20 @@ requires
 
 contains
   OBD.Render.LinearGauge in '..\src\CustomControls\OBD.Render.LinearGauge.pas',
-  OBD.LinearGauge.FMX in '..\src\Components\OBD.LinearGauge.FMX.pas';
+  OBD.Render.Tachometer in '..\src\CustomControls\OBD.Render.Tachometer.pas',
+  OBD.Render.TrendGraph in '..\src\CustomControls\OBD.Render.TrendGraph.pas',
+  OBD.Render.DtcList in '..\src\CustomControls\OBD.Render.DtcList.pas',
+  OBD.Render.Terminal in '..\src\CustomControls\OBD.Render.Terminal.pas',
+  OBD.Render.Knob in '..\src\CustomControls\OBD.Render.Knob.pas',
+  OBD.Render.SegmentedSwitch in '..\src\CustomControls\OBD.Render.SegmentedSwitch.pas',
+  OBD.Render.LED in '..\src\CustomControls\OBD.Render.LED.pas',
+  OBD.LinearGauge.FMX in '..\src\Components\OBD.LinearGauge.FMX.pas',
+  OBD.Tachometer.FMX in '..\src\Components\OBD.Tachometer.FMX.pas',
+  OBD.TrendGraph.FMX in '..\src\Components\OBD.TrendGraph.FMX.pas',
+  OBD.DtcList.FMX in '..\src\Components\OBD.DtcList.FMX.pas',
+  OBD.Terminal.FMX in '..\src\Components\OBD.Terminal.FMX.pas',
+  OBD.Knob.FMX in '..\src\Components\OBD.Knob.FMX.pas',
+  OBD.SegmentedSwitch.FMX in '..\src\Components\OBD.SegmentedSwitch.FMX.pas',
+  OBD.LED.FMX in '..\src\Components\OBD.LED.FMX.pas';
 
 end.

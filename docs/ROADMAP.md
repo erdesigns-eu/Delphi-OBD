@@ -24,6 +24,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ✅ Tagged v2.4.0 (2026-05-06) |
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ✅ Tagged v2.5.0 (2026-05-06) |
 | v3.0 FMX & OEM | Shared renderer, FMX binding, OEM hooks | ✅ Tagged v3.0.0 (2026-05-06) |
+| v3.1 FMX Component Completion | Remaining 6 FMX bindings + DesignTime FMX + mobile dashboard | ✅ Tagged v3.1.0 (2026-05-06) |
 
 ---
 
@@ -238,7 +239,9 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
   *DoD:* `src/CustomControls/OBD.Render.LinearGauge.pas` exposes `RenderLinearGauge(Canvas, State)` working off a `TOBDLinearGaugeRenderState` record. The VCL `TOBDLinearGauge` and the FMX `TOBDLinearGaugeFMX` both marshal their state into the record and call the same render function — colour fixes, layout tweaks and bug fixes land in both bindings simultaneously.
 - [x] **🔴 L** FMX binding for the LinearGauge. *(v3.0)*
   *DoD:* `src/Components/OBD.LinearGauge.FMX.pas`'s `TOBDLinearGaugeFMX` extends `TSkPaintBox`, wires `OnDraw`, mirrors the published-property surface of the VCL component (with `TAlphaColor` colour properties to suit FMX), and self-drives the same `EaseOutCubic` value transition without the AnimationManager that we removed in v2.2. Lives in the new `Packages/RunTime.FMX.dpk` so VCL builds aren't dragged into FMX dependencies.
-- [ ] **🟠 L** Apply the renderer-extract pattern to Tachometer, TrendGraph, DtcList, Terminal, Knob, SegmentedSwitch, LED. *(backlog — each is a self-contained chunk roughly the size of LinearGauge)*
+- [x] **🟠 L** Apply the renderer-extract pattern to Tachometer, TrendGraph, DtcList, Terminal, Knob, SegmentedSwitch, LED. *(v3.1)*
+  *DoD:* Each component has a matching `OBD.Render.<Name>` unit holding the framework-neutral state record + `Render<Name>` function. The VCL bindings now marshal state into the record and delegate. New FMX bindings (`OBD.<Name>.FMX`) extend `TSkPaintBox`, mirror the property surface with `TAlphaColor` colours, and call the same renderer. `Packages/RunTime.FMX.dpk` ships every FMX unit; `Packages/DesignTime.FMX.dpk` registers them on the same "ERDesigns OBD" palette page as the VCL set. `examples/mobile_dashboard/` exercises every v3.1 FMX component on a single FMX form.
+  - Note: the VCL `TOBDLed` keeps its existing image-cache path because it leans on VCL `TStyleManager` for the background tint; the new FMX `TOBDLedFMX` uses the renderer directly. Unifying the two LED paths is parked as a v3.2+ task that needs a platform-neutral style abstraction.
 - [ ] **🟠 L** iOS BLE transport. *(backlog — reuses the GATT abstraction in `OBD.Connection.BLE` with the iOS-side platform code)*
 - [ ] **🟠 L** Android BLE transport. *(backlog)*
 - [ ] **🟠 M** macOS USB-serial transport. *(backlog)*
