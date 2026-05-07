@@ -22,7 +22,7 @@ uses
   System.Generics.Collections, Vcl.Controls, Vcl.Graphics, WinApi.Windows,
   Winapi.Messages, System.Skia, Vcl.Skia,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.Render.DtcList;
 
 //------------------------------------------------------------------------------
 // CONSTANTS / TYPES
@@ -42,16 +42,21 @@ const
   DTC_SCROLLBAR_WIDTH         = 8;
 
 type
-  /// <summary>
-  ///   Severity of a diagnostic code — drives the left-edge colour stripe.
-  /// </summary>
-  TOBDDtcSeverity = (dsInfo, dsWarning, dsCritical);
+  // Re-export the renderer's enums so existing callers that only
+  // `uses OBD.DtcList` continue to compile after the v3.1 split.
+  TOBDDtcSeverity = OBD.Render.DtcList.TOBDDtcSeverity;
+  TOBDDtcStatus = OBD.Render.DtcList.TOBDDtcStatus;
 
-  /// <summary>
-  ///   Lifecycle status of a code. Mirrors SAE J1979 modes 03 / 07 / 0A.
-  /// </summary>
-  TOBDDtcStatus = (dsActive, dsPending, dsPermanent, dsHistory);
+const
+  dsInfo     = OBD.Render.DtcList.dsInfo;
+  dsWarning  = OBD.Render.DtcList.dsWarning;
+  dsCritical = OBD.Render.DtcList.dsCritical;
+  dsActive   = OBD.Render.DtcList.dsActive;
+  dsPending  = OBD.Render.DtcList.dsPending;
+  dsPermanent= OBD.Render.DtcList.dsPermanent;
+  dsHistory  = OBD.Render.DtcList.dsHistory;
 
+type
   /// <summary>
   ///   One DTC row.
   /// </summary>
@@ -113,12 +118,7 @@ type
     function ContentHeight: Integer;
     function MaxScroll: Integer;
     function IndexAtY(Y: Integer): Integer;
-    function ColorForSeverity(S: TOBDDtcSeverity): TColor;
-    function StatusLabel(S: TOBDDtcStatus): string;
     procedure ClampScroll;
-    procedure DrawRow(Canvas: ISkCanvas; const Item: TOBDDtcItem;
-      const RowRect: TRectF; const Selected, Alternate: Boolean;
-      Font, MonoFont: ISkFont);
 
   protected
     procedure PaintSkia(Canvas: ISkCanvas); override;
@@ -314,27 +314,6 @@ begin
   Invalidate;
 end;
 
-function TOBDDtcList.ColorForSeverity(S: TOBDDtcSeverity): TColor;
-begin
-  case S of
-    dsInfo:     Result := FSeverityInfoColor;
-    dsWarning:  Result := FSeverityWarningColor;
-    dsCritical: Result := FSeverityCriticalColor;
-  else          Result := FSeverityWarningColor;
-  end;
-end;
-
-function TOBDDtcList.StatusLabel(S: TOBDDtcStatus): string;
-begin
-  case S of
-    dsActive:    Result := 'ACTIVE';
-    dsPending:   Result := 'PENDING';
-    dsPermanent: Result := 'PERM';
-    dsHistory:   Result := 'HIST';
-  else           Result := '';
-  end;
-end;
-
 //------------------------------------------------------------------------------
 // SETTERS
 //------------------------------------------------------------------------------
@@ -441,184 +420,48 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// DRAW
+// PAINT SKIA (delegates to the framework-neutral renderer)
 //------------------------------------------------------------------------------
-procedure TOBDDtcList.DrawRow(Canvas: ISkCanvas; const Item: TOBDDtcItem;
-  const RowRect: TRectF; const Selected, Alternate: Boolean;
-  Font, MonoFont: ISkFont);
-var
-  Paint: ISkPaint;
-  StripeRect, StatusRect: TRectF;
-  StatusText: string;
-  StatusW: Single;
-  CodeX, DescX: Single;
-begin
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Fill;
-
-  // Row background — selection wins over alternate-row striping.
-  if Selected then
-    Paint.Color := SafeColorRefToSkColor(FSelectionColor)
-  else if Alternate and FShowAlternateRows then
-    Paint.Color := SafeColorRefToSkColor(FRowAltColor)
-  else
-    Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawRect(RowRect, Paint);
-
-  // Severity stripe.
-  StripeRect := RectF(RowRect.Left, RowRect.Top, RowRect.Left + 4, RowRect.Bottom);
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(ColorForSeverity(Item.Severity));
-  Canvas.DrawRect(StripeRect, Paint);
-
-  // Text.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := True;
-  Paint.Color := SafeColorRefToSkColor(FTextColor);
-
-  CodeX := RowRect.Left + 12;
-  Canvas.DrawSimpleText(Item.Code,
-    CodeX,
-    RowRect.Top + (RowRect.Bottom - RowRect.Top) / 2 + MonoFont.Size / 2 - 2,
-    MonoFont, Paint);
-
-  DescX := CodeX + MonoFont.MeasureText('XXXXXX', Paint) + 12;
-  Canvas.DrawSimpleText(Item.Description,
-    DescX,
-    RowRect.Top + (RowRect.Bottom - RowRect.Top) / 2 + Font.Size / 2 - 2,
-    Font, Paint);
-
-  // Status badge on the right.
-  StatusText := StatusLabel(Item.Status);
-  if StatusText <> '' then
-  begin
-    StatusW := Font.MeasureText(StatusText, Paint);
-    StatusRect := RectF(RowRect.Right - StatusW - 16,
-                        RowRect.Top + (RowRect.Bottom - RowRect.Top - 16) / 2,
-                        RowRect.Right - 4,
-                        RowRect.Top + (RowRect.Bottom - RowRect.Top + 16) / 2);
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FHeaderBackgroundColor);
-    Canvas.DrawRoundRect(StatusRect, 4, 4, Paint);
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Color := SafeColorRefToSkColor(FTextColor);
-    Canvas.DrawSimpleText(StatusText,
-      StatusRect.Left + 6,
-      StatusRect.Top + (StatusRect.Bottom - StatusRect.Top) / 2 + Font.Size / 2 - 2,
-      Font, Paint);
-  end;
-end;
-
 procedure TOBDDtcList.PaintSkia(Canvas: ISkCanvas);
 var
-  Bounds, RowRect, ScrollTrack, ScrollThumb: TRectF;
-  Paint: ISkPaint;
-  Font, MonoFont, HeaderFont: ISkFont;
-  StartIdx, EndIdx, I: Integer;
-  RowTop: Single;
-  ContentH, ListH: Integer;
-  ThumbH, ThumbY: Single;
+  State: TOBDDtcListRenderState;
+  RowViews: TArray<TOBDDtcRowView>;
+  I: Integer;
+  View: TOBDDtcRowView;
 begin
-  Bounds := RectF(0, 0, Width, Height);
-
-  // Background.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Fill;
-  Paint.Color := SafeColorRefToSkColor(FBackgroundColor);
-  Canvas.DrawRect(Bounds, Paint);
-
-  Font := TSkFont.Create(TSkTypeface.MakeDefault, 12);
-  // Mono font for codes — fall back to the default if the platform
-  // doesn't have a monospace family available.
-  MonoFont := TSkFont.Create(TSkTypeface.MakeFromName('Consolas',
-    TSkFontStyle.Normal), 12);
-  if MonoFont.Typeface = nil then
-    MonoFont := TSkFont.Create(TSkTypeface.MakeDefault, 12);
-  HeaderFont := TSkFont.Create(TSkTypeface.MakeDefault, 12);
-
-  // Header row.
-  if FShowHeader then
+  // Marshal items into the renderer's flat row shape.
+  SetLength(RowViews, FItems.Count);
+  for I := 0 to FItems.Count - 1 do
   begin
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := False;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FHeaderBackgroundColor);
-    Canvas.DrawRect(RectF(0, 0, Width, FHeaderHeight), Paint);
-
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Color := SafeColorRefToSkColor(FTextColor);
-    Canvas.DrawSimpleText('Code',        12,                                   FHeaderHeight - 8, HeaderFont, Paint);
-    Canvas.DrawSimpleText('Description', 12 + HeaderFont.MeasureText('XXXXXXXX', Paint), FHeaderHeight - 8, HeaderFont, Paint);
-    Canvas.DrawSimpleText('Status',      Width - 60,                           FHeaderHeight - 8, HeaderFont, Paint);
+    View.Code := FItems[I].Code;
+    View.Description := FItems[I].Description;
+    View.Severity := FItems[I].Severity;
+    View.Status := FItems[I].Status;
+    RowViews[I] := View;
   end;
 
-  ListH := ListAreaHeight;
-  ContentH := ContentHeight;
-  if ListH <= 0 then Exit;
+  State.Width := Width;
+  State.Height := Height;
+  State.Rows := RowViews;
+  State.SelectedIndex := FSelectedIndex;
+  State.ScrollY := FScrollY;
+  State.RowHeight := FRowHeight;
+  State.HeaderHeight := FHeaderHeight;
+  State.ScrollbarWidth := DTC_SCROLLBAR_WIDTH;
+  State.BackgroundColor := SafeColorRefToSkColor(FBackgroundColor);
+  State.HeaderBackgroundColor := SafeColorRefToSkColor(FHeaderBackgroundColor);
+  State.RowAlternateColor := SafeColorRefToSkColor(FRowAltColor);
+  State.BorderColor := SafeColorRefToSkColor(FBorderColor);
+  State.TextColor := SafeColorRefToSkColor(FTextColor);
+  State.SelectionColor := SafeColorRefToSkColor(FSelectionColor);
+  State.SeverityInfoColor := SafeColorRefToSkColor(FSeverityInfoColor);
+  State.SeverityWarningColor := SafeColorRefToSkColor(FSeverityWarningColor);
+  State.SeverityCriticalColor := SafeColorRefToSkColor(FSeverityCriticalColor);
+  State.ShowHeader := FShowHeader;
+  State.ShowAlternateRows := FShowAlternateRows;
 
-  // Compute the range of rows that intersect the visible viewport.
-  StartIdx := FScrollY div FRowHeight;
-  EndIdx := (FScrollY + ListH) div FRowHeight + 1;
-  if StartIdx < 0 then StartIdx := 0;
-  if EndIdx > FItems.Count - 1 then EndIdx := FItems.Count - 1;
-
-  Canvas.Save;
-  try
-    Canvas.ClipRect(RectF(0, ListAreaTop, Width, Height));
-
-    for I := StartIdx to EndIdx do
-    begin
-      RowTop := ListAreaTop + (I * FRowHeight) - FScrollY;
-      RowRect := RectF(0, RowTop, Width - DTC_SCROLLBAR_WIDTH,
-                       RowTop + FRowHeight);
-      DrawRow(Canvas, FItems[I], RowRect, I = FSelectedIndex,
-        Odd(I), Font, MonoFont);
-    end;
-  finally
-    Canvas.Restore;
-  end;
-
-  // Scroll-bar gutter.
-  if ContentH > ListH then
-  begin
-    ScrollTrack := RectF(Width - DTC_SCROLLBAR_WIDTH, ListAreaTop,
-                         Width, Height);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := False;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FHeaderBackgroundColor);
-    Canvas.DrawRect(ScrollTrack, Paint);
-
-    ThumbH := System.Math.Max(20, (ListH / ContentH) * (ScrollTrack.Bottom - ScrollTrack.Top));
-    ThumbY := ScrollTrack.Top +
-      (FScrollY / System.Math.Max(1, MaxScroll)) *
-      ((ScrollTrack.Bottom - ScrollTrack.Top) - ThumbH);
-    ScrollThumb := RectF(ScrollTrack.Left + 2, ThumbY,
-                         ScrollTrack.Right - 2, ThumbY + ThumbH);
-    Paint := TSkPaint.Create;
-    Paint.AntiAlias := True;
-    Paint.Style := TSkPaintStyle.Fill;
-    Paint.Color := SafeColorRefToSkColor(FBorderColor);
-    Canvas.DrawRoundRect(ScrollThumb, 2, 2, Paint);
-  end;
-
-  // Outer border.
-  Paint := TSkPaint.Create;
-  Paint.AntiAlias := False;
-  Paint.Style := TSkPaintStyle.Stroke;
-  Paint.StrokeWidth := 1;
-  Paint.Color := SafeColorRefToSkColor(FBorderColor);
-  Canvas.DrawRect(Bounds, Paint);
+  RenderDtcList(Canvas, State);
 end;
+
 
 end.
