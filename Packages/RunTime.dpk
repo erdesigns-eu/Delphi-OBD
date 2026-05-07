@@ -155,6 +155,12 @@ contains
   OBD.OEM.Polestar in '..\src\Services\OBD.OEM.Polestar.pas',
   OBD.ReadinessMonitor in '..\src\Services\OBD.ReadinessMonitor.pas',
   OBD.FreezeFrame in '..\src\Services\OBD.FreezeFrame.pas',
-  OBD.VehicleHealth in '..\src\Services\OBD.VehicleHealth.pas';
+  OBD.VehicleHealth in '..\src\Services\OBD.VehicleHealth.pas',
+  OBD.OEM.Ferrari in '..\src\Services\OBD.OEM.Ferrari.pas',
+  OBD.OEM.Lucid in '..\src\Services\OBD.OEM.Lucid.pas',
+  OBD.OEM.Mahindra in '..\src\Services\OBD.OEM.Mahindra.pas',
+  OBD.OEM.Tata in '..\src\Services\OBD.OEM.Tata.pas',
+  OBD.OEM.MINI in '..\src\Services\OBD.OEM.MINI.pas',
+  OBD.OEM.Smart in '..\src\Services\OBD.OEM.Smart.pas';
 
 end.

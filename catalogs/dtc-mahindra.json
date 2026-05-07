@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Mahindra DTC starter",
+  "default_source": "mahindra-etool-community",
+  "dtcs": [
+    { "code": "P0299", "severity": "warning",  "description": "Mahindra mStallion T-GDi — Turbocharger underboost", "verified": false },
+    { "code": "P0234", "severity": "critical", "description": "Mahindra mStallion T-GDi — Turbocharger overboost", "verified": false },
+    { "code": "P0420", "severity": "warning",  "description": "Catalyst Bank 1 efficiency below threshold (mStallion)", "verified": false },
+    { "code": "P0455", "severity": "info",     "description": "Mahindra — EVAP large leak (loose fuel cap)", "verified": false },
+    { "code": "P008A", "severity": "warning",  "description": "Mahindra — Low-pressure fuel system pressure too low", "verified": false },
+    { "code": "P0087", "severity": "critical", "description": "Mahindra mHawk diesel — Fuel rail pressure too low", "verified": false },
+    { "code": "P0088", "severity": "critical", "description": "Mahindra mHawk diesel — Fuel rail pressure too high", "verified": false },
+    { "code": "P0093", "severity": "critical", "description": "Mahindra mHawk — Fuel system leak (large)", "verified": false },
+    { "code": "P0335", "severity": "critical", "description": "Mahindra — CKP Crankshaft Position Sensor 'A' Circuit", "verified": false },
+    { "code": "P0341", "severity": "warning",  "description": "Mahindra — Camshaft phasing performance (mStallion)", "verified": false },
+    { "code": "P0401", "severity": "warning",  "description": "Mahindra mHawk — EGR insufficient flow", "verified": false },
+    { "code": "P0411", "severity": "warning",  "description": "Mahindra — Secondary air injection incorrect flow", "verified": false },
+    { "code": "P0741", "severity": "warning",  "description": "Mahindra Aisin AT — Torque converter clutch performance", "verified": false },
+    { "code": "P2002", "severity": "critical", "description": "Mahindra mHawk BS-VI — DPF efficiency below threshold", "verified": false },
+    { "code": "P244A", "severity": "warning",  "description": "Mahindra mHawk — DPF differential pressure too low", "verified": false },
+    { "code": "P3000", "severity": "critical", "description": "Mahindra BE EV / XUV400 EV — HV battery system performance", "verified": false },
+    { "code": "P0AA6", "severity": "critical", "description": "Mahindra BE EV — HV battery isolation fault", "verified": false },
+    { "code": "U0146", "severity": "warning",  "description": "Mahindra — Lost Communication With Gateway 'A'", "verified": false },
+    { "code": "U0184", "severity": "warning",  "description": "Mahindra — Lost Communication With AdrenoX IVI", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Mahindra — High-speed CAN bus 'A' off", "verified": false },
+    { "code": "B1318", "severity": "info",     "description": "Mahindra BCM — Battery voltage low", "verified": false },
+    { "code": "B116F", "severity": "warning",  "description": "Mahindra — Smart Door Handle / push-button start fault", "verified": false },
+    { "code": "C1A20", "severity": "warning",  "description": "Mahindra — Air-suspension compressor fault (XUV700 AX7L)", "verified": false },
+    { "code": "C1A21", "severity": "warning",  "description": "Mahindra — Air-suspension reservoir pressure too low", "verified": false },
+    { "code": "C1135", "severity": "warning",  "description": "Mahindra — Brake-pedal switch circuit (cruise interlock)", "verified": false }
+  ]
+}

@@ -27,7 +27,9 @@ uses
   OBD.OEM.BYD, OBD.OEM.Geely, OBD.OEM.NIO,
   OBD.OEM.Xpeng, OBD.OEM.GreatWall,
   OBD.OEM.Porsche, OBD.OEM.JLR, OBD.OEM.Iveco,
-  OBD.OEM.Isuzu, OBD.OEM.Rivian, OBD.OEM.Polestar;
+  OBD.OEM.Isuzu, OBD.OEM.Rivian, OBD.OEM.Polestar,
+  OBD.OEM.Ferrari, OBD.OEM.Lucid, OBD.OEM.Mahindra,
+  OBD.OEM.Tata, OBD.OEM.MINI, OBD.OEM.Smart;
 
 {$R *.res}
 

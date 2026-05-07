@@ -1,0 +1,29 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "smart Automobile DTC starter (Mercedes-Geely JV)",
+  "default_source": "smart-workshop-community",
+  "dtcs": [
+    { "code": "P0AA6", "severity": "critical", "description": "smart #1 / #3 / #5 — HV battery isolation fault", "verified": false },
+    { "code": "P0A2A", "severity": "warning",  "description": "smart — Drive Motor 'A' Temperature Sensor Circuit", "verified": false },
+    { "code": "P0A3A", "severity": "warning",  "description": "smart AWD — Front motor temperature sensor circuit", "verified": false },
+    { "code": "P0AC0", "severity": "warning",  "description": "smart — HV battery temperature sensor circuit", "verified": false },
+    { "code": "P0D38", "severity": "warning",  "description": "smart — On-board charger DC/DC performance", "verified": false },
+    { "code": "P0D29", "severity": "warning",  "description": "smart — AC charging coupler latch fault (Type 2 / GB-AC)", "verified": false },
+    { "code": "P0D2A", "severity": "warning",  "description": "smart — DC fast-charge coupler over-temperature", "verified": false },
+    { "code": "P0AFA", "severity": "warning",  "description": "smart — HV battery cell-voltage delta out of range", "verified": false },
+    { "code": "P0AFE", "severity": "warning",  "description": "smart — HV battery cooling-system performance", "verified": false },
+    { "code": "P3000", "severity": "critical", "description": "smart — High-voltage battery system performance", "verified": false },
+    { "code": "P3055", "severity": "warning",  "description": "smart — On-board charger overheating (charge derate)", "verified": false },
+    { "code": "U0293", "severity": "critical", "description": "smart — Lost Communication With BMS", "verified": false },
+    { "code": "U0184", "severity": "warning",  "description": "smart — Lost Communication With central touchscreen", "verified": false },
+    { "code": "U0316", "severity": "warning",  "description": "smart — Lost Communication With Pilot Assist (Mobileye)", "verified": false },
+    { "code": "U0146", "severity": "warning",  "description": "smart — Lost Communication With Gateway 'A'", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "smart — High-speed CAN bus 'A' off", "verified": false },
+    { "code": "B100D", "severity": "warning",  "description": "smart — Pilot Assist front camera obstructed", "verified": false },
+    { "code": "B100E", "severity": "warning",  "description": "smart #5 — Active suspension ride-height sensor open circuit", "verified": false },
+    { "code": "B1A20", "severity": "warning",  "description": "smart — Heat-pump compressor controller fault", "verified": false },
+    { "code": "C1A20", "severity": "warning",  "description": "smart — ESP / DSC controller fault", "verified": false },
+    { "code": "C1A21", "severity": "warning",  "description": "smart #5 — Air-suspension reservoir pressure too low", "verified": false }
+  ]
+}

@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.24.0] - 2026-05-07 — Six more OEMs (Ferrari / Lucid / Mahindra / Tata / MINI / smart)
+
+### Added (6 new full-depth OEM extensions)
+- **`OBD.OEM.Ferrari`** — Ferrari N.V. (1 WMI: ZFF Maranello). 16-ECU SD3 / Leonardo map covering ME engine + Marelli ECU + 7/8-DCT + secondary V8/V12 controller + SF90 / 296 / 12Cilindri hybrid stack (inverter + e-motor + HV battery) + manettino + Magneride + lift axle + PCCB-equivalent. **24 DIDs** including Ferrari model code (F142, F154, F160), paint code, individual options, Maranello assembly data, warranty block, oil pressure / level / temperature / runtime, rear-axle temp, hybrid pack voltage / SOC / SOH, manettino position enum (Wet / Sport / Race / CT-off / ESC-off / Qualify), Magneride mode enum, lift-axle status enum, four tire-surface temperatures. **6 routines** (DCT calibration, Magneride, lift-axle test, oil-life reset).
+- **`OBD.OEM.Lucid`** — Lucid Group (1 WMI: 50A Casa Grande AMP-1). 15-ECU map for the Air sedan + Gravity SUV: VCU + front motor + tri-motor stack (Sapphire) + 900 V BMS + Wunderbox integrated charger + Pixel cluster + DreamDrive ADAS + lidar + Glass Canopy + heat-pump (CO₂) + thermal mgmt + air suspension. **22 DIDs** including model code (Air / Gravity / Sapphire), drivetrain (Pure / Touring / Grand Touring / Sapphire), battery pack (88/92/112/118 kWh), 900 V pack voltage / SOC / SOH / temp min/max, range, consumption, charge status / session kWh / 350 kW power, three motor temperatures, four-corner air-suspension heights, drive mode enum (Smooth / Swift / Sapphire Track / Tow). **5 routines**.
+- **`OBD.OEM.Mahindra`** — Mahindra & Mahindra (3 WMIs: MAJ Chakan/Nashik + MA6 Bengaluru + M3M BE EV Pune; deliberately avoids MA1 to prevent JLR-Pune collision). 12-ECU map for engine (mHawk diesel / mStallion petrol) + Aisin AT / Punch CVT + BE EV charge controller + drive motor + AdrenoX IVI + ADAS Level 2 + air suspension (XUV700 AX7L). **23 DIDs** including model code (XUV700, ScorpioN, Thar), variant code (AX5/AX7/AX7L/Z8/Z8L), engine code, oil temperature, coolant temp, boost pressure, common-rail pressure, fuel level, runtime, DPF soot load, BE EV pack voltage / SOC / SOH / motor temp / charge status, AT/CVT temp, two-corner air heights. **6 routines**.
+- **`OBD.OEM.Tata`** — Tata Motors (3 WMIs: MAT passenger Pune+Sanand + MAR commercial Jamshedpur+Lucknow + KMU Tata Daewoo Korea; JLR — also Tata-owned — uses its own extension). 12-ECU map for Revotron / Revotorq / Kryotec / TGDI engines + iCNG bi-fuel module + Ziptron / Acti.ev EV stack + iRA Connected Car / Harman IVI + ADAS Level 2 (Harrier / Safari / Curvv). **23 DIDs** including model code (Nexon / Punch / Curvv / Harrier / Safari), variant code (XE/XM/XT/XZ/XZ+), engine code (Revotron 1.2T, Kryotec 2.0L), oil + coolant temperature, boost, common-rail pressure, fuel level, CNG tank pressure, runtime, DPF soot load, Ziptron pack voltage / SOC / SOH / motor temp / charge status / range, brake-pad remaining. **7 routines**.
+- **`OBD.OEM.MINI`** — MINI / BMW Group sub-brand (2 WMIs: WMW Oxford UK + SAW Spotlight Automotive China JV). Full BMW E-Sys / ISTA architecture inheritance: 13-ECU map (DME B38/B48/B58 + EGS Aisin/7DCT + DSC + KOMBI + FRM + CAS + ZGW + iDrive + IHKA + ACSM + MINI Cooper E / SE / Aceman EV stack). 23 DIDs including factory + current I-Stufe, FA SALAPA option codes, MINI chassis code (R56, F56, F60, J01, J05), oil temperature / level / runtime, boost pressure, fuel level + consumption, MINI Cooper E pack voltage / SOC / SOH / range / motor temp / charge status, brake-pad remaining, oil quality, remaining oil-service distance. **6 routines**. Inherits the BMW session negotiator (security access required for both extended + programming sessions; 1500 ms heartbeat).
+- **`OBD.OEM.Smart`** — smart Automobile Co. / Mercedes-Geely 50/50 JV (2 WMIs: WME Hambach + L7M Xi'an China). 14-ECU map covering both legacy two-seater (451 / 453) and current Geely SEA platform (#1 / #3 / #5 SUV): VCU + front + rear motor inverters + 66/100 kWh BMS + on-board charger + cluster + HUD (#5 Premium) + Pilot Assist (Mobileye) + air suspension (#5). **20 DIDs** including model code, drivetrain (RWD/AWD/Brabus), battery pack (66 kWh BYD-LFP / 100 kWh CATL-NMC), software release, mileage, ambient temp, pack voltage / SOC / SOH / temp min/max, range, consumption, charge status / session kWh, motor temps, brake-pad remaining. **5 routines**.
+
+### Added (DTC starters — full depth, 144 entries combined)
+- `dtc-ferrari.json`: 18 codes (cylinder misfires P0301-P0308, V8 turbo / V12 NA oil pressure + boost, hybrid system on SF90 / 296 / 12Cilindri, lift-axle, Magneride, CAN-FD).
+- `dtc-lucid.json`: 31 codes (HV isolation, motor temp x3, charge coupler / lock, Wunderbox over-temp, BMS / IVI / DreamDrive comm-loss, DreamDrive front camera + lidar, glass canopy, Pixel cluster backlight, tri-motor torque vectoring).
+- `dtc-mahindra.json`: 25 codes (mStallion turbo, mHawk diesel rail / EGR / DPF, Aisin AT, BE EV battery, AdrenoX comm-loss, AX7L air suspension).
+- `dtc-tata.json`: 26 codes (Revotron T-GDi turbo / catalyst, Kryotec diesel rail / DPF, DCA transmission, iCNG fuel-pressure, Ziptron HV system + comm-loss, Harman iRA comm-loss).
+- `dtc-mini.json`: 23 codes (cylinder misfires for B38 3-cyl + B48 4-cyl, VANOS solenoid stuck open/closed, Valvetronic eccentric-shaft sensor, B48 oil pump pattern, MINI Cooper E HV system, RDC tire-pressure, FlexRay bus-off).
+- `dtc-smart.json`: 21 codes (HV isolation, AC + DC charge coupler, BMS / Pilot Assist comm-loss, heat-pump compressor, #5 air-suspension reservoir).
+
+### Tests
+- `Tests.OEM.LuxuryAndIndian` — 19 new test cases: VIN routing for all 6 OEMs (Ferrari ZFF + Fiat ZFA disambiguation, Lucid Casa Grande, Mahindra all 3 plants, Tata MAT/MAR/KMU including Tata Daewoo, MINI WMW + SAW, smart WME + L7M), Mahindra-vs-JLR-Pune collision guard, catalog spot-checks (Ferrari manettino + lift axle, Lucid Wunderbox + DreamDrive, Mahindra BE EV controller, Tata iCNG + Ziptron, MINI security-access requirement, smart Geely SEA architecture), decoder spot-checks for each OEM's distinguishing DID.
+
+### Changed
+- `Packages/RunTime.dpk` adds the 6 new units. The OEM registry now resolves **40 OEMs** total — 29 passenger + 6 heavy-duty + 5 Chinese.
+- `examples/diagtool/DiagTool.dpr` self-registers the 6 new extensions.
+
+### Notes
+- Combined v3.24 contribution: **131 new DID + routine entries** + **144 new DTC entries** across 12 catalog files. Catalogs ship at full depth (24-31 entries each), matching v3.22 / v3.18 / v3.7 baseline depth — not the slim starters of v3.14 / v3.17.
+- All 12 new catalog files validated to parse cleanly via external `json.load`.
+
 ## [3.23.0] - 2026-05-07 — OBD-II application helpers (readiness + freeze-frame + vehicle health)
 
 ### Added
