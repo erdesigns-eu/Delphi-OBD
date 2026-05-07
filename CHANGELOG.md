@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-05-06 — Async & Logging
+
+### Added
+- `IOBDFuture<T>` / `IOBDPromise<T>` / `IOBDCancellationToken` async primitives in `src/Utilities/OBD.Async.pas`. `TEvent`-backed `Await` with timeout, `OnComplete` handlers (synchronous when already settled), idempotent settlement.
+- `TOBDConnectionAsync` (`src/Connection/OBD.Connection.Async.pas`) — wraps `IOBDConnection` with `SendAsync` / `ATAsync` / `OBDAsync` returning `IOBDFuture<string>`. Resolves on the configured terminator (default '>' ELM327 prompt). Per-request timeout + shared cancellation tokens.
+- `TOBDProtocolAsync` (`src/Protocol/OBD.Protocol.Async.pas`) — `RequestAsync(Service, PID)` / `RequestRawAsync(HexCommand)` return parsed `TArray<IOBDDataMessage>`; `PollAsync(PIDs)` chains Service-01 polls sequentially.
+- `IOBDLogSink` + bundled sinks (`TFileRotationSink`, `TDailyRotationSink`, `TJsonLineSink`, `TConsoleSink`, `TInMemorySink`) in `src/Utilities/OBD.Logger.Sinks.pas`. `TOBDLogger` gains `RegisterSink` / `UnregisterSink` / `SinkCount` / `SourceTag`; legacy `OnLog` event and existing file-write are unchanged.
+- `TOBDLogViewer` (`src/Components/OBD.LogViewer.pas`) — `TOBDTerminal` subclass that implements `IOBDLogSink`, so any logger can render directly into the in-app conversation viewer with severity-coloured rows.
+- `TOBDRecorder` + `TOBDReplayer` (`src/Services/OBD.Service.Recorder.pas`) — capture and replay `.obdlog` files with elapsed-millisecond timing + direction tagging. `examples/replay/` ships a console replayer with configurable speed multiplier; documented in `examples/replay/README.md`.
+
 ## [2.2.0] - 2026-05-06 — Components
 
 ### Added
@@ -51,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stray mid-file `end.` terminators in `OBD.MatrixDisplay.pas` and `OBD.Touch.Header.pas`.
 - Component back-buffer dimension check in `OBD.CustomControl.pas` — was guarding `FBackBuffer.Width` access without first checking `Assigned(FBackBuffer)` (since removed entirely as part of the back-buffer revert).
 
-[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.3.0...HEAD
+[2.3.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.2.0...v2.3.0
 [2.2.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.1.0...v2.2.0
 [2.1.0]:      https://github.com/erdesigns-eu/Delphi-OBD/compare/v2.0.0...v2.1.0

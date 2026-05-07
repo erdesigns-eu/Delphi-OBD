@@ -30,7 +30,7 @@ implementation
 
 uses
   OBD.CircularGauge, OBD.LinearGauge, OBD.Tachometer, OBD.TrendGraph,
-  OBD.DtcList, OBD.Terminal, OBD.Knob, OBD.SegmentedSwitch,
+  OBD.DtcList, OBD.Terminal, OBD.LogViewer, OBD.Knob, OBD.SegmentedSwitch,
   OBD.MatrixDisplay, OBD.LED, OBD.Gauge.Component,
   OBD.Touch.Header, OBD.Touch.Subheader, OBD.Touch.Statusbar, OBD.Form, OBD.DataModule,
   OBD.Connection.Component, OBD.Protocol.Component, OBD.Header.Component, OBD.Subheader.Component,
@@ -83,6 +83,7 @@ begin
     TOBDTrendGraph,     // Register the live trend graph
     TOBDDtcList,        // Register the DTC list
     TOBDTerminal,       // Register the conversation terminal
+    TOBDLogViewer,      // Register the in-app log viewer (sink-aware terminal)
     TOBDKnob,           // Register the rotary knob input
     TOBDSegmentedSwitch,// Register the segmented switch
     TOBDMatrixDisplay,  // Register the Matrix Display

@@ -35,7 +35,9 @@ uses
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
   Tests.Adapter.ELM327 in 'Tests.Adapter.ELM327.pas',
   Tests.Components.Smoke in 'Tests.Components.Smoke.pas',
-  Tests.Async in 'Tests.Async.pas';
+  Tests.Async in 'Tests.Async.pas',
+  Tests.Logger.Sinks in 'Tests.Logger.Sinks.pas',
+  Tests.Service.Recorder in 'Tests.Service.Recorder.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

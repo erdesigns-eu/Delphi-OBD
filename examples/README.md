@@ -55,6 +55,18 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### ⏯️ replay/
+**Complexity**: Beginner
+**Connection**: None (reads `.obdlog` files)
+**What it demonstrates**:
+- `TOBDRecorder` / `TOBDReplayer` round-trip
+- Console replay with configurable speed multiplier
+- File format documentation for capturing real adapter sessions
+
+**Best for**: Building deterministic test fixtures, debugging parsers without a vehicle, recording demo sessions.
+
+---
+
 ### 🔌 serial/
 **Complexity**: Intermediate  
 **Connection**: Serial (COM port)  

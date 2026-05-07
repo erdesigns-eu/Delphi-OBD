@@ -181,6 +181,9 @@
         <DCCReference Include="..\src\Utilities\OBD.Async.pas"/>
         <DCCReference Include="..\src\Connection\OBD.Connection.Async.pas"/>
         <DCCReference Include="..\src\Protocol\OBD.Protocol.Async.pas"/>
+        <DCCReference Include="..\src\Utilities\OBD.Logger.Sinks.pas"/>
+        <DCCReference Include="..\src\Components\OBD.LogViewer.pas"/>
+        <DCCReference Include="..\src\Services\OBD.Service.Recorder.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

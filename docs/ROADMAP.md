@@ -20,7 +20,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 |---|---|---|
 | v2.1 Foundation | Tests, CI, changelog, BLE, dashboard | ✅ Tagged v2.1.0 (2026-05-06) |
 | v2.2 Components | Gauges, charts, terminal, theming | ✅ Tagged v2.2.0 (2026-05-06) |
-| v2.3 Async & Logging | Async APIs, structured logs, replay | ☐ Not started |
+| v2.3 Async & Logging | Async APIs, structured logs, replay | ✅ Tagged v2.3.0 (2026-05-06) |
 | v2.4 Distribution | GetIt, API docs, architecture diagrams | ☐ Not started |
 | v2.5 Hardening | Secure storage, ECU flash component, audit | ☐ Not started |
 | v3.0 FMX & Mobile | Cross-platform port, OEM extensions | ☐ Not started |
@@ -134,25 +134,36 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 > Goal: make the runtime non-blocking and observable.
 
 ### Async API
-- [ ] **🔴 L** Async layer over `OBD.Connection.*` — return `IOBDFuture<TBytes>` or use `TTask`-based callbacks.
-  *DoD:* UI no longer freezes during slow ELM327 commands; legacy sync API kept as wrapper.
-- [ ] **🟠 L** Async protocol request — `RequestAsync(Service, PID): IOBDFuture<TOBDResponse>`.
-- [ ] **🟠 M** Parallel multi-PID poll helper (`PollAsync([…PIDs])`).
-- [ ] **🟠 M** Cancellation tokens through the connection/protocol stack.
+- [x] **🔴 L** Async layer over `OBD.Connection.*` — return `IOBDFuture<string>`. *(v2.3)*
+  *DoD:* `src/Utilities/OBD.Async.pas` ships `IOBDFuture<T>` / `IOBDPromise<T>` / `IOBDCancellationToken`. `src/Connection/OBD.Connection.Async.pas` queues outgoing commands and resolves each future when the configured terminator (default '>', the ELM327 prompt) appears in the rolling buffer. Sync API untouched; async sits on top.
+- [x] **🟠 L** Async protocol request — `RequestAsync(Service, PID)`. *(v2.3)*
+  *DoD:* `src/Protocol/OBD.Protocol.Async.pas`. `RequestAsync` and `RequestRawAsync` resolve to `TArray<IOBDDataMessage>` after running the response through `TOBDProtocol.Invoke`.
+- [x] **🟠 M** Sequential multi-PID poll helper (`PollAsync([…PIDs])`). *(v2.3)*
+  *DoD:* Service-01 PIDs polled in order (the OBD bus is single-tester, parallel calls would scramble association). Returns `TArray<TArray<IOBDDataMessage>>`. Cancellation token aborts mid-batch.
+- [x] **🟠 M** Cancellation tokens through the connection/protocol stack. *(v2.3)*
+  *DoD:* `IOBDCancellationToken` shared between caller, connection async wrapper, and protocol async wrapper. `Cancel` settles every in-flight future with `fsCancelled`.
 
 ### Logging
-- [ ] **🟠 M** Extend `OBD.Logger.pas` with file-rotation sink (size + daily).
-- [ ] **🟠 M** JSON sink (one event per line) for ELK/Splunk ingestion.
-- [ ] **🟠 S** Pluggable `IOBDLogSink` interface; allow user-defined sinks.
-- [ ] **🟠 M** `TOBDLogViewer` component (uses `TOBDTerminal` from v2.2) for in-app live logs.
-- [ ] **🟢 S** Performance counters (message round-trip, bytes/sec, error rate) emitted as log events.
+- [x] **🟠 M** Pluggable `IOBDLogSink` interface in `OBD.Logger.Sinks`. *(v2.3)*
+  *DoD:* `RegisterSink` / `UnregisterSink` on `TOBDLogger`; sinks fan out after the legacy file-write so old behaviour is unchanged.
+- [x] **🟠 M** File-rotation (size) + daily-rotation sinks. *(v2.3)*
+  *DoD:* `TFileRotationSink` and `TDailyRotationSink` ship out of the box.
+- [x] **🟠 M** JSON sink (one event per line) for ELK/Splunk ingestion. *(v2.3)*
+  *DoD:* `TJsonLineSink` writes JSON Lines with ISO-8601 timestamps.
+- [x] **🟢 S** Console + in-memory sinks. *(v2.3)*
+  *DoD:* `TConsoleSink` for CLI tools / CI; `TInMemorySink` (capped ring buffer with `OnEvent` callback) for the in-app viewer and tests.
+- [x] **🟠 M** `TOBDLogViewer` component (uses `TOBDTerminal` from v2.2) for in-app live logs. *(v2.3)*
+  *DoD:* `src/Components/OBD.LogViewer.pas` extends `TOBDTerminal` and implements `IOBDLogSink` so any logger can register it. Severity maps onto the terminal's existing direction colours.
+- [ ] **🟢 S** Performance counters (message round-trip, bytes/sec, error rate) emitted as log events. *(backlog)*
 
 ### Log replay
-- [ ] **🟠 M** `.obdlog` recorder/replayer in `src/Services/OBD.Service.Recorder.pas`.
-- [ ] **🟠 M** `examples/replay/` — load recorded session, replay against UI without a vehicle.
-- [ ] **🟢 S** Recorder hooks reused as adapter test fixtures (folds back into v2.1 testing).
+- [x] **🟠 M** `.obdlog` recorder/replayer in `src/Services/OBD.Service.Recorder.pas`. *(v2.3)*
+  *DoD:* `TOBDRecorder` (thread-safe append-only) and `TOBDReplayer` (load + walk with configurable speed). Plain-text format with magic header; tab/CR/LF/backslash escaped.
+- [x] **🟠 M** `examples/replay/` — console replayer that walks a `.obdlog` to stdout. *(v2.3)*
+  *DoD:* `Replay.dpr` accepts a path + speed multiplier; documented in `examples/replay/README.md` and `examples/README.md`.
+- [ ] **🟢 S** Recorder hooks reused as adapter test fixtures. *(backlog — pairs with the v2.1 adapter-test follow-up)*
 
-**Exit criteria for v2.3:** Async path proven in dashboard; v2.3.0 tagged.
+**Exit criteria for v2.3:** ✅ Async path + cancellation + multi-sink logging + record/replay shipped; v2.3.0 tagged 2026-05-06.
 
 ---
 

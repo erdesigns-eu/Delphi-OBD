@@ -13,7 +13,9 @@ unit OBD.Logger;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.SyncObjs, System.IOUtils;
+  System.SysUtils, System.Classes, System.SyncObjs, System.IOUtils,
+  System.Generics.Collections,
+  OBD.Logger.Sinks;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -66,6 +68,18 @@ type
     ///   Event handler for log messages
     /// </summary>
     FOnLog: TLogEvent;
+    /// <summary>
+    ///   Pluggable sinks that receive every log event after the built-in
+    ///   file write. Sinks are owned by the caller — the logger keeps
+    ///   only references.
+    /// </summary>
+    FSinks: TList<IOBDLogSink>;
+    /// <summary>
+    ///   Optional source / subsystem tag forwarded to sinks.
+    /// </summary>
+    FSourceTag: string;
+    procedure DispatchToSinks(const Level: TLogLevel; const Message: string);
+    function MapLevel(const Level: TLogLevel): TOBDLogLevel;
 
     /// <summary>
     ///   Get log level name as string
@@ -158,6 +172,18 @@ type
     ///   Event handler for log messages
     /// </summary>
     property OnLog: TLogEvent read FOnLog write FOnLog;
+    /// <summary>
+    ///   Optional subsystem tag attached to every event ("connection",
+    ///   "protocol", …). Visible to sinks via <c>Event.Source</c>.
+    /// </summary>
+    property SourceTag: string read FSourceTag write FSourceTag;
+
+    /// <summary>Add an extra sink that receives every event.</summary>
+    procedure RegisterSink(const Sink: IOBDLogSink);
+    /// <summary>Remove a previously-registered sink.</summary>
+    procedure UnregisterSink(const Sink: IOBDLogSink);
+    /// <summary>Number of registered sinks.</summary>
+    function SinkCount: Integer;
   end;
 
 var
@@ -175,6 +201,7 @@ constructor TOBDLogger.Create(const LogFilePath: string);
 begin
   inherited Create;
   FCriticalSection := TCriticalSection.Create;
+  FSinks := TList<IOBDLogSink>.Create;
   
   // Set default log file path
   if LogFilePath.IsEmpty then
@@ -197,8 +224,70 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDLogger.Destroy;
 begin
+  FSinks.Free;
   FCriticalSection.Free;
   inherited;
+end;
+
+//------------------------------------------------------------------------------
+// SINK REGISTRATION
+//------------------------------------------------------------------------------
+procedure TOBDLogger.RegisterSink(const Sink: IOBDLogSink);
+begin
+  if Sink = nil then Exit;
+  FCriticalSection.Enter;
+  try
+    if FSinks.IndexOf(Sink) < 0 then FSinks.Add(Sink);
+  finally
+    FCriticalSection.Leave;
+  end;
+end;
+
+procedure TOBDLogger.UnregisterSink(const Sink: IOBDLogSink);
+begin
+  FCriticalSection.Enter;
+  try FSinks.Remove(Sink); finally FCriticalSection.Leave; end;
+end;
+
+function TOBDLogger.SinkCount: Integer;
+begin
+  FCriticalSection.Enter;
+  try Result := FSinks.Count; finally FCriticalSection.Leave; end;
+end;
+
+function TOBDLogger.MapLevel(const Level: TLogLevel): TOBDLogLevel;
+begin
+  // The legacy enum order matches TOBDLogLevel one-to-one, but explicit
+  // mapping keeps the contract reviewable if either side changes.
+  case Level of
+    llDebug:    Result := lsDebug;
+    llInfo:     Result := lsInfo;
+    llWarning:  Result := lsWarning;
+    llError:    Result := lsError;
+    llCritical: Result := lsCritical;
+  else          Result := lsInfo;
+  end;
+end;
+
+procedure TOBDLogger.DispatchToSinks(const Level: TLogLevel; const Message: string);
+var
+  Snapshot: TArray<IOBDLogSink>;
+  Sink: IOBDLogSink;
+  Event: TOBDLogEvent;
+begin
+  // Snapshot the sink list so a sink that mutates the registry during
+  // dispatch (e.g. a fan-out sink) can't deadlock or skip listeners.
+  FCriticalSection.Enter;
+  try Snapshot := FSinks.ToArray; finally FCriticalSection.Leave; end;
+  if Length(Snapshot) = 0 then Exit;
+
+  Event.Timestamp := Now;
+  Event.Level := MapLevel(Level);
+  Event.Source := FSourceTag;
+  Event.Message := Message;
+
+  for Sink in Snapshot do
+    try Sink.Write(Event); except {a misbehaving sink can't take down the logger} end;
 end;
 
 //------------------------------------------------------------------------------
@@ -331,6 +420,9 @@ begin
   finally
     FCriticalSection.Leave;
   end;
+
+  // Sinks fire AFTER the lock so a slow sink can't stall other loggers.
+  DispatchToSinks(Level, Message);
 end;
 
 //------------------------------------------------------------------------------
