@@ -74,6 +74,9 @@ contains
   OBD.Gauge.Component in '..\src\Components\OBD.Gauge.Component.pas',
   OBD.Header.Component in '..\src\Components\OBD.Header.Component.pas',
   OBD.Subheader.Component in '..\src\Components\OBD.Subheader.Component.pas',
-  OBD.Application.Settings in '..\src\Utilities\OBD.Application.Settings.pas';
+  OBD.Application.Settings in '..\src\Utilities\OBD.Application.Settings.pas',
+  OBD.Async in '..\src\Utilities\OBD.Async.pas',
+  OBD.Connection.Async in '..\src\Connection\OBD.Connection.Async.pas',
+  OBD.Protocol.Async in '..\src\Protocol\OBD.Protocol.Async.pas';
 
 end.
