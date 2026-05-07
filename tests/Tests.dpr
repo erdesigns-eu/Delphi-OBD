@@ -54,7 +54,8 @@ uses
   Tests.OEM.DTC in 'Tests.OEM.DTC.pas',
   Tests.OEM.Coding in 'Tests.OEM.Coding.pas',
   Tests.OEM.RoutineControl in 'Tests.OEM.RoutineControl.pas',
-  Tests.OEM.Captures in 'Tests.OEM.Captures.pas';
+  Tests.OEM.Captures in 'Tests.OEM.Captures.pas',
+  Tests.OEM.DiagSession in 'Tests.OEM.DiagSession.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

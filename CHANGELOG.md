@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.11.0] - 2026-05-07 — OEM Catalog Phase 6.1 (high-level diagnostic session)
+
+### Added
+- **`OBD.OEM.DiagSession`** — `TOBDDiagSession` is the high-level wrapper that turns the lower-level OEM machinery into the API a tool actually calls. One class binds an OEM extension to a connection and exposes `BeginSession`, `EndSession`, `UnlockSecurityAccess`, `ReadDID`, `StartRoutine`, `StopRoutine`, `RequestRoutineResults`, plus a `State` accessor and a `LastError` string for the simple failure-reporting path tools want.
+- The wrapper owns the tester-present heartbeat thread end-to-end: `BeginSession` starts it, `EndSession` (and the destructor) stop it gracefully. Re-entering the same session is idempotent; cross-session transitions stop the heartbeat first so the next session-control request doesn't race against it.
+- `UnlockSecurityAccess(Level, [Algorithm])` runs the full UDS 27 LL → 67 LL SEED → 27 LL+1 KEY exchange. By default it pulls the algorithm from the OEM extension's `SeedKeyRegistry`; the optional `Algorithm` parameter lets production users plug their NDA-protected algorithm in at the call site without registering it globally.
+- `ReadDID(DID, out Payload: TBytes)` and `ReadDID(DID, out Decoded: string)` — the second form runs the bytes through the OEM's `DecodeDID` so tool UIs can render the human-readable string directly.
+- `StartRoutine(RID, InputData, out Status)` / `StopRoutine(RID)` / `RequestRoutineResults(RID, out Status)` thread negative-response NRCs into `LastError` instead of raising, matching the tool-friendly contract `BeginSession` / `EndSession` use.
+- `Tests.OEM.DiagSession` — construction-time guards (`RejectsNilConnection`, `RejectsNilExtension`). The bytes-on-the-wire integration sits with the existing console flashing example which already drives the same primitives end-to-end.
+
+### Changed
+- `Packages/RunTime.dpk` adds `OBD.OEM.DiagSession`.
+
+### Notes
+- This is the integration milestone — the layer that proves the v3.3-v3.10 work composes cleanly. A new tool now writes:
+  ```pascal
+  Session := TOBDDiagSession.Create(Conn, OEM);
+  Session.BeginSession(sstExtendedDiagnostic, $7E0);
+  Session.UnlockSecurityAccess($01);
+  Session.ReadDID($F190, Vin);
+  Session.StartRoutine($0F00, [], Status);
+  Session.EndSession;
+  ```
+  …and the framework handles the OEM-specific session choreography, the security-access dance, the heartbeat thread, the SID echo stripping, and the negative-response routing for them.
+- Phase 6.2 (multi-bus / DoIP routing activation, FlexRay) is the next milestone.
+
 ## [3.10.0] - 2026-05-07 — OEM Catalog Phase 5 (capture-replay validation)
 
 ### Added

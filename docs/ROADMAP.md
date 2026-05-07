@@ -34,6 +34,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have.
 | v3.8 OEM Catalog Phase 3   | Coding / variant-write encoders: VW long-coding (TOBDVWLongCoding), BMW FA + I-Stufe (TOBDBMWFA, TOBDBMWIStufe), Mercedes SCN (TOBDMercedesSCN), Ford AsBuilt blocks with FORScan checksum (TOBDFordAsBuiltBlock + ParseFordAsBuiltText) | ✅ Tagged v3.8.0 (2026-05-07) |
 | v3.9 OEM Catalog Phase 4   | RoutineControl (UDS 0x31) framework: TOBDRoutineRequestBuilder + TOBDRoutineResponseReader, BuildStartRoutine / Stop / RequestResults / ParseRoutineResponse, TOBDRoutineSchema + DecodeRoutineOutput | ✅ Tagged v3.9.0 (2026-05-07) |
 | v3.10 OEM Catalog Phase 5  | Capture-replay validation: OBD.OEM.Captures pairs Sent → Received from .obdlog, extracts SID / DID / payload, runs 0x22 reads through Ext.DecodeDID; 4 sample synthetic captures + 12 tests | ✅ Tagged v3.10.0 (2026-05-07) |
+| v3.11 OEM Catalog Phase 6.1| High-level TOBDDiagSession wrapper: BeginSession + EndSession + UnlockSecurityAccess + ReadDID + StartRoutine / Stop / RequestResults; owns the tester-present heartbeat lifecycle, threads NRCs into LastError | ✅ Tagged v3.11.0 (2026-05-07) |
 
 ---
 
