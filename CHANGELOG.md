@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.19.0] - 2026-05-07 — Engine-OEM auto-routing
+
+### Added
+- **`IOBDOEMExtension.ApplicableToECUSupplier(const SupplierID: string): Boolean`** — companion to `ApplicableToVIN` for OEMs that ship engines / modules into other manufacturers' chassis. Engine OEMs (Cummins, Detroit Diesel) and supplier-only modules use this branch when the chassis VIN routes elsewhere. The `SupplierID` is what the ECU returns from J1939 PGN 65259 'Make' or ISO 14229 DID 0xF18A (system_supplier_identifier).
+- **`TOBDOEMRegistry.FindByECUSupplier(SupplierID): IOBDOEMExtension`** — walks every registered extension and returns the first that claims the given supplier ID. Empty string short-circuits to nil.
+- `TOBDOEMExtensionBase` ships a default `ApplicableToECUSupplier` that returns False — every existing extension is **upward-compatible** and only the engine OEMs (Cummins + Detroit Diesel) opt in to the new probe.
+- **`OBD.OEM.Cummins.ApplicableToECUSupplier`** — claims `'CUMMINS'` and the legacy `'CMI'` (Cummins Inc) token some pre-2010 ECMs emit on F18A. Case-insensitive, whitespace-trimmed.
+- **`OBD.OEM.DetroitDiesel.ApplicableToECUSupplier`** — claims `'DETROIT'`, `'DDC'`, and the older `'DETROITDDC'` single-token form some MCM-1 modules use.
+- `Tests.OEM.SupplierRouting` — 10 new test cases: positive-match for all known tokens (Cummins / CMI / Detroit / DDC / DETROITDDC), negative-match for cross-OEM tokens, registry-level routing for both engine OEMs, empty-string short-circuit, default-False guarantee for non-engine OEMs (VW, Toyota), case-insensitive + whitespace-trim guarantee.
+
+### Changed
+- `IOBDOEMExtension` adds one method. The registry routing now has two probes — VIN first, then supplier — so a tool can call:
+  ```pascal
+  Ext := TOBDOEMRegistry.FindByVIN(Vin);
+  if Ext = nil then
+    Ext := TOBDOEMRegistry.FindByECUSupplier(SupplierFromF18A);
+  ```
+  to handle the mixed-fleet case (Cummins X15 in a PACCAR Peterbilt vs. a Volvo VNL).
+
+### Notes
+- `TOBDDiagSession` (v3.11) doesn't yet auto-cascade through the two probes — that's a Phase-9-ish ergonomic addition. For now production tools call the two registry helpers explicitly per the snippet above.
+
 ## [3.18.0] - 2026-05-07 — Catalog deepening + verification protocol
 
 ### Added (per-OEM catalog enrichment)

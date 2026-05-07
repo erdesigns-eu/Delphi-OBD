@@ -35,6 +35,7 @@ type
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
+    function ApplicableToECUSupplier(const SupplierID: string): Boolean; override;
     function DecodeDID(const DID: Word; const Payload: TBytes): string; override;
   end;
 
@@ -52,8 +53,20 @@ begin Result := 'Detroit Diesel Corp. (engine OEM)'; end;
 function TOBDOEMExtensionDetroitDiesel.ApplicableToVIN(
   const VIN: string): Boolean;
 begin
-  // Engine OEM — no WMI. Resolve via TOBDOEMRegistry.FindByKey.
+  // Engine OEM — no WMI. Use ApplicableToECUSupplier instead.
   Result := False;
+end;
+
+function TOBDOEMExtensionDetroitDiesel.ApplicableToECUSupplier(
+  const SupplierID: string): Boolean;
+var
+  Norm: string;
+begin
+  // J1939 PGN 65259 'Make' returns 'DETROIT' or 'DDC' on Daimler
+  // Truck NA powertrain ECUs. Some older MCM-1 modules emit
+  // 'DETROITDDC' as a single token. Match case-insensitively.
+  Norm := UpperCase(Trim(SupplierID));
+  Result := (Norm = 'DETROIT') or (Norm = 'DDC') or (Norm = 'DETROITDDC');
 end;
 
 procedure TOBDOEMExtensionDetroitDiesel.BuildCatalog(

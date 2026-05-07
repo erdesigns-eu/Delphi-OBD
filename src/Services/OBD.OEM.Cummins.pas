@@ -38,6 +38,7 @@ type
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
+    function ApplicableToECUSupplier(const SupplierID: string): Boolean; override;
     function DecodeDID(const DID: Word; const Payload: TBytes): string; override;
   end;
 
@@ -55,10 +56,22 @@ begin Result := 'Cummins Inc. (engine OEM)'; end;
 function TOBDOEMExtensionCummins.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // Cummins doesn't issue WMIs — it ships engines into PACCAR /
-  // Volvo Trucks / Freightliner / RAM HD chassis. Resolve via
-  // TOBDOEMRegistry.FindByKey('CUMMINS') once the engine OEM is
-  // detected from PGN 65259 or DID F18A.
+  // Volvo Trucks / Freightliner / RAM HD chassis. Use
+  // ApplicableToECUSupplier (J1939 PGN 65259 'Make' field or
+  // ISO 14229 DID F18A) instead.
   Result := False;
+end;
+
+function TOBDOEMExtensionCummins.ApplicableToECUSupplier(
+  const SupplierID: string): Boolean;
+var
+  Norm: string;
+begin
+  // J1939 PGN 65259 'Make' returns 'CUMMINS' for the ECM. Some
+  // older Cummins ECMs respond with 'CMI' (Cummins Inc) on F18A;
+  // accept both. Match is case-insensitive and ignores whitespace.
+  Norm := UpperCase(Trim(SupplierID));
+  Result := (Norm = 'CUMMINS') or (Norm = 'CMI');
 end;
 
 procedure TOBDOEMExtensionCummins.BuildCatalog(

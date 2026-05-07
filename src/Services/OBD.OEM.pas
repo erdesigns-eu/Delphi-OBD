@@ -90,6 +90,19 @@ type
     /// </summary>
     function ApplicableToVIN(const VIN: string): Boolean;
 
+    /// <summary>
+    ///   True if this extension claims an ECU based on its component
+    ///   identification. Engine OEMs (Cummins, Detroit Diesel) and
+    ///   any OEM that ships engines / modules into other vehicle
+    ///   manufacturers' chassis use this branch since they don't
+    ///   issue WMIs of their own. <c>SupplierID</c> is what the ECU
+    ///   returns from J1939 PGN 65259 'Make' or ISO 14229 DID 0xF18A
+    ///   (system_supplier_identifier). The default base implementation
+    ///   returns False, so the contract is upward-compatible: only
+    ///   extensions that opt in respond to this probe.
+    /// </summary>
+    function ApplicableToECUSupplier(const SupplierID: string): Boolean;
+
     /// <summary>Catalog of DIDs the extension knows how to interpret.</summary>
     function DataIdentifiers: TArray<TOBDOEMDataIdentifier>;
     /// <summary>Catalog of RoutineControl identifiers.</summary>
@@ -155,6 +168,12 @@ type
     class procedure UnregisterExtension(const Ext: IOBDOEMExtension); static;
     class function FindByVIN(const VIN: string): IOBDOEMExtension; static;
     class function FindByKey(const ManufacturerKey: string): IOBDOEMExtension; static;
+    /// <summary>Probe every extension's <c>ApplicableToECUSupplier</c>
+    /// (J1939 PGN 65259 'Make' / ISO 14229 DID 0xF18A). Returns the
+    /// first claimant or nil. Use this when the chassis VIN doesn't
+    /// identify the ECU manufacturer (engine OEMs in mixed fleets,
+    /// supplier modules in OEM chassis).</summary>
+    class function FindByECUSupplier(const SupplierID: string): IOBDOEMExtension; static;
     class function All: TArray<IOBDOEMExtension>; static;
     class function Count: Integer; static;
     class procedure Clear; static;
@@ -200,6 +219,7 @@ type
     function ManufacturerKey: string; virtual; abstract;
     function DisplayName: string; virtual; abstract;
     function ApplicableToVIN(const VIN: string): Boolean; virtual; abstract;
+    function ApplicableToECUSupplier(const SupplierID: string): Boolean; virtual;
     function DataIdentifiers: TArray<TOBDOEMDataIdentifier>; virtual;
     function Routines: TArray<TOBDOEMRoutine>; virtual;
     function DecodeDID(const DID: Word; const Payload: TBytes): string; virtual;
@@ -296,6 +316,21 @@ begin
   try Snapshot := FExtensions.ToArray; finally FLock.Leave; end;
   for Ext in Snapshot do
     if SameText(Ext.ManufacturerKey, ManufacturerKey) then Exit(Ext);
+end;
+
+class function TOBDOEMRegistry.FindByECUSupplier(
+  const SupplierID: string): IOBDOEMExtension;
+var
+  Snapshot: TArray<IOBDOEMExtension>;
+  Ext: IOBDOEMExtension;
+begin
+  Result := nil;
+  if SupplierID = '' then Exit;
+  EnsureInitialized;
+  FLock.Enter;
+  try Snapshot := FExtensions.ToArray; finally FLock.Leave; end;
+  for Ext in Snapshot do
+    if Ext.ApplicableToECUSupplier(SupplierID) then Exit(Ext);
 end;
 
 class function TOBDOEMRegistry.All: TArray<IOBDOEMExtension>;
@@ -474,6 +509,16 @@ begin
   Result.Address := Address;
   Result.Name := Name;
   Result.CommonName := CommonName;
+end;
+
+function TOBDOEMExtensionBase.ApplicableToECUSupplier(
+  const SupplierID: string): Boolean;
+begin
+  // Default: extensions identify by VIN. Engine OEMs (Cummins,
+  // Detroit Diesel) and supplier-only modules override this to
+  // claim by component identification when the chassis VIN routes
+  // elsewhere.
+  Result := False;
 end;
 
 function TOBDOEMExtensionBase.DataIdentifiers: TArray<TOBDOEMDataIdentifier>;
