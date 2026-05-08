@@ -3,11 +3,29 @@
 Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every release).
 
 ## Summary
-- **46 OEM catalogs** (`<oem>.json`) — **239,244 total entries**
+- **79 OEM catalogs** — **247,279 total entries** across 5 vehicle classes:
+  - **agricultural**: 8 catalogs / 1,928 entries
+  - **cars-and-trucks**: 46 catalogs / 239,244 entries
+  - **marine**: 6 catalogs / 1,684 entries
+  - **motorcycle**: 14 catalogs / 3,292 entries
+  - **powersports**: 5 catalogs / 1,131 entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
 - **2 universal catalogs** (ISO 15031 / UDS / OBD-II PIDs)
 
-## OEM catalogs
+## Agricultural
+
+| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Caterpillar (Cat)** <sub>`agricultural/caterpillar.json`</sub> | `CATERPILLAR` | CAT | 25 | 186 | 14 | 0 | 12 | 15 | 12 | 4 | **268** |
+| **AGCO (Massey Ferguson / Fendt / Valtra / Challenger)** <sub>`agricultural/agco.json`</sub> | `AGCO` | 1AG | 24 | 170 | 14 | 0 | 12 | 15 | 12 | 4 | **251** |
+| **John Deere (Deere & Company)** <sub>`agricultural/john-deere.json`</sub> | `JOHN-DEERE` | 1JD | 23 | 162 | 14 | 0 | 14 | 17 | 12 | 2 | **244** |
+| **Volvo Construction Equipment** <sub>`agricultural/volvo-ce.json`</sub> | `VOLVO-CE` | VCE | 24 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **243** |
+| **CNH Industrial (Case IH / New Holland / Steyr)** <sub>`agricultural/cnh.json`</sub> | `CNH` | 1NH | 23 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **242** |
+| **Komatsu** <sub>`agricultural/komatsu.json`</sub> | `KOMATSU` | KMT | 25 | 146 | 14 | 0 | 12 | 15 | 12 | 4 | **228** |
+| **Claas KGaA** <sub>`agricultural/claas.json`</sub> | `CLAAS` | DEY | 23 | 146 | 14 | 0 | 12 | 15 | 12 | 4 | **226** |
+| **Kubota Corporation** <sub>`agricultural/kubota.json`</sub> | `KUBOTA` | KUB | 23 | 146 | 14 | 0 | 12 | 15 | 12 | 4 | **226** |
+
+## Cars And Trucks
 
 | Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -57,6 +75,46 @@ Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every relea
 | **Scania AB (Traton Group)** <sub>`scania.json`</sub> | `SCANIA` | VLU, YS2, XLE +1 | 130 | 1,912 | 108 | 27 | 65 | 124 | 39 | 2,460 | **4,865** |
 | **Detroit Diesel Corp. (Daimler Truck — engine OEM)** <sub>`detroit.json`</sub> | `DDC` |  | 123 | 1,904 | 108 | 27 | 65 | 125 | 39 | 2,460 | **4,851** |
 | **Honda Motor Co. (incl. Acura)** <sub>`honda.json`</sub> | `HONDA` | JHM, JHL, JHF +11 | 91 | 1,782 | 110 | 28 | 64 | 93 | 33 | 1,900 | **4,101** |
+
+## Marine
+
+| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Mercury Marine (Brunswick)** <sub>`marine/mercury-marine.json`</sub> | `MERCURY-MARINE` | MAR | 22 | 356 | 14 | 0 | 14 | 17 | 12 | 4 | **439** |
+| **Volvo Penta** <sub>`marine/volvo-penta.json`</sub> | `VOLVO-PENTA` | VPE | 22 | 202 | 14 | 0 | 12 | 15 | 12 | 4 | **281** |
+| **Cummins Marine** <sub>`marine/cummins-marine.json`</sub> | `CUMMINS-MARINE` | 1NE | 22 | 170 | 14 | 0 | 12 | 15 | 12 | 4 | **249** |
+| **MTU (Rolls-Royce Power Systems)** <sub>`marine/mtu.json`</sub> | `MTU` | MTU | 22 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **241** |
+| **Yanmar Marine** <sub>`marine/yanmar-marine.json`</sub> | `YANMAR-MARINE` | YAN | 22 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **241** |
+| **Yamaha Marine** <sub>`marine/yamaha-marine.json`</sub> | `YAMAHA-MARINE` | YMM | 22 | 154 | 14 | 0 | 12 | 15 | 12 | 4 | **233** |
+
+## Motorcycle
+
+| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Honda Motor (motorcycles)** <sub>`motorcycle/honda-moto.json`</sub> | `HONDA-MOTO` | JH2, JH4, MLH | 26 | 178 | 14 | 0 | 12 | 15 | 12 | 4 | **261** |
+| **BMW Motorrad** <sub>`motorcycle/bmw-motorrad.json`</sub> | `BMW-MOTORRAD` | WB1, WB2, ZBM | 27 | 170 | 14 | 0 | 14 | 15 | 12 | 4 | **256** |
+| **Kawasaki Heavy Industries** <sub>`motorcycle/kawasaki.json`</sub> | `KAWASAKI` | JKA, JKB | 26 | 170 | 14 | 0 | 12 | 16 | 12 | 4 | **254** |
+| **Suzuki Motor (motorcycles)** <sub>`motorcycle/suzuki-moto.json`</sub> | `SUZUKI-MOTO` | JS1, VTT | 25 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **244** |
+| **Yamaha Motor (motorcycles)** <sub>`motorcycle/yamaha-moto.json`</sub> | `YAMAHA-MOTO` | JYA, JYE, VTL | 25 | 162 | 14 | 0 | 12 | 15 | 12 | 4 | **244** |
+| **Ducati Motor Holding** <sub>`motorcycle/ducati.json`</sub> | `DUCATI` | ZDM | 25 | 154 | 14 | 0 | 15 | 16 | 12 | 4 | **240** |
+| **KTM AG** <sub>`motorcycle/ktm.json`</sub> | `KTM` | VBK | 25 | 154 | 14 | 0 | 12 | 15 | 12 | 4 | **236** |
+| **Triumph Motorcycles** <sub>`motorcycle/triumph.json`</sub> | `TRIUMPH` | SMT | 25 | 154 | 14 | 0 | 12 | 15 | 12 | 4 | **236** |
+| **Harley-Davidson** <sub>`motorcycle/harley-davidson.json`</sub> | `HARLEY-DAVIDSON` | 1HD, 5HD | 25 | 138 | 14 | 0 | 13 | 15 | 12 | 4 | **221** |
+| **Aprilia (Piaggio)** <sub>`motorcycle/aprilia.json`</sub> | `APRILIA` | ZD4 | 25 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **220** |
+| **Husqvarna Motorcycles (KTM AG)** <sub>`motorcycle/husqvarna-moto.json`</sub> | `HUSQVARNA-MOTO` | ZBP | 25 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **220** |
+| **Indian Motorcycle (Polaris)** <sub>`motorcycle/indian-motorcycle.json`</sub> | `INDIAN-MOTORCYCLE` | 56K | 25 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **220** |
+| **MV Agusta (KTM stake)** <sub>`motorcycle/mv-agusta.json`</sub> | `MV-AGUSTA` | ZCG | 25 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **220** |
+| **Royal Enfield (Eicher)** <sub>`motorcycle/royal-enfield.json`</sub> | `ROYAL-ENFIELD` | MEZ | 25 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **220** |
+
+## Powersports
+
+| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Can-Am / BRP (Bombardier)** <sub>`powersports/can-am-brp.json`</sub> | `CAN-AM-BRP` | 3JB | 20 | 178 | 14 | 0 | 12 | 15 | 12 | 4 | **255** |
+| **Polaris Industries** <sub>`powersports/polaris.json`</sub> | `POLARIS` | 4XA | 20 | 170 | 14 | 0 | 12 | 15 | 12 | 4 | **247** |
+| **Arctic Cat (Textron)** <sub>`powersports/arctic-cat.json`</sub> | `ARCTIC-CAT` | 4UF | 20 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **215** |
+| **Yamaha WaveRunner (Yamaha Marine subdivision)** <sub>`powersports/yamaha-waverunner.json`</sub> | `YAMAHA-WAVERUNNER` | YAM | 20 | 138 | 14 | 0 | 12 | 15 | 12 | 4 | **215** |
+| **Kawasaki Jet Ski** <sub>`powersports/kawasaki-jet.json`</sub> | `KAWASAKI-JET` | KAW | 20 | 122 | 14 | 0 | 12 | 15 | 12 | 4 | **199** |
 
 ## DTC catalogs
 

@@ -1,0 +1,2316 @@
+{
+  "$schema": "https://erdesigns.eu/schema/oem-catalog-v2.json",
+  "version": 2,
+  "manufacturer_key": "CNH",
+  "display_name": "CNH Industrial (Case IH / New Holland / Steyr)",
+  "applicable_wmis": [
+    "1NH"
+  ],
+  "default_source": "EST / Electronic Service Tool community",
+  "ecus": [
+    {
+      "address": "0x7E0",
+      "name": "ecm",
+      "common_name": "Engine Control Module (J1939)"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "Transmission Control"
+    },
+    {
+      "address": "0x7E2",
+      "name": "hydraulics",
+      "common_name": "Hydraulic system controller"
+    },
+    {
+      "address": "0x7E3",
+      "name": "pto",
+      "common_name": "Power Take-Off (PTO) control"
+    },
+    {
+      "address": "0x7E4",
+      "name": "afs",
+      "common_name": "AutoTrac / GPS guidance"
+    },
+    {
+      "address": "0x7E5",
+      "name": "implement_bus",
+      "common_name": "ISOBUS implement gateway"
+    },
+    {
+      "address": "0x7E6",
+      "name": "load_sensing",
+      "common_name": "Load-sensing pump control"
+    },
+    {
+      "address": "0x7E7",
+      "name": "diff_lock",
+      "common_name": "Diff lock + 4WD"
+    },
+    {
+      "address": "0x7E8",
+      "name": "creeper",
+      "common_name": "Creeper / range gearbox"
+    },
+    {
+      "address": "0x7E9",
+      "name": "axle_suspension",
+      "common_name": "Axle suspension (cab + front)"
+    },
+    {
+      "address": "0x7EA",
+      "name": "headland_management",
+      "common_name": "Headland management coordinator"
+    },
+    {
+      "address": "0x710",
+      "name": "abs",
+      "common_name": "ABS / steering brakes"
+    },
+    {
+      "address": "0x711",
+      "name": "cab_climate",
+      "common_name": "Cab climate"
+    },
+    {
+      "address": "0x712",
+      "name": "cluster",
+      "common_name": "Instrument cluster"
+    },
+    {
+      "address": "0x713",
+      "name": "head_unit",
+      "common_name": "Cab display / GreenStar / similar"
+    },
+    {
+      "address": "0x714",
+      "name": "telematics",
+      "common_name": "Telematics (JDLink / FieldOps / VisionLink)"
+    },
+    {
+      "address": "0x715",
+      "name": "lights",
+      "common_name": "Cab + work-light controller"
+    },
+    {
+      "address": "0x716",
+      "name": "ride_control",
+      "common_name": "Ride control (front-axle damping)"
+    },
+    {
+      "address": "0x717",
+      "name": "ssu_steering",
+      "common_name": "Steered axle SSU (smart steering unit)"
+    },
+    {
+      "address": "0x718",
+      "name": "battery_disconnect",
+      "common_name": "Battery disconnect / sleep"
+    },
+    {
+      "address": "0x719",
+      "name": "fuel_level",
+      "common_name": "Fuel + DEF level senders"
+    },
+    {
+      "address": "0x71A",
+      "name": "egr_dpf",
+      "common_name": "EGR + DPF + SCR aftertreatment"
+    },
+    {
+      "address": "0x71B",
+      "name": "ev_motor_inverter",
+      "common_name": "Electric drive motor (where fitted)"
+    }
+  ],
+  "dids": [
+    {
+      "did": "0xF110",
+      "name": "ecu_serial",
+      "description": "Serial",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF111",
+      "name": "ecu_part",
+      "description": "Part",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0xF112",
+      "name": "ecu_hw",
+      "description": "HW version",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0xF113",
+      "name": "ecu_sw",
+      "description": "SW version",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF114",
+      "name": "ecu_boot",
+      "description": "Bootloader",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0xF115",
+      "name": "ecu_calibration_id",
+      "description": "Calibration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF11A",
+      "name": "ecu_name",
+      "description": "ECU name",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 20
+      }
+    },
+    {
+      "did": "0xF180",
+      "name": "reset_count",
+      "description": "Reset count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0xF181",
+      "name": "operating_hours",
+      "description": "Op hours",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0xF182",
+      "name": "supply_voltage",
+      "description": "Supply V",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0xF183",
+      "name": "internal_temp",
+      "description": "Internal temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "flash_free",
+      "description": "Flash free",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4000",
+      "name": "ecm_rpm",
+      "description": "Engine RPM",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x4001",
+      "name": "ecm_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x4002",
+      "name": "ecm_throttle",
+      "description": "Throttle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4003",
+      "name": "ecm_pedal",
+      "description": "Pedal/Lever",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4004",
+      "name": "ecm_coolant",
+      "description": "Coolant",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4005",
+      "name": "ecm_oil_temp",
+      "description": "Oil temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4006",
+      "name": "ecm_oil_level",
+      "description": "Oil level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4007",
+      "name": "ecm_oil_pressure",
+      "description": "Oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x4008",
+      "name": "ecm_intake_temp",
+      "description": "Intake temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4009",
+      "name": "ecm_maf",
+      "description": "MAF",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "g/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x400A",
+      "name": "ecm_map",
+      "description": "MAP",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x400D",
+      "name": "ecm_lambda_target",
+      "description": "Lambda target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x400E",
+      "name": "ecm_lambda_actual",
+      "description": "Lambda actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4014",
+      "name": "ecm_fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 10
+      }
+    },
+    {
+      "did": "0x4015",
+      "name": "ecm_fuel_consumption",
+      "description": "Fuel L/h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "L/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4017",
+      "name": "ecm_ignition_advance",
+      "description": "Ignition advance",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4018",
+      "name": "ecm_knock_corr",
+      "description": "Knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x401E",
+      "name": "ecm_misfire",
+      "description": "Misfire (drive)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x401F",
+      "name": "ecm_misfire_lifetime",
+      "description": "Misfire lifetime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4020",
+      "name": "ecm_runtime",
+      "description": "Engine runtime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x4021",
+      "name": "ecm_runtime_total",
+      "description": "Lifetime runtime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x4022",
+      "name": "ecm_starts",
+      "description": "Engine starts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4023",
+      "name": "ecm_battery",
+      "description": "Battery V",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4024",
+      "name": "ecm_alternator_load",
+      "description": "Alternator load",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4030",
+      "name": "ecm_co2",
+      "description": "CO2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "g/km",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4031",
+      "name": "ecm_service_remaining_hours",
+      "description": "Service remaining",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x4032",
+      "name": "ecm_drive_mode",
+      "description": "Mode (Sport/Rain/Touring/...)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x4036",
+      "name": "ecm_max_rpm_reached",
+      "description": "Max RPM reached",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x4038",
+      "name": "ecm_max_g_long",
+      "description": "Max long G",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4039",
+      "name": "ecm_max_g_lat",
+      "description": "Max lat G",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4100",
+      "name": "ecm_cyl1_misfire",
+      "description": "Cyl 1 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4101",
+      "name": "ecm_cyl1_knock",
+      "description": "Cyl 1 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4102",
+      "name": "ecm_cyl1_inj_corr",
+      "description": "Cyl 1 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4103",
+      "name": "ecm_cyl1_egt",
+      "description": "Cyl 1 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4104",
+      "name": "ecm_cyl2_misfire",
+      "description": "Cyl 2 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4105",
+      "name": "ecm_cyl2_knock",
+      "description": "Cyl 2 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4106",
+      "name": "ecm_cyl2_inj_corr",
+      "description": "Cyl 2 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4107",
+      "name": "ecm_cyl2_egt",
+      "description": "Cyl 2 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4108",
+      "name": "ecm_cyl3_misfire",
+      "description": "Cyl 3 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4109",
+      "name": "ecm_cyl3_knock",
+      "description": "Cyl 3 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410A",
+      "name": "ecm_cyl3_inj_corr",
+      "description": "Cyl 3 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x410B",
+      "name": "ecm_cyl3_egt",
+      "description": "Cyl 3 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410C",
+      "name": "ecm_cyl4_misfire",
+      "description": "Cyl 4 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x410D",
+      "name": "ecm_cyl4_knock",
+      "description": "Cyl 4 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410E",
+      "name": "ecm_cyl4_inj_corr",
+      "description": "Cyl 4 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x410F",
+      "name": "ecm_cyl4_egt",
+      "description": "Cyl 4 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x5000",
+      "name": "fpt_n45_displacement_cc",
+      "description": "FPT N45 4.5L diesel — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5001",
+      "name": "fpt_n45_max_power_kw",
+      "description": "FPT N45 4.5L diesel — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5002",
+      "name": "fpt_n45_max_torque_nm",
+      "description": "FPT N45 4.5L diesel — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5003",
+      "name": "fpt_n45_redline_rpm",
+      "description": "FPT N45 4.5L diesel — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5004",
+      "name": "fpt_n45_compression_ratio",
+      "description": "FPT N45 4.5L diesel — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5005",
+      "name": "fpt_n45_bore_mm",
+      "description": "FPT N45 4.5L diesel — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5006",
+      "name": "fpt_n45_stroke_mm",
+      "description": "FPT N45 4.5L diesel — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5007",
+      "name": "fpt_n45_weight_kg",
+      "description": "FPT N45 4.5L diesel — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5008",
+      "name": "fpt_n67_displacement_cc",
+      "description": "FPT N67 6.7L diesel — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5009",
+      "name": "fpt_n67_max_power_kw",
+      "description": "FPT N67 6.7L diesel — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x500A",
+      "name": "fpt_n67_max_torque_nm",
+      "description": "FPT N67 6.7L diesel — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x500B",
+      "name": "fpt_n67_redline_rpm",
+      "description": "FPT N67 6.7L diesel — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x500C",
+      "name": "fpt_n67_compression_ratio",
+      "description": "FPT N67 6.7L diesel — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x500D",
+      "name": "fpt_n67_bore_mm",
+      "description": "FPT N67 6.7L diesel — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x500E",
+      "name": "fpt_n67_stroke_mm",
+      "description": "FPT N67 6.7L diesel — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x500F",
+      "name": "fpt_n67_weight_kg",
+      "description": "FPT N67 6.7L diesel — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5010",
+      "name": "fpt_c87_displacement_cc",
+      "description": "FPT C87 8.7L diesel — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5011",
+      "name": "fpt_c87_max_power_kw",
+      "description": "FPT C87 8.7L diesel — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5012",
+      "name": "fpt_c87_max_torque_nm",
+      "description": "FPT C87 8.7L diesel — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5013",
+      "name": "fpt_c87_redline_rpm",
+      "description": "FPT C87 8.7L diesel — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5014",
+      "name": "fpt_c87_compression_ratio",
+      "description": "FPT C87 8.7L diesel — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5015",
+      "name": "fpt_c87_bore_mm",
+      "description": "FPT C87 8.7L diesel — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5016",
+      "name": "fpt_c87_stroke_mm",
+      "description": "FPT C87 8.7L diesel — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5017",
+      "name": "fpt_c87_weight_kg",
+      "description": "FPT C87 8.7L diesel — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5018",
+      "name": "fpt_c13_displacement_cc",
+      "description": "FPT Cursor 13 12.9L diesel — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5019",
+      "name": "fpt_c13_max_power_kw",
+      "description": "FPT Cursor 13 12.9L diesel — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x501A",
+      "name": "fpt_c13_max_torque_nm",
+      "description": "FPT Cursor 13 12.9L diesel — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x501B",
+      "name": "fpt_c13_redline_rpm",
+      "description": "FPT Cursor 13 12.9L diesel — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x501C",
+      "name": "fpt_c13_compression_ratio",
+      "description": "FPT Cursor 13 12.9L diesel — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x501D",
+      "name": "fpt_c13_bore_mm",
+      "description": "FPT Cursor 13 12.9L diesel — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x501E",
+      "name": "fpt_c13_stroke_mm",
+      "description": "FPT Cursor 13 12.9L diesel — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x501F",
+      "name": "fpt_c13_weight_kg",
+      "description": "FPT Cursor 13 12.9L diesel — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5020",
+      "name": "fpt_c16_lng_displacement_cc",
+      "description": "FPT Cursor 16 LNG — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5021",
+      "name": "fpt_c16_lng_max_power_kw",
+      "description": "FPT Cursor 16 LNG — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5022",
+      "name": "fpt_c16_lng_max_torque_nm",
+      "description": "FPT Cursor 16 LNG — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5023",
+      "name": "fpt_c16_lng_redline_rpm",
+      "description": "FPT Cursor 16 LNG — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5024",
+      "name": "fpt_c16_lng_compression_ratio",
+      "description": "FPT Cursor 16 LNG — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5025",
+      "name": "fpt_c16_lng_bore_mm",
+      "description": "FPT Cursor 16 LNG — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5026",
+      "name": "fpt_c16_lng_stroke_mm",
+      "description": "FPT Cursor 16 LNG — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5027",
+      "name": "fpt_c16_lng_weight_kg",
+      "description": "FPT Cursor 16 LNG — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5028",
+      "name": "fpt_h2_xc13_displacement_cc",
+      "description": "FPT XC13 hydrogen ICE — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5029",
+      "name": "fpt_h2_xc13_max_power_kw",
+      "description": "FPT XC13 hydrogen ICE — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x502A",
+      "name": "fpt_h2_xc13_max_torque_nm",
+      "description": "FPT XC13 hydrogen ICE — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x502B",
+      "name": "fpt_h2_xc13_redline_rpm",
+      "description": "FPT XC13 hydrogen ICE — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x502C",
+      "name": "fpt_h2_xc13_compression_ratio",
+      "description": "FPT XC13 hydrogen ICE — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x502D",
+      "name": "fpt_h2_xc13_bore_mm",
+      "description": "FPT XC13 hydrogen ICE — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x502E",
+      "name": "fpt_h2_xc13_stroke_mm",
+      "description": "FPT XC13 hydrogen ICE — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x502F",
+      "name": "fpt_h2_xc13_weight_kg",
+      "description": "FPT XC13 hydrogen ICE — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5030",
+      "name": "ev_t4_displacement_cc",
+      "description": "T4 Electric Power — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5031",
+      "name": "ev_t4_max_power_kw",
+      "description": "T4 Electric Power — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5032",
+      "name": "ev_t4_max_torque_nm",
+      "description": "T4 Electric Power — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5033",
+      "name": "ev_t4_redline_rpm",
+      "description": "T4 Electric Power — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5034",
+      "name": "ev_t4_compression_ratio",
+      "description": "T4 Electric Power — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5035",
+      "name": "ev_t4_bore_mm",
+      "description": "T4 Electric Power — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5036",
+      "name": "ev_t4_stroke_mm",
+      "description": "T4 Electric Power — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5037",
+      "name": "ev_t4_weight_kg",
+      "description": "T4 Electric Power — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5180",
+      "name": "powerdrive_supplier",
+      "description": "PowerDrive 21F/15R — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5181",
+      "name": "powerdrive_hw_rev",
+      "description": "PowerDrive 21F/15R — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5182",
+      "name": "powerdrive_sw_train",
+      "description": "PowerDrive 21F/15R — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x5183",
+      "name": "powerdrive_oil_type",
+      "description": "PowerDrive 21F/15R — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5184",
+      "name": "powerdrive_oil_age_h",
+      "description": "PowerDrive 21F/15R — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x5185",
+      "name": "powerdrive_oil_temp_max",
+      "description": "PowerDrive 21F/15R — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x5186",
+      "name": "powerdrive_shift_count",
+      "description": "PowerDrive 21F/15R — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5187",
+      "name": "powerdrive_clutch_engagement",
+      "description": "PowerDrive 21F/15R — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5188",
+      "name": "cvt_cvxdrive_supplier",
+      "description": "CVXDrive (Case CVT) — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5189",
+      "name": "cvt_cvxdrive_hw_rev",
+      "description": "CVXDrive (Case CVT) — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x518A",
+      "name": "cvt_cvxdrive_sw_train",
+      "description": "CVXDrive (Case CVT) — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x518B",
+      "name": "cvt_cvxdrive_oil_type",
+      "description": "CVXDrive (Case CVT) — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x518C",
+      "name": "cvt_cvxdrive_oil_age_h",
+      "description": "CVXDrive (Case CVT) — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x518D",
+      "name": "cvt_cvxdrive_oil_temp_max",
+      "description": "CVXDrive (Case CVT) — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x518E",
+      "name": "cvt_cvxdrive_shift_count",
+      "description": "CVXDrive (Case CVT) — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x518F",
+      "name": "cvt_cvxdrive_clutch_engagement",
+      "description": "CVXDrive (Case CVT) — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5190",
+      "name": "auto_command_supplier",
+      "description": "Auto Command (NH CVT) — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5191",
+      "name": "auto_command_hw_rev",
+      "description": "Auto Command (NH CVT) — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5192",
+      "name": "auto_command_sw_train",
+      "description": "Auto Command (NH CVT) — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x5193",
+      "name": "auto_command_oil_type",
+      "description": "Auto Command (NH CVT) — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5194",
+      "name": "auto_command_oil_age_h",
+      "description": "Auto Command (NH CVT) — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x5195",
+      "name": "auto_command_oil_temp_max",
+      "description": "Auto Command (NH CVT) — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x5196",
+      "name": "auto_command_shift_count",
+      "description": "Auto Command (NH CVT) — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5197",
+      "name": "auto_command_clutch_engagement",
+      "description": "Auto Command (NH CVT) — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5300",
+      "name": "intelliview_xii_hw_part",
+      "description": "IntelliView XII / Pro 1200 display — HW part",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x5301",
+      "name": "intelliview_xii_sw_train",
+      "description": "IntelliView XII / Pro 1200 display — SW train",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x5302",
+      "name": "intelliview_xii_uptime",
+      "description": "IntelliView XII / Pro 1200 display — Uptime",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x5303",
+      "name": "intelliview_xii_boot_count",
+      "description": "IntelliView XII / Pro 1200 display — Boots",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5304",
+      "name": "intelliview_xii_ota_status",
+      "description": "IntelliView XII / Pro 1200 display — OTA status",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5305",
+      "name": "intelliview_xii_voice_engine",
+      "description": "IntelliView XII / Pro 1200 display — Voice",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x5306",
+      "name": "intelliview_xii_nav_engine",
+      "description": "IntelliView XII / Pro 1200 display — Nav",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x5307",
+      "name": "intelliview_xii_media_engine",
+      "description": "IntelliView XII / Pro 1200 display — Media",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x4400",
+      "name": "chs_yaw",
+      "description": "Yaw",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4401",
+      "name": "chs_lat_g",
+      "description": "Lat G",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4402",
+      "name": "chs_long_g",
+      "description": "Long G",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4403",
+      "name": "chs_speed_front",
+      "description": "Front speed",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4404",
+      "name": "chs_speed_rear",
+      "description": "Rear speed",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4405",
+      "name": "chs_brake_pressure",
+      "description": "Brake pressure",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x4406",
+      "name": "chs_abs_intervention",
+      "description": "ABS interv",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4407",
+      "name": "chs_tc_intervention",
+      "description": "TC interv",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4408",
+      "name": "chs_lean_angle",
+      "description": "Lean angle (moto)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4409",
+      "name": "chs_ride_height",
+      "description": "Ride height",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440A",
+      "name": "chs_steering_angle",
+      "description": "Steering / handlebar",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440B",
+      "name": "chs_front_susp_travel",
+      "description": "Front susp travel",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440C",
+      "name": "chs_rear_susp_travel",
+      "description": "Rear susp travel",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440D",
+      "name": "chs_damper_state",
+      "description": "Damper state",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x440E",
+      "name": "chs_brake_temp_f",
+      "description": "Front brake temp",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x440F",
+      "name": "chs_brake_temp_r",
+      "description": "Rear brake temp",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      }
+    }
+  ],
+  "routines": [
+    {
+      "id": "0x0210",
+      "name": "ecm_idle_adapt",
+      "description": "Idle adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0211",
+      "name": "ecm_throttle_adapt",
+      "description": "Throttle adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0212",
+      "name": "ecm_misfire_adapt",
+      "description": "Misfire adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0214",
+      "name": "ecm_lambda_trim",
+      "description": "Lambda trim",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0218",
+      "name": "ecm_battery_register",
+      "description": "Battery reg",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0219",
+      "name": "ecm_oil_service_reset",
+      "description": "Oil reset",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x021A",
+      "name": "ecm_inspection_reset",
+      "description": "Inspection reset",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x021E",
+      "name": "ecm_dpf_regen",
+      "description": "DPF regen (diesel)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0220",
+      "name": "ecm_def_priming",
+      "description": "DEF priming (diesel)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0221",
+      "name": "ecm_launch_calibrate",
+      "description": "Launch calibrate",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0226",
+      "name": "abs_pump_test",
+      "description": "ABS pump test",
+      "ecu_address": "0x7E2"
+    },
+    {
+      "id": "0x022C",
+      "name": "yaw_zero",
+      "description": "Yaw zero",
+      "ecu_address": "0x7E2"
+    },
+    {
+      "id": "0x022D",
+      "name": "tpms_relearn",
+      "description": "TPMS relearn",
+      "ecu_address": "0x7E2"
+    },
+    {
+      "id": "0x0245",
+      "name": "headlight_aim",
+      "description": "Headlight aim",
+      "ecu_address": "0x7E2"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [
+    {
+      "channel": "0x0100",
+      "name": "idle_target",
+      "description": "Idle target",
+      "ecu_address": "0x7E0",
+      "kind": "uint16_be",
+      "min": 600,
+      "max": 1500,
+      "default": 1100,
+      "unit": "rpm"
+    },
+    {
+      "channel": "0x0101",
+      "name": "overrev",
+      "description": "Overrev",
+      "ecu_address": "0x7E0",
+      "kind": "uint16_be",
+      "min": 6000,
+      "max": 14000,
+      "default": 11000,
+      "unit": "rpm"
+    },
+    {
+      "channel": "0x0103",
+      "name": "torque_limit",
+      "description": "Torque limit",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 50,
+      "max": 110,
+      "default": 100,
+      "unit": "%"
+    },
+    {
+      "channel": "0x0107",
+      "name": "exhaust_default",
+      "description": "Exhaust default",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x010C",
+      "name": "abs_mode",
+      "description": "ABS mode",
+      "ecu_address": "0x7E2",
+      "kind": "uint8",
+      "min": 0,
+      "max": 3,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x010D",
+      "name": "abs_off_unlock",
+      "description": "ABS off unlock",
+      "ecu_address": "0x7E2",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "unit": ""
+    },
+    {
+      "channel": "0x010E",
+      "name": "tc_off_unlock",
+      "description": "TC off unlock",
+      "ecu_address": "0x7E2",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "unit": ""
+    },
+    {
+      "channel": "0x0110",
+      "name": "tpms_target_f",
+      "description": "TPMS f",
+      "ecu_address": "0x7E2",
+      "kind": "uint16_be",
+      "min": 150,
+      "max": 400,
+      "default": 240,
+      "unit": "kPa"
+    },
+    {
+      "channel": "0x0111",
+      "name": "tpms_target_r",
+      "description": "TPMS r",
+      "ecu_address": "0x7E2",
+      "kind": "uint16_be",
+      "min": 150,
+      "max": 400,
+      "default": 250,
+      "unit": "kPa"
+    },
+    {
+      "channel": "0x0118",
+      "name": "lean_angle_max",
+      "description": "Max lean angle",
+      "ecu_address": "0x7E2",
+      "kind": "uint8",
+      "min": 30,
+      "max": 60,
+      "default": 55,
+      "unit": "°"
+    },
+    {
+      "channel": "0x0142",
+      "name": "ota_min_battery",
+      "description": "OTA min batt",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 20,
+      "max": 100,
+      "default": 50,
+      "unit": "%"
+    },
+    {
+      "channel": "0x0140",
+      "name": "ride_mode_default",
+      "description": "Ride mode default",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 0,
+      "max": 4,
+      "default": 0,
+      "unit": ""
+    }
+  ],
+  "actuator_tests": [
+    {
+      "id": "0x0301",
+      "name": "throttle",
+      "description": "Throttle motor",
+      "ecu_address": "0x7E0",
+      "duration_ms": 5000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0302",
+      "name": "fuel_pump",
+      "description": "Fuel pump",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0303",
+      "name": "starter",
+      "description": "Starter motor",
+      "ecu_address": "0x7E0",
+      "duration_ms": 3000,
+      "safety_warning": "Disconnect ignition for safety",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0304",
+      "name": "alternator",
+      "description": "Alternator field",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0305",
+      "name": "radiator_fan",
+      "description": "Radiator fan",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0306",
+      "name": "evap_purge",
+      "description": "Evap purge",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0310",
+      "name": "abs_pump",
+      "description": "ABS pump",
+      "ecu_address": "0x7E2",
+      "duration_ms": 5000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0311",
+      "name": "abs_inlet_f",
+      "description": "Inlet front",
+      "ecu_address": "0x7E2",
+      "duration_ms": 2000,
+      "safety_warning": "Wheels off",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0312",
+      "name": "abs_outlet_f",
+      "description": "Outlet front",
+      "ecu_address": "0x7E2",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0313",
+      "name": "abs_inlet_r",
+      "description": "Inlet rear",
+      "ecu_address": "0x7E2",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0314",
+      "name": "abs_outlet_r",
+      "description": "Outlet rear",
+      "ecu_address": "0x7E2",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0340",
+      "name": "horn",
+      "description": "Horn",
+      "ecu_address": "0x7E2",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0350",
+      "name": "headlight_lo",
+      "description": "Low beam",
+      "ecu_address": "0x7E2",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0351",
+      "name": "headlight_hi",
+      "description": "High beam",
+      "ecu_address": "0x7E2",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0359",
+      "name": "brake_light",
+      "description": "Brake light",
+      "ecu_address": "0x7E2",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    }
+  ],
+  "live_pids": [
+    {
+      "mode": "service22",
+      "pid": "0x4000",
+      "name": "live_engine_rpm",
+      "description": "RPM",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4004",
+      "name": "live_coolant",
+      "description": "Coolant",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4005",
+      "name": "live_oil_temp",
+      "description": "Oil",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x400A",
+      "name": "live_map",
+      "description": "MAP",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 0.1
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x400E",
+      "name": "live_lambda",
+      "description": "Lambda",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4014",
+      "name": "live_fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 10
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4023",
+      "name": "live_battery",
+      "description": "12V",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.001
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4032",
+      "name": "live_drive_mode",
+      "description": "Mode",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4400",
+      "name": "live_yaw",
+      "description": "Yaw",
+      "ecu_address": "0x7E2",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4408",
+      "name": "live_lean_angle",
+      "description": "Lean",
+      "ecu_address": "0x7E2",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4403",
+      "name": "live_speed_front",
+      "description": "Front speed",
+      "ecu_address": "0x7E2",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4404",
+      "name": "live_speed_rear",
+      "description": "Rear speed",
+      "ecu_address": "0x7E2",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    }
+  ],
+  "dtc_extended_data": [
+    {
+      "code": "P0301",
+      "record": "0x01",
+      "kind": "occurrence_counter",
+      "description": "Cylinder 1 misfire occurrence counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0301",
+      "record": "0x02",
+      "kind": "aging_counter",
+      "description": "Cylinder 1 misfire aging counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0420",
+      "record": "0x01",
+      "kind": "occurrence_counter",
+      "description": "Catalyst efficiency occurrence counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0420",
+      "record": "0x06",
+      "kind": "miles_since_cleared",
+      "description": "Catalyst miles since cleared",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    }
+  ]
+}

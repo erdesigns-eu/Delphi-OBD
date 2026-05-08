@@ -235,7 +235,11 @@ def main() -> int:
     if args.paths:
         paths = [Path(p) for p in args.paths]
     else:
-        paths = sorted(Path(p) for p in glob.glob(str(CATALOGS / "*.json")))
+        # Recurse so the lint picks up motorcycle/, agricultural/,
+        # marine/, powersports/ subdirectories too.
+        paths = sorted(Path(p) for p in
+                        glob.glob(str(CATALOGS / "**" / "*.json"),
+                                  recursive=True))
 
     total_errors = 0
     total_warnings = 0

@@ -28,7 +28,9 @@ def main() -> None:
     rows = []
     dtc_rows = []
     universal_rows = []
-    for path in sorted(CATALOGS.glob("*.json")):
+    # Recurse so motorcycle/, agricultural/, marine/, powersports/
+    # subdirectories are picked up.
+    for path in sorted(CATALOGS.rglob("*.json")):
         if path.name == "test-schema-v2.json": continue
         if path.parent.name == "_schema": continue
         try:
@@ -55,8 +57,12 @@ def main() -> None:
             })
             continue
 
+        # vehicle_class is the parent dir under catalogs/ (or '' for
+        # top-level cars/trucks).
+        vehicle_class = path.parent.name if path.parent != CATALOGS else ""
         rows.append({
-            "file": path.name,
+            "file": path.relative_to(CATALOGS).as_posix(),
+            "vehicle_class": vehicle_class,
             "key": d.get("manufacturer_key", ""),
             "display": d.get("display_name", ""),
             "wmis": d.get("applicable_wmis") or [],
@@ -82,29 +88,48 @@ def main() -> None:
     out.append(f"## Summary")
     total_oem_entries = sum(r["total"] for r in rows)
     total_dtc_entries = sum(r["dtc_count"] for r in dtc_rows)
-    out.append(f"- **{len(rows)} OEM catalogs** "
-               f"(`<oem>.json`) — **{total_oem_entries:,} total entries**")
+
+    # Group by vehicle class for the summary.
+    classes: dict[str, int] = {}
+    class_entries: dict[str, int] = {}
+    for r in rows:
+        cls = r["vehicle_class"] or "cars-and-trucks"
+        classes[cls] = classes.get(cls, 0) + 1
+        class_entries[cls] = class_entries.get(cls, 0) + r["total"]
+
+    out.append(f"- **{len(rows)} OEM catalogs** — "
+               f"**{total_oem_entries:,} total entries** across "
+               f"{len(classes)} vehicle classes:")
+    for cls in sorted(classes):
+        out.append(f"  - **{cls}**: {classes[cls]} catalogs / "
+                   f"{class_entries[cls]:,} entries")
     out.append(f"- **{len(dtc_rows)} DTC catalogs** "
                f"(`dtc-<oem>.json`) — **{total_dtc_entries:,} total DTCs**")
     out.append(f"- **{len(universal_rows)} universal catalogs** "
                f"(ISO 15031 / UDS / OBD-II PIDs)")
     out.append("")
-    out.append("## OEM catalogs")
-    out.append("")
-    out.append("| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |")
-    out.append("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
-    for r in sorted(rows, key=lambda x: -x["total"]):
-        wmi_summary = ", ".join(r["wmis"][:3])
-        if len(r["wmis"]) > 3:
-            wmi_summary += f" +{len(r['wmis']) - 3}"
-        out.append(
-            f"| **{r['display']}** "
-            f"<sub>`{r['file']}`</sub> | `{r['key']}` | {wmi_summary} | "
-            f"{r['ecus']:,} | {r['dids']:,} | {r['routines']:,} | "
-            f"{r['coding']:,} | {r['adapt']:,} | {r['act']:,} | "
-            f"{r['live']:,} | {r['dtc_ext']:,} | **{r['total']:,}** |"
-        )
-    out.append("")
+
+    # Per vehicle class.
+    for cls in sorted(classes):
+        cls_label = cls.replace('-', ' ').title()
+        cls_rows = [r for r in rows
+                    if (r["vehicle_class"] or "cars-and-trucks") == cls]
+        out.append(f"## {cls_label}")
+        out.append("")
+        out.append("| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Total** |")
+        out.append("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+        for r in sorted(cls_rows, key=lambda x: -x["total"]):
+            wmi_summary = ", ".join(r["wmis"][:3])
+            if len(r["wmis"]) > 3:
+                wmi_summary += f" +{len(r['wmis']) - 3}"
+            out.append(
+                f"| **{r['display']}** "
+                f"<sub>`{r['file']}`</sub> | `{r['key']}` | {wmi_summary} | "
+                f"{r['ecus']:,} | {r['dids']:,} | {r['routines']:,} | "
+                f"{r['coding']:,} | {r['adapt']:,} | {r['act']:,} | "
+                f"{r['live']:,} | {r['dtc_ext']:,} | **{r['total']:,}** |"
+            )
+        out.append("")
 
     out.append("## DTC catalogs")
     out.append("")

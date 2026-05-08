@@ -79,6 +79,11 @@ type
     /// <summary>Every shipped <c>catalogs/dtc-*.json</c> must load and
     /// declare at least one DTC entry.</summary>
     [Test] procedure AllDtcCatalogsLoadFromDirectory;
+    // -------- Phase B vehicle-class subdirectories --------
+    [Test] procedure AllMotorcycleCatalogsLoad;
+    [Test] procedure AllAgriculturalCatalogsLoad;
+    [Test] procedure AllMarineCatalogsLoad;
+    [Test] procedure AllPowersportsCatalogsLoad;
   end;
 
 implementation
@@ -253,6 +258,51 @@ begin
   Assert.IsTrue(Loaded >= 30,
     Format('expected >=30 DTC catalogs loaded, got %d', [Loaded]));
 end;
+
+procedure SweepSubdir(const Subdir: string; MinCount: Integer);
+var
+  Dir, FilePath: string;
+  Files: TArray<string>;
+  Loaded: Integer;
+  Cat: TOBDOEMJSONCatalog;
+begin
+  Dir := CatalogsDirectory;
+  if Dir = '' then Assert.Pass('catalogs/ directory not on path; skipping');
+  Dir := TPath.Combine(Dir, Subdir);
+  if not TDirectory.Exists(Dir) then
+    Assert.Pass(Format('catalogs/%s not on path; skipping', [Subdir]));
+  Files := TDirectory.GetFiles(Dir, '*.json');
+  Loaded := 0;
+  for FilePath in Files do
+  begin
+    Cat := TOBDOEMJSONCatalog.Create(FilePath);
+    try
+      Assert.IsTrue(Cat.ManufacturerKey <> '',
+        Format('manufacturer_key required: %s', [FilePath]));
+      Assert.IsTrue((Cat.DIDCount > 0) or (Cat.RoutineCount > 0),
+        Format('catalog must contribute at least one DID or routine: %s',
+          [FilePath]));
+    finally
+      Cat.Free;
+    end;
+    Inc(Loaded);
+  end;
+  Assert.IsTrue(Loaded >= MinCount,
+    Format('%s/: expected >=%d catalogs, got %d',
+      [Subdir, MinCount, Loaded]));
+end;
+
+procedure TCatalogLoadSmokeTests.AllMotorcycleCatalogsLoad;
+begin SweepSubdir('motorcycle', 14); end;
+
+procedure TCatalogLoadSmokeTests.AllAgriculturalCatalogsLoad;
+begin SweepSubdir('agricultural', 8); end;
+
+procedure TCatalogLoadSmokeTests.AllMarineCatalogsLoad;
+begin SweepSubdir('marine', 6); end;
+
+procedure TCatalogLoadSmokeTests.AllPowersportsCatalogsLoad;
+begin SweepSubdir('powersports', 5); end;
 
 initialization
   TDUnitX.RegisterTestFixture(TCatalogLoadSmokeTests);
