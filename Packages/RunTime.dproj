@@ -215,6 +215,7 @@
         <DCCReference Include="..\src\Services\OBD.OEM.UdsClient.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.UdsClient.Async.pas"/>
         <DCCReference Include="..\src\Protocol\OBD.Protocol.DoIP.Session.pas"/>
+        <DCCReference Include="..\src\Protocol\OBD.Protocol.DoIP.Session.Cross.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.Motorcycles.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.Agricultural.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.Marine.pas"/>
