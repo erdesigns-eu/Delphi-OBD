@@ -2,21 +2,320 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Mercedes-Benz DTC starter (XENTRY common P1 / B / U codes)",
-  "default_source": "xentry-community / hhtwin-leak",
+  "default_source": "Mercedes Vediamo / Carly community DTCs",
   "dtcs": [
-    { "code": "P0089", "severity": "warning",  "description": "Fuel Pressure Regulator Performance (CDI / GDI)",
-      "verified": false },
-    { "code": "P1245", "severity": "warning",  "description": "Mercedes Crankshaft Position Sensor — Implausible",
-      "verified": false },
-    { "code": "P1450", "severity": "warning",  "description": "Mercedes EVAP Purge Valve — Electrical Fault",
-      "verified": false },
-    { "code": "P2004", "severity": "warning",  "description": "Intake Manifold Runner Control — Stuck Open Bank 1",
-      "verified": false },
-    { "code": "B1009", "severity": "warning",  "description": "Mercedes ESM (Driver Door) — Communication Lost",
-      "verified": false },
-    { "code": "C1525", "severity": "warning",  "description": "Mercedes ESP — Wheel Speed Sensor Plausibility (FL)",
-      "verified": false },
-    { "code": "U0129", "severity": "critical", "description": "Lost Communication With Brake System Control Module (Mercedes ESP)",
-      "verified": false }
+    {
+      "code": "B1009",
+      "severity": "warning",
+      "description": "Mercedes ESM (Driver Door) — Communication Lost",
+      "verified": false
+    },
+    {
+      "code": "C1525",
+      "severity": "warning",
+      "description": "Airmatic Compressor Run Time Exceeded (Mercedes)",
+      "possible_causes": [
+        "Air-leak in air-suspension system",
+        "Failing compressor"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "C249E",
+      "severity": "critical",
+      "description": "Brake Booster Vacuum Pump (Mercedes)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0089",
+      "severity": "warning",
+      "description": "Fuel Pressure Regulator Performance (CDI / GDI)",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Turbocharger Underboost (Mercedes Bi-Turbo)",
+      "possible_causes": [
+        "Boost leak",
+        "Carbon-stuck wastegate",
+        "Failed boost pressure solenoid"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Confirm boost target vs actual via live data.",
+        "2) Smoke-test the intake / charge-air system for leaks.",
+        "3) Inspect wastegate solenoid and actuator rod travel.",
+        "4) Check for cracked CAC, intercooler, or hose clamps.",
+        "5) Replace failed solenoid / actuator if signal correct."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_boost"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst Efficiency Below Threshold Bank 1 (Mercedes)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [
+        "ecm_cat_eff_b1"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P061B",
+      "severity": "critical",
+      "description": "Internal Control Module Torque Calculation (Mercedes)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A78",
+      "severity": "critical",
+      "description": "Drive Motor 'A' Inverter Performance (Mercedes EQ)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1000",
+      "severity": "info",
+      "description": "On-Board Monitoring System Not Yet Tested (Mercedes)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1245",
+      "severity": "warning",
+      "description": "Mercedes Crankshaft Position Sensor — Implausible",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "severity": "warning",
+      "description": "Mercedes EVAP Purge Valve — Electrical Fault",
+      "verified": false
+    },
+    {
+      "code": "P2004",
+      "severity": "warning",
+      "description": "Intake Manifold Runner Control — Stuck Open Bank 1",
+      "verified": false
+    },
+    {
+      "code": "P210A",
+      "severity": "info",
+      "description": "Fuel Composition Sensor (FlexFuel) (Mercedes)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P229F",
+      "severity": "critical",
+      "description": "NOx Sensor Circuit Range/Performance Bank 1 Sensor 2 (Mercedes BlueTec)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_scr_nox_out"
+      ],
+      "related_routines": [
+        "ecm_scr_priming"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0001",
+      "severity": "warning",
+      "description": "High Speed CAN Communication Bus (Mercedes HSL2)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0129",
+      "severity": "critical",
+      "description": "Lost Communication With Brake System Control Module (Mercedes ESP)",
+      "verified": false
+    }
   ]
 }

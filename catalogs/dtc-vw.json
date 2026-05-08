@@ -2,23 +2,490 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "VW Audi Group DTC starter (P1 / B1 / U1 ranges)",
-  "default_source": "ross-tech-wiki / community",
+  "default_source": "VW Group P-codes (VAG TPi-derived community)",
   "dtcs": [
-    { "code": "P1296", "severity": "warning",  "description": "Cooling System Malfunction (VAG)",
-      "possible_causes": ["Stuck-open thermostat", "Coolant level sensor wiring"], "verified": false },
-    { "code": "P1602", "severity": "info",     "description": "Voltage Supply Terminal 30 (battery) — Low",
-      "possible_causes": ["Weak battery", "Loose battery clamp"], "verified": false },
-    { "code": "P1611", "severity": "warning",  "description": "MIL Request Signal Active — TCM",
-      "possible_causes": ["Transmission DTC stored in TCM"], "verified": false },
-    { "code": "P1796", "severity": "warning",  "description": "Output Speed Sensor 'A' Circuit Range/Performance",
-      "possible_causes": ["DSG mechatronic unit fault"], "verified": false },
-    { "code": "P164A", "severity": "warning",  "description": "Camshaft Adjustment, Bank 1 — Tight",
-      "possible_causes": ["Worn timing chain", "Sticking cam phaser"], "verified": false },
-    { "code": "P179B", "severity": "warning",  "description": "Pressure Sensor for Brake Booster — Implausible",
-      "verified": false },
-    { "code": "B1086", "severity": "warning",  "description": "Internal Control Module Memory Checksum Error (BCM)",
-      "verified": false },
-    { "code": "U1111", "severity": "critical", "description": "Function Restriction Due to Communication Disturbance",
-      "verified": false }
+    {
+      "code": "B100A",
+      "severity": "critical",
+      "description": "Driver Front Airbag Squib 1, Resistance Too Low",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "B1014",
+      "severity": "critical",
+      "description": "Steering Wheel Squib (Driver), Open Circuit",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "B1086",
+      "severity": "warning",
+      "description": "Internal Control Module Memory Checksum Error (BCM)",
+      "verified": false
+    },
+    {
+      "code": "P1102",
+      "severity": "warning",
+      "description": "O2 Sensor Heating Circuit, Bank 1, Sensor 1: Short to B+",
+      "possible_causes": [
+        "Heater wire shorted to power",
+        "Failed sensor heater",
+        "ECU output driver failed"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_lambda_b1"
+      ],
+      "related_routines": [
+        "ecm_lambda_trim"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1118",
+      "severity": "warning",
+      "description": "Throttle Position Actuator: Range/Performance",
+      "possible_causes": [
+        "Throttle motor worn",
+        "TPS sensor mismatch",
+        "Throttle body coked"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_throttle"
+      ],
+      "related_routines": [
+        "ecm_throttle_adapt"
+      ],
+      "oem_bulletin": "VW TPi 2018580"
+    },
+    {
+      "code": "P1136",
+      "severity": "warning",
+      "description": "System Mixture Adaptation, Bank 1: Trim Threshold Exceeded",
+      "possible_causes": [
+        "Vacuum leak",
+        "Failed MAF",
+        "Stuck-open injector"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1296",
+      "severity": "warning",
+      "description": "Cooling System Malfunction",
+      "possible_causes": [
+        "Failed thermostat",
+        "Coolant low",
+        "Fan controller fault"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_coolant"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P130A",
+      "severity": "warning",
+      "description": "Fuel Pressure Regulator Valve 1: Performance",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_fuel_rail"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1325",
+      "severity": "warning",
+      "description": "Knock Sensor 1, Bank 1: Cylinder 1 Out of Range",
+      "possible_causes": [
+        "Excessive knock",
+        "Failed knock sensor",
+        "Loose knock-sensor mounting"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_cyl1_knock"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1336",
+      "severity": "warning",
+      "description": "Engine Torque Adaptation: At Limit",
+      "possible_causes": [
+        "Engine wear out of spec",
+        "Drivetrain loss too high",
+        "Throttle plate sticking"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1340",
+      "severity": "critical",
+      "description": "Crankshaft Position / Camshaft Position Correlation, Bank 1",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_vct_intake_b1"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P15D8",
+      "severity": "critical",
+      "description": "High Pressure Fuel Pump: Range/Performance",
+      "possible_causes": [
+        "Worn HPFP cam follower",
+        "Failed HPFP",
+        "Low pressure feed problem"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_fuel_rail"
+      ],
+      "related_routines": [],
+      "oem_bulletin": "VW TPi 2031518"
+    },
+    {
+      "code": "P1602",
+      "severity": "info",
+      "description": "Voltage Supply Terminal 30 (battery) — Low",
+      "possible_causes": [
+        "Weak battery",
+        "Loose battery clamp"
+      ],
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "severity": "warning",
+      "description": "MIL Request Signal Active — TCM",
+      "possible_causes": [
+        "Transmission DTC stored in TCM"
+      ],
+      "verified": false
+    },
+    {
+      "code": "P164A",
+      "severity": "warning",
+      "description": "Camshaft Adjustment, Bank 1 — Tight",
+      "possible_causes": [
+        "Worn timing chain",
+        "Sticking cam phaser"
+      ],
+      "verified": false
+    },
+    {
+      "code": "P164B",
+      "severity": "warning",
+      "description": "Turbocharger Boost Control 'A': Stuck Open",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Confirm boost target vs actual via live data.",
+        "2) Smoke-test the intake / charge-air system for leaks.",
+        "3) Inspect wastegate solenoid and actuator rod travel.",
+        "4) Check for cracked CAC, intercooler, or hose clamps.",
+        "5) Replace failed solenoid / actuator if signal correct."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_boost"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1796",
+      "severity": "warning",
+      "description": "Output Speed Sensor 'A' Circuit Range/Performance",
+      "possible_causes": [
+        "DSG mechatronic unit fault"
+      ],
+      "verified": false
+    },
+    {
+      "code": "P179B",
+      "severity": "warning",
+      "description": "Pressure Sensor for Brake Booster — Implausible",
+      "verified": false
+    },
+    {
+      "code": "P200E",
+      "severity": "info",
+      "description": "A/C Refrigerant Pressure Sensor 'A': Range/Performance",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "Hybrid Battery System: Cell Voltage Difference Too Large",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "hv_cell_delta"
+      ],
+      "related_routines": [
+        "hv_cell_balance"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0028",
+      "severity": "warning",
+      "description": "Vehicle Communication Bus 'A' Performance — VW PT-CAN",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U1111",
+      "severity": "critical",
+      "description": "Function Restriction Due to Communication Disturbance",
+      "verified": false
+    }
   ]
 }
