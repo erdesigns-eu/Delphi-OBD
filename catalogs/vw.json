@@ -5828,7 +5828,62 @@
     { "id": "0x1D08", "name": "ev_inverter_capacitor_discharge_test", "description": "Inverter capacitor discharge test (HV safety)", "ecu_address": "0x7E6", "duration_ms": 5000,
       "safety_warning": "DANGER: HV. Service tech only.", "response_kind": "uint16_be", "response_label": "DC link voltage (V)" },
     { "id": "0x1D09", "name": "ev_pyrofuse_continuity_test", "description": "HV pyrotechnic fuse continuity test", "ecu_address": "0x769", "duration_ms": 1000,
-      "safety_warning": "DANGER: HV. Read-only check.", "response_kind": "boolean", "response_label": "Continuous" }
+      "safety_warning": "DANGER: HV. Read-only check.", "response_kind": "boolean", "response_label": "Continuous" },
+
+    { "id": "0x1E00", "name": "blower_step_1", "description": "HVAC blower step 1", "ecu_address": "0x740", "duration_ms": 2000, "safety_warning": "Engine on for power.", "response_kind": "boolean", "response_label": "Running" },
+    { "id": "0x1E01", "name": "blower_step_3", "description": "HVAC blower step 3", "ecu_address": "0x740", "duration_ms": 2000, "safety_warning": "", "response_kind": "boolean", "response_label": "Running" },
+    { "id": "0x1E02", "name": "blower_step_5", "description": "HVAC blower step 5", "ecu_address": "0x740", "duration_ms": 2000, "safety_warning": "", "response_kind": "boolean", "response_label": "Running" },
+    { "id": "0x1E03", "name": "blower_step_7", "description": "HVAC blower step 7 (max)", "ecu_address": "0x740", "duration_ms": 2000, "safety_warning": "Loud.", "response_kind": "boolean", "response_label": "Running" },
+    { "id": "0x1E04", "name": "ac_clutch_engage", "description": "A/C compressor clutch engage", "ecu_address": "0x740", "duration_ms": 5000, "safety_warning": "Engine running.", "response_kind": "boolean", "response_label": "Engaged" },
+    { "id": "0x1E05", "name": "rear_defogger_test", "description": "Rear defogger test", "ecu_address": "0x740", "duration_ms": 5000, "safety_warning": "", "response_kind": "boolean", "response_label": "Active" },
+    { "id": "0x1E06", "name": "front_defogger_test", "description": "Front defogger / windshield heat test", "ecu_address": "0x740", "duration_ms": 5000, "safety_warning": "", "response_kind": "boolean", "response_label": "Active" },
+    { "id": "0x1E07", "name": "ptc_step_1_test", "description": "PTC heater step 1 test", "ecu_address": "0x740", "duration_ms": 8000, "safety_warning": "High current draw.", "response_kind": "uint16_be", "response_label": "Current (A * 0.1)" },
+    { "id": "0x1E08", "name": "ptc_step_2_test", "description": "PTC heater step 2 test", "ecu_address": "0x740", "duration_ms": 8000, "safety_warning": "High current.", "response_kind": "uint16_be", "response_label": "Current (A * 0.1)" },
+    { "id": "0x1E09", "name": "ptc_step_3_test", "description": "PTC heater step 3 test (max)", "ecu_address": "0x740", "duration_ms": 8000, "safety_warning": "Very high current.", "response_kind": "uint16_be", "response_label": "Current (A * 0.1)" },
+
+    { "id": "0x1F00", "name": "audi_drive_select_demo_sweep", "description": "Drive Select demo — sweep all modes briefly", "ecu_address": "0x744", "duration_ms": 30000, "safety_warning": "Vehicle stationary.", "response_kind": "ascii", "response_label": "Last mode" },
+    { "id": "0x1F01", "name": "rs_mode_test", "description": "RS Mode (button) test", "ecu_address": "0x744", "duration_ms": 5000, "safety_warning": "Vehicle stationary, brake held.", "response_kind": "boolean", "response_label": "Mode entered" },
+    { "id": "0x1F02", "name": "active_anti_roll_test", "description": "Active anti-roll bar test cycle", "ecu_address": "0x72D", "duration_ms": 6000, "safety_warning": "Wheels off ground.", "response_kind": "boolean", "response_label": "Cycled" },
+    { "id": "0x1F03", "name": "active_aero_deploy_test", "description": "Active aero blade deploy test", "ecu_address": "0x794", "duration_ms": 4000, "safety_warning": "", "response_kind": "boolean", "response_label": "Deployed" },
+    { "id": "0x1F04", "name": "rear_spoiler_deploy_test", "description": "Active rear spoiler deploy test", "ecu_address": "0x761", "duration_ms": 5000, "safety_warning": "Clear above trunk.", "response_kind": "boolean", "response_label": "Deployed" },
+    { "id": "0x1F05", "name": "rear_spoiler_retract_test", "description": "Active rear spoiler retract test", "ecu_address": "0x761", "duration_ms": 5000, "safety_warning": "", "response_kind": "boolean", "response_label": "Retracted" },
+    { "id": "0x1F06", "name": "magnetic_ride_dampers_test", "description": "Magnetic Ride dampers full test", "ecu_address": "0x72D", "duration_ms": 8000, "safety_warning": "Wheels lifted.", "response_kind": "boolean", "response_label": "Cycled" },
+    { "id": "0x1F07", "name": "predictive_susp_actuator_test", "description": "Predictive active suspension actuator test", "ecu_address": "0x72D", "duration_ms": 10000, "safety_warning": "Wheels lifted.", "response_kind": "boolean", "response_label": "Cycled" },
+    { "id": "0x1F08", "name": "rear_axle_steer_test", "description": "Rear-axle steering full sweep", "ecu_address": "0x71D", "duration_ms": 6000, "safety_warning": "Wheels off ground.", "response_kind": "boolean", "response_label": "Swept" },
+    { "id": "0x1F09", "name": "audi_pre_sense_self_test_actuator", "description": "Pre-Sense actuator self-test (no live targets)", "ecu_address": "0x76C", "duration_ms": 12000, "safety_warning": "Vehicle stationary.", "response_kind": "boolean", "response_label": "Pass" },
+
+    { "id": "0x2000", "name": "iboost_pressure_test", "description": "iBooster brake pressure test", "ecu_address": "0x710", "duration_ms": 5000, "safety_warning": "Brake pedal held.", "response_kind": "uint16_be", "response_label": "Pressure (bar * 0.1)" },
+    { "id": "0x2001", "name": "abs_traction_control_test", "description": "Traction control valve test", "ecu_address": "0x710", "duration_ms": 4000, "safety_warning": "Wheels lifted.", "response_kind": "boolean", "response_label": "Cycled" },
+    { "id": "0x2002", "name": "abs_self_test_full", "description": "ABS pump + valves + sensors full self-test", "ecu_address": "0x710", "duration_ms": 30000, "safety_warning": "Vehicle stationary.", "response_kind": "ascii", "response_label": "Result string" },
+    { "id": "0x2003", "name": "yaw_sensor_offset_calib", "description": "Yaw sensor zero offset calibration", "ecu_address": "0x710", "duration_ms": 30000, "safety_warning": "Vehicle stationary level surface 30 s.", "response_kind": "boolean", "response_label": "Calibrated" },
+    { "id": "0x2004", "name": "lateral_g_sensor_offset_calib", "description": "Lateral g sensor zero offset calibration", "ecu_address": "0x710", "duration_ms": 30000, "safety_warning": "Vehicle stationary level surface.", "response_kind": "boolean", "response_label": "Calibrated" },
+
+    { "id": "0x2100", "name": "matrix_led_per_segment_test", "description": "Matrix LED per-segment cycle test", "ecu_address": "0x754", "duration_ms": 24000, "safety_warning": "Avert eyes; very bright.", "response_kind": "uint8", "response_label": "Active segment" },
+    { "id": "0x2101", "name": "high_beam_assist_calib_dynamic", "description": "High-beam assist dynamic calibration drive", "ecu_address": "0x754", "duration_ms": 600000, "safety_warning": "Drive at night for valid calib.", "response_kind": "boolean", "response_label": "Calibrated" },
+    { "id": "0x2102", "name": "headlight_country_pattern_demo", "description": "Headlight country pattern demo (sweep US/EU/JP)", "ecu_address": "0x754", "duration_ms": 12000, "safety_warning": "Avert eyes.", "response_kind": "ascii", "response_label": "Pattern" },
+    { "id": "0x2103", "name": "rear_dynamic_blinker_demo", "description": "Rear dynamic blinker demo sweep", "ecu_address": "0x755", "duration_ms": 4000, "safety_warning": "", "response_kind": "boolean", "response_label": "Demo complete" },
+
+    { "id": "0x2200", "name": "ambient_lighting_zone1_color_demo", "description": "Ambient zone 1 color demo (sweep)", "ecu_address": "0x788", "duration_ms": 12000, "safety_warning": "", "response_kind": "ascii", "response_label": "Active color" },
+    { "id": "0x2201", "name": "ambient_lighting_zone2_color_demo", "description": "Ambient zone 2 color demo", "ecu_address": "0x788", "duration_ms": 12000, "safety_warning": "", "response_kind": "ascii", "response_label": "Active color" },
+    { "id": "0x2202", "name": "ambient_lighting_full_zone_inventory", "description": "Full inventory + cycle all zones", "ecu_address": "0x788", "duration_ms": 30000, "safety_warning": "", "response_kind": "boolean", "response_label": "All zones cycled" },
+
+    { "id": "0x2300", "name": "alarm_horn_chirp_test", "description": "Alarm horn chirp test", "ecu_address": "0x735", "duration_ms": 500, "safety_warning": "Hearing protection.", "response_kind": "boolean", "response_label": "Active" },
+    { "id": "0x2301", "name": "alarm_full_test", "description": "Full alarm test (siren + lights + interior motion)", "ecu_address": "0x735", "duration_ms": 10000, "safety_warning": "Loud.", "response_kind": "ascii", "response_label": "Result" },
+
+    { "id": "0x2400", "name": "kessy_passive_entry_test", "description": "KESSY passive entry self-test (each handle)", "ecu_address": "0x748", "duration_ms": 20000, "safety_warning": "", "response_kind": "ascii", "response_label": "Per-handle results" },
+    { "id": "0x2401", "name": "immobilizer_release_test", "description": "Immobilizer release attempt", "ecu_address": "0x736", "duration_ms": 3000, "safety_warning": "PIN required.", "response_kind": "boolean", "response_label": "Released" },
+
+    { "id": "0x2500", "name": "audi_emergency_assist_test_intervention", "description": "Emergency Assist test (safe intervention)", "ecu_address": "0x76C", "duration_ms": 60000, "safety_warning": "Driver must remain alert during test.", "response_kind": "ascii", "response_label": "Stages reached" },
+    { "id": "0x2501", "name": "audi_lane_assist_intervention_test", "description": "Lane Assist intervention test", "ecu_address": "0x76C", "duration_ms": 30000, "safety_warning": "Closed-track only.", "response_kind": "boolean", "response_label": "Intervened" },
+
+    { "id": "0x2600", "name": "ev_charge_handshake_full_ac", "description": "Full AC charge handshake test (Type 2 connector)", "ecu_address": "0x781", "duration_ms": 15000, "safety_warning": "AC cable connected, vehicle in charge mode.", "response_kind": "ascii", "response_label": "Handshake stages" },
+    { "id": "0x2601", "name": "ev_charge_handshake_full_dc", "description": "Full DC charge handshake test (CCS)", "ecu_address": "0x781", "duration_ms": 30000, "safety_warning": "DC charger connected.", "response_kind": "ascii", "response_label": "Handshake stages" },
+    { "id": "0x2602", "name": "ev_charge_iso_15118_pnc_test", "description": "ISO 15118 Plug & Charge handshake test", "ecu_address": "0x781", "duration_ms": 20000, "safety_warning": "Charger supports PnC.", "response_kind": "ascii", "response_label": "PnC result" },
+    { "id": "0x2603", "name": "ev_v2g_export_test_500w", "description": "V2G test export 500 W", "ecu_address": "0x781", "duration_ms": 30000, "safety_warning": "V2G charger connected.", "response_kind": "uint16_be", "response_label": "Output power (W)" },
+    { "id": "0x2604", "name": "ev_v2l_export_test_2000w", "description": "V2L test export 2000 W", "ecu_address": "0x781", "duration_ms": 30000, "safety_warning": "Load connected.", "response_kind": "uint16_be", "response_label": "Output power (W)" },
+    { "id": "0x2605", "name": "ev_thermal_full_loop_test", "description": "EV thermal full loop test (battery + motor + cabin)", "ecu_address": "0x7E7", "duration_ms": 60000, "safety_warning": "Long test.", "response_kind": "ascii", "response_label": "Result string" },
+    { "id": "0x2606", "name": "ev_octovalve_position_sweep", "description": "Octovalve position sweep test", "ecu_address": "0x7C0", "duration_ms": 12000, "safety_warning": "", "response_kind": "ascii", "response_label": "Positions sequenced" },
+    { "id": "0x2607", "name": "ev_battery_balance_voltage_check", "description": "EV cell balance pass — check delta voltages", "ecu_address": "0x7E7", "duration_ms": 60000, "safety_warning": "", "response_kind": "uint16_be", "response_label": "Cell delta (mV)" }
   ],
   "live_pids": [
     { "mode": "service01", "pid": "0x04", "name": "j1979_engine_load", "description": "Calculated engine load (J1979 PID 0x04)", "ecu_address": "0x7E0", "frame_offset": 0,
