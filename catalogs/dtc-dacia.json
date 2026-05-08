@@ -2,34 +2,225 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Dacia DTC starter",
-  "default_source": "dacia-renault-clip-community",
+  "default_source": "Dacia CLIP shared with Renault DTCs",
   "dtcs": [
-    { "code": "P0102", "severity": "warning",  "description": "Dacia — Mass Air Flow Circuit Low Input", "verified": false },
-    { "code": "P0103", "severity": "warning",  "description": "Dacia — Mass Air Flow Circuit High Input", "verified": false },
-    { "code": "P0117", "severity": "warning",  "description": "Dacia — Coolant Temp Sensor Circuit Low Input", "verified": false },
-    { "code": "P0118", "severity": "warning",  "description": "Dacia — Coolant Temp Sensor Circuit High Input", "verified": false },
-    { "code": "P0171", "severity": "warning",  "description": "Dacia TCe — System Too Lean Bank 1", "verified": false },
-    { "code": "P0172", "severity": "warning",  "description": "Dacia TCe — System Too Rich Bank 1", "verified": false },
-    { "code": "P0234", "severity": "critical", "description": "Dacia TCe / Hybrid 140 — Turbocharger overboost", "verified": false },
-    { "code": "P0299", "severity": "warning",  "description": "Dacia TCe — Turbocharger underboost", "verified": false },
-    { "code": "P0301", "severity": "warning",  "description": "Dacia TCe / ECO-G — Cylinder 1 misfire detected", "verified": false },
-    { "code": "P0302", "severity": "warning",  "description": "Dacia — Cylinder 2 misfire detected", "verified": false },
-    { "code": "P0303", "severity": "warning",  "description": "Dacia — Cylinder 3 misfire detected", "verified": false },
-    { "code": "P0304", "severity": "warning",  "description": "Dacia — Cylinder 4 misfire detected", "verified": false },
-    { "code": "P0420", "severity": "warning",  "description": "Dacia — Catalyst Bank 1 efficiency below threshold", "verified": false },
-    { "code": "P0455", "severity": "info",     "description": "Dacia — EVAP system large leak (loose fuel cap)", "verified": false },
-    { "code": "P1497", "severity": "warning",  "description": "Dacia ECO-G — LPG injector circuit fault", "verified": false },
-    { "code": "P1498", "severity": "warning",  "description": "Dacia ECO-G — LPG fuel pressure too low", "verified": false },
-    { "code": "P0AA6", "severity": "critical", "description": "Dacia Spring EV / Bigster Hybrid — HV battery isolation fault", "verified": false },
-    { "code": "P0A2A", "severity": "warning",  "description": "Dacia Spring EV — Drive motor temperature sensor circuit", "verified": false },
-    { "code": "P0D29", "severity": "warning",  "description": "Dacia Spring EV — AC charging coupler latch fault (Type 2)", "verified": false },
-    { "code": "P0741", "severity": "warning",  "description": "Dacia JF016E CVT — Torque converter clutch performance", "verified": false },
-    { "code": "C1135", "severity": "warning",  "description": "Dacia — Brake-pedal switch circuit (cruise interlock)", "verified": false },
-    { "code": "C1A20", "severity": "warning",  "description": "Dacia Duster 4x4 — AWD coupling fault", "verified": false },
-    { "code": "U0073", "severity": "critical", "description": "Dacia — Control module communication bus 'A' off", "verified": false },
-    { "code": "U0100", "severity": "critical", "description": "Dacia — Lost Communication With ECM/PCM 'A'", "verified": false },
-    { "code": "U0146", "severity": "warning",  "description": "Dacia — Lost Communication With Gateway 'A'", "verified": false },
-    { "code": "U0184", "severity": "warning",  "description": "Dacia — Lost Communication With Media Display IVI", "verified": false },
-    { "code": "B1318", "severity": "info",     "description": "Dacia UCH — Battery voltage low", "verified": false }
+    {
+      "code": "B1318",
+      "severity": "info",
+      "description": "Dacia UCH — Battery voltage low",
+      "verified": false
+    },
+    {
+      "code": "C1135",
+      "severity": "warning",
+      "description": "Dacia — Brake-pedal switch circuit (cruise interlock)",
+      "verified": false
+    },
+    {
+      "code": "C1A20",
+      "severity": "warning",
+      "description": "Dacia Duster 4x4 — AWD coupling fault",
+      "verified": false
+    },
+    {
+      "code": "DF014",
+      "severity": "warning",
+      "description": "Throttle Body Adaptation Required (Dacia)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "ecm_throttle_adapt"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "DF1058",
+      "severity": "warning",
+      "description": "4WD Lock Calibration (Dacia Bigster)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0102",
+      "severity": "warning",
+      "description": "Dacia — Mass Air Flow Circuit Low Input",
+      "verified": false
+    },
+    {
+      "code": "P0103",
+      "severity": "warning",
+      "description": "Dacia — Mass Air Flow Circuit High Input",
+      "verified": false
+    },
+    {
+      "code": "P0117",
+      "severity": "warning",
+      "description": "Dacia — Coolant Temp Sensor Circuit Low Input",
+      "verified": false
+    },
+    {
+      "code": "P0118",
+      "severity": "warning",
+      "description": "Dacia — Coolant Temp Sensor Circuit High Input",
+      "verified": false
+    },
+    {
+      "code": "P0171",
+      "severity": "warning",
+      "description": "Dacia TCe — System Too Lean Bank 1",
+      "verified": false
+    },
+    {
+      "code": "P0172",
+      "severity": "warning",
+      "description": "Dacia TCe — System Too Rich Bank 1",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "Dacia TCe / Hybrid 140 — Turbocharger overboost",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Dacia TCe — Turbocharger underboost",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "severity": "warning",
+      "description": "Dacia TCe / ECO-G — Cylinder 1 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "warning",
+      "description": "Dacia — Cylinder 2 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "warning",
+      "description": "Dacia — Cylinder 3 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "warning",
+      "description": "Dacia — Cylinder 4 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Dacia — Catalyst Bank 1 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0455",
+      "severity": "info",
+      "description": "Dacia — EVAP system large leak (loose fuel cap)",
+      "verified": false
+    },
+    {
+      "code": "P0741",
+      "severity": "warning",
+      "description": "Dacia JF016E CVT — Torque converter clutch performance",
+      "verified": false
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "Dacia Spring EV — Drive motor temperature sensor circuit",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "Dacia Spring EV / Bigster Hybrid — HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P0D29",
+      "severity": "warning",
+      "description": "Dacia Spring EV — AC charging coupler latch fault (Type 2)",
+      "verified": false
+    },
+    {
+      "code": "P1497",
+      "severity": "warning",
+      "description": "Dacia ECO-G — LPG injector circuit fault",
+      "verified": false
+    },
+    {
+      "code": "P1498",
+      "severity": "warning",
+      "description": "Dacia ECO-G — LPG fuel pressure too low",
+      "verified": false
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Dacia — Control module communication bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0100",
+      "severity": "critical",
+      "description": "Dacia — Lost Communication With ECM/PCM 'A'",
+      "verified": false
+    },
+    {
+      "code": "U0146",
+      "severity": "warning",
+      "description": "Dacia — Lost Communication With Gateway 'A'",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Dacia — Lost Communication With Media Display IVI",
+      "verified": false
+    }
   ]
 }

@@ -2,32 +2,236 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Rolls-Royce DTC starter",
-  "default_source": "rolls-royce-bmw-esys-community",
+  "default_source": "Rolls-Royce BMW ISTA shared DTCs",
   "dtcs": [
-    { "code": "P0301", "severity": "warning",  "description": "Rolls-Royce N74 V12 / N63 V8 — Cylinder 1 misfire detected", "verified": false },
-    { "code": "P0302", "severity": "warning",  "description": "Rolls-Royce — Cylinder 2 misfire detected", "verified": false },
-    { "code": "P0303", "severity": "warning",  "description": "Rolls-Royce — Cylinder 3 misfire detected", "verified": false },
-    { "code": "P0304", "severity": "warning",  "description": "Rolls-Royce — Cylinder 4 misfire detected", "verified": false },
-    { "code": "P0305", "severity": "warning",  "description": "Rolls-Royce N74 V12 — Cylinder 5 misfire detected", "verified": false },
-    { "code": "P0306", "severity": "warning",  "description": "Rolls-Royce N74 V12 — Cylinder 6 misfire detected", "verified": false },
-    { "code": "P0234", "severity": "critical", "description": "Rolls-Royce — Turbocharger overboost (N74 / N63)", "verified": false },
-    { "code": "P0299", "severity": "warning",  "description": "Rolls-Royce — Turbocharger underboost", "verified": false },
-    { "code": "P0524", "severity": "critical", "description": "Rolls-Royce — Engine oil pressure too low", "verified": false },
-    { "code": "P052E", "severity": "warning",  "description": "Rolls-Royce — Vanos / camshaft phasing performance", "verified": false },
-    { "code": "P0420", "severity": "warning",  "description": "Rolls-Royce — Catalyst Bank 1 efficiency below threshold", "verified": false },
-    { "code": "P0430", "severity": "warning",  "description": "Rolls-Royce — Catalyst Bank 2 efficiency below threshold", "verified": false },
-    { "code": "P0AA6", "severity": "critical", "description": "Rolls-Royce Spectre — HV battery isolation fault", "verified": false },
-    { "code": "P0A2A", "severity": "warning",  "description": "Spectre — Drive Motor 'A' Temperature Sensor Circuit", "verified": false },
-    { "code": "P0AC0", "severity": "warning",  "description": "Spectre — HV battery temperature sensor circuit", "verified": false },
-    { "code": "P0D29", "severity": "warning",  "description": "Spectre — AC charging coupler latch fault", "verified": false },
-    { "code": "P0D2A", "severity": "warning",  "description": "Spectre — DC fast-charge coupler over-temperature", "verified": false },
-    { "code": "C10C0", "severity": "critical", "description": "Rolls-Royce — Magic Carpet air-reservoir pressure too low", "verified": false },
-    { "code": "C10C1", "severity": "warning",  "description": "Rolls-Royce — Air-suspension level sensor implausible", "verified": false },
-    { "code": "C1A30", "severity": "warning",  "description": "Rolls-Royce — Rear-wheel steering position implausible", "verified": false },
-    { "code": "U0073", "severity": "critical", "description": "Rolls-Royce — High-speed CAN bus 'A' off", "verified": false },
-    { "code": "U0146", "severity": "warning",  "description": "Rolls-Royce — Lost Communication With ZGW Gateway", "verified": false },
-    { "code": "U0184", "severity": "warning",  "description": "Rolls-Royce — Lost Communication With Spirit OS / iDrive", "verified": false },
-    { "code": "B116F", "severity": "warning",  "description": "Rolls-Royce — CAS / Comfort Access antenna fault", "verified": false },
-    { "code": "B1A21", "severity": "info",     "description": "Rolls-Royce — Starlight Headliner fibre-optic LED string out", "verified": false }
+    {
+      "code": "B116F",
+      "severity": "warning",
+      "description": "Rolls-Royce — CAS / Comfort Access antenna fault",
+      "verified": false
+    },
+    {
+      "code": "B1A21",
+      "severity": "info",
+      "description": "Rolls-Royce — Starlight Headliner fibre-optic LED string out",
+      "verified": false
+    },
+    {
+      "code": "C10C0",
+      "severity": "critical",
+      "description": "Rolls-Royce — Magic Carpet air-reservoir pressure too low",
+      "verified": false
+    },
+    {
+      "code": "C10C1",
+      "severity": "warning",
+      "description": "Rolls-Royce — Air-suspension level sensor implausible",
+      "verified": false
+    },
+    {
+      "code": "C1A30",
+      "severity": "warning",
+      "description": "Rolls-Royce — Rear-wheel steering position implausible",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "Rolls-Royce — Turbocharger overboost (N74 / N63)",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Rolls-Royce — Turbocharger underboost",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "severity": "warning",
+      "description": "Rolls-Royce N74 V12 / N63 V8 — Cylinder 1 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "warning",
+      "description": "Rolls-Royce — Cylinder 2 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "warning",
+      "description": "Rolls-Royce — Cylinder 3 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "warning",
+      "description": "Rolls-Royce — Cylinder 4 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0305",
+      "severity": "warning",
+      "description": "Rolls-Royce N74 V12 — Cylinder 5 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0306",
+      "severity": "warning",
+      "description": "Rolls-Royce N74 V12 — Cylinder 6 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Rolls-Royce — Catalyst Bank 1 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0430",
+      "severity": "warning",
+      "description": "Rolls-Royce — Catalyst Bank 2 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "Rolls-Royce — Engine oil pressure too low",
+      "verified": false
+    },
+    {
+      "code": "P052E",
+      "severity": "warning",
+      "description": "Rolls-Royce — Vanos / camshaft phasing performance",
+      "verified": false
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "Spectre — Drive Motor 'A' Temperature Sensor Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "Rolls-Royce Spectre — HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P0AC0",
+      "severity": "warning",
+      "description": "Spectre — HV battery temperature sensor circuit",
+      "verified": false
+    },
+    {
+      "code": "P0AFA",
+      "severity": "critical",
+      "description": "HV Battery Voltage Low (Spectre)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0D29",
+      "severity": "warning",
+      "description": "Spectre — AC charging coupler latch fault",
+      "verified": false
+    },
+    {
+      "code": "P0D2A",
+      "severity": "warning",
+      "description": "Spectre — DC fast-charge coupler over-temperature",
+      "verified": false
+    },
+    {
+      "code": "P10DF",
+      "severity": "warning",
+      "description": "VANOS Solenoid (N74 V12 BiTurbo)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Rolls-Royce — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0146",
+      "severity": "warning",
+      "description": "Rolls-Royce — Lost Communication With ZGW Gateway",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Rolls-Royce — Lost Communication With Spirit OS / iDrive",
+      "verified": false
+    },
+    {
+      "code": "U10E5",
+      "severity": "warning",
+      "description": "Lost Communication With Magic Carpet Ride Module",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    }
   ]
 }

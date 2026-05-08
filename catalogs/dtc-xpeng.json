@@ -2,13 +2,124 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Xpeng DTC starter",
-  "default_source": "xpeng-community",
+  "default_source": "XPeng XPILOT community DTCs",
   "dtcs": [
-    { "code": "P0A0F", "severity": "warning", "description": "Engine fail to start (not applicable on EV — should never fire)", "verified": false },
-    { "code": "P0A2A", "severity": "warning", "description": "Drive Motor 'A' Temperature Sensor Circuit (Xpeng)", "verified": false },
-    { "code": "P0D38", "severity": "warning", "description": "On-board charger DC/DC performance (Xpeng)", "verified": false },
-    { "code": "U0293", "severity": "critical", "description": "Lost Communication With BMS (Xpeng)", "verified": false },
-    { "code": "B153F", "severity": "warning", "description": "Xpeng XPILOT front-radar — performance degraded", "verified": false },
-    { "code": "C141C", "severity": "warning", "description": "Xpeng — ESP / yaw-rate plausibility", "verified": false }
+    {
+      "code": "B153F",
+      "severity": "warning",
+      "description": "Xpeng XPILOT front-radar — performance degraded",
+      "verified": false
+    },
+    {
+      "code": "C141C",
+      "severity": "warning",
+      "description": "Xpeng — ESP / yaw-rate plausibility",
+      "verified": false
+    },
+    {
+      "code": "P0A0F",
+      "severity": "warning",
+      "description": "Engine fail to start (not applicable on EV — should never fire)",
+      "verified": false
+    },
+    {
+      "code": "P0A1F",
+      "severity": "critical",
+      "description": "Drive Motor Inverter (XPeng 800V SiC)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "Drive Motor 'A' Temperature Sensor Circuit (Xpeng)",
+      "verified": false
+    },
+    {
+      "code": "P0D38",
+      "severity": "warning",
+      "description": "On-board charger DC/DC performance (Xpeng)",
+      "verified": false
+    },
+    {
+      "code": "P3F01",
+      "severity": "warning",
+      "description": "S5 Flash-Charge Handshake Failed",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0293",
+      "severity": "critical",
+      "description": "Lost Communication With BMS (Xpeng)",
+      "verified": false
+    },
+    {
+      "code": "U2018",
+      "severity": "warning",
+      "description": "LeDar Lidar Calibration Required (XNGP)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    }
   ]
 }

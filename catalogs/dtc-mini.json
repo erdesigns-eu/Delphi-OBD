@@ -2,30 +2,215 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "MINI (BMW Group sub-brand) DTC starter",
-  "default_source": "esys-community / bimmer-utility",
+  "default_source": "Mini BMW ISTA / Mini Connected DTCs",
   "dtcs": [
-    { "code": "P0299", "severity": "warning",  "description": "MINI Cooper S / JCW (B48) — Turbocharger underboost", "verified": false },
-    { "code": "P0234", "severity": "critical", "description": "MINI Cooper S / JCW (B48) — Turbocharger overboost", "verified": false },
-    { "code": "P0420", "severity": "warning",  "description": "MINI — Catalyst Bank 1 efficiency below threshold (B38 / B48)", "verified": false },
-    { "code": "P0442", "severity": "info",     "description": "MINI — EVAP small-leak (loose fuel cap)", "verified": false },
-    { "code": "P0455", "severity": "info",     "description": "MINI — EVAP large leak", "verified": false },
-    { "code": "P0301", "severity": "critical", "description": "MINI — Cylinder 1 misfire (common after coil pack failure)", "verified": false },
-    { "code": "P0302", "severity": "critical", "description": "MINI — Cylinder 2 misfire", "verified": false },
-    { "code": "P0303", "severity": "critical", "description": "MINI — Cylinder 3 misfire (3-cyl B38)", "verified": false },
-    { "code": "P0304", "severity": "critical", "description": "MINI — Cylinder 4 misfire (4-cyl B48)", "verified": false },
-    { "code": "P10DF", "severity": "warning",  "description": "MINI — VANOS Solenoid Bank 1 stuck open", "verified": false },
-    { "code": "P10E1", "severity": "warning",  "description": "MINI — VANOS Solenoid Bank 1 stuck closed", "verified": false },
-    { "code": "P15F0", "severity": "warning",  "description": "MINI — Eccentric Shaft Sensor (Valvetronic) plausibility", "verified": false },
-    { "code": "P0524", "severity": "critical", "description": "MINI — Engine oil pressure low (B48 oil pump failure pattern)", "verified": false },
-    { "code": "P164A", "severity": "warning",  "description": "MINI — Camshaft phaser solenoid (B38 / B48 / B58)", "verified": false },
-    { "code": "P0AA6", "severity": "critical", "description": "MINI Cooper E / SE / Aceman — HV battery isolation fault", "verified": false },
-    { "code": "P0A2A", "severity": "warning",  "description": "MINI Cooper E / SE — Drive Motor Temperature Sensor Circuit", "verified": false },
-    { "code": "P0D38", "severity": "warning",  "description": "MINI Cooper E / SE — On-board charger DC/DC performance", "verified": false },
-    { "code": "B7F8A", "severity": "warning",  "description": "MINI — Tire Pressure Indicator (RDC) — Pressure Below Threshold", "verified": false },
-    { "code": "U0293", "severity": "critical", "description": "MINI Cooper E / SE — Lost Communication With BMS", "verified": false },
-    { "code": "U10E8", "severity": "critical", "description": "MINI — FlexRay Bus Off Error Frame (chassis)", "verified": false },
-    { "code": "U0184", "severity": "warning",  "description": "MINI — Lost Communication With iDrive / NBT", "verified": false },
-    { "code": "U0073", "severity": "critical", "description": "MINI — High-speed CAN bus 'A' off", "verified": false },
-    { "code": "C1135", "severity": "warning",  "description": "MINI — Brake-pedal switch circuit (cruise interlock)", "verified": false }
+    {
+      "code": "B7F8A",
+      "severity": "warning",
+      "description": "MINI — Tire Pressure Indicator (RDC) — Pressure Below Threshold",
+      "verified": false
+    },
+    {
+      "code": "C1135",
+      "severity": "warning",
+      "description": "MINI — Brake-pedal switch circuit (cruise interlock)",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "MINI Cooper S / JCW (B48) — Turbocharger overboost",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "MINI Cooper S / JCW (B48) — Turbocharger underboost",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "severity": "critical",
+      "description": "MINI — Cylinder 1 misfire (common after coil pack failure)",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "critical",
+      "description": "MINI — Cylinder 2 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "critical",
+      "description": "MINI — Cylinder 3 misfire (3-cyl B38)",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "critical",
+      "description": "MINI — Cylinder 4 misfire (4-cyl B48)",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst Efficiency Below Threshold (Mini Cooper)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0442",
+      "severity": "info",
+      "description": "MINI — EVAP small-leak (loose fuel cap)",
+      "verified": false
+    },
+    {
+      "code": "P0455",
+      "severity": "info",
+      "description": "MINI — EVAP large leak",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "MINI — Engine oil pressure low (B48 oil pump failure pattern)",
+      "verified": false
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "MINI Cooper E / SE — Drive Motor Temperature Sensor Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "MINI Cooper E / SE / Aceman — HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P0D38",
+      "severity": "warning",
+      "description": "MINI Cooper E / SE — On-board charger DC/DC performance",
+      "verified": false
+    },
+    {
+      "code": "P10DF",
+      "severity": "warning",
+      "description": "VANOS Bank 1: Stuck (Mini N12/N14/B38)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P10E1",
+      "severity": "warning",
+      "description": "MINI — VANOS Solenoid Bank 1 stuck closed",
+      "verified": false
+    },
+    {
+      "code": "P15F0",
+      "severity": "warning",
+      "description": "MINI — Eccentric Shaft Sensor (Valvetronic) plausibility",
+      "verified": false
+    },
+    {
+      "code": "P164A",
+      "severity": "warning",
+      "description": "MINI — Camshaft phaser solenoid (B38 / B48 / B58)",
+      "verified": false
+    },
+    {
+      "code": "P1A0F",
+      "severity": "info",
+      "description": "Battery Registration Required (Mini)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "ecm_battery_register"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "MINI — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "MINI — Lost Communication With iDrive / NBT",
+      "verified": false
+    },
+    {
+      "code": "U0293",
+      "severity": "critical",
+      "description": "MINI Cooper E / SE — Lost Communication With BMS",
+      "verified": false
+    },
+    {
+      "code": "U10E8",
+      "severity": "critical",
+      "description": "MINI — FlexRay Bus Off Error Frame (chassis)",
+      "verified": false
+    }
   ]
 }

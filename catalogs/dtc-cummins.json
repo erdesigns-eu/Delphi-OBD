@@ -2,15 +2,142 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Cummins DTC starter (J1939 SPN-FMI)",
-  "default_source": "insite-community / cummins-tsb-public",
+  "default_source": "Cummins INSITE community SPN/FMI DTCs",
   "dtcs": [
-    { "code": "SPN0094-FMI4",  "severity": "warning", "description": "Cummins — Engine fuel delivery pressure circuit voltage low (X15 / ISX15)", "verified": false },
-    { "code": "SPN0157-FMI3",  "severity": "warning", "description": "Cummins — Engine fuel injector metering rail #1 pressure circuit voltage high", "verified": false },
-    { "code": "SPN0411-FMI3",  "severity": "warning", "description": "Cummins — EGR differential pressure sensor circuit voltage high", "verified": false },
-    { "code": "SPN3055-FMI18", "severity": "critical","description": "Cummins — Aftertreatment 1 fuel pressure low (DOC fuel-doser)", "verified": false },
-    { "code": "SPN3251-FMI0",  "severity": "warning", "description": "Cummins — DPF differential pressure data above normal (regen needed)", "verified": false },
-    { "code": "SPN3358-FMI3",  "severity": "warning", "description": "Cummins — EGR throttle position sensor voltage high", "verified": false },
-    { "code": "SPN3719-FMI16", "severity": "critical","description": "Cummins — Particulate trap soot load most severe", "verified": false },
-    { "code": "SPN5246-FMI0",  "severity": "critical","description": "Cummins — Aftertreatment SCR operator inducement severity (5 mph derate)", "verified": false }
+    {
+      "code": "SPN0094-FMI4",
+      "severity": "warning",
+      "description": "Cummins — Engine fuel delivery pressure circuit voltage low (X15 / ISX15)",
+      "verified": false
+    },
+    {
+      "code": "SPN0157-FMI3",
+      "severity": "warning",
+      "description": "Cummins — Engine fuel injector metering rail #1 pressure circuit voltage high",
+      "verified": false
+    },
+    {
+      "code": "SPN0411-FMI3",
+      "severity": "warning",
+      "description": "Cummins — EGR differential pressure sensor circuit voltage high",
+      "verified": false
+    },
+    {
+      "code": "SPN3055-FMI18",
+      "severity": "critical",
+      "description": "Cummins — Aftertreatment 1 fuel pressure low (DOC fuel-doser)",
+      "verified": false
+    },
+    {
+      "code": "SPN3251",
+      "severity": "warning",
+      "description": "DPF Differential Pressure Out of Range (X15/X12 J1939)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_dpf_load"
+      ],
+      "related_routines": [
+        "ecm_dpf_regen_force"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "SPN3251-FMI0",
+      "severity": "warning",
+      "description": "Cummins — DPF differential pressure data above normal (regen needed)",
+      "verified": false
+    },
+    {
+      "code": "SPN3358-FMI3",
+      "severity": "warning",
+      "description": "Cummins — EGR throttle position sensor voltage high",
+      "verified": false
+    },
+    {
+      "code": "SPN3719-FMI16",
+      "severity": "critical",
+      "description": "Cummins — Particulate trap soot load most severe",
+      "verified": false
+    },
+    {
+      "code": "SPN5246",
+      "severity": "critical",
+      "description": "SCR Inducement: Severe Derate (Cummins)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "ecm_scr_priming"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "SPN5246-FMI0",
+      "severity": "critical",
+      "description": "Cummins — Aftertreatment SCR operator inducement severity (5 mph derate)",
+      "verified": false
+    },
+    {
+      "code": "SPN611",
+      "severity": "critical",
+      "description": "ECM Internal Voltage Out of Range",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    }
   ]
 }

@@ -2,33 +2,210 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Tata Motors DTC starter",
-  "default_source": "tata-diagstar-community",
+  "default_source": "Tata service community DTCs",
   "dtcs": [
-    { "code": "P0299", "severity": "warning",  "description": "Tata Revotron T-GDi — Turbocharger underboost", "verified": false },
-    { "code": "P0234", "severity": "critical", "description": "Tata Revotron T-GDi — Turbocharger overboost", "verified": false },
-    { "code": "P0420", "severity": "warning",  "description": "Catalyst Bank 1 efficiency below threshold (Revotron 1.2T)", "verified": false },
-    { "code": "P0455", "severity": "info",     "description": "Tata — EVAP large leak (loose fuel cap)", "verified": false },
-    { "code": "P0087", "severity": "critical", "description": "Tata Kryotec diesel — Fuel rail pressure too low", "verified": false },
-    { "code": "P0088", "severity": "critical", "description": "Tata Kryotec diesel — Fuel rail pressure too high", "verified": false },
-    { "code": "P0335", "severity": "critical", "description": "Tata — CKP Crankshaft Position Sensor 'A' Circuit", "verified": false },
-    { "code": "P0341", "severity": "warning",  "description": "Tata Revotron — Camshaft phasing performance", "verified": false },
-    { "code": "P0411", "severity": "warning",  "description": "Tata — Secondary air injection incorrect flow", "verified": false },
-    { "code": "P0741", "severity": "warning",  "description": "Tata — Torque Converter Clutch Performance", "verified": false },
-    { "code": "P0700", "severity": "warning",  "description": "Tata — Transmission Control System Malfunction (DCA)", "verified": false },
-    { "code": "P2002", "severity": "critical", "description": "Tata Kryotec BS-VI — DPF efficiency below threshold", "verified": false },
-    { "code": "P244A", "severity": "warning",  "description": "Tata Kryotec — DPF differential pressure too low", "verified": false },
-    { "code": "P0454", "severity": "warning",  "description": "Tata iCNG — CNG fuel pressure sensor intermittent", "verified": false },
-    { "code": "P0AA6", "severity": "critical", "description": "Tata Ziptron / Acti.ev — HV battery isolation fault", "verified": false },
-    { "code": "P0A2A", "severity": "warning",  "description": "Tata Ziptron — Drive Motor Temperature Sensor Circuit", "verified": false },
-    { "code": "P0D38", "severity": "warning",  "description": "Tata Ziptron — On-board charger DC/DC performance", "verified": false },
-    { "code": "P3000", "severity": "critical", "description": "Tata Ziptron — HV battery system performance", "verified": false },
-    { "code": "U0293", "severity": "critical", "description": "Tata Ziptron — Lost Communication With BMS", "verified": false },
-    { "code": "U0184", "severity": "warning",  "description": "Tata — Lost Communication With Harman IVI / iRA", "verified": false },
-    { "code": "U0146", "severity": "warning",  "description": "Tata — Lost Communication With Gateway 'A'", "verified": false },
-    { "code": "U0073", "severity": "critical", "description": "Tata — High-speed CAN bus 'A' off", "verified": false },
-    { "code": "B1318", "severity": "info",     "description": "Tata BCM — Battery voltage low", "verified": false },
-    { "code": "B116F", "severity": "warning",  "description": "Tata — Push-button start / smart-key circuit", "verified": false },
-    { "code": "C1A20", "severity": "warning",  "description": "Tata — ESP / EBA controller fault", "verified": false },
-    { "code": "C1135", "severity": "warning",  "description": "Tata — Brake-pedal switch circuit (cruise interlock)", "verified": false }
+    {
+      "code": "B116F",
+      "severity": "warning",
+      "description": "Tata — Push-button start / smart-key circuit",
+      "verified": false
+    },
+    {
+      "code": "B1318",
+      "severity": "info",
+      "description": "Tata BCM — Battery voltage low",
+      "verified": false
+    },
+    {
+      "code": "C1135",
+      "severity": "warning",
+      "description": "Tata — Brake-pedal switch circuit (cruise interlock)",
+      "verified": false
+    },
+    {
+      "code": "C1A20",
+      "severity": "warning",
+      "description": "Tata — ESP / EBA controller fault",
+      "verified": false
+    },
+    {
+      "code": "P0087",
+      "severity": "critical",
+      "description": "Tata Kryotec diesel — Fuel rail pressure too low",
+      "verified": false
+    },
+    {
+      "code": "P0088",
+      "severity": "critical",
+      "description": "Tata Kryotec diesel — Fuel rail pressure too high",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "Tata Revotron T-GDi — Turbocharger overboost",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Tata Revotron T-GDi — Turbocharger underboost",
+      "verified": false
+    },
+    {
+      "code": "P0335",
+      "severity": "critical",
+      "description": "Tata — CKP Crankshaft Position Sensor 'A' Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0341",
+      "severity": "warning",
+      "description": "Tata Revotron — Camshaft phasing performance",
+      "verified": false
+    },
+    {
+      "code": "P0411",
+      "severity": "warning",
+      "description": "Tata — Secondary air injection incorrect flow",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst Bank 1 efficiency below threshold (Revotron 1.2T)",
+      "verified": false
+    },
+    {
+      "code": "P0454",
+      "severity": "warning",
+      "description": "Tata iCNG — CNG fuel pressure sensor intermittent",
+      "verified": false
+    },
+    {
+      "code": "P0455",
+      "severity": "info",
+      "description": "Tata — EVAP large leak (loose fuel cap)",
+      "verified": false
+    },
+    {
+      "code": "P0700",
+      "severity": "warning",
+      "description": "Tata — Transmission Control System Malfunction (DCA)",
+      "verified": false
+    },
+    {
+      "code": "P0741",
+      "severity": "warning",
+      "description": "Tata — Torque Converter Clutch Performance",
+      "verified": false
+    },
+    {
+      "code": "P0A1F",
+      "severity": "critical",
+      "description": "Drive Motor Performance (Tata ACTI.EV)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "Tata Ziptron — Drive Motor Temperature Sensor Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "HV Battery Cooling System (Tata)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0D38",
+      "severity": "warning",
+      "description": "Tata Ziptron — On-board charger DC/DC performance",
+      "verified": false
+    },
+    {
+      "code": "P2002",
+      "severity": "critical",
+      "description": "Tata Kryotec BS-VI — DPF efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P244A",
+      "severity": "warning",
+      "description": "Tata Kryotec — DPF differential pressure too low",
+      "verified": false
+    },
+    {
+      "code": "P3000",
+      "severity": "critical",
+      "description": "Tata Ziptron — HV battery system performance",
+      "verified": false
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Tata — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0146",
+      "severity": "warning",
+      "description": "Tata — Lost Communication With Gateway 'A'",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Tata — Lost Communication With Harman IVI / iRA",
+      "verified": false
+    },
+    {
+      "code": "U0293",
+      "severity": "critical",
+      "description": "Tata Ziptron — Lost Communication With BMS",
+      "verified": false
+    }
   ]
 }

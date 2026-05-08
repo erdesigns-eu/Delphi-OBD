@@ -2,14 +2,181 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Volvo Cars DTC starter",
-  "default_source": "vida-community",
+  "default_source": "Volvo VIDA / DiCE community DTCs",
   "dtcs": [
-    { "code": "ECM-901A", "severity": "warning", "description": "Volvo ECM-901A — Camshaft signal implausible (T5/T6 SI6)", "verified": false },
-    { "code": "BCM-0019", "severity": "warning", "description": "Volvo BCM-0019 — Battery voltage outside calibrated range", "verified": false },
-    { "code": "P0524",    "severity": "critical","description": "Engine Oil Pressure Too Low (common Volvo D5 / D4 PCV)", "verified": false },
-    { "code": "P0420",    "severity": "warning", "description": "Catalyst System Efficiency Below Threshold Bank 1 (Volvo SPA)", "verified": false },
-    { "code": "P164A",    "severity": "warning", "description": "Camshaft Phaser Solenoid Bank 1 (Volvo VEA Drive-E)", "verified": false },
-    { "code": "B0100",    "severity": "warning", "description": "Volvo Driver Frontal Stage 1 (SRS)", "verified": false },
-    { "code": "U0184",    "severity": "warning", "description": "Lost Communication With Sensus / IHU", "verified": false }
+    {
+      "code": "B0100",
+      "severity": "warning",
+      "description": "Volvo Driver Frontal Stage 1 (SRS)",
+      "verified": false
+    },
+    {
+      "code": "BCM-0019",
+      "severity": "warning",
+      "description": "Volvo BCM-0019 — Battery voltage outside calibrated range",
+      "verified": false
+    },
+    {
+      "code": "BCM-A104",
+      "severity": "warning",
+      "description": "Pilot Assist Calibration Required",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "sensing_camera_dynamic"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "CEM-9100",
+      "severity": "info",
+      "description": "Door Module Communication Loss (Volvo CEM)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "ECM-901A",
+      "severity": "warning",
+      "description": "Boost Pressure Control: Performance (Volvo Drive-E)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Confirm boost target vs actual via live data.",
+        "2) Smoke-test the intake / charge-air system for leaks.",
+        "3) Inspect wastegate solenoid and actuator rod travel.",
+        "4) Check for cracked CAC, intercooler, or hose clamps.",
+        "5) Replace failed solenoid / actuator if signal correct."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_boost"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst System Efficiency Below Threshold Bank 1 (Volvo SPA)",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "Engine Oil Pressure Too Low (common Volvo D5 / D4 PCV)",
+      "verified": false
+    },
+    {
+      "code": "P0AFA",
+      "severity": "critical",
+      "description": "HV Battery Voltage Low (Volvo Recharge / EX90)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P164A",
+      "severity": "warning",
+      "description": "Camshaft Phaser Solenoid Bank 1 (Volvo VEA Drive-E)",
+      "verified": false
+    },
+    {
+      "code": "U010F",
+      "severity": "warning",
+      "description": "Lost Communication With Intelli-Safe Module (Volvo)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Lost Communication With Sensus / IHU",
+      "verified": false
+    }
   ]
 }

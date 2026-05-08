@@ -2,13 +2,124 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Scania DTC starter (J1939 SPN-FMI + SDP3)",
-  "default_source": "sdp3-community",
+  "default_source": "Scania SDP3 community SPN/FMI DTCs",
   "dtcs": [
-    { "code": "SPN0102-FMI3",  "severity": "warning", "description": "Scania — Charge-air pressure sensor circuit voltage high", "verified": false },
-    { "code": "SPN0651-FMI5",  "severity": "warning", "description": "Scania — Cylinder 1 injector circuit open", "verified": false },
-    { "code": "SPN3251-FMI16", "severity": "warning", "description": "Scania — DPF differential pressure high (regen needed)", "verified": false },
-    { "code": "SPN3361-FMI4",  "severity": "warning", "description": "Scania ACM — DEF dosing valve circuit voltage low", "verified": false },
-    { "code": "SPN5246-FMI16", "severity": "critical","description": "Scania — SCR system inducement (5 mph derate)", "verified": false },
-    { "code": "SPN5394-FMI31", "severity": "warning", "description": "Scania — DEF dosing unit overheating", "verified": false }
+    {
+      "code": "SPN0102-FMI3",
+      "severity": "warning",
+      "description": "Scania — Charge-air pressure sensor circuit voltage high",
+      "verified": false
+    },
+    {
+      "code": "SPN0651-FMI5",
+      "severity": "warning",
+      "description": "Scania — Cylinder 1 injector circuit open",
+      "verified": false
+    },
+    {
+      "code": "SPN3251",
+      "severity": "warning",
+      "description": "DPF dP Out of Range (DC09/DC13/DC16)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "SPN3251-FMI16",
+      "severity": "warning",
+      "description": "Scania — DPF differential pressure high (regen needed)",
+      "verified": false
+    },
+    {
+      "code": "SPN3361-FMI4",
+      "severity": "warning",
+      "description": "Scania ACM — DEF dosing valve circuit voltage low",
+      "verified": false
+    },
+    {
+      "code": "SPN523600",
+      "severity": "info",
+      "description": "Active Prediction Map Data Stale",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "SPN5246",
+      "severity": "critical",
+      "description": "SCR Inducement (Scania)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "SPN5246-FMI16",
+      "severity": "critical",
+      "description": "Scania — SCR system inducement (5 mph derate)",
+      "verified": false
+    },
+    {
+      "code": "SPN5394-FMI31",
+      "severity": "warning",
+      "description": "Scania — DEF dosing unit overheating",
+      "verified": false
+    }
   ]
 }

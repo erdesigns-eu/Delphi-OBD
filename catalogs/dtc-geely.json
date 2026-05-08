@@ -2,13 +2,125 @@
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
   "version": 1,
   "name": "Geely / Lynk & Co DTC starter",
-  "default_source": "geely-community",
+  "default_source": "Geely Holding (Lynk & Co / Zeekr / Lotus / Galaxy) DTCs",
   "dtcs": [
-    { "code": "P0299", "severity": "warning", "description": "Geely 1.5T / 2.0T — Turbo underboost (Volvo-shared engine)", "verified": false },
-    { "code": "P0420", "severity": "warning", "description": "Catalyst System Efficiency Bank 1 (Geely / Lynk & Co)", "verified": false },
-    { "code": "P0A80", "severity": "critical", "description": "Replace Hybrid Battery Pack (Geely Geometry / Zeekr PHEV)", "verified": false },
-    { "code": "U010C", "severity": "warning", "description": "Lost Communication With Glow Plug Module (Geely diesel)", "verified": false },
-    { "code": "B201A", "severity": "warning", "description": "Lynk & Co — Driver-side seat-position sensor open circuit", "verified": false },
-    { "code": "C141C", "severity": "warning", "description": "Geely — ESP yaw-rate sensor plausibility", "verified": false }
+    {
+      "code": "B201A",
+      "severity": "warning",
+      "description": "Lynk & Co — Driver-side seat-position sensor open circuit",
+      "verified": false
+    },
+    {
+      "code": "C141C",
+      "severity": "warning",
+      "description": "Geely — ESP yaw-rate sensor plausibility",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Geely 1.5T / 2.0T — Turbo underboost (Volvo-shared engine)",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst System Efficiency Bank 1 (Geely / Lynk & Co)",
+      "verified": false
+    },
+    {
+      "code": "P0A09",
+      "severity": "critical",
+      "description": "DC/DC Converter Status (Zeekr 800V SEA-S)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A80",
+      "severity": "critical",
+      "description": "Replace Hybrid Battery Pack (Geely Geometry / Zeekr PHEV)",
+      "verified": false
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "HV Battery Cell Imbalance (Geely SEA platforms)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "hv_cell_balance"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U010C",
+      "severity": "warning",
+      "description": "Lost Communication With Glow Plug Module (Geely diesel)",
+      "verified": false
+    },
+    {
+      "code": "U2018",
+      "severity": "warning",
+      "description": "Front Camera Calibration Required (Lotus Eletre HYPER-OS)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    }
   ]
 }

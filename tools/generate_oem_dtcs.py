@@ -438,6 +438,448 @@ PROFILES = {
 }
 
 
+# -------------------------------------------------------
+# Tier 2 / EV / smaller OEMs — compact 6-12 entry lists
+# focused on each brand's well-known codes
+# -------------------------------------------------------
+
+def volvo_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("ECM-901A", desc="Boost Pressure Control: Performance (Volvo Drive-E)",
+                   sev="warning", rg=RG_BOOST, rdid=["ecm_boost"]),
+        make_entry("CEM-9100", desc="Door Module Communication Loss (Volvo CEM)",
+                   sev="info"),
+        make_entry("BCM-A104", desc="Pilot Assist Calibration Required",
+                   sev="warning", rroutine=["sensing_camera_dynamic"]),
+        make_entry("P0AFA", desc="HV Battery Voltage Low (Volvo Recharge / EX90)",
+                   sev="critical", rg=RG_HV_BATT),
+        make_entry("U010F", desc="Lost Communication With Intelli-Safe Module (Volvo)",
+                   sev="warning"),
+    ]
+
+
+def polestar_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A09", desc="DC/DC Converter Status: Open (Polestar 2/3)",
+                   sev="critical"),
+        make_entry("P30FA", desc="HV Battery Cell Imbalance — Performance Pack",
+                   sev="critical", rg=RG_HV_BATT, rroutine=["hv_cell_balance"]),
+        make_entry("U2018", desc="Front Camera Module: Calibration Required (Polestar)",
+                   sev="warning"),
+    ]
+
+
+def subaru_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0420", desc="Catalyst Efficiency Below Threshold (Subaru EJ/FB)",
+                   sev="warning", mon="non_continuous", ff=False),
+        make_entry("P0700", desc="Transmission Control System Malfunction (Lineartronic CVT)",
+                   sev="warning", rg=RG_TRANS),
+        make_entry("P1602", desc="Power Supply Voltage High (Subaru ECM)",
+                   sev="warning"),
+        make_entry("P2096", desc="Post-Catalyst Fuel Trim System Too Lean Bank 1 (Subaru)",
+                   sev="warning"),
+        make_entry("U0073", desc="Bus 'A' Off (Subaru CAN)",
+                   sev="critical"),
+    ]
+
+
+def mazda_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P061B", desc="Internal Control Module Torque Calculation (Mazda)",
+                   sev="critical"),
+        make_entry("P2127", desc="Throttle Position Sensor 'E' Circuit Low (Mazda)",
+                   sev="warning"),
+        make_entry("P0420", desc="Catalyst Efficiency Below Threshold (Mazda Skyactiv)",
+                   sev="warning", mon="non_continuous", ff=False),
+        # Skyactiv-X SPCCI
+        make_entry("P0327", desc="Knock Sensor Range/Performance (Skyactiv-X SPCCI)",
+                   sev="warning"),
+    ]
+
+
+def nissan_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0011", desc="Camshaft Position 'A' Timing Over-Advanced Bank 1 (Nissan VQ)",
+                   sev="warning", rg=RG_VVT, rdid=["ecm_vct_intake_b1"]),
+        make_entry("P1564", desc="Intelligent Cruise Control: Module Internal (Nissan)",
+                   sev="warning"),
+        make_entry("P0335", desc="Crankshaft Position Sensor 'A' Circuit (Nissan VR/VQ)",
+                   sev="critical"),
+        make_entry("P0A78", desc="Drive Motor 'A' Inverter Performance (Leaf / Ariya)",
+                   sev="critical"),
+        make_entry("U1000", desc="CAN Communication Line (Nissan)",
+                   sev="critical"),
+    ]
+
+
+def mitsubishi_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0420", desc="Catalyst Efficiency Below Threshold (Mitsubishi)",
+                   sev="warning", mon="non_continuous", ff=False),
+        make_entry("P1A1F", desc="HV Battery Voltage Sensor (Outlander PHEV)",
+                   sev="critical", rdid=["hv_pack_v"]),
+        make_entry("P2128", desc="APS 'E' Performance (Mitsubishi)",
+                   sev="warning"),
+    ]
+
+
+def renault_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("DF014", desc="Throttle Body Adaptation Required (Renault MULTI-SENSE)",
+                   sev="warning", rroutine=["ecm_throttle_adapt"]),
+        make_entry("DF026", desc="Coolant Temperature Sensor: Range/Performance",
+                   sev="warning", rdid=["ecm_coolant"]),
+        make_entry("DF120", desc="Battery Saver Mode Active (Renault)",
+                   sev="info"),
+        make_entry("DF1058", desc="4CONTROL Calibration Required",
+                   sev="warning"),
+    ]
+
+
+def tesla_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("BMS_a035", desc="HV Battery Pack Imbalance (Tesla BMS)",
+                   sev="critical", rg=RG_HV_BATT, rroutine=["hv_cell_balance"]),
+        make_entry("DI_a166", desc="Drive Inverter Over-Temperature (Tesla DI)",
+                   sev="critical"),
+        make_entry("APP_w304", desc="Autopilot Camera Cleaning Required",
+                   sev="info"),
+        make_entry("UI_a013", desc="Sentry Mode: Storage Full",
+                   sev="info"),
+        make_entry("CC_a005", desc="Charge Connector Latch Open",
+                   sev="warning"),
+    ]
+
+
+def rivian_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A1F", desc="Drive Motor Inverter Performance (Rivian Quad-motor)",
+                   sev="critical"),
+        make_entry("U2018", desc="Driver+ Camera Calibration Required (Rivian)",
+                   sev="warning"),
+        make_entry("P0A78", desc="Front Drive Module Performance (Rivian Gen 2)",
+                   sev="critical"),
+    ]
+
+
+def lucid_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A09", desc="Wunderbox DC/DC Converter Status (Lucid Air)",
+                   sev="critical"),
+        make_entry("P0AA6", desc="HV Battery Cooling System Performance (Lucid)",
+                   sev="critical", rg=RG_HV_BATT),
+        make_entry("U2018", desc="DreamDrive Pro Camera Calibration Required",
+                   sev="warning"),
+    ]
+
+
+def byd_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0AA6", desc="HV Battery Cooling System (BYD Blade Battery)",
+                   sev="critical", rg=RG_HV_BATT),
+        make_entry("P0A1F", desc="Drive Motor Performance (BYD e4 Platform)",
+                   sev="critical"),
+        make_entry("U2018", desc="DiPilot Camera Calibration Required (BYD)",
+                   sev="warning"),
+    ]
+
+
+def nio_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0AA6", desc="HV Battery Cooling System (NIO Power Swap battery)",
+                   sev="critical", rg=RG_HV_BATT),
+        make_entry("P3F00", desc="Battery Swap Handshake Failed (NIO Power Swap 4.0)",
+                   sev="warning"),
+        make_entry("U2018", desc="NAD Camera Module Calibration Required (Aquila)",
+                   sev="warning"),
+    ]
+
+
+def xpeng_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A1F", desc="Drive Motor Inverter (XPeng 800V SiC)",
+                   sev="critical"),
+        make_entry("P3F01", desc="S5 Flash-Charge Handshake Failed",
+                   sev="warning"),
+        make_entry("U2018", desc="LeDar Lidar Calibration Required (XNGP)",
+                   sev="warning"),
+    ]
+
+
+def porsche_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P10DF", desc="VarioCam Plus Solenoid Bank 1: Stuck (Porsche M9x flat-6)",
+                   sev="warning", rg=RG_VVT),
+        make_entry("P0A09", desc="800V DC/DC Converter Status (Taycan / Macan EV)",
+                   sev="critical"),
+        make_entry("P30F0", desc="HV Battery Cell Imbalance (Taycan)",
+                   sev="critical", rg=RG_HV_BATT, rroutine=["hv_cell_balance"]),
+        make_entry("U2306", desc="Front Radar Calibration Required (InnoDrive)",
+                   sev="warning"),
+        make_entry("C1525", desc="PASM Damper Module: Internal Fault",
+                   sev="warning"),
+    ]
+
+
+def mini_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P10DF", desc="VANOS Bank 1: Stuck (Mini N12/N14/B38)",
+                   sev="warning", rg=RG_VVT),
+        make_entry("P1A0F", desc="Battery Registration Required (Mini)",
+                   sev="info", rroutine=["ecm_battery_register"]),
+        make_entry("P0420", desc="Catalyst Efficiency Below Threshold (Mini Cooper)",
+                   sev="warning", mon="non_continuous", ff=False),
+    ]
+
+
+def smart_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A1F", desc="Drive Motor Inverter Performance (smart EQ ForTwo / #1)",
+                   sev="critical"),
+        make_entry("P0A09", desc="DC/DC Converter Status (smart EQ)",
+                   sev="critical"),
+    ]
+
+
+def dacia_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("DF014", desc="Throttle Body Adaptation Required (Dacia)",
+                   sev="warning", rroutine=["ecm_throttle_adapt"]),
+        make_entry("DF1058", desc="4WD Lock Calibration (Dacia Bigster)",
+                   sev="warning"),
+    ]
+
+
+def lada_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0103", desc="MAF Sensor Out of Range (VAZ ECU)",
+                   sev="warning"),
+        make_entry("P0335", desc="Crankshaft Position Sensor 'A' Circuit (Lada)",
+                   sev="critical"),
+    ]
+
+
+def suzuki_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0420", desc="Catalyst Efficiency Below Threshold (Suzuki)",
+                   sev="warning", mon="non_continuous", ff=False),
+        make_entry("P0335", desc="CKP Sensor 'A' Circuit (Suzuki)", sev="critical"),
+        make_entry("P1A0F", desc="Battery Replacement Not Registered (Suzuki SHVS)",
+                   sev="info"),
+    ]
+
+
+def mahindra_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P244A", desc="DPF Differential Pressure Too Low (mHawk Diesel)",
+                   sev="warning", rdid=["ecm_dpf_load"], rroutine=["ecm_dpf_regen_force"]),
+        make_entry("P0299", desc="Turbocharger Underboost (mHawk 2.2 / mStallion 2.0)",
+                   sev="warning", rg=RG_BOOST),
+    ]
+
+
+def tata_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A1F", desc="Drive Motor Performance (Tata ACTI.EV)",
+                   sev="critical"),
+        make_entry("P0AA6", desc="HV Battery Cooling System (Tata)",
+                   sev="critical", rg=RG_HV_BATT),
+    ]
+
+
+def geely_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0A09", desc="DC/DC Converter Status (Zeekr 800V SEA-S)",
+                   sev="critical"),
+        make_entry("U2018", desc="Front Camera Calibration Required (Lotus Eletre HYPER-OS)",
+                   sev="warning"),
+        make_entry("P30F0", desc="HV Battery Cell Imbalance (Geely SEA platforms)",
+                   sev="critical", rg=RG_HV_BATT, rroutine=["hv_cell_balance"]),
+    ]
+
+
+def gwm_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0299", desc="Lemon DHT Turbo Underboost",
+                   sev="warning", rg=RG_BOOST),
+        make_entry("P0A1F", desc="Drive Motor Performance (Tank 700 / Wey Coffee)",
+                   sev="critical"),
+    ]
+
+
+def aston_martin_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0299", desc="Turbocharger Underboost (AMG M178 / AML V12)",
+                   sev="warning", rg=RG_BOOST),
+        make_entry("P30F0", desc="HV Battery Imbalance (Aston Martin Hybrid)",
+                   sev="critical", rg=RG_HV_BATT),
+    ]
+
+
+def bentley_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P10DF", desc="VarioCam Solenoid Stuck (W12 / V8)",
+                   sev="warning", rg=RG_VVT),
+        make_entry("P30F0", desc="HV Battery Cell Imbalance (Continental GT Speed PHEV)",
+                   sev="critical", rg=RG_HV_BATT),
+        make_entry("C1525", desc="Bentley Dynamic Ride: Pump Over-Time",
+                   sev="warning"),
+    ]
+
+
+def rolls_royce_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P10DF", desc="VANOS Solenoid (N74 V12 BiTurbo)",
+                   sev="warning", rg=RG_VVT),
+        make_entry("U10E5", desc="Lost Communication With Magic Carpet Ride Module",
+                   sev="warning"),
+        make_entry("P0AFA", desc="HV Battery Voltage Low (Spectre)",
+                   sev="critical", rg=RG_HV_BATT),
+    ]
+
+
+def ferrari_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0299", desc="Turbocharger Underboost (F154/F163 BiTurbo)",
+                   sev="warning", rg=RG_BOOST),
+        make_entry("P30F0", desc="HV Battery Imbalance (SF90/296 PHEV)",
+                   sev="critical", rg=RG_HV_BATT),
+    ]
+
+
+def mclaren_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P0299", desc="Turbocharger Underboost (M838T/M840T)",
+                   sev="warning", rg=RG_BOOST),
+        make_entry("P30F0", desc="HV Battery Imbalance (Artura / W1 PHEV)",
+                   sev="critical", rg=RG_HV_BATT),
+    ]
+
+
+def isuzu_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P244A", desc="DPF Differential Pressure Too Low (Isuzu DDi)",
+                   sev="warning", rdid=["ecm_dpf_load"], rroutine=["ecm_dpf_regen_force"]),
+        make_entry("P204F", desc="DEF / SCR Performance (Isuzu)",
+                   sev="critical", rroutine=["ecm_scr_priming"]),
+    ]
+
+
+def iveco_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("P204F", desc="Hi-SCR System Performance (Iveco no-EGR)",
+                   sev="critical", rroutine=["ecm_scr_priming"]),
+        make_entry("P0299", desc="Turbocharger Underboost (Iveco Cursor)",
+                   sev="warning", rg=RG_BOOST),
+    ]
+
+
+def cummins_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF Differential Pressure Out of Range (X15/X12 J1939)",
+                   sev="warning", rdid=["ecm_dpf_load"], rroutine=["ecm_dpf_regen_force"]),
+        make_entry("SPN5246", desc="SCR Inducement: Severe Derate (Cummins)",
+                   sev="critical", rroutine=["ecm_scr_priming"]),
+        make_entry("SPN611", desc="ECM Internal Voltage Out of Range",
+                   sev="critical"),
+    ]
+
+
+def detroit_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF Differential Pressure (Detroit DD13/DD15)",
+                   sev="warning", rroutine=["ecm_dpf_regen_force"]),
+        make_entry("SPN5246", desc="SCR Inducement (Detroit Diesel)",
+                   sev="critical"),
+    ]
+
+
+def paccar_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF dP Out of Range (PACCAR MX-11/MX-13)",
+                   sev="warning"),
+        make_entry("SPN5246", desc="SCR Inducement (PACCAR)",
+                   sev="critical"),
+    ]
+
+
+def volvotrucks_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF dP (Volvo D11/D13/D16)",
+                   sev="warning"),
+        make_entry("SPN5246", desc="SCR Inducement (Volvo Trucks)",
+                   sev="critical"),
+        make_entry("SPN1761", desc="DEF Tank Level Low (I-Save D13TC)",
+                   sev="warning"),
+    ]
+
+
+def scania_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF dP Out of Range (DC09/DC13/DC16)",
+                   sev="warning"),
+        make_entry("SPN5246", desc="SCR Inducement (Scania)",
+                   sev="critical"),
+        make_entry("SPN523600", desc="Active Prediction Map Data Stale",
+                   sev="info"),
+    ]
+
+
+def man_entries() -> Iterable[dict]:
+    yield from [
+        make_entry("SPN3251", desc="DPF dP Out of Range (D08/D20/D26/D38)",
+                   sev="warning"),
+        make_entry("SPN5246", desc="SCR Inducement (MAN)",
+                   sev="critical"),
+        make_entry("SPN1761", desc="DEF Level Low (MAN)",
+                   sev="warning"),
+    ]
+
+
+PROFILES.update({
+    "volvo":         ("Volvo VIDA / DiCE community DTCs", volvo_entries),
+    "polestar":      ("Polestar OC / VIDA shared community DTCs", polestar_entries),
+    "subaru":        ("Subaru SSM / FreeSSM community DTCs", subaru_entries),
+    "mazda":         ("Mazda M-MDS community DTCs", mazda_entries),
+    "nissan":        ("Nissan CONSULT III+ community DTCs", nissan_entries),
+    "mitsubishi":    ("Mitsubishi MUT-III community DTCs", mitsubishi_entries),
+    "renault":       ("Renault CLIP / Renolink / Pyren / Ddt4all DTCs", renault_entries),
+    "tesla":         ("Tesla Service Mode / TeslaScan community DTCs", tesla_entries),
+    "rivian":        ("Rivian Service Mode community DTCs", rivian_entries),
+    "lucid":         ("Lucid community DTCs", lucid_entries),
+    "byd":           ("BYD service / e-Platform community DTCs", byd_entries),
+    "nio":           ("NIO Banyan / NIO House community DTCs", nio_entries),
+    "xpeng":         ("XPeng XPILOT community DTCs", xpeng_entries),
+    "porsche":       ("Porsche PIWIS-community / 911uk / Rennlist DTCs", porsche_entries),
+    "mini":          ("Mini BMW ISTA / Mini Connected DTCs", mini_entries),
+    "smart":         ("smart XENTRY / Geely diag DTCs", smart_entries),
+    "dacia":         ("Dacia CLIP shared with Renault DTCs", dacia_entries),
+    "lada":          ("Lada OPEN diag / Renolink DTCs", lada_entries),
+    "suzuki":        ("Suzuki SDT community DTCs", suzuki_entries),
+    "mahindra":      ("Mahindra service community DTCs", mahindra_entries),
+    "tata":          ("Tata service community DTCs", tata_entries),
+    "geely":         ("Geely Holding (Lynk & Co / Zeekr / Lotus / Galaxy) DTCs",
+                       geely_entries),
+    "gwm":           ("GWM (Haval / Wey / Tank / ORA / Poer) DTCs", gwm_entries),
+    "aston-martin":  ("Aston Martin AMDS community DTCs", aston_martin_entries),
+    "bentley":       ("Bentley VW Group ODIS shared / VAGCAN DTCs", bentley_entries),
+    "rolls-royce":   ("Rolls-Royce BMW ISTA shared DTCs", rolls_royce_entries),
+    "ferrari":       ("Ferrari SD3 / Leonardo community DTCs", ferrari_entries),
+    "mclaren":       ("McLaren MDS community DTCs", mclaren_entries),
+    "isuzu":         ("Isuzu IDSS community DTCs", isuzu_entries),
+    "iveco":         ("Iveco E.A.S.Y community DTCs", iveco_entries),
+    # Heavy-duty (J1939 SPN-codes)
+    "cummins":       ("Cummins INSITE community SPN/FMI DTCs", cummins_entries),
+    "detroit":       ("Detroit DDDL community SPN/FMI DTCs", detroit_entries),
+    "paccar":        ("PACCAR ESA / Davie community SPN/FMI DTCs", paccar_entries),
+    "volvotrucks":   ("Volvo Trucks Tech Tool community SPN/FMI DTCs",
+                       volvotrucks_entries),
+    "scania":        ("Scania SDP3 community SPN/FMI DTCs", scania_entries),
+    "man":           ("MAN-cats II community SPN/FMI DTCs", man_entries),
+})
+
+
 def emit(oem_key: str) -> None:
     label, gen = PROFILES[oem_key]
     new_entries = list(gen())
