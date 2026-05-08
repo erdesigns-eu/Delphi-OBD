@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.63.0] - 2026-05-08 — smart (Mercedes×Geely JV) ~22% ODIS, ~4,800 entries
+
+Legacy ForTwo/ForFour W453 + new #1/#3/#5 BEV3 SEA platform + Brabus
+AWD 428 hp + smart Pilot + Beats Audio + Halo panoramic + smart AI
+Cockpit Snapdragon.
+
 ## [3.62.0] - 2026-05-08 — McLaren ~15% ODIS, ~4,900 entries
 
 M838T/M840T 3.8/4.0 V8 BiTurbo (720S/765LT/Senna/Speedtail KERS
