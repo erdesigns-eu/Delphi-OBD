@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.75.0] - 2026-05-08 — Volvo Trucks Group ~22% ODIS, ~4,900 entries
+
+Volvo + Mack + Renault Trucks + UD Trucks. D8/D11/D13/D16 + D13TC
+turbo-compound (I-Save) + D11K/D13K LNG + D13H hydrogen ICE + FL/FE/
+FH/FM/FMX Electric (FH Electric 490 kW dual e-axle) + B8R bus EV +
+Mack MD Electric + Renault D Wide ZE + Volvo FH FCEV (Cellcentric JV)
++ I-Shift 12 AMT + I-Shift Dual Clutch + Powertronic 6AT + Tech Tool.
+
 ## [3.74.0] - 2026-05-08 — PACCAR (Kenworth/Peterbilt/DAF) ~18% ODIS, ~4,800 entries
 
 MX-11/MX-13 + PX-7/PX-9 + MX-11 LNG + MX-13 hydrogen ICE + Kenworth
