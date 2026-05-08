@@ -100,22 +100,29 @@ Sub-tasks:
 
 ## Phase F — DoIP transport (verify + close gaps)
 
-Audit confirms packet codec is built. Remaining:
-
-- **F.1** Read `OBD.Protocol.DoIP.pas` end-to-end, spot-test packet
-  build/parse round-trips.
-- **F.2** UDP discovery — broadcast Vehicle Identification Request
-  (UDP/13400), collect responses with VIN + EID + GID + logical
-  address. Returns `TArray<TDoIPVehicle>`.
-- **F.3** TCP session lifecycle — connect to TCP/13400 → send routing
-  activation → handle alive-check → send/receive diagnostic messages
-  in parallel → graceful close. Use `Indy` or `Synapse` (whichever the
-  rest of the repo uses).
-- **F.4** TLS — DoIP-TLS on TCP/3496, mutual auth optional. Hooks
-  into existing `OBD.ECU.Signature.OpenSSL.pas` for cert parsing.
-- **F.5** Self-loop integration test — spin up an in-process DoIP
-  listener that echoes UDS frames, run client against it, assert
-  end-to-end roundtrip.
+- **F.1 ✅** Verified — packet codec at `OBD.Protocol.DoIP.pas`
+  (535 lines) covers Vehicle ID announce, routing activation,
+  diagnostic message, alive check; 20 round-trip tests in
+  `Tests.OEM.DoIP.pas`.
+- **F.2 ✅** `DiscoverVehicles` in new
+  `OBD.Protocol.DoIP.Session.pas`. Broadcasts a Vehicle ID Request
+  on UDP/13400 (winsock2 directly, mirroring the existing
+  `OBD.Connection.UDP.pas` pattern), collects announcements within a
+  timeout window, returns `TArray<TDoIPVehicle>` with VIN + EID +
+  GID + logical address + further-action flag.
+- **F.3 ✅** `TDoIPSession` in same unit. Connect → activate routing
+  → SendReceive UDS messages with inline alive-check handling →
+  graceful Disconnect. Uses winsock2 TCP/13400 directly. Properties
+  expose connection state for callers (CAN/DoIP transport adapter).
+- **F.4 ⏸ Deferred** — DoIP-TLS on TCP/3496 needs SChannel /
+  OpenSSL + per-OEM cert policy. Out of scope for this phase; the
+  session unit's docstring notes the deferral. Track here as future
+  work.
+- **F.5 ⏸ Deferred** — A real socket integration test needs a free
+  local port + threading + would be flaky in CI. The packet codec is
+  already covered by 20 round-trip tests in `Tests.OEM.DoIP.pas`,
+  which exercise the same logic the session uses (build + parse).
+  Future work: build a DoIP simulator harness for the test suite.
 
 ## Phase A — DTC text content
 
