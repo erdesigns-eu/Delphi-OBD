@@ -56494,19 +56494,6 @@
     },
     {
       "mode": "service22",
-      "pid": "0x1041",
-      "name": "live_pedal_position_stream",
-      "description": "Pedal position stream",
-      "ecu_address": "0x7E0",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "uint8",
-        "scale": 0.392,
-        "unit": "%"
-      }
-    },
-    {
-      "mode": "service22",
       "pid": "0x1051",
       "name": "live_wastegate_position",
       "description": "Live wastegate / VTG position",
@@ -56740,30 +56727,6 @@
         "kind": "int16_be",
         "scale": 0.1,
         "unit": "deg"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x10AD",
-      "name": "live_turbo_speed_rpm",
-      "description": "Live turbo speed",
-      "ecu_address": "0x7E0",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "uint32_be",
-        "unit": "rpm"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x10A0",
-      "name": "live_engine_oil_temp_22",
-      "description": "Live engine oil temp (mode 0x22)",
-      "ecu_address": "0x7E0",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "int8",
-        "unit": "C"
       }
     },
     {
@@ -57104,18 +57067,6 @@
       "decoder": {
         "kind": "int32_be",
         "unit": "rpm"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x2084",
-      "name": "live_ev_motor_front_torque",
-      "description": "Live front motor torque",
-      "ecu_address": "0x7E6",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "Nm"
       }
     },
     {
@@ -58060,19 +58011,6 @@
     },
     {
       "mode": "service22",
-      "pid": "0x2003",
-      "name": "live_ev_pack_soc",
-      "description": "Live EV pack SOC stream",
-      "ecu_address": "0x7E7",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "uint8",
-        "scale": 0.392,
-        "unit": "%"
-      }
-    },
-    {
-      "mode": "service22",
       "pid": "0x2006",
       "name": "live_ev_pack_soh",
       "description": "Live EV pack SOH",
@@ -58128,18 +58066,6 @@
       "frame_offset": 0,
       "decoder": {
         "kind": "uint8"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x2080",
-      "name": "live_ev_motor_front_stator_temp",
-      "description": "Live front motor stator temp",
-      "ecu_address": "0x7E6",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "int8",
-        "unit": "C"
       }
     },
     {
@@ -58481,18 +58407,6 @@
       "frame_offset": 0,
       "decoder": {
         "kind": "uint8"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x10A1",
-      "name": "live_engine_oil_level",
-      "description": "Live engine oil level",
-      "ecu_address": "0x7E0",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "mm"
       }
     },
     {
@@ -59387,18 +59301,6 @@
       "frame_offset": 0,
       "decoder": {
         "kind": "int32_be",
-        "unit": "km"
-      }
-    },
-    {
-      "mode": "service22",
-      "pid": "0x1424",
-      "name": "live_remaining_range",
-      "description": "Live remaining fuel/EV range",
-      "ecu_address": "0x714",
-      "frame_offset": 0,
-      "decoder": {
-        "kind": "uint16_be",
         "unit": "km"
       }
     },

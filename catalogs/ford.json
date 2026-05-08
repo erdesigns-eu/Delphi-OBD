@@ -765,45 +765,6 @@
       }
     },
     {
-      "did": "0xDE03",
-      "name": "ford_iat_intake_air_temperature",
-      "description": "IAT intake air temperature (°C)",
-      "source": "forscan-community",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "offset": -40,
-        "unit": "C"
-      }
-    },
-    {
-      "did": "0xDE04",
-      "name": "ford_ect_coolant_temperature",
-      "description": "Engine coolant temperature (°C)",
-      "source": "forscan-community",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "offset": -40,
-        "unit": "C"
-      }
-    },
-    {
-      "did": "0xDE05",
-      "name": "ford_throttle_position",
-      "description": "Throttle position (%, Ford ETC)",
-      "source": "forscan-community",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "scale": 0.392,
-        "unit": "%"
-      }
-    },
-    {
       "did": "0xDE06",
       "name": "ford_boost_pressure",
       "description": "EcoBoost manifold absolute pressure (kPa)",
@@ -827,24 +788,6 @@
         "kind": "uint8",
         "scale": 0.4,
         "unit": "%"
-      }
-    },
-    {
-      "did": "0xDF03",
-      "name": "ford_pats_status",
-      "description": "PATS (Passive Anti-Theft) status enum",
-      "source": "forscan-community",
-      "verified": false,
-      "ecu_address": "0x731",
-      "decoder": {
-        "kind": "enum",
-        "size": 1,
-        "values": {
-          "0x00": "armed",
-          "0x01": "disarmed",
-          "0x02": "alarm",
-          "0x03": "fault"
-        }
       }
     },
     {

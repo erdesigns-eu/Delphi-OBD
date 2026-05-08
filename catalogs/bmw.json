@@ -921,28 +921,6 @@
       }
     },
     {
-      "did": "0xD200",
-      "name": "bmw_dme_software_id",
-      "description": "DME software ID (engine controller)",
-      "source": "esys-community",
-      "verified": false,
-      "ecu_address": "0x12",
-      "decoder": {
-        "kind": "ascii"
-      }
-    },
-    {
-      "did": "0xD202",
-      "name": "bmw_egs_software_id",
-      "description": "EGS / ZF8HP software ID",
-      "source": "esys-community",
-      "verified": false,
-      "ecu_address": "0x07",
-      "decoder": {
-        "kind": "ascii"
-      }
-    },
-    {
       "did": "0xD300",
       "name": "bmw_engine_oil_level",
       "description": "Engine oil level (mm above dipstick min)",

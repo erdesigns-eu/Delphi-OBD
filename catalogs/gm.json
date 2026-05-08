@@ -815,31 +815,6 @@
       }
     },
     {
-      "did": "0x1984",
-      "name": "gm_engine_run_time",
-      "description": "Engine run time (s, GMLAN)",
-      "source": "tis2web-public",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint32_be",
-        "unit": "s"
-      }
-    },
-    {
-      "did": "0x1985",
-      "name": "gm_oil_pressure",
-      "description": "Engine oil pressure (kPa)",
-      "source": "gmlan-public",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.1,
-        "unit": "kPa"
-      }
-    },
-    {
       "did": "0x1986",
       "name": "gm_oil_life_remaining",
       "description": "Oil life remaining (%, GM IPC)",
