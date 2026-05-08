@@ -7,6 +7,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.43.0] - 2026-05-08 — Ford pushed to public-source ceiling (~40% ODIS, 7397 entries)
+
+Two combined passes lift Ford from 47 entries (post-v3.39 baseline) to
+7,397 — same depth-pattern proven on VW + BMW.
+
+### v3.42 first pass (47 → 4,388 entries)
+
+| Section | v3.39 | v3.42 |
+|---|---|---|
+| ECUs | 18 | 115 |
+| DIDs | 35 | 1,733 |
+| Routines | 12 | 132 |
+| Coding blocks | 0 | 37 (318 fields) |
+| Adaptations | 0 | 88 |
+| Actuator tests | 0 | 111 |
+| Live PIDs | 0 | 40 |
+| DTC extended-data | 0 | 2,132 |
+
+#### ECUs (+97)
+Full Ford FDRS bus map: powertrain (PCM, TCM, secondary PCM, SOBDMC
+electric powertrain front+rear, BECM HV battery, OBC, DC-DC), ABS +
+abs pump + EPB, RCM (restraints), IPC + cluster secondary, BCM, GWM
++ NGWM next-gen gateway, CGEA gateway legacy, APIM (SYNC HU), FCIM,
+FDIM, 4 door modules (DDM/PDM/RDM/RPDM), SCCM + PSCM steering, ACM +
+amplifier B&O, TBM + GPSM + CMR telematics, OCS occupant, DSM driver
+status monitor, DASCM driver assist, HCM L+R headlamps, AHM aux
+heater, FEPS+REPS parking sensors, SOBD-APS active park steering,
+TPMS, OFCM object fusion, SRM side radar L+R, FDM front radar, OFM
+object fusion master, IPSM image processing surround, SODL+SODR side
+object detection, ODLM diagnostic lighting, FCLM/RCLM/CLMU climate
+loop, HTM heated tailgate, HTW heated trailer wiring, aerodynamic
+shutter, EV charger door, APCM accessory power, CDCM convertible,
+SGSM smart glass, R-DRLM rear DRL, DRCM door receiver UWB, RSEM rear
+seat entertainment, headrest motor, massage modules dr+pa, seat
+climate dr+pa, sunroof + panoramic roof, cargo management, power
+running boards, Tow Tech package, Pro Power Onboard inverter, frunk,
+tailgate step, mega console, Co-Pilot360, BlueCruise hands-free, BLIS,
+CTA, PLC powerline charger, V2G Intelligent Backup Power, OTA
+controller, cybersecurity HSM, Ethernet switch, 5 domain controllers,
+wireless charging, HUD.
+
+#### DIDs (+1,698)
+- 23 generic UDS DIDs (F1xx) — ECU serial, part #, HW/SW/boot version, calibration ID + CVN, supplier, prod date+plant, name, strategy + calibration parts, tear tag, OASIS + Ford diagnostic IDs, reset count, operating hours, supply voltage, internal temp, CPU load, RAM/Flash free.
+- 60 PCM (engine) — Ford-specific telemetry incl. RPM/torque/coolant/oil/MAP/MAF/lambda, HP+LP fuel rail, VCT intake+exhaust B1+B2, knock retard, EGR position, wastegate duty, DPF deep, SCR NOx + DEF, turbo speed/inlet/outlet, intercooler, cat efficiency B1+B2, alternator load, IMRC, eco score, drive mode (10 Ford modes incl. Tow/Slippery/Sand/Mud/Trail/RockCrawl/Baja).
+- 80 per-cylinder (cyl 1-10 × 8 fields) — supports V8/V10 (Godzilla 7.3, PowerStroke 6.7).
+- 112 engine variant DIDs — 14 Ford engine families × 8 fields (1.5/2.0/2.3/2.7/3.0/3.5 EcoBoost + 3.5 H.O., Coyote 5.0L, Predator 5.2L, Godzilla 7.3L, PowerStroke 3.0L+6.7L, hybrids).
+- 128 transmission variants — 8 trans × 16 fields (10R80, 10R140 diesel, 8F35, 8F57, 6F35, eCVT hybrid, 6DCT250, transfer case).
+- 64 SYNC head-unit gens — SYNC 2/3/4/5 × 16 fields each (HW/SW, map, SSD, RAM, SoC temp, OTA, voice/nav/media engine versions).
+- 14 ABS DIDs + 32 per-wheel ABS/TPMS (4 wheels × 8: speed, pad wear, disc thickness, pad temp, tire pressure+temp+target, offset).
+- 29 BECM (HV battery) — pack V/A, SOC/SOH, max/min/avg cell V, delta, max/min/avg cell temp, isolation, capacity, charge cycle counts, thermal events, pyro+contactors, module + cells per module count.
+- 192 per-cell battery (96 cells × 2: voltage + temperature).
+- 72 per-module battery (12 modules × 6: V, A, max+min temp, SOC, SOH).
+- 21 SOBDMC electric powertrain (front + rear motor: torque target/actual, rpm, stator/rotor temp, inverter temp, input V/A, phase current, efficiency, resolver offset).
+- 22 OBC (charging) DIDs incl. ISO 15118 state + Plug & Charge.
+- 9 Pro Power Onboard inverter (V2L for Lightning) DIDs.
+- 24 Co-Pilot360 + BlueCruise ADAS.
+- 64 ADAS object stack (8 objects × 8).
+- 14 IPC + 256 last-32-trip extended history.
+- 64 driver-coaching (16 metrics × 4 windows = lifetime / 30d / 7d / last_trip).
+- 32 per-bulb hours-on counters.
+- 24 per-zone ambient lighting RGB.
+- 64 per-key data (8 keys × 8 fields incl. MyKey active).
+- 24 per-camera lens shading (6 cameras × 4).
+- 40 per-radar waveform (5 radars × 8).
+- 21 premium audio (B&O) per-channel + 7-band EQ.
+- 96 per-ECU programming history + signature (24 ECUs × 4).
+- 13 bus topology (HS/MS/FD-CAN + LIN + Ethernet + load + errors).
+- 16 per-corner suspension extended (4 corners × 4 fields).
+- 64 per-bank engine deep (2 banks × 32 fields).
+- 24 per-zone HVAC (3 zones × 8 fields).
+
+#### Routines (+120)
+KAM reset, throttle/misfire/lambda/cam VCT/IMRC adapts, DPF force regen, DEF dosing, oil pump, starter, battery registration, oil/inspection/brake fluid/fuel filter/air filter resets, grid heater + secondary air tests, alternator + compression tests, TCM basic setting + clutch adapt + Quick Learn (10R80) + xDrive transfer-case adapt, per-wheel ABS bleed, ABS pump test, SAS + yaw + brake pressure zeros, TPMS relearn, EPB workshop mode, BCM init + window/mirror init, sunroof/panoramic/tailgate/frunk/tailgate step/running boards calibrations, HVAC basic + compressor + aux heater + heat-pump self-tests, headlight aim L+R, AFS, matrix pixel L+R, IPMA dynamic + static, FDM radar zero, IPSM surround, DSM, BLIS L+R, IPC service reset + mileage align + MyKey setup, BECM cell balance + capacity remeasure + isolation + pyro + contactor + pre-charge tests, SOBDMC resolver zero + offset + inverter self-test, OBC + DC-DC + Pro Power self-tests, EV thermal loop bleed, V2G self-test, 14 module-replacement procedures, As-Built/CCC programming, key pairing/deletion, PATS immobilizer relearn, MyKey admin, OTA check/install/rollback, HSM provision/zeroize/log export, 5 domain self-tests, ethernet switch self-test, BlueCruise + Co-Pilot360 calibrations.
+
+#### Coding blocks (37 / 318 fields)
+BCM general, door extended, alarm zones, lighting extended, Co-Pilot Lane, FRR ACC, AEB, BlueCruise, IPMA camera, TDM trailer, EV charge features (CCS1/CCS2/NACS/CHAdeMO/V2G/V2L/V2H/Pro Power/ISO15118/smart grid/home integration/Intelligent Backup), MyKey, SYNC features, IPC features, massage dr, seat climate dr, panoramic roof, frunk, tailgate, running boards, BLIS, driver status, HVAC zones, OTA, crypto/HSM, Pro Power, FoD bitmap (12 features), APIM audio (AM/FM/HD/DAB+/SiriusXM/BT/USB/podcast/Spotify/Amazon/Apple Music/RSA/ANC), Co-Pilot360, Tow Tech, frunk features, mega console, AHM aux heater, aerodynamic shutter, HUD, wireless charging, trailer brake.
+
+#### Adaptations (88) + Actuator tests (111) + Live PIDs (40) + DTC ext (2,132)
+Engine + trans + ABS + TPMS + ADAS + lighting + climate + EV + body + MyKey + trailer + OTA + HSM defaults; full per-zone + per-actuator tests; live engine + battery + motor + charge + ADAS + cluster PIDs; broad P/B/U/C codes × 4 record types.
+
+### v3.43 second pass (4,388 → 7,397 entries)
+
+| Section | v3.42 | v3.43 |
+|---|---|---|
+| DIDs | 1,733 | 1,945 |
+| Routines | 132 | 187 |
+| Adaptations | 88 | 142 |
+| DTC extended-data | 2,132 | 4,820 |
+
+- 4 user profiles × 16 fields = 64 driver-stats DIDs.
+- 16 per-corner air-spring chamber pressures + 12 onboard scales DIDs.
+- 15 Tow Tech / Smart Hitch detail DIDs.
+- 16 power running boards / tailgate step / frunk / tailgate position + lifetime cycles.
+- 64 service-history per-item DIDs (16 items × 4: last miles + epoch + workshop + due-in).
+- 25 vehicle metadata DIDs (FA-style: model year, plant, paint, interior, market, country, trim, options, kerb/GVW/payload, warranty start + first registered + production, engine + trans serials, axle ratio, tire + wheel size, color, trim).
+- 55 routines incl. ZF deep + PowerStroke deep (glow plug, water separator drain, DEF tank drain, DPF burn-off, EGR clean), pinch-relearn (window FL/FR + sunroof + pan), seat init, SYNC factory reset + voice recog calibrate, ADAS deep recals, trailer pair + calibrate + brake burnish, Smart Hitch zero, BECM module-specific balance, V2G self-test, gateway routing reset, profile create/delete/export/import, aerodynamic shutter calibrate.
+- 54 adaptations (cruise buffers, lighting, park assist, driver attention, off-road incl. Trail Control + Hill Descent + Crawl Control, EV deep incl. route-aware unlocks + curves + AVAS, FordPass remote services, massage/seat-climate defaults, comfort, power running boards, tailgate).
+- 2,688 DTC ext-data records — long-tail P-codes round 2 + round 3 with 6 record types (incl. environmental_data + freeze_frame_template).
+
+Estimated ~40% ODIS coverage — at the realistic public-source ceiling for Ford (FORScan community is among the most open of any OEM).
+
 ## [3.41.0] - 2026-05-08 — BMW final pre-commercial-ceiling pass (~42% ODIS, 7932 entries)
 
 Final BMW push toward public-source ceiling (~40-45% non-commercial).
