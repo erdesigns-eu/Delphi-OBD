@@ -66,7 +66,8 @@ uses
   Tests.OEM.SupplierRouting in 'Tests.OEM.SupplierRouting.pas',
   Tests.OEM.Premium in 'Tests.OEM.Premium.pas',
   Tests.OBD.Helpers in 'Tests.OBD.Helpers.pas',
-  Tests.OEM.LuxuryAndIndian in 'Tests.OEM.LuxuryAndIndian.pas';
+  Tests.OEM.LuxuryAndIndian in 'Tests.OEM.LuxuryAndIndian.pas',
+  Tests.OEM.ServiceFunction in 'Tests.OEM.ServiceFunction.pas';
 
 {$IFNDEF TESTINSIGHT}
 var

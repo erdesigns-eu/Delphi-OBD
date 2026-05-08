@@ -161,6 +161,7 @@ contains
   OBD.OEM.Mahindra in '..\src\Services\OBD.OEM.Mahindra.pas',
   OBD.OEM.Tata in '..\src\Services\OBD.OEM.Tata.pas',
   OBD.OEM.MINI in '..\src\Services\OBD.OEM.MINI.pas',
-  OBD.OEM.Smart in '..\src\Services\OBD.OEM.Smart.pas';
+  OBD.OEM.Smart in '..\src\Services\OBD.OEM.Smart.pas',
+  OBD.OEM.ServiceFunction in '..\src\Services\OBD.OEM.ServiceFunction.pas';
 
 end.

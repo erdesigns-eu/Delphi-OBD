@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.25.0] - 2026-05-08 — Unified service-function API
+
+### Added
+- **`OBD.OEM.ServiceFunction`** — canonical `TOBDServiceFunctionKind` enum (19 functions: oil-life reset, EPB service, SAS calibration, battery registration, DPF regen, TPMS relearn, throttle / idle / transmission / crank / immo / fuel-trim relearn, brake bleed, air-suspension calibration, hybrid battery test, Haldex calibration, basic setting, clear adaptations, DEF quality test) plus a name-token registry that maps the per-OEM routine names (`ferrari_oil_life_reset`, `mb_oil_maintenance_reset`, `reset_service_indicator`, ...) to the canonical kind via case-insensitive substring matching.
+- `FindServiceFunction(Ext, Kind, out Func)` — first-match lookup against any OEM extension's routine catalog. Tools can now write *one* call to issue, e.g., an oil-life reset and have it work across every OEM that ships the routine.
+- `ListServiceFunctions(Ext)` — enumerate every classifiable routine on an OEM extension, ready for a "Service" menu in a diagnostic tool. Skips routines that don't classify (returns no `sfUnknown` entries).
+- `BuildServiceFunctionFrame(Func, Input)` — wraps the resolved RID with the StartRoutine SID + sub-function (`31 01 RID ...`).
+- `ServiceFunctionKindName(Kind)` — display labels for UI binding ("Oil Life Reset", "EPB Service Mode", "Steering-Angle Sensor Calibration", ...).
+- `Tests.OEM.ServiceFunction` — 25 cases across registry classification, lookup against shipped Ferrari / Mahindra / Tata / MINI catalogs, enumeration, frame builder, and display labels.
+
+### Why this matters
+- A diagnostic tool no longer has to hard-code which OEM names its oil-life reset `oil_life_reset` vs `oil_maintenance_reset` vs `reset_service_indicator`. The same code works for every OEM that ships an oil-life routine, and `ListServiceFunctions` lets the tool's UI populate the "service" menu without listing OEMs by hand.
+
 ## [3.24.0] - 2026-05-07 — Six more OEMs (Ferrari / Lucid / Mahindra / Tata / MINI / smart)
 
 ### Added (6 new full-depth OEM extensions)
