@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.73.0] - 2026-05-08 — Scania ~22% ODIS, ~4,900 entries (Traton Group)
+
+DC09/DC13/DC16 V8 (660/770 hp) + Super 13L next-gen + OG13 LNG/CNG +
+Super 13H hydrogen ICE + Scania BEV + PHEV DC09 + Opticruise G25/G33
+12-speed AMT + Active Prediction GPS-aware + Scania One TCU + SDP3.
+
 ## [3.72.0] - 2026-05-08 — MAN Truck & Bus ~22% ODIS, ~4,900 entries (Traton Group)
 
 D08/D20/D26/D38/D15 + E3876 NG + D38H hydrogen ICE + eTruck eTGX/
