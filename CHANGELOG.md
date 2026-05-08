@@ -7,6 +7,254 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.41.0] - 2026-05-08 — BMW final pre-commercial-ceiling pass (~42% ODIS, 7932 entries)
+
+Final BMW push toward public-source ceiling (~40-45% non-commercial).
+Adds 2,337 entries focused on the coding-blocks gap and final long-tail.
+
+| Section | v3.40 | v3.41 | Change |
+|---|---|---|---|
+| ECUs | 138 | **138** | — |
+| DIDs | 2,070 | **2,070** | — |
+| Routines | 203 | **203** | — |
+| Coding blocks | 8 (77 fields) | **43 (414 fields)** | +35 / +337 |
+| Adaptations | 156 | **198** | +42 |
+| Actuator tests | 151 | **151** | — |
+| Live PIDs | 69 | **69** | — |
+| DTC extended-data | 2,800 | **5,060** | +2,260 |
+
+### Coding blocks (+35 / +337 fields)
+BDC general (auto-lock/unlock policy, comfort open/close, dome
+behaviour), FEM window extended (4-door one-touch + anti-pinch +
+rain close + travel/kid lock + comfort speed), FEM central lock +
+alarm (full alarm zone bitmap + dynamic blink + transport mode),
+FRM lighting extended (welcome/leaving choreography + dynamic turn
++ matrix high-beam + glare-free + adaptive cornering + highway/city/
+weather/intersection light + travel-mode swap + laser + OLED rear +
+dynamic DRL), KAFAS Lane Assist extended (haptic/audio/visual warning
++ active steering + Emergency Assist + trained parking + highway
+assist + min/max speed), FRR ACC extended (Stop&Go + curve + speed-
+limit + predictive + lane-change + default distance + speed), KAFAS
+AEB extended (pedestrian + cyclist + intersection + reverse + evasive
++ warn lead), IHKA zones extended (4 zones + sync + auto-recirc +
+residual heat + aux heater + heat pump + ionizer + perfume + solar +
+auto-demist + blower max), EV charge features extended (ISO 15118 +
+DIN 70121 + CCS Combo 1+2 + CHAdeMO + NACS + V2G/V2L/V2H + smart
+grid + solar + max DC), EV thermal strategy (preheat per route + DC
+charge preheat + aggressive cooling + battery-friendly + heat-pump
+priority + max charge temp), cluster features (HUD + AR HUD + digital
++ curved + OLED + track-mode + driver-coaching + speed-limit/eco/
+charge/regen/nav/phone/media overlays + brightness), iDrive features
+(CarPlay + AA wired/wireless + 5GHz hotspot + voice wake-word +
+local DNN + cloud + profile sync + app store + video + browser +
+games + rear-pax apps + split screen + widget layout), sport diff
+(torque vectoring + track-mode aggressive + dyn traction + default
+lockup), active steering (velocity-dependent + track-mode direct +
+default ratio), exhaust flap (track always open + sport open + manual
+button + open threshold rpm), launch control (count limit + max rpm),
+surround view (top-down + 3D + transparent hood + side obstacle +
+rear cross traffic + collision warn + default view), driver attention
+(phone-use + drowsiness + hands-off + gaze tracking + seatbelt check
++ warn threshold), gesture control (volume + call + nav zoom + 3
+custom gestures), AR HUD (nav/speed/ACC/lane/warning overlays +
+brightness), tow hitch (electric + recognition + brake assist + sway
++ park assist + max trailer kg), driver massage (vitalisation +
+relaxation + warming + Active Well-Being + default intensity), driver
+seat climate (heat + vent + chill + auto-with-climate + zones +
+default level), panoramic roof (Sky Lounge LED + electrochromic +
+anti-pinch + auto rain + comfort + comfort speed), alarm extended
+(full per-door switch bitmap + transport + garage + convertible mode +
+duration), Comfort Access keyless (UWB + digital key + kick-to-open +
+walk-away + approach + driver-only + walk-away distance), EHC air
+suspension (self-levelling + aero drop + lift + loading + kneel + aero
+drop speed), AR glasses (nav/call/media overlay), V2X / Car2X (V2V/
+V2I/V2P/V2G/V2L/V2H + DSRC/C-V2X radio + warn distance), OTA features
+(auto-install + Wi-Fi only + metered + signed-only + rollback + min
+battery), HSM features (secure boot + sec log + intrusion + anti-theft
++ seedkey + flash protection + level), FoD bitmap (15 features),
+matrix headlight pixels, IHKU aux rear climate (zones + blower +
+displays integration), Executive Lounge (rear recline + footrest +
+table + console + displays + audio + default recline %).
+
+### Adaptations (+42)
+Cruise overspeed/underspeed buffers + speed-limiter default, auto
+high-beam threshold + min speed, cornering max speed + min angle,
+welcome/leaving light proximity, park-assist (max speed + warn dist
++ volume + freq), reverse audio attenuation, trailer (brake gain +
+sway sensitivity + max kg + tongue kg), fuel + EV range/charge
+warnings, auto-wipe + auto-light sensitivity, memory parking slots
++ trained parking max, blind-spot lead + haptic, night-vision
+threshold + max speed, driver-attention warn threshold + max
+session min, Car2X warn distance, massage program/intensity defaults
+(driver + passenger), seat climate defaults, perfume intensity +
+pulse interval, ionizer default, chilled cup-holder target.
+
+### DTC ext-data (+2,260) — third long-tail sweep
+P-codes round 3 with 6 record types (occurrence + aging + miles_since_cleared + oem_status_byte + environmental_data + freeze_frame_template), B+C codes round 2.
+
+## [3.40.0] - 2026-05-08 — BMW second-pass deep push (~37% ODIS, 5595 entries)
+
+Continuing the BMW catalog push toward ~40-45% ceiling. Adds 2,744 entries:
+
+| Section | v3.39 | v3.40 | Change |
+|---|---|---|---|
+| ECUs | 78 | **138** | +60 |
+| DIDs | 1,254 | **2,070** | +816 |
+| Routines | 107 | **203** | +96 |
+| Coding blocks | 8 | **8** | — |
+| Adaptations | 79 | **156** | +77 |
+| Actuator tests | 87 | **151** | +64 |
+| Live PIDs | 46 | **69** | +23 |
+| DTC extended-data | 1,192 | **2,800** | +1,608 |
+
+### New ECUs (+60)
+KAS (Comfort Access), RICOM, AMK (Active Anti-Roll), EHPS, FZD,
+gestik (gesture), ICTM, gestik-3D (iX), 9 M-specific ECUs (sport
+diff, ARS active steer, exhaust flap, launch coord, drift analyzer,
+laptimer, data recorder, M3/M4/M5/M8 specific), top-tier amplifiers
+(B&W Diamond, HK Logic7), zonal architecture (5 domain controllers,
+ethernet switch TSN, OTA master, crypto/HSM, Car2X radio, V2X
+controller), wireless charging (Qi), AR HUD, AR glasses interface,
+GPU module, passenger + rear screens, massage modules, seat-climate
+modules, sky lounge, executive lounge, perfume dispenser, ionizer,
+power glovebox, power trunk, tow hitch, sliding doors L+R, chilled
+cup-holder, curved-screen controller.
+
+### Engine variant DIDs (+112)
+14 engine families × 8 fields each: B38, B47, B48, B58, B57, N20,
+N55, S55, S58, S63, S68, N63, N74, B68 — displacement, max power +
+torque, redline, compression ratio, bore, stroke, weight.
+
+### Transmission variants (+128)
+8 variants × 16 fields: ZF 8HP45/50/70/75/76/90, M DCT 7-spd,
+xDrive transfer case — oil type code, capacity, supplier, HW
+revision, SW train, oil age + temp extremes, lifetime shifts +
+clutch engagements + TCC lockup + manual-mode distance + kickdown
++ launch + over-torque + limp-home counts.
+
+### iDrive head-unit generations (+128)
+8 generations × 16 fields: CIC, NBT, NBT EVO, ID4-8 — HW part no,
+SW train, map version + region, SSD total + free, RAM, SoC temp,
+uptime, boot count, OTA status + progress, voice/nav/media/
+connectivity-box engine versions.
+
+### Per-corner suspension extended (+32)
+4 corners × 8 fields: velocity, compressor branch runtime, damper
+actuator temp, air-spring chamber 1-4 pressures, levelling offset.
+
+### Per-bank engine deep (+64)
+2 banks × 32 fields: turbo speed/inlet/outlet temp, intercooler
+in/out, MAP, boost, wastegate duty + pos, VGT, EGR, throttle,
+intake runner, HP+LP fuel rail, fuel pump duty, injector duration,
+ignition advance, knock corr, O2 short+long trim, cat efficiency,
+DPF soot+ash+pressure-drop+temp in/out, SCR NOx in/out + efficiency,
+EGR cooler temp, oxidation cat temp.
+
+### Bank-2 O2 sensors (+16) — V8/V12
+
+### IHKA deep (+14)
+Solar intensity L+R + position, evap pressure, compressor
+displacement + clutch state, aux heater glow plug + fuel
+consumption + lifetime runtime, pollen filter age, air quality
+CO + NOx, cabin pressure delta.
+
+### KAFAS lane stack (+32)
+4 lanes × 8 fields: detection quality, curvature, offset, width,
+marking type, color, age, confidence.
+
+### Traffic-sign recognition (+32)
+8 detected signs × 4 fields: class, value, distance, confidence.
+
+### Per-camera lens shading (+24)
+6 cameras × 4 fields: shading correction, white balance R|G|B,
+lens temp, blockage.
+
+### Per-radar waveform (+40)
+5 radars × 8 fields: chirp bandwidth, chirp duration, TX power,
+blockage, h-align, v-align, temp, supply.
+
+### Premium audio (+21)
+Per-channel gains (FL/FR/RL/RR/center/sub/surround/height L+R),
+amp temp/supply/total power, DSP load, 7-band EQ.
+
+### Per-key UWB extended (+32)
+8 keys × 4 fields: UWB ranging distance, AoA, RSSI, pairing count.
+
+### Per-ECU programming + signature (+96)
+24 ECUs × 4 fields: programming attempts, SW checksum SHA1,
+signature status, last successful programming epoch.
+
+### BMW Function-on-Demand (+30)
+15 features × 2 DIDs: adaptive lights, CarPlay, AA wireless,
+hotspot, TSR, Driving Assistant Pro, Parking Plus, remote engine
+start, real-time traffic, nav premium, ConnectedDrive app,
+teleservices, premium audio unlock, heated seats unlock, heated
+steering wheel unlock — active flag + expiry epoch.
+
+### Bus topology (+15)
+PT-CAN/K-CAN/D-CAN/LIN/FlexRay/MOST/Ethernet node bitmaps + bus
+load + bus-off errors + Ethernet link speed + packet drops.
+
+### Routines (+96)
+Per-wheel ABS bleed, ZF deep (5 clutches + TC + basic + oil-fill),
+xDrive transfer-case clutch adapt, sensor static calibrations
+(SAS, yaw, long+lat G, brake pressure), ride-height calib + low/high,
+matrix pixel calib L+R, laser alignment L+R, OLED tail calib,
+welcome/leaving choreography setup, KAFAS extended dyn+static,
+surround camera + driver camera + gesture + AR HUD + blind-spot
+calibrations, ultrasonic + night-vision, KESSY UWB recalibrate +
+digital-key phone pair + valet + track-mode PIN reset, aux heater
+burn-off + fuel-quality recal, heat-pump efficiency, evap drain,
+EV deep (module-specific balance, capacity relearn, pyro continuity,
+ISO 15118 + DIN 70121 handshake test, three-phase + resolver),
+network/programming (FA, I-Stufe, SGBM, CAFD, FDL diff apply, OTA
+check/install/rollback, HSM provision/zeroize, secure log export),
+domain self-tests (PT, chassis, body, ADAS, infotainment), ethernet
+switch self-test, Car2X self-test, wireless charging calibrate, FoD
+subscription refresh, M-specific (Drift Analyser reset, Laptimer
+reset, data recorder export, sport-diff calibrate, exhaust flap
+calibrate, launch-control relearn), body/comfort (panoramic roof,
+convertible top open/close, glovebox, power trunk, tow hitch,
+sliding doors L+R, massage demos L+R, seat-climate tests, perfume,
+ionizer).
+
+### Adaptations (+77)
+Engine deep (torque curve, throttle response, dynamic overboost,
+overrun fuel-cut delay, cold-start strategy, warmup target, lambda
+target full load, e-boost target, alternator idle load, A/C
+compressor max load), transmission (sport aggression, DPF avoidance,
+manual hold, paddle priority), DSC (traction threshold, dynamic
+traction unlock), EHC (self-levelling, lift speed, aero drop), ARS
+default ratio, sport-diff lockup, exhaust flap rpm, launch max rpm,
+EHPS (assist curve, return force, velocity-dependent), KAFAS
+extended (lane-centring offset, speed-limit assist, construction
+zone, no-overtake), FRR extended (hands-off lead, Emergency Assist,
+TJA, Extended TJA Level 2, Highway Assistant, lane-change), matrix
+anti-glare, OLED rear default, welcome+leaving anim, ambient color +
+speed-dependent + dynamic mode, IHKA (blower curve, solar, humidity,
+recirc CO+NOx thresholds, aux heater enable temp), EV charging
+(pre-condition unlocks, max DC+AC limits, charge curves), recuperation
+defaults, B-mode, EV creep, comfort (CKM profiles, per-key, auto
+recalls), OTA (check interval, min battery, install windows, metered,
+signed-only, rollback), HSM (secure boot, intrusion detect, seed-key
+level).
+
+### Actuator tests (+64)
+M sport (exhaust flap open/close, sport diff engage, active-steer,
+launch-control), body/comfort (pan roof, conv top, glovebox, trunk,
+tow hitch, sliding doors L+R, massage demos, seat-climate demos,
+perfume, ionizer, chilled cup-holder), lighting deep (matrix sweep,
+laser pulse, OLED choreography, welcome+leaving demos, ambient
+red/green/blue/chase), ADAS deep (KAFAS dyn, FRR blockage, side
+radar L+R, surround sweep, driver camera, gesture, AR HUD test,
+blind-spot indicators, ultrasonic sweep), domain controllers + zonal
+(5 domain tests, ethernet switch loopback, Car2X test, wireless
+charging, AR glasses, AR HUD full calib, passenger+rear screens),
+OTA (install force, rollback force), HSM self-test.
+
+### DTC ext-data (+1,608) — long-tail
+P-codes broad sweep across P05xx-P0Fxx + P18xx-P2Dxx, B-codes round 2 (1400-2800), U-codes round 2 (0300-3200) — each × 4 record types.
+
 ## [3.39.0] - 2026-05-08 — JSON-only architecture for all 45 OEMs + BMW deep-push (~28% ODIS)
 
 Two coordinated changes:
