@@ -89,17 +89,33 @@ jobs:
           done < <(find src tests -name '*.pas' 2>/dev/null)
           exit $fail
 
-      - name: Lint catalogs
+      - name: No duplicate primary keys in catalog JSON
         shell: bash
         run: |
           set -euo pipefail
-          # The lint script runs against every catalog file in
-          # catalogs/, validates schema-shaped fields, asserts no
-          # duplicate primary keys, checks coding-block bit-offset
-          # bounds against payload_size, and validates ECU-address
-          # cross-references. Fails on any error; warnings are
-          # surfaced but don't fail unless --strict is requested.
-          python3 tools/lint_catalogs.py
+          # Lightweight integrity check: every section that has a
+          # primary key (ecus.address, dids.did, routines.id,
+          # coding_blocks.did, adaptations.channel,
+          # actuator_tests.id, dtcs.code) must be unique within its
+          # catalog. Heavier structural validation (schema, bit-level
+          # coding-block bounds, cross-section ECU resolution) is
+          # exercised by Tests.OEM.CatalogIntegrity (DUnitX).
+          fail=0
+          while IFS= read -r f; do
+            # Use grep + sort/uniq instead of jq — keeps the runner
+            # dependency-free.
+            for field in '"address"' '"did"' '"id"' '"channel"' '"code"'; do
+              dups=$(grep -E "^[[:space:]]*$field[[:space:]]*:" "$f" \
+                       | sort | uniq -d || true)
+              if [ -n "$dups" ]; then
+                echo "::error file=$f::duplicate $field values:"
+                echo "$dups"
+                fail=1
+              fi
+            done
+          done < <(find catalogs -name '*.json' -not -path '*/_schema/*' \
+                                 -not -name 'test-*.json')
+          exit $fail
 
   # ------------------------------------------------------------------
   # Build + DUnitX. Requires a self-hosted runner with Delphi 11+ and

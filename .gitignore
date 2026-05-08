@@ -80,6 +80,3 @@ Visual_1.res
 Visual_1.dproj
 Visual_1.dpk
 
-# Python bytecode caches (tools/)
-__pycache__/
-*.pyc
