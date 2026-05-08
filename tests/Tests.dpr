@@ -74,6 +74,7 @@ uses
   Tests.OEM.UdsClient in 'Tests.OEM.UdsClient.pas',
   Tests.OEM.DTC.Schema in 'Tests.OEM.DTC.Schema.pas',
   Tests.OEM.CatalogIntegrity in 'Tests.OEM.CatalogIntegrity.pas',
+  Tests.OEM.SchemaShape in 'Tests.OEM.SchemaShape.pas',
   Tests.OEM.VW.Deep in 'Tests.OEM.VW.Deep.pas';
 
 {$IFNDEF TESTINSIGHT}

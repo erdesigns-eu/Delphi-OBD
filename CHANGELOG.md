@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.78.0] - 2026-05-08 — Production-quality gap pass + Phase B vehicle classes
+
+Phase D (DTC content): expanded `dtc_extended_data` across 47 OEM
+catalogs (1,282 entries) with the v3.77 schema fields (symptoms,
+repair_guidance, monitor_type, freeze_frame_relevant, related_dids,
+related_routines, oem_bulletin). Phase E (DoIP transport): unit body
+guarded with `{$IFDEF MSWINDOWS}`, `SendReceive` alive-check loop
+bounded to 16 frames per call. Phase F.1-F.3 (UDS client):
+`OBD.OEM.UdsClient` async-friendly facade — OpenSession / ReadDID /
+WriteAdaptation / ExecuteRoutine / ReadCodingBlock / WriteCodingBlock
+/ RunActuatorTest / ReadDtcs / StreamLivePIDs, with ASCII-empty-
+payload guard and tightened bounds enforcement (no longer skipped
+when min=max=0).
+
+Phase A (schema/JSON Schema): `catalogs/_schema/oem-catalog-v2.json`
+shipped + new `Tests.OEM.SchemaShape` walks every catalog asserting
+WMI regex, decoder/field/adaptation kind enums, DTC code formats
+(SAE J2012 + J1939 SPN-FMI + 22 OEM prefixes), non-empty manufacturer
+keys and version 1/2 bound. Phase C (catalog integrity):
+`Tests.OEM.CatalogIntegrity` covers coding-block payload bounds,
+cross-section ECU references, and duplicate primary keys — replaces
+the deleted Python lint.
+
+Phase B (vehicle classes, 33 new OEM catalogs, ~50,000 entries):
+- Motorcycles (14): Ducati, Harley-Davidson, Triumph, BMW Motorrad,
+  KTM, Yamaha-moto, Honda-moto, Kawasaki, Suzuki-moto, Indian
+  Motorcycle, Royal Enfield, MV Agusta, Aprilia, Husqvarna-moto.
+- Agricultural (8): John Deere, CNH, Caterpillar-Agri, Komatsu,
+  Kubota, AGCO, Claas, Volvo CE.
+- Marine (6): Mercury Marine, Volvo Penta, Yanmar Marine, MTU,
+  Cummins Marine, Yamaha Marine.
+- Powersports (5): Polaris, Can-Am/BRP, Arctic Cat, Yamaha
+  WaveRunner, Kawasaki Jet Ski.
+
+Each backed by `OBD.OEM.{Motorcycles,Agricultural,Marine,
+Powersports}.pas`, registered at unit init, wired into RunTime.dpk
++ RunTime.dproj. `ResolveCatalogPath` probes vehicle-class subdirs
+after the top level. `AllOEMCatalogsLoadFromDirectory` recurses with
+`TSearchOption.soAllDirectories`; threshold raised to ≥70 catalogs.
+
+Cleanup: removed all 8 Python lint scripts (this is a Delphi
+repository); CI lint replaced with bash one-liner + the Delphi
+`Tests.OEM.CatalogIntegrity` fixture. 36 catalogs re-deduped on
+normalised integer ECU addresses; 9 coding-block payloads bumped;
+59 implicit ECU references promoted to explicit `ecus[]` entries.
+
+Total: 79 OEM catalogs / 247,279 entries / 5 vehicle classes.
+
 ## [3.76.0] - 2026-05-08 — Isuzu Motors ~18% ODIS, ~4,800 entries
 
 RZ4E 1.9 diesel + DDi 3.0 Blue Power + 4HK1 5.2 + 6HK1 7.8 + 6UZ1

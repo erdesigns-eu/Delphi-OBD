@@ -29,6 +29,12 @@ type
     [Test] procedure WriteAdaptation_PacksUInt16BE;
     [Test] procedure WriteAdaptation_RejectsOutOfRange;
     [Test] procedure WriteAdaptation_RaisesOnUnknownChannel;
+    /// <summary>Regression for G6 — when a catalog declares
+    /// min=0, max=0 explicitly (e.g. an enum pinned to a single
+    /// legal value), only Value=0 must be accepted. The earlier
+    /// implementation skipped validation entirely when both
+    /// bounds were zero and would have let any value through.</summary>
+    [Test] procedure WriteAdaptation_FixedZeroEnforced;
 
     [Test] procedure ExecuteRoutine_StartsAndReturnsOk;
     [Test] procedure ExecuteRoutine_ReportsUnexpectedResponse;
@@ -431,6 +437,43 @@ begin
     begin
       // idle_target min=600 max=1500
       Client.WriteAdaptation('idle_target', 5000);
+    end, EOBDUdsValidation);
+  finally
+    Catalog.Free;
+  end;
+end;
+
+procedure TUdsClientTests.WriteAdaptation_FixedZeroEnforced;
+const
+  PINNED_CATALOG =
+    '{"version": 1, "manufacturer_key": "PIN", "display_name": "Pin",' +
+    ' "applicable_wmis": [],' +
+    ' "ecus": [{"address": "0x7E0", "name": "ecm", "common_name": "ECM"}],' +
+    ' "adaptations": [' +
+    '   {"channel": "0x0500", "name": "factory_pin",' +
+    '    "description": "Pinned to 0",' +
+    '    "ecu_address": "0x7E0",' +
+    '    "kind": "uint8", "min": 0, "max": 0, "default": 0}' +
+    ' ]}';
+var
+  Catalog: TOBDOEMJSONCatalog;
+  Transport: TMockTransport;
+  ITransport: IOBDDiagnosticTransport;
+  Client: IOBDUdsClient;
+begin
+  Catalog := MakeCatalog(PINNED_CATALOG);
+  Client := CreateUdsClient;
+  try
+    NewMock(Transport, ITransport);
+    Client.OpenSession(Catalog, ITransport, $7E0);
+    // Value=0 must be accepted (with a positive WDBI response).
+    Transport.EnqueueResponse([$6E, $05, $00]);
+    Assert.IsTrue(Client.WriteAdaptation('factory_pin', 0));
+    // Value=1 must be rejected — even though both bounds are 0,
+    // the catalog explicitly declared them.
+    Assert.WillRaise(procedure
+    begin
+      Client.WriteAdaptation('factory_pin', 1);
     end, EOBDUdsValidation);
   finally
     Catalog.Free;

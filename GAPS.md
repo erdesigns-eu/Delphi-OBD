@@ -68,17 +68,14 @@ revision; flagged as future work in the unit's docstring.
 `DecodePayloadAs` for `dkAscii` now checks `Length(Payload) > 0`
 before taking `@Payload[0]`.
 
-### G6. `OBD.OEM.UdsClient.WriteAdaptation` validation skips when min=max=0
+### G6. ✅ FIXED — `WriteAdaptation`/`WriteCodingBlock` always validate bounds
 
-Current logic:
-```pascal
-if (Entry.MinValue <> 0) or (Entry.MaxValue <> 0) then
-  if (Value < Entry.MinValue) or (Value > Entry.MaxValue) then ...
-```
-A catalog with `min=0, max=0` (i.e. an enum that only allows the value
-0) bypasses validation entirely. Fix: validate whenever the catalog
-loaded a non-default min/max. Currently the loader uses `Default(...)`
-so 0 means "not set," but the boundary case is sloppy.
+The `<> 0` guard has been removed in both methods. The JSON loader
+uses `Low(Int64)`/`High(Int64)` as the "absent" sentinels, so
+unbounded fields validate as a no-op while explicit `min=0, max=0`
+now correctly enforces that the only legal value is 0. Regression
+test `WriteAdaptation_FixedZeroEnforced` added to
+`Tests.OEM.UdsClient` with a pinned in-memory catalog.
 
 ### G8. `Tests.OEM.UdsClient` mock-transport ARC pattern is fragile
 
@@ -90,11 +87,12 @@ to make `TMockTransport` derive from a non-counted base
 (`TSingletonImplementation` or override `_AddRef`/`_Release` to no-ops
 for tests).
 
-### G9. `Tests.OEM.DTC.Schema.ResolveCatalogPath` is duplicated
+### G9. ✅ FIXED — `ResolveCatalogPath` consolidated
 
-Same helper exists in `Tests.OEM.CatalogSmoke.ResolveCatalogPath` and
-`OBD.OEM.Catalog.Loader.ResolveCatalogPath`. Should consolidate or
-let the test reuse the loader's exported helper.
+`Tests.OEM.DTC.Schema` and `Tests.OEM.CatalogSmoke` both now call
+`OBD.OEM.Catalog.Loader.ResolveCatalogPath`. The duplicate local
+helpers were deleted; tests stay in lock-step with production search
+logic.
 
 ## Documentation / context (lower priority)
 
@@ -104,14 +102,16 @@ I added `Phase E/F/A/C/B` commits but didn't fold them into
 `CHANGELOG.md` / `docs/ROADMAP.md` with a v3.78+ tag, the way every
 prior catalog-depth pass did (v3.39 → v3.76).
 
-### G11. JSON Schema not validated against the catalogs at runtime
+### G11. ✅ FIXED — Per-field type/format validation added
 
-`catalogs/_schema/oem-catalog-v2.json` exists but nothing in the
-Delphi side actually validates against it. The new
-`Tests.OEM.CatalogIntegrity` covers the structural invariants the
-schema would catch, but a true JSON-Schema validator (per-type field
-checks) isn't wired up. Out-of-scope for this pass; flagged for
-future work.
+`Tests.OEM.SchemaShape` walks every shipped OEM catalog and asserts
+the field-level constraints the JSON Schema would catch:
+WMI codes match `^[A-Z0-9]{3}$`, `decoder.kind` / `field.kind` /
+`adaptation.kind` use one of the recognised enum tags, DTC codes
+match SAE J2012 (P/C/B/U) or J1939 SPN-FMI or one of the 22 OEM
+prefixes the CI lint allows, manufacturer keys are non-empty, and
+the schema version is 1 or 2. A full third-party JSON-Schema
+validator is still out of scope, but the practical gap is closed.
 
 ### G12. Phase F.4 (DoIP TLS) and F.5 (self-loop integration test) deferred
 

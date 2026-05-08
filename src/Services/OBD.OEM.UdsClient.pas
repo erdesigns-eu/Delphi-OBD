@@ -1032,12 +1032,15 @@ begin
   EnsureOpen;
   Channel := ResolveAdaptation(FCatalog, ChannelOrHex, Entry);
   Kind := ParseAdaptationKind(Entry.KindStr);
-  // Validate against catalog min/max.
-  if (Entry.MinValue <> 0) or (Entry.MaxValue <> 0) then
-    if (Value < Entry.MinValue) or (Value > Entry.MaxValue) then
-      raise EOBDUdsValidation.CreateFmt(
-        'adaptation %s = %d outside [%d..%d]',
-        [Entry.Name, Value, Entry.MinValue, Entry.MaxValue]);
+  // Always validate against the catalog bounds. The JSON loader uses
+  // Low(Int64)/High(Int64) as the "absent" sentinels, so unbounded
+  // fields validate as a no-op; explicit min=0,max=0 (e.g. an enum
+  // pinned to a single legal value) still gets enforced — closing
+  // the gap left by the previous "skip when both are zero" check.
+  if (Value < Entry.MinValue) or (Value > Entry.MaxValue) then
+    raise EOBDUdsValidation.CreateFmt(
+      'adaptation %s = %d outside [%d..%d]',
+      [Entry.Name, Value, Entry.MinValue, Entry.MaxValue]);
   // Pack the value per adaptation kind.
   case Kind of
     adkUInt8,
@@ -1190,11 +1193,14 @@ begin
       Width := FieldBitWidth(Field);
       // Validate min/max if specified.
       var V: Int64 := Values.GetInt(Field.Name);
-      if (Field.MinValue <> 0) or (Field.MaxValue <> 0) then
-        if (V < Field.MinValue) or (V > Field.MaxValue) then
-          raise EOBDUdsValidation.CreateFmt(
-            'coding field %s = %d outside [%d..%d]',
-            [Field.Name, V, Field.MinValue, Field.MaxValue]);
+      // Always validate. The JSON loader populates absent min/max
+      // with Low(Int64)/High(Int64), so unbounded fields are
+      // no-ops while explicit min=max=0 (e.g. a fixed bit) is
+      // still enforced.
+      if (V < Field.MinValue) or (V > Field.MaxValue) then
+        raise EOBDUdsValidation.CreateFmt(
+          'coding field %s = %d outside [%d..%d]',
+          [Field.Name, V, Field.MinValue, Field.MaxValue]);
       PackBits(Payload, Field.ByteOffset, Field.BitOffset, Width, V);
     end;
   end;

@@ -39,7 +39,7 @@ implementation
 
 uses
   System.SysUtils, System.IOUtils, System.Classes,
-  OBD.OEM.DTC;
+  OBD.OEM.DTC, OBD.OEM.Catalog.Loader;
 
 const
   DTC_WITH_NEW_FIELDS =
@@ -134,25 +134,16 @@ begin
   Assert.AreEqual('non_continuous', FormatMonitorType(dmtNonContinuous));
 end;
 
-function ResolveCatalogPath(const FileName: string): string;
-var
-  Candidate: string;
-begin
-  Candidate := TPath.Combine(TPath.Combine(GetCurrentDir, 'catalogs'),
-                              FileName);
-  if TFile.Exists(Candidate) then Exit(Candidate);
-  Candidate := TPath.Combine(TPath.Combine(GetCurrentDir, '..'),
-                              TPath.Combine('catalogs', FileName));
-  Result := TPath.GetFullPath(Candidate);
-end;
-
+// G9 (closed): use the loader's exported ResolveCatalogPath
+// rather than re-implementing the search-path logic here. Keeps
+// tests in lock-step with production.
 procedure LoadShippedDtcCatalog(const FileName: string;
                                  Cat: TOBDDtcCatalog);
 var
   Path: string;
 begin
   Path := ResolveCatalogPath(FileName);
-  if not TFile.Exists(Path) then
+  if Path = '' then
     Assert.Pass(FileName + ' not on path; skipping');
   Cat.LoadFromFile(Path);
 end;

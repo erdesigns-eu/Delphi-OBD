@@ -90,17 +90,19 @@ implementation
 
 uses
   System.SysUtils, System.IOUtils,
-  OBD.OEM.Catalog.JSON, OBD.OEM.DTC;
+  OBD.OEM.Catalog.JSON, OBD.OEM.Catalog.Loader, OBD.OEM.DTC;
 
-function ResolveCatalogPath(const FileName: string): string;
-var
-  Candidate: string;
+// G9 (closed): the local helper used to duplicate
+// OBD.OEM.Catalog.Loader.ResolveCatalogPath. We now delegate to the
+// loader's exported function so the test sees the same search path
+// (including the v3.77 vehicle-class subdirectories) as production
+// code does. Retained as a thin wrapper for the loader miss case
+// where Tests want to surface a clearer skip message.
+function LocateCatalogOrSkip(const FileName: string): string;
 begin
-  Candidate := TPath.Combine(TPath.Combine(GetCurrentDir, 'catalogs'), FileName);
-  if TFile.Exists(Candidate) then Exit(Candidate);
-  Candidate := TPath.Combine(TPath.Combine(GetCurrentDir, '..'),
-    TPath.Combine('catalogs', FileName));
-  Result := TPath.GetFullPath(Candidate);
+  Result := ResolveCatalogPath(FileName);
+  if Result = '' then
+    Assert.Pass(Format('catalog %s not on path; skipping', [FileName]));
 end;
 
 procedure SmokeLoad(const FileName: string;
@@ -109,9 +111,7 @@ var
   Cat: TOBDOEMJSONCatalog;
   Path: string;
 begin
-  Path := ResolveCatalogPath(FileName);
-  if not TFile.Exists(Path) then
-    Assert.Pass('catalog ' + FileName + ' not on path; skipping');
+  Path := LocateCatalogOrSkip(FileName);
   Cat := TOBDOEMJSONCatalog.Create(Path);
   try
     if RequireManufacturerKey then
@@ -129,9 +129,7 @@ var
   Cat: TOBDDtcCatalog;
   Path: string;
 begin
-  Path := ResolveCatalogPath(FileName);
-  if not TFile.Exists(Path) then
-    Assert.Pass('catalog ' + FileName + ' not on path; skipping');
+  Path := LocateCatalogOrSkip(FileName);
   Cat := TOBDDtcCatalog.Create;
   try
     Cat.LoadFromFile(Path);
