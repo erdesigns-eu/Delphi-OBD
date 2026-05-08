@@ -130,70 +130,21 @@ function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;
 function TOBDOEMExtensionVW.DisplayName: string; begin Result := 'Volkswagen Audi Group'; end;
 
 function TOBDOEMExtensionVW.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // VW: WVW (passenger), WV1/WV2 (commercial)
-  // Audi: WAU, TRU
-  // Skoda: TMB
-  // SEAT: VSS
-  Result := (WMI = 'WVW') or (WMI = 'WV1') or (WMI = 'WV2') or
-            (WMI = 'WAU') or (WMI = 'TRU') or
-            (WMI = 'TMB') or (WMI = 'VSS');
+  // v3.31 — JSON-only. The applicable_wmis list lives in vw.json,
+  // so adding / removing a brand WMI is a JSON edit, no recompile.
+  Result := VINMatchesCatalog('vw.json', VIN);
 end;
 
 procedure TOBDOEMExtensionVW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // VAG ECU bus map. The 0x7Ex set is the ISO 15765-4 11-bit physical
-  // request range; VAG-specific addresses (0x71x, 0x72x, 0x74x) come
-  // from the public ross-tech / VCDS module-address tables. A
-  // production deployment overlays these via vw.json's `ecus` block.
-  ECUs := [
-    ECU($7E0, 'engine',         'Engine ECU'),
-    ECU($7E1, 'transmission',   'Transmission ECU'),
-    ECU($7E2, 'body',           'Body Control Module'),
-    ECU($710, 'abs',            'ABS / ESP'),
-    ECU($712, 'steering_angle', 'Steering Angle Sensor'),
-    ECU($714, 'cluster',        'Instrument Cluster (KOMBI)'),
-    ECU($740, 'climate',        'Climate Control'),
-    ECU($744, 'gateway',        'CAN Gateway')
-  ];
-
-  // Common VAG UDS DIDs. These are documented in the public ODX-D
-  // descriptors that ship with VAG diagnostic tools (reference only —
-  // exact semantics vary by ECU and model year).
-  DIDs := [
-    DID($F186, 'active_diagnostic_session',         'Currently active UDS session'),
-    DID($F187, 'spare_part_number',                 'VAG hardware part number'),
-    DID($F189, 'sw_version_number',                 'Software version'),
-    DID($F18A, 'system_supplier_identifier',        'ECU supplier id'),
-    DID($F18C, 'ecu_serial_number',                 'ECU serial'),
-    DID($F190, 'vin',                               'Vehicle identification number'),
-    DID($F191, 'vehicle_manufacturer_ecu_hw_number','VAG hardware revision'),
-    DID($F195, 'system_supplier_ecu_sw_version',    'Supplier software version'),
-    DID($F197, 'system_name',                       'ECU long name'),
-    DID($F1A0, 'long_coding',                       'Long-coding bytes'),
-    DID($F40D, 'vehicle_speed',                     'Speed in km/h'),
-    DID($F405, 'battery_voltage',                   'Battery voltage (mV)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_long_term_fuel_trim',  'Reset adaptive trims'),
-    Routine($0301, 'basic_setting',              'VAG basic setting routine'),
-    Routine($0302, 'output_test',                'VAG output test'),
-    Routine($FF00, 'erase_memory',               'Pre-flash erase')
-  ];
-
-  // Merge JSON catalog overrides + extensions. JSON entries win on
-  // conflict; missing files leave the hard-coded set untouched.
+  // v3.31 — JSON-only. No hardcoded ECU / DID / Routine arrays in
+  // Pascal. The vw.json catalog is the sole source of truth so
+  // updates ship as JSON edits, no recompile needed, and porting to
+  // other languages only requires a JSON parser.
   MergeCatalogJSON('vw.json', DIDs, Routines, ECUs);
-  // v3.30 Phase B — also load the extended catalog's flat-section
-  // additions (per-ECU DIDs, more routines, more ECUs).
-  MergeCatalogJSON('vw-extended.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
@@ -204,9 +155,9 @@ procedure TOBDOEMExtensionVW.BuildExtendedCatalog(
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  // v3.30 Phase B — coding blocks, adaptations, actuator tests, live
-  // PIDs and DTC extended-data records all live in vw-extended.json.
-  MergeExtendedCatalogJSON('vw-extended.json',
+  // v3.31 — coding blocks, adaptations, actuator tests, live PIDs
+  // and DTC extended-data records all live in vw.json.
+  MergeExtendedCatalogJSON('vw.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
 

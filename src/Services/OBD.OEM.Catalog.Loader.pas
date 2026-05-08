@@ -77,6 +77,14 @@ procedure MergeExtendedCatalogJSON(const FileName: string;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 
+/// <summary>
+///   v3.31 — JSON-driven VIN routing. Returns True if the catalog's
+///   <c>applicable_wmis</c> array contains the first 3 chars of
+///   <c>VIN</c>. Returns False on missing file, missing array, or
+///   malformed input. Matches case-insensitively.
+/// </summary>
+function VINMatchesCatalog(const FileName, VIN: string): Boolean;
+
 implementation
 
 var
@@ -432,6 +440,31 @@ begin
     end;
   except
     // Same silent-fall-through policy as MergeCatalogJSON.
+  end;
+end;
+
+function VINMatchesCatalog(const FileName, VIN: string): Boolean;
+var
+  Path, WMI, CatalogWMI: string;
+  Catalog: TOBDOEMJSONCatalog;
+  WMIs: TArray<string>;
+begin
+  Result := False;
+  if Length(VIN) < 3 then Exit;
+  WMI := UpperCase(Copy(VIN, 1, 3));
+  Path := ResolveCatalogPath(FileName);
+  if Path = '' then Exit;
+  try
+    Catalog := TOBDOEMJSONCatalog.Create(Path);
+    try
+      WMIs := Catalog.ApplicableWMIs;
+      for CatalogWMI in WMIs do
+        if UpperCase(CatalogWMI) = WMI then Exit(True);
+    finally
+      Catalog.Free;
+    end;
+  except
+    // Silent fall-through.
   end;
 end;
 
