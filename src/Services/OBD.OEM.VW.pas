@@ -38,6 +38,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -185,7 +191,23 @@ begin
   // Merge JSON catalog overrides + extensions. JSON entries win on
   // conflict; missing files leave the hard-coded set untouched.
   MergeCatalogJSON('vw.json', DIDs, Routines, ECUs);
+  // v3.30 Phase B — also load the extended catalog's flat-section
+  // additions (per-ECU DIDs, more routines, more ECUs).
+  MergeCatalogJSON('vw-extended.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
+end;
+
+procedure TOBDOEMExtensionVW.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  // v3.30 Phase B — coding blocks, adaptations, actuator tests, live
+  // PIDs and DTC extended-data records all live in vw-extended.json.
+  MergeExtendedCatalogJSON('vw-extended.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionVW.DecodeDID(const DID: Word;

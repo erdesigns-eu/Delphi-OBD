@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.30.0] - 2026-05-08 — VW Group reference deep-dive (Phase B start)
+
+This is the first OEM brought to the per-ECU enrichment +
+extended-catalog depth that subsequent OEMs will follow as a
+template. VW was chosen because the public diagnostic surface
+(VCDS / Ross-Tech wiki / OBDeleven) is the best-documented in
+the industry — it's where the patterns get validated.
+
+### Added (`catalogs/vw-extended.json` — new file, ~700 lines)
+- **+85 DIDs** beyond `vw.json`'s 41, bringing VW to **126 DIDs total** across **19 ECUs**:
+  - Engine (0x7E0): per-bank lambda (b1s1 / b1s2 / b2s1 / b2s2), short + long fuel trim per bank, ignition advance, per-cylinder knock retard + misfire counters, MAP / MAF / pedal / target throttle, turbo target boost + wastegate position, EGR target + cooler temp, full DPF chain (regen-active flag, inlet temp, outlet temp, diff pressure, distance loaded), AdBlue dosing + SCR inlet temp + outlet NOx + remaining range
+  - Transmission (0x7E1): DSG K1 + K2 clutch pressures, target gear, input + output shaft speeds, torque request to engine, oil quality model %, lifetime shift count
+  - ABS / ESP (0x710): four wheel speeds, lateral g, master brake-cylinder pressure, brake-pad remaining (front + rear), TCS + ESP intervention counters
+  - EPS (0x718): torque request + motor current
+  - Comfort / BCM (0x746): door-open bitmask, lifetime lock count, per-window cycle counts (FL / FR), low-beam + high-beam hours-on
+  - KESSY (0x748): learned-key slot count + last-presented key ID
+  - Cluster (0x714): Trip A + B + long-term distance, average + recent consumption, distance + days to next service, distance to next oil change
+  - Climate (0x740): cabin temperature, left + right zone targets, blower speed, A/C compressor active
+  - EV stack (0x7E5 / 0x7E6 / 0x7E7): pack voltage / SOC / SOH, motor temp, charge status enum, charge power (up to 200 kW DC on ID.x), remaining range
+- **+12 routines**: throttle body alignment, idle relearn, camshaft adaptation, DPF ash reset, 12V battery registration, DSG basic setting, brake-pad reset (front + rear), TPMS relearn, EPS calibration, park-assist calibration, Travel Assist camera + radar calibration
+- **+11 ECUs** registered: Haldex, airbag, EPS, BCM (J393), KESSY, IVI (MIB3 / MIB4), front camera + radar (Travel Assist), TPMS (J502), Park Assist (J791), and the EV evcc / motor / battery trio
+
+### Added (Schema v2 sections in `vw-extended.json`)
+- **6 coding blocks** with **27 fields total**: `vag_bcm_long_coding` (16-byte payload — comfort unlock, auto-lock speed, comfort window close, DRL + DRL-via-high-beam, rear fog, headlight country pattern, coming-home delay), `vag_cluster_long_coding` (needle sweep, language, imperial units, shift indicator, speed warning), `vag_engine_long_coding` (adaptive cruise, start-stop, dual-mass-flywheel, exhaust flap), `vag_climate_long_coding`, `vag_abs_coding` (ESP sport mode, off threshold, brake-disc dry-wipe, trailer mode), `vag_kessy_coding`
+- **15 adaptation channels**: idle RPM target, throttle stop, service-interval distance + days, oil quality remaining, trip-A reset threshold, DRL operating mode, auto-lock speed, comfort window close, audible speed warning, Haldex default torque split, TPMS warning threshold, park-assist warning distance, EV charge target SOC, EV AC charge current limit
+- **12 actuator tests**: cooling fan low + high speed, fuel pump prime, EGR valve step 0-100%, glow-plug heating, ABS pump bleed, window motor (FL up + down), central lock cycle, horn beep, HVAC blower step 0-7, tail lamp test
+- **15 live PIDs**: 14 mode 0x22 streams (MAP, fuel rail pressure, b1s1 lambda, ignition advance, engine load, MAF, DPF diff pressure, FL wheel speed, master brake pressure, EPS torque, cabin temp, EV pack voltage + SOC, EV charge power) + 1 J1979 service01 PID 0x0C (RPM)
+- **11 DTC extended-data records** across P0301-P0304 misfires (occurrence counters), P0420 catalyst (occurrence + aging), P0299 turbo underboost (occurrence + freeze-frame template), P0AA6 HV battery isolation (occurrence + OEM status byte), plus a P0301 `miles_since_cleared` record
+
+### Added (Pascal)
+- `OBD.OEM.VW` overrides the new `BuildExtendedCatalog` hook from v3.29 and calls `MergeExtendedCatalogJSON('vw-extended.json', ...)`. The flat-section additions (DIDs, routines, ECUs) merge through a second `MergeCatalogJSON('vw-extended.json', ...)` call in `BuildCatalog`.
+- `Tests.OEM.VW.Deep` — 17 cases asserting per-ECU DID coverage (lambda per bank, misfire counters, DSG clutch pressures, four wheel speeds, cluster trip + service counters, EV stack), new ECU registration, schema v2 sections (coding blocks with the BCM DRL field, adaptation bounds, actuator-test safety warning, live PID modes, DTC extended-data kinds), and that the extension implements `IOBDOEMExtensionV2`.
+
+### Why this matters
+- VW is now at production-tool depth for live data, configuration, calibration, and DTC analysis. A coding tool can read `vag_bcm_long_coding`, render it as a form, capture user edits, and write the modified payload back. A diagnostic tool can drive the cooling fan, prime the fuel pump, or step the EGR valve through `actuator_tests[]`. A live-data dashboard can stream all the per-cylinder telemetry. Everything else in the framework is built on the same schema, so the next release can apply the template to BMW / Mercedes / Porsche / etc. without redesign.
+
+### Out of scope for v3.30 (queued for v3.31+)
+- Subsequent OEM deep-dives (BMW, Mercedes, Porsche, JLR, MINI, Bentley, Rolls-Royce, Volvo, Polestar, Renault, Stellantis, Ferrari, McLaren, Aston, Dacia, Lada, then Asian + American + Chinese + HD).
+
 ## [3.29.0] - 2026-05-08 — Schema v2: extended catalog (Phase A)
 
 ### Added (additive schema — every existing v3.28 catalog continues to parse)
