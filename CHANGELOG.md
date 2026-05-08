@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.69.0] - 2026-05-08 — Cummins ~22% ODIS, ~4,900 entries (J1939 engine OEM)
+
+17 engine variants (ISB 6.7 / ISL 8.9 / ISX 15 / X15 / X12 / X10 /
+B6.7 Ram HD / R2.8 Repower / QSB/QSL/QSX industrial / ISF2.8/3.8 +
+X15N natural gas + X15H/B6.7H hydrogen ICE) + Accelera BTEV battery
+EV + H Drive HEV/PHEV/BEV integration + Eaton Endurant 12-speed AMT
++ Allison 3000/4000 + ZF TraXon + DPF + SCR + DEF + DOC + ASC ammonia
+slip cat + cooled EGR + 7th injector + INSITE.
+
 ## [3.68.0] - 2026-05-08 — Tata Motors ~15% ODIS, ~4,800 entries
 
 Revotron 1.2T iCNG / 1.5 T-GDi + Kryotec 1.5/2.0 diesel + Nexon EV
