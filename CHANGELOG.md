@@ -7,6 +7,121 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.45.0] - 2026-05-08 — Toyota pushed to public-source ceiling (~30% ODIS, 5157 entries)
+
+Same depth-pattern as VW/BMW/Ford/Mercedes, applied to Toyota via
+Techstream-public + HSD community sources. Public ceiling is moderate
+because Techstream is closed but the HSD (Hybrid Synergy Drive) +
+TSS (Toyota Safety Sense) communities have decent coverage.
+
+### catalogs/toyota.json — 21 → 5,157 entries
+
+| Section | v3.39 | v3.45 |
+|---|---|---|
+| ECUs | 8 | **117** |
+| DIDs | 16 | **1,860** |
+| Routines | 5 | **124** |
+| Coding blocks | 0 | **31 (254 fields)** |
+| Adaptations | 0 | **79** |
+| Actuator tests | 0 | **104** |
+| Live PIDs | 0 | **38** |
+| DTC extended-data | 0 | **2,804** |
+
+#### ECUs (+109)
+Full Techstream bus map: powertrain (ECM, TCM, HV ECU, MG ECU,
+Battery ECU, Inverter ECU, OBC, DC-DC), chassis (ABS+VSC, SAS, EPS,
+EPB, TPMS, SRS, occupant, pre-collision/TSS coordinator), TSS sensors
+(front camera, front radar, BSM L+R, RCTA, ICS Park Assist, Panoramic
+View Monitor, driver attention), body (BCM, CGW, multiplex, IC,
+A/C amp + aux, 2 power seats + memory, 4 doors, mirrors, tilt+telescope,
+2 sliding doors for Sienna/Alphard, power back door, sunroof + pan
+roof), lighting (AFS L+R, headlight aim), IVI (Display Audio + nav
++ DCM telematics + amp JBL/Mark Levinson + TV + sat radio + AR navi
+Lexus), Smart Key + immobilizer + keyless entry + alarm, hybrid/EV
+(Power Management + EV charging + plug-in + brake booster HEV + regen
+brake + thermal + heat pump + DC/AC charge inlets + charge door + LV
+battery + wallbox iface), aux/convenience (auto wiper, mirror compass,
+auto-dim, HomeLink, Qi wireless, heated steering, seat climate dr+pa,
+massage Lexus, HUD, AR HUD, gesture, executive rear, kinetic seat),
+4WD/off-road (AWD, A-TRAC/Crawl Control, KDSS, AHC, AHCS, trailer,
+tow hitch, running boards, cargo, power back window), zonal (OTA,
+HSM, Ethernet switch, 5 domain controllers, Car2X, V2X bZ4X).
+
+#### DIDs (+1,844)
+- 21 generic UDS DIDs incl. Toyota part number, calibration, Techstream ID.
+- 60 ECM engine DIDs (RPM, torque, coolant/oil, MAP/MAF/lambda, fuel rail, VVT-i intake+exhaust B1+B2, knock retard, EGR, wastegate, DPF, SCR NOx + DEF/AdBlue, turbo, intercooler, cat efficiency B1+B2, idle, immobilizer auth, brake booster active, eco score, drive mode 5 modes, e-boost).
+- 64 per-cylinder (cyl 1-8 × 8) — V8.
+- 184 engine variant DIDs — 23 Toyota engine families × 8 fields (2GR-FE/FXS/FKS/8GR-FXS, 2AR-FE/FXE, 8AR-FTS, A25A-FKS/FXS, M20A-FKS/FXS, 1NR-FKE, 1NZ-FXE, 3ZR-FAE, 1UR-FE, 3UR-FE, 1VD-FTV, 1GD-FTV, 2GD-FTV, V35A-FTS, T24A-FTS, 1ZR-FE, e-TNGA EV).
+- 128 transmission variants — 8 trans × 16 fields (ECT 8AT, UC60E/AA80F/UC70 10AT, AA10F 10AT Tundra, eCVT THSII, eCVT DLSII, transfer case).
+- 96 head-unit gens — Entune/Entune2/Entune3/Toyota Audio Multimedia/Lexus Interface/Display Audio × 16 fields.
+- 14 ABS DIDs + 32 per-wheel ABS/TPMS.
+- 30 HV battery DIDs + 192 per-cell (96 × 2) + 72 per-module (12 × 6).
+- 22 motor/inverter DIDs (MG1 + MG2).
+- 22 OBC charging DIDs incl. ISO 15118 + CHAdeMO + Plug & Charge.
+- 23 TSS ADAS DIDs (camera + radar + DRCC + LTA + PCS + AHB + RSA + Toyota Teammate).
+- 64 ADAS object stack (8 × 8).
+- 16 cluster + ASSYST + 256 last-32-trip + 64 driver-coaching.
+- 31 per-bulb hours-on (BiBeam segments).
+- 24 per-zone ambient lighting.
+- 64 per-key data (8 × 8) incl. Smart Key UWB + Digital Key.
+- 24 per-camera lens shading (6 × 4).
+- 19 premium audio (JBL/Mark Levinson) + 7-band EQ.
+- 96 per-ECU programming history (24 ECUs × 4).
+- 30 Toyota Connected subscription metadata (15 × 2).
+- 16 bus topology (V-bus + body + powertrain + chassis CAN + LIN + AVC-LAN + MOST + Ethernet).
+- 24 per-zone HVAC (3 zones × 8).
+- 64 user profiles + 64 service history + 26 vehicle metadata (incl. TRD + Lexus F SPORT).
+
+#### Routines (+119)
+ECM adapt resets, DPF + DEF + glow plug, TCM basic + Quick Learn, AWD
+adapt, per-wheel ABS bleed + pump test + sensor zeros, TPMS relearn +
+sensor replacement, EPB workshop mode, BCM init + window/mirror init +
+sunroof/pan roof/power back door/sliding doors L+R/tow hitch/running
+boards calibrations, A/C basic + compressor + heat-pump tests, headlight
+aim L+R + AFS + BiBeam pixel test, TSS camera dynamic + static + radar
+alignment, BSM L+R + park assist + Panoramic View + driver camera
+calibrations, IC service reset all + mileage align, HV cell balance +
+capacity remeasure + isolation + pyro + contactor + pre-charge, MG1+MG2
+resolver zero + offset + inverter self-test, OBC + DC-DC + thermal loop
+bleed + EV charge door, hybrid brake booster + regen brake calibrate,
+13 module-replacement procedures, CIG coding program, key pairing +
+immobilizer + Smart Key relearn, OTA check/install/rollback, HSM
+provision/zeroize, 5 domain self-tests + Ethernet switch + Car2X tests,
+massage calibrate + seat init dr+pa, wireless charging + HUD calibrate,
+Toyota Connected subscription refresh.
+
+#### Coding blocks (31 / 254 fields)
+BCM general (CIG customisation), door extended (Smart Door auto-open),
+alarm zones, lighting features (BiBeam LED + Triple Beam + BladeScan
+AHS Lexus), TSS Lane Tracing (LTA + LDA + Emergency Steering + curve
+speed reduction), DRCC extended (Stop & Go FSR + curve speed adapt +
+lane change), Pre-Collision (pedestrian day+night + cyclist + intersection
++ reverse + Emergency Steering), A/C zone (S-Flow + nanoe X + heat pump),
+EV charge features (CCS1/2/CHAdeMO/NACS/V2G/V2L/V2H/ISO15118), Hybrid
+features (5 modes + regen paddle B-mode + predictive EV), head-unit
+(Hey Toyota + Cloud Nav + Intelligent Assistant + Alexa), cluster (HSI
+Hybrid System Indicator + driver coaching), Smart Key (UWB + Digital
+Key + foot-open + walk-away), trailer module, Crawl Control + Multi-
+Terrain Select (snow/dirt/sand/rock/mud/auto), driver seat climate
+(kinetic seat Lexus), panoramic roof, OTA features, Crypto/HSM, Toyota
+Connected (Safety Connect + Service Connect + Destination Assist +
+Cloud Nav + Intelligent Assistant + Digital Key + Driver Score + Teen
+Driver Tech), Toyota Teammate L2 (highway hands-free + max 60 urban),
+HUD, wireless charging, Blind Spot Monitor, driver attention, Advanced
+Park (memory + remote + trailer backup), power back door, AWD features
+(Active Torque + E-Four hybrid AWD + DAC + HAC), power sliding doors
+(Sienna/Alphard), tow hitch, power running boards.
+
+#### Adaptations (79) + Actuator tests (104) + Live PIDs (38) + DTC ext (2,804)
+Engine + trans + ABS+VSC + TPMS + TSS + lighting + climate + EV/hybrid
++ Smart Key + OTA + HSM defaults; full per-actuator tests; live engine
++ HV battery + MG1/MG2 + OBC + TSS + cluster PIDs; broad P/B/U/C codes
+× 4-6 record types incl. environmental_data + freeze_frame_template.
+
+Estimated ~30% ODIS coverage — at the realistic Techstream/HSD community
+ceiling for Toyota. Higher coverage requires commercial Techstream
+ODX-D licenses.
+
 ## [3.44.0] - 2026-05-08 — Mercedes-Benz pushed to public-source ceiling (~35% ODIS, 6134 entries)
 
 Same depth-pattern proven on VW + BMW + Ford, applied to Mercedes-Benz.
