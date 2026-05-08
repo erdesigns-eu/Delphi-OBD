@@ -7,6 +7,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.37.0] - 2026-05-08 — VW platform/MY splits + deep service routines (~45% ODIS)
+
+Fourth pass — adds 1,319 entries focused on the platform/MY axis
+plus the service-routine and deep actuator-test gaps. Covers MQB /
+MEB / MLB-evo / PPE / NSF / Modular CE platform metadata, MIB1-4
+head-unit generation specifics, DSG generation specifics
+(DQ200/250/381/500/501), per-corner suspension actuator currents +
+ride heights + air-spring pressures, V6/V8/V10/W12 per-cylinder
+telemetry (cyl 5-12), bank-2 O2-sensor stack, broad door/alarm/
+TPMS/seat-memory/climate-zones coding blocks, 77 deep service
+routines (ABS bleed per-wheel, DSG basic-setting, EPB pad change,
+camshaft / timing chain / SCR / AdBlue / oil pump / coolant pump
+/ headlight aim / matrix pixel / camera dynamic / radar zero / EV
+inverter self-test / EV motor resolver zero / HV contactor +
+pyro-fuse + IMD self-tests), 50 deep actuator tests, 775 long-tail
+VAG P-codes.
+
+### catalogs/vw.json — 6,179 → 7,498 entries
+
+| Section | v3.36 | v3.37 | Change |
+|---|---|---|---|
+| ECUs | 75 | **75** | — |
+| DIDs | 2,438 | **2,774** | +336 |
+| Routines | 383 | **460** | +77 |
+| Coding blocks | 128 (857 fields) | **133 (915 fields)** | +5 / +58 |
+| Adaptations | 517 | **565** | +48 |
+| Actuator tests | 248 | **298** | +50 |
+| Live PIDs | 393 | **421** | +28 |
+| DTC extended-data | 1,997 | **2,772** | +775 |
+
+### Platform / MY splits (272 DIDs)
+- **Platforms (8 × 8 DIDs = 64):** MQB, MQB-evo, MEB, MEB+, MLB-evo, PPE, NSF, Modular-CE — variant ID, body style, wheelbase, front+rear track, kerb / GVW / payload weights.
+- **MIB head-unit (5 × 16 DIDs = 80):** MIB1, MIB2, MIB2-High, MIB3, MIB4 — HW part no, SW train, map version + region, SSD total + free, RAM, SoC die temp, uptime, boot count, OTA status + progress, voice / nav / media / connectivity-box engine versions.
+- **DSG (5 × 16 DIDs = 80):** DQ200, DQ250, DQ381, DQ500, DQ501 — K1+K2 clutch temp + wear + engagement count, oil temp + pressure + age + quality, mechatronic temp + supply V, lifetime shift counts (total, kickdown, manual, launch).
+
+### Per-corner suspension (32 DIDs)
+4 corners × 8 fields: DCC actuator current, DCC setpoint + actual response, air-suspension ride height, air pressure, valve current, strut temp, compressor branch runtime.
+
+### V6/V8/V10/W12 per-cyl + bank-2 (80 DIDs)
+- Cylinders 5-12 × 8 fields each (64 DIDs): drive-cycle + lifetime misfire counts, knock retard, injection correction, relative compression, EGT, individual lambda, coil resistance.
+- Bank-2 O2 sensors 1-4 × 4 fields (16 DIDs): voltage, current, temp, heater current.
+
+### Coding blocks (+5 / +58 fields)
+Door FL extended (windows + mirrors + door unlock strategy),
+alarm sensor zones, TPMS per-axle thresholds (summer/winter/loaded),
+driver-seat memory extended (3 slots × 4 axes), climate zones.
+
+### Deep service routines (+77)
+Per-wheel ABS bleed, DSG K1/K2 clutch adapt-reset + basic setting +
+oil-fill, Haldex priming + clutch adapt, EPB workshop mode +
+basic setting, steering / yaw / ESP zeros, throttle / idle /
+misfire / catalyst / AFM / MAP / fuel-trim adapt-resets, intake
+runner + camshaft + timing chain learns, SCR + AdBlue routines,
+oil / coolant pump + thermostat + fan-clutch tests, wiper park
+position, sunroof / convertible / tailgate / trunk / window /
+mirror calibrations, seat init, headlight aim + AFS + matrix +
+laser + OLED calibrations, radar + camera dynamic calibrations,
+sensor calibrations (rain, humidity, interior+outside temp), ESP
+self-test, airbag crash-data clear, seatbelt pretensioner replace,
+battery replacement (BEM relearn) + capacity test, alternator load
+test, starter test, EV inverter self-test + motor resolver zero +
+charge-door calib + thermal loop bleed + battery isolation +
+pyro-fuse + contactor + IMD self-tests.
+
+### Deep actuator tests (+50)
+ABS pump + per-wheel inlet+outlet valves, EPB motor extend/retract
+L+R, air-suspension compressor + relief valve, steering assist /
+column-lock, wiper / washer (front+rear+headlight), horn low/high,
+starter test, alternator field, fuel pumps (LP+HP), throttle motor,
+intake runner, wastegate, VGT, EGR + EGR cooler bypass, SCR +
+AdBlue pump, exhaust flap, AVAS, EV front+rear motor demos, EV A/C
+compressor, HV chiller valve, EV radiator fan, HV battery heater,
+EV charge port lock + indicator LED, HV pyro-fuse continuity,
+HV positive + negative + pre-charge contactors.
+
+### DTC ext-data (+775) — long-tail VAG P-codes
+Sparse sweep across P14xx-P17xx, P18xx-P19xx, P20xx-P23xx, P2Cxx-P30xx ranges × 4 record types.
+
 ## [3.36.0] - 2026-05-08 — VW catalog third deeper-niche pass (~40% ODIS)
 
 Continuing the same parity pass — adds 1,435 more entries focused
