@@ -1,0 +1,136 @@
+# Post-session gap review
+
+After cleaning out the Python tooling, here's an honest audit of the
+Delphi-side state vs. "production-ready" — what's solid, what has
+holes, and what was never delivered.
+
+## Critical (must fix before merging)
+
+### G1. ✅ FIXED — `ResolveCatalogPath` now sees vehicle-class subdirs
+
+`OBD.OEM.Catalog.Loader.pas` now probes top-level catalogs/ first,
+then each of motorcycle/agricultural/marine/powersports. Backward
+compatible: existing car catalogs at the top level still resolve in
+the fast path.
+
+### G2. ✅ FIXED — Delphi OEM extension units for all 33 new catalogs
+
+Added 4 new units in `src/Services/`:
+- `OBD.OEM.Motorcycles.pas` — 14 extensions (Ducati, Harley-Davidson,
+  Triumph, BMW Motorrad, KTM, Yamaha-moto, Honda-moto, Kawasaki,
+  Suzuki-moto, Indian Motorcycle, Royal Enfield, MV Agusta, Aprilia,
+  Husqvarna-moto)
+- `OBD.OEM.Agricultural.pas` — 8 extensions (John Deere, CNH,
+  Caterpillar-Agri, Komatsu, Kubota, AGCO, Claas, Volvo CE)
+- `OBD.OEM.Marine.pas` — 6 extensions (Mercury Marine, Volvo Penta,
+  Yanmar Marine, MTU, Cummins Marine, Yamaha Marine)
+- `OBD.OEM.Powersports.pas` — 5 extensions (Polaris, Can-Am/BRP,
+  Arctic Cat, Yamaha WaveRunner, Kawasaki Jet Ski)
+
+Each unit has a class-shared abstract base (`TOBDOEMMotorcycleBase`,
+etc.) that does all the JSON wiring; concrete classes are 4-line
+shells overriding `JsonFilename`/`ManufacturerKey`/`DisplayName`.
+All 33 register at unit `initialization` so they self-activate when
+the unit is added to a project's uses clause. Wired into RunTime.dpk
++ RunTime.dproj.
+
+### G3. ✅ FIXED — `AllOEMCatalogsLoadFromDirectory` recurses
+
+Now walks vehicle-class subdirs via `TSearchOption.soAllDirectories`
+and skips DTC/iso/uds/obd2/test/_schema files. Loads each by absolute
+path so the sweep doesn't depend on `ResolveCatalogPath`. Threshold
+raised from >=40 to >=70 catalogs to reflect the new total.
+
+### G4. CI Delphi build/test job is `if: false`
+
+`.github/workflows/ci.yml::build-and-test` is gated on a self-hosted
+Delphi runner that doesn't exist in this repository. **None of the
+tests added this session (UdsClient / DTC.Schema / CatalogIntegrity
+/ extended CatalogSmoke) have actually been compiled or run.** The
+static-checks job covers syntax-mangling regressions, end-of-file
+markers, CRLF, and (now) duplicate primary keys, but it does not
+verify the test units compile against the current package.
+
+**Status: cannot fix without a Delphi runner. Author needs to run
+the test suite locally before merge.**
+
+### G7. ✅ FIXED — `OBD.Protocol.DoIP.Session.pas` is `{$IFDEF MSWINDOWS}`-guarded
+
+The unit body is wrapped in `{$IFDEF MSWINDOWS}` so non-Windows
+targets compile to an empty unit. Cross-platform DoIP would need a
+shared socket layer (Indy / Synapse) — out of scope for this
+revision; flagged as future work in the unit's docstring.
+
+## Quality issues (should fix)
+
+### G5. ✅ FIXED — UDS client ASCII decoder guarded against empty payloads
+
+`DecodePayloadAs` for `dkAscii` now checks `Length(Payload) > 0`
+before taking `@Payload[0]`.
+
+### G6. `OBD.OEM.UdsClient.WriteAdaptation` validation skips when min=max=0
+
+Current logic:
+```pascal
+if (Entry.MinValue <> 0) or (Entry.MaxValue <> 0) then
+  if (Value < Entry.MinValue) or (Value > Entry.MaxValue) then ...
+```
+A catalog with `min=0, max=0` (i.e. an enum that only allows the value
+0) bypasses validation entirely. Fix: validate whenever the catalog
+loaded a non-default min/max. Currently the loader uses `Default(...)`
+so 0 means "not set," but the boundary case is sloppy.
+
+### G8. `Tests.OEM.UdsClient` mock-transport ARC pattern is fragile
+
+The `NewMock(out Mock, out ITransport)` helper relies on the test's
+local `ITransport` keeping the object alive. If a test re-orders the
+locals (Catalog last, ITransport first) and the optimizer drops dead
+locals, the mock could be freed mid-`Client.OpenSession`. The fix is
+to make `TMockTransport` derive from a non-counted base
+(`TSingletonImplementation` or override `_AddRef`/`_Release` to no-ops
+for tests).
+
+### G9. `Tests.OEM.DTC.Schema.ResolveCatalogPath` is duplicated
+
+Same helper exists in `Tests.OEM.CatalogSmoke.ResolveCatalogPath` and
+`OBD.OEM.Catalog.Loader.ResolveCatalogPath`. Should consolidate or
+let the test reuse the loader's exported helper.
+
+## Documentation / context (lower priority)
+
+### G10. CHANGELOG / ROADMAP not updated for this session's work
+
+I added `Phase E/F/A/C/B` commits but didn't fold them into
+`CHANGELOG.md` / `docs/ROADMAP.md` with a v3.78+ tag, the way every
+prior catalog-depth pass did (v3.39 → v3.76).
+
+### G11. JSON Schema not validated against the catalogs at runtime
+
+`catalogs/_schema/oem-catalog-v2.json` exists but nothing in the
+Delphi side actually validates against it. The new
+`Tests.OEM.CatalogIntegrity` covers the structural invariants the
+schema would catch, but a true JSON-Schema validator (per-type field
+checks) isn't wired up. Out-of-scope for this pass; flagged for
+future work.
+
+### G12. Phase F.4 (DoIP TLS) and F.5 (self-loop integration test) deferred
+
+Documented in earlier commit messages. TLS needs SChannel/OpenSSL
+hookup + per-OEM cert policy; integration test needs a threaded local
+listener that's flaky in CI. Both are real gaps relative to a
+"DoIP-complete" claim.
+
+## Small correctness checks not done
+
+- The 1,282 DTC entries across 47 catalogs were authored against the
+  v3.77 schema but never round-tripped through the Delphi loader
+  (would require running `Tests.OEM.DTC.Schema`, which can't run
+  without G4 fixed).
+- `OBD.OEM.UdsClient.ReadCodingBlock` ASCII unpacking iterates
+  `Field.BitWidth` characters from `Field.ByteOffset` — but the JSON
+  loader stores ASCII length differently from numeric bit_width, and
+  the cross-mapping hasn't been verified end-to-end.
+- `OBD.Protocol.DoIP.Session.SendReceive` ✅ now caps the
+  alive-check / ACK / NACK consumption loop at 16 frames per call;
+  raises `EOBDDoIPTransportError` if the diagnostic-message
+  response doesn't arrive within that window.

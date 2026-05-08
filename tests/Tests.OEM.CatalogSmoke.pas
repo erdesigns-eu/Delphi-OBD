@@ -210,32 +210,52 @@ end;
 
 procedure TCatalogLoadSmokeTests.AllOEMCatalogsLoadFromDirectory;
 var
-  Dir, FilePath, Name: string;
+  Dir, FilePath, Name, RelDir: string;
   Files: TArray<string>;
   Loaded, Skipped: Integer;
+  Cat: TOBDOEMJSONCatalog;
 begin
   Dir := CatalogsDirectory;
   if Dir = '' then Assert.Pass('catalogs/ directory not on path; skipping');
-  Files := TDirectory.GetFiles(Dir, '*.json');
+  // Recurse so vehicle-class subdirs (motorcycle/, agricultural/,
+  // marine/, powersports/) are exercised by the same sweep.
+  Files := TDirectory.GetFiles(Dir, '*.json',
+                                TSearchOption.soAllDirectories);
   Loaded := 0;
   Skipped := 0;
   for FilePath in Files do
   begin
     Name := TPath.GetFileName(FilePath);
+    RelDir := TPath.GetDirectoryName(FilePath);
     // Skip DTC catalogs (loaded via the DTC sweep), ISO/standard
-    // catalogs (different schema), and test fixtures.
+    // catalogs (different schema), test fixtures, and the JSON
+    // schema document itself.
     if Name.StartsWith('dtc-', True) or Name.StartsWith('iso-', True) or
        Name.StartsWith('uds-', True) or Name.StartsWith('obd2-', True) or
-       Name.StartsWith('test-', True) then
+       Name.StartsWith('test-', True) or
+       RelDir.EndsWith(PathDelim + '_schema') then
     begin
       Inc(Skipped);
       Continue;
     end;
-    SmokeLoad(Name);
+    // Load by absolute path because the file may be under a
+    // sub-directory that the regular SmokeLoad's name-only
+    // ResolveCatalogPath wouldn't reach without the v3.77 vehicle-
+    // class probe.
+    Cat := TOBDOEMJSONCatalog.Create(FilePath);
+    try
+      Assert.IsTrue(Cat.ManufacturerKey <> '',
+        Format('manufacturer_key required: %s', [FilePath]));
+      Assert.IsTrue((Cat.DIDCount > 0) or (Cat.RoutineCount > 0),
+        Format('catalog must contribute at least one DID or routine: %s',
+          [FilePath]));
+    finally
+      Cat.Free;
+    end;
     Inc(Loaded);
   end;
-  Assert.IsTrue(Loaded >= 40,
-    Format('expected >=40 OEM catalogs loaded, got %d (skipped %d)',
+  Assert.IsTrue(Loaded >= 70,
+    Format('expected >=70 OEM catalogs loaded, got %d (skipped %d)',
       [Loaded, Skipped]));
 end;
 

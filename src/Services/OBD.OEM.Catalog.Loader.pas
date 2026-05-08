@@ -101,20 +101,42 @@ begin
 end;
 
 function ResolveCatalogPath(const FileName: string): string;
+const
+  // Vehicle-class subdirectories introduced in v3.77 (Phase B):
+  // motorcycle / agricultural / marine / powersports. Probed after
+  // the top-level catalogs/ folder so the legacy car/truck OEMs
+  // (which sit at the top level) still resolve in O(1) — the
+  // subdirs are only consulted on a miss.
+  VehicleClassSubdirs: array[0..3] of string =
+    ('motorcycle', 'agricultural', 'marine', 'powersports');
 var
   Candidates: TArray<string>;
-  Candidate: string;
+  BaseRoots: TArray<string>;
+  Candidate, Sub, Root: string;
 begin
-  Candidates := [];
-
+  // Build the roots in priority order: the user override (if set)
+  // wins, then exe-dir/catalogs, then exe-dir/../catalogs, then
+  // CWD/catalogs.
+  BaseRoots := [];
   if GCatalogSearchPath <> '' then
-    Candidates := Candidates + [TPath.Combine(GCatalogSearchPath, FileName)];
-
-  Candidates := Candidates + [
-    TPath.Combine(TPath.Combine(ExecutableDir, 'catalogs'), FileName),
-    TPath.Combine(TPath.Combine(TPath.Combine(ExecutableDir, '..'), 'catalogs'), FileName),
-    TPath.Combine(TPath.Combine(GetCurrentDir, 'catalogs'), FileName)
+    BaseRoots := BaseRoots + [GCatalogSearchPath];
+  BaseRoots := BaseRoots + [
+    TPath.Combine(ExecutableDir, 'catalogs'),
+    TPath.Combine(TPath.Combine(ExecutableDir, '..'), 'catalogs'),
+    TPath.Combine(GetCurrentDir, 'catalogs')
   ];
+
+  Candidates := [];
+  for Root in BaseRoots do
+  begin
+    // Top-level first — fast path for the 46 cars/trucks.
+    Candidates := Candidates + [TPath.Combine(Root, FileName)];
+    // Then each vehicle-class subdirectory, so a Phase B catalog
+    // (e.g. ducati.json) is found at catalogs/motorcycle/ducati.json.
+    for Sub in VehicleClassSubdirs do
+      Candidates := Candidates + [
+        TPath.Combine(TPath.Combine(Root, Sub), FileName)];
+  end;
 
   for Candidate in Candidates do
     if TFile.Exists(Candidate) then

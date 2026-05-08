@@ -535,7 +535,10 @@ begin
     dkAscii:
       begin
         Result.Kind := dkAscii;
-        SetString(Result.AsString, PAnsiChar(@Payload[0]), Length(Payload));
+        if Length(Payload) > 0 then
+          SetString(Result.AsString, PAnsiChar(@Payload[0]), Length(Payload))
+        else
+          Result.AsString := '';
         // Strip trailing NULs / whitespace.
         Result.AsString := Trim(Result.AsString);
         Result.Formatted := Result.AsString;

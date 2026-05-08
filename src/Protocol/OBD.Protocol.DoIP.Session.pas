@@ -19,7 +19,18 @@
 //------------------------------------------------------------------------------
 unit OBD.Protocol.DoIP.Session;
 
+{$IFNDEF MSWINDOWS}
+  // The unit uses winsock2 directly (matching OBD.Connection.UDP).
+  // Cross-platform DoIP would need to wrap a shared socket layer
+  // (e.g. POSIX BSD sockets / Indy / Synapse) — out of scope for
+  // this revision. On non-Windows targets the unit compiles to
+  // an empty interface so consumers can still {$INCLUDE} it
+  // unconditionally.
+{$ENDIF}
+
 interface
+
+{$IFDEF MSWINDOWS}
 
 uses
   System.SysUtils, System.Classes, System.SyncObjs,
@@ -142,7 +153,11 @@ function DefaultDiscoveryOptions: TDoIPDiscoveryOptions;
 function DiscoverVehicles(const Options: TDoIPDiscoveryOptions
   ): TArray<TDoIPVehicle>;
 
+{$ENDIF MSWINDOWS}
+
 implementation
+
+{$IFDEF MSWINDOWS}
 
 uses
   System.DateUtils;
@@ -519,24 +534,32 @@ end;
 
 function TDoIPSession.SendReceive(const UdsRequest: TBytes;
                                   TimeoutMs: Cardinal): TBytes;
+const
+  // Cap how many DoIP frames we'll consume per SendReceive call —
+  // the gateway is allowed to interleave alive-check requests +
+  // routing ACKs/NACKs, but a chatty or hostile peer should not be
+  // able to pin the call indefinitely. 16 is comfortably above any
+  // legitimate sequence (usually max 3: ACK, alive-check req,
+  // diagnostic response).
+  MAX_FRAMES_PER_CALL = 16;
 var
   DoIPReq, Resp: TBytes;
   Header: TDoIPHeader;
   DiagMsg: TDoIPDiagnosticMessage;
-  RcvTimeo: Integer;
+  RcvTimeo, FrameCount: Integer;
 begin
   if not FRoutingActivated then
     raise EOBDDoIPSessionError.Create('routing not activated');
-  // Apply per-call timeout.
   RcvTimeo := Integer(TimeoutMs);
   SetSockOpt(FSocket, SOL_SOCKET, SO_RCVTIMEO, @RcvTimeo, SizeOf(RcvTimeo));
 
   DoIPReq := FProtocol.BuildDiagnosticMessage(UdsRequest);
   SendBytes(DoIPReq);
-  // The peer may interleave alive-check requests; loop until we
-  // receive the diagnostic-message response.
-  while True do
+
+  FrameCount := 0;
+  while FrameCount < MAX_FRAMES_PER_CALL do
   begin
+    Inc(FrameCount);
     Resp := ReceiveDoIPMessage;
     if not FProtocol.ParseDoIPHeader(Resp, Header) then
       raise EOBDDoIPTransportError.Create('malformed response header');
@@ -555,14 +578,18 @@ begin
               Exit;
             end;
           end;
-          // Positive/negative ACKs are ISO 13400 §8.5 routing
-          // confirmations from the gateway; the actual UDS
-          // response will follow in the next message. Loop.
+          // Positive/negative ACKs (ISO 13400 §8.5) are routing
+          // confirmations from the gateway; the actual UDS response
+          // arrives in the next frame. Loop.
         end;
     else
-      // Unknown — skip.
+      // Unknown payload type — log + drop. The 16-frame cap will
+      // unstick us if these arrive in a stream.
     end;
   end;
+  raise EOBDDoIPTransportError.CreateFmt(
+    'no diagnostic-message response after %d frames',
+    [MAX_FRAMES_PER_CALL]);
 end;
 
 procedure TDoIPSession.Disconnect;
@@ -577,5 +604,7 @@ begin
   FRoutingActivated := False;
   FProtocol.RoutingActivated := False;
 end;
+
+{$ENDIF MSWINDOWS}
 
 end.
