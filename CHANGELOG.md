@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.66.0] - 2026-05-08 — Lada (AvtoVAZ) ~15% ODIS, ~4,700 entries
+
+VAZ 1.5/1.6/1.8 8V/16V Evo + Renault H4Mk/H4Dt/K9K diesel + Niva
+Travel/Legend 4WD low-range + Vesta NG/Sport/Cross/Aura + X-Ray
+CMF-B-LS Renault platform + Largus e-EV + AvtoVAZ AMT robotised +
+JATCO CVT/4AT + EnjoY Pro infotainment.
+
 ## [3.65.0] - 2026-05-08 — GWM (Haval/Wey/Tank/ORA/Poer) ~18% ODIS, ~5,000 entries
 
 Lemon DHT 1.5/2.0 turbo PHEV + GW4N20/4N30 V6 + Tank 500/700 ladder-
