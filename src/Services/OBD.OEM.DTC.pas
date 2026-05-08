@@ -44,6 +44,18 @@ type
     dtcNetwork        // U
   );
 
+  /// <summary>OBD-II monitor classification (SAE J1979 §6).
+  /// <c>dmtContinuous</c> covers misfire / fuel system / comprehensive
+  /// component monitors that run continuously while the engine is on.
+  /// <c>dmtNonContinuous</c> covers catalyst / EVAP / O2 sensor /
+  /// EGR monitors that run during specific drive cycles.</summary>
+  TOBDDtcMonitorType = (
+    dmtUnknown,
+    dmtContinuous,
+    dmtNonContinuous,
+    dmtComprehensiveComponent
+  );
+
   TOBDDtcCatalogEntry = record
     /// <summary>Five-character code: <c>P0301</c>, <c>B22A8</c>, etc.</summary>
     Code: string;
@@ -61,6 +73,31 @@ type
     /// <summary>True only when matched against an authoritative spec
     /// (SAE J2012, OEM service manual) or capture fixture.</summary>
     Verified: Boolean;
+    //--------- v3.77 schema extensions ---------
+    /// <summary>Driver-observable symptoms ("rough idle", "MIL on",
+    /// "lurching upshift"). Optional. UI shows alongside causes.</summary>
+    Symptoms: TArray<string>;
+    /// <summary>Stepped repair guidance (numbered steps, often
+    /// "1) Check connector. 2) Measure resistance ..."). Distinct
+    /// from the older free-form <c>RepairHints</c> which is a
+    /// paragraph blurb.</summary>
+    RepairGuidance: TArray<string>;
+    /// <summary>SAE J1979 monitor category — drives readiness UI.</summary>
+    MonitorType: TOBDDtcMonitorType;
+    /// <summary>Whether this code triggers a freeze-frame snapshot.
+    /// MIL-on codes typically do; pending codes typically don't.</summary>
+    FreezeFrameRelevant: Boolean;
+    /// <summary>DID names from the same OEM catalog that are useful
+    /// during diagnosis (e.g. <c>ecm_misfire</c>, <c>ecm_lambda_b1</c>
+    /// for P0301). Lets a tool offer "read related data" buttons
+    /// next to the DTC entry.</summary>
+    RelatedDIDs: TArray<string>;
+    /// <summary>Routine names that are likely the corrective action
+    /// (e.g. <c>ecm_dpf_regen_force</c> for a P244A DPF fault).</summary>
+    RelatedRoutines: TArray<string>;
+    /// <summary>OEM service-bulletin reference (TSB number /
+    /// recall ID / dealer fix code). Free text.</summary>
+    OemBulletin: string;
   end;
 
   /// <summary>
@@ -117,6 +154,11 @@ function IsManufacturerDtc(const Code: string): Boolean;
 /// <summary>Map the catalog's text severity tags to the enum.</summary>
 function ParseSeverity(const S: string): TOBDDtcSeverity;
 function FormatSeverity(const Severity: TOBDDtcSeverity): string;
+
+/// <summary>Map the catalog's monitor_type strings (continuous /
+/// non_continuous / comprehensive_component / "") to the enum.</summary>
+function ParseMonitorType(const S: string): TOBDDtcMonitorType;
+function FormatMonitorType(const Mt: TOBDDtcMonitorType): string;
 
 implementation
 
@@ -249,6 +291,29 @@ begin
   end;
 end;
 
+function ParseMonitorType(const S: string): TOBDDtcMonitorType;
+var L: string;
+begin
+  L := LowerCase(Trim(S));
+  if (L = 'continuous') then Exit(dmtContinuous);
+  if (L = 'noncontinuous') or (L = 'non_continuous') or
+     (L = 'non-continuous') then Exit(dmtNonContinuous);
+  if (L = 'comprehensive_component') or
+     (L = 'comprehensive-component') then Exit(dmtComprehensiveComponent);
+  Result := dmtUnknown;
+end;
+
+function FormatMonitorType(const Mt: TOBDDtcMonitorType): string;
+begin
+  case Mt of
+    dmtContinuous:              Result := 'continuous';
+    dmtNonContinuous:           Result := 'non_continuous';
+    dmtComprehensiveComponent:  Result := 'comprehensive_component';
+  else
+    Result := '';
+  end;
+end;
+
 //==============================================================================
 // TOBDDtcCatalog
 //==============================================================================
@@ -322,6 +387,20 @@ begin
     Entry.RepairHints := Item.GetValue<string>('repair_hints', '');
     Entry.Source := Item.GetValue<string>('source', DefaultSource);
     Entry.Verified := Item.GetValue<Boolean>('verified', False);
+    // v3.77 schema extensions — all optional, all default to empty.
+    Entry.Symptoms :=
+      ParseCausesArray(Item.GetValue<TJSONArray>('symptoms'));
+    Entry.RepairGuidance :=
+      ParseCausesArray(Item.GetValue<TJSONArray>('repair_guidance'));
+    Entry.MonitorType :=
+      ParseMonitorType(Item.GetValue<string>('monitor_type', ''));
+    Entry.FreezeFrameRelevant :=
+      Item.GetValue<Boolean>('freeze_frame_relevant', False);
+    Entry.RelatedDIDs :=
+      ParseCausesArray(Item.GetValue<TJSONArray>('related_dids'));
+    Entry.RelatedRoutines :=
+      ParseCausesArray(Item.GetValue<TJSONArray>('related_routines'));
+    Entry.OemBulletin := Item.GetValue<string>('oem_bulletin', '');
     Add(Entry);
   end;
 end;
