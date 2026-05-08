@@ -7,6 +7,150 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.48.0] - 2026-05-08 — HMG (Hyundai/Kia/Genesis) pushed to public-source ceiling (~28% ODIS, 5537 entries)
+
+Same depth-pattern as the prior 7 OEMs, applied to HMG via GDS / KDS
+community + E-GMP forums. Covers all three brands (Hyundai, Kia,
+Genesis) since they share GDS topology and most ECUs.
+
+### catalogs/hmg.json — 30 → 5,537 entries
+
+| Section | v3.39 | v3.48 |
+|---|---|---|
+| ECUs | 8 | **153** |
+| DIDs | 22 | **2,481** |
+| Routines | 0 | **145** |
+| Coding blocks | 0 | **32 (295 fields)** |
+| Adaptations | 0 | **76** |
+| Actuator tests | 0 | **145** |
+| Live PIDs | 0 | **45** |
+| DTC extended-data | 0 | **2,460** |
+
+#### ECUs (+145)
+GDS bus map covering ICE + HEV + PHEV + E-GMP EV + N Performance:
+powertrain (EMS + TCM + HTRAC AWD + HCU + HV battery + front+rear
+MCU + OBC + LDC + **VCMS** E-GMP 800V + front+rear motor + Sport
+mode + N exhaust flap + N Launch + active engine mount), chassis
+(ESC + SAS + MDPS + EPB + TPMS + SRS + occupancy + RSPA + ECS + ARC
+Genesis + rear-axle steer G90/EV9 + e-LSD + air suspension G90 + ride
+height + Mando iBooster), ADAS (HDA/HDA2 master + front camera + radar
++ rear radar L+R + 4 corner radars + 4-cam SVM + DAW + BVM L+R
++ front+rear sonar + traffic sign), body (CGW + IPM + LCD/OLED 12.3"
+cluster + dual FATC + 4 doors + 4 seats Genesis + 2 mirrors + steering
+column + 2 sliding doors Carnival + tailgate + pano sunroof + fuel/
+charge flap + **frunk** EV9/Ioniq), **HD Matrix LED** Genesis IMA +
+**pixelated taillights** + welcome pixel, ccNC head unit + passenger
+display + 2 rear displays + B&O/Lexicon/Meridian/Krell amp +
+Bluelink/Kia Connect/GCS TCU + 5G TCU + eCall + SVR, SMK + immobilizer
++ alarm + tilt + glass-break, HV/EV (ITMS thermal + heat pump + PTC
++ HV scroll compressor + battery heater + chiller + valve block +
+2× aux pumps + **motor disconnector**), aux comfort (heated steering
++ 4× seat climate + AR-HUD Genesis + 64-color ambient + Qi + 2× Ergo
+Motion massage + auto-wiper + fragrance + ionizer/fine dust filter),
+trailer + power tow hitch, **V2L converter + V2X bidirectional
+inverter**, OTA + HSM + Ethernet + 5 domain controllers + Car2X +
+**Bluelink TCU app gateway + DAB+/HD Radio + fingerprint + Face
+Connect GV60 + Digital Key 2.0 UWB**.
+
+#### DIDs (+2,459)
+- 26 generic UDS DIDs incl. HMG part no, calibration, GDS ID, KDM/USA/EUR/GEN region.
+- 74 EMS engine DIDs (RPM/torque/MAP/MAF/lambda B1+B2, 2× turbo speed, 2× wastegate, **CVVT intake+exhaust B1+B2 + CVVD state Smartstream**, idle, drive mode 5 modes incl. Smart, **ISG (Idle Stop&Go) count**, **N Launch + NGS / N Power Shift counters**, max-RPM/speed/oil-temp lifetime, **DPF soot + regen count + distance since regen**, **SCR urea + remaining km + NOx in/out**).
+- 64 per-cylinder (1-8) — Tau V8 G80/G90.
+- 224 engine variant DIDs — 28 HMG engines × 8 fields (Kappa 1.0T, Gamma 1.2/1.4T/1.6T/1.6T-N, Nu 2.0/2.0T/2.0T-N, Theta3 2.5T, Smartstream 2.5T/2.5T-N, Smartstream R 2.2 + U3 1.6 diesel, Lambda V6 3.0/3.3T/3.5T-N/3.8 NA, Tau V8 4.6/5.0, HEV Smartstream 1.6/1.8 + 1.5 PHEV, **E-GMP RWD/AWD/N/Long Range/Standard Range**).
+- 176 transmission variants — 11 trans gens × 16 fields (6/8/10AT, 7-DCT dry/wet, 8-DCT wet, IVT CVT, 6MT, **E-GMP 1-speed reducer + 2-speed Ioniq 5 N/EV6 GT**, HTRAC transfer).
+- 64 head-unit gens (AVN 5/ccIC/**ccNC Snapdragon**/Genesis) × 16 fields.
+- 29 ESC chassis DIDs (ECS state + ARC state + rear steer angle + 4× ride height + 4× air-susp pressure + e-LSD split + e-LSD oil temp + HTRAC torque split).
+- 64 per-wheel ABS/TPMS (4 × 16) + sensor IDs + camber/toe.
+- 33 HV battery DIDs incl. **800V architecture flag + chemistry NMC/LFP + pyrofuse + lifetime charged/discharged kWh**.
+- 192 per-cell V (E-GMP max 192 cells).
+- 256 per-module (32 × 8 fields).
+- 38 motor/MCU DIDs (front + rear, 19 each, incl. **disconnector state + N Grin Boost active + overboost remaining**).
+- 32 OBC + VCMS DIDs incl. **400V boost** (E-GMP) + **V2L active/kW/session/lifetime + V2G active**.
+- 36 ADAS + HDA2 (HDA / HDA2 hands-on lane change / curve speed + ISLA + DAW drowsy warnings + BCA + RCCA + RSPA + Safe Exit + Junction Turning Assist + Navi-based ACC + highway auto lane change).
+- 96 ADAS object stack (12 × 8).
+- 32 cluster + **N-mode telemetry** (lap timer, best 0-60/0-100/QM, total launches, **N Grin Boost + Drift Optimizer counters + N e-shift + N Active Sound+ mode**).
+- 256 last-32-trip × 8.
+- 80 driver coaching (20 × 4 windows incl. grin boost + drift optimizer).
+- 43 per-bulb hours (matrix + parametric + pixel tail + welcome pattern).
+- 32 ambient zones (incl. **sound-mood lighting**).
+- 64 per-key (8 × 8) incl. SMK + **Digital Key 2.0 UWB**.
+- 36 per-camera shading (9 × 4) incl. BVM L+R.
+- 60 premium audio (B&O / Lexicon / Meridian / Krell) incl. **15-band parametric EQ × 3** (gain/freq/Q).
+- 132 per-ECU programming (33 × 4).
+- 48 Connect (Bluelink + Kia Connect + GCS) subscription incl. **EV Route Planner + Charge myHyundai/Kia Charge + Genesis Lounge**.
+- 20 bus topology (B/C/P/M-CAN + LIN + **CAN-FD** + Ethernet + AVB + SOME/IP).
+- 32 quad-zone HVAC + 96 user profiles (6 × 16) + 96 service history (24 × 4 incl. DCT clutch + e-LSD + alignment) + 38 vehicle metadata (incl. **N Performance + N Line + Genesis Designs + Genesis Lounge member + battery size + chemistry + DC max kW + motor count + E-GMP platform flag + V2L/V2G capable + brand HYU/KIA/GEN**).
+
+#### Routines (+145)
+EMS adapt resets (idle, throttle, misfire, kat, lambda, **CVVT, CVVD
+Smartstream**) + oil/inspection/brake fluid resets + **DPF forced regen
++ DPF replace reset + SCR/DEF priming** + **N Launch calibrate + N
+track init**, TCM + DCT clutch + kiss-point, HTRAC + e-LSD adapt, per-
+wheel ABS bleed + pump + SAS + yaw zero + TPMS relearn + EPB workshop,
+**ECS + ARC + rear-axle steer + air-suspension calibrations**, IPM +
+window/mirror init + sunroof + sliding doors L+R + tailgate + frunk
+calibrate, FATC basic + heat-pump self-test, headlight aim L+R + HD
+Matrix LED + pixelated taillight init, front camera dynamic + static
++ radar align + 4 corner/rear radars + SVM + BVM L+R + DAW + sonar
+front+rear, cluster + mileage align + N telemetry reset, HV cell
+balance + capacity + isolation + contactor + pre-charge + pyrofuse,
+motor resolver zero (front+rear) + inverter self-test (front+rear),
+OBC + LDC + **VCMS** + thermal loop + charge flap, **disconnector +
+V2L + V2X self-tests**, N exhaust flap test, 21 module-replacement
+procedures, key + immobilizer relearn + **Digital Key 2.0 pair +
+fingerprint enroll + Face Connect enroll**, OTA check/install/rollback,
+HSM provision/zeroize, 5 domain self-tests + Ethernet + Car2X, seat
+init dr+pa + Ergo Motion calibrate + Qi + HUD calibrate, **Bluelink/
+Kia Connect refresh + welcome pixel animation load**.
+
+#### Coding blocks (32 / 295 fields)
+IPM general (UWB approach unlock + walk-away lock), door extended
+(flush handles Genesis), alarm zones, **HD Matrix LED features**
+(IFS + IMA HD matrix + parametric DRL pixels + lane lighting +
+intersection lighting + country-specific patterns), pixelated
+taillight (parametric pixels Ioniq 5), ADAS Lane (LFA + LKA + LDW +
+HDA + HDA2 hands-on), SCC + Navi ACC (predictive + curve speed + ISLA),
+FCA (pedestrian + cyclist + JTS intersection + reverse PCA-R + evasive
+steering), BCA + RCCA + BVM + Safe Exit Assist, FATC features (heat
+pump + ionizer + fine dust filter + fragrance), EV charge features
+(CCS1/2 + NACS + V2G/V2L/V2H + ISO 15118 PnC + 800V E-GMP + 22kW AC +
+240/350kW DC + E-Route Planner), **N Performance features** (Grin
+Boost + e-shift + Drift Optimizer + Active Sound+ + N Pedal + Track
+SENSE Shift + Battery pre-condition + Launch Control + Power Shift +
+lap timer + G-meter + track data export), N exhaust (legal quiet
+mode), **ccNC head unit features** (CarPlay + AA + Bluelink/Kia
+Connect + Bang & Olufsen + Lexicon Genesis + Meridian Kia + Krell +
+passenger display + rear displays G90/EV9), cluster (HUD + AR-HUD
+Genesis + OLED Genesis + N track mode + G-meter), SMK + UWB Digital
+Key 2.0 (relay attack protection), trailer (power hitch), HTRAC +
+chassis (HTRAC AWD + e-LSD + ECS + ARC + rear-axle steer + air susp
+G90 + sport/snow/mud/sand/terrain modes), Ergo Motion (relaxation
+mode Genesis), sliding doors (Carnival), pano sunroof, HUD (AR
+Genesis), Qi, DAW (gaze tracking HDA2), OTA (staged rollout), Crypto/
+HSM, **Bluelink/Kia Connect/GCS** (EV Route Planner + Charge myHyundai/
+Kia Charge + voice assistant + region NA/EU/CN/KDM), frunk (Ioniq/
+EV9), tow hitch, fragrance Genesis, **fingerprint + Face Connect**
+(GV60), **V2L/V2G features** (interior outlet + charge port adapter
++ V2H home backup + auto start on load detect).
+
+#### Adaptations (76) + Actuator tests (145) + Live PIDs (45) + DTC ext (2,460)
+Engine (incl. **N Launch max RPM + N exhaust flap policy + ISG min
+coolant**) + TCM + ESC + ECS + air-susp + rear steer + e-LSD + HTRAC
++ HDA2 + SCC + ISLA + matrix HB + pixel tail + comfort + EV (DC/AC
+targets + 350kW DC + ISO 15118 PnC + V2L default) + OTA + HSM +
+**N drive mode default + N torque distribution + N Active Sound +
+fingerprint default + Face Connect default + Ergo Motion default +
+fragrance + ionizer auto**; full per-actuator tests incl. **ECS 4×
+dampers + ARC actuators + rear-steer + 4× air-susp valves + N Launch
+demo + V2L outlet test + fingerprint + Face Connect tests + DPF
+forced regen 60s**; live engine + DPF + SCR + HV battery + front+rear
+motor + OBC + V2L + ADAS + chassis (ride heights, G long+lat) PIDs;
+broad P/B/U/C codes × 4-6 record types incl. environmental_data +
+freeze_frame_template.
+
+Estimated ~28% ODIS coverage — at the realistic GDS/KDS-community
+ceiling. Higher coverage requires GDS Mobile or KDS Tester license.
+
 ## [3.47.0] - 2026-05-08 — Porsche pushed to public-source ceiling (~38% ODIS, 5446 entries)
 
 Same depth-pattern as the prior 6 OEMs, applied to Porsche via PIWIS-
