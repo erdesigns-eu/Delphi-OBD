@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.74.0] - 2026-05-08 — PACCAR (Kenworth/Peterbilt/DAF) ~18% ODIS, ~4,800 entries
+
+MX-11/MX-13 + PX-7/PX-9 + MX-11 LNG + MX-13 hydrogen ICE + Kenworth
+T680E EV + Peterbilt 579EV + DAF XB-e/XF Electric + Kenworth/Peterbilt
+hydrogen fuel cell EV (Toyota partnership) + PACCAR AMT 12-speed +
+Eaton Endurant + TruckTech+/SmartLINQ/DAF Connect.
+
 ## [3.73.0] - 2026-05-08 — Scania ~22% ODIS, ~4,900 entries (Traton Group)
 
 DC09/DC13/DC16 V8 (660/770 hp) + Super 13L next-gen + OG13 LNG/CNG +
