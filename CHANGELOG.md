@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.57.0] - 2026-05-08 — Dacia ~22% ODIS, ~4,800 entries
+
+Shared CLIP/Renolink with Renault. Y-light signature + StarklePack +
+YouClip modular accessories + Extreme Pack 6-mode + Spring CN-platform
+EV + E-TECH 140 hybrid Jogger/Bigster.
+
 ## [3.56.0] - 2026-05-08 — Suzuki / Maruti pushed to ~22% ODIS, ~4,900 entries
 
 SDT / Suzuki Diagnostic Tool community.
