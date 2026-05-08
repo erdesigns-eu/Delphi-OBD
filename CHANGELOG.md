@@ -7,6 +7,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.36.0] - 2026-05-08 — VW catalog third deeper-niche pass (~40% ODIS)
+
+Continuing the same parity pass — adds 1,435 more entries focused
+on driver-coaching telemetry, last-32-trip computer history, broad
+per-component supplier/HW-rev/plant/manufacturing-date sweep,
+CO2 + emission strategy adaptations (start-stop thresholds, cyl
+deactivation envelope, coast/sailing parameters, SCR/DPF/GPF/EGR,
+cold-start, EV regen/thermal envelopes), broad B/C/U-code DTC
+ext-data sweep, per-key extended (8 keys × 8 fields), live
+coaching telemetry.
+
+### catalogs/vw.json — 4,744 → 6,179 entries
+
+| Section | v3.35 | v3.36 | Change |
+|---|---|---|---|
+| ECUs | 75 | **75** | — |
+| DIDs | 1,910 | **2,438** | +528 |
+| Routines | 368 | **383** | +15 |
+| Coding blocks | 128 | **128** | — |
+| Adaptations | 484 | **517** | +33 |
+| Actuator tests | 238 | **248** | +10 |
+| Live PIDs | 377 | **393** | +16 |
+| DTC extended-data | 1,164 | **1,997** | +833 |
+
+### Driver-coaching telemetry (80 DIDs)
+20 metrics × 4 windows (lifetime / 30d / 7d / last-trip): harsh
+brake/accel/corner counts, over-speed minor/major, idle time, eco
++ anticipation + smoothness + attention scores, phone-use events,
+hands-off/drowsiness/lane-departure warnings, AEB interventions,
+ACC manual disengagements, regen efficiency, coast/eco/sport
+distance.
+
+### Trip-computer extended (256 DIDs — last 32 trips × 8 fields)
+Per-trip: distance, avg/max speed, avg consumption, duration,
+start epoch, regen kWh, idle seconds.
+
+### Per-component supplier sweep (128 DIDs across 32 ECUs)
+Each ECU: supplier code (4-byte BCD), HW revision (4-char ASCII),
+manufacturing plant (3-char ASCII), manufacturing date (YYWWD BCD).
+
+### Per-key extended (64 DIDs across 8 keys)
+Per stored key: unique ID, battery mV, lifetime button-press count,
+last-used epoch, profile index, UWB-ranging-active flag, digital-key
+phone-paired flag, valet-mode flag.
+
+### CO2 / emission strategy adaptations (33 channels)
+Start-stop envelope (min coolant temp, min battery V, min SOC, max
++ min ambient), cyl-deact min/max speed + load envelope, coast
+disengage speed + decel, predictive-efficiency look-ahead, SCR
+dosing factor, DPF/GPF regen distance + max temp, EGR steady +
+transient max-open %, cold-start idle target rpm + duration, grid
+heater max current, cat light-off target, secondary-air duration,
+fuel-cut min rpm, EV regen aggressiveness D/B-mode, EV one-pedal
+creep, EV motor temp target, EV battery thermal pre-charge + DC
+charge envelopes.
+
+### DTC ext-data (+833) — broad B/C/U-code sweep
+B-codes 96 codes × 4 records = 384 (BCM/airbag/lighting/seat
+motor/window-motor/door/sunroof/tailgate/heater zone niche faults),
+U-codes 70 codes × 4 records = 280 (lost-comm + invalid-data on
+network nodes covering all major buses), C-codes 45 codes × 4
+records = 180 (per-wheel ABS + EPS + EPB + air suspension + iBooster
++ ADAS chassis faults).
+
+### Live PIDs (+16)
+Live eco/smoothness/attention/anticipation scores, live load factor,
+throttle change rate, brake pressure, steering rate, yaw rate,
+long+lat accel, ACC target distance + relative speed, lane offset,
+phone-detected flag, driver drowsiness level.
+
+### Routines (+15)
+Driver-coaching reset, trip-history clear, supplier-code re-learn
+from neighbours, CO2 strategy re-learn, SCR dosing recal, force GPF
+regen, grid-heater test, secondary-air test, digital-key phone
+re-pair, UWB key recalibrate, valet/teen-driver PIN reset,
+predictive efficiency re-learn, EV regen + one-pedal pedal-feel
+recalibrate.
+
+### Actuator tests (+10)
+Driver-coaching audio cue test, steering-wheel haptic cue test,
+cluster + HUD coaching-overlay tests, predictive-efficiency demo,
+grid heater + secondary air pulse tests, start-stop force-disable,
+cylinder-deactivation demo, sport-diff lock-up.
+
 ## [3.35.0] - 2026-05-08 — VW catalog deeper-niche pass (~37% ODIS)
 
 Continuing the VW push to set the parity bar before applying the
