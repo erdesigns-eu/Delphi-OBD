@@ -7,6 +7,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.52.0] - 2026-05-08 — EV specialists (6 OEMs) pushed to public-source ceiling (~18-22%, 29,626 entries)
+
+Tesla, Rivian, Lucid, BYD, NIO, XPeng brought up to depth using
+community sources (TeslaScan, Rivian Service Mode, Lucid community,
+BYD e-Platform forums, NIO Banyan, XPILOT community). Built via
+shared parameterized library.
+
+### catalogs/{tesla,rivian,lucid,byd,nio,xpeng}.json
+
+| OEM | Entries | ECUs | DIDs | Routines | Coding | Adapts | Acts | Live | DTC ext |
+|---|---|---|---|---|---|---|---|---|---|
+| Tesla | 4,985 | 135 | 2,005 | 114 | 30 (273 fields) | 70 | 132 | 39 | 2,460 |
+| Rivian | 4,894 | 131 | 1,931 | 109 | 29 (252 fields) | 68 | 127 | 39 | 2,460 |
+| Lucid | 4,902 | 134 | 1,941 | 107 | 28 (251 fields) | 67 | 126 | 39 | 2,460 |
+| BYD | 4,995 | 131 | 2,030 | 111 | 29 (255 fields) | 68 | 127 | 39 | 2,460 |
+| NIO | 4,934 | 132 | 1,967 | 112 | 29 (256 fields) | 68 | 127 | 39 | 2,460 |
+| XPeng | 4,916 | 131 | 1,950 | 111 | 29 (253 fields) | 68 | 128 | 39 | 2,460 |
+
+#### Brand-specific captures
+
+**Tesla** — Autopilot 14-bit coding (Basic + Enhanced + FSD + FSD
+Supervised + FSD Unsupervised + Navigate on Autopilot + Summon +
+Smart Summon + Actually Smart Summon + Autopark + Traffic Light &
+Stop Sign + Auto Lane Change + Highway Assist + Hands-off lane
+change + max-speed-above-limit) + Acceleration Boost + Track Mode +
+Drift Mode + Plaid Mode + Cheetah Stance + Premium Connectivity
+11-bit (satellite maps + live traffic + streaming + Theater +
+Caraoke + Arcade + Sentry Live View + in-car camera) + Sentry / Dog
+Mode / Camp Mode / Bioweapon Defense / Hospital Mode (HEPA) +
+Supercharger V3 350 kW handshake + Plaid tri-motor + Cybertruck
+steer-by-wire + 8-camera autopilot calibrate + 15 engine variants
+(Model S/3/X/Y/Cybertruck Cyberbeast + Roadster 2 + Semi + Robotaxi);
+HU gens incl. AMD Ryzen + HW3/HW4 FSD computers + AI5 Cybercab.
+
+**Rivian** — Driver+ Enhanced Highway hands-off + R1 8-mode coding
+(All-Purpose + Conserve + Sport + All-Terrain + Rock Crawl + Rally +
+Drift + Soft Sand) + Camp Mode auto-level + V2L outlets + Gear
+Tunnel coordinator + Tank Turn (legacy R1 hardware) + 12 engine
+variants (R1T/R1S Quad Gen 1 Bosch / Gen 2 in-house + Tri Motor
+Performance + R2/R3 + EDV); Quad-motor demo + Gear Tunnel test +
+auto-level routines.
+
+**Lucid** — DreamDrive Pro 8-bit (Highway Assist + auto lane change
++ intelligent speed + Surround View + Smart Summon + Reverse Summon)
++ Wunderbox 8-bit (19.2 kW AC + 350 kW DC + V2L 9.6 kW + V2H + V2G +
+ISO 15118 PnC + Plug & Charge + NACS adapter) + Sapphire tri-motor
+1217 hp + Glasshouse canopy (Gravity) + 14-camera DreamDrive
+calibrate + RacePak track telemetry + 9 engine variants (Air Pure/
+Touring/Grand Touring/Sapphire + Gravity Dual/Grand Touring/Sapphire
++ midsize Earth platform); 900V architecture metadata.
+
+**BYD** — Blade Battery LFP + Cell-to-Body integration + Super
+e-Platform 1000V Flash Charge (10C / 1MW DC) + Yangwang quad-motor
+e4 platform 9-bit (e4 quad + tank turn + floating mode + 3-wheel
+drive limp home + crab-walk + jumping DiSus-A + DiSus-A/C/P
+intelligent body control) + DiPilot City + 18 engine variants
+(DM-i 1.5/2.0 PHEV + DM-o off-road PHEV Bao 5/8 + Atto 3/Seal/
+Dolphin/Han/Tang EV + Yangwang U7/U8/U9 quad-motor + Denza N7/D9 +
+Song L + Seal 07).
+
+**NIO** — Power Swap 9-bit (BaaS subscription + 75 kWh LFP Power Up
+Lite + 100 kWh ternary + 150 kWh semi-solid + Flexible swap any
+size + Power Swap 4.0 station + V2G Charge & Discharge + lifetime
+swap counter) + NAD with 33 sensors (Aquila + Adam) + NIO Pilot Plus
++ Navigate on Pilot Plus + City Pilot + NOMI in-car AI 5-bit (NOMI
+Mate LLM + expressive face + voice only + English voice) + SkyRide
+active suspension (ET9 900V) + Executive Class lounge seats +
+Banyan 2.0 LLM-native OS + 11 engine variants (ES8/ES6/ES7/EC6/EC7/
+ET5/ET7/ET9 900V + ONVO L60 + Firefly + EVE).
+
+**XPeng** — XNGP / XPILOT 4.0 9-bit (XPILOT 2.5/3.0/4.0 tiers +
+XNGP Highway/City/map-free + VPA Memory Park + ACC) + X9 4-wheel
+steering with steer-by-wire 5-bit (crab-walk + U-turn + narrow park)
++ S5 Flash-Charge 480 kW 5C 6-bit (Robotic charging arm + 800V SiC +
+silicon carbide inverter) + LeDar lidar + AeroHT eVTOL flying-car
+module + Iron humanoid robot interface + XOS Tianji 5.0 + Orin XNPU
+compute + 10 engine variants (P7/P5/G3i/G6/G9/X9 4WS/G7/MONA M03 +
+AeroHT X2 flying car).
+
+Estimated ~18-22% ODIS coverage per OEM — proprietary CAN protocols
+limit ceiling. NIO benefits from Power Swap public docs; BYD from
+e-Platform 3.0 forums; Tesla from extensive community reverse
+engineering.
+
 ## [3.51.0] - 2026-05-08 — Tier 2 (5 OEMs) pushed to public-source ceiling (~22-25%, 24,921 entries)
 
 Volvo Cars, Polestar, Subaru, Mazda, Nissan/Infiniti, Mitsubishi
