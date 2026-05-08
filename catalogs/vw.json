@@ -2912,6 +2912,291 @@
         { "name": "awd_fitted", "label": "AWD / 4MOTION / Quattro fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 0 },
         { "name": "performance_variant", "label": "R / RS / GTI performance variant", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 0 }
       ]
+    },
+    {
+      "did": "0xF1B0", "name": "door_fl_coding",
+      "description": "Driver door (J386) coding",
+      "ecu_address": "0x70C", "payload_size": 4,
+      "fields": [
+        { "name": "comfort_window_open_via_key", "label": "Window open via long key-press", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "comfort_window_close_via_key", "label": "Window close via long key-press", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_close_via_inside_button", "label": "Auto-close via interior button", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "selective_unlock_first_press", "label": "First press unlocks driver only", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "anti_pinch_force_n", "label": "Anti-pinch force threshold (N)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 50, "max": 200 },
+        { "name": "approach_lighting_on_unlock", "label": "Door approach lighting on unlock", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1B1", "name": "door_fr_coding",
+      "description": "Front-passenger door (J387) coding",
+      "ecu_address": "0x70D", "payload_size": 4,
+      "fields": [
+        { "name": "comfort_window_open_via_key", "label": "Window open via long key-press", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "comfort_window_close_via_key", "label": "Window close via long key-press", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "anti_pinch_force_n", "label": "Anti-pinch force threshold (N)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 50, "max": 200 }
+      ]
+    },
+    {
+      "did": "0xF1B2", "name": "door_rl_coding",
+      "description": "Rear-left door (J388) coding",
+      "ecu_address": "0x70E", "payload_size": 4,
+      "fields": [
+        { "name": "child_lock_enabled_default", "label": "Child lock enabled by default", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rear_window_max_speed_kmh", "label": "Rear window operation max speed (km/h)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 0, "max": 250 }
+      ]
+    },
+    {
+      "did": "0xF1B3", "name": "door_rr_coding",
+      "description": "Rear-right door (J389) coding",
+      "ecu_address": "0x70F", "payload_size": 4,
+      "fields": [
+        { "name": "child_lock_enabled_default", "label": "Child lock enabled by default", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rear_window_max_speed_kmh", "label": "Rear window operation max speed (km/h)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 0, "max": 250 }
+      ]
+    },
+    {
+      "did": "0xF1B4", "name": "seat_driver_coding",
+      "description": "Driver seat (J136) coding — features",
+      "ecu_address": "0x716", "payload_size": 4,
+      "fields": [
+        { "name": "memory_fitted", "label": "Memory fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "memory_slots", "label": "Memory slot count", "kind": "uint8", "byte_offset": 0, "bit_offset": 1, "bit_width": 3, "default": 3, "min": 0, "max": 4 },
+        { "name": "lumbar_fitted", "label": "Lumbar support fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "lumbar_4way", "label": "Lumbar 4-way (vs 2-way)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "massage_fitted", "label": "Massage function fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "ventilation_fitted", "label": "Seat ventilation fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 0 },
+        { "name": "easy_entry_active", "label": "Easy-entry slide back on key-off", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1B5", "name": "seat_passenger_coding",
+      "description": "Passenger seat (J521) coding — features",
+      "ecu_address": "0x717", "payload_size": 4,
+      "fields": [
+        { "name": "memory_fitted", "label": "Memory fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "memory_slots", "label": "Memory slot count", "kind": "uint8", "byte_offset": 0, "bit_offset": 1, "bit_width": 3, "default": 2 },
+        { "name": "lumbar_fitted", "label": "Lumbar support fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "ventilation_fitted", "label": "Seat ventilation fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1B6", "name": "dcc_coding",
+      "description": "DCC adaptive chassis control (J775) coding",
+      "ecu_address": "0x72D", "payload_size": 4,
+      "fields": [
+        { "name": "dcc_fitted", "label": "DCC dampers fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "active_arb_fitted", "label": "Active anti-roll bar fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "default_profile", "label": "Default DCC profile", "kind": "enum", "byte_offset": 1, "default": 1,
+          "values": { "0": "comfort", "1": "auto", "2": "sport", "3": "individual" } },
+        { "name": "race_mode_unlocked", "label": "Race mode unlocked (R/RS)", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1B7", "name": "rear_axle_steer_coding",
+      "description": "Rear-axle steering (J428) coding",
+      "ecu_address": "0x71D", "payload_size": 4,
+      "fields": [
+        { "name": "rear_steer_fitted", "label": "Rear-axle steering fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rear_steer_max_angle_deg", "label": "Maximum rear-axle steering angle (deg)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 1, "max": 10 }
+      ]
+    },
+    {
+      "did": "0xF1B8", "name": "panoramic_roof_coding",
+      "description": "Panoramic / sunroof (J245) coding",
+      "ecu_address": "0x725", "payload_size": 4,
+      "fields": [
+        { "name": "panoramic_fitted", "label": "Panoramic glass roof fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "tilt_function_fitted", "label": "Tilt function fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_close_on_rain", "label": "Auto-close on rain detection", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "anti_pinch_force_n", "label": "Anti-pinch force threshold (N)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 50, "max": 200 }
+      ]
+    },
+    {
+      "did": "0xF1B9", "name": "trunk_lid_coding",
+      "description": "Electric trunk (J605) coding",
+      "ecu_address": "0x749", "payload_size": 4,
+      "fields": [
+        { "name": "electric_trunk_fitted", "label": "Electric tailgate fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "kick_sensor_fitted", "label": "Foot-activated kick sensor fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "max_open_height_pct", "label": "Maximum trunk-open height (%)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 50, "max": 100 }
+      ]
+    },
+    {
+      "did": "0xF1BA", "name": "battery_sensor_coding",
+      "description": "12 V battery sensor (J644) coding — battery type / capacity",
+      "ecu_address": "0x728", "payload_size": 4,
+      "fields": [
+        { "name": "battery_type", "label": "12 V battery type", "kind": "enum", "byte_offset": 0, "default": 0,
+          "values": { "0": "agm", "1": "efb", "2": "lead_acid", "3": "lithium" } },
+        { "name": "battery_capacity_ah", "label": "12 V battery capacity (Ah)", "kind": "uint8", "byte_offset": 1, "default": 70, "min": 30, "max": 110, "unit": "Ah" },
+        { "name": "battery_serial", "label": "12 V battery serial (ASCII)", "kind": "ascii", "byte_offset": 4, "bit_width": 80 }
+      ]
+    },
+    {
+      "did": "0xF1BB", "name": "telematics_coding",
+      "description": "Telematics (J949) coding — eCall + connected services",
+      "ecu_address": "0x73C", "payload_size": 4,
+      "fields": [
+        { "name": "ecall_enabled", "label": "eCall (emergency call) enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "we_connect_enabled", "label": "We Connect / connected services enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "remote_control_enabled", "label": "Remote climate / charge control enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "stolen_vehicle_tracking", "label": "Stolen-vehicle tracking enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "carrier_lock", "label": "Carrier lock (specific PLMN)", "kind": "uint8", "byte_offset": 1, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1BC", "name": "alarm_coding",
+      "description": "Anti-theft alarm coding",
+      "ecu_address": "0x735", "payload_size": 4,
+      "fields": [
+        { "name": "alarm_fitted", "label": "Alarm system fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "interior_motion_fitted", "label": "Interior motion sensor fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "tilt_sensor_fitted", "label": "Tilt / tow-away sensor fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "glass_break_fitted", "label": "Glass-break sensor fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "alarm_horn_volume", "label": "Alarm horn volume (0-7)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 0, "max": 7 }
+      ]
+    },
+    {
+      "did": "0xF1BD", "name": "tow_hitch_coding",
+      "description": "Electronic tow hitch (J345) coding",
+      "ecu_address": "0x77A", "payload_size": 4,
+      "fields": [
+        { "name": "tow_hitch_fitted", "label": "Tow hitch fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "tow_hitch_motorised", "label": "Motorised tow hitch (deployable)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "trailer_assist_fitted", "label": "Trailer Assist fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "trailer_max_weight_kg", "label": "Programmed maximum trailer weight (kg)", "kind": "uint16_be", "byte_offset": 1, "default": 1500, "min": 0, "max": 3500 }
+      ]
+    },
+    {
+      "did": "0xF1BE", "name": "webasto_coding",
+      "description": "Webasto / parking heater (J364) coding",
+      "ecu_address": "0x77C", "payload_size": 4,
+      "fields": [
+        { "name": "webasto_fitted", "label": "Parking heater fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "remote_start_enabled", "label": "Remote start enabled (We Connect)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "default_runtime_min", "label": "Default runtime (min)", "kind": "uint8", "byte_offset": 1, "default": 30, "min": 5, "max": 60 }
+      ]
+    },
+    {
+      "did": "0xF1BF", "name": "premium_amp_coding",
+      "description": "Premium audio amplifier (J525) coding",
+      "ecu_address": "0x75F", "payload_size": 4,
+      "fields": [
+        { "name": "amp_brand", "label": "Premium amplifier brand", "kind": "enum", "byte_offset": 0, "default": 0,
+          "values": { "0": "standard", "1": "dynaudio", "2": "harman_kardon", "3": "bang_olufsen", "4": "bose", "5": "sony" } },
+        { "name": "speaker_count", "label": "Total speaker count", "kind": "uint8", "byte_offset": 1, "default": 8, "min": 4, "max": 22 },
+        { "name": "subwoofer_fitted", "label": "Subwoofer fitted", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "3d_sound_fitted", "label": "3D Sound fitted (B&O / Sonic)", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1C0", "name": "rear_seat_entertainment_coding",
+      "description": "Rear-seat entertainment (J829) coding",
+      "ecu_address": "0x75B", "payload_size": 4,
+      "fields": [
+        { "name": "rse_fitted", "label": "Rear-seat entertainment fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "screen_count", "label": "Screen count (1 or 2)", "kind": "uint8", "byte_offset": 1, "default": 2, "min": 0, "max": 2 },
+        { "name": "wireless_headphones_fitted", "label": "Wireless headphones fitted", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C1", "name": "head_up_display_coding",
+      "description": "Head-up display (J898) coding",
+      "ecu_address": "0x738", "payload_size": 4,
+      "fields": [
+        { "name": "hud_fitted", "label": "HUD fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "hud_ar_fitted", "label": "Augmented-reality HUD fitted (newer ID models)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "show_navigation", "label": "Show navigation overlay", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "show_acc", "label": "Show ACC info overlay", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "show_speed_limit", "label": "Show speed limit overlay", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C2", "name": "night_vision_coding",
+      "description": "Night Vision Assist (J853) coding",
+      "ecu_address": "0x750", "payload_size": 4,
+      "fields": [
+        { "name": "night_vision_fitted", "label": "Night Vision Assist fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "warn_pedestrians", "label": "Warn for pedestrians", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "warn_animals", "label": "Warn for animals", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C3", "name": "bsg_mild_hybrid_coding",
+      "description": "BSG / 48 V mild-hybrid (J1242) coding",
+      "ecu_address": "0x798", "payload_size": 4,
+      "fields": [
+        { "name": "mild_hybrid_fitted", "label": "Mild hybrid (48 V) fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "boost_strategy", "label": "Boost strategy", "kind": "enum", "byte_offset": 1, "default": 1,
+          "values": { "0": "torque_fill_only", "1": "torque_fill_and_acceleration", "2": "performance_max" } },
+        { "name": "coast_mode_enabled", "label": "Coast mode (engine-off) enabled", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C4", "name": "ev_drivetrain_coding",
+      "description": "EV drivetrain coding (MEB)",
+      "ecu_address": "0x7E6", "payload_size": 4,
+      "fields": [
+        { "name": "drivetrain", "label": "Drivetrain", "kind": "enum", "byte_offset": 0, "default": 0,
+          "values": { "0": "rwd", "1": "awd_eaxle", "2": "performance_gtx", "3": "id_r" } },
+        { "name": "regen_default_d", "label": "Default regen level in D", "kind": "uint8", "byte_offset": 1, "default": 0, "min": 0, "max": 4 },
+        { "name": "regen_default_b", "label": "Default regen level in B", "kind": "uint8", "byte_offset": 2, "default": 4, "min": 1, "max": 4 },
+        { "name": "creep_enabled_in_d", "label": "Creep enabled in D", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C5", "name": "ev_battery_coding",
+      "description": "EV HV battery coding (MEB)",
+      "ecu_address": "0x7E7", "payload_size": 4,
+      "fields": [
+        { "name": "battery_capacity_kwh", "label": "Pack capacity (kWh)", "kind": "uint8", "byte_offset": 0, "default": 77, "min": 0, "max": 200, "unit": "kWh" },
+        { "name": "battery_chemistry", "label": "Pack chemistry", "kind": "enum", "byte_offset": 1, "default": 1,
+          "values": { "0": "nca", "1": "nmc", "2": "lfp", "3": "ncm811", "4": "ncm622", "5": "lto" } },
+        { "name": "battery_supplier", "label": "Pack supplier", "kind": "enum", "byte_offset": 2, "default": 0,
+          "values": { "0": "lg_chem", "1": "samsung_sdi", "2": "catl", "3": "byd", "4": "panasonic", "5": "northvolt", "6": "powerco" } },
+        { "name": "module_count", "label": "Module count", "kind": "uint8", "byte_offset": 3, "default": 12, "min": 1, "max": 24 }
+      ]
+    },
+    {
+      "did": "0xF1C6", "name": "ev_obc_coding",
+      "description": "EV onboard charger (J1238) coding",
+      "ecu_address": "0x781", "payload_size": 4,
+      "fields": [
+        { "name": "obc_max_power_kw", "label": "OBC maximum power (kW)", "kind": "uint8", "byte_offset": 0, "default": 11, "min": 3, "max": 22, "unit": "kW" },
+        { "name": "supports_3phase", "label": "OBC supports 3-phase AC", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "supports_v2g", "label": "OBC supports V2G / V2L", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "v2l_max_power_w", "label": "V2L maximum output power (W)", "kind": "uint16_be", "byte_offset": 2, "default": 3600, "min": 0, "max": 11000, "unit": "W" }
+      ]
+    },
+    {
+      "did": "0xF1C7", "name": "tow_assist_coding",
+      "description": "Trailer Assist (rear) coding",
+      "ecu_address": "0x77A", "payload_size": 4,
+      "fields": [
+        { "name": "trailer_assist_fitted", "label": "Trailer Assist fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "auto_park_with_trailer", "label": "Auto-park with trailer enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1C8", "name": "ambient_light_coding",
+      "description": "Ambient lighting (J966) coding",
+      "ecu_address": "0x788", "payload_size": 4,
+      "fields": [
+        { "name": "ambient_lighting_fitted", "label": "Ambient lighting fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rgb_capable", "label": "RGB (full-color) capable", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "zone_count", "label": "Lighting zone count", "kind": "uint8", "byte_offset": 1, "default": 4, "min": 1, "max": 30 },
+        { "name": "welcome_light_show", "label": "Welcome light-show enabled", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1C9", "name": "wireless_charging_coding",
+      "description": "Wireless / inductive charging socket (J1112) coding",
+      "ecu_address": "0x768", "payload_size": 4,
+      "fields": [
+        { "name": "wireless_charging_fitted", "label": "Wireless charging pad fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "max_power_w", "label": "Max charging power (W)", "kind": "uint8", "byte_offset": 1, "default": 15, "min": 5, "max": 50, "unit": "W" },
+        { "name": "qi_compatible", "label": "Qi-compatible", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
+      ]
     }
   ],
   "adaptations": [
