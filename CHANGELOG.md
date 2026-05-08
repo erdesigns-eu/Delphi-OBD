@@ -7,6 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.38.0] - 2026-05-08 — VW final pre-commercial-ceiling pass (~50% ODIS)
+
+Final non-commercial pass — adds 993 entries across the last
+practical gaps before public/community sources are exhausted.
+Adds 36 new ECUs (rear-axle steer, EV thermal secondary, HV
+junction box, charge inlet electronics, heat-pump compressor,
+combustion + electric aux heaters, LV battery management, charging
+planner, V2X controller, Car2X radio, OTA master, crypto/HSM,
+ethernet switch + 5 domain controllers in the new zonal
+architecture, AR headlight, digital OLED + matrix headlights,
+ultrasonic clusters, blind-spot modules, night-vision, driver-
+attention monitoring, EV rear motor + disconnect clutch),
+per-bank engine deep telemetry (32 fields × 2 banks), per-zone
+HVAC fine-grained, brake-fluid + iBooster + pedal-feel, ADAS
+tracked-object stack (8 objects × 8 fields), premium audio
+fine-grained (24 DIDs), HV battery per-module (12 modules × 6
+fields), 8 new coding blocks (lane-assist, ACC, AEB, V2X, OTA,
+HSM, trailer, sound synthesis), 76 module-replacement and zonal
+self-test routines, 42 actuator tests for the new domain, 500
+more long-tail VAG P-codes.
+
+### catalogs/vw.json — 7,498 → 8,491 entries
+
+| Section | v3.37 | v3.38 | Change |
+|---|---|---|---|
+| ECUs | 75 | **111** | +36 |
+| DIDs | 2,774 | **3,042** | +268 |
+| Routines | 460 | **536** | +76 |
+| Coding blocks | 133 (915 fields) | **141 (973 fields)** | +8 / +58 |
+| Adaptations | 565 | **604** | +39 |
+| Actuator tests | 298 | **340** | +42 |
+| Live PIDs | 421 | **445** | +24 |
+| DTC extended-data | 2,772 | **3,272** | +500 |
+
+### New ECUs (36) — covers zonal-architecture + niche subsystems
+Domain controllers (powertrain, chassis, body, ADAS, infotainment),
+secondary central gateway, ethernet switch (TSN), crypto/HSM,
+OTA master, central computer (zonal), Car2X DSRC/C-V2X radio,
+V2X (V2G/V2L/V2H) controller, charging planner, AC + DC charge
+inlet electronics, HV battery junction box, EV thermal secondary,
+heat-pump compressor, combustion + electric aux heaters, LV aux
+battery monitor + 12V starter battery sensor, panoramic roof,
+convertible top, exhaust flap L+R, soundaktor L+R, rear-axle steer,
+wireless charging (Qi), HUD projector, interior camera, gesture
+control, massage modules dr+pa, passenger screen, rear screens L+R,
+premium amplifier, DSP processor, AR headlight, digital OLED
+taillights L+R, digital matrix headlights L+R, side radars FL+FR,
+ultrasonic clusters front+rear, blind-spot modules L+R, night-vision,
+driver-attention, EV rear motor inverter, EV rear-axle disconnect
+clutch, secondary AWD coupling, trailer module.
+
+### Per-bank engine deep (64 DIDs)
+2 banks × 32 fields each: turbo speed + inlet/outlet temp,
+intercooler in/out temp, manifold absolute + boost pressure,
+wastegate duty + position, VGT vane, EGR position, throttle position,
+intake runner position, HP + LP fuel rail pressure, fuel pump duty,
+injector duration, ignition advance, knock correction, O2 short +
+long trim, cat efficiency, DPF soot + ash + pressure-drop + temp
+in/out, SCR NOx in/out + efficiency, EGR cooler temp, oxidation cat
+temp.
+
+### Per-zone HVAC (32 DIDs)
+4 zones × 8 fields each: setpoint, actual, blower duty, temp flap,
+defrost flap, face flap, foot flap, ambient sensor.
+
+### Brake-fluid + iBooster + pedal-feel (12 DIDs)
+Reservoir level, fluid temp, age, water content, master cylinder
+pressure, iBooster motor current + position + temperature, pedal
+force + travel, park-brake L+R motor currents.
+
+### ADAS tracked-object stack (64 DIDs)
+8 simultaneous tracked objects × 8 fields each: object ID, class
+(car/truck/motorcycle/bicycle/pedestrian/animal/unknown), distance,
+lateral offset, relative speed, confidence, track age, sensor-fusion
+source bitmap.
+
+### Premium audio fine-grained (24 DIDs)
+Per-channel gains (FL/FR/RL/RR/center/sub/surround L+R), amp temp +
+supply + total power, DSP load, 7-band EQ, ANC active + attenuation,
+road-noise level, speaker short + open bitmaps.
+
+### HV battery per-module (72 DIDs)
+12 modules × 6 fields each: voltage, current, max temp, min temp,
+SOC, SOH.
+
+### Coding blocks (+8 / +58 fields)
+Lane Assist extended, ACC extended, AEB extended, V2X / Car2X,
+OTA features, HSM / security, trailer, AVAS + soundaktor synthesis.
+
+### Routines (+76)
+14 module-replacement procedures (engine, trans, ABS, steering,
+airbag, cluster, BCM, gateway, radar, camera, EVCC, HV battery, EV
+motor, OBC, DC-DC), KESSY + immobilizer + SSP relearns, key pairing
++ deletion, mileage + odometer + speedo calibration, central crash-
+data clear, fuel-level + EV-range relearn, gateway component
+protection, OTA install/rollback/verify, HSM key provision/zeroize/
+log export, 5 domain self-tests + ethernet switch + Car2X self-tests,
+trailer module pair + calibrate, panoramic roof + convertible top
+calibrations, exhaust flap + soundaktor calibrations, heat-pump +
+aux heaters self-tests, LV aux battery test, wireless charging
+calibrate, HUD test, interior camera + gesture calibrations, massage
++ passenger/rear screen tests, premium amp + DSP self-tests, AR
+headlight + OLED tail + digital matrix calibrations, ultrasonic +
+blind-spot + night-vision + driver-attention calibrations, EV rear
+motor + disconnect clutch + battery junction + charge inlet tests.
+
+### DTC ext-data (+500) — long-tail P-codes (round 2)
+Sparse second-pass through P14xx-P23xx + P2Cxx-P2Dxx with
+additional offsets × 3 records (occurrence + miles_since_cleared
++ oem_status_byte).
+
 ## [3.37.0] - 2026-05-08 — VW platform/MY splits + deep service routines (~45% ODIS)
 
 Fourth pass — adds 1,319 entries focused on the platform/MY axis
