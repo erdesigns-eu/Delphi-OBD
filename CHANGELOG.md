@@ -7,6 +7,140 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.47.0] - 2026-05-08 — Porsche pushed to public-source ceiling (~38% ODIS, 5446 entries)
+
+Same depth-pattern as the prior 6 OEMs, applied to Porsche via PIWIS-
+community + 911uk + Rennlist + shared VW Group ODX (Porsche shares
+PPE/J1/MEB platforms with Audi/VW). Higher ceiling than Toyota/Honda
+because Porsche shares platforms with VW Group (which we already
+mapped at ~50% — Group ODX leakage benefits Porsche).
+
+### catalogs/porsche.json — 41 → 5,446 entries
+
+| Section | v3.39 | v3.47 |
+|---|---|---|
+| ECUs | 8 | **138** |
+| DIDs | 33 | **2,423** |
+| Routines | 0 | **141** |
+| Coding blocks | 0 | **31 (278 fields)** |
+| Adaptations | 0 | **74** |
+| Actuator tests | 0 | **139** |
+| Live PIDs | 0 | **40** |
+| DTC extended-data | 0 | **2,460** |
+
+#### ECUs (+130)
+PIWIS topology spanning ICE + hybrid + EV variants: powertrain
+(DME + bank-2 split for V8, PDK/Tiptronic, AWD PTU, HV battery,
+front+rear PCU, OBC, DC-DC, 800V DC charger, front+rear e-motor,
+Sport Chrono, Sport exhaust flap, Launch Control coordinator, active
+engine mount), chassis (ABS+PSM, SAS, Servotronic EPS, EPB, TPMS,
+SRS, occupancy, ParkAssist, PASM, PDCC, rear-axle steer, PTV+, air
+suspension, ride height, PCCB ceramic brake, iBooster), ADAS
+(coordinator + InnoDrive, front camera + radar, rear radar L+R,
+4× corner radar, 360-camera × 4, driver monitor, Night Vision Assist,
+front+rear sonar, traffic sign), body (CGW + BCM + cluster + dual
+HVAC + 4 doors + 4 seats Panamera + 2 mirrors + steering column +
+convertible top + active rear spoiler + active front lip + tailgate
++ pano roof + fuel/charge flaps L+R), Matrix LED HD headlights L+R +
+OLED taillights L+R, IVI (PCM + passenger display + 2 rear displays
++ Burmester 3D amp + premium amp + tuner + 5G TCU + eCall + Porsche
+Vehicle Tracking), Kessy + immobilizer + alarm + interior motion +
+tilt + glass-break, HV/EV (thermal + heat pump + PTC + HV refrigerant
+compressor + battery heater + chiller + valve block + 2× aux pumps),
+aux comfort (heated steering + seat climate dr+pa + HUD + ambient +
+Qi + 2× massage + auto-wiper + fragrance + ionizer), trailer + power
+hitch, zonal (OTA + HSM + Ethernet switch + 5 domain controllers +
+Car2X + My Porsche TCU app gateway).
+
+#### DIDs (+2,390)
+- 27 generic UDS DIDs incl. Porsche part no, calibration, PIWIS ID, factory.
+- 72 DME engine DIDs (RPM/torque/MAP/MAF/lambda B1+B2, 2× turbo speed, 2× wastegate, VVT intake+exhaust B1+B2, idle, drive mode 4 modes, Launch Control state+count, **6 overrev band counters** (911 trademark), max-RPM/speed/oil-temp lifetime, full-load + overboost seconds).
+- 64 per-cylinder (1-8) — V8 Cayenne/Panamera Turbo S.
+- 192 engine variant DIDs — 24 Porsche engines × 8 fields (MA1/MA2 flat-6, 9A1/9A2 NA GT3 flat-6, MA2 flat-4 718, V6 BiTurbo, V6 turbo Cayenne/Macan, V8 BiTurbo Panamera/Cayenne, V6+V8 TDI legacy, PHEV V6+V8, T-Hybrid GTS, Taycan dual-motor, Taycan Turbo GT S Plate, Macan EV PPE, Macan EV Turbo).
+- 160 transmission variants — 10 trans gens × 16 fields (7+8 PDK, Tiptronic, 6+7MT, 2-speed Taycan rear, 1-speed Taycan front, 2-speed Macan EV, transfer 4S, PTV+).
+- 48 PCM head-unit gens (PCM 5/6/7) × 16 fields.
+- 29 chassis DIDs (ABS+PSM + PASM state + PDCC state + rear steer angle + 4× ride height + 4× air suspension pressure + compressor + PTV+ split).
+- 64 per-wheel ABS/TPMS (4 × 16 incl. PCCB disc temp + caliper temp + lifetime + camber + toe).
+- 30 HV battery DIDs incl. 800V architecture flag + chemistry + pyrofuse + coolant in/out.
+- 216 per-cell (108 × 2) for Taycan/Macan EV.
+- 264 per-module (33 × 8 fields).
+- 32 motor/PCU DIDs (front + rear, 16 each).
+- 30 OBC DIDs incl. 800V booster + max session kW + charge curve.
+- 35 ADAS + InnoDrive (predictive cruise + Night Vision + Emergency Assist + Lane Change + Side Assist L+R + intersection + swerve).
+- 96 ADAS object stack (12 × 8).
+- 28 cluster + Sport Chrono (lap timer, best 0-60/0-100/QM, total laps, total track minutes, launches).
+- 256 last-32-trip × 8.
+- 80 driver coaching (20 × 4 windows).
+- 40 per-bulb hours (matrix + OLED + ambient).
+- 31 ambient zones.
+- 64 per-key (8 × 8) incl. UWB + Digital Key.
+- 32 per-camera (8 × 4) incl. Night Vision IR.
+- 60 Burmester 3D audio incl. **15-band parametric EQ × 3 (gain/freq/Q)**.
+- 120 per-ECU programming (30 × 4).
+- 48 Connect Plus subscription incl. **Function on Demand** (rear steer, PASM, PDCC, InnoDrive, matrix HB).
+- 20 bus topology (Comfort/PT/Chassis/Info CAN + LIN + FlexRay + Ethernet + AVB + SOME/IP).
+- 32 quad-zone HVAC + 96 user profiles (6 × 16) + 96 service history (24 × 4 incl. PDK clutch + timing chain + alignment) + 39 vehicle metadata (incl. **Weissach + lightweight + aero kit + carbon roof + PTS Exclusive Manufaktur paint** + battery size + chemistry + max DC kW + motor count + overboost).
+
+#### Routines (+141)
+DME idle/throttle/misfire/kat/lambda/VVT/oil-pump/starter adapts +
+**overrev counter clear** + **Track Mode init** + **Launch Control
+calibrate**, PDK basic + clutch adapt + kiss-point, AWD + PTV+ adapt,
+per-wheel ABS bleed + pump test + SAS + yaw zero + TPMS relearn +
+EPB workshop, **PASM + PDCC + rear-axle steer + air-suspension +
+ride-height calibrations**, PCCB warm-up + iBooster, BCM + window +
+mirror + sunroof + convertible top + tailgate + active rear spoiler +
+active front lip calibrations, A/C basic + heat-pump self-test, matrix
+LED HD calibrate + OLED taillight init, front camera dynamic + static
++ radar align + 4 corner/rear radars + 360-camera + driver monitor +
+Night Vision calibrations, cluster + mileage align + Sport Chrono
+reset, HV cell balance + capacity + isolation + contactor + pre-charge
++ pyrofuse, motor resolver zero (front+rear) + inverter self-test
+(front+rear), OBC + DC-DC + 800V DC charger + thermal loop + charge
+flaps L+R, exhaust flap test, 21 module-replacement procedures, key
+pairing + immobilizer relearn, OTA check/install/rollback, HSM
+provision/zeroize, 5 domain self-tests + Ethernet + Car2X, seat init
+dr+pa + massage calibrate + Qi + HUD calibrate, **My Porsche refresh
++ Function on Demand activate/deactivate**.
+
+#### Coding blocks (31 / 278 fields)
+BCM general (UWB approach unlock + walk-away lock), door extended,
+alarm zones (transport + garage modes), Matrix LED HD features
+(**HD matrix 84k px + lane lighting + intersection lighting + pothole
+warning projection**), OLED taillight, ADAS Lane (Emergency Assist),
+ACC + InnoDrive (predictive ACC + speed limit assist), AEB
+(intersection + reverse + swerve), Side Assist (Lane Change +
+exit warning), A/C (heat pump + ionizer + fragrance), EV charge
+(CCS1/2 + NACS + V2G/V2L/V2H + ISO 15118 PnC + 800V architecture +
+22kW AC + 270/350kW DC), **Sport Chrono** (steering dial + Track
+Precision app + Launch Control + PSM Sport + lap timer + video
+overlay), Sport exhaust (legal quiet mode), PCM (CarPlay + AA +
+Connect Plus + Burmester 3D + passenger display + rear displays),
+cluster (HUD + Sport Chrono overlay + G-meter overlay + Track mode),
+Kessy (UWB + Digital Key + relay attack protection), trailer (power
+hitch), AWD/PASM/PDCC, driver seat climate (heat + vent + massage +
+memory), convertible, panoramic roof, HUD (AR overlay), Qi, driver
+monitor, OTA (staged rollout), Crypto/HSM (debug locked), **My
+Porsche / Connect Plus + Function on Demand** (rear steer, PASM,
+PDCC, InnoDrive, matrix HB unlocks + region NA/EU/CN), aero/spoilers
+(active rear + front lip + diffuser), tow hitch, fragrance, massage.
+
+#### Adaptations (74) + Actuator tests (139) + Live PIDs (40) + DTC ext (2,460)
+Engine (incl. **overrev clear + Launch Control max RPM + Track Mode
+default + exhaust flap policy**) + PDK + ABS + PASM modes + air-susp
+heights + rear steer angle + PTV+ + InnoDrive + ACC + matrix HB +
+OLED + comfort + EV (DC/AC targets + 270kW DC + ISO 15118 PnC +
+overboost + AVAS) + OTA + HSM + Sport Chrono + Launch + massage +
+fragrance defaults; full per-actuator tests incl. **PASM 4× dampers
++ PDCC actuators + rear-steer + 4× air-susp valves + PCCB warm-up +
+Launch Control demo**; live engine + HV battery + front+rear motor +
+OBC + ADAS + chassis (ride heights, G long+lat) PIDs; broad
+P/B/U/C codes × 4-6 record types incl. environmental_data +
+freeze_frame_template.
+
+Estimated ~38% ODIS coverage — at the realistic PIWIS-community
+ceiling. Higher coverage requires a PIWIS Tester license (Porsche
+proprietary).
+
 ## [3.46.0] - 2026-05-08 — Honda pushed to public-source ceiling (~26% ODIS, 4108 entries)
 
 Same depth-pattern as VW/BMW/Ford/Mercedes/Toyota, applied to Honda
