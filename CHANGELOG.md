@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.64.0] - 2026-05-08 — Geely Holding (9 brands) ~20% ODIS, ~5,000 entries
+
+Geely Auto + Lynk & Co + Zeekr + Lotus + Galaxy + Proton + Livan +
+Geometry + Volvo (already done) sharing SEA/SEA-S/EMA platforms.
+Zeekr 001/007/009/X/Mix 800V SiC + 5C Flash-Charge + Lotus Eletre/
+Emeya/Theory 1 (Eletre R 905hp) + Galaxy L7/E8 PHEV + Lynk & Co Z10
++ Livan + Proton e.MAS 7 + E-DHT Hi-X PHEV.
+
 ## [3.63.0] - 2026-05-08 — smart (Mercedes×Geely JV) ~22% ODIS, ~4,800 entries
 
 Legacy ForTwo/ForFour W453 + new #1/#3/#5 BEV3 SEA platform + Brabus
