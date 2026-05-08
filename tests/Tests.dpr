@@ -75,6 +75,7 @@ uses
   Tests.OEM.UdsClient.Async in 'Tests.OEM.UdsClient.Async.pas',
   Tests.OEM.UdsClient.Replay in 'Tests.OEM.UdsClient.Replay.pas',
   Tests.Protocol.DoIP.Cross in 'Tests.Protocol.DoIP.Cross.pas',
+  Tests.Protocol.DoIP.TLS in 'Tests.Protocol.DoIP.TLS.pas',
   Tests.OEM.DTC.Schema in 'Tests.OEM.DTC.Schema.pas',
   Tests.OEM.CatalogIntegrity in 'Tests.OEM.CatalogIntegrity.pas',
   Tests.OEM.SchemaShape in 'Tests.OEM.SchemaShape.pas',

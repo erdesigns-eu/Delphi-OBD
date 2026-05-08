@@ -113,12 +113,17 @@ prefixes the CI lint allows, manufacturer keys are non-empty, and
 the schema version is 1 or 2. A full third-party JSON-Schema
 validator is still out of scope, but the practical gap is closed.
 
-### G12. Phase F.4 (DoIP TLS) and F.5 (self-loop integration test) deferred
+### G12. ✅ FIXED — DoIP TLS + self-loop integration test
 
-Documented in earlier commit messages. TLS needs SChannel/OpenSSL
-hookup + per-OEM cert policy; integration test needs a threaded local
-listener that's flaky in CI. Both are real gaps relative to a
-"DoIP-complete" claim.
+`OBD.Protocol.DoIP.Session.TLS` ships a real Indy + OpenSSL TLS
+session for ISO 13400-3 §7 (TCP/3496). TLS 1.2 minimum (1.3
+allowed), mutual-TLS via the `TDoIPTLSCredentials` record (root
+CA, client cert/key/passphrase), peer-verification toggle, and
+optional cipher-list override for OEM cert policies. Self-loop
+test in `Tests.Protocol.DoIP.TLS.RoutingActivationAndDiagnosticRoundTripOverTLS`
+spins a `TIdTCPServer + TIdServerIOHandlerSSLOpenSSL` on a
+loopback port using a fixture cert pair, and asserts the round
+trip is bit-exact across the encrypted channel.
 
 ## Small correctness checks not done
 

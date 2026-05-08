@@ -124,6 +124,7 @@ contains
   OBD.OEM.UdsClient.Async in '..\src\Services\OBD.OEM.UdsClient.Async.pas',
   OBD.Protocol.DoIP.Session in '..\src\Protocol\OBD.Protocol.DoIP.Session.pas',
   OBD.Protocol.DoIP.Session.Cross in '..\src\Protocol\OBD.Protocol.DoIP.Session.Cross.pas',
+  OBD.Protocol.DoIP.Session.TLS in '..\src\Protocol\OBD.Protocol.DoIP.Session.TLS.pas',
   OBD.OEM.Motorcycles in '..\src\Services\OBD.OEM.Motorcycles.pas',
   OBD.OEM.Agricultural in '..\src\Services\OBD.OEM.Agricultural.pas',
   OBD.OEM.Marine in '..\src\Services\OBD.OEM.Marine.pas',
