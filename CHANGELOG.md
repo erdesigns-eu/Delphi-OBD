@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.59.0] - 2026-05-08 — Rolls-Royce ~32% ODIS, ~5,000 entries (BMW Group leakage)
+
+N74 V12 BiTurbo + Black Badge 600 hp + Spectre BMW i7-derived dual
+motor + Black Badge 650 hp + Magic Carpet Ride + Planar Suspension +
+Flagbearer cam + Satellite Aided Transmission + Starlight Headliner
+1568 fibres + Shooting Stars + Starlight Doors (Phantom Tranquillity)
++ Spirit of Ecstasy retractable + 13-bit Bespoke (crystal door
+handles, Droptail program, Bespoke Collective) + 18-channel Bespoke
+Audio + Whispers app + iDrive 8 bespoke.
+
 ## [3.58.0] - 2026-05-08 — Bentley ~32% ODIS, ~5,000 entries (VW Group leakage)
 
 W12 + V8 BiTurbo (incl. Continental GT Speed PHEV) + Bentley Dynamic
