@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.54.0] - 2026-05-08 — Renault / Alpine pushed to public-source ceiling (~25% ODIS, ~4,900 entries)
+
+CLIP / Renolink / Pyren / Ddt4all community sources. Covers Renault +
+Alpine (now full sub-brand with A110/A290/A390 EV).
+
+### catalogs/renault.json
+~4,900 entries (132 ECUs / 1,950 DIDs). Built via shared library.
+
+#### Brand-specific captures
+- **MULTI-SENSE** 8-mode (Comfort/Sport/Eco/Perso/Neutral/Race
+  Megane RS/Snow/All-Road)
+- **4CONTROL** 4-wheel steering coding (low-speed opposite phase +
+  high-speed same phase + sport aggressive — Megane RS/Espace/Rafale)
+- **E-TECH** multi-mode clutchless hybrid 9-bit (PHEV + EV priority +
+  Hybrid auto + E-Save + Pure full EV + V2L on R5/R4 E-Tech)
+- 19 engine variants: H5Ht 1.8 turbo Megane RS Trophy + H4Ht/H5Dt
+  Blue dCi + K9K + E-TECH 1.6/1.8 + **Renault 5 E-Tech AmpR Small +
+  Renault 4 E-Tech + Megane E-Tech CMF-EV + Scenic E-Tech + Alpine
+  A290 R5-based + Alpine A390 fastback SUV** + Zoe legacy + Kangoo
+  Z.E. + Master E-Tech
+- 9 transmissions incl. EDC 7-DCT (Getrag) + EDC 6-DCT + E-TECH multi-
+  mode clutchless + 1/2-speed EV + X-Track 4WD
+- HU gens: EASY LINK + **OpenR Link Android Automotive** + Alpine
+  telematics
+- 5 routines incl. **4CONTROL calibrate + E-TECH multi-mode clutch
+  relearn + Alpine telemetry export**
+
+Estimated ~25% ODIS — at CLIP/Renolink-community ceiling.
+
 ## [3.53.0] - 2026-05-08 — GM (Chevy/Buick/Cadillac/GMC) pushed to public-source ceiling (~30% ODIS, 5,254 entries)
 
 GDS2 / MDI / Tech2 community sources. Covers all 4 brands sharing GM
