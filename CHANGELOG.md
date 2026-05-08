@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.55.0] - 2026-05-08 — Mini (BMW Group) pushed to public-source ceiling (~30% ODIS, ~5,000 entries)
+
+BMW ISTA + Mini Connected community sources. Mini is a BMW sub-brand
+sharing UKL2/FAAR/Spotlight platforms.
+
+### catalogs/mini.json
+~5,000 entries. Built via shared library.
+
+#### Brand-specific captures
+- **Go-Kart Mode** + 8 Mini Experiences (Green/Sport/Timeless Classic/
+  Core/Vivid/Balance/Personal)
+- **Mini Yours / Spotlight** 6-bit (Door LED projector + Union Jack
+  taillights + Piano Black + Chrome delete + Multitone Roof + LED
+  ambient patterns)
+- 12 engine variants: B38 1.5T 3-cyl + B48 2.0T + JCW 306 hp + B58 3.0
+  I6 JCW GP3 + B37/B47 diesel + Cooper SE legacy (BMW i3 driveline) +
+  **Cooper SE new (Spotlight CN platform) + Aceman dual + Countryman
+  E UKL2/FAAR PHEV+EV + Countryman SE ALL4 + JCW Electric**
+- 7 transmissions incl. Aisin 8-speed Steptronic + ZF 8HP legacy +
+  7-DCT + 6/7MT + ALL4 AWD coupling
+- Mini Connected + **Mini OS 9 round OLED**
+
+Estimated ~30% ODIS — at BMW-shared/Mini-community ceiling.
+
 ## [3.54.0] - 2026-05-08 — Renault / Alpine pushed to public-source ceiling (~25% ODIS, ~4,900 entries)
 
 CLIP / Renolink / Pyren / Ddt4all community sources. Covers Renault +
