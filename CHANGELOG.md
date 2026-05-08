@@ -7,6 +7,136 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.44.0] - 2026-05-08 — Mercedes-Benz pushed to public-source ceiling (~35% ODIS, 6134 entries)
+
+Same depth-pattern proven on VW + BMW + Ford, applied to Mercedes-Benz.
+Public ceiling is lower than VW/BMW/Ford because XENTRY/DAS is more
+closed than VCDS/E-Sys/FORScan, but Vediamo/Carly community sources +
+SCN coding documentation give a solid ~30-35% baseline.
+
+### catalogs/mercedes.json — 60 → 6,134 entries
+
+| Section | v3.39 | v3.44 |
+|---|---|---|
+| ECUs | 16 | **148** |
+| DIDs | 32 | **2,101** |
+| Routines | 10 | **164** |
+| Coding blocks | 0 | **40 (327 fields)** |
+| Adaptations | 0 | **94** |
+| Actuator tests | 0 | **130** |
+| Live PIDs | 0 | **41** |
+| DTC extended-data | 0 | **3,416** |
+
+#### ECUs (+132)
+Full XENTRY/DAS bus map: powertrain (ME engine, ETS 722.x trans,
+secondary ME for V12, EMM front+rear motor for EQS/EQE/EQA/EQB/EQC,
+VRM HV battery, OBC, DC-DC), chassis (ESP, SBC, ABC, AIRMATIC, AMG
+Ride Control+, EHPS, LWS, PARKTRONIC, EPB, TPM, ETD, ABA Active
+Brake Assist, ATC, Dynamic Select, rear-axle steering, sport diff),
+body (SAM-F + SAM-R, CGW, IC, EZS, DAS, KG, OFV, BUA, AHW, AHE,
+KLIMA, IHKU rear climate, 4 doors, dr+pa+rear seats + memory,
+mirrors, FFL/Multibeam/DIGITAL LIGHT L+R, RFL, ILS), audio/IVI
+(COMAND, MBUX, Burmester, TV, sat radio, TCU, GPS, MHI, RSE,
+2 rear screens, MBUX Hyperscreen passenger), ADAS (camera main +
+4 surround, driver attention, gesture control, front radar,
+4 corner radars, ultrasonic F+R, Night View Plus, Speed Limit
+Assist, Traffic Sign Assist, Cross-Traffic Alert, PRE-SAFE), EV
+(SOBDMC rear, EMM rear, thermal, battery junction, charge inlets,
+heat-pump compressor, wallbox iface, charge door, LV battery
+monitor + management, charging planner, V2X, Car2X), zonal (OTA,
+HSM, Ethernet switch TSN, 5 domain controllers), comfort premium
+(wireless charging, HUD, AR HUD, 4 massage modules, Air-Balance
+perfume, PURIFY ionizer, panoramic roof, Magic Sky electrochromic,
+convertible top, AIRCAP, AIRSCARF, Maybach Executive Rear, exhaust
+flap, sound actuator, trailer, electric tow hitch, power running
+boards, cargo management, power trunk, power glovebox, chilled
+cup-holder, fragrance pump).
+
+#### DIDs (+2,069)
+- 23 generic UDS DIDs incl. Mercedes-specific SCN coding fields, EZS state, DAS lock state.
+- 64 ME engine DIDs (RPM, torque, coolant/oil/MAP/MAF/lambda, HP+LP fuel rail, camshaft B1+B2, knock retard, EGR, wastegate, DPF deep, SCR NOx + AdBlue, turbo, intercooler, cat efficiency B1+B2, alternator, idle, drive authorisation, DAS, eco factor, e-boost).
+- 96 per-cylinder DIDs (cyl 1-12 × 8) — supports M275/M279/M285 V12.
+- 200 engine variant DIDs — 25 Mercedes engine families × 8 fields (M139/M177/M178/M256/M254/M260/M264/M266/M270/M271/M272/M273/M274/M275/M276/M277/M278/M279/M285, OM642/OM651/OM654/OM656/OM629/OM606).
+- 128 transmission variants — 8 trans × 16 fields (722.6/722.9/725.0 9G-Tronic/724.0 DCT/AMG MCT/AMG DCT/EV single-speed/4MATIC transfer).
+- 96 head-unit gens — NTG 4/5/5.5/6/7 + Hyperscreen × 16 fields.
+- 14 ESP DIDs + 32 per-wheel + 32 per-corner suspension (AIRMATIC + ABC + AMG Ride).
+- 28 VRM DIDs + 216 per-cell (108 cells × 2: V + T) + 72 per-module (12 × 6) — EQS/EQE pack depth.
+- 21 EMM front motor + 9 EMM rear motor.
+- 22 OBC DIDs incl. ISO 15118 + Plug & Charge.
+- 24 ADAS Distronic/Active Distance + Active Steering + Emergency Stop + PRE-SAFE + Night View + Speed Limit + Traffic Sign + Active Brake.
+- 64 ADAS object stack (8 × 8).
+- 15 IC + ASSYST PLUS index + 256 last-32-trip + 64 driver-coaching.
+- 32 per-bulb hours-on incl. multibeam segments + AIRSCARF.
+- 30 per-zone Active Ambient (64-color premium) + trim strips.
+- 64 per-key extended (8 × 8) incl. Keyless Go UWB + digital key.
+- 24 per-camera lens shading (6 × 4).
+- 40 per-radar waveform (5 × 8).
+- 22 Burmester audio fine-grained + 4D resonator + 7-band EQ.
+- 96 per-ECU programming + signature (24 ECUs × 4).
+- 36 Mercedes me Connect subscription metadata (18 features × 2).
+- 16 bus topology (CAN-B/C/D/E + LIN + FlexRay + MOST + Ethernet).
+- 64 per-bank engine deep (2 banks × 32).
+- 32 per-zone HVAC (4 zones × 8).
+- 64 user profiles (4 × 16).
+- 64 service history per-item (16 items × 4).
+- 27 vehicle metadata (FA-style + AMG package + designo + Maybach).
+
+#### Routines (+154)
+Engine adaptation resets, DPF + SCR + AdBlue + grid heater + secondary
+air, ETS basic setting + clutch adapt + Quick Learn (9G-Tronic) +
+oil filling, 4MATIC transfer adapt, per-wheel ESP bleed + pump test +
+basic setting + sensor zeros, AIRMATIC height calibration + lift/lower
+sets, ABC + AMG Ride calibration, EPB workshop mode, rear-axle steering
+calibration, SAM init + window/mirror init + sunroof/panoramic/Magic Sky
+calibrations, KLIMA basic + compressor + heat-pump + aux heater +
+fragrance pump priming + perfume + ionizer tests, multibeam pixel calib
+L+R, DIGITAL LIGHT calib L+R, ILS/AFS, ADAS dynamic + static camera
+calib, FRR alignment zero, side radar L+R calib, surround camera +
+driver attention + gesture + Night View Plus + AR HUD calib, IC service
+reset all + ASSYST PLUS relearn, VRM cell balance + capacity + isolation
++ pyro + contactor + pre-charge tests, EMM resolver zero + offset +
+inverter self-test, OBC + DC-DC + heat-pump self-tests, EV charge door
+calibrate, 16 module-replacement procedures, SCN coding program +
+offline, key pairing + DAS/EZS relearn + Keyless Go relearn, OTA
+check/install/rollback, HSM provision/zeroize/log export, 5 domain
+self-tests, ethernet switch + Car2X self-tests, wireless charging
+calibrate, me Connect subscription refresh, AMG (Track Pace reset,
+Drift Mode setup, sport diff calibrate, exhaust flap calibrate, launch
+relearn), comfort (massage calibrate dr+pa, seat init, AIRSCARF + AIRCAP
++ tow hitch + running boards + glovebox + trunk tests, chilled cup-holder),
+network topology rediscover.
+
+#### Coding blocks (40 / 327 fields)
+SAM general, door extended, alarm zones, Multibeam/DIGITAL LIGHT
+features, camera Lane Keep extended, Distronic Plus extended, Active
+Brake Assist extended, KLIMA zones (4-zone + ionizer + perfume + AIRSCARF
++ heat pump + auto demist + solar comp), EV charge features (CCS1/CCS2/
+NACS/CHAdeMO/V2G/V2L/V2H/ISO15118/smart grid/scheduled/solar/Acceleration
+Increase), EV thermal strategy, MBUX features (Hyperscreen + AR Nav + Hey
+Mercedes + CarPlay/AA wired+wireless + 5GHz + video + zero layer + rear
+screens + passenger screen), IC features, AMG Drive (8 modes + drift),
+sport diff, exhaust flap, driver massage (vitalisation/relaxation/warming
++ kinetic seat + hot stone), driver seat climate (multicontour + dynamic
+bolsters), panoramic roof + Magic Sky, tow hitch, Keyless Go (UWB +
+digital key + kick-to-open + walk-away + approach), OTA, Crypto/HSM, me
+Connect features bitmap, AIRMATIC (E-Active Body Control + lift +
+loading + kneel), trailer module, HUD, Maybach Executive Rear (recline +
+footrest + table + displays + audio + massage), convertible top
+(AIRCAP + AIRSCARF), wireless charging, gesture control, driver attention,
+blind spot (Active + exit warning + trailer extended), running boards,
+power glovebox, power trunk, AR HUD, premium comfort bundle, AIRSCARF,
+AIRCAP, Drive Pilot L3 (HW + activated + country + highway + max 60).
+
+#### Adaptations (94) + Actuator tests (130) + Live PIDs (41) + DTC ext (3,416)
+Engine + trans + ESP + AIRMATIC/ABC + TPMS + ADAS + lighting + KLIMA +
+EV + comfort + OTA + HSM defaults; full per-zone + per-actuator tests;
+broad P/B/U/C codes × 4-6 record types incl. environmental_data +
+freeze_frame_template.
+
+Estimated ~35% ODIS coverage — at the realistic Vediamo/Carly community
+ceiling for Mercedes-Benz. Higher coverage requires commercial XENTRY
+ODX-D licenses.
+
 ## [3.43.0] - 2026-05-08 — Ford pushed to public-source ceiling (~40% ODIS, 7397 entries)
 
 Two combined passes lift Ford from 47 entries (post-v3.39 baseline) to
