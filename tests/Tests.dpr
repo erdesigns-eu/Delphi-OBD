@@ -73,6 +73,7 @@ uses
   Tests.OEM.SchemaV2 in 'Tests.OEM.SchemaV2.pas',
   Tests.OEM.UdsClient in 'Tests.OEM.UdsClient.pas',
   Tests.OEM.UdsClient.Async in 'Tests.OEM.UdsClient.Async.pas',
+  Tests.OEM.UdsClient.Replay in 'Tests.OEM.UdsClient.Replay.pas',
   Tests.OEM.DTC.Schema in 'Tests.OEM.DTC.Schema.pas',
   Tests.OEM.CatalogIntegrity in 'Tests.OEM.CatalogIntegrity.pas',
   Tests.OEM.SchemaShape in 'Tests.OEM.SchemaShape.pas',
