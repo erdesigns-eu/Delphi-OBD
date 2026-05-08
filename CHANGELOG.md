@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.67.0] - 2026-05-08 — Mahindra ~15% ODIS, ~4,800 entries
+
+mHawk 2.2 diesel + mStallion 2.0/1.5/1.2 turbo petrol + Thar/Scorpio-N
+4XPLOR 4WD low-range + diff lock + 6 terrain modes + XUV700 Z-Wheels
+AMT + INGLO BE 6 / XEV 9e 800V + e-Verito legacy + Treo/Zoom 3-wheeler
+EV + AdrenoX + Alexa Built-in.
+
 ## [3.66.0] - 2026-05-08 — Lada (AvtoVAZ) ~15% ODIS, ~4,700 entries
 
 VAZ 1.5/1.6/1.8 8V/16V Evo + Renault H4Mk/H4Dt/K9K diesel + Niva
