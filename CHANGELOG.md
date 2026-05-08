@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.68.0] - 2026-05-08 — Tata Motors ~15% ODIS, ~4,800 entries
+
+Revotron 1.2T iCNG / 1.5 T-GDi + Kryotec 1.5/2.0 diesel + Nexon EV
+LR + Punch EV ACTI.EV + Curvv EV + Tiago/Tigor EV + Harrier/Safari EV
++ Altroz EV + Sierra EV revival + Avinya/Atlas gen-3 + iRA Connected
++ ConnectNext + ACTI.EV OS.
+
 ## [3.67.0] - 2026-05-08 — Mahindra ~15% ODIS, ~4,800 entries
 
 mHawk 2.2 diesel + mStallion 2.0/1.5/1.2 turbo petrol + Thar/Scorpio-N
