@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.65.0] - 2026-05-08 — GWM (Haval/Wey/Tank/ORA/Poer) ~18% ODIS, ~5,000 entries
+
+Lemon DHT 1.5/2.0 turbo PHEV + GW4N20/4N30 V6 + Tank 500/700 ladder-
+frame + Tank 300 off-road + Tank turn (700) + 4WS crab-walk + 3 diff
+locks + Wey Coffee PHEV + ORA Good/Lightning/Ballet Cat + Haval H6
+DHT-PHEV + Poer/Cannon pickups + Coffee OS.
+
 ## [3.64.0] - 2026-05-08 — Geely Holding (9 brands) ~20% ODIS, ~5,000 entries
 
 Geely Auto + Lynk & Co + Zeekr + Lotus + Galaxy + Proton + Livan +
