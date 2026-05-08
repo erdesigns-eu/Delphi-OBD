@@ -1,87 +1,488 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "RIVIAN",
   "display_name": "Rivian Automotive, Inc.",
-  "applicable_wmis": ["7PD"],
+  "applicable_wmis": [
+    "7PD"
+  ],
   "default_source": "rivian-community / service-toolbox-leak",
   "ecus": [
-    { "address": "0x7E0", "name": "vcu",          "common_name": "VCU — Vehicle Control Unit" },
-    { "address": "0x710", "name": "motor_fl",     "common_name": "Front-Left Motor Inverter" },
-    { "address": "0x711", "name": "motor_fr",     "common_name": "Front-Right Motor Inverter" },
-    { "address": "0x712", "name": "motor_rl",     "common_name": "Rear-Left Motor Inverter" },
-    { "address": "0x713", "name": "motor_rr",     "common_name": "Rear-Right Motor Inverter" },
-    { "address": "0x720", "name": "cluster",      "common_name": "Driver Display Cluster" },
-    { "address": "0x724", "name": "driver_plus",  "common_name": "Driver+ ADAS computer" },
-    { "address": "0x726", "name": "camera_fusion","common_name": "Camera fusion / 360-degree" },
-    { "address": "0x740", "name": "bcm",          "common_name": "BCM — Body Control" },
-    { "address": "0x744", "name": "rear_body",    "common_name": "Rear Body / Tailgate / Gear Tunnel" },
-    { "address": "0x762", "name": "climate",      "common_name": "Climate / Heat Pump" },
-    { "address": "0x770", "name": "central",      "common_name": "Central Gateway / IVI" },
-    { "address": "0x782", "name": "bms",          "common_name": "BMS — Pack (Standard / Large / Max)" },
-    { "address": "0x792", "name": "charge",       "common_name": "Charge Port + on-board AC/DC charger" },
-    { "address": "0x7A0", "name": "thermal_mgmt", "common_name": "Thermal management — battery + cabin" },
-    { "address": "0x7B0", "name": "air_susp",     "common_name": "Active air-suspension controller" }
+    {
+      "address": "0x7E0",
+      "name": "vcu",
+      "common_name": "VCU — Vehicle Control Unit"
+    },
+    {
+      "address": "0x710",
+      "name": "motor_fl",
+      "common_name": "Front-Left Motor Inverter"
+    },
+    {
+      "address": "0x711",
+      "name": "motor_fr",
+      "common_name": "Front-Right Motor Inverter"
+    },
+    {
+      "address": "0x712",
+      "name": "motor_rl",
+      "common_name": "Rear-Left Motor Inverter"
+    },
+    {
+      "address": "0x713",
+      "name": "motor_rr",
+      "common_name": "Rear-Right Motor Inverter"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "Driver Display Cluster"
+    },
+    {
+      "address": "0x724",
+      "name": "driver_plus",
+      "common_name": "Driver+ ADAS computer"
+    },
+    {
+      "address": "0x726",
+      "name": "camera_fusion",
+      "common_name": "Camera fusion / 360-degree"
+    },
+    {
+      "address": "0x740",
+      "name": "bcm",
+      "common_name": "BCM — Body Control"
+    },
+    {
+      "address": "0x744",
+      "name": "rear_body",
+      "common_name": "Rear Body / Tailgate / Gear Tunnel"
+    },
+    {
+      "address": "0x762",
+      "name": "climate",
+      "common_name": "Climate / Heat Pump"
+    },
+    {
+      "address": "0x770",
+      "name": "central",
+      "common_name": "Central Gateway / IVI"
+    },
+    {
+      "address": "0x782",
+      "name": "bms",
+      "common_name": "BMS — Pack (Standard / Large / Max)"
+    },
+    {
+      "address": "0x792",
+      "name": "charge",
+      "common_name": "Charge Port + on-board AC/DC charger"
+    },
+    {
+      "address": "0x7A0",
+      "name": "thermal_mgmt",
+      "common_name": "Thermal management — battery + cabin"
+    },
+    {
+      "address": "0x7B0",
+      "name": "air_susp",
+      "common_name": "Active air-suspension controller"
+    },
+    {
+      "address": "0x07E0",
+      "name": "vcu",
+      "common_name": "VCU — Vehicle Control Unit"
+    },
+    {
+      "address": "0x0710",
+      "name": "motor_fl",
+      "common_name": "Front-Left Motor Inverter"
+    },
+    {
+      "address": "0x0711",
+      "name": "motor_fr",
+      "common_name": "Front-Right Motor Inverter"
+    },
+    {
+      "address": "0x0712",
+      "name": "motor_rl",
+      "common_name": "Rear-Left Motor Inverter"
+    },
+    {
+      "address": "0x0713",
+      "name": "motor_rr",
+      "common_name": "Rear-Right Motor Inverter"
+    },
+    {
+      "address": "0x0782",
+      "name": "bms",
+      "common_name": "BMS — Pack (Standard / Large / Max)"
+    },
+    {
+      "address": "0x0792",
+      "name": "charge",
+      "common_name": "Charge Port + on-board AC/DC charger"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "Driver Display Cluster"
+    },
+    {
+      "address": "0x0770",
+      "name": "central",
+      "common_name": "Central Gateway / IVI"
+    },
+    {
+      "address": "0x0724",
+      "name": "driver_plus",
+      "common_name": "Driver+ ADAS computer"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "rivian_model_code",      "description": "Rivian model code (R1T, R1S, EDV, R2)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "rivian_drivetrain",      "description": "Quad / Dual / Performance Dual / Tri-motor", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "rivian_battery_pack",    "description": "Standard / Large / Max battery pack identifier", "ecu_address": "0x782",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "rivian_software_release","description": "Rivian over-the-air release identifier", "ecu_address": "0x770",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage",        "description": "Vehicle mileage (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v",    "description": "12 V battery voltage (mV)", "ecu_address": "0x740",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-
-    { "did": "0xD060", "name": "battery_pack_voltage",   "description": "HV pack voltage (V)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
-    { "did": "0xD061", "name": "battery_pack_soc",       "description": "HV pack SOC (%)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "battery_pack_soh",       "description": "HV pack SOH (%)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "battery_pack_temp_min",  "description": "Pack min cell temp (°C)", "ecu_address": "0x782",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD064", "name": "battery_pack_temp_max",  "description": "Pack max cell temp (°C)", "ecu_address": "0x782",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD065", "name": "remaining_range_km",     "description": "Remaining range (km, GOM)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD066", "name": "consumption_recent_kwh", "description": "Recent average consumption (kWh / 100 km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "kWh/100km" } },
-    { "did": "0xD068", "name": "charge_status_enum",     "description": "Charge port status enum", "ecu_address": "0x792",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-    { "did": "0xD069", "name": "charge_session_kwh",     "description": "Energy delivered this charge session (kWh)", "ecu_address": "0x792",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kWh" } },
-
-    { "did": "0xD080", "name": "motor_fl_temperature",   "description": "Front-left motor temperature (°C)", "ecu_address": "0x710",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD081", "name": "motor_fr_temperature",   "description": "Front-right motor temperature (°C)", "ecu_address": "0x711",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD082", "name": "motor_rl_temperature",   "description": "Rear-left motor temperature (°C)", "ecu_address": "0x712",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD083", "name": "motor_rr_temperature",   "description": "Rear-right motor temperature (°C)", "ecu_address": "0x713",
-      "decoder": { "kind": "int8", "unit": "C" } },
-
-    { "did": "0xD0A0", "name": "rivian_air_height_fl",   "description": "Air-suspension height — front-left (mm)", "ecu_address": "0x7B0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A1", "name": "rivian_air_height_fr",   "description": "Air-suspension height — front-right (mm)", "ecu_address": "0x7B0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A2", "name": "rivian_air_height_rl",   "description": "Air-suspension height — rear-left (mm)", "ecu_address": "0x7B0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A3", "name": "rivian_air_height_rr",   "description": "Air-suspension height — rear-right (mm)", "ecu_address": "0x7B0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0B0", "name": "rivian_drive_mode",      "description": "Selected drive mode", "ecu_address": "0x7E0",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "all_purpose", "0x01": "conserve", "0x02": "sport", "0x03": "off_road_auto", "0x04": "off_road_rally", "0x05": "off_road_drift", "0x06": "off_road_rock_crawl", "0x07": "tow"} } }
+    {
+      "did": "0xF1A0",
+      "name": "rivian_model_code",
+      "description": "Rivian model code (R1T, R1S, EDV, R2)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "rivian_drivetrain",
+      "description": "Quad / Dual / Performance Dual / Tri-motor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "rivian_battery_pack",
+      "description": "Standard / Large / Max battery pack identifier",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "rivian_software_release",
+      "description": "Rivian over-the-air release identifier",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "battery_pack_voltage",
+      "description": "HV pack voltage (V)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "battery_pack_soc",
+      "description": "HV pack SOC (%)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "battery_pack_soh",
+      "description": "HV pack SOH (%)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "battery_pack_temp_min",
+      "description": "Pack min cell temp (°C)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "battery_pack_temp_max",
+      "description": "Pack max cell temp (°C)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD065",
+      "name": "remaining_range_km",
+      "description": "Remaining range (km, GOM)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD066",
+      "name": "consumption_recent_kwh",
+      "description": "Recent average consumption (kWh / 100 km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kWh/100km"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "charge_status_enum",
+      "description": "Charge port status enum",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD069",
+      "name": "charge_session_kwh",
+      "description": "Energy delivered this charge session (kWh)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kWh"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "motor_fl_temperature",
+      "description": "Front-left motor temperature (°C)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "motor_fr_temperature",
+      "description": "Front-right motor temperature (°C)",
+      "ecu_address": "0x711",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "motor_rl_temperature",
+      "description": "Rear-left motor temperature (°C)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD083",
+      "name": "motor_rr_temperature",
+      "description": "Rear-right motor temperature (°C)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD0A0",
+      "name": "rivian_air_height_fl",
+      "description": "Air-suspension height — front-left (mm)",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A1",
+      "name": "rivian_air_height_fr",
+      "description": "Air-suspension height — front-right (mm)",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A2",
+      "name": "rivian_air_height_rl",
+      "description": "Air-suspension height — rear-left (mm)",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A3",
+      "name": "rivian_air_height_rr",
+      "description": "Air-suspension height — rear-right (mm)",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0B0",
+      "name": "rivian_drive_mode",
+      "description": "Selected drive mode",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "all_purpose",
+          "0x01": "conserve",
+          "0x02": "sport",
+          "0x03": "off_road_auto",
+          "0x04": "off_road_rally",
+          "0x05": "off_road_drift",
+          "0x06": "off_road_rock_crawl",
+          "0x07": "tow"
+        }
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",      "description": "Reset adaptive learning", "ecu_address": "0x7E0" },
-    { "id": "0x0F00", "name": "rivian_sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x7B0" },
-    { "id": "0x0F02", "name": "rivian_air_susp_calib",  "description": "Air-suspension ride-height calibration", "ecu_address": "0x7B0" },
-    { "id": "0x0F03", "name": "rivian_brake_bleed",     "description": "Brake bleed cycle (4-corner)", "ecu_address": "0x7E0" },
-    { "id": "0x0F04", "name": "rivian_battery_register","description": "12 V battery registration", "ecu_address": "0x740" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F00",
+      "name": "rivian_sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x7B0"
+    },
+    {
+      "id": "0x0F02",
+      "name": "rivian_air_susp_calib",
+      "description": "Air-suspension ride-height calibration",
+      "ecu_address": "0x7B0"
+    },
+    {
+      "id": "0x0F03",
+      "name": "rivian_brake_bleed",
+      "description": "Brake bleed cycle (4-corner)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F04",
+      "name": "rivian_battery_register",
+      "description": "12 V battery registration",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

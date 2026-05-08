@@ -1,48 +1,318 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "RNLT",
   "display_name": "Renault Group (Renault / Dacia / Alpine)",
-  "applicable_wmis": ["VF1","VF2","VS5","VR1","3W2","UU1","UU3","UU6","VFA","VFD","KNM"],
+  "applicable_wmis": [
+    "VF1",
+    "VF2",
+    "VS5",
+    "VR1",
+    "3W2",
+    "UU1",
+    "UU3",
+    "UU6",
+    "VFA",
+    "VFD",
+    "KNM"
+  ],
   "default_source": "clip-community / dialogys-public",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
-    { "address": "0x7E1", "name": "transmission", "common_name": "TCU — Transmission Control" },
-    { "address": "0x760", "name": "uch",          "common_name": "UCH — Unité Centrale Habitacle" },
-    { "address": "0x762", "name": "cluster",      "common_name": "Instrument Cluster (TdB)" },
-    { "address": "0x763", "name": "abs",          "common_name": "ABS / ESP" },
-    { "address": "0x765", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x768", "name": "climate",      "common_name": "Climate Control" },
-    { "address": "0x772", "name": "pas",          "common_name": "PAS — Power-Assisted Steering" },
-    { "address": "0x785", "name": "evcc",         "common_name": "EV Charge Controller" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management"
+    },
+    {
+      "address": "0x7E1",
+      "name": "transmission",
+      "common_name": "TCU — Transmission Control"
+    },
+    {
+      "address": "0x760",
+      "name": "uch",
+      "common_name": "UCH — Unité Centrale Habitacle"
+    },
+    {
+      "address": "0x762",
+      "name": "cluster",
+      "common_name": "Instrument Cluster (TdB)"
+    },
+    {
+      "address": "0x763",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x765",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x768",
+      "name": "climate",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x772",
+      "name": "pas",
+      "common_name": "PAS — Power-Assisted Steering"
+    },
+    {
+      "address": "0x785",
+      "name": "evcc",
+      "common_name": "EV Charge Controller"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management"
+    },
+    {
+      "address": "0x07E1",
+      "name": "transmission",
+      "common_name": "TCU — Transmission Control"
+    },
+    {
+      "address": "0x0760",
+      "name": "uch",
+      "common_name": "UCH — Unité Centrale Habitacle (BCM)"
+    },
+    {
+      "address": "0x0762",
+      "name": "cluster",
+      "common_name": "Instrument Cluster (TdB)"
+    },
+    {
+      "address": "0x0763",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x0765",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0768",
+      "name": "climate",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x0772",
+      "name": "pas",
+      "common_name": "PAS — Power-Assisted Steering"
+    },
+    {
+      "address": "0x0785",
+      "name": "evcc",
+      "common_name": "EV Charge Controller (Zoe / Megane E-Tech)"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "renault_calibration_id", "description": "Renault calibration ID", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "renault_market_code",    "description": "Renault market / fleet code", "ecu_address": "0x760",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "renault_options_block",  "description": "Factory options block", "ecu_address": "0x760",
-      "decoder": { "kind": "hex" } },
-    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x762",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD060", "name": "ev_pack_voltage", "description": "Zoe / Megane E-Tech pack voltage (V)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "ev_pack_soc", "description": "Zoe / Megane E-Tech pack SOC (%)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } },
-
-    { "did": "0xD062", "name": "renault_dpf_soot_load", "description": "DPF soot load (%, Renault dCi)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD063", "name": "renault_oil_life_pct",  "description": "Oil life remaining (%)", "ecu_address": "0x762",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD064", "name": "renault_egr_actual",    "description": "EGR valve actual position (%)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
+    {
+      "did": "0xF1A0",
+      "name": "renault_calibration_id",
+      "description": "Renault calibration ID",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "renault_market_code",
+      "description": "Renault market / fleet code",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "renault_options_block",
+      "description": "Factory options block",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage in km",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage",
+      "description": "Battery voltage (mV)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "ev_pack_voltage",
+      "description": "Zoe / Megane E-Tech pack voltage (V)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "ev_pack_soc",
+      "description": "Zoe / Megane E-Tech pack SOC (%)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "renault_dpf_soot_load",
+      "description": "DPF soot load (%, Renault dCi)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "renault_oil_life_pct",
+      "description": "Oil life remaining (%)",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "renault_egr_actual",
+      "description": "EGR valve actual position (%)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Renault service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0205", "name": "tps_relearn",         "description": "Throttle-pedal learning (CLIP)", "ecu_address": "0x7E0" },
-    { "id": "0x0F01", "name": "auto_clutch_relearn", "description": "AMT clutch-touchpoint relearn", "ecu_address": "0x7E1" },
-    { "id": "0x0F02", "name": "renault_after_2nd_key","description": "After-sale 2nd-key code injection (CLIP)", "ecu_address": "0x760" },
-    { "id": "0x0F03", "name": "renault_dpf_force_regen","description": "Forced DPF regeneration (Renault dCi)", "ecu_address": "0x7E0" }
-  ]
+    {
+      "id": "0x0205",
+      "name": "tps_relearn",
+      "description": "Throttle-pedal learning (CLIP)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F01",
+      "name": "auto_clutch_relearn",
+      "description": "AMT clutch-touchpoint relearn",
+      "ecu_address": "0x7E1"
+    },
+    {
+      "id": "0x0F02",
+      "name": "renault_after_2nd_key",
+      "description": "After-sale 2nd-key code injection (CLIP)",
+      "ecu_address": "0x760"
+    },
+    {
+      "id": "0x0F03",
+      "name": "renault_dpf_force_regen",
+      "description": "Forced DPF regeneration (Renault dCi)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

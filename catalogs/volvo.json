@@ -1,49 +1,327 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "VOLVO",
   "display_name": "Volvo Cars (Geely)",
-  "applicable_wmis": ["YV1","YV4","LYV","LVS","LVY","7JR"],
+  "applicable_wmis": [
+    "YV1",
+    "YV4",
+    "LYV",
+    "LVS",
+    "LVY",
+    "7JR"
+  ],
   "default_source": "vida-community",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management" },
-    { "address": "0x7E1", "name": "transmission", "common_name": "TCM — Aisin / Geartronic" },
-    { "address": "0x740", "name": "cem",          "common_name": "CEM — Central Electronic Module" },
-    { "address": "0x742", "name": "cluster",      "common_name": "DIM — Driver Information Module" },
-    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x762", "name": "abs",          "common_name": "ABS / DSTC" },
-    { "address": "0x765", "name": "pdm",          "common_name": "PDM — Power Door Module" },
-    { "address": "0x768", "name": "climate",      "common_name": "CCM — Climate Control" },
-    { "address": "0x770", "name": "sensus",       "common_name": "Sensus / IHU — Infotainment" },
-    { "address": "0x785", "name": "evcc",         "common_name": "EV Charge Controller" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management"
+    },
+    {
+      "address": "0x7E1",
+      "name": "transmission",
+      "common_name": "TCM — Aisin / Geartronic"
+    },
+    {
+      "address": "0x740",
+      "name": "cem",
+      "common_name": "CEM — Central Electronic Module"
+    },
+    {
+      "address": "0x742",
+      "name": "cluster",
+      "common_name": "DIM — Driver Information Module"
+    },
+    {
+      "address": "0x760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x762",
+      "name": "abs",
+      "common_name": "ABS / DSTC"
+    },
+    {
+      "address": "0x765",
+      "name": "pdm",
+      "common_name": "PDM — Power Door Module"
+    },
+    {
+      "address": "0x768",
+      "name": "climate",
+      "common_name": "CCM — Climate Control"
+    },
+    {
+      "address": "0x770",
+      "name": "sensus",
+      "common_name": "Sensus / IHU — Infotainment"
+    },
+    {
+      "address": "0x785",
+      "name": "evcc",
+      "common_name": "EV Charge Controller"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management"
+    },
+    {
+      "address": "0x07E1",
+      "name": "transmission",
+      "common_name": "TCM — Aisin / Geartronic"
+    },
+    {
+      "address": "0x0740",
+      "name": "cem",
+      "common_name": "CEM — Central Electronic Module"
+    },
+    {
+      "address": "0x0742",
+      "name": "cluster",
+      "common_name": "DIM — Driver Information Module"
+    },
+    {
+      "address": "0x0760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0762",
+      "name": "abs",
+      "common_name": "ABS / DSTC"
+    },
+    {
+      "address": "0x0765",
+      "name": "pdm",
+      "common_name": "PDM — Power Door Module"
+    },
+    {
+      "address": "0x0768",
+      "name": "climate",
+      "common_name": "CCM — Climate Control"
+    },
+    {
+      "address": "0x0770",
+      "name": "sensus",
+      "common_name": "Sensus / IHU — Infotainment"
+    },
+    {
+      "address": "0x0785",
+      "name": "evcc",
+      "common_name": "EV Charge Controller (XC40/EX30/EX90)"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "volvo_struct_week",  "description": "Volvo build week (YYWW)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "volvo_factory_code", "description": "Volvo factory code",      "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "volvo_pno_code",     "description": "Volvo PNO option block",  "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x742",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage", "description": "Battery voltage (mV)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temperature", "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD060", "name": "ev_pack_soh", "description": "EV battery state of health (%, EX30 / EX90)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-
-    { "did": "0xD053", "name": "volvo_oil_life_pct",     "description": "Oil life remaining (%, Volvo DIM)", "ecu_address": "0x742",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD054", "name": "volvo_charge_status",    "description": "Charge port status (Volvo Recharge)", "ecu_address": "0x785",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-    { "did": "0xD055", "name": "volvo_remaining_range_km","description": "Volvo Recharge — remaining range (km)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint16_be", "unit": "km" } }
+    {
+      "did": "0xF1A0",
+      "name": "volvo_struct_week",
+      "description": "Volvo build week (YYWW)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "volvo_factory_code",
+      "description": "Volvo factory code",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "volvo_pno_code",
+      "description": "Volvo PNO option block",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage in km",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage",
+      "description": "Battery voltage (mV)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "ev_pack_soh",
+      "description": "EV battery state of health (%, EX30 / EX90)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "volvo_oil_life_pct",
+      "description": "Oil life remaining (%, Volvo DIM)",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "volvo_charge_status",
+      "description": "Charge port status (Volvo Recharge)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "volvo_remaining_range_km",
+      "description": "Volvo Recharge — remaining range (km)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Volvo service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0204", "name": "epb_service",  "description": "Electronic Parking Brake service-mode toggle", "ecu_address": "0x762" },
-    { "id": "0x0F02", "name": "rdc_relearn",  "description": "TPMS / RDC sensor relearn", "ecu_address": "0x762" },
-    { "id": "0x0F03", "name": "volvo_battery_register", "description": "Battery registration (Volvo CEM)", "ecu_address": "0x740" },
-    { "id": "0x0F04", "name": "volvo_oil_life_reset",   "description": "Reset oil life monitor", "ecu_address": "0x742" }
-  ]
+    {
+      "id": "0x0204",
+      "name": "epb_service",
+      "description": "Electronic Parking Brake service-mode toggle",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F02",
+      "name": "rdc_relearn",
+      "description": "TPMS / RDC sensor relearn",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F03",
+      "name": "volvo_battery_register",
+      "description": "Battery registration (Volvo CEM)",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0x0F04",
+      "name": "volvo_oil_life_reset",
+      "description": "Reset oil life monitor",
+      "ecu_address": "0x742"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

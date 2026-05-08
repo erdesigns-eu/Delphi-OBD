@@ -26,6 +26,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -47,90 +53,34 @@ function TOBDOEMExtensionLucid.DisplayName: string;
 begin Result := 'Lucid Group, Inc.'; end;
 
 function TOBDOEMExtensionLucid.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Lucid Casa Grande AMP-1: 50A.
-  Result := (WMI = '50A');
+  // JSON-only: applicable_wmis lives in lucid.json.
+  Result := VINMatchesCatalog('lucid.json', VIN);
 end;
-
 procedure TOBDOEMExtensionLucid.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Lucid Air's compact 900V 'Wunderbox' integrates inverter +
-  // charger + DC-DC. Tri-motor variants split front + rear-left
-  // + rear-right drive units; dual-motor uses front + rear.
-  ECUs := [
-    ECU($7E0, 'vcu',           'VCU — Vehicle Control Unit'),
-    ECU($710, 'motor_front',   'Front Motor Inverter'),
-    ECU($712, 'motor_rear_l',  'Rear-Left Motor Inverter (Sapphire / tri-motor)'),
-    ECU($713, 'motor_rear_r',  'Rear-Right Motor Inverter (Sapphire / tri-motor)'),
-    ECU($782, 'bms',           'BMS — 900 V pack (Touring / Grand Touring / Sapphire)'),
-    ECU($792, 'wunderbox',     'Wunderbox — integrated charger + DC-DC + inverter'),
-    ECU($720, 'cluster',       'Lucid driver display (Pixel cluster)'),
-    ECU($724, 'dreamdrive',    'DreamDrive ADAS computer (32-sensor stack)'),
-    ECU($726, 'lidar',         'Lidar (DreamDrive Pro)'),
-    ECU($740, 'bcm',           'BCM — Body Control'),
-    ECU($742, 'glass_canopy',  'Glass Canopy + sun-shade controller'),
-    ECU($762, 'climate',       'Climate / heat-pump (CO₂)'),
-    ECU($770, 'ivi',           'Lucid UX touchscreen + Pilot Panel'),
-    ECU($7A0, 'thermal_mgmt',  'Thermal management — pack + cabin'),
-    ECU($7B0, 'air_susp',      'Active air-suspension controller')
-  ];
+  // JSON-only — sole sources of truth are lucid.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'lucid_model_code',          'Lucid model (Air / Gravity / Sapphire)'),
-    DID($F1A2, 'lucid_drivetrain',          'Drivetrain (Pure / Touring / Grand Touring / Sapphire)'),
-    DID($F1A4, 'lucid_battery_pack',        'Battery pack (88/92/112/118 kWh) ID'),
-    DID($F1A6, 'lucid_software_release',    'Lucid OTA software release identifier'),
-
-    DID($D050, 'vehicle_mileage',           'Vehicle mileage in km'),
-    DID($D051, 'battery_voltage_12v',       'Battery voltage (mV)'),
-
-    DID($D060, 'battery_pack_voltage',      'HV pack voltage (V, 900V architecture)'),
-    DID($D061, 'battery_pack_soc',          'HV pack SOC (%)'),
-    DID($D062, 'battery_pack_soh',          'HV pack SOH (%)'),
-    DID($D063, 'battery_pack_temp_min',     'Pack min cell temperature (°C)'),
-    DID($D064, 'battery_pack_temp_max',     'Pack max cell temperature (°C)'),
-    DID($D065, 'remaining_range_km',        'Remaining range (km, EPA-rated)'),
-    DID($D066, 'consumption_recent_kwh',    'Recent average consumption (kWh / 100 km)'),
-    DID($D068, 'charge_status_enum',        'Charge port status enum'),
-    DID($D069, 'charge_session_kwh',        'Energy delivered this charge session (kWh)'),
-    DID($D06A, 'charge_power_kw',           'Current charge power (kW, up to 350 kW DC)'),
-
-    DID($D080, 'motor_front_temperature',   'Front motor temperature (°C)'),
-    DID($D081, 'motor_rear_l_temperature',  'Rear-Left motor temperature (Sapphire)'),
-    DID($D082, 'motor_rear_r_temperature',  'Rear-Right motor temperature (Sapphire)'),
-    DID($D083, 'motor_front_torque_pct',    'Front motor torque request (%)'),
-    DID($D084, 'motor_rear_torque_pct',     'Rear motor torque request (%)'),
-
-    DID($D0A0, 'lucid_air_height_fl',       'Air-suspension height — front-left (mm)'),
-    DID($D0A1, 'lucid_air_height_fr',       'Air-suspension height — front-right (mm)'),
-    DID($D0A2, 'lucid_air_height_rl',       'Air-suspension height — rear-left (mm)'),
-    DID($D0A3, 'lucid_air_height_rr',       'Air-suspension height — rear-right (mm)'),
-    DID($D0B0, 'lucid_drive_mode',          'Selected drive mode enum')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'lucid_sas_calibration', 'Steering-angle sensor reset'),
-    Routine($0F02, 'lucid_air_susp_calib',  'Air-suspension ride-height calibration'),
-    Routine($0F03, 'lucid_brake_bleed',     'Brake bleed cycle'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('lucid.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionLucid.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('lucid.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionLucid.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;

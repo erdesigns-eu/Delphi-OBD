@@ -7,6 +7,112 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.39.0] - 2026-05-08 — JSON-only architecture for all 45 OEMs + BMW deep-push (~28% ODIS)
+
+Two coordinated changes:
+
+### 1. JSON-only architecture across all OEM extensions
+The VW JSON-only pattern (introduced in v3.31) is now applied to
+every other OEM. Refactored 43 OEM Pascal files to remove their
+hardcoded `ECU($xx, ...)` / `DID($xx, ...)` / `Routine($xx, ...)`
+arrays. Every entry that was previously hardcoded has been merged
+into the corresponding catalog JSON. Each OEM extension now:
+
+- `ApplicableToVIN` returns `VINMatchesCatalog('<oem>.json', VIN)`
+  (no hardcoded WMI lists in Pascal).
+- `BuildCatalog` does only `MergeCatalogJSON('<oem>.json', ...)` +
+  `MergeCatalogJSON('uds-standard.json', ...)`.
+- `BuildExtendedCatalog` (newly added) does
+  `MergeExtendedCatalogJSON('<oem>.json', ...)` for coding blocks,
+  adaptations, actuator tests, live PIDs and DTC extended-data.
+
+This means catalog updates ship as JSON edits (no recompile) and
+porting to other languages only needs a JSON parser — same as VW.
+
+OEMs refactored: Aston Martin, BMW, BYD, Bentley, Cummins, Dacia,
+Detroit Diesel, Ferrari, Ford, GM, Geely, Great Wall, Honda,
+Hyundai/Kia (HMG), Isuzu, Iveco, JLR, Lada, Lucid, MAN, MINI,
+Mahindra, Mazda, McLaren, Mercedes-Benz, Mitsubishi, NIO, Nissan,
+PACCAR, Polestar, Porsche, Renault, Rivian, Rolls-Royce, Scania,
+Smart, Stellantis, Subaru, Suzuki, Tata, Tesla, Toyota, Volvo,
+Volvo Trucks, Xpeng (45 total — VW + 44 others).
+
+### 2. BMW catalog pushed to ~28% ODIS
+First tier-1 OEM lift. catalogs/bmw.json grew from 43 to 2,851
+entries — applying the same depth-pattern proven on VW.
+
+| Section | Before | After |
+|---|---|---|
+| ECUs | 7 | **78** |
+| DIDs | 34 | **1,254** |
+| Routines | 9 | **107** |
+| Coding blocks | 0 | **8 (77 fields)** |
+| Adaptations | 0 | **79** |
+| Actuator tests | 0 | **87** |
+| Live PIDs | 0 | **46** |
+| DTC extended-data | 0 | **1,192** |
+
+Coverage includes:
+- Full F-series + G-series ECU map (DME, EGS, DSC, FEM, BDC, FRM,
+  KOMBI, KAFAS, ICM, IHKA, lighting modules, doors, audio, telematics,
+  HUD), plus i-series EV (SME, EMC front+rear, KLE, DC-DC, OBC,
+  chiller, HV heater, ISO 15118 wallbox interface), plus G-series
+  UDS-style addresses (0x6E0-0x6F9 + 0x600-0x618).
+- DME deep telemetry (engine RPM/torque/coolant/oil/MAP/MAF/lambda,
+  HP+LP fuel rail, VANOS intake+exhaust, Valvetronic, knock retard,
+  DPF soot+ash+pressure-drop+temp+regen, SCR NOx in/out + efficiency,
+  AdBlue, turbo speed/inlet/outlet temp, intercooler, cat efficiency
+  bank 1+2, immobilizer/EWS state).
+- Per-cylinder DIDs (cyl 1-12 × 8 fields = 96 DIDs) — supports V8/V12.
+- EGS DIDs (oil temp/age/pressure, gear, TCC lockup, input/output rpm,
+  shift counts, clutch temp DCT, torque in/out, adapt status).
+- DSC DIDs + per-wheel pad wear/disc thickness/temp/tire pressure+temp+target.
+- EHC + VDC per-corner suspension actuators + ARS torque per corner.
+- SME (HV battery) — pack V/A, SOC/SOH, max/min/avg cell V, cell delta,
+  isolation, capacity remaining + total, charge cycle counts, thermal
+  events, pyro fuse + contactors, module count + cells/module.
+- 96 per-cell voltages + 96 per-cell temperatures.
+- 12 modules × 6 fields (V, A, max/min temp, SOC, SOH).
+- EMC front + rear motor (torque target/actual, rpm, stator/rotor
+  temp, inverter temp + input V/A, phase current, efficiency,
+  resolver offset).
+- KLE charging (DC + AC voltage/current/power, phases active,
+  efficiency, ISO 15118 state, Plug & Charge, charge port
+  temp + lock state, lifetime DC + AC kWh, session counts).
+- KAFAS + FRR + ACC ADAS (camera blockage, lane offset+curvature,
+  speed limit detect + confidence, dynamic-calibration state, radar
+  target distance + relative speed + class, blockage, alignment H+V,
+  chirp bandwidth, TX power, AEB lifetime interventions).
+- ADAS tracked-object stack (8 simultaneous objects × 8 fields).
+- IHKA per-zone (4 zones × 8 fields) + heat pump + aux heater.
+- Cluster KOMBI (speed, odometer, trip A/B, range, fuel, service
+  intervals, drive cycle count) + last-32-trip extended history
+  (32 × 8 = 256 DIDs).
+- Driver-coaching (16 metrics × 4 windows = 64 DIDs).
+- Per-bulb hours-on (32 lighting circuits).
+- Per-zone ambient lighting (24 zones).
+- Per-key data (8 keys × 8 fields).
+- 8 coding blocks (77 fields total): FEM door extended,
+  FRM lighting, matrix headlight features, ACC extended, AEB,
+  IHKA zones, alarm zones, EV charge features.
+- 79 adaptations covering DME idle/torque/start-stop envelope/cyl-deact
+  /DPF/EGR/SCR/grid-heater, EGS shift speed + kickdown + creep, DSC
+  default mode + traction + auto-hold + trailer brake, TPMS per-axle
+  summer/winter/loaded, KAFAS Lane Assist + AEB sensitivity, ACC
+  default distance + speed + Stop&Go, lighting (auto high-beam, welcome,
+  ambient), IHKA defaults, EV charge limits + regen + AVAS, comfort
+  (auto-lock speed, mirror dip, window remote, auto-wipe).
+- 87 actuator tests (DME throttle/EGR/wastegate/intake-runner/fuel-pumps
+  /secondary-air/DPF/SCR/starter/alternator/grid-heater/exhaust-flap/
+  oil+coolant pumps, DSC pump + per-wheel inlet/outlet valves, EPB
+  motors L+R, EHC compressor + relief valve, VDC dampers, FEM
+  windows/mirrors/sunroof/tailgate/central-lock, lighting per-bulb
+  + matrix sweep + laser + OLED, IHKA compressor + heat pump + aux
+  heater, audio per-channel sweeps, ADAS tests, EV contactors +
+  pre-charge + pyro continuity + motor demos + chiller + radiator fan
+  + battery heater).
+- 1,192 DTC ext-data records (P + B + U + C codes × 4 record types).
+
 ## [3.38.0] - 2026-05-08 — VW final pre-commercial-ceiling pass (~50% ODIS)
 
 Final non-commercial pass — adds 993 entries across the last

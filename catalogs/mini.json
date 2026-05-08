@@ -1,82 +1,444 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "MINI",
   "display_name": "MINI (BMW Group sub-brand)",
-  "applicable_wmis": ["WMW","SAW"],
+  "applicable_wmis": [
+    "WMW",
+    "SAW"
+  ],
   "default_source": "esys-community / bimmer-utility",
   "ecus": [
-    { "address": "0x12", "name": "dme",         "common_name": "DME — Engine ECU (B38 / B48 / B58)" },
-    { "address": "0x07", "name": "egs",         "common_name": "EGS — Aisin / GS6F-21WA / 7DCT" },
-    { "address": "0x29", "name": "dsc",         "common_name": "DSC — Stability Control" },
-    { "address": "0x40", "name": "kombi",       "common_name": "KOMBI — Instrument Cluster" },
-    { "address": "0x60", "name": "frm",         "common_name": "FRM — Footwell Module" },
-    { "address": "0x72", "name": "cas",         "common_name": "CAS — Car Access System" },
-    { "address": "0x10", "name": "gateway",     "common_name": "ZGW — Central Gateway" },
-    { "address": "0x63", "name": "idrive",      "common_name": "iDrive / NBT / EntryNav" },
-    { "address": "0x65", "name": "climate",     "common_name": "IHKA — Climate Control" },
-    { "address": "0x30", "name": "srs",         "common_name": "ACSM — Crash Safety Module" },
-    { "address": "0x7E5", "name": "evcc",       "common_name": "MINI Cooper E / SE / Aceman EV charge controller" },
-    { "address": "0x7E6", "name": "ev_motor",   "common_name": "MINI Cooper E / SE / Aceman EV motor inverter" },
-    { "address": "0x7E7", "name": "ev_battery", "common_name": "MINI Cooper E / SE / Aceman HV battery" }
+    {
+      "address": "0x12",
+      "name": "dme",
+      "common_name": "DME — Engine ECU (B38 / B48 / B58)"
+    },
+    {
+      "address": "0x07",
+      "name": "egs",
+      "common_name": "EGS — Aisin / GS6F-21WA / 7DCT"
+    },
+    {
+      "address": "0x29",
+      "name": "dsc",
+      "common_name": "DSC — Stability Control"
+    },
+    {
+      "address": "0x40",
+      "name": "kombi",
+      "common_name": "KOMBI — Instrument Cluster"
+    },
+    {
+      "address": "0x60",
+      "name": "frm",
+      "common_name": "FRM — Footwell Module"
+    },
+    {
+      "address": "0x72",
+      "name": "cas",
+      "common_name": "CAS — Car Access System"
+    },
+    {
+      "address": "0x10",
+      "name": "gateway",
+      "common_name": "ZGW — Central Gateway"
+    },
+    {
+      "address": "0x63",
+      "name": "idrive",
+      "common_name": "iDrive / NBT / EntryNav"
+    },
+    {
+      "address": "0x65",
+      "name": "climate",
+      "common_name": "IHKA — Climate Control"
+    },
+    {
+      "address": "0x30",
+      "name": "srs",
+      "common_name": "ACSM — Crash Safety Module"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "MINI Cooper E / SE / Aceman EV charge controller"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor",
+      "common_name": "MINI Cooper E / SE / Aceman EV motor inverter"
+    },
+    {
+      "address": "0x7E7",
+      "name": "ev_battery",
+      "common_name": "MINI Cooper E / SE / Aceman HV battery"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "MINI Cooper E / SE / Aceman EV charge controller"
+    },
+    {
+      "address": "0x07E6",
+      "name": "ev_motor",
+      "common_name": "MINI Cooper E / SE / Aceman EV motor inverter"
+    },
+    {
+      "address": "0x07E7",
+      "name": "ev_battery",
+      "common_name": "MINI Cooper E / SE / Aceman HV battery"
+    }
   ],
   "dids": [
-    { "did": "0xF100", "name": "i_stufe_werks", "description": "Factory I-Stufe (build version)", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF101", "name": "i_stufe_aktuell", "description": "Current I-Stufe (last programmed)", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "fa_assembly", "description": "Vehicle order (FA / SALAPA option codes)", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "mini_chassis_code", "description": "MINI chassis code (R56, F56, F60, J01, J05)", "ecu_address": "0x40",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "mileage_km", "description": "Vehicle mileage in km (32-bit BE)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temperature", "description": "Engine oil temperature (°C)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_level_mm", "description": "Engine oil level (mm above min)", "ecu_address": "0x12",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD054", "name": "engine_runtime_h", "description": "Engine runtime lifetime (h)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD055", "name": "boost_pressure", "description": "Charge-air boost pressure (kPa)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD056", "name": "engine_coolant_temperature", "description": "Engine coolant temperature (°C)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD057", "name": "fuel_level_pct", "description": "Fuel level (%)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD058", "name": "fuel_consumption_recent", "description": "Recent fuel consumption (L/100km)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "L/100km" } },
-
-    { "did": "0xD060", "name": "mini_e_pack_voltage", "description": "MINI Cooper E / SE pack voltage (V)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "mini_e_pack_soc", "description": "MINI Cooper E / SE pack SOC (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "mini_e_pack_soh", "description": "MINI Cooper E / SE pack SOH (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "mini_e_remaining_range", "description": "MINI Cooper E / SE remaining range (km)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD064", "name": "mini_e_motor_temperature", "description": "MINI Cooper E / SE motor temp (°C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD068", "name": "mini_e_charge_status", "description": "MINI Cooper E / SE charge port status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-
-    { "did": "0xD070", "name": "mini_brake_pad_front", "description": "Front brake-pad remaining (%)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD071", "name": "mini_brake_pad_rear", "description": "Rear brake-pad remaining (%)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD072", "name": "mini_oil_quality", "description": "Engine oil quality (%, MINI CBS)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD073", "name": "mini_remaining_oil_distance", "description": "Remaining distance to next oil service (km)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "unit": "km" } }
+    {
+      "did": "0xF100",
+      "name": "i_stufe_werks",
+      "description": "Factory I-Stufe (build version)",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF101",
+      "name": "i_stufe_aktuell",
+      "description": "Current I-Stufe (last programmed)",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "fa_assembly",
+      "description": "Vehicle order (FA / SALAPA option codes)",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "mini_chassis_code",
+      "description": "MINI chassis code (R56, F56, F60, J01, J05)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "mileage_km",
+      "description": "Vehicle mileage in km (32-bit BE)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_level_mm",
+      "description": "Engine oil level (mm above min)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_runtime_h",
+      "description": "Engine runtime lifetime (h)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "boost_pressure",
+      "description": "Charge-air boost pressure (kPa)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "engine_coolant_temperature",
+      "description": "Engine coolant temperature (°C)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "fuel_level_pct",
+      "description": "Fuel level (%)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD058",
+      "name": "fuel_consumption_recent",
+      "description": "Recent fuel consumption (L/100km)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "L/100km"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "mini_e_pack_voltage",
+      "description": "MINI Cooper E / SE pack voltage (V)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "mini_e_pack_soc",
+      "description": "MINI Cooper E / SE pack SOC (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "mini_e_pack_soh",
+      "description": "MINI Cooper E / SE pack SOH (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "mini_e_remaining_range",
+      "description": "MINI Cooper E / SE remaining range (km)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "mini_e_motor_temperature",
+      "description": "MINI Cooper E / SE motor temp (°C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "mini_e_charge_status",
+      "description": "MINI Cooper E / SE charge port status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "mini_brake_pad_front",
+      "description": "Front brake-pad remaining (%)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "mini_brake_pad_rear",
+      "description": "Rear brake-pad remaining (%)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD072",
+      "name": "mini_oil_quality",
+      "description": "Engine oil quality (%, MINI CBS)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD073",
+      "name": "mini_remaining_oil_distance",
+      "description": "Remaining distance to next oil service (km)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "MINI service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0F03", "name": "fa_write", "description": "Write FA / vehicle order (E-Sys)", "ecu_address": "0x10" },
-    { "id": "0x0F00", "name": "sas_calibration", "description": "Steering-angle sensor reset", "ecu_address": "0x29" },
-    { "id": "0x0F01", "name": "mini_cas_relearn", "description": "CAS proximity / key relearn", "ecu_address": "0x72" },
-    { "id": "0x0F02", "name": "mini_epb_service", "description": "EMF / EPB service-mode toggle", "ecu_address": "0x29" },
-    { "id": "0x0F04", "name": "mini_rdc_relearn", "description": "RDC tire-pressure relearn", "ecu_address": "0x40" },
-    { "id": "0x0F05", "name": "mini_battery_register", "description": "Battery registration (BMS)", "ecu_address": "0x40" }
-  ]
+    {
+      "id": "0x0F03",
+      "name": "fa_write",
+      "description": "Write FA / vehicle order (E-Sys)",
+      "ecu_address": "0x10"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x29"
+    },
+    {
+      "id": "0x0F01",
+      "name": "mini_cas_relearn",
+      "description": "CAS proximity / key relearn",
+      "ecu_address": "0x72"
+    },
+    {
+      "id": "0x0F02",
+      "name": "mini_epb_service",
+      "description": "EMF / EPB service-mode toggle",
+      "ecu_address": "0x29"
+    },
+    {
+      "id": "0x0F04",
+      "name": "mini_rdc_relearn",
+      "description": "RDC tire-pressure relearn",
+      "ecu_address": "0x40"
+    },
+    {
+      "id": "0x0F05",
+      "name": "mini_battery_register",
+      "description": "Battery registration (BMS)",
+      "ecu_address": "0x40"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

@@ -1,85 +1,469 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "POLESTAR",
   "display_name": "Polestar Performance AB (Geely)",
-  "applicable_wmis": ["LPS","LFP"],
+  "applicable_wmis": [
+    "LPS",
+    "LFP"
+  ],
   "default_source": "polestar-community",
   "ecus": [
-    { "address": "0x740", "name": "cem",          "common_name": "CEM — Central Electronic Module" },
-    { "address": "0x742", "name": "cluster",      "common_name": "DIM — Driver Information Module" },
-    { "address": "0x744", "name": "hud",          "common_name": "Head-up display (P3 / P4 / P5)" },
-    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x762", "name": "abs",          "common_name": "ABS / DSTC" },
-    { "address": "0x764", "name": "pdm",          "common_name": "PDM — Power Door Module" },
-    { "address": "0x768", "name": "climate",      "common_name": "Climate Control / Heat Pump" },
-    { "address": "0x770", "name": "sensus",       "common_name": "Sensus / IHU — Infotainment (Android Automotive)" },
-    { "address": "0x772", "name": "tcam",         "common_name": "TCAM — Telematics / OTA" },
-    { "address": "0x782", "name": "bms",          "common_name": "BMS — HV Battery (75/79/82/106 kWh)" },
-    { "address": "0x785", "name": "evcc",         "common_name": "On-board Charger + Charge Port" },
-    { "address": "0x710", "name": "motor_front",  "common_name": "Front Motor Inverter" },
-    { "address": "0x712", "name": "motor_rear",   "common_name": "Rear Motor Inverter (Long-range / Performance)" },
-    { "address": "0x724", "name": "pilot_assist", "common_name": "Pilot Assist driver-assistance" },
-    { "address": "0x726", "name": "px_lidar",     "common_name": "Polestar 3 / 4 — Luminar lidar" }
+    {
+      "address": "0x740",
+      "name": "cem",
+      "common_name": "CEM — Central Electronic Module"
+    },
+    {
+      "address": "0x742",
+      "name": "cluster",
+      "common_name": "DIM — Driver Information Module"
+    },
+    {
+      "address": "0x744",
+      "name": "hud",
+      "common_name": "Head-up display (P3 / P4 / P5)"
+    },
+    {
+      "address": "0x760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x762",
+      "name": "abs",
+      "common_name": "ABS / DSTC"
+    },
+    {
+      "address": "0x764",
+      "name": "pdm",
+      "common_name": "PDM — Power Door Module"
+    },
+    {
+      "address": "0x768",
+      "name": "climate",
+      "common_name": "Climate Control / Heat Pump"
+    },
+    {
+      "address": "0x770",
+      "name": "sensus",
+      "common_name": "Sensus / IHU — Infotainment (Android Automotive)"
+    },
+    {
+      "address": "0x772",
+      "name": "tcam",
+      "common_name": "TCAM — Telematics / OTA"
+    },
+    {
+      "address": "0x782",
+      "name": "bms",
+      "common_name": "BMS — HV Battery (75/79/82/106 kWh)"
+    },
+    {
+      "address": "0x785",
+      "name": "evcc",
+      "common_name": "On-board Charger + Charge Port"
+    },
+    {
+      "address": "0x710",
+      "name": "motor_front",
+      "common_name": "Front Motor Inverter"
+    },
+    {
+      "address": "0x712",
+      "name": "motor_rear",
+      "common_name": "Rear Motor Inverter (Long-range / Performance)"
+    },
+    {
+      "address": "0x724",
+      "name": "pilot_assist",
+      "common_name": "Pilot Assist driver-assistance"
+    },
+    {
+      "address": "0x726",
+      "name": "px_lidar",
+      "common_name": "Polestar 3 / 4 — Luminar lidar"
+    },
+    {
+      "address": "0x0740",
+      "name": "cem",
+      "common_name": "CEM — Central Electronic Module"
+    },
+    {
+      "address": "0x0742",
+      "name": "cluster",
+      "common_name": "DIM — Driver Information Module"
+    },
+    {
+      "address": "0x0760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0762",
+      "name": "abs",
+      "common_name": "ABS / DSTC"
+    },
+    {
+      "address": "0x0770",
+      "name": "sensus",
+      "common_name": "Sensus / IHU — Infotainment"
+    },
+    {
+      "address": "0x0782",
+      "name": "bms",
+      "common_name": "BMS — High-voltage battery (75/79/82/106 kWh)"
+    },
+    {
+      "address": "0x0785",
+      "name": "evcc",
+      "common_name": "On-board Charger + Charge Port"
+    },
+    {
+      "address": "0x0710",
+      "name": "motor_front",
+      "common_name": "Front Motor Inverter (single / dual-motor)"
+    },
+    {
+      "address": "0x0712",
+      "name": "motor_rear",
+      "common_name": "Rear Motor Inverter (Performance Pack)"
+    },
+    {
+      "address": "0x0724",
+      "name": "pilot_assist",
+      "common_name": "Pilot Assist driver-assistance computer"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "polestar_model_code",     "description": "Polestar model code (P2 / P3 / P4 / P5)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "polestar_drivetrain",     "description": "Single / Long-range / Performance", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "polestar_motor_pkg",      "description": "Motor package code (e.g. P2 Performance Pack)", "ecu_address": "0x710",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "polestar_software_release","description": "Polestar OTA software release identifier", "ecu_address": "0x770",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "polestar_options_block",  "description": "Polestar factory option block", "ecu_address": "0x740",
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage",         "description": "Vehicle mileage (km)", "ecu_address": "0x742",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v",     "description": "12 V battery voltage (mV)", "ecu_address": "0x740",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD053", "name": "ambient_temperature",     "description": "Ambient temperature (°C)", "ecu_address": "0x742",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD054", "name": "remaining_range_km",      "description": "Remaining range (km, GOM)", "ecu_address": "0x742",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD055", "name": "energy_consumption_avg",  "description": "Average energy consumption (kWh / 100 km)", "ecu_address": "0x742",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "kWh/100km" } },
-
-    { "did": "0xD060", "name": "battery_pack_voltage",    "description": "HV pack voltage (V)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "V" } },
-    { "did": "0xD061", "name": "battery_pack_soc",        "description": "HV pack SOC (%)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "battery_pack_soh",        "description": "HV pack SOH (%)", "ecu_address": "0x782",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "battery_pack_temp_min",   "description": "Pack min cell temp (°C)", "ecu_address": "0x782",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD064", "name": "battery_pack_temp_max",   "description": "Pack max cell temp (°C)", "ecu_address": "0x782",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD068", "name": "charge_status",           "description": "Charge port status enum", "ecu_address": "0x785",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-    { "did": "0xD069", "name": "charge_session_kwh",      "description": "Energy delivered this charge session (kWh)", "ecu_address": "0x785",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kWh" } },
-
-    { "did": "0xD070", "name": "motor_front_temperature", "description": "Front motor temperature (°C)", "ecu_address": "0x710",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD071", "name": "motor_rear_temperature",  "description": "Rear motor temperature (°C)", "ecu_address": "0x712",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD072", "name": "front_axle_torque_pct",   "description": "Front axle torque request (%)", "ecu_address": "0x710",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD073", "name": "rear_axle_torque_pct",    "description": "Rear axle torque request (%)", "ecu_address": "0x712",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-
-    { "did": "0xD080", "name": "polestar_brake_pad_front","description": "Front brake-pad remaining (%)", "ecu_address": "0x762",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD081", "name": "polestar_brake_pad_rear", "description": "Rear brake-pad remaining (%)", "ecu_address": "0x762",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } }
+    {
+      "did": "0xF1A0",
+      "name": "polestar_model_code",
+      "description": "Polestar model code (P2 / P3 / P4 / P5)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "polestar_drivetrain",
+      "description": "Single / Long-range / Performance",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "polestar_motor_pkg",
+      "description": "Motor package code (e.g. P2 Performance Pack)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "polestar_software_release",
+      "description": "Polestar OTA software release identifier",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "polestar_options_block",
+      "description": "Polestar factory option block",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature (°C)",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "remaining_range_km",
+      "description": "Remaining range (km, GOM)",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "energy_consumption_avg",
+      "description": "Average energy consumption (kWh / 100 km)",
+      "ecu_address": "0x742",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kWh/100km"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "battery_pack_voltage",
+      "description": "HV pack voltage (V)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "battery_pack_soc",
+      "description": "HV pack SOC (%)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "battery_pack_soh",
+      "description": "HV pack SOH (%)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "battery_pack_temp_min",
+      "description": "Pack min cell temp (°C)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "battery_pack_temp_max",
+      "description": "Pack max cell temp (°C)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "charge_status",
+      "description": "Charge port status enum",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD069",
+      "name": "charge_session_kwh",
+      "description": "Energy delivered this charge session (kWh)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kWh"
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "motor_front_temperature",
+      "description": "Front motor temperature (°C)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "motor_rear_temperature",
+      "description": "Rear motor temperature (°C)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD072",
+      "name": "front_axle_torque_pct",
+      "description": "Front axle torque request (%)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD073",
+      "name": "rear_axle_torque_pct",
+      "description": "Rear axle torque request (%)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "polestar_brake_pad_front",
+      "description": "Front brake-pad remaining (%)",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "polestar_brake_pad_rear",
+      "description": "Rear brake-pad remaining (%)",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning", "ecu_address": "0x740" },
-    { "id": "0x0F00", "name": "polestar_sas_calibration",  "description": "Steering-angle sensor reset", "ecu_address": "0x762" },
-    { "id": "0x0F02", "name": "rdc_relearn",               "description": "TPMS / RDC sensor relearn", "ecu_address": "0x762" },
-    { "id": "0x0F03", "name": "polestar_battery_register", "description": "12 V battery registration after replacement", "ecu_address": "0x740" },
-    { "id": "0x0F04", "name": "polestar_brake_bleed",      "description": "Electronic brake-bleed cycle (Performance pack Brembo)", "ecu_address": "0x762" },
-    { "id": "0x0F05", "name": "polestar_torque_split_calib","description": "Front/rear torque-split calibration (Long-range / Performance)", "ecu_address": "0x710" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0x0F00",
+      "name": "polestar_sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F02",
+      "name": "rdc_relearn",
+      "description": "TPMS / RDC sensor relearn",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F03",
+      "name": "polestar_battery_register",
+      "description": "12 V battery registration after replacement",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0x0F04",
+      "name": "polestar_brake_bleed",
+      "description": "Electronic brake-bleed cycle (Performance pack Brembo)",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F05",
+      "name": "polestar_torque_split_calib",
+      "description": "Front/rear torque-split calibration (Long-range / Performance)",
+      "ecu_address": "0x710"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

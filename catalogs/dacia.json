@@ -1,94 +1,566 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "DACIA",
   "display_name": "Automobile Dacia SA (Renault Group)",
-  "applicable_wmis": ["UU1", "UU3", "LBR", "LRY"],
+  "applicable_wmis": [
+    "UU1",
+    "UU3",
+    "LBR",
+    "LRY"
+  ],
   "default_source": "dacia-renault-clip-community",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",        "common_name": "ECM — H4D TCe / H4Bt LPG / H5Ht hybrid / 5AQ Spring EV" },
-    { "address": "0x7E1", "name": "tcm",           "common_name": "TCM — JF016E CVT / EDC 6-DCT / 1-speed reducer" },
-    { "address": "0x7B0", "name": "abs_esp",       "common_name": "ABS / ESP — Bosch / Continental" },
-    { "address": "0x720", "name": "cluster",       "common_name": "KOMBI — instrument cluster" },
-    { "address": "0x740", "name": "bcm",           "common_name": "UCH — Unite Centrale Habitacle" },
-    { "address": "0x760", "name": "ivi",           "common_name": "Media Display / Media Nav / Media Control" },
-    { "address": "0x770", "name": "srs",           "common_name": "SRS — Renault airbag" },
-    { "address": "0x780", "name": "tpms",          "common_name": "TPMS — direct / indirect" },
-    { "address": "0x784", "name": "eps",           "common_name": "EPS — electric power steering" },
-    { "address": "0x785", "name": "climate",       "common_name": "A/C / climate" },
-    { "address": "0x790", "name": "gateway",       "common_name": "Renault diagnostic gateway" },
-    { "address": "0x7C0", "name": "lpg_module",    "common_name": "LPG bi-fuel module (ECO-G)" },
-    { "address": "0x7C1", "name": "awd_coupling",  "common_name": "4WD coupling (Duster 4x4)" },
-    { "address": "0x7E5", "name": "evcc",          "common_name": "Spring EV — AC charge controller" },
-    { "address": "0x7E6", "name": "ev_motor",      "common_name": "Spring EV / Bigster Hybrid e-motor inverter" },
-    { "address": "0x7E7", "name": "ev_battery",    "common_name": "Spring EV 26.8 kWh / Bigster Hybrid HV pack" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "ECM — H4D TCe / H4Bt LPG / H5Ht hybrid / 5AQ Spring EV"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "TCM — JF016E CVT / EDC 6-DCT / 1-speed reducer"
+    },
+    {
+      "address": "0x7B0",
+      "name": "abs_esp",
+      "common_name": "ABS / ESP — Bosch / Continental"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "KOMBI — instrument cluster"
+    },
+    {
+      "address": "0x740",
+      "name": "bcm",
+      "common_name": "UCH — Unite Centrale Habitacle"
+    },
+    {
+      "address": "0x760",
+      "name": "ivi",
+      "common_name": "Media Display / Media Nav / Media Control"
+    },
+    {
+      "address": "0x770",
+      "name": "srs",
+      "common_name": "SRS — Renault airbag"
+    },
+    {
+      "address": "0x780",
+      "name": "tpms",
+      "common_name": "TPMS — direct / indirect"
+    },
+    {
+      "address": "0x784",
+      "name": "eps",
+      "common_name": "EPS — electric power steering"
+    },
+    {
+      "address": "0x785",
+      "name": "climate",
+      "common_name": "A/C / climate"
+    },
+    {
+      "address": "0x790",
+      "name": "gateway",
+      "common_name": "Renault diagnostic gateway"
+    },
+    {
+      "address": "0x7C0",
+      "name": "lpg_module",
+      "common_name": "LPG bi-fuel module (ECO-G)"
+    },
+    {
+      "address": "0x7C1",
+      "name": "awd_coupling",
+      "common_name": "4WD coupling (Duster 4x4)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "Spring EV — AC charge controller"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor",
+      "common_name": "Spring EV / Bigster Hybrid e-motor inverter"
+    },
+    {
+      "address": "0x7E7",
+      "name": "ev_battery",
+      "common_name": "Spring EV 26.8 kWh / Bigster Hybrid HV pack"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "ECM — H4D TCe / H4Bt LPG / H5Ht hybrid / 5AQ Spring EV"
+    },
+    {
+      "address": "0x07E1",
+      "name": "tcm",
+      "common_name": "TCM — Jatco JF016E CVT / Renault EDC 6-DCT / 1-speed reducer (Spring)"
+    },
+    {
+      "address": "0x07B0",
+      "name": "abs_esp",
+      "common_name": "ABS / ESP — Bosch / Continental"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "KOMBI — Dacia instrument cluster (TFT on Bigster)"
+    },
+    {
+      "address": "0x0740",
+      "name": "bcm",
+      "common_name": "UCH — Unite Centrale Habitacle (body controller)"
+    },
+    {
+      "address": "0x0760",
+      "name": "ivi",
+      "common_name": "Media Display / Media Nav / Media Control (8\" / 10\")"
+    },
+    {
+      "address": "0x0770",
+      "name": "srs",
+      "common_name": "SRS — Renault airbag controller"
+    },
+    {
+      "address": "0x0780",
+      "name": "tpms",
+      "common_name": "TPMS — direct sensors (Bigster) / indirect (Sandero)"
+    },
+    {
+      "address": "0x0784",
+      "name": "eps",
+      "common_name": "EPS — electric power steering"
+    },
+    {
+      "address": "0x0785",
+      "name": "climate",
+      "common_name": "A/C / climate"
+    },
+    {
+      "address": "0x0790",
+      "name": "gateway",
+      "common_name": "Renault diagnostic gateway"
+    },
+    {
+      "address": "0x07C0",
+      "name": "lpg_module",
+      "common_name": "LPG bi-fuel module (ECO-G / Bi-Fuel)"
+    },
+    {
+      "address": "0x07C1",
+      "name": "awd_coupling",
+      "common_name": "4WD coupling (Duster 4x4)"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "Spring EV — AC charge controller (7 kW)"
+    },
+    {
+      "address": "0x07E6",
+      "name": "ev_motor",
+      "common_name": "Spring EV / Bigster Hybrid — e-motor inverter"
+    },
+    {
+      "address": "0x07E7",
+      "name": "ev_battery",
+      "common_name": "Spring EV — 26.8 kWh / Bigster Hybrid HV pack"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "dacia_model_code", "description": "Model (Sandero/Logan/Duster/Jogger/Bigster/Spring)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "dacia_engine_code", "description": "Engine code (TCe 90 / 130 / ECO-G / Hybrid 140 / 5AQ)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "dacia_trim_code", "description": "Trim (Essential/Expression/Extreme/Journey)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "dacia_assembly_plant", "description": "Assembly plant (Mioveni / Wuhan / Tangier)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "mileage_km", "description": "Vehicle mileage in km", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x740",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temp", "description": "Engine oil temperature (C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD053", "name": "coolant_temperature", "description": "Coolant temperature (C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD054", "name": "engine_runtime_hours", "description": "Engine total runtime (h)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "unit": "h" } },
-    { "did": "0xD055", "name": "fuel_level_pct", "description": "Fuel level (%)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD056", "name": "lpg_level_pct", "description": "LPG tank level (%, ECO-G only)", "ecu_address": "0x7C0",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD057", "name": "lpg_active", "description": "LPG active (bool)", "ecu_address": "0x7C0",
-      "decoder": { "kind": "uint8", "unit": "bool" } },
-    { "did": "0xD058", "name": "turbo_boost_pressure", "description": "Turbo boost pressure (mbar)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "unit": "mbar" } },
-    { "did": "0xD059", "name": "fuel_consumption_recent", "description": "Recent fuel consumption (L/100 km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "L/100km" } },
-    { "did": "0xD05A", "name": "remaining_oil_distance", "description": "Distance to next oil service (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-
-    { "did": "0xD060", "name": "eps_torque", "description": "EPS torque request (Nm)", "ecu_address": "0x784",
-      "decoder": { "kind": "int16_be", "scale": 0.01, "unit": "Nm" } },
-    { "did": "0xD061", "name": "eps_motor_current", "description": "EPS motor current (A)", "ecu_address": "0x784",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "A" } },
-    { "did": "0xD062", "name": "cabin_temperature", "description": "Cabin temperature (C)", "ecu_address": "0x785",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD063", "name": "ambient_temperature", "description": "Ambient temperature (C)", "ecu_address": "0x720",
-      "decoder": { "kind": "int8", "unit": "C" } },
-
-    { "did": "0xD070", "name": "awd_mode_enum", "description": "Duster 4x4 mode", "ecu_address": "0x7C1",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "auto", "0x01": "lock", "0x02": "2wd"} } },
-    { "did": "0xD071", "name": "tcm_clutch_temp", "description": "EDC dual-clutch oil temperature (C)", "ecu_address": "0x7E1",
-      "decoder": { "kind": "int8", "unit": "C" } },
-
-    { "did": "0xD080", "name": "spring_pack_voltage", "description": "Spring EV pack voltage (V)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD081", "name": "spring_pack_soc", "description": "Spring EV pack SOC (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD082", "name": "spring_pack_soh", "description": "Spring EV pack SOH (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD083", "name": "spring_motor_temp", "description": "Spring EV motor temperature (C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD084", "name": "spring_charge_status", "description": "Spring EV charge status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "charging", "0x02": "complete", "0x03": "fault"} } },
-    { "did": "0xD085", "name": "spring_range_km", "description": "Spring EV remaining range (km, WLTP)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } }
+    {
+      "did": "0xF1A0",
+      "name": "dacia_model_code",
+      "description": "Model (Sandero/Logan/Duster/Jogger/Bigster/Spring)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "dacia_engine_code",
+      "description": "Engine code (TCe 90 / 130 / ECO-G / Hybrid 140 / 5AQ)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "dacia_trim_code",
+      "description": "Trim (Essential/Expression/Extreme/Journey)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "dacia_assembly_plant",
+      "description": "Assembly plant (Mioveni / Wuhan / Tangier)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "mileage_km",
+      "description": "Vehicle mileage in km",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temp",
+      "description": "Engine oil temperature (C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature (C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_runtime_hours",
+      "description": "Engine total runtime (h)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "fuel_level_pct",
+      "description": "Fuel level (%)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "lpg_level_pct",
+      "description": "LPG tank level (%, ECO-G only)",
+      "ecu_address": "0x7C0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "lpg_active",
+      "description": "LPG active (bool)",
+      "ecu_address": "0x7C0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "bool"
+      }
+    },
+    {
+      "did": "0xD058",
+      "name": "turbo_boost_pressure",
+      "description": "Turbo boost pressure (mbar)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mbar"
+      }
+    },
+    {
+      "did": "0xD059",
+      "name": "fuel_consumption_recent",
+      "description": "Recent fuel consumption (L/100 km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "L/100km"
+      }
+    },
+    {
+      "did": "0xD05A",
+      "name": "remaining_oil_distance",
+      "description": "Distance to next oil service (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "eps_torque",
+      "description": "EPS torque request (Nm)",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "eps_motor_current",
+      "description": "EPS motor current (A)",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "cabin_temperature",
+      "description": "Cabin temperature (C)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature (C)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "awd_mode_enum",
+      "description": "Duster 4x4 mode",
+      "ecu_address": "0x7C1",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "auto",
+          "0x01": "lock",
+          "0x02": "2wd"
+        }
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "tcm_clutch_temp",
+      "description": "EDC dual-clutch oil temperature (C)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "spring_pack_voltage",
+      "description": "Spring EV pack voltage (V)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "spring_pack_soc",
+      "description": "Spring EV pack SOC (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "spring_pack_soh",
+      "description": "Spring EV pack SOH (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD083",
+      "name": "spring_motor_temp",
+      "description": "Spring EV motor temperature (C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD084",
+      "name": "spring_charge_status",
+      "description": "Spring EV charge status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "charging",
+          "0x02": "complete",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD085",
+      "name": "spring_range_km",
+      "description": "Spring EV remaining range (km, WLTP)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Renault Group part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0F00", "name": "dacia_throttle_relearn",  "description": "Throttle position relearn", "ecu_address": "0x7E0" },
-    { "id": "0x0F01", "name": "dacia_idle_relearn",      "description": "Idle air relearn", "ecu_address": "0x7E0" },
-    { "id": "0x0F02", "name": "dacia_oil_service_reset", "description": "Oil-service reset", "ecu_address": "0x720" },
-    { "id": "0x0F03", "name": "dacia_battery_register",  "description": "12 V battery registration", "ecu_address": "0x740" },
-    { "id": "0x0F04", "name": "dacia_dpf_force_regen",   "description": "Forced DPF regeneration", "ecu_address": "0x7E0" },
-    { "id": "0x0F05", "name": "dacia_eps_calibration",   "description": "EPS calibration after replacement", "ecu_address": "0x784" }
-  ]
+    {
+      "id": "0x0F00",
+      "name": "dacia_throttle_relearn",
+      "description": "Throttle position relearn",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F01",
+      "name": "dacia_idle_relearn",
+      "description": "Idle air relearn",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F02",
+      "name": "dacia_oil_service_reset",
+      "description": "Oil-service reset",
+      "ecu_address": "0x720"
+    },
+    {
+      "id": "0x0F03",
+      "name": "dacia_battery_register",
+      "description": "12 V battery registration",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0x0F04",
+      "name": "dacia_dpf_force_regen",
+      "description": "Forced DPF regeneration",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F05",
+      "name": "dacia_eps_calibration",
+      "description": "EPS calibration after replacement",
+      "ecu_address": "0x784"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

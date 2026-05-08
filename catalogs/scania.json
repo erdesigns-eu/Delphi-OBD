@@ -1,92 +1,441 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "SCANIA",
   "display_name": "Scania AB (Traton Group)",
-  "applicable_wmis": ["VLU","YS2","XLE","9BS"],
+  "applicable_wmis": [
+    "VLU",
+    "YS2",
+    "XLE",
+    "9BS"
+  ],
   "default_source": "sdp3-community",
   "ecus": [
-    { "address": "0x00", "name": "ems",      "common_name": "EMS — DC09 / DC13 / DC16 engine controller" },
-    { "address": "0x03", "name": "opc",      "common_name": "OPC — Opticruise (12-speed AMT)" },
-    { "address": "0x05", "name": "tco",      "common_name": "TCO — Tachograph" },
-    { "address": "0x0B", "name": "ebs",      "common_name": "EBS — Electronic Braking" },
-    { "address": "0x0F", "name": "retarder", "common_name": "Scania retarder + exhaust brake" },
-    { "address": "0x17", "name": "icl",      "common_name": "ICL — Instrument Cluster" },
-    { "address": "0x21", "name": "vis",      "common_name": "VIS — Visibility (lighting)" },
-    { "address": "0x31", "name": "coo",      "common_name": "COO — Coordinator" },
-    { "address": "0x35", "name": "bcs",      "common_name": "BCS — Body & Chassis system" },
-    { "address": "0x42", "name": "acm",      "common_name": "ACM — Aftertreatment Control" },
-    { "address": "0x52", "name": "awd",      "common_name": "AWD — Forward Radar / AICC" },
-    { "address": "0x53", "name": "lws",      "common_name": "LWS — Lane Warning System (Mobileye)" },
-    { "address": "0x55", "name": "cab_climate","common_name": "CCS — Climate Control" },
-    { "address": "0x60", "name": "ev_motor", "common_name": "Scania BEV — drive motor inverter" },
-    { "address": "0x61", "name": "ev_battery","common_name": "Scania BEV — HV battery (624 kWh)" }
+    {
+      "address": "0x00",
+      "name": "ems",
+      "common_name": "EMS — DC09 / DC13 / DC16 engine controller"
+    },
+    {
+      "address": "0x03",
+      "name": "opc",
+      "common_name": "OPC — Opticruise (12-speed AMT)"
+    },
+    {
+      "address": "0x05",
+      "name": "tco",
+      "common_name": "TCO — Tachograph"
+    },
+    {
+      "address": "0x0B",
+      "name": "ebs",
+      "common_name": "EBS — Electronic Braking"
+    },
+    {
+      "address": "0x0F",
+      "name": "retarder",
+      "common_name": "Scania retarder + exhaust brake"
+    },
+    {
+      "address": "0x17",
+      "name": "icl",
+      "common_name": "ICL — Instrument Cluster"
+    },
+    {
+      "address": "0x21",
+      "name": "vis",
+      "common_name": "VIS — Visibility (lighting)"
+    },
+    {
+      "address": "0x31",
+      "name": "coo",
+      "common_name": "COO — Coordinator"
+    },
+    {
+      "address": "0x35",
+      "name": "bcs",
+      "common_name": "BCS — Body & Chassis system"
+    },
+    {
+      "address": "0x42",
+      "name": "acm",
+      "common_name": "ACM — Aftertreatment Control"
+    },
+    {
+      "address": "0x52",
+      "name": "awd",
+      "common_name": "AWD — Forward Radar / AICC"
+    },
+    {
+      "address": "0x53",
+      "name": "lws",
+      "common_name": "LWS — Lane Warning System (Mobileye)"
+    },
+    {
+      "address": "0x55",
+      "name": "cab_climate",
+      "common_name": "CCS — Climate Control"
+    },
+    {
+      "address": "0x60",
+      "name": "ev_motor",
+      "common_name": "Scania BEV — drive motor inverter"
+    },
+    {
+      "address": "0x61",
+      "name": "ev_battery",
+      "common_name": "Scania BEV — HV battery (624 kWh)"
+    }
   ],
   "dids": [
-    { "did": "0xF186", "name": "active_diagnostic_session", "description": "Currently active UDS session", "ecu_address": "0x00",
-      "decoder": { "kind": "uint8" } },
-    { "did": "0xF189", "name": "sw_version_number", "description": "ECU software version", "ecu_address": "0x00",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF190", "name": "vin", "description": "Vehicle identification number", "ecu_address": "0x31",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A0", "name": "scania_chassis_number", "description": "Scania chassis number", "ecu_address": "0x31",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "scania_specification_code", "description": "Specification / option code (ZSC)", "ecu_address": "0x31",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "scania_engine_serial", "description": "Engine serial number", "ecu_address": "0x00",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "scania_chassis_type", "description": "Chassis type (R/S/G/P/L/XT)", "ecu_address": "0x31",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage (km)", "ecu_address": "0x17",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "engine_hours", "description": "Engine running hours", "ecu_address": "0x00",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD052", "name": "engine_coolant_temp", "description": "Coolant temperature (C)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_temp", "description": "Engine oil temperature (C)", "ecu_address": "0x00",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD054", "name": "engine_oil_pressure", "description": "Engine oil pressure (kPa)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint16_be", "scale": 4, "unit": "kPa" } },
-    { "did": "0xD055", "name": "boost_pressure", "description": "Turbo boost (kPa)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD056", "name": "fuel_used_total", "description": "Total fuel used (litres)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint32_be", "scale": 0.5, "unit": "L" } },
-    { "did": "0xD057", "name": "fuel_level_pct", "description": "Fuel tank level (%)", "ecu_address": "0x17",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-
-    { "did": "0xD060", "name": "def_tank_level", "description": "DEF tank level (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD061", "name": "dpf_soot_load", "description": "DPF soot load (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD062", "name": "dpf_ash_load", "description": "DPF ash load (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD063", "name": "dpf_diff_pressure", "description": "DPF differential pressure (kPa)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "kPa" } },
-    { "did": "0xD064", "name": "scr_outlet_nox", "description": "SCR outlet NOx (ppm)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint16_be", "scale": 0.05, "unit": "ppm" } },
-
-    { "did": "0xD070", "name": "opticruise_current_gear", "description": "Opticruise current gear", "ecu_address": "0x03",
-      "decoder": { "kind": "uint8" } },
-    { "did": "0xD071", "name": "opticruise_oil_temp", "description": "Opticruise oil temperature (C)", "ecu_address": "0x03",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD072", "name": "ebs_brake_pad_remaining", "description": "Brake pad remaining (%, EBS)", "ecu_address": "0x0B",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD073", "name": "retarder_active_pct", "description": "Retarder active (%)", "ecu_address": "0x0F",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-
-    { "did": "0xD080", "name": "scania_bev_pack_voltage", "description": "Scania BEV pack voltage (V, 624 kWh)", "ecu_address": "0x61",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD081", "name": "scania_bev_pack_soc", "description": "Scania BEV pack SOC (%)", "ecu_address": "0x61",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD082", "name": "scania_bev_motor_temp", "description": "Scania BEV motor temperature (C)", "ecu_address": "0x60",
-      "decoder": { "kind": "int8", "unit": "C" } }
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "ecu_address": "0x31",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "scania_chassis_number",
+      "description": "Scania chassis number",
+      "ecu_address": "0x31",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "scania_specification_code",
+      "description": "Specification / option code (ZSC)",
+      "ecu_address": "0x31",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "scania_engine_serial",
+      "description": "Engine serial number",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "scania_chassis_type",
+      "description": "Chassis type (R/S/G/P/L/XT)",
+      "ecu_address": "0x31",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x17",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "engine_hours",
+      "description": "Engine running hours",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_coolant_temp",
+      "description": "Coolant temperature (C)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_temp",
+      "description": "Engine oil temperature (C)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure (kPa)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 4,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "boost_pressure",
+      "description": "Turbo boost (kPa)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "fuel_used_total",
+      "description": "Total fuel used (litres)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.5,
+        "unit": "L"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "fuel_level_pct",
+      "description": "Fuel tank level (%)",
+      "ecu_address": "0x17",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "def_tank_level",
+      "description": "DEF tank level (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "dpf_soot_load",
+      "description": "DPF soot load (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "dpf_ash_load",
+      "description": "DPF ash load (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "dpf_diff_pressure",
+      "description": "DPF differential pressure (kPa)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "scr_outlet_nox",
+      "description": "SCR outlet NOx (ppm)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "ppm"
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "opticruise_current_gear",
+      "description": "Opticruise current gear",
+      "ecu_address": "0x03",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "opticruise_oil_temp",
+      "description": "Opticruise oil temperature (C)",
+      "ecu_address": "0x03",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD072",
+      "name": "ebs_brake_pad_remaining",
+      "description": "Brake pad remaining (%, EBS)",
+      "ecu_address": "0x0B",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD073",
+      "name": "retarder_active_pct",
+      "description": "Retarder active (%)",
+      "ecu_address": "0x0F",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "scania_bev_pack_voltage",
+      "description": "Scania BEV pack voltage (V, 624 kWh)",
+      "ecu_address": "0x61",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "scania_bev_pack_soc",
+      "description": "Scania BEV pack SOC (%)",
+      "ecu_address": "0x61",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "scania_bev_motor_temp",
+      "description": "Scania BEV motor temperature (C)",
+      "ecu_address": "0x60",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Scania part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0204", "name": "forced_dpf_regen",        "description": "Forced parked DPF regeneration", "ecu_address": "0x42" },
-    { "id": "0x0205", "name": "opticruise_calibration",  "description": "Opticruise clutch / shift-quality calibration", "ecu_address": "0x03" },
-    { "id": "0x0206", "name": "scania_dpf_ash_reset",    "description": "Reset DPF ash counter after physical clean", "ecu_address": "0x42" },
-    { "id": "0x0207", "name": "scania_egr_calibration",  "description": "EGR valve learn / clean", "ecu_address": "0x00" },
-    { "id": "0x0208", "name": "scania_brake_bleed",      "description": "EBS brake-bleed cycle", "ecu_address": "0x0B" }
-  ]
+    {
+      "id": "0x0204",
+      "name": "forced_dpf_regen",
+      "description": "Forced parked DPF regeneration",
+      "ecu_address": "0x42"
+    },
+    {
+      "id": "0x0205",
+      "name": "opticruise_calibration",
+      "description": "Opticruise clutch / shift-quality calibration",
+      "ecu_address": "0x03"
+    },
+    {
+      "id": "0x0206",
+      "name": "scania_dpf_ash_reset",
+      "description": "Reset DPF ash counter after physical clean",
+      "ecu_address": "0x42"
+    },
+    {
+      "id": "0x0207",
+      "name": "scania_egr_calibration",
+      "description": "EGR valve learn / clean",
+      "ecu_address": "0x00"
+    },
+    {
+      "id": "0x0208",
+      "name": "scania_brake_bleed",
+      "description": "EBS brake-bleed cycle",
+      "ecu_address": "0x0B"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

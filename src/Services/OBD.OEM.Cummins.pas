@@ -30,6 +30,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -55,13 +61,9 @@ begin Result := 'Cummins Inc. (engine OEM)'; end;
 
 function TOBDOEMExtensionCummins.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  // Cummins doesn't issue WMIs — it ships engines into PACCAR /
-  // Volvo Trucks / Freightliner / RAM HD chassis. Use
-  // ApplicableToECUSupplier (J1939 PGN 65259 'Make' field or
-  // ISO 14229 DID F18A) instead.
-  Result := False;
+  // JSON-only: applicable_wmis lives in cummins.json.
+  Result := VINMatchesCatalog('cummins.json', VIN);
 end;
-
 function TOBDOEMExtensionCummins.ApplicableToECUSupplier(
   const SupplierID: string): Boolean;
 var
@@ -79,37 +81,25 @@ procedure TOBDOEMExtensionCummins.BuildCatalog(
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // The Cummins ECM presents itself as J1939 source 0 (Engine #1)
-  // plus an aftertreatment controller at 66 / 67 for the DPF +
-  // SCR boxes on Tier-4 / Euro-VI engines.
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'engine_ecm',     'Cummins ECM (X15 / L9 / B6.7)'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'atd1',           'Aftertreatment Control 1 (DPF)'),
-    ECU(J1939_ADDR_AFTERTREATMENT_2, 'atd2',           'Aftertreatment Control 2 (SCR / DEF)')
-  ];
+  // JSON-only — sole sources of truth are cummins.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Cummins ESN service part number'),
-    DID($F189, 'sw_version_number',         'CM ECM firmware version'),
-    DID($F18A, 'system_supplier_identifier','ECU supplier ID (always Cummins for the ECM)'),
-    DID($F197, 'system_name',               'Cummins ECM long name'),
-    DID($F1A0, 'cummins_engine_serial',     'Cummins engine serial number (ESN)'),
-    DID($F1A1, 'cummins_calibration_id',    'Cummins calibration package ID')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (INSITE)'),
-    Routine($0205, 'def_quality_test',      'DEF / urea quality test'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('cummins.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionCummins.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('cummins.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionCummins.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

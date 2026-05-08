@@ -1,88 +1,612 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "FORD",
   "display_name": "Ford Motor Company",
-  "applicable_wmis": ["1FA","1FB","1FC","1FD","1FM","1FT","2FA","2FT","3FA","3FT","1LN","5LM","1MR","6FP","WF0"],
+  "applicable_wmis": [
+    "1FA",
+    "1FB",
+    "1FC",
+    "1FD",
+    "1FM",
+    "1FT",
+    "2FA",
+    "2FT",
+    "3FA",
+    "3FT",
+    "1LN",
+    "5LM",
+    "1MR",
+    "6FP",
+    "WF0"
+  ],
   "default_source": "forscan-community / motorcraft-pubs",
   "ecus": [
-    { "address": "0x7E0", "name": "pcm",           "common_name": "PCM — Powertrain Control" },
-    { "address": "0x7E1", "name": "tcm",           "common_name": "TCM — Transmission Control" },
-    { "address": "0x7E2", "name": "pcm_secondary", "common_name": "Secondary PCM (V-engines)" },
-    { "address": "0x760", "name": "abs",           "common_name": "ABS / Stability" },
-    { "address": "0x720", "name": "rcm",           "common_name": "RCM — Restraints Control" },
-    { "address": "0x726", "name": "ipc",           "common_name": "IPC — Instrument Panel Cluster" },
-    { "address": "0x731", "name": "bcm",           "common_name": "BCM — Body Control Module" },
-    { "address": "0x733", "name": "gwm",           "common_name": "GWM — Gateway Module" },
-    { "address": "0x740", "name": "hvac",          "common_name": "HVAC — Climate Control" }
+    {
+      "address": "0x7E0",
+      "name": "pcm",
+      "common_name": "PCM — Powertrain Control"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission Control"
+    },
+    {
+      "address": "0x7E2",
+      "name": "pcm_secondary",
+      "common_name": "Secondary PCM (V-engines)"
+    },
+    {
+      "address": "0x760",
+      "name": "abs",
+      "common_name": "ABS / Stability"
+    },
+    {
+      "address": "0x720",
+      "name": "rcm",
+      "common_name": "RCM — Restraints Control"
+    },
+    {
+      "address": "0x726",
+      "name": "ipc",
+      "common_name": "IPC — Instrument Panel Cluster"
+    },
+    {
+      "address": "0x731",
+      "name": "bcm",
+      "common_name": "BCM — Body Control Module"
+    },
+    {
+      "address": "0x733",
+      "name": "gwm",
+      "common_name": "GWM — Gateway Module"
+    },
+    {
+      "address": "0x740",
+      "name": "hvac",
+      "common_name": "HVAC — Climate Control"
+    },
+    {
+      "address": "0x07E0",
+      "name": "pcm",
+      "common_name": "PCM — Powertrain Control"
+    },
+    {
+      "address": "0x07E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission Control"
+    },
+    {
+      "address": "0x07E2",
+      "name": "pcm_secondary",
+      "common_name": "Secondary PCM (V-engines)"
+    },
+    {
+      "address": "0x0760",
+      "name": "abs",
+      "common_name": "ABS / Stability"
+    },
+    {
+      "address": "0x0720",
+      "name": "rcm",
+      "common_name": "RCM — Restraints Control"
+    },
+    {
+      "address": "0x0726",
+      "name": "ipc",
+      "common_name": "IPC — Instrument Panel Cluster"
+    },
+    {
+      "address": "0x0731",
+      "name": "bcm",
+      "common_name": "BCM — Body Control Module"
+    },
+    {
+      "address": "0x0733",
+      "name": "gwm",
+      "common_name": "GWM — Gateway Module"
+    },
+    {
+      "address": "0x0740",
+      "name": "hvac",
+      "common_name": "HVAC — Climate Control"
+    }
   ],
   "dids": [
-    { "did": "0xDD00", "name": "vehicle_mileage",      "description": "Vehicle mileage in km (32-bit BE)",                "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xDE00", "name": "fuel_level_percent",   "description": "Fuel tank level percent",                          "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0xDE01", "name": "engine_run_time",      "description": "Engine run time in seconds (32-bit BE)",           "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "seconds" } },
-    { "did": "0xDE02", "name": "battery_voltage",      "description": "Battery voltage in mV",                            "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xDE03", "name": "intake_air_temp",      "description": "Intake air temperature (°C)",                       "source": "community-pr",      "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xDE04", "name": "transmission_temp",    "description": "Transmission fluid temperature (°C)",               "source": "community-pr",      "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xDE05", "name": "engine_oil_temp",      "description": "Engine oil temperature (°C)",                       "source": "community-pr",      "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-
-    { "did": "0xDF00", "name": "pcm_strategy_id",      "description": "PCM strategy identifier (ASCII)",                   "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xDF01", "name": "calibration_id",       "description": "Engine calibration ID (CALID)",                     "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xDF02", "name": "calibration_verification", "description": "CVN — calibration verification number",         "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xDF03", "name": "vid_block",            "description": "VID block (vehicle identification ASCII map)",      "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xF1A0", "name": "asbuilt_5byte_block",  "description": "AsBuilt 5-byte block (Ford coding)",                 "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1A1", "name": "asbuilt_5byte_checksum","description": "AsBuilt 5-byte block checksum",                     "source": "forscan-community", "verified": false,
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xDD01", "name": "ford_engine_hours", "description": "Engine running hours (Ford PCM)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xDD02", "name": "ford_engine_starts","description": "Engine start count (lifetime)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be" } },
-    { "did": "0xDE03", "name": "ford_iat_intake_air_temperature", "description": "IAT intake air temperature (°C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xDE04", "name": "ford_ect_coolant_temperature", "description": "Engine coolant temperature (°C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xDE05", "name": "ford_throttle_position", "description": "Throttle position (%, Ford ETC)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xDE06", "name": "ford_boost_pressure",    "description": "EcoBoost manifold absolute pressure (kPa)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xDE07", "name": "ford_dpf_soot_load",     "description": "Ford 6.7 PowerStroke / 3.0 EcoDiesel DPF soot load (%)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xDF03", "name": "ford_pats_status",       "description": "PATS (Passive Anti-Theft) status enum", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "alarm", "0x03": "fault"} } },
-    { "did": "0xDF04", "name": "ford_keys_count",        "description": "Number of programmed keys (Ford PATS)", "source": "forscan-community", "verified": false, "ecu_address": "0x731",
-      "decoder": { "kind": "uint8" } },
-
-    { "did": "0xDE08", "name": "ford_ecoboost_intake_air_temp", "description": "EcoBoost intake-air temperature (after intercooler, °C)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xDE09", "name": "ford_engine_runtime_lifetime", "description": "Engine runtime lifetime (h, Ford Tier-3)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xDE0A", "name": "ford_oil_life_remaining",     "description": "Oil life remaining (%, Ford IPC)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x726",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xDF05", "name": "ford_powertrain_immo_status", "description": "Powertrain immobilizer status (PATS)", "source": "forscan-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "fault"} } }
+    {
+      "did": "0xDD00",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage in km (32-bit BE)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xDE00",
+      "name": "fuel_level_percent",
+      "description": "Fuel tank level percent",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xDE01",
+      "name": "engine_run_time",
+      "description": "Engine run time in seconds (32-bit BE)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "seconds"
+      }
+    },
+    {
+      "did": "0xDE02",
+      "name": "battery_voltage",
+      "description": "Battery voltage in mV",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xDE03",
+      "name": "intake_air_temp",
+      "description": "Intake air temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDE04",
+      "name": "transmission_temp",
+      "description": "Transmission fluid temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDE05",
+      "name": "engine_oil_temp",
+      "description": "Engine oil temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDF00",
+      "name": "pcm_strategy_id",
+      "description": "PCM strategy identifier (ASCII)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xDF01",
+      "name": "calibration_id",
+      "description": "Engine calibration ID (CALID)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xDF02",
+      "name": "calibration_verification",
+      "description": "CVN — calibration verification number",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xDF03",
+      "name": "vid_block",
+      "description": "VID block (vehicle identification ASCII map)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "asbuilt_5byte_block",
+      "description": "AsBuilt 5-byte block (Ford coding)",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1A1",
+      "name": "asbuilt_5byte_checksum",
+      "description": "AsBuilt 5-byte block checksum",
+      "source": "forscan-community",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xDD01",
+      "name": "ford_engine_hours",
+      "description": "Engine running hours (Ford PCM)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xDD02",
+      "name": "ford_engine_starts",
+      "description": "Engine start count (lifetime)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0xDE03",
+      "name": "ford_iat_intake_air_temperature",
+      "description": "IAT intake air temperature (°C)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDE04",
+      "name": "ford_ect_coolant_temperature",
+      "description": "Engine coolant temperature (°C)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDE05",
+      "name": "ford_throttle_position",
+      "description": "Throttle position (%, Ford ETC)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xDE06",
+      "name": "ford_boost_pressure",
+      "description": "EcoBoost manifold absolute pressure (kPa)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xDE07",
+      "name": "ford_dpf_soot_load",
+      "description": "Ford 6.7 PowerStroke / 3.0 EcoDiesel DPF soot load (%)",
+      "source": "motorcraft-pubs",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xDF03",
+      "name": "ford_pats_status",
+      "description": "PATS (Passive Anti-Theft) status enum",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "armed",
+          "0x01": "disarmed",
+          "0x02": "alarm",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xDF04",
+      "name": "ford_keys_count",
+      "description": "Number of programmed keys (Ford PATS)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0xDE08",
+      "name": "ford_ecoboost_intake_air_temp",
+      "description": "EcoBoost intake-air temperature (after intercooler, °C)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xDE09",
+      "name": "ford_engine_runtime_lifetime",
+      "description": "Engine runtime lifetime (h, Ford Tier-3)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xDE0A",
+      "name": "ford_oil_life_remaining",
+      "description": "Oil life remaining (%, Ford IPC)",
+      "source": "motorcraft-pubs",
+      "verified": false,
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xDF05",
+      "name": "ford_powertrain_immo_status",
+      "description": "Powertrain immobilizer status (PATS)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "armed",
+          "0x01": "disarmed",
+          "0x02": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Ford service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF188",
+      "name": "ecu_part_number",
+      "description": "ECU part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version",
+      "description": "Software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18A",
+      "name": "system_supplier_id",
+      "description": "ECU supplier id",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18C",
+      "name": "ecu_serial_number",
+      "description": "ECU serial number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF195",
+      "name": "system_supplier_sw",
+      "description": "Supplier software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0202", "name": "kam_reset",            "description": "Keep-Alive Memory reset",          "source": "forscan-community", "verified": false },
-    { "id": "0x0203", "name": "fuel_trim_reset",      "description": "Reset adaptive fuel trim",          "source": "forscan-community", "verified": false },
-    { "id": "0x0207", "name": "sas_calibration",      "description": "Steering angle sensor reset",       "source": "community-pr",      "verified": false },
-    { "id": "0x0208", "name": "tpms_relearn",         "description": "Tire-pressure monitoring relearn",  "source": "community-pr",      "verified": false },
-    { "id": "0x0209", "name": "ford_pcm_kam_reset",   "description": "PCM KAM reset (Ford-specific)",     "source": "forscan-community", "verified": false, "ecu_address": "0x7E0" },
-    { "id": "0x020A", "name": "ford_oil_life_reset",  "description": "Reset oil life monitor (Ford IPC)", "source": "forscan-community", "verified": false, "ecu_address": "0x726" },
-    { "id": "0x020B", "name": "ford_pats_key_program","description": "Program new PATS key (Ford)",       "source": "forscan-community", "verified": false, "ecu_address": "0x731" },
-    { "id": "0x0F02", "name": "ford_dpf_force_regen", "description": "Forced DPF regeneration (Ford diesel)", "source": "motorcraft-pubs", "verified": false, "ecu_address": "0x7E0" },
-    { "id": "0x0F03", "name": "ford_epb_service",     "description": "Electronic parking brake service-mode (Ford)", "source": "forscan-community", "verified": false }
-  ]
+    {
+      "id": "0x0202",
+      "name": "kam_reset",
+      "description": "Keep-Alive Memory reset",
+      "source": "forscan-community",
+      "verified": false
+    },
+    {
+      "id": "0x0203",
+      "name": "fuel_trim_reset",
+      "description": "Reset adaptive fuel trim",
+      "source": "forscan-community",
+      "verified": false
+    },
+    {
+      "id": "0x0207",
+      "name": "sas_calibration",
+      "description": "Steering angle sensor reset",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0208",
+      "name": "tpms_relearn",
+      "description": "Tire-pressure monitoring relearn",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0209",
+      "name": "ford_pcm_kam_reset",
+      "description": "PCM KAM reset (Ford-specific)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x020A",
+      "name": "ford_oil_life_reset",
+      "description": "Reset oil life monitor (Ford IPC)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x726"
+    },
+    {
+      "id": "0x020B",
+      "name": "ford_pats_key_program",
+      "description": "Program new PATS key (Ford)",
+      "source": "forscan-community",
+      "verified": false,
+      "ecu_address": "0x731"
+    },
+    {
+      "id": "0x0F02",
+      "name": "ford_dpf_force_regen",
+      "description": "Forced DPF regeneration (Ford diesel)",
+      "source": "motorcraft-pubs",
+      "verified": false,
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F03",
+      "name": "ford_epb_service",
+      "description": "Electronic parking brake service-mode (Ford)",
+      "source": "forscan-community",
+      "verified": false
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF01",
+      "name": "check_programming_deps",
+      "description": "Cross-ECU dependency check"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

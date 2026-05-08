@@ -1,71 +1,525 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "MB",
   "display_name": "Mercedes-Benz Group",
-  "applicable_wmis": ["WDB", "WDC", "WDD", "WDF", "WD3", "WD4", "4JG"],
+  "applicable_wmis": [
+    "WDB",
+    "WDC",
+    "WDD",
+    "WDF",
+    "WD3",
+    "WD4",
+    "4JG"
+  ],
   "default_source": "xentry-community / hhtwin-leak",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",         "common_name": "Engine ECU (ME / CDI)" },
-    { "address": "0x7E1", "name": "transmission",   "common_name": "Transmission (722.x / 7G-Tronic)" },
-    { "address": "0x7E2", "name": "me_secondary",   "common_name": "Secondary engine controller" },
-    { "address": "0x620", "name": "esp",            "common_name": "ESP / Brakes" },
-    { "address": "0x630", "name": "srs",            "common_name": "SRS / Airbag" },
-    { "address": "0x640", "name": "cluster",        "common_name": "Instrument Cluster (IC)" },
-    { "address": "0x660", "name": "eis",            "common_name": "EIS — Electronic Ignition Switch" },
-    { "address": "0x6F1", "name": "tester",         "common_name": "Tester (functional address)" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "Engine ECU (ME / CDI)"
+    },
+    {
+      "address": "0x7E1",
+      "name": "transmission",
+      "common_name": "Transmission (722.x / 7G-Tronic)"
+    },
+    {
+      "address": "0x7E2",
+      "name": "me_secondary",
+      "common_name": "Secondary engine controller"
+    },
+    {
+      "address": "0x620",
+      "name": "esp",
+      "common_name": "ESP / Brakes"
+    },
+    {
+      "address": "0x630",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x640",
+      "name": "cluster",
+      "common_name": "Instrument Cluster (IC)"
+    },
+    {
+      "address": "0x660",
+      "name": "eis",
+      "common_name": "EIS — Electronic Ignition Switch"
+    },
+    {
+      "address": "0x6F1",
+      "name": "tester",
+      "common_name": "Tester (functional address)"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "Engine ECU (ME / CDI)"
+    },
+    {
+      "address": "0x07E1",
+      "name": "transmission",
+      "common_name": "Transmission (722.x / 7G-Tronic)"
+    },
+    {
+      "address": "0x07E2",
+      "name": "me_secondary",
+      "common_name": "Secondary engine controller (V-engines)"
+    },
+    {
+      "address": "0x0620",
+      "name": "esp",
+      "common_name": "ESP / Brakes"
+    },
+    {
+      "address": "0x0630",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0640",
+      "name": "cluster",
+      "common_name": "Instrument Cluster (IC)"
+    },
+    {
+      "address": "0x0660",
+      "name": "eis",
+      "common_name": "EIS — Electronic Ignition Switch"
+    },
+    {
+      "address": "0x06F1",
+      "name": "tester",
+      "common_name": "Tester (functional address)"
+    }
   ],
   "dids": [
-    { "did": "0x0202", "name": "mileage_km_24bit",        "description": "Mileage in km (24-bit big-endian, common on legacy MB)",     "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0203", "name": "engine_runtime_seconds",  "description": "Engine running time (32-bit big-endian seconds)",            "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "seconds" } },
-
-    { "did": "0xF19E", "name": "programming_status",      "description": "Programming status enum",                                    "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "enum", "size": 1,
-                   "values": { "0x00": "OK", "0x01": "INTERRUPTED", "0x02": "CHECKSUM_INVALID", "0x03": "HW_INCOMPATIBLE" } } },
-
-    { "did": "0xF1A0", "name": "mb_long_coding",          "description": "Mercedes long-coding bytes (newer NTG/HU)",                  "source": "community-pr", "verified": false,
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1A1", "name": "mb_workshop_code",        "description": "Mercedes workshop code (last writer)",                       "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "mb_dataset_id",           "description": "Mercedes SCN dataset ID",                                    "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A8", "name": "mb_calibration_id",       "description": "Mercedes calibration identifier",                            "source": "xentry-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xF40C", "name": "engine_rpm",              "description": "Engine RPM",                                                 "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" } },
-    { "did": "0xF405", "name": "battery_voltage",         "description": "Battery voltage in mV",                                      "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xF40D", "name": "vehicle_speed",           "description": "Vehicle speed in km/h",                                      "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint16_be", "unit": "km/h" } },
-    { "did": "0xF407", "name": "engine_coolant_temp",     "description": "Engine coolant temperature (°C)",                            "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-
-    { "did": "0xD030", "name": "atf_temperature",         "description": "Automatic transmission fluid temperature (°C)",              "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
-    { "did": "0xD031", "name": "transmission_gear",       "description": "Currently selected gear",                                    "source": "community-pr", "verified": false,
-      "decoder": { "kind": "uint8" } },
-
-    { "did": "0xD040", "name": "mb_oil_pressure",          "description": "Engine oil pressure (kPa)", "source": "xentry-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD041", "name": "mb_oil_level_mm",          "description": "Engine oil level (mm above min mark)", "source": "xentry-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD042", "name": "mb_dpf_soot_load",         "description": "DPF soot load (%, OM651/OM654/OM656)", "source": "hhtwin-leak", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD043", "name": "mb_def_tank_level",        "description": "AdBlue / DEF tank level (%)", "source": "xentry-community", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD050", "name": "mb_steering_angle",        "description": "Steering wheel angle (°, signed)", "source": "xentry-community", "verified": false, "ecu_address": "0x620",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "deg" } }
+    {
+      "did": "0x0202",
+      "name": "mileage_km_24bit",
+      "description": "Mileage in km (24-bit big-endian, common on legacy MB)",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0203",
+      "name": "engine_runtime_seconds",
+      "description": "Engine running time (32-bit big-endian seconds)",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "seconds"
+      }
+    },
+    {
+      "did": "0xF19E",
+      "name": "programming_status",
+      "description": "Programming status enum",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "OK",
+          "0x01": "INTERRUPTED",
+          "0x02": "CHECKSUM_INVALID",
+          "0x03": "HW_INCOMPATIBLE"
+        }
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "mb_long_coding",
+      "description": "Mercedes long-coding bytes (newer NTG/HU)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1A1",
+      "name": "mb_workshop_code",
+      "description": "Mercedes workshop code (last writer)",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "mb_dataset_id",
+      "description": "Mercedes SCN dataset ID",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A8",
+      "name": "mb_calibration_id",
+      "description": "Mercedes calibration identifier",
+      "source": "xentry-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF40C",
+      "name": "engine_rpm",
+      "description": "Engine RPM",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0xF405",
+      "name": "battery_voltage",
+      "description": "Battery voltage in mV",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xF40D",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed in km/h",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h"
+      }
+    },
+    {
+      "did": "0xF407",
+      "name": "engine_coolant_temp",
+      "description": "Engine coolant temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD030",
+      "name": "atf_temperature",
+      "description": "Automatic transmission fluid temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD031",
+      "name": "transmission_gear",
+      "description": "Currently selected gear",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0xD040",
+      "name": "mb_oil_pressure",
+      "description": "Engine oil pressure (kPa)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD041",
+      "name": "mb_oil_level_mm",
+      "description": "Engine oil level (mm above min mark)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD042",
+      "name": "mb_dpf_soot_load",
+      "description": "DPF soot load (%, OM651/OM654/OM656)",
+      "source": "hhtwin-leak",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD043",
+      "name": "mb_def_tank_level",
+      "description": "AdBlue / DEF tank level (%)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "mb_steering_angle",
+      "description": "Steering wheel angle (°, signed)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x620",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "deg"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Mercedes hardware part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "Software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18A",
+      "name": "system_supplier_identifier",
+      "description": "ECU supplier id",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18B",
+      "name": "manufacturing_date",
+      "description": "ECU manufacturing date (YYMMDD BCD)",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18C",
+      "name": "ecu_serial_number",
+      "description": "ECU serial number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF191",
+      "name": "vehicle_manufacturer_ecu_hw",
+      "description": "MB hardware revision",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF192",
+      "name": "system_supplier_ecu_hw",
+      "description": "Supplier hardware id",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF195",
+      "name": "system_supplier_sw",
+      "description": "Supplier software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF198",
+      "name": "repair_shop_code",
+      "description": "XENTRY repair shop code (last write)",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF199",
+      "name": "programming_date",
+      "description": "Last programming date",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF19D",
+      "name": "tester_serial_number",
+      "description": "Tester serial number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",   "description": "Reset adaptive learning",            "source": "xentry-community", "verified": false },
-    { "id": "0x0301", "name": "basic_setting",       "description": "XENTRY basic setting routine",       "source": "xentry-community", "verified": false },
-    { "id": "0x0302", "name": "output_test",         "description": "XENTRY actuator test",               "source": "xentry-community", "verified": false },
-    { "id": "0x0F00", "name": "sas_calibration",     "description": "Steering-angle sensor calibration",  "source": "community-pr",     "verified": false },
-    { "id": "0x0F01", "name": "mb_eis_relearn",      "description": "EIS / KESSY proximity relearn",      "source": "xentry-community", "verified": false, "ecu_address": "0x660" },
-    { "id": "0x0F03", "name": "mb_dpf_force_regen", "description": "Forced DPF regeneration (Mercedes diesel)", "source": "xentry-community", "verified": false, "ecu_address": "0x7E0" },
-    { "id": "0x0F04", "name": "mb_battery_register", "description": "Battery registration after replacement (BMS)", "source": "xentry-community", "verified": false, "ecu_address": "0x640" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "source": "xentry-community",
+      "verified": false
+    },
+    {
+      "id": "0x0301",
+      "name": "basic_setting",
+      "description": "XENTRY basic setting routine",
+      "source": "xentry-community",
+      "verified": false
+    },
+    {
+      "id": "0x0302",
+      "name": "output_test",
+      "description": "XENTRY actuator test",
+      "source": "xentry-community",
+      "verified": false
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor calibration",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0F01",
+      "name": "mb_eis_relearn",
+      "description": "EIS / KESSY proximity relearn",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x660"
+    },
+    {
+      "id": "0x0F03",
+      "name": "mb_dpf_force_regen",
+      "description": "Forced DPF regeneration (Mercedes diesel)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F04",
+      "name": "mb_battery_register",
+      "description": "Battery registration after replacement (BMS)",
+      "source": "xentry-community",
+      "verified": false,
+      "ecu_address": "0x640"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF01",
+      "name": "check_programming_dependencies",
+      "description": "Cross-ECU dependency check"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_programming_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

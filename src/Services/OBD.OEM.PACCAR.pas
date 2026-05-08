@@ -27,6 +27,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -50,59 +56,34 @@ function TOBDOEMExtensionPACCAR.DisplayName: string;
 begin Result := 'PACCAR Inc. (Peterbilt / Kenworth / DAF / Leyland)'; end;
 
 function TOBDOEMExtensionPACCAR.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Peterbilt: 1XP (Denton TX), 1NP (Madison TN), 5KJ (Mexico).
-  // Kenworth: 1NK (Chillicothe OH), 1XK (Renton WA), 2NK (Canada).
-  // DAF (Eindhoven): XLR.
-  // Leyland Trucks (UK, PACCAR-owned): SAR. (SCB is Bentley — that
-  // WMI was a prior misassignment; real Leyland Trucks WMI is SAR.)
-  Result :=
-    (WMI = '1XP') or (WMI = '1NP') or (WMI = '5KJ') or
-    (WMI = '1NK') or (WMI = '1XK') or (WMI = '2NK') or
-    (WMI = 'XLR') or (WMI = 'SAR');
+  // JSON-only: applicable_wmis lives in paccar.json.
+  Result := VINMatchesCatalog('paccar.json', VIN);
 end;
-
 procedure TOBDOEMExtensionPACCAR.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'engine',         'PACCAR MX engine ECM (or Cummins ECM)'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'transmission',   'Eaton / Allison / TraXon transmission'),
-    ECU(J1939_ADDR_BRAKES_SYSTEM,    'abs',            'Bendix EC-80 / Wabco brakes'),
-    ECU(J1939_ADDR_INSTRUMENT_CLUSTER,'cluster',       'Driver Information Cluster'),
-    ECU(J1939_ADDR_CAB_PRIMARY,      'cab',            'Cab Controller — Primary'),
-    ECU(J1939_ADDR_BODY_PRIMARY,     'body',           'Body Controller — Primary'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'atd1',           'Aftertreatment Control 1 (DPF)')
-  ];
+  // JSON-only — sole sources of truth are paccar.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'PACCAR / DAF service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'paccar_chassis_code',       'PACCAR chassis code (e.g. 579, 567, T880)'),
-    DID($F1A2, 'paccar_factory_code',       'PACCAR factory code (Denton / Madison / Eindhoven)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('paccar.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionPACCAR.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('paccar.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionPACCAR.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

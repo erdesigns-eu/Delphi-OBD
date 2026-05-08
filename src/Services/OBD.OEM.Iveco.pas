@@ -26,6 +26,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -49,56 +55,34 @@ function TOBDOEMExtensionIveco.DisplayName: string;
 begin Result := 'Iveco S.p.A. (Iveco Group)'; end;
 
 function TOBDOEMExtensionIveco.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Iveco Italy (Suzzara / Brescia / Turin / Foggia): ZCF.
-  // Iveco Spain (Valladolid Daily): VCF.
-  // Iveco Latin America (Sete Lagoas Brazil): 9BD share — but that
-  // collides with Stellantis-FCA Brazil. Skip.
-  Result := (WMI = 'ZCF') or (WMI = 'VCF');
+  // JSON-only: applicable_wmis lives in iveco.json.
+  Result := VINMatchesCatalog('iveco.json', VIN);
 end;
-
 procedure TOBDOEMExtensionIveco.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'fpt_engine',    'FPT Engine ECU (Cursor / NEF / S-FE)'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'eurotronic',    'EuroTronic / HI-TRONIX AMT'),
-    ECU(J1939_ADDR_BRAKES_SYSTEM,    'ebs',           'EBS — Knorr-Bremse'),
-    ECU(J1939_ADDR_INSTRUMENT_CLUSTER,'cluster',      'Driver Information Display'),
-    ECU(J1939_ADDR_CAB_PRIMARY,      'vcm',           'VCM — Vehicle Control Module'),
-    ECU(J1939_ADDR_BODY_PRIMARY,     'bcm',           'BCM — Body Computer'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'acm',           'ACM — Aftertreatment Control'),
-    ECU($7E5, 'evcc',           'eDaily EV Charge Controller')
-  ];
+  // JSON-only — sole sources of truth are iveco.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Iveco service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'iveco_model_code',          'Iveco model code (e.g. Daily, S-Way)'),
-    DID($F1A2, 'iveco_emissions_pkg',       'Euro 6e / OBD-VI emissions package code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (EASY)'),
-    Routine($0205, 'eurotronic_calibration','EuroTronic / HI-TRONIX clutch calibration'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('iveco.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionIveco.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('iveco.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionIveco.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

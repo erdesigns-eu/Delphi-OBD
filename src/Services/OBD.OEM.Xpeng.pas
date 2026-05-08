@@ -24,6 +24,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -46,54 +52,34 @@ function TOBDOEMExtensionXpeng.DisplayName: string;
 begin Result := 'Xpeng Motors (XPeng Inc.)'; end;
 
 function TOBDOEMExtensionXpeng.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Xpeng: LJY (Zhaoqing plant), LMZ (Guangzhou plant).
-  Result := (WMI = 'LJY') or (WMI = 'LMZ');
+  // JSON-only: applicable_wmis lives in xpeng.json.
+  Result := VINMatchesCatalog('xpeng.json', VIN);
 end;
-
 procedure TOBDOEMExtensionXpeng.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'vcu',          'VCU — Vehicle Control Unit'),
-    ECU($710, 'motor_front',  'Front Motor Inverter'),
-    ECU($712, 'motor_rear',   'Rear Motor Inverter'),
-    ECU($782, 'bms',          'BMS — Battery Management'),
-    ECU($792, 'charge',       'Charge Port + AC/DC charger'),
-    ECU($720, 'cluster',      'Instrument Cluster'),
-    ECU($724, 'xpilot',       'XPILOT — Xpeng ADAS computer'),
-    ECU($762, 'bcm',          'BCM — Body Control'),
-    ECU($768, 'climate',      'Climate Control / Heat Pump'),
-    ECU($770, 'xui',          'Xmart OS — Cabin computer')
-  ];
+  // JSON-only — sole sources of truth are xpeng.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Xpeng service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'xpeng_model_code',          'Xpeng model code (e.g. P7, G6, X9)'),
-    DID($F1A2, 'xpeng_xpilot_version',     'XPILOT software version')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('xpeng.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionXpeng.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('xpeng.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionXpeng.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

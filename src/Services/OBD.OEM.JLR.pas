@@ -25,6 +25,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -47,62 +53,34 @@ function TOBDOEMExtensionJLR.DisplayName: string;
 begin Result := 'Jaguar Land Rover Limited (Tata)'; end;
 
 function TOBDOEMExtensionJLR.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Jaguar Castle Bromwich + Solihull: SAJ.
-  // Land Rover Solihull: SAL.
-  // Range Rover Halewood (Evoque / Discovery Sport): SAD.
-  // JLR China (Chery-JLR JV, Changshu): LRW share — but LRW
-  // collides with Tesla Shanghai. Skip China-built JLR for now.
-  // JLR India (Pune assembly): MA1.
-  Result :=
-    (WMI = 'SAJ') or (WMI = 'SAL') or (WMI = 'SAD') or (WMI = 'MA1');
+  // JSON-only: applicable_wmis lives in jlr.json.
+  Result := VINMatchesCatalog('jlr.json', VIN);
 end;
-
 procedure TOBDOEMExtensionJLR.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'pcm',          'PCM — Powertrain Control'),
-    ECU($7E1, 'tcm',          'TCM — Transmission'),
-    ECU($7E5, 'evcc',         'EV Charge Controller (I-Pace / Range Rover EV)'),
-    ECU($720, 'cluster',      'IPC — Instrument Cluster'),
-    ECU($731, 'cjb',          'CJB — Central Junction Box (BCM)'),
-    ECU($746, 'abs',          'ABS / DSC'),
-    ECU($760, 'srs',          'SRS / Airbag'),
-    ECU($762, 'tcb',          'TCB — Telematics / SOS'),
-    ECU($768, 'climate',      'ATC — Climate Control'),
-    ECU($770, 'ivi',          'IVI / Touch Pro Duo')
-  ];
+  // JSON-only — sole sources of truth are jlr.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'JLR service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'jlr_model_code',            'JLR model code (e.g. L405, X590)'),
-    DID($F1A2, 'jlr_assembly_plant',        'JLR assembly plant code'),
-    DID($F1B0, 'jlr_options_block',         'JLR factory options block')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($0F02, 'air_suspension_calibration', 'Air-suspension ride-height calibration'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('jlr.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionJLR.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('jlr.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionJLR.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

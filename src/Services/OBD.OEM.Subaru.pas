@@ -23,6 +23,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -45,56 +51,34 @@ function TOBDOEMExtensionSubaru.DisplayName: string;
 begin Result := 'Subaru Corporation'; end;
 
 function TOBDOEMExtensionSubaru.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Subaru Japan: JF1 (passenger Impreza/WRX), JF2 (SUV/CUV
-  //   Outback/Forester), JF3 (XV/Crosstrek).
-  // Subaru US-built (Lafayette IN, SIA): 4S3 (Legacy/Outback),
-  //   4S4 (Forester / Ascent / Crosstrek).
-  Result :=
-    (WMI = 'JF1') or (WMI = 'JF2') or (WMI = 'JF3') or
-    (WMI = '4S3') or (WMI = '4S4');
+  // JSON-only: applicable_wmis lives in subaru.json.
+  Result := VINMatchesCatalog('subaru.json', VIN);
 end;
-
 procedure TOBDOEMExtensionSubaru.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'engine',         'Engine ECU (ECM)'),
-    ECU($7E1, 'transmission',   'TCU — incl. CVT control'),
-    ECU($7E2, 'awd',            'Active Torque Vectoring / AWD controller'),
-    ECU($7B0, 'abs',            'ABS / VDC'),
-    ECU($7C0, 'srs',            'SRS / Airbag'),
-    ECU($7C8, 'cluster',        'Combination Meter (cluster)'),
-    ECU($7C4, 'body',           'Body Integrated Unit (BIU)')
-  ];
+  // JSON-only — sole sources of truth are subaru.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Subaru service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'subaru_chassis_code',       'Subaru chassis code (e.g. GP, SK)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'cvt_relearn',           'CVT clutch-pressure relearn (SSM4)'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('subaru.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionSubaru.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('subaru.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionSubaru.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 const

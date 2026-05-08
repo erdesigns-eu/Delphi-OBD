@@ -34,6 +34,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -109,79 +115,34 @@ function TOBDOEMExtensionFord.DisplayName: string;
 begin Result := 'Ford Motor Company'; end;
 
 function TOBDOEMExtensionFord.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Ford passenger cars + trucks: 1FA / 1FB / 1FC / 1FD / 1FM / 1FT
-  // (US-built), 2FA / 2FT (Canada), 3FA / 3FT (Mexico).
-  // Lincoln: 1LN, 5LM. Mercury (legacy): 1MR.
-  // Australia (Falcon, defunct): 6FP. UK Transit: WF0 (Ford-Werke).
-  Result :=
-    (WMI = '1FA') or (WMI = '1FB') or (WMI = '1FC') or (WMI = '1FD') or
-    (WMI = '1FM') or (WMI = '1FT') or
-    (WMI = '2FA') or (WMI = '2FT') or
-    (WMI = '3FA') or (WMI = '3FT') or
-    (WMI = '1LN') or (WMI = '5LM') or (WMI = '1MR') or
-    (WMI = '6FP') or (WMI = 'WF0');
+  // JSON-only: applicable_wmis lives in ford.json.
+  Result := VINMatchesCatalog('ford.json', VIN);
 end;
-
 procedure TOBDOEMExtensionFord.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Ford IDS / FDRS bus map. Powertrain ECUs use ISO 15765-4 standard
-  // 0x7E0-7E7 addresses; HS-CAN body modules use 0x726, 0x731, 0x733;
-  // MS-CAN modules sit in the 0x7XX range too.
-  ECUs := [
-    ECU($7E0, 'pcm',           'PCM — Powertrain Control'),
-    ECU($7E1, 'tcm',           'TCM — Transmission Control'),
-    ECU($7E2, 'pcm_secondary', 'Secondary PCM (V-engines)'),
-    ECU($760, 'abs',           'ABS / Stability'),
-    ECU($720, 'rcm',           'RCM — Restraints Control'),
-    ECU($726, 'ipc',           'IPC — Instrument Panel Cluster'),
-    ECU($731, 'bcm',           'BCM — Body Control Module'),
-    ECU($733, 'gwm',           'GWM — Gateway Module'),
-    ECU($740, 'hvac',          'HVAC — Climate Control')
-  ];
+  // JSON-only — sole sources of truth are ford.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  // Ford IDS / FDRS exposes ECU identity through the standard F1xx range
-  // plus Ford-specific D-block DIDs.
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Ford service part number'),
-    DID($F188, 'ecu_part_number',           'ECU part number'),
-    DID($F189, 'sw_version',                'Software version'),
-    DID($F18A, 'system_supplier_id',        'ECU supplier id'),
-    DID($F18C, 'ecu_serial_number',         'ECU serial number'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F195, 'system_supplier_sw',        'Supplier software version'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($DD00, 'mileage',                   'Vehicle mileage in km'),
-    DID($DE00, 'fuel_level',                'Fuel level (%)'),
-    DID($DE01, 'engine_run_time',           'Engine run time (seconds)'),
-    DID($DE02, 'battery_voltage',           'Battery voltage (mV)'),
-    DID($DF00, 'pcm_strategy_id',           'Powertrain control strategy id'),
-    DID($DF01, 'calibration_id',            'Engine calibration id (CALID)'),
-    DID($DF02, 'calibration_verification',  'CVN — calibration verification number')
-  ];
-
-  Routines := [
-    Routine($0202, 'kam_reset',              'Keep-Alive Memory reset'),
-    Routine($0203, 'fuel_trim_reset',        'Reset adaptive fuel trim'),
-    Routine($0207, 'sas_calibration',        'Steering angle sensor reset'),
-    Routine($0208, 'tpms_relearn',           'Tire-pressure monitoring relearn'),
-    Routine($FF00, 'erase_memory',           'Pre-flash erase'),
-    Routine($FF01, 'check_programming_deps', 'Cross-ECU dependency check'),
-    Routine($FF02, 'verify_checksum',        'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('ford.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionFord.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('ford.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionFord.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 var

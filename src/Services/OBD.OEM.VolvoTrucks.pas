@@ -30,6 +30,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -52,64 +58,35 @@ begin Result := 'VOLVOTR'; end;
 function TOBDOEMExtensionVolvoTrucks.DisplayName: string;
 begin Result := 'Volvo Group (Volvo Trucks / Mack / Renault Trucks)'; end;
 
-function TOBDOEMExtensionVolvoTrucks.ApplicableToVIN(
-  const VIN: string): Boolean;
-var
-  WMI: string;
+function TOBDOEMExtensionVolvoTrucks.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Volvo Trucks: 4V4 (NRV New River Valley VA), YV2 (Tuve Sweden).
-  // Mack Trucks (Volvo-owned, Macungie PA): 1M1, 1M2, 4V5, 4V1.
-  // Renault Trucks (Volvo-owned, Lyon Bourg-en-Bresse): VG6, VF6.
-  // UD Trucks (Volvo-owned 2007-2021, now Isuzu): not claimed
-  // here — historical.
-  Result :=
-    (WMI = '4V4') or (WMI = 'YV2') or (WMI = '4V2') or
-    (WMI = '1M1') or (WMI = '1M2') or
-    (WMI = '4V5') or (WMI = '4V1') or
-    (WMI = 'VG6') or (WMI = 'VF6');
+  // JSON-only: applicable_wmis lives in volvotrucks.json.
+  Result := VINMatchesCatalog('volvotrucks.json', VIN);
 end;
-
 procedure TOBDOEMExtensionVolvoTrucks.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'engine_emc',  'Volvo / Mack Engine Control (EMS / EMC)'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'i_shift',     'Volvo I-Shift / Mack mDRIVE transmission'),
-    ECU(J1939_ADDR_BRAKES_SYSTEM,    'abs',         'EBS — electronic braking'),
-    ECU(J1939_ADDR_INSTRUMENT_CLUSTER,'cluster',    'MID — Message Information Display'),
-    ECU(J1939_ADDR_CAB_PRIMARY,      'mid_140',     'MID 140 — instrumentation control'),
-    ECU(J1939_ADDR_BODY_PRIMARY,     'mid_144',     'MID 144 — vehicle ECU (VECU)'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'atd',         'Aftertreatment (DPF + SCR)'),
-    ECU(J1939_ADDR_TIRE_PRESSURE,    'tpms',        'Tire-pressure monitoring')
-  ];
+  // JSON-only — sole sources of truth are volvotrucks.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Volvo Group service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'volvo_truck_chassis_code',  'Volvo / Mack chassis code (e.g. VNL, FH16, Anthem)'),
-    DID($F1A2, 'volvo_truck_emissions_pkg', 'EPA / EU emissions package code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (PTT)'),
-    Routine($0205, 'i_shift_clutch_calibration','I-Shift / mDRIVE clutch calibration'),
-    Routine($0F02, 'tpms_relearn',          'TPMS relearn'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('volvotrucks.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionVolvoTrucks.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('volvotrucks.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionVolvoTrucks.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

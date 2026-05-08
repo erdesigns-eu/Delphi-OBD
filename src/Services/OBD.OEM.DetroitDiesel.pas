@@ -27,6 +27,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -50,13 +56,11 @@ begin Result := 'DDC'; end;
 function TOBDOEMExtensionDetroitDiesel.DisplayName: string;
 begin Result := 'Detroit Diesel Corp. (engine OEM)'; end;
 
-function TOBDOEMExtensionDetroitDiesel.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionDetroitDiesel.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  // Engine OEM — no WMI. Use ApplicableToECUSupplier instead.
-  Result := False;
+  // JSON-only: applicable_wmis lives in detroit.json.
+  Result := VINMatchesCatalog('detroit.json', VIN);
 end;
-
 function TOBDOEMExtensionDetroitDiesel.ApplicableToECUSupplier(
   const SupplierID: string): Boolean;
 var
@@ -74,36 +78,25 @@ procedure TOBDOEMExtensionDetroitDiesel.BuildCatalog(
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'engine_mcm',  'Detroit MCM (DD13/DD15/DD16)'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'transmission','Detroit DT12 — automated manual transmission'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'atd1',        'GHG17 Aftertreatment Control 1 (DPF)'),
-    ECU(J1939_ADDR_AFTERTREATMENT_2, 'atd2',        'GHG17 Aftertreatment Control 2 (SCR)')
-  ];
+  // JSON-only — sole sources of truth are detroit.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Detroit MCM spare part'),
-    DID($F189, 'sw_version_number',         'MCM firmware version'),
-    DID($F18A, 'system_supplier_identifier','ECU supplier ID'),
-    DID($F197, 'system_name',               'Detroit MCM long name'),
-    DID($F1A0, 'detroit_engine_serial',     'Detroit engine serial number'),
-    DID($F1A1, 'detroit_calibration_id',    'Detroit calibration ID'),
-    DID($F1A2, 'detroit_emissions_family',  'EPA/CARB emissions family code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (DDDL)'),
-    Routine($0205, 'dt12_clutch_calibration','DT12 clutch wear calibration'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('detroit.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionDetroitDiesel.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('detroit.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionDetroitDiesel.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

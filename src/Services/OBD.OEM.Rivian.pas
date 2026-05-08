@@ -26,6 +26,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -47,55 +53,34 @@ function TOBDOEMExtensionRivian.DisplayName: string;
 begin Result := 'Rivian Automotive, Inc.'; end;
 
 function TOBDOEMExtensionRivian.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Rivian Normal IL plant (R1T / R1S / EDV): 7PD.
-  Result := (WMI = '7PD');
+  // JSON-only: applicable_wmis lives in rivian.json.
+  Result := VINMatchesCatalog('rivian.json', VIN);
 end;
-
 procedure TOBDOEMExtensionRivian.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Quad-motor R1T / R1S has four independent inverters at
-  // 0x710-0x713 (one per wheel). Tri-motor variants use 0x710 +
-  // 0x712 (front) + 0x714 (single rear-drive unit).
-  ECUs := [
-    ECU($7E0, 'vcu',          'VCU — Vehicle Control Unit'),
-    ECU($710, 'motor_fl',     'Front-Left Motor Inverter'),
-    ECU($711, 'motor_fr',     'Front-Right Motor Inverter'),
-    ECU($712, 'motor_rl',     'Rear-Left Motor Inverter'),
-    ECU($713, 'motor_rr',     'Rear-Right Motor Inverter'),
-    ECU($782, 'bms',          'BMS — Pack (Standard / Large / Max)'),
-    ECU($792, 'charge',       'Charge Port + on-board AC/DC charger'),
-    ECU($720, 'cluster',      'Driver Display Cluster'),
-    ECU($770, 'central',      'Central Gateway / IVI'),
-    ECU($724, 'driver_plus',  'Driver+ ADAS computer')
-  ];
+  // JSON-only — sole sources of truth are rivian.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'rivian_model_code',         'Rivian model code (R1T / R1S / EDV)'),
-    DID($F1A2, 'rivian_drivetrain',         'Rivian drivetrain (Quad / Dual / Performance Dual)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('rivian.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionRivian.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('rivian.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionRivian.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;

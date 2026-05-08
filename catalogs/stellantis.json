@@ -1,56 +1,380 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "STLA",
   "display_name": "Stellantis (FCA + PSA)",
   "applicable_wmis": [
-    "1C3","1C4","1C6","2C3","2C4","3C3","3C4","3C6",
-    "1D4","1D7","2D4","2D8","3D4",
-    "1J4","1J8","1RR",
-    "ZFA","ZFB","ZFC","9BD","ZAR","ZAM",
-    "VF3","VF7","W0L","VXR"
+    "1C3",
+    "1C4",
+    "1C6",
+    "2C3",
+    "2C4",
+    "3C3",
+    "3C4",
+    "3C6",
+    "1D4",
+    "1D7",
+    "2D4",
+    "2D8",
+    "3D4",
+    "1J4",
+    "1J8",
+    "1RR",
+    "ZFA",
+    "ZFB",
+    "ZFC",
+    "9BD",
+    "ZAR",
+    "ZAM",
+    "VF3",
+    "VF7",
+    "W0L",
+    "VXR"
   ],
   "default_source": "alfaobd-community / diagbox-public",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",       "common_name": "Engine ECU" },
-    { "address": "0x7E1", "name": "transmission", "common_name": "Transmission" },
-    { "address": "0x652", "name": "bsi",          "common_name": "PSA BSI — Body System Interface" },
-    { "address": "0x658", "name": "cluster_psa",  "common_name": "PSA Instrument Cluster (NAC/RNEG)" },
-    { "address": "0x7A2", "name": "bcm_fca",      "common_name": "FCA Body Computer Module" },
-    { "address": "0x7A0", "name": "cluster_fca",  "common_name": "FCA Instrument Cluster" },
-    { "address": "0x760", "name": "abs",          "common_name": "ABS / ESP" },
-    { "address": "0x731", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x793", "name": "gateway",      "common_name": "CAN Gateway" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "Engine ECU"
+    },
+    {
+      "address": "0x7E1",
+      "name": "transmission",
+      "common_name": "Transmission"
+    },
+    {
+      "address": "0x652",
+      "name": "bsi",
+      "common_name": "PSA BSI — Body System Interface"
+    },
+    {
+      "address": "0x658",
+      "name": "cluster_psa",
+      "common_name": "PSA Instrument Cluster (NAC/RNEG)"
+    },
+    {
+      "address": "0x7A2",
+      "name": "bcm_fca",
+      "common_name": "FCA Body Computer Module"
+    },
+    {
+      "address": "0x7A0",
+      "name": "cluster_fca",
+      "common_name": "FCA Instrument Cluster"
+    },
+    {
+      "address": "0x760",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x731",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x793",
+      "name": "gateway",
+      "common_name": "CAN Gateway"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "Engine ECU"
+    },
+    {
+      "address": "0x07E1",
+      "name": "transmission",
+      "common_name": "Transmission"
+    },
+    {
+      "address": "0x0652",
+      "name": "bsi",
+      "common_name": "PSA BSI — Body System Interface"
+    },
+    {
+      "address": "0x0658",
+      "name": "cluster_psa",
+      "common_name": "PSA Instrument Cluster (NAC/RNEG)"
+    },
+    {
+      "address": "0x07A2",
+      "name": "bcm_fca",
+      "common_name": "FCA Body Computer Module"
+    },
+    {
+      "address": "0x07A0",
+      "name": "cluster_fca",
+      "common_name": "FCA Instrument Cluster"
+    },
+    {
+      "address": "0x0760",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x0731",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0793",
+      "name": "gateway",
+      "common_name": "CAN Gateway"
+    }
   ],
   "dids": [
-    { "did": "0x1A02", "name": "mileage_km_24bit",   "description": "Mileage in km (24-bit big-endian)",        "source": "diagbox-public",     "verified": false,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x1B01", "name": "fuel_level_percent", "description": "Fuel tank level percent",                  "source": "diagbox-public",     "verified": false,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x1B02", "name": "engine_run_time",    "description": "Engine run time seconds (32-bit BE)",      "source": "diagbox-public",     "verified": false,
-      "decoder": { "kind": "seconds" } },
-    { "did": "0x1B03", "name": "battery_voltage",    "description": "Battery voltage in mV",                    "source": "diagbox-public",     "verified": false,
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0x1B04", "name": "engine_coolant_temp","description": "Engine coolant temperature (°C)",           "source": "alfaobd-community", "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-
-    { "did": "0xF198", "name": "last_workshop_code", "description": "Last workshop code (PSA: BSI, FCA: wiTech)","source": "alfaobd-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF199", "name": "programming_date",   "description": "Last programming date (YYMMDD BCD)",       "source": "alfaobd-community", "verified": false,
-      "decoder": { "kind": "bcd_date" } },
-    { "did": "0xF1A8", "name": "fca_calibration_id", "description": "FCA calibration ID (ASCII)",                "source": "alfaobd-community", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "psa_brand_code",     "description": "PSA brand id / model fingerprint (ASCII)",  "source": "diagbox-public",     "verified": false,
-      "decoder": { "kind": "ascii" } }
+    {
+      "did": "0x1A02",
+      "name": "mileage_km_24bit",
+      "description": "Mileage in km (24-bit big-endian)",
+      "source": "diagbox-public",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x1B01",
+      "name": "fuel_level_percent",
+      "description": "Fuel tank level percent",
+      "source": "diagbox-public",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x1B02",
+      "name": "engine_run_time",
+      "description": "Engine run time seconds (32-bit BE)",
+      "source": "diagbox-public",
+      "verified": false,
+      "decoder": {
+        "kind": "seconds"
+      }
+    },
+    {
+      "did": "0x1B03",
+      "name": "battery_voltage",
+      "description": "Battery voltage in mV",
+      "source": "diagbox-public",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0x1B04",
+      "name": "engine_coolant_temp",
+      "description": "Engine coolant temperature (°C)",
+      "source": "alfaobd-community",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF198",
+      "name": "last_workshop_code",
+      "description": "Last workshop code (PSA: BSI, FCA: wiTech)",
+      "source": "alfaobd-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF199",
+      "name": "programming_date",
+      "description": "Last programming date (YYMMDD BCD)",
+      "source": "alfaobd-community",
+      "verified": false,
+      "decoder": {
+        "kind": "bcd_date"
+      }
+    },
+    {
+      "did": "0xF1A8",
+      "name": "fca_calibration_id",
+      "description": "FCA calibration ID (ASCII)",
+      "source": "alfaobd-community",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "psa_brand_code",
+      "description": "PSA brand id / model fingerprint (ASCII)",
+      "source": "diagbox-public",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Stellantis service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF188",
+      "name": "ecu_part_number",
+      "description": "ECU part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version",
+      "description": "Software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18A",
+      "name": "system_supplier_id",
+      "description": "ECU supplier id",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18C",
+      "name": "ecu_serial_number",
+      "description": "ECU serial number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0202", "name": "reset_service_indicator", "description": "Reset service-due indicator",     "source": "diagbox-public",     "verified": false },
-    { "id": "0x0203", "name": "reset_adaptations",       "description": "Reset adaptive learning",          "source": "alfaobd-community", "verified": false },
-    { "id": "0x0F00", "name": "sas_calibration",         "description": "Steering-angle sensor calibration","source": "community-pr",       "verified": false },
-    { "id": "0x0F01", "name": "bsi_telecoding",          "description": "PSA BSI telecoding",                "source": "diagbox-public",     "verified": false },
-    { "id": "0x0F02", "name": "witech_proxi_align",      "description": "FCA wiTech proxi alignment",        "source": "alfaobd-community", "verified": false },
-    { "id": "0x0F03", "name": "stla_dpf_force_regen",    "description": "Forced DPF regeneration (Stellantis diesel)", "source": "diagbox-public", "verified": false, "ecu_address": "0x7E0" },
-    { "id": "0x0F04", "name": "stla_oil_life_reset",     "description": "Reset oil maintenance reminder",    "source": "alfaobd-community", "verified": false },
-    { "id": "0x0F05", "name": "psa_bsi_battery_reg",     "description": "PSA BSI battery registration",       "source": "diagbox-public", "verified": false, "ecu_address": "0x652" }
-  ]
+    {
+      "id": "0x0202",
+      "name": "reset_service_indicator",
+      "description": "Reset service-due indicator",
+      "source": "diagbox-public",
+      "verified": false
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "source": "alfaobd-community",
+      "verified": false
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor calibration",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0F01",
+      "name": "bsi_telecoding",
+      "description": "PSA BSI telecoding",
+      "source": "diagbox-public",
+      "verified": false
+    },
+    {
+      "id": "0x0F02",
+      "name": "witech_proxi_align",
+      "description": "FCA wiTech proxi alignment",
+      "source": "alfaobd-community",
+      "verified": false
+    },
+    {
+      "id": "0x0F03",
+      "name": "stla_dpf_force_regen",
+      "description": "Forced DPF regeneration (Stellantis diesel)",
+      "source": "diagbox-public",
+      "verified": false,
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F04",
+      "name": "stla_oil_life_reset",
+      "description": "Reset oil maintenance reminder",
+      "source": "alfaobd-community",
+      "verified": false
+    },
+    {
+      "id": "0x0F05",
+      "name": "psa_bsi_battery_reg",
+      "description": "PSA BSI battery registration",
+      "source": "diagbox-public",
+      "verified": false,
+      "ecu_address": "0x652"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

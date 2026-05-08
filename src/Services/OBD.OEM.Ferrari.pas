@@ -26,6 +26,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -48,90 +54,34 @@ function TOBDOEMExtensionFerrari.DisplayName: string;
 begin Result := 'Ferrari N.V.'; end;
 
 function TOBDOEMExtensionFerrari.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Ferrari Maranello: ZFF.
-  Result := (WMI = 'ZFF');
+  // JSON-only: applicable_wmis lives in ferrari.json.
+  Result := VINMatchesCatalog('ferrari.json', VIN);
 end;
-
 procedure TOBDOEMExtensionFerrari.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'me_ecu',         'ME — Engine Control (Marelli)'),
-    ECU($7E1, 'tcu_dct',        'TCU — 7- / 8-speed DCT (Getrag F1)'),
-    ECU($7E2, 'me_secondary',   'Secondary engine controller (V8 / V12 dual-bank)'),
-    ECU($7E5, 'sf90_inverter',  'SF90 / 296 / 12Cilindri hybrid inverter'),
-    ECU($7E6, 'sf90_emotor',    'SF90 / 296 hybrid e-motor'),
-    ECU($7E7, 'sf90_battery',   'SF90 / 296 HV battery'),
-    ECU($720, 'cluster',        'Driver Information Display'),
-    ECU($740, 'srs',            'SRS / Airbag'),
-    ECU($742, 'esp',            'CST — F1-Trac / SSC stability + traction'),
-    ECU($744, 'manettino',      'Manettino + Race-Mode controller'),
-    ECU($746, 'magneride',      'Magnetorheological dampers controller'),
-    ECU($748, 'lift_axle',      'Front lift / nose-lift system'),
-    ECU($760, 'climate',        'Climate Control'),
-    ECU($770, 'mim_infotainment','Multifunction Infotainment Module'),
-    ECU($780, 'tpms',           'Tire-pressure monitoring + temperature'),
-    ECU($724, 'adas',           'ADAS / forward radar (Roma / Purosangue)')
-  ];
+  // JSON-only — sole sources of truth are ferrari.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Ferrari service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'ferrari_model_code',        'Ferrari internal model (F142, F154, F160)'),
-    DID($F1A2, 'ferrari_paint_code',        'Ferrari paint code (Rosso Corsa = 322, …)'),
-    DID($F1A4, 'ferrari_options_block',     'Ferrari individual-options block'),
-    DID($F1A6, 'ferrari_assembly_data',     'Maranello assembly date / line / inspector'),
-    DID($F1B0, 'ferrari_warranty_block',    'Warranty start + delivery dealer'),
-
-    DID($D050, 'vehicle_mileage',           'Vehicle mileage in km'),
-    DID($D051, 'battery_voltage_12v',       'Battery voltage (mV)'),
-    DID($D052, 'engine_oil_temperature',    'Engine oil temperature (°C)'),
-    DID($D053, 'engine_oil_pressure',       'Engine oil pressure (kPa)'),
-    DID($D054, 'engine_oil_level',          'Engine oil level (mm above min)'),
-    DID($D055, 'boost_pressure',            'Charge-air pressure (kPa, V8 turbo)'),
-    DID($D056, 'engine_coolant_temp',       'Engine coolant temperature (°C)'),
-    DID($D057, 'engine_runtime_h',          'Engine runtime lifetime (h)'),
-    DID($D058, 'rear_axle_temperature',     'DCT / rear-axle temperature (°C)'),
-
-    DID($D060, 'sf90_pack_voltage',         'SF90 / 296 HV pack voltage (V)'),
-    DID($D061, 'sf90_pack_soc',             'SF90 / 296 HV pack SOC (%)'),
-    DID($D062, 'sf90_pack_soh',             'SF90 / 296 HV pack SOH (%)'),
-    DID($D063, 'sf90_motor_temperature',    'SF90 / 296 e-motor temperature (°C)'),
-    DID($D068, 'sf90_charge_status',        'SF90 / 296 charge status enum'),
-
-    DID($D080, 'manettino_position',        'Manettino selected position enum'),
-    DID($D082, 'magneride_mode',            'Magnetorheological damper mode'),
-    DID($D084, 'lift_axle_status',          'Front lift status (raised / lowered / fault)'),
-    DID($D090, 'tire_temp_fl',              'Tire surface temperature — front-left (°C)'),
-    DID($D091, 'tire_temp_fr',              'Tire surface temperature — front-right (°C)'),
-    DID($D092, 'tire_temp_rl',              'Tire surface temperature — rear-left (°C)'),
-    DID($D093, 'tire_temp_rr',              'Tire surface temperature — rear-right (°C)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'ferrari_dct_calibration','DCT touchpoint calibration (SD3)'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($0F02, 'magneride_calibration', 'Magneride damper calibration'),
-    Routine($0F03, 'lift_axle_test',        'Front lift system functional test'),
-    Routine($0F04, 'ferrari_oil_life_reset','Reset engine oil-life monitor'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('ferrari.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionFerrari.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('ferrari.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionFerrari.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

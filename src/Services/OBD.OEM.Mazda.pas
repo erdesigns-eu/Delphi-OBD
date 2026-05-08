@@ -23,6 +23,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -45,58 +51,34 @@ function TOBDOEMExtensionMazda.DisplayName: string;
 begin Result := 'Mazda Motor Corporation'; end;
 
 function TOBDOEMExtensionMazda.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Mazda Japan: JM1 (passenger), JM3 (Mazda 3 export Eu/AU), JMZ
-  //   (export Europe), JM7 (Mazda5).
-  // Mazda US-built (was AAI joint venture w/ Ford in MI): 4F2 (CX-9
-  //   Flat Rock), 4F4 (B-series).
-  Result :=
-    (WMI = 'JM1') or (WMI = 'JM3') or (WMI = 'JM7') or (WMI = 'JMZ') or
-    (WMI = '4F2') or (WMI = '4F4');
+  // JSON-only: applicable_wmis lives in mazda.json.
+  Result := VINMatchesCatalog('mazda.json', VIN);
 end;
-
 procedure TOBDOEMExtensionMazda.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'pcm',            'PCM — Powertrain Control'),
-    ECU($7E1, 'tcm',            'TCM — Transmission Control'),
-    ECU($726, 'rbcm',           'RBCM — Rear Body Control'),
-    ECU($731, 'bcm',            'BCM — Body Control'),
-    ECU($741, 'abs',            'ABS / DSC'),
-    ECU($732, 'srs',            'SRS / Airbag'),
-    ECU($720, 'cluster',        'Instrument Cluster'),
-    ECU($7E5, 'hvac',           'Climate Control')
-  ];
+  // JSON-only — sole sources of truth are mazda.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Mazda service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'mazda_as_built_code',       'Mazda As-Built configuration code'),
-    DID($F1B0, 'mazda_market_code',         'Mazda market / region code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'idle_relearn',          'Idle re-learn (M-MDS)'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('mazda.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionMazda.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('mazda.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionMazda.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

@@ -1,58 +1,424 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "GM",
   "display_name": "General Motors",
-  "applicable_wmis": ["1G1","1G2","1G4","1G6","1G8","1GC","1GT","2G1","2GT","3G1","3GT","5GR","6G1"],
+  "applicable_wmis": [
+    "1G1",
+    "1G2",
+    "1G4",
+    "1G6",
+    "1G8",
+    "1GC",
+    "1GT",
+    "2G1",
+    "2GT",
+    "3G1",
+    "3GT",
+    "5GR",
+    "6G1"
+  ],
   "default_source": "tis2web-public / gmlan-public",
   "ecus": [
-    { "address": "0x7E0", "name": "ecm",   "common_name": "ECM — Engine Control" },
-    { "address": "0x7E1", "name": "tcm",   "common_name": "TCM — Transmission Control" },
-    { "address": "0x241", "name": "ebcm",  "common_name": "EBCM — ABS / Stability" },
-    { "address": "0x242", "name": "sdm",   "common_name": "SDM — Sensing Diagnostic Module (Airbag)" },
-    { "address": "0x243", "name": "bcm",   "common_name": "BCM — Body Control Module" },
-    { "address": "0x244", "name": "ipc",   "common_name": "IPC — Instrument Panel Cluster" },
-    { "address": "0x245", "name": "eps",   "common_name": "EPS — Electric Power Steering" },
-    { "address": "0x246", "name": "hvac",  "common_name": "HVAC — Climate" },
-    { "address": "0x247", "name": "radio", "common_name": "Radio / Infotainment" }
+    {
+      "address": "0x7E0",
+      "name": "ecm",
+      "common_name": "ECM — Engine Control"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission Control"
+    },
+    {
+      "address": "0x241",
+      "name": "ebcm",
+      "common_name": "EBCM — ABS / Stability"
+    },
+    {
+      "address": "0x242",
+      "name": "sdm",
+      "common_name": "SDM — Sensing Diagnostic Module (Airbag)"
+    },
+    {
+      "address": "0x243",
+      "name": "bcm",
+      "common_name": "BCM — Body Control Module"
+    },
+    {
+      "address": "0x244",
+      "name": "ipc",
+      "common_name": "IPC — Instrument Panel Cluster"
+    },
+    {
+      "address": "0x245",
+      "name": "eps",
+      "common_name": "EPS — Electric Power Steering"
+    },
+    {
+      "address": "0x246",
+      "name": "hvac",
+      "common_name": "HVAC — Climate"
+    },
+    {
+      "address": "0x247",
+      "name": "radio",
+      "common_name": "Radio / Infotainment"
+    },
+    {
+      "address": "0x07E0",
+      "name": "ecm",
+      "common_name": "ECM — Engine Control"
+    },
+    {
+      "address": "0x07E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission Control"
+    },
+    {
+      "address": "0x0241",
+      "name": "ebcm",
+      "common_name": "EBCM — ABS / Stability"
+    },
+    {
+      "address": "0x0242",
+      "name": "sdm",
+      "common_name": "SDM — Sensing Diagnostic Module (Airbag)"
+    },
+    {
+      "address": "0x0243",
+      "name": "bcm",
+      "common_name": "BCM — Body Control Module"
+    },
+    {
+      "address": "0x0244",
+      "name": "ipc",
+      "common_name": "IPC — Instrument Panel Cluster"
+    },
+    {
+      "address": "0x0245",
+      "name": "eps",
+      "common_name": "EPS — Electric Power Steering"
+    },
+    {
+      "address": "0x0246",
+      "name": "hvac",
+      "common_name": "HVAC — Climate"
+    },
+    {
+      "address": "0x0247",
+      "name": "radio",
+      "common_name": "Radio / Infotainment"
+    }
   ],
   "dids": [
-    { "did": "0x1981", "name": "mileage_km",            "description": "Vehicle mileage in km (32-bit BE)",        "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0x1982", "name": "engine_run_time",       "description": "Engine run time seconds (32-bit BE)",      "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "seconds" } },
-    { "did": "0x1983", "name": "battery_voltage",       "description": "Battery voltage in mV",                    "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0x1984", "name": "fuel_level_percent",    "description": "Fuel tank level percent",                  "source": "community-pr",   "verified": false,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x1985", "name": "engine_coolant_temp",   "description": "Coolant temperature (°C)",                 "source": "community-pr",   "verified": false,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-
-    { "did": "0xF1A0", "name": "broadcast_code",        "description": "GM broadcast code (model-year tag, ASCII)","source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "cvn_list",              "description": "Calibration Verification Number list",     "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1A4", "name": "engineering_part_number","description": "GM engineering part number (ASCII)",       "source": "tis2web-public", "verified": false,
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0x1984", "name": "gm_engine_run_time", "description": "Engine run time (s, GMLAN)", "source": "tis2web-public", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "unit": "s" } },
-    { "did": "0x1985", "name": "gm_oil_pressure", "description": "Engine oil pressure (kPa)", "source": "gmlan-public", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0x1986", "name": "gm_oil_life_remaining", "description": "Oil life remaining (%, GM IPC)", "source": "tis2web-public", "verified": false, "ecu_address": "0x244",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0x1987", "name": "gm_throttle_position", "description": "Throttle position (%, GM ETC)", "source": "gmlan-public", "verified": false, "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xC100", "name": "gm_immo_status", "description": "GM PassKey / PassLock immobilizer status", "source": "tis2web-public", "verified": false, "ecu_address": "0x243",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "armed", "0x01": "disarmed", "0x02": "fault"} } }
+    {
+      "did": "0x1981",
+      "name": "mileage_km",
+      "description": "Vehicle mileage in km (32-bit BE)",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0x1982",
+      "name": "engine_run_time",
+      "description": "Engine run time seconds (32-bit BE)",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "seconds"
+      }
+    },
+    {
+      "did": "0x1983",
+      "name": "battery_voltage",
+      "description": "Battery voltage in mV",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0x1984",
+      "name": "fuel_level_percent",
+      "description": "Fuel tank level percent",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x1985",
+      "name": "engine_coolant_temp",
+      "description": "Coolant temperature (°C)",
+      "source": "community-pr",
+      "verified": false,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "broadcast_code",
+      "description": "GM broadcast code (model-year tag, ASCII)",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "cvn_list",
+      "description": "Calibration Verification Number list",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "engineering_part_number",
+      "description": "GM engineering part number (ASCII)",
+      "source": "tis2web-public",
+      "verified": false,
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0x1984",
+      "name": "gm_engine_run_time",
+      "description": "Engine run time (s, GMLAN)",
+      "source": "tis2web-public",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x1985",
+      "name": "gm_oil_pressure",
+      "description": "Engine oil pressure (kPa)",
+      "source": "gmlan-public",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x1986",
+      "name": "gm_oil_life_remaining",
+      "description": "Oil life remaining (%, GM IPC)",
+      "source": "tis2web-public",
+      "verified": false,
+      "ecu_address": "0x244",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x1987",
+      "name": "gm_throttle_position",
+      "description": "Throttle position (%, GM ETC)",
+      "source": "gmlan-public",
+      "verified": false,
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xC100",
+      "name": "gm_immo_status",
+      "description": "GM PassKey / PassLock immobilizer status",
+      "source": "tis2web-public",
+      "verified": false,
+      "ecu_address": "0x243",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "armed",
+          "0x01": "disarmed",
+          "0x02": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "GM service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF188",
+      "name": "ecu_part_number",
+      "description": "ECU part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version",
+      "description": "Software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18A",
+      "name": "system_supplier_id",
+      "description": "ECU supplier id",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF18C",
+      "name": "ecu_serial_number",
+      "description": "ECU serial number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",     "description": "Reset adaptive learning",            "source": "community-pr",   "verified": false },
-    { "id": "0x0204", "name": "crank_relearn",         "description": "Crank position relearn",              "source": "tis2web-public", "verified": false },
-    { "id": "0x0205", "name": "tps_relearn",           "description": "Throttle-position-sensor relearn",    "source": "tis2web-public", "verified": false },
-    { "id": "0x0F00", "name": "sas_calibration",       "description": "Steering-angle sensor calibration",   "source": "community-pr",   "verified": false },
-    { "id": "0x0F01", "name": "bcm_relearn",           "description": "Body-control-module immobilizer relearn", "source": "community-pr","verified": false },
-    { "id": "0x0F02", "name": "gm_oil_life_reset",     "description": "Reset oil life monitor (GM IPC)",     "source": "tis2web-public", "verified": false, "ecu_address": "0x244" },
-    { "id": "0x0F03", "name": "gm_passkey_relearn",    "description": "PassKey / PassLock relearn (GM BCM)", "source": "tis2web-public", "verified": false, "ecu_address": "0x243" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0204",
+      "name": "crank_relearn",
+      "description": "Crank position relearn",
+      "source": "tis2web-public",
+      "verified": false
+    },
+    {
+      "id": "0x0205",
+      "name": "tps_relearn",
+      "description": "Throttle-position-sensor relearn",
+      "source": "tis2web-public",
+      "verified": false
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor calibration",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0F01",
+      "name": "bcm_relearn",
+      "description": "Body-control-module immobilizer relearn",
+      "source": "community-pr",
+      "verified": false
+    },
+    {
+      "id": "0x0F02",
+      "name": "gm_oil_life_reset",
+      "description": "Reset oil life monitor (GM IPC)",
+      "source": "tis2web-public",
+      "verified": false,
+      "ecu_address": "0x244"
+    },
+    {
+      "id": "0x0F03",
+      "name": "gm_passkey_relearn",
+      "description": "PassKey / PassLock relearn (GM BCM)",
+      "source": "tis2web-public",
+      "verified": false,
+      "ecu_address": "0x243"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF01",
+      "name": "check_dependencies",
+      "description": "Cross-ECU dependency check"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

@@ -29,6 +29,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -50,58 +56,34 @@ function TOBDOEMExtensionTesla.DisplayName: string;
 begin Result := 'Tesla, Inc.'; end;
 
 function TOBDOEMExtensionTesla.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Tesla Fremont (US): 5YJ (Models S/X/Y/3).
-  // Tesla Shanghai: LRW (Model 3 / Y for China + Europe).
-  // Tesla Berlin: XP7 (Model Y for Europe).
-  // Tesla Austin: 7SA (Model Y / Cybertruck).
-  // Some early VINs used 7SAY for the Y; collapse to 7SA prefix.
-  Result :=
-    (WMI = '5YJ') or (WMI = 'LRW') or
-    (WMI = 'XP7') or (WMI = '7SA');
+  // JSON-only: applicable_wmis lives in tesla.json.
+  Result := VINMatchesCatalog('tesla.json', VIN);
 end;
-
 procedure TOBDOEMExtensionTesla.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Tesla CAN-bus mapping (Tesla Service Tech mode community
-  // reference). The ECU inventory is much larger in reality (HV
-  // controller, BMS_master + BMS_slave x 4, motor inverters,
-  // gateway, autopilot…); the starter ships the most-queried set.
-  ECUs := [
-    ECU($7DF, 'gateway',        'OBD-II broadcast (functional)'),
-    ECU($7E0, 'powertrain',     'Powertrain Controller'),
-    ECU($7E1, 'gateway_p',      'Vehicle Gateway'),
-    ECU($782, 'bms',            'BMS — Battery Management System'),
-    ECU($724, 'autopilot',      'Autopilot ECU (FSD/HW3/HW4)'),
-    ECU($762, 'driver_door',    'Driver-side body controller'),
-    ECU($772, 'cabin',          'Cabin / cluster (touchscreen IHU)'),
-    ECU($792, 'charging',       'Charge Port Controller')
-  ];
+  // JSON-only — sole sources of truth are tesla.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F1A0, 'tesla_firmware_version',    'Tesla firmware version (string)'),
-    DID($F1A2, 'tesla_hardware_id',         'Tesla hardware platform (HW1/2.5/3/4)'),
-    DID($F197, 'system_name',               'ECU long name')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('tesla.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionTesla.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('tesla.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionTesla.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;

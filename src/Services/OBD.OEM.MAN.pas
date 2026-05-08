@@ -27,6 +27,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -50,56 +56,34 @@ function TOBDOEMExtensionMAN.DisplayName: string;
 begin Result := 'MAN Truck & Bus SE (Traton Group)'; end;
 
 function TOBDOEMExtensionMAN.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // MAN Munich + Salzgitter + Steyr (AT): WMA. Latin America (now-
-  // defunct VW Truck & Bus / MAN Latin America merger): 9BW (Brazil).
-  Result :=
-    (WMI = 'WMA') or (WMI = '9BW');
+  // JSON-only: applicable_wmis lives in man.json.
+  Result := VINMatchesCatalog('man.json', VIN);
 end;
-
 procedure TOBDOEMExtensionMAN.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'edc',            'EDC — Engine Control (D26 / D08)'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'tipmatic',       'TipMatic / TraXon transmission control'),
-    ECU(J1939_ADDR_BRAKES_SYSTEM,    'ebs',            'EBS — Electronic Braking'),
-    ECU(J1939_ADDR_RETARDER_ENGINE,  'retarder',       'MAN PriTarder retarder controller'),
-    ECU(J1939_ADDR_INSTRUMENT_CLUSTER,'zbr',           'ZBR — Central Vehicle Computer (cluster)'),
-    ECU(J1939_ADDR_CAB_PRIMARY,      'fhrr',           'FHRR — Driver assist controller'),
-    ECU(J1939_ADDR_BODY_PRIMARY,     'bws',            'BWS — Body computer'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'acm',            'ACM — Aftertreatment Control')
-  ];
+  // JSON-only — sole sources of truth are man.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'MAN service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'man_chassis_code',          'MAN chassis code (e.g. TGX, TGS, TGE)'),
-    DID($F1A2, 'man_engine_serial',         'MAN engine serial number'),
-    DID($F1B0, 'man_factory_options',       'MAN factory option block')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (MAN-cats)'),
-    Routine($0205, 'tipmatic_calibration',  'TipMatic clutch / gear-position calibration'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('man.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionMAN.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('man.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionMAN.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

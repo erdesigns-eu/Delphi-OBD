@@ -1,91 +1,537 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "JLR",
   "display_name": "Jaguar Land Rover Limited (Tata)",
-  "applicable_wmis": ["SAJ","SAL","SAD","MA1"],
+  "applicable_wmis": [
+    "SAJ",
+    "SAL",
+    "SAD",
+    "MA1"
+  ],
   "default_source": "sdd-community / topix-public",
   "ecus": [
-    { "address": "0x7E0", "name": "pcm",          "common_name": "PCM — Powertrain Control" },
-    { "address": "0x7E1", "name": "tcm",          "common_name": "TCM — Transmission" },
-    { "address": "0x7E2", "name": "rdm",          "common_name": "RDM — Rear Drive Module (Range Rover BEV)" },
-    { "address": "0x7E5", "name": "evcc",         "common_name": "EV Charge Controller (I-Pace / RR EV)" },
-    { "address": "0x7E6", "name": "ev_motor",     "common_name": "EV Inverter / motor (I-Pace / RR EV)" },
-    { "address": "0x720", "name": "cluster",      "common_name": "IPC — Instrument Cluster" },
-    { "address": "0x722", "name": "hud",          "common_name": "HUD — Head-Up Display" },
-    { "address": "0x731", "name": "cjb",          "common_name": "CJB — Central Junction Box" },
-    { "address": "0x744", "name": "rjb",          "common_name": "RJB — Rear Junction Box" },
-    { "address": "0x746", "name": "abs",          "common_name": "ABS / DSC" },
-    { "address": "0x748", "name": "asm",          "common_name": "ASM — Active Suspension Module" },
-    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x762", "name": "tcb",          "common_name": "TCB — Telematics / SOS" },
-    { "address": "0x768", "name": "climate",      "common_name": "ATC — Climate Control" },
-    { "address": "0x770", "name": "ivi",          "common_name": "IVI / Touch Pro Duo / Pivi Pro" },
-    { "address": "0x724", "name": "adas",         "common_name": "ADAS / radar / camera fusion" },
-    { "address": "0x758", "name": "smart_key",    "common_name": "Smart Key / passive entry" }
+    {
+      "address": "0x7E0",
+      "name": "pcm",
+      "common_name": "PCM — Powertrain Control"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission"
+    },
+    {
+      "address": "0x7E2",
+      "name": "rdm",
+      "common_name": "RDM — Rear Drive Module (Range Rover BEV)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "EV Charge Controller (I-Pace / RR EV)"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor",
+      "common_name": "EV Inverter / motor (I-Pace / RR EV)"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "IPC — Instrument Cluster"
+    },
+    {
+      "address": "0x722",
+      "name": "hud",
+      "common_name": "HUD — Head-Up Display"
+    },
+    {
+      "address": "0x731",
+      "name": "cjb",
+      "common_name": "CJB — Central Junction Box"
+    },
+    {
+      "address": "0x744",
+      "name": "rjb",
+      "common_name": "RJB — Rear Junction Box"
+    },
+    {
+      "address": "0x746",
+      "name": "abs",
+      "common_name": "ABS / DSC"
+    },
+    {
+      "address": "0x748",
+      "name": "asm",
+      "common_name": "ASM — Active Suspension Module"
+    },
+    {
+      "address": "0x760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x762",
+      "name": "tcb",
+      "common_name": "TCB — Telematics / SOS"
+    },
+    {
+      "address": "0x768",
+      "name": "climate",
+      "common_name": "ATC — Climate Control"
+    },
+    {
+      "address": "0x770",
+      "name": "ivi",
+      "common_name": "IVI / Touch Pro Duo / Pivi Pro"
+    },
+    {
+      "address": "0x724",
+      "name": "adas",
+      "common_name": "ADAS / radar / camera fusion"
+    },
+    {
+      "address": "0x758",
+      "name": "smart_key",
+      "common_name": "Smart Key / passive entry"
+    },
+    {
+      "address": "0x07E0",
+      "name": "pcm",
+      "common_name": "PCM — Powertrain Control"
+    },
+    {
+      "address": "0x07E1",
+      "name": "tcm",
+      "common_name": "TCM — Transmission"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "EV Charge Controller (I-Pace / Range Rover EV)"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "IPC — Instrument Cluster"
+    },
+    {
+      "address": "0x0731",
+      "name": "cjb",
+      "common_name": "CJB — Central Junction Box (BCM)"
+    },
+    {
+      "address": "0x0746",
+      "name": "abs",
+      "common_name": "ABS / DSC"
+    },
+    {
+      "address": "0x0760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0762",
+      "name": "tcb",
+      "common_name": "TCB — Telematics / SOS"
+    },
+    {
+      "address": "0x0768",
+      "name": "climate",
+      "common_name": "ATC — Climate Control"
+    },
+    {
+      "address": "0x0770",
+      "name": "ivi",
+      "common_name": "IVI / Touch Pro Duo"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "jlr_model_code",      "description": "JLR model code (L405, L460, L538, X590)", "ecu_address": "0x731",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "jlr_assembly_plant",  "description": "JLR assembly plant code", "ecu_address": "0x731",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "jlr_calibration_id",  "description": "PCM calibration package ID", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "jlr_topix_release",   "description": "Topix software release identifier", "ecu_address": "0x770",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "jlr_options_block",   "description": "JLR factory options block", "ecu_address": "0x731",
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage",     "description": "Vehicle mileage (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temperature","description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_life_pct", "description": "Engine oil life remaining (%)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD054", "name": "engine_runtime_h",    "description": "Engine runtime lifetime (h)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD055", "name": "boost_pressure",      "description": "Charge-air boost pressure (kPa)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD056", "name": "engine_coolant_temperature","description": "Engine coolant temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD057", "name": "fuel_level_pct",      "description": "Fuel level (%)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD058", "name": "ambient_temperature", "description": "Ambient temperature (°C)", "ecu_address": "0x720",
-      "decoder": { "kind": "int8", "unit": "C" } },
-
-    { "did": "0xD060", "name": "ipace_pack_voltage",  "description": "I-Pace HV pack voltage (V)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "ipace_pack_soc",      "description": "I-Pace HV pack SOC (%)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "ipace_pack_soh",      "description": "I-Pace HV pack SOH (%)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "ipace_remaining_range","description": "I-Pace remaining range (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD068", "name": "ipace_charge_status", "description": "I-Pace charge status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-
-    { "did": "0xD0A0", "name": "jlr_air_height_fl",   "description": "Air-suspension height — front-left (mm)", "ecu_address": "0x748",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A1", "name": "jlr_air_height_fr",   "description": "Air-suspension height — front-right (mm)", "ecu_address": "0x748",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A2", "name": "jlr_air_height_rl",   "description": "Air-suspension height — rear-left (mm)", "ecu_address": "0x748",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A3", "name": "jlr_air_height_rr",   "description": "Air-suspension height — rear-right (mm)", "ecu_address": "0x748",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0B0", "name": "jlr_terrain_response_mode","description": "Terrain Response selected mode", "ecu_address": "0x731",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "auto", "0x01": "comfort", "0x02": "grass_gravel_snow", "0x03": "mud_ruts", "0x04": "sand", "0x05": "rock_crawl", "0x06": "dynamic"} } }
+    {
+      "did": "0xF1A0",
+      "name": "jlr_model_code",
+      "description": "JLR model code (L405, L460, L538, X590)",
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "jlr_assembly_plant",
+      "description": "JLR assembly plant code",
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "jlr_calibration_id",
+      "description": "PCM calibration package ID",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "jlr_topix_release",
+      "description": "Topix software release identifier",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "jlr_options_block",
+      "description": "JLR factory options block",
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_life_pct",
+      "description": "Engine oil life remaining (%)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_runtime_h",
+      "description": "Engine runtime lifetime (h)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "boost_pressure",
+      "description": "Charge-air boost pressure (kPa)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "engine_coolant_temperature",
+      "description": "Engine coolant temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "fuel_level_pct",
+      "description": "Fuel level (%)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD058",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature (°C)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "ipace_pack_voltage",
+      "description": "I-Pace HV pack voltage (V)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "ipace_pack_soc",
+      "description": "I-Pace HV pack SOC (%)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "ipace_pack_soh",
+      "description": "I-Pace HV pack SOH (%)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "ipace_remaining_range",
+      "description": "I-Pace remaining range (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "ipace_charge_status",
+      "description": "I-Pace charge status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD0A0",
+      "name": "jlr_air_height_fl",
+      "description": "Air-suspension height — front-left (mm)",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A1",
+      "name": "jlr_air_height_fr",
+      "description": "Air-suspension height — front-right (mm)",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A2",
+      "name": "jlr_air_height_rl",
+      "description": "Air-suspension height — rear-left (mm)",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A3",
+      "name": "jlr_air_height_rr",
+      "description": "Air-suspension height — rear-right (mm)",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0B0",
+      "name": "jlr_terrain_response_mode",
+      "description": "Terrain Response selected mode",
+      "ecu_address": "0x731",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "auto",
+          "0x01": "comfort",
+          "0x02": "grass_gravel_snow",
+          "0x03": "mud_ruts",
+          "0x04": "sand",
+          "0x05": "rock_crawl",
+          "0x06": "dynamic"
+        }
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "JLR service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning", "ecu_address": "0x7E0" },
-    { "id": "0x0204", "name": "fuel_trim_reset",           "description": "Fuel trim reset (Ingenium 2.0/3.0)", "ecu_address": "0x7E0" },
-    { "id": "0x0205", "name": "jlr_oil_life_reset",        "description": "Reset engine oil-life monitor", "ecu_address": "0x720" },
-    { "id": "0x0F00", "name": "sas_calibration",           "description": "Steering-angle sensor reset", "ecu_address": "0x746" },
-    { "id": "0x0F02", "name": "air_suspension_calibration","description": "Air-suspension ride-height calibration (Range Rover / RR Sport / Defender)", "ecu_address": "0x748" },
-    { "id": "0x0F03", "name": "battery_register",          "description": "12 V battery registration after replacement", "ecu_address": "0x731" },
-    { "id": "0x0F04", "name": "jlr_dpf_force_regen",       "description": "Forced DPF regeneration (JLR D8 / D7 diesel)", "ecu_address": "0x7E0" },
-    { "id": "0x0F05", "name": "jlr_smart_key_relearn",     "description": "Smart-key proximity relearn", "ecu_address": "0x758" },
-    { "id": "0x0F06", "name": "jlr_brake_bleed",           "description": "Electronic brake-bleed cycle (Topix)", "ecu_address": "0x746" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0204",
+      "name": "fuel_trim_reset",
+      "description": "Fuel trim reset (Ingenium 2.0/3.0)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0205",
+      "name": "jlr_oil_life_reset",
+      "description": "Reset engine oil-life monitor",
+      "ecu_address": "0x720"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x746"
+    },
+    {
+      "id": "0x0F02",
+      "name": "air_suspension_calibration",
+      "description": "Air-suspension ride-height calibration (Range Rover / RR Sport / Defender)",
+      "ecu_address": "0x748"
+    },
+    {
+      "id": "0x0F03",
+      "name": "battery_register",
+      "description": "12 V battery registration after replacement",
+      "ecu_address": "0x731"
+    },
+    {
+      "id": "0x0F04",
+      "name": "jlr_dpf_force_regen",
+      "description": "Forced DPF regeneration (JLR D8 / D7 diesel)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F05",
+      "name": "jlr_smart_key_relearn",
+      "description": "Smart-key proximity relearn",
+      "ecu_address": "0x758"
+    },
+    {
+      "id": "0x0F06",
+      "name": "jlr_brake_bleed",
+      "description": "Electronic brake-bleed cycle (Topix)",
+      "ecu_address": "0x746"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

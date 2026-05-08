@@ -23,6 +23,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -45,67 +51,34 @@ function TOBDOEMExtensionNissan.DisplayName: string;
 begin Result := 'Nissan Motor (incl. Infiniti, Datsun)'; end;
 
 function TOBDOEMExtensionNissan.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Nissan Japan: JN1 (passenger), JN6 (trucks), JN8 (Pathfinder JP).
-  // Nissan US-built: 1N4 (Altima Tennessee), 1N6 (Frontier/Titan),
-  //   3N1 (Mexico Sentra/Versa), 5N1 (Murano), 5BZ.
-  // Infiniti: JNK (Japan G/Q sedan), JNR (Q60), JNX (QX SUV).
-  // Datsun (revived budget brand 2014-2022): MNT (India).
-  Result :=
-    (WMI = 'JN1') or (WMI = 'JN6') or (WMI = 'JN8') or
-    (WMI = '1N4') or (WMI = '1N6') or (WMI = '3N1') or
-    (WMI = '5N1') or (WMI = '5BZ') or
-    (WMI = 'JNK') or (WMI = 'JNR') or (WMI = 'JNX') or
-    (WMI = 'MNT');
+  // JSON-only: applicable_wmis lives in nissan.json.
+  Result := VINMatchesCatalog('nissan.json', VIN);
 end;
-
 procedure TOBDOEMExtensionNissan.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Consult III+ ECU map. Powertrain modules sit on 0x7E0/0x7E1
-  // (ISO 15765-4); body modules cluster around 0x740 / 0x745
-  // (BCM / IPDM); chassis modules in 0x76x.
-  ECUs := [
-    ECU($7E0, 'ecm',            'ECM — Engine Control'),
-    ECU($7E1, 'tcm',            'TCM — Transmission Control'),
-    ECU($740, 'bcm',            'BCM — Body Control'),
-    ECU($745, 'ipdm',           'IPDM E/R — Power Distribution'),
-    ECU($763, 'abs',            'ABS / VDC'),
-    ECU($75A, 'cluster',        'Combination Meter'),
-    ECU($75D, 'srs',            'SRS / Airbag'),
-    ECU($768, 'avm',            'AVM — Around-View Monitor'),
-    ECU($793, 'evcc',            'EV Charge Controller (Leaf / Ariya)')
-  ];
+  // JSON-only — sole sources of truth are nissan.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Nissan service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A1, 'nissan_chassis_code',       'Nissan chassis code (e.g. T32, R35)'),
-    DID($F1B0, 'nissan_market_code',        'Nissan market / region code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'idle_relearn',          'Idle volume relearn (Consult III+)'),
-    Routine($0205, 'tps_relearn',           'Throttle valve closed-position relearn'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('nissan.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionNissan.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('nissan.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionNissan.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

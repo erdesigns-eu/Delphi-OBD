@@ -1,98 +1,508 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "ROLLS_ROYCE",
   "display_name": "Rolls-Royce Motor Cars Ltd.",
-  "applicable_wmis": ["SCA"],
+  "applicable_wmis": [
+    "SCA"
+  ],
   "default_source": "rolls-royce-bmw-esys-community",
   "ecus": [
-    { "address": "0x12", "name": "dme",           "common_name": "DME — N74 V12 / N63 V8" },
-    { "address": "0x07", "name": "egs",           "common_name": "EGS — ZF 8HP" },
-    { "address": "0x29", "name": "dsc",           "common_name": "DSC + Magic Carpet ride" },
-    { "address": "0x40", "name": "kombi",         "common_name": "KOMBI — instrument cluster" },
-    { "address": "0x60", "name": "frm",           "common_name": "FRM — Footwell Module" },
-    { "address": "0x72", "name": "cas",           "common_name": "CAS — Car Access System" },
-    { "address": "0x10", "name": "gateway",       "common_name": "ZGW — Gateway" },
-    { "address": "0x63", "name": "idrive",        "common_name": "iDrive / Spirit (Phantom 8 / Spectre OS)" },
-    { "address": "0x65", "name": "climate",       "common_name": "IHKA — 4-zone climate" },
-    { "address": "0x30", "name": "srs",           "common_name": "ACSM — 8-airbag" },
-    { "address": "0x66", "name": "rear_seat_ent", "common_name": "Bespoke Audio + RSE" },
-    { "address": "0x53", "name": "air_susp",      "common_name": "Magic Carpet air suspension" },
-    { "address": "0x55", "name": "rear_steer",    "common_name": "Rear-wheel steering" },
-    { "address": "0x7E5", "name": "evcc",         "common_name": "Spectre — AC + DC charge controller" },
-    { "address": "0x7E6", "name": "ev_motor",     "common_name": "Spectre — dual e-motor" },
-    { "address": "0x7E7", "name": "ev_battery",   "common_name": "Spectre — 102 kWh HV battery" },
-    { "address": "0x35", "name": "starlight",     "common_name": "Starlight Headliner / Doors" }
+    {
+      "address": "0x12",
+      "name": "dme",
+      "common_name": "DME — N74 V12 / N63 V8"
+    },
+    {
+      "address": "0x07",
+      "name": "egs",
+      "common_name": "EGS — ZF 8HP"
+    },
+    {
+      "address": "0x29",
+      "name": "dsc",
+      "common_name": "DSC + Magic Carpet ride"
+    },
+    {
+      "address": "0x40",
+      "name": "kombi",
+      "common_name": "KOMBI — instrument cluster"
+    },
+    {
+      "address": "0x60",
+      "name": "frm",
+      "common_name": "FRM — Footwell Module"
+    },
+    {
+      "address": "0x72",
+      "name": "cas",
+      "common_name": "CAS — Car Access System"
+    },
+    {
+      "address": "0x10",
+      "name": "gateway",
+      "common_name": "ZGW — Gateway"
+    },
+    {
+      "address": "0x63",
+      "name": "idrive",
+      "common_name": "iDrive / Spirit (Phantom 8 / Spectre OS)"
+    },
+    {
+      "address": "0x65",
+      "name": "climate",
+      "common_name": "IHKA — 4-zone climate"
+    },
+    {
+      "address": "0x30",
+      "name": "srs",
+      "common_name": "ACSM — 8-airbag"
+    },
+    {
+      "address": "0x66",
+      "name": "rear_seat_ent",
+      "common_name": "Bespoke Audio + RSE"
+    },
+    {
+      "address": "0x53",
+      "name": "air_susp",
+      "common_name": "Magic Carpet air suspension"
+    },
+    {
+      "address": "0x55",
+      "name": "rear_steer",
+      "common_name": "Rear-wheel steering"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "Spectre — AC + DC charge controller"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor",
+      "common_name": "Spectre — dual e-motor"
+    },
+    {
+      "address": "0x7E7",
+      "name": "ev_battery",
+      "common_name": "Spectre — 102 kWh HV battery"
+    },
+    {
+      "address": "0x35",
+      "name": "starlight",
+      "common_name": "Starlight Headliner / Doors"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "Spectre — AC + DC charge controller (195 kW)"
+    },
+    {
+      "address": "0x07E6",
+      "name": "ev_motor",
+      "common_name": "Spectre — dual e-motor (430 kW)"
+    },
+    {
+      "address": "0x07E7",
+      "name": "ev_battery",
+      "common_name": "Spectre — 102 kWh HV battery (Gen5 BMW eDrive)"
+    }
   ],
   "dids": [
-    { "did": "0xF100", "name": "i_stufe_werks", "description": "Factory I-Stufe", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF101", "name": "i_stufe_aktuell", "description": "Current I-Stufe", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A0", "name": "rr_model_code", "description": "Rolls-Royce model (RR1/RR21/RR31/RR23)", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "fa_assembly", "description": "Vehicle order (FA / SALAPA)", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "rr_bespoke_code", "description": "Bespoke programme commission number", "ecu_address": "0x10",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "rr_starlight_pattern", "description": "Starlight Headliner constellation pattern", "ecu_address": "0x35",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "mileage_km", "description": "Vehicle mileage in km", "ecu_address": "0x40",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temp", "description": "Engine oil temperature (C)", "ecu_address": "0x12",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_level_mm", "description": "Engine oil level (mm)", "ecu_address": "0x12",
-      "decoder": { "kind": "int16_be", "unit": "mm" } },
-    { "did": "0xD054", "name": "coolant_temperature", "description": "Coolant temperature (C)", "ecu_address": "0x12",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD055", "name": "engine_runtime_hours", "description": "Engine total runtime (h)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint32_be", "unit": "h" } },
-    { "did": "0xD056", "name": "turbo_boost_pressure", "description": "Turbo boost pressure (mbar)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint16_be", "unit": "mbar" } },
-    { "did": "0xD057", "name": "fuel_level_pct", "description": "Fuel level (%)", "ecu_address": "0x12",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-
-    { "did": "0xD060", "name": "magic_carpet_active", "description": "Magic Carpet Ride active (camera + GPS)", "ecu_address": "0x53",
-      "decoder": { "kind": "uint8", "unit": "bool" } },
-    { "did": "0xD061", "name": "air_height_fl", "description": "Air height — front-left (mm)", "ecu_address": "0x53",
-      "decoder": { "kind": "int16_be", "unit": "mm" } },
-    { "did": "0xD062", "name": "air_height_fr", "description": "Air height — front-right (mm)", "ecu_address": "0x53",
-      "decoder": { "kind": "int16_be", "unit": "mm" } },
-    { "did": "0xD063", "name": "air_height_rl", "description": "Air height — rear-left (mm)", "ecu_address": "0x53",
-      "decoder": { "kind": "int16_be", "unit": "mm" } },
-    { "did": "0xD064", "name": "air_height_rr", "description": "Air height — rear-right (mm)", "ecu_address": "0x53",
-      "decoder": { "kind": "int16_be", "unit": "mm" } },
-
-    { "did": "0xD070", "name": "rear_steer_angle_deg", "description": "Rear-wheel steering angle (deg)", "ecu_address": "0x55",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "deg" } },
-    { "did": "0xD071", "name": "spirit_software_version", "description": "Spirit OS / iDrive 8.5 SW version", "ecu_address": "0x63",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD080", "name": "spectre_pack_voltage", "description": "Spectre HV pack voltage (V)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD081", "name": "spectre_pack_soc", "description": "Spectre HV pack SOC (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD082", "name": "spectre_pack_soh", "description": "Spectre HV pack SOH (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD083", "name": "spectre_motor_front_temp", "description": "Spectre front motor temp (C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD084", "name": "spectre_motor_rear_temp", "description": "Spectre rear motor temp (C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD085", "name": "spectre_charge_status", "description": "Spectre charge status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-    { "did": "0xD086", "name": "spectre_range_km", "description": "Spectre remaining range (km, WLTP)", "ecu_address": "0x40",
-      "decoder": { "kind": "uint16_be", "unit": "km" } }
+    {
+      "did": "0xF100",
+      "name": "i_stufe_werks",
+      "description": "Factory I-Stufe",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF101",
+      "name": "i_stufe_aktuell",
+      "description": "Current I-Stufe",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "rr_model_code",
+      "description": "Rolls-Royce model (RR1/RR21/RR31/RR23)",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "fa_assembly",
+      "description": "Vehicle order (FA / SALAPA)",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "rr_bespoke_code",
+      "description": "Bespoke programme commission number",
+      "ecu_address": "0x10",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "rr_starlight_pattern",
+      "description": "Starlight Headliner constellation pattern",
+      "ecu_address": "0x35",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "mileage_km",
+      "description": "Vehicle mileage in km",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temp",
+      "description": "Engine oil temperature (C)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_level_mm",
+      "description": "Engine oil level (mm)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature (C)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "engine_runtime_hours",
+      "description": "Engine total runtime (h)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "turbo_boost_pressure",
+      "description": "Turbo boost pressure (mbar)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mbar"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "fuel_level_pct",
+      "description": "Fuel level (%)",
+      "ecu_address": "0x12",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "magic_carpet_active",
+      "description": "Magic Carpet Ride active (camera + GPS)",
+      "ecu_address": "0x53",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "bool"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "air_height_fl",
+      "description": "Air height — front-left (mm)",
+      "ecu_address": "0x53",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "air_height_fr",
+      "description": "Air height — front-right (mm)",
+      "ecu_address": "0x53",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "air_height_rl",
+      "description": "Air height — rear-left (mm)",
+      "ecu_address": "0x53",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "air_height_rr",
+      "description": "Air height — rear-right (mm)",
+      "ecu_address": "0x53",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "rear_steer_angle_deg",
+      "description": "Rear-wheel steering angle (deg)",
+      "ecu_address": "0x55",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "deg"
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "spirit_software_version",
+      "description": "Spirit OS / iDrive 8.5 SW version",
+      "ecu_address": "0x63",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "spectre_pack_voltage",
+      "description": "Spectre HV pack voltage (V)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "spectre_pack_soc",
+      "description": "Spectre HV pack SOC (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "spectre_pack_soh",
+      "description": "Spectre HV pack SOH (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD083",
+      "name": "spectre_motor_front_temp",
+      "description": "Spectre front motor temp (C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD084",
+      "name": "spectre_motor_rear_temp",
+      "description": "Spectre rear motor temp (C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD085",
+      "name": "spectre_charge_status",
+      "description": "Spectre charge status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD086",
+      "name": "spectre_range_km",
+      "description": "Spectre remaining range (km, WLTP)",
+      "ecu_address": "0x40",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Rolls-Royce service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0F00", "name": "rr_sas_calibration",    "description": "Steering-angle sensor reset", "ecu_address": "0x29" },
-    { "id": "0x0F01", "name": "rr_cas_relearn",        "description": "CAS proximity / key relearn", "ecu_address": "0x72" },
-    { "id": "0x0F02", "name": "rr_oil_service_reset",  "description": "Oil-service reset", "ecu_address": "0x40" },
-    { "id": "0x0F03", "name": "rr_air_susp_calib",     "description": "Magic Carpet air-suspension calibration", "ecu_address": "0x53" },
-    { "id": "0x0F04", "name": "rr_rear_steer_calib",   "description": "Rear-wheel steering calibration", "ecu_address": "0x55" },
-    { "id": "0x0F05", "name": "rr_battery_register",   "description": "12 V battery registration", "ecu_address": "0x40" },
-    { "id": "0x0F06", "name": "rr_starlight_program",  "description": "Bespoke Starlight constellation programming", "ecu_address": "0x35" }
-  ]
+    {
+      "id": "0x0F00",
+      "name": "rr_sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x29"
+    },
+    {
+      "id": "0x0F01",
+      "name": "rr_cas_relearn",
+      "description": "CAS proximity / key relearn",
+      "ecu_address": "0x72"
+    },
+    {
+      "id": "0x0F02",
+      "name": "rr_oil_service_reset",
+      "description": "Oil-service reset",
+      "ecu_address": "0x40"
+    },
+    {
+      "id": "0x0F03",
+      "name": "rr_air_susp_calib",
+      "description": "Magic Carpet air-suspension calibration",
+      "ecu_address": "0x53"
+    },
+    {
+      "id": "0x0F04",
+      "name": "rr_rear_steer_calib",
+      "description": "Rear-wheel steering calibration",
+      "ecu_address": "0x55"
+    },
+    {
+      "id": "0x0F05",
+      "name": "rr_battery_register",
+      "description": "12 V battery registration",
+      "ecu_address": "0x40"
+    },
+    {
+      "id": "0x0F06",
+      "name": "rr_starlight_program",
+      "description": "Bespoke Starlight constellation programming",
+      "ecu_address": "0x35"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

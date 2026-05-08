@@ -41,6 +41,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -113,78 +119,34 @@ function TOBDOEMExtensionMercedes.DisplayName: string;
 begin Result := 'Mercedes-Benz Group'; end;
 
 function TOBDOEMExtensionMercedes.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Passenger cars: WDB (legacy), WDC (US-built ML/GL/R), WDD (modern global),
-  // WDF (Sprinter/Vito-class commercials). Sprinter/V-Class: WD3, WD4, 4JG.
-  // smart (legacy MB shareholding): WME — handled by OBD.OEM.Smart if added.
-  Result :=
-    (WMI = 'WDB') or (WMI = 'WDC') or (WMI = 'WDD') or (WMI = 'WDF') or
-    (WMI = 'WD3') or (WMI = 'WD4') or (WMI = '4JG');
+  // JSON-only: applicable_wmis lives in mercedes.json.
+  Result := VINMatchesCatalog('mercedes.json', VIN);
 end;
-
 procedure TOBDOEMExtensionMercedes.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // XENTRY ECU bus map. Mercedes uses the ISO 15765-4 11-bit standard
-  // OBD addresses for emissions ECUs (0x7E0-0x7E7) and a private 0x6xx
-  // / 0x5xx range for body / chassis on each model platform.
-  ECUs := [
-    ECU($7E0, 'engine',         'Engine ECU (ME / CDI)'),
-    ECU($7E1, 'transmission',   'Transmission (722.x / 7G-Tronic)'),
-    ECU($7E2, 'me_secondary',   'Secondary engine controller (V-engines)'),
-    ECU($620, 'esp',            'ESP / Brakes'),
-    ECU($630, 'srs',            'SRS / Airbag'),
-    ECU($640, 'cluster',        'Instrument Cluster (IC)'),
-    ECU($660, 'eis',            'EIS — Electronic Ignition Switch'),
-    ECU($6F1, 'tester',         'Tester (functional address)')
-  ];
+  // JSON-only — sole sources of truth are mercedes.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  // Mercedes XENTRY exposes most ECU metadata via standard UDS DIDs;
-  // the F1xx range covers the SAE J2010 ISO mappings and is portable
-  // across many vendors. Daimler-specific variant-coding lives in
-  // F18x..F19x and per-component blocks in 02xx/03xx.
-  DIDs := [
-    DID($F186, 'active_diagnostic_session',     'Currently active UDS session'),
-    DID($F187, 'spare_part_number',             'Mercedes hardware part number'),
-    DID($F189, 'sw_version_number',             'Software version'),
-    DID($F18A, 'system_supplier_identifier',    'ECU supplier id'),
-    DID($F18B, 'manufacturing_date',            'ECU manufacturing date (YYMMDD BCD)'),
-    DID($F18C, 'ecu_serial_number',             'ECU serial number'),
-    DID($F190, 'vin',                           'Vehicle identification number'),
-    DID($F191, 'vehicle_manufacturer_ecu_hw',   'MB hardware revision'),
-    DID($F192, 'system_supplier_ecu_hw',        'Supplier hardware id'),
-    DID($F195, 'system_supplier_sw',            'Supplier software version'),
-    DID($F197, 'system_name',                   'ECU long name'),
-    DID($F198, 'repair_shop_code',              'XENTRY repair shop code (last write)'),
-    DID($F199, 'programming_date',              'Last programming date'),
-    DID($F19D, 'tester_serial_number',          'Tester serial number'),
-    DID($F19E, 'programming_status',            'Programming status code'),
-    DID($0202, 'mileage_km',                    'Mileage in km (when supported)'),
-    DID($0203, 'engine_running_seconds',        'Engine run-time (seconds)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',         'Reset adaptive learning'),
-    Routine($0301, 'basic_setting',             'XENTRY basic setting routine'),
-    Routine($0302, 'output_test',               'XENTRY actuator test'),
-    Routine($0F00, 'sas_calibration',           'Steering-angle sensor calibration'),
-    Routine($FF00, 'erase_memory',              'Pre-flash erase'),
-    Routine($FF01, 'check_programming_dependencies',
-                   'Cross-ECU dependency check'),
-    Routine($FF02, 'verify_programming_checksum',
-                   'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('mercedes.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionMercedes.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('mercedes.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionMercedes.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 var

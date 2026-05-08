@@ -33,6 +33,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -61,70 +67,35 @@ begin Result := 'HMG'; end;
 function TOBDOEMExtensionHyundaiKia.DisplayName: string;
 begin Result := 'Hyundai Motor Group (Hyundai / Kia / Genesis)'; end;
 
-function TOBDOEMExtensionHyundaiKia.ApplicableToVIN(
-  const VIN: string): Boolean;
-var
-  WMI: string;
+function TOBDOEMExtensionHyundaiKia.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Hyundai Korea: KMH (passenger), KM8 (SUV/CUV), KMF (Truck).
-  // Hyundai US-built: 5NPE (Sonata Alabama), 5NMS (Santa Fe).
-  // Kia Korea: KNA (passenger), KND (SUV), KNH (truck), KNB.
-  // Kia US-built: 5XX (Optima Georgia), 5XY (Sorento), KNDJP (Soul).
-  // Genesis: KMTC (Genesis G80 Alabama), KMHKR.
-  Result :=
-    // Hyundai
-    (WMI = 'KMH') or (WMI = 'KM8') or (WMI = 'KMF') or (WMI = 'KMT') or
-    (WMI = '5NP') or (WMI = '5NM') or (WMI = '5NX') or
-    // Kia
-    (WMI = 'KNA') or (WMI = 'KND') or (WMI = 'KNH') or (WMI = 'KNB') or
-    (WMI = '5XX') or (WMI = '5XY') or (WMI = 'KNF') or
-    // Genesis (Hyundai sub-brand)
-    (WMI = 'KMK');
+  // JSON-only: applicable_wmis lives in hmg.json.
+  Result := VINMatchesCatalog('hmg.json', VIN);
 end;
-
 procedure TOBDOEMExtensionHyundaiKia.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'engine',         'Engine ECU (EMS)'),
-    ECU($7E1, 'transmission',   'Transmission Control (TCU)'),
-    ECU($7E2, 'ems_secondary',  'Secondary engine controller (V-engines)'),
-    ECU($7D1, 'abs',            'ABS / VDC / ESC'),
-    ECU($7D2, 'srs',            'SRS / Airbag'),
-    ECU($780, 'cluster',        'Instrument Cluster'),
-    ECU($7A0, 'bcm',            'BCM — Body Control'),
-    ECU($7B0, 'icm',            'Integrated Central Module (ICM)'),
-    ECU($7C0, 'hvac',           'Climate Control'),
-    ECU($7E5, 'evcc',            'Electric-vehicle charge controller (EV)')
-  ];
+  // JSON-only — sole sources of truth are hmg.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'HMG service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F193, 'hmg_rom_id',                'HMG ROM ID (calibration tag)'),
-    DID($F1A0, 'hmg_calibration_id',        'HMG calibration ID'),
-    DID($F1B0, 'hmg_vehicle_option_code',   'HMG vehicle-option code (model trim)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'crank_relearn',         'Crankshaft position relearn'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($0F01, 'sjb_relearn',           'Smart Junction Box relearn'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('hmg.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionHyundaiKia.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('hmg.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionHyundaiKia.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHyundaiKiaSessionNegotiator.Create; end;
 

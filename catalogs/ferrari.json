@@ -1,89 +1,563 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "FERRARI",
   "display_name": "Ferrari N.V.",
-  "applicable_wmis": ["ZFF"],
+  "applicable_wmis": [
+    "ZFF"
+  ],
   "default_source": "sd3-community / leonardo-public",
   "ecus": [
-    { "address": "0x7E0", "name": "me_ecu",          "common_name": "ME — Engine Control (Marelli)" },
-    { "address": "0x7E1", "name": "tcu_dct",         "common_name": "TCU — 7- / 8-speed DCT (Getrag F1)" },
-    { "address": "0x7E2", "name": "me_secondary",    "common_name": "Secondary engine controller (V8/V12)" },
-    { "address": "0x7E5", "name": "sf90_inverter",   "common_name": "SF90 / 296 / 12Cilindri hybrid inverter" },
-    { "address": "0x7E6", "name": "sf90_emotor",     "common_name": "SF90 / 296 hybrid e-motor" },
-    { "address": "0x7E7", "name": "sf90_battery",    "common_name": "SF90 / 296 HV battery" },
-    { "address": "0x720", "name": "cluster",         "common_name": "Driver Information Display" },
-    { "address": "0x740", "name": "srs",             "common_name": "SRS / Airbag" },
-    { "address": "0x742", "name": "esp",             "common_name": "CST — F1-Trac / SSC" },
-    { "address": "0x744", "name": "manettino",       "common_name": "Manettino + Race-Mode controller" },
-    { "address": "0x746", "name": "magneride",       "common_name": "Magnetorheological dampers" },
-    { "address": "0x748", "name": "lift_axle",       "common_name": "Front lift / nose-lift system" },
-    { "address": "0x760", "name": "climate",         "common_name": "Climate Control" },
-    { "address": "0x770", "name": "mim_infotainment","common_name": "Multifunction Infotainment Module" },
-    { "address": "0x780", "name": "tpms",            "common_name": "Tire-pressure monitoring + temperature" },
-    { "address": "0x724", "name": "adas",            "common_name": "ADAS / forward radar (Roma / Purosangue)" }
+    {
+      "address": "0x7E0",
+      "name": "me_ecu",
+      "common_name": "ME — Engine Control (Marelli)"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcu_dct",
+      "common_name": "TCU — 7- / 8-speed DCT (Getrag F1)"
+    },
+    {
+      "address": "0x7E2",
+      "name": "me_secondary",
+      "common_name": "Secondary engine controller (V8/V12)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "sf90_inverter",
+      "common_name": "SF90 / 296 / 12Cilindri hybrid inverter"
+    },
+    {
+      "address": "0x7E6",
+      "name": "sf90_emotor",
+      "common_name": "SF90 / 296 hybrid e-motor"
+    },
+    {
+      "address": "0x7E7",
+      "name": "sf90_battery",
+      "common_name": "SF90 / 296 HV battery"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "Driver Information Display"
+    },
+    {
+      "address": "0x740",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x742",
+      "name": "esp",
+      "common_name": "CST — F1-Trac / SSC"
+    },
+    {
+      "address": "0x744",
+      "name": "manettino",
+      "common_name": "Manettino + Race-Mode controller"
+    },
+    {
+      "address": "0x746",
+      "name": "magneride",
+      "common_name": "Magnetorheological dampers"
+    },
+    {
+      "address": "0x748",
+      "name": "lift_axle",
+      "common_name": "Front lift / nose-lift system"
+    },
+    {
+      "address": "0x760",
+      "name": "climate",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x770",
+      "name": "mim_infotainment",
+      "common_name": "Multifunction Infotainment Module"
+    },
+    {
+      "address": "0x780",
+      "name": "tpms",
+      "common_name": "Tire-pressure monitoring + temperature"
+    },
+    {
+      "address": "0x724",
+      "name": "adas",
+      "common_name": "ADAS / forward radar (Roma / Purosangue)"
+    },
+    {
+      "address": "0x07E0",
+      "name": "me_ecu",
+      "common_name": "ME — Engine Control (Marelli)"
+    },
+    {
+      "address": "0x07E1",
+      "name": "tcu_dct",
+      "common_name": "TCU — 7- / 8-speed DCT (Getrag F1)"
+    },
+    {
+      "address": "0x07E2",
+      "name": "me_secondary",
+      "common_name": "Secondary engine controller (V8 / V12 dual-bank)"
+    },
+    {
+      "address": "0x07E5",
+      "name": "sf90_inverter",
+      "common_name": "SF90 / 296 / 12Cilindri hybrid inverter"
+    },
+    {
+      "address": "0x07E6",
+      "name": "sf90_emotor",
+      "common_name": "SF90 / 296 hybrid e-motor"
+    },
+    {
+      "address": "0x07E7",
+      "name": "sf90_battery",
+      "common_name": "SF90 / 296 HV battery"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "Driver Information Display"
+    },
+    {
+      "address": "0x0740",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0742",
+      "name": "esp",
+      "common_name": "CST — F1-Trac / SSC stability + traction"
+    },
+    {
+      "address": "0x0744",
+      "name": "manettino",
+      "common_name": "Manettino + Race-Mode controller"
+    },
+    {
+      "address": "0x0746",
+      "name": "magneride",
+      "common_name": "Magnetorheological dampers controller"
+    },
+    {
+      "address": "0x0748",
+      "name": "lift_axle",
+      "common_name": "Front lift / nose-lift system"
+    },
+    {
+      "address": "0x0760",
+      "name": "climate",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x0770",
+      "name": "mim_infotainment",
+      "common_name": "Multifunction Infotainment Module"
+    },
+    {
+      "address": "0x0780",
+      "name": "tpms",
+      "common_name": "Tire-pressure monitoring + temperature"
+    },
+    {
+      "address": "0x0724",
+      "name": "adas",
+      "common_name": "ADAS / forward radar (Roma / Purosangue)"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "ferrari_model_code",  "description": "Ferrari internal model (F142, F154, F160)", "ecu_address": "0x720",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "ferrari_paint_code",  "description": "Ferrari paint code (Rosso Corsa = 322)", "ecu_address": "0x720",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "ferrari_options_block","description": "Individual-options block", "ecu_address": "0x720",
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1A6", "name": "ferrari_assembly_data","description": "Maranello assembly date / inspector", "ecu_address": "0x720",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "ferrari_warranty_block","description": "Warranty start + delivery dealer", "ecu_address": "0x720",
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage in km", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temperature", "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_pressure", "description": "Engine oil pressure (kPa)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD054", "name": "engine_oil_level", "description": "Engine oil level (mm above min)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD055", "name": "boost_pressure", "description": "Charge-air pressure (kPa, V8 turbo)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD056", "name": "engine_coolant_temp", "description": "Engine coolant temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD057", "name": "engine_runtime_h", "description": "Engine runtime lifetime (h)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD058", "name": "rear_axle_temperature", "description": "DCT / rear-axle temperature (°C)", "ecu_address": "0x7E1",
-      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
-
-    { "did": "0xD060", "name": "sf90_pack_voltage", "description": "SF90 / 296 HV pack voltage (V)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "sf90_pack_soc", "description": "SF90 / 296 HV pack SOC (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "sf90_pack_soh", "description": "SF90 / 296 HV pack SOH (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "sf90_motor_temperature", "description": "SF90 / 296 e-motor temp (°C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD068", "name": "sf90_charge_status", "description": "SF90 / 296 charge port status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-
-    { "did": "0xD080", "name": "manettino_position", "description": "Manettino selected position", "ecu_address": "0x744",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "wet", "0x01": "sport", "0x02": "race", "0x03": "ct_off", "0x04": "esc_off", "0x05": "qualify"} } },
-    { "did": "0xD082", "name": "magneride_mode", "description": "Magnetorheological damper mode", "ecu_address": "0x746",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "comfort", "0x01": "sport", "0x02": "race", "0x03": "bumpy_road"} } },
-    { "did": "0xD084", "name": "lift_axle_status", "description": "Front lift status enum", "ecu_address": "0x748",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "lowered", "0x01": "raising", "0x02": "raised", "0x03": "lowering", "0x04": "fault"} } },
-    { "did": "0xD090", "name": "tire_temp_fl", "description": "Tire surface temperature — front-left (°C)", "ecu_address": "0x780",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD091", "name": "tire_temp_fr", "description": "Tire surface temperature — front-right (°C)", "ecu_address": "0x780",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD092", "name": "tire_temp_rl", "description": "Tire surface temperature — rear-left (°C)", "ecu_address": "0x780",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD093", "name": "tire_temp_rr", "description": "Tire surface temperature — rear-right (°C)", "ecu_address": "0x780",
-      "decoder": { "kind": "int8", "unit": "C" } }
+    {
+      "did": "0xF1A0",
+      "name": "ferrari_model_code",
+      "description": "Ferrari internal model (F142, F154, F160)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "ferrari_paint_code",
+      "description": "Ferrari paint code (Rosso Corsa = 322)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "ferrari_options_block",
+      "description": "Individual-options block",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "ferrari_assembly_data",
+      "description": "Maranello assembly date / inspector",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "ferrari_warranty_block",
+      "description": "Warranty start + delivery dealer",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage in km",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure (kPa)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_oil_level",
+      "description": "Engine oil level (mm above min)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "boost_pressure",
+      "description": "Charge-air pressure (kPa, V8 turbo)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "engine_coolant_temp",
+      "description": "Engine coolant temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "engine_runtime_h",
+      "description": "Engine runtime lifetime (h)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD058",
+      "name": "rear_axle_temperature",
+      "description": "DCT / rear-axle temperature (°C)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "sf90_pack_voltage",
+      "description": "SF90 / 296 HV pack voltage (V)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "sf90_pack_soc",
+      "description": "SF90 / 296 HV pack SOC (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "sf90_pack_soh",
+      "description": "SF90 / 296 HV pack SOH (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "sf90_motor_temperature",
+      "description": "SF90 / 296 e-motor temp (°C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "sf90_charge_status",
+      "description": "SF90 / 296 charge port status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "manettino_position",
+      "description": "Manettino selected position",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "wet",
+          "0x01": "sport",
+          "0x02": "race",
+          "0x03": "ct_off",
+          "0x04": "esc_off",
+          "0x05": "qualify"
+        }
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "magneride_mode",
+      "description": "Magnetorheological damper mode",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "comfort",
+          "0x01": "sport",
+          "0x02": "race",
+          "0x03": "bumpy_road"
+        }
+      }
+    },
+    {
+      "did": "0xD084",
+      "name": "lift_axle_status",
+      "description": "Front lift status enum",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "lowered",
+          "0x01": "raising",
+          "0x02": "raised",
+          "0x03": "lowering",
+          "0x04": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD090",
+      "name": "tire_temp_fl",
+      "description": "Tire surface temperature — front-left (°C)",
+      "ecu_address": "0x780",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD091",
+      "name": "tire_temp_fr",
+      "description": "Tire surface temperature — front-right (°C)",
+      "ecu_address": "0x780",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD092",
+      "name": "tire_temp_rl",
+      "description": "Tire surface temperature — rear-left (°C)",
+      "ecu_address": "0x780",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD093",
+      "name": "tire_temp_rr",
+      "description": "Tire surface temperature — rear-right (°C)",
+      "ecu_address": "0x780",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Ferrari service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0204", "name": "ferrari_dct_calibration", "description": "DCT touchpoint calibration (SD3)", "ecu_address": "0x7E1" },
-    { "id": "0x0F02", "name": "magneride_calibration",   "description": "Magneride damper calibration", "ecu_address": "0x746" },
-    { "id": "0x0F03", "name": "lift_axle_test",          "description": "Front lift system functional test", "ecu_address": "0x748" },
-    { "id": "0x0F04", "name": "ferrari_oil_life_reset",  "description": "Reset engine oil-life monitor", "ecu_address": "0x720" }
-  ]
+    {
+      "id": "0x0204",
+      "name": "ferrari_dct_calibration",
+      "description": "DCT touchpoint calibration (SD3)",
+      "ecu_address": "0x7E1"
+    },
+    {
+      "id": "0x0F02",
+      "name": "magneride_calibration",
+      "description": "Magneride damper calibration",
+      "ecu_address": "0x746"
+    },
+    {
+      "id": "0x0F03",
+      "name": "lift_axle_test",
+      "description": "Front lift system functional test",
+      "ecu_address": "0x748"
+    },
+    {
+      "id": "0x0F04",
+      "name": "ferrari_oil_life_reset",
+      "description": "Reset engine oil-life monitor",
+      "ecu_address": "0x720"
+    },
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

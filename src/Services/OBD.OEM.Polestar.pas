@@ -25,6 +25,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -46,64 +52,35 @@ begin Result := 'POLESTAR'; end;
 function TOBDOEMExtensionPolestar.DisplayName: string;
 begin Result := 'Polestar Performance AB (Geely)'; end;
 
-function TOBDOEMExtensionPolestar.ApplicableToVIN(
-  const VIN: string): Boolean;
-var
-  WMI: string;
+function TOBDOEMExtensionPolestar.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Polestar 2 (Luqiao + Chengdu China): LPS.
-  // Polestar 4 (Hangzhou China, SEA platform): LFP.
-  // Polestar 3 shares VIN with Volvo Cars Chengdu (LYV) — claimed
-  // by OBD.OEM.Volvo to avoid a collision; resolve Polestar 3
-  // explicitly via TOBDOEMRegistry.FindByKey('POLESTAR') after
-  // VIN routing.
-  Result := (WMI = 'LPS') or (WMI = 'LFP');
+  // JSON-only: applicable_wmis lives in polestar.json.
+  Result := VINMatchesCatalog('polestar.json', VIN);
 end;
-
 procedure TOBDOEMExtensionPolestar.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // Polestar 2 / 3 / 4 share much of Volvo's CMA / SPA2 / SEA
-  // electronic architecture; the ECU map mirrors OBD.OEM.Volvo
-  // with EV-specific additions for the Polestar 2's larger
-  // pack and the dual-motor + Performance Pack variants.
-  ECUs := [
-    ECU($740, 'cem',          'CEM — Central Electronic Module'),
-    ECU($742, 'cluster',      'DIM — Driver Information Module'),
-    ECU($760, 'srs',          'SRS / Airbag'),
-    ECU($762, 'abs',          'ABS / DSTC'),
-    ECU($770, 'sensus',       'Sensus / IHU — Infotainment'),
-    ECU($782, 'bms',          'BMS — High-voltage battery (75/79/82/106 kWh)'),
-    ECU($785, 'evcc',         'On-board Charger + Charge Port'),
-    ECU($710, 'motor_front',  'Front Motor Inverter (single / dual-motor)'),
-    ECU($712, 'motor_rear',   'Rear Motor Inverter (Performance Pack)'),
-    ECU($724, 'pilot_assist', 'Pilot Assist driver-assistance computer')
-  ];
+  // JSON-only — sole sources of truth are polestar.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'polestar_model_code',       'Polestar model code (P2 / P3 / P4 / P5)'),
-    DID($F1A2, 'polestar_drivetrain',       'Polestar drivetrain (Single / Long-range / Performance)')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($0F02, 'rdc_relearn',           'TPMS / RDC sensor relearn'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('polestar.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionPolestar.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('polestar.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionPolestar.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

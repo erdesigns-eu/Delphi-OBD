@@ -41,6 +41,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -112,56 +118,31 @@ function TOBDOEMExtensionBMW.ManufacturerKey: string; begin Result := 'BMW'; end
 function TOBDOEMExtensionBMW.DisplayName: string; begin Result := 'Bayerische Motoren Werke'; end;
 
 function TOBDOEMExtensionBMW.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // BMW: WBA (sedan/coupe), WBS (M-cars), WBY (i3/i8/iX),
-  // WMW (MINI), 5UX (US-built X1/X3/X5), 4US (US-built sedan/coupe).
-  Result := (WMI = 'WBA') or (WMI = 'WBS') or (WMI = 'WBY') or
-            (WMI = 'WMW') or (WMI = '5UX') or (WMI = '4US');
+  // JSON-only: applicable_wmis lives in bmw.json.
+  Result := VINMatchesCatalog('bmw.json', VIN);
 end;
 
 procedure TOBDOEMExtensionBMW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  // BMW UDS bus map. Addresses follow ISO-TP physical request IDs as
-  // used by ENET (E-Sys) over DoIP and on the K-CAN/PT-CAN networks.
-  // Naming matches the ISTA / E-Sys SWE short codes.
-  ECUs := [
-    ECU($12,  'dme',     'DME — Engine ECU'),
-    ECU($07,  'egs',     'EGS — Transmission'),
-    ECU($29,  'dsc',     'DSC — Stability Control'),
-    ECU($40,  'kombi',   'KOMBI — Instrument Cluster'),
-    ECU($60,  'frm',     'FRM — Footwell Module'),
-    ECU($72,  'cas',     'CAS — Car Access System'),
-    ECU($10,  'gateway', 'ZGW — Central Gateway')
-  ];
-
-  DIDs := [
-    DID($F100, 'i_stufe_werks',           'Factory I-Stufe (build version)'),
-    DID($F101, 'i_stufe_aktuell',         'Current I-Stufe'),
-    DID($F1A2, 'fa_assembly',             'Vehicle order (FA, freight assembly)'),
-    DID($F186, 'active_diagnostic_session','Currently active UDS session'),
-    DID($F18B, 'manufacturing_date',      'ECU manufacturing date'),
-    DID($F18C, 'ecu_serial_number',       'ECU serial number'),
-    DID($F190, 'vin',                     'Vehicle identification number'),
-    DID($F195, 'sw_version',              'Software version'),
-    DID($F197, 'system_name',             'ECU long name'),
-    DID($D050, 'mileage',                 'Mileage in km'),
-    DID($D051, 'battery_voltage',         'Battery voltage in mV')
-  ];
-
-  Routines := [
-    Routine($0F03, 'fa_write',               'Write FA / vehicle order'),
-    Routine($0202, 'service_function',       'Service-mode flag'),
-    Routine($FF00, 'erase_memory',           'Pre-flash erase')
-  ];
-
+  // JSON-only — sole sources of truth are bmw.json + uds-standard.json.
   MergeCatalogJSON('bmw.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
+end;
+
+procedure TOBDOEMExtensionBMW.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  // Coding blocks, adaptations, actuator tests, live PIDs and DTC
+  // extended-data records all live in bmw.json.
+  MergeExtendedCatalogJSON('bmw.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionBMW.DecodeDID(const DID: Word;

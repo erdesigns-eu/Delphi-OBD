@@ -24,6 +24,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -46,56 +52,34 @@ function TOBDOEMExtensionSuzuki.DisplayName: string;
 begin Result := 'Suzuki Motor Corp. (incl. Maruti Suzuki India)'; end;
 
 function TOBDOEMExtensionSuzuki.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Suzuki Japan: JS1 (passenger), JS2 (Hamamatsu vans / commercial),
-  //   JSA (Allion era), JSB. Suzuki Hungary (Esztergom): TSM.
-  // Suzuki Changhe China (joint venture): LSJ.
-  // Maruti Suzuki India: MA3 (Gurgaon), MBH (Manesar export), ML8.
-  Result :=
-    (WMI = 'JS1') or (WMI = 'JS2') or (WMI = 'JSA') or (WMI = 'JSB') or
-    (WMI = 'TSM') or (WMI = 'LSJ') or
-    (WMI = 'MA3') or (WMI = 'MBH') or (WMI = 'ML8');
+  // JSON-only: applicable_wmis lives in suzuki.json.
+  Result := VINMatchesCatalog('suzuki.json', VIN);
 end;
-
 procedure TOBDOEMExtensionSuzuki.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'engine',         'Engine ECU (ECM)'),
-    ECU($7E1, 'transmission',   'TCM (incl. AGS / CVT controllers)'),
-    ECU($7B0, 'abs',            'ABS / ESP'),
-    ECU($7C0, 'srs',            'SRS / Airbag'),
-    ECU($7C8, 'cluster',        'Combination Meter'),
-    ECU($7E5, 'hvac',           'Climate Control'),
-    ECU($7C4, 'body',           'BCM — Body Control')
-  ];
+  // JSON-only — sole sources of truth are suzuki.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Suzuki service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'suzuki_chassis_code',       'Suzuki / Maruti chassis code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'idle_relearn',          'Idle-air-control relearn (SDT-II)'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase')
-  ];
 
   MergeCatalogJSON('suzuki.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionSuzuki.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('suzuki.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionSuzuki.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

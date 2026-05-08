@@ -27,6 +27,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -50,57 +56,34 @@ function TOBDOEMExtensionScania.DisplayName: string;
 begin Result := 'Scania AB (Traton Group)'; end;
 
 function TOBDOEMExtensionScania.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Scania Sweden: VLU (Södertälje), YS2 (Södertälje passenger /
-  //   coach), XLE (NL Zwolle export). Scania Brazil (São Bernardo
-  //   do Campo): 9BS. Scania South America: 9BS.
-  Result :=
-    (WMI = 'VLU') or (WMI = 'YS2') or (WMI = 'XLE') or (WMI = '9BS');
+  // JSON-only: applicable_wmis lives in scania.json.
+  Result := VINMatchesCatalog('scania.json', VIN);
 end;
-
 procedure TOBDOEMExtensionScania.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU(J1939_ADDR_ENGINE_1,         'ems',            'EMS — DC09 / DC13 / DC16 engine controller'),
-    ECU(J1939_ADDR_TRANSMISSION_1,   'opc',            'OPC — Opticruise transmission'),
-    ECU(J1939_ADDR_BRAKES_SYSTEM,    'ebs',            'EBS — Electronic Braking System'),
-    ECU(J1939_ADDR_RETARDER_ENGINE,  'retarder',       'Scania retarder controller'),
-    ECU(J1939_ADDR_INSTRUMENT_CLUSTER,'icl',            'ICL — Instrument Cluster'),
-    ECU(J1939_ADDR_CAB_PRIMARY,      'coo',            'COO — Coordinator (vehicle gateway)'),
-    ECU(J1939_ADDR_AFTERTREATMENT_1, 'acm',            'ACM — Aftertreatment Control Module'),
-    ECU(J1939_ADDR_FORWARD_RADAR,    'awd',            'AWD — Adaptive cruise / forward radar')
-  ];
+  // JSON-only — sole sources of truth are scania.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Scania part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'scania_chassis_number',     'Scania chassis number'),
-    DID($F1A2, 'scania_specification_code', 'Scania specification / option code'),
-    DID($F1A4, 'scania_engine_serial',      'Scania engine serial number')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0204, 'forced_dpf_regen',      'Forced parked DPF regeneration (SDP3)'),
-    Routine($0205, 'opticruise_calibration','Opticruise clutch / gear-position calibration'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('scania.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionScania.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('scania.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 function TOBDOEMExtensionScania.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin Result := TOBDHDSessionNegotiator.Create; end;
 

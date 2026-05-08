@@ -1,80 +1,416 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "IVECO",
   "display_name": "Iveco S.p.A. (Iveco Group)",
-  "applicable_wmis": ["ZCF","VCF"],
+  "applicable_wmis": [
+    "ZCF",
+    "VCF"
+  ],
   "default_source": "iveco-easy-community",
   "ecus": [
-    { "address": "0x00", "name": "fpt_engine",   "common_name": "FPT Engine ECU (Cursor 8/9/11/13, NEF, S-FE)" },
-    { "address": "0x03", "name": "eurotronic",   "common_name": "EuroTronic / HI-TRONIX AMT" },
-    { "address": "0x05", "name": "steering",     "common_name": "Hydraulic / electric power steering" },
-    { "address": "0x0B", "name": "ebs",          "common_name": "EBS — Knorr-Bremse" },
-    { "address": "0x0F", "name": "retarder",     "common_name": "Intarder retarder controller" },
-    { "address": "0x17", "name": "cluster",      "common_name": "Driver Information Display" },
-    { "address": "0x21", "name": "bcm_body",     "common_name": "Body Controller (Daily / S-Way)" },
-    { "address": "0x31", "name": "vcm",          "common_name": "VCM — Vehicle Control Module" },
-    { "address": "0x35", "name": "bcm",          "common_name": "BCM — Body Computer" },
-    { "address": "0x42", "name": "acm",          "common_name": "ACM — Aftertreatment Control" },
-    { "address": "0x4D", "name": "tpms",         "common_name": "Tire-pressure monitoring" },
-    { "address": "0x52", "name": "radar",        "common_name": "Forward-collision radar (HWA / ACC)" },
-    { "address": "0x7E5", "name": "evcc",        "common_name": "eDaily EV Charge Controller" },
-    { "address": "0x7E6", "name": "ev_motor",    "common_name": "eDaily Drive Motor Inverter" }
+    {
+      "address": "0x00",
+      "name": "fpt_engine",
+      "common_name": "FPT Engine ECU (Cursor 8/9/11/13, NEF, S-FE)"
+    },
+    {
+      "address": "0x03",
+      "name": "eurotronic",
+      "common_name": "EuroTronic / HI-TRONIX AMT"
+    },
+    {
+      "address": "0x05",
+      "name": "steering",
+      "common_name": "Hydraulic / electric power steering"
+    },
+    {
+      "address": "0x0B",
+      "name": "ebs",
+      "common_name": "EBS — Knorr-Bremse"
+    },
+    {
+      "address": "0x0F",
+      "name": "retarder",
+      "common_name": "Intarder retarder controller"
+    },
+    {
+      "address": "0x17",
+      "name": "cluster",
+      "common_name": "Driver Information Display"
+    },
+    {
+      "address": "0x21",
+      "name": "bcm_body",
+      "common_name": "Body Controller (Daily / S-Way)"
+    },
+    {
+      "address": "0x31",
+      "name": "vcm",
+      "common_name": "VCM — Vehicle Control Module"
+    },
+    {
+      "address": "0x35",
+      "name": "bcm",
+      "common_name": "BCM — Body Computer"
+    },
+    {
+      "address": "0x42",
+      "name": "acm",
+      "common_name": "ACM — Aftertreatment Control"
+    },
+    {
+      "address": "0x4D",
+      "name": "tpms",
+      "common_name": "Tire-pressure monitoring"
+    },
+    {
+      "address": "0x52",
+      "name": "radar",
+      "common_name": "Forward-collision radar (HWA / ACC)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "eDaily EV Charge Controller"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor",
+      "common_name": "eDaily Drive Motor Inverter"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "eDaily EV Charge Controller"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "iveco_model_code",    "description": "Iveco model code (Daily, Eurocargo, S-Way, T-Way)", "ecu_address": "0x35",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "iveco_emissions_pkg", "description": "Euro 6e / OBD-VI emissions package code", "ecu_address": "0x00",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "iveco_engine_serial", "description": "Iveco engine serial number", "ecu_address": "0x00",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "iveco_chassis_serial","description": "Iveco chassis serial / order number", "ecu_address": "0x35",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1B0", "name": "iveco_options_block", "description": "Iveco factory options block", "ecu_address": "0x35",
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage",     "description": "Vehicle mileage (km)", "ecu_address": "0x17",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "engine_hours",        "description": "Engine running hours", "ecu_address": "0x00",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD052", "name": "engine_oil_pressure", "description": "Engine oil pressure (kPa)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD053", "name": "engine_oil_temperature","description": "Engine oil temperature (°C)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD054", "name": "fuel_used_total",     "description": "Total fuel used (litres)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint32_be", "scale": 0.5, "unit": "L" } },
-    { "did": "0xD055", "name": "fuel_rate",           "description": "Instantaneous fuel rate (L/h)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint16_be", "scale": 0.05, "unit": "L/h" } },
-    { "did": "0xD056", "name": "boost_pressure",      "description": "Charge-air boost pressure (kPa)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD057", "name": "engine_coolant_temp", "description": "Engine coolant temperature (°C)", "ecu_address": "0x00",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-
-    { "did": "0xD060", "name": "def_tank_level_pct",  "description": "DEF / AdBlue tank level (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD061", "name": "def_quality",         "description": "DEF concentration / quality (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD062", "name": "dpf_soot_load",       "description": "DPF soot load (%)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint8", "scale": 0.4, "unit": "%" } },
-    { "did": "0xD063", "name": "dpf_distance_since_regen","description": "Distance since last regen (km)", "ecu_address": "0x42",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD064", "name": "dpf_temperature",     "description": "DPF inlet temperature (°C)", "ecu_address": "0x42",
-      "decoder": { "kind": "int16_be", "unit": "C" } },
-
-    { "did": "0xD070", "name": "edaily_pack_voltage", "description": "eDaily HV pack voltage (V)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD071", "name": "edaily_pack_soc",     "description": "eDaily HV pack SOC (%)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD072", "name": "edaily_motor_temp",   "description": "eDaily drive-motor temperature (°C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } }
+    {
+      "did": "0xF1A0",
+      "name": "iveco_model_code",
+      "description": "Iveco model code (Daily, Eurocargo, S-Way, T-Way)",
+      "ecu_address": "0x35",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "iveco_emissions_pkg",
+      "description": "Euro 6e / OBD-VI emissions package code",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "iveco_engine_serial",
+      "description": "Iveco engine serial number",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "iveco_chassis_serial",
+      "description": "Iveco chassis serial / order number",
+      "ecu_address": "0x35",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1B0",
+      "name": "iveco_options_block",
+      "description": "Iveco factory options block",
+      "ecu_address": "0x35",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x17",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "engine_hours",
+      "description": "Engine running hours",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure (kPa)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "fuel_used_total",
+      "description": "Total fuel used (litres)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.5,
+        "unit": "L"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "fuel_rate",
+      "description": "Instantaneous fuel rate (L/h)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "L/h"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "boost_pressure",
+      "description": "Charge-air boost pressure (kPa)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "engine_coolant_temp",
+      "description": "Engine coolant temperature (°C)",
+      "ecu_address": "0x00",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "def_tank_level_pct",
+      "description": "DEF / AdBlue tank level (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "def_quality",
+      "description": "DEF concentration / quality (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "dpf_soot_load",
+      "description": "DPF soot load (%)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "dpf_distance_since_regen",
+      "description": "Distance since last regen (km)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "dpf_temperature",
+      "description": "DPF inlet temperature (°C)",
+      "ecu_address": "0x42",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD070",
+      "name": "edaily_pack_voltage",
+      "description": "eDaily HV pack voltage (V)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD071",
+      "name": "edaily_pack_soc",
+      "description": "eDaily HV pack SOC (%)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD072",
+      "name": "edaily_motor_temp",
+      "description": "eDaily drive-motor temperature (°C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Iveco service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning", "ecu_address": "0x00" },
-    { "id": "0x0204", "name": "forced_dpf_regen",          "description": "Forced parked DPF regeneration", "ecu_address": "0x42" },
-    { "id": "0x0205", "name": "eurotronic_calibration",    "description": "EuroTronic / HI-TRONIX clutch + gear position calibration", "ecu_address": "0x03" },
-    { "id": "0x0206", "name": "iveco_idle_relearn",        "description": "Idle re-learn (Cursor)", "ecu_address": "0x00" },
-    { "id": "0x0F00", "name": "iveco_sas_calibration",     "description": "Steering-angle sensor reset", "ecu_address": "0x05" },
-    { "id": "0x0F01", "name": "iveco_oil_life_reset",      "description": "Reset engine oil-life monitor", "ecu_address": "0x35" },
-    { "id": "0x0F02", "name": "iveco_def_quality_test",    "description": "DEF quality test (Iveco EASY)", "ecu_address": "0x42" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x00"
+    },
+    {
+      "id": "0x0204",
+      "name": "forced_dpf_regen",
+      "description": "Forced parked DPF regeneration",
+      "ecu_address": "0x42"
+    },
+    {
+      "id": "0x0205",
+      "name": "eurotronic_calibration",
+      "description": "EuroTronic / HI-TRONIX clutch + gear position calibration",
+      "ecu_address": "0x03"
+    },
+    {
+      "id": "0x0206",
+      "name": "iveco_idle_relearn",
+      "description": "Idle re-learn (Cursor)",
+      "ecu_address": "0x00"
+    },
+    {
+      "id": "0x0F00",
+      "name": "iveco_sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x05"
+    },
+    {
+      "id": "0x0F01",
+      "name": "iveco_oil_life_reset",
+      "description": "Reset engine oil-life monitor",
+      "ecu_address": "0x35"
+    },
+    {
+      "id": "0x0F02",
+      "name": "iveco_def_quality_test",
+      "description": "DEF quality test (Iveco EASY)",
+      "ecu_address": "0x42"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

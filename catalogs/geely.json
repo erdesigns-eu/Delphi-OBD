@@ -1,96 +1,513 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "GEELY",
   "display_name": "Geely Auto / Lynk & Co",
-  "applicable_wmis": ["LB3","LFM","LJV","LBE","LGZ"],
+  "applicable_wmis": [
+    "LB3",
+    "LFM",
+    "LJV",
+    "LBE",
+    "LGZ"
+  ],
   "default_source": "geely-community",
   "ecus": [
-    { "address": "0x7E0", "name": "engine",       "common_name": "EMS — Engine Management (Drivetrain 1.5T / 2.0T / Hi-X)" },
-    { "address": "0x7E1", "name": "transmission", "common_name": "TCU — Aisin 8AT / DHT-Pro hybrid 3-speed" },
-    { "address": "0x7E2", "name": "hybrid",       "common_name": "GHS hybrid controller (Galaxy L7 / L9 / Lynk 08 EM-P)" },
-    { "address": "0x7E5", "name": "evcc",         "common_name": "EV charge controller (Geometry / Galaxy E5 / Lynk Z10)" },
-    { "address": "0x7E6", "name": "ev_motor_f",   "common_name": "Front motor inverter (SEA / SEA-2)" },
-    { "address": "0x7E7", "name": "ev_motor_r",   "common_name": "Rear motor inverter (Lynk 02 EM AWD / Geometry G6)" },
-    { "address": "0x7E8", "name": "ev_battery",   "common_name": "HV battery (CATL / GAE Aegis short-blade LFP)" },
-    { "address": "0x720", "name": "cluster",      "common_name": "Instrument Cluster" },
-    { "address": "0x740", "name": "bcm",          "common_name": "BCM" },
-    { "address": "0x760", "name": "srs",          "common_name": "SRS / Airbag" },
-    { "address": "0x762", "name": "abs",          "common_name": "ABS / ESP" },
-    { "address": "0x768", "name": "climate",      "common_name": "Climate Control / Heat Pump" },
-    { "address": "0x770", "name": "ivi",          "common_name": "Galaxy OS / Flyme Auto / LYNK OS" },
-    { "address": "0x724", "name": "adas",         "common_name": "ADAS / Pilot Assist (Mobileye-derived)" },
-    { "address": "0x780", "name": "tpms",         "common_name": "TPMS — direct sensors" }
+    {
+      "address": "0x7E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management (Drivetrain 1.5T / 2.0T / Hi-X)"
+    },
+    {
+      "address": "0x7E1",
+      "name": "transmission",
+      "common_name": "TCU — Aisin 8AT / DHT-Pro hybrid 3-speed"
+    },
+    {
+      "address": "0x7E2",
+      "name": "hybrid",
+      "common_name": "GHS hybrid controller (Galaxy L7 / L9 / Lynk 08 EM-P)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "evcc",
+      "common_name": "EV charge controller (Geometry / Galaxy E5 / Lynk Z10)"
+    },
+    {
+      "address": "0x7E6",
+      "name": "ev_motor_f",
+      "common_name": "Front motor inverter (SEA / SEA-2)"
+    },
+    {
+      "address": "0x7E7",
+      "name": "ev_motor_r",
+      "common_name": "Rear motor inverter (Lynk 02 EM AWD / Geometry G6)"
+    },
+    {
+      "address": "0x7E8",
+      "name": "ev_battery",
+      "common_name": "HV battery (CATL / GAE Aegis short-blade LFP)"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "Instrument Cluster"
+    },
+    {
+      "address": "0x740",
+      "name": "bcm",
+      "common_name": "BCM"
+    },
+    {
+      "address": "0x760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x762",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x768",
+      "name": "climate",
+      "common_name": "Climate Control / Heat Pump"
+    },
+    {
+      "address": "0x770",
+      "name": "ivi",
+      "common_name": "Galaxy OS / Flyme Auto / LYNK OS"
+    },
+    {
+      "address": "0x724",
+      "name": "adas",
+      "common_name": "ADAS / Pilot Assist (Mobileye-derived)"
+    },
+    {
+      "address": "0x780",
+      "name": "tpms",
+      "common_name": "TPMS — direct sensors"
+    },
+    {
+      "address": "0x07E0",
+      "name": "engine",
+      "common_name": "EMS — Engine Management"
+    },
+    {
+      "address": "0x07E1",
+      "name": "transmission",
+      "common_name": "TCU — Transmission Control"
+    },
+    {
+      "address": "0x07E2",
+      "name": "hybrid",
+      "common_name": "Hybrid Vehicle Control (PHEV)"
+    },
+    {
+      "address": "0x07E5",
+      "name": "evcc",
+      "common_name": "EV Charge Controller (Geometry / Zeekr)"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "Instrument Cluster"
+    },
+    {
+      "address": "0x0740",
+      "name": "bcm",
+      "common_name": "BCM — Body Control"
+    },
+    {
+      "address": "0x0760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0762",
+      "name": "abs",
+      "common_name": "ABS / ESP"
+    },
+    {
+      "address": "0x0768",
+      "name": "climate",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x0724",
+      "name": "adas",
+      "common_name": "ADAS / driver-assistance"
+    }
   ],
   "dids": [
-    { "did": "0xF186", "name": "active_diagnostic_session", "description": "Currently active UDS session", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8" } },
-    { "did": "0xF189", "name": "sw_version_number", "description": "ECU software version", "ecu_address": "0x7E0",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF190", "name": "vin", "description": "Vehicle identification number", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A0", "name": "geely_platform_code", "description": "Geely platform code (CMA / SEA / SEA-2 / SPA / BMA / GEA)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "geely_market_code", "description": "Geely market / region code", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "geely_brand_code", "description": "Brand (Geely / Lynk & Co / Geometry / Galaxy / Zeekr / Polestar handled separately)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "geely_model_code", "description": "Geely model code (Galaxy L7 / Star Ray / Lynk 08 / Geometry G6)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage", "description": "Vehicle mileage (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v", "description": "12 V battery voltage (mV)", "ecu_address": "0x740",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_coolant_temperature", "description": "Coolant temperature (C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_temperature", "description": "Engine oil temperature (C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD054", "name": "engine_runtime_hours", "description": "Engine total runtime (h)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "unit": "h" } },
-    { "did": "0xD055", "name": "fuel_level_pct", "description": "Fuel level (%)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD056", "name": "turbo_boost_pressure", "description": "Turbo boost pressure (kPa)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-
-    { "did": "0xD060", "name": "ev_pack_voltage", "description": "EV / PHEV pack voltage (V)", "ecu_address": "0x7E8",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "ev_pack_soc", "description": "EV / PHEV pack SOC (%)", "ecu_address": "0x7E8",
-      "decoder": { "kind": "uint8", "scale": 0.5, "unit": "%" } },
-    { "did": "0xD062", "name": "ev_pack_soh", "description": "EV / PHEV pack SOH (%)", "ecu_address": "0x7E8",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD063", "name": "ev_pack_temp_min", "description": "Pack min cell temperature (C)", "ecu_address": "0x7E8",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD064", "name": "ev_pack_temp_max", "description": "Pack max cell temperature (C)", "ecu_address": "0x7E8",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD065", "name": "remaining_range_km", "description": "Remaining range (km, CLTC)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-
-    { "did": "0xD068", "name": "charge_status", "description": "Charge port status enum", "ecu_address": "0x7E5",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-    { "did": "0xD069", "name": "charge_session_kwh", "description": "Energy delivered this session (kWh)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kWh" } },
-    { "did": "0xD06A", "name": "charge_power_kw", "description": "Current charge power (kW)", "ecu_address": "0x7E5",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kW" } },
-
-    { "did": "0xD080", "name": "motor_front_temp", "description": "Front motor temperature (C)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD081", "name": "motor_rear_temp", "description": "Rear motor temperature (C)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "int8", "unit": "C" } },
-    { "did": "0xD082", "name": "motor_front_torque_pct", "description": "Front motor torque request (%)", "ecu_address": "0x7E6",
-      "decoder": { "kind": "int16_be", "scale": 0.01, "unit": "%" } },
-    { "did": "0xD083", "name": "motor_rear_torque_pct", "description": "Rear motor torque request (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "int16_be", "scale": 0.01, "unit": "%" } },
-
-    { "did": "0xD0A0", "name": "geely_drive_mode", "description": "Drive mode (Eco / Comfort / Sport / Snow / Off-road)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "eco", "0x01": "comfort", "0x02": "sport", "0x03": "snow", "0x04": "off_road"} } }
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A0",
+      "name": "geely_platform_code",
+      "description": "Geely platform code (CMA / SEA / SEA-2 / SPA / BMA / GEA)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "geely_market_code",
+      "description": "Geely market / region code",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "geely_brand_code",
+      "description": "Brand (Geely / Lynk & Co / Geometry / Galaxy / Zeekr / Polestar handled separately)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "geely_model_code",
+      "description": "Geely model code (Galaxy L7 / Star Ray / Lynk 08 / Geometry G6)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_coolant_temperature",
+      "description": "Coolant temperature (C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_runtime_hours",
+      "description": "Engine total runtime (h)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "fuel_level_pct",
+      "description": "Fuel level (%)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "turbo_boost_pressure",
+      "description": "Turbo boost pressure (kPa)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "ev_pack_voltage",
+      "description": "EV / PHEV pack voltage (V)",
+      "ecu_address": "0x7E8",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "ev_pack_soc",
+      "description": "EV / PHEV pack SOC (%)",
+      "ecu_address": "0x7E8",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "ev_pack_soh",
+      "description": "EV / PHEV pack SOH (%)",
+      "ecu_address": "0x7E8",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD063",
+      "name": "ev_pack_temp_min",
+      "description": "Pack min cell temperature (C)",
+      "ecu_address": "0x7E8",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD064",
+      "name": "ev_pack_temp_max",
+      "description": "Pack max cell temperature (C)",
+      "ecu_address": "0x7E8",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD065",
+      "name": "remaining_range_km",
+      "description": "Remaining range (km, CLTC)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "charge_status",
+      "description": "Charge port status enum",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD069",
+      "name": "charge_session_kwh",
+      "description": "Energy delivered this session (kWh)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kWh"
+      }
+    },
+    {
+      "did": "0xD06A",
+      "name": "charge_power_kw",
+      "description": "Current charge power (kW)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "motor_front_temp",
+      "description": "Front motor temperature (C)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "motor_rear_temp",
+      "description": "Rear motor temperature (C)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int8",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD082",
+      "name": "motor_front_torque_pct",
+      "description": "Front motor torque request (%)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD083",
+      "name": "motor_rear_torque_pct",
+      "description": "Rear motor torque request (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD0A0",
+      "name": "geely_drive_mode",
+      "description": "Drive mode (Eco / Comfort / Sport / Snow / Off-road)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "eco",
+          "0x01": "comfort",
+          "0x02": "sport",
+          "0x03": "snow",
+          "0x04": "off_road"
+        }
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Geely service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",         "description": "Reset adaptive learning", "ecu_address": "0x7E0" },
-    { "id": "0x0F00", "name": "geely_sas_calibration",     "description": "Steering-angle sensor reset", "ecu_address": "0x762" },
-    { "id": "0x0F01", "name": "geely_oil_service_reset",   "description": "Oil-service reset", "ecu_address": "0x720" },
-    { "id": "0x0F02", "name": "geely_battery_register",    "description": "12 V battery registration", "ecu_address": "0x740" },
-    { "id": "0x0F03", "name": "geely_adas_calibration",    "description": "Pilot Assist camera + radar calibration", "ecu_address": "0x724" },
-    { "id": "0x0F04", "name": "geely_tpms_relearn",        "description": "TPMS sensor relearn", "ecu_address": "0x780" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0F00",
+      "name": "geely_sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x762"
+    },
+    {
+      "id": "0x0F01",
+      "name": "geely_oil_service_reset",
+      "description": "Oil-service reset",
+      "ecu_address": "0x720"
+    },
+    {
+      "id": "0x0F02",
+      "name": "geely_battery_register",
+      "description": "12 V battery registration",
+      "ecu_address": "0x740"
+    },
+    {
+      "id": "0x0F03",
+      "name": "geely_adas_calibration",
+      "description": "Pilot Assist camera + radar calibration",
+      "ecu_address": "0x724"
+    },
+    {
+      "id": "0x0F04",
+      "name": "geely_tpms_relearn",
+      "description": "TPMS sensor relearn",
+      "ecu_address": "0x780"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }

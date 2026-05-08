@@ -26,6 +26,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
@@ -48,60 +54,34 @@ function TOBDOEMExtensionGeely.DisplayName: string;
 begin Result := 'Geely Auto / Lynk & Co'; end;
 
 function TOBDOEMExtensionGeely.ApplicableToVIN(const VIN: string): Boolean;
-var
-  WMI: string;
 begin
-  if Length(VIN) < 3 then Exit(False);
-  WMI := UpperCase(Copy(VIN, 1, 3));
-  // Geely Auto: LB3 (Geely Holding passenger), LFM (commercial).
-  // Lynk & Co (Geely sub-brand, sold globally): LJV (Luqiao plant),
-  //   LBE (Belgium-built export).
-  // Geely's high-end Zeekr brand: LGZ.
-  Result :=
-    (WMI = 'LB3') or (WMI = 'LFM') or
-    (WMI = 'LJV') or (WMI = 'LBE') or
-    (WMI = 'LGZ');
+  // JSON-only: applicable_wmis lives in geely.json.
+  Result := VINMatchesCatalog('geely.json', VIN);
 end;
-
 procedure TOBDOEMExtensionGeely.BuildCatalog(
   var DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>);
 begin
-  ECUs := [
-    ECU($7E0, 'engine',         'EMS — Engine Management'),
-    ECU($7E1, 'transmission',   'TCU — Transmission Control'),
-    ECU($7E2, 'hybrid',         'Hybrid Vehicle Control (PHEV)'),
-    ECU($7E5, 'evcc',           'EV Charge Controller (Geometry / Zeekr)'),
-    ECU($720, 'cluster',        'Instrument Cluster'),
-    ECU($740, 'bcm',            'BCM — Body Control'),
-    ECU($760, 'srs',            'SRS / Airbag'),
-    ECU($762, 'abs',            'ABS / ESP'),
-    ECU($768, 'climate',        'Climate Control'),
-    ECU($724, 'adas',           'ADAS / driver-assistance')
-  ];
+  // JSON-only — sole sources of truth are geely.json
+  // + uds-standard.json. Hardcoded entries removed.
 
-  DIDs := [
-    DID($F186, 'active_diagnostic_session', 'Currently active UDS session'),
-    DID($F187, 'spare_part_number',         'Geely service part number'),
-    DID($F189, 'sw_version_number',         'ECU software version'),
-    DID($F190, 'vin',                       'Vehicle identification number'),
-    DID($F197, 'system_name',               'ECU long name'),
-    DID($F1A0, 'geely_platform_code',       'Geely platform code (CMA / SEA / SPA / BMA)'),
-    DID($F1A2, 'geely_market_code',         'Geely market / region code')
-  ];
-
-  Routines := [
-    Routine($0203, 'reset_adaptations',     'Reset adaptive learning'),
-    Routine($0F00, 'sas_calibration',       'Steering-angle sensor reset'),
-    Routine($FF00, 'erase_memory',          'Pre-flash erase'),
-    Routine($FF02, 'verify_checksum',       'Post-flash checksum verification')
-  ];
 
   MergeCatalogJSON('geely.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+
+procedure TOBDOEMExtensionGeely.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('geely.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
 procedure TOBDOEMExtensionGeely.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin

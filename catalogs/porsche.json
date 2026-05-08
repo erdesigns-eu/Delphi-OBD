@@ -1,98 +1,561 @@
 {
   "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
-  "version": 1,
+  "version": 2,
   "manufacturer_key": "PORSCHE",
   "display_name": "Dr. Ing. h.c. F. Porsche AG",
-  "applicable_wmis": ["WP0","WP1"],
+  "applicable_wmis": [
+    "WP0",
+    "WP1"
+  ],
   "default_source": "piwis-community",
   "ecus": [
-    { "address": "0x7E0", "name": "dme",         "common_name": "DME — Engine Control" },
-    { "address": "0x7E1", "name": "pdk",         "common_name": "PDK — DCT Transmission" },
-    { "address": "0x7E2", "name": "pasm",        "common_name": "PASM — Active Suspension Management" },
-    { "address": "0x7E3", "name": "pdcc",        "common_name": "PDCC — Dynamic Chassis Control (active anti-roll)" },
-    { "address": "0x7E5", "name": "pe_inverter", "common_name": "EV Inverter / Front Motor (Taycan)" },
-    { "address": "0x7E6", "name": "pe_rear",     "common_name": "EV Rear Motor / 2-speed gearbox (Taycan)" },
-    { "address": "0x7E7", "name": "pe_battery",  "common_name": "HV Battery (Taycan / 911 hybrid)" },
-    { "address": "0x720", "name": "cluster",     "common_name": "Instrument Cluster" },
-    { "address": "0x740", "name": "pcm",         "common_name": "PCM — Infotainment" },
-    { "address": "0x744", "name": "klima",       "common_name": "Climate Control" },
-    { "address": "0x760", "name": "srs",         "common_name": "SRS / Airbag" },
-    { "address": "0x762", "name": "pccm",        "common_name": "Cabin / passenger compartment" },
-    { "address": "0x768", "name": "pccb",        "common_name": "PCCB — Ceramic Composite Brake controller" },
-    { "address": "0x770", "name": "esp",         "common_name": "PSM / ESP — Stability" },
-    { "address": "0x724", "name": "lwl_radar",   "common_name": "Driver assist / radar (LWL fiber-bus gateway)" },
-    { "address": "0x758", "name": "kessy",       "common_name": "Porsche Entry & Drive (KESSY-equivalent)" }
+    {
+      "address": "0x7E0",
+      "name": "dme",
+      "common_name": "DME — Engine Control"
+    },
+    {
+      "address": "0x7E1",
+      "name": "pdk",
+      "common_name": "PDK — DCT Transmission"
+    },
+    {
+      "address": "0x7E2",
+      "name": "pasm",
+      "common_name": "PASM — Active Suspension Management"
+    },
+    {
+      "address": "0x7E3",
+      "name": "pdcc",
+      "common_name": "PDCC — Dynamic Chassis Control (active anti-roll)"
+    },
+    {
+      "address": "0x7E5",
+      "name": "pe_inverter",
+      "common_name": "EV Inverter / Front Motor (Taycan)"
+    },
+    {
+      "address": "0x7E6",
+      "name": "pe_rear",
+      "common_name": "EV Rear Motor / 2-speed gearbox (Taycan)"
+    },
+    {
+      "address": "0x7E7",
+      "name": "pe_battery",
+      "common_name": "HV Battery (Taycan / 911 hybrid)"
+    },
+    {
+      "address": "0x720",
+      "name": "cluster",
+      "common_name": "Instrument Cluster"
+    },
+    {
+      "address": "0x740",
+      "name": "pcm",
+      "common_name": "PCM — Infotainment"
+    },
+    {
+      "address": "0x744",
+      "name": "klima",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x762",
+      "name": "pccm",
+      "common_name": "Cabin / passenger compartment"
+    },
+    {
+      "address": "0x768",
+      "name": "pccb",
+      "common_name": "PCCB — Ceramic Composite Brake controller"
+    },
+    {
+      "address": "0x770",
+      "name": "esp",
+      "common_name": "PSM / ESP — Stability"
+    },
+    {
+      "address": "0x724",
+      "name": "lwl_radar",
+      "common_name": "Driver assist / radar (LWL fiber-bus gateway)"
+    },
+    {
+      "address": "0x758",
+      "name": "kessy",
+      "common_name": "Porsche Entry & Drive (KESSY-equivalent)"
+    },
+    {
+      "address": "0x07E0",
+      "name": "dme",
+      "common_name": "DME — Engine Control"
+    },
+    {
+      "address": "0x07E1",
+      "name": "pdk",
+      "common_name": "PDK — Doppelkupplungsgetriebe (DCT)"
+    },
+    {
+      "address": "0x07E2",
+      "name": "pasm",
+      "common_name": "PASM — Active Suspension Management"
+    },
+    {
+      "address": "0x07E5",
+      "name": "pe_inverter",
+      "common_name": "EV Inverter / Front Motor (Taycan)"
+    },
+    {
+      "address": "0x07E7",
+      "name": "pe_battery",
+      "common_name": "High-Voltage Battery (Taycan)"
+    },
+    {
+      "address": "0x0720",
+      "name": "cluster",
+      "common_name": "Instrument Cluster"
+    },
+    {
+      "address": "0x0740",
+      "name": "pcm",
+      "common_name": "PCM — Infotainment"
+    },
+    {
+      "address": "0x0760",
+      "name": "srs",
+      "common_name": "SRS / Airbag"
+    },
+    {
+      "address": "0x0762",
+      "name": "pccm",
+      "common_name": "Climate Control"
+    },
+    {
+      "address": "0x0724",
+      "name": "lwl_radar",
+      "common_name": "Driver assist / radar (LWL fiber-bus gateway)"
+    }
   ],
   "dids": [
-    { "did": "0xF1A0", "name": "porsche_model_code",      "description": "Porsche internal model code (992, 9YA, J1)", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A2", "name": "porsche_paint_code",      "description": "Porsche 5-character paint code", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A3", "name": "porsche_interior_code",   "description": "Porsche interior trim code", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A4", "name": "porsche_options_block",   "description": "Porsche M-Nummern option block", "ecu_address": "0x740",
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1A5", "name": "porsche_factory_order",   "description": "Porsche factory commission number", "ecu_address": "0x740",
-      "decoder": { "kind": "ascii" } },
-    { "did": "0xF1A6", "name": "porsche_pcm_pno",         "description": "PCM PNO option block", "ecu_address": "0x740",
-      "decoder": { "kind": "hex" } },
-    { "did": "0xF1AA", "name": "porsche_warranty_block",  "description": "Warranty start / mileage history block", "ecu_address": "0x740",
-      "decoder": { "kind": "hex" } },
-
-    { "did": "0xD050", "name": "vehicle_mileage",         "description": "Vehicle mileage (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint32_be", "unit": "km" } },
-    { "did": "0xD051", "name": "battery_voltage_12v",     "description": "12 V battery voltage (mV)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0xD052", "name": "engine_oil_temperature",  "description": "Engine oil temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD053", "name": "engine_oil_level_mm",     "description": "Engine oil level (mm above min)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD054", "name": "engine_runtime_lifetime", "description": "Engine runtime lifetime (h)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint32_be", "scale": 0.05, "unit": "h" } },
-    { "did": "0xD055", "name": "boost_pressure",          "description": "Charge-air boost pressure (kPa)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "kPa" } },
-    { "did": "0xD056", "name": "engine_coolant_temperature","description": "Engine coolant temperature (°C)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0xD057", "name": "engine_rpm",              "description": "Engine speed (rpm)", "ecu_address": "0x7E0",
-      "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" } },
-
-    { "did": "0xD060", "name": "taycan_pack_voltage",     "description": "Taycan HV pack voltage (V)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.5, "unit": "V" } },
-    { "did": "0xD061", "name": "taycan_pack_soc",         "description": "Taycan HV pack SOC (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD062", "name": "taycan_pack_soh",         "description": "Taycan HV pack SOH (%)", "ecu_address": "0x7E7",
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "unit": "%" } },
-    { "did": "0xD065", "name": "taycan_remaining_range",  "description": "Taycan remaining range (km)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0xD068", "name": "taycan_charge_status",    "description": "Taycan charge port status", "ecu_address": "0x7E7",
-      "decoder": { "kind": "enum", "size": 1, "values": {"0x00": "idle", "0x01": "ac_charging", "0x02": "dc_charging", "0x03": "fault"} } },
-
-    { "did": "0xD080", "name": "porsche_pdk_oil_temp",    "description": "PDK transmission oil temperature (°C)", "ecu_address": "0x7E1",
-      "decoder": { "kind": "uint8", "offset": -50, "unit": "C" } },
-    { "did": "0xD081", "name": "porsche_pdk_clutch_wear", "description": "PDK clutch wear estimate (%)", "ecu_address": "0x7E1",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD090", "name": "porsche_brake_pad_front", "description": "Front brake-pad remaining (%)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD091", "name": "porsche_brake_pad_rear",  "description": "Rear brake-pad remaining (%)", "ecu_address": "0x720",
-      "decoder": { "kind": "uint8", "scale": 0.392, "unit": "%" } },
-    { "did": "0xD0A0", "name": "porsche_pasm_height_front","description": "PASM ride height — front (mm)", "ecu_address": "0x7E2",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0A1", "name": "porsche_pasm_height_rear", "description": "PASM ride height — rear (mm)", "ecu_address": "0x7E2",
-      "decoder": { "kind": "int16_be", "scale": 0.1, "unit": "mm" } },
-    { "did": "0xD0B0", "name": "porsche_pccb_temp_front",  "description": "Ceramic brake disc front temp (°C)", "ecu_address": "0x768",
-      "decoder": { "kind": "int16_be", "unit": "C" } },
-    { "did": "0xD0B1", "name": "porsche_pccb_temp_rear",   "description": "Ceramic brake disc rear temp (°C)", "ecu_address": "0x768",
-      "decoder": { "kind": "int16_be", "unit": "C" } }
+    {
+      "did": "0xF1A0",
+      "name": "porsche_model_code",
+      "description": "Porsche internal model code (992, 9YA, J1)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A2",
+      "name": "porsche_paint_code",
+      "description": "Porsche 5-character paint code",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A3",
+      "name": "porsche_interior_code",
+      "description": "Porsche interior trim code",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A4",
+      "name": "porsche_options_block",
+      "description": "Porsche M-Nummern option block",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1A5",
+      "name": "porsche_factory_order",
+      "description": "Porsche factory commission number",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "ascii"
+      }
+    },
+    {
+      "did": "0xF1A6",
+      "name": "porsche_pcm_pno",
+      "description": "PCM PNO option block",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xF1AA",
+      "name": "porsche_warranty_block",
+      "description": "Warranty start / mileage history block",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0xD050",
+      "name": "vehicle_mileage",
+      "description": "Vehicle mileage (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD051",
+      "name": "battery_voltage_12v",
+      "description": "12 V battery voltage (mV)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD052",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD053",
+      "name": "engine_oil_level_mm",
+      "description": "Engine oil level (mm above min)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD054",
+      "name": "engine_runtime_lifetime",
+      "description": "Engine runtime lifetime (h)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.05,
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0xD055",
+      "name": "boost_pressure",
+      "description": "Charge-air boost pressure (kPa)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0xD056",
+      "name": "engine_coolant_temperature",
+      "description": "Engine coolant temperature (°C)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD057",
+      "name": "engine_rpm",
+      "description": "Engine speed (rpm)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0xD060",
+      "name": "taycan_pack_voltage",
+      "description": "Taycan HV pack voltage (V)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0xD061",
+      "name": "taycan_pack_soc",
+      "description": "Taycan HV pack SOC (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD062",
+      "name": "taycan_pack_soh",
+      "description": "Taycan HV pack SOH (%)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD065",
+      "name": "taycan_remaining_range",
+      "description": "Taycan remaining range (km)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0xD068",
+      "name": "taycan_charge_status",
+      "description": "Taycan charge port status",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "idle",
+          "0x01": "ac_charging",
+          "0x02": "dc_charging",
+          "0x03": "fault"
+        }
+      }
+    },
+    {
+      "did": "0xD080",
+      "name": "porsche_pdk_oil_temp",
+      "description": "PDK transmission oil temperature (°C)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD081",
+      "name": "porsche_pdk_clutch_wear",
+      "description": "PDK clutch wear estimate (%)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD090",
+      "name": "porsche_brake_pad_front",
+      "description": "Front brake-pad remaining (%)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD091",
+      "name": "porsche_brake_pad_rear",
+      "description": "Rear brake-pad remaining (%)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.392,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0xD0A0",
+      "name": "porsche_pasm_height_front",
+      "description": "PASM ride height — front (mm)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0A1",
+      "name": "porsche_pasm_height_rear",
+      "description": "PASM ride height — rear (mm)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0xD0B0",
+      "name": "porsche_pccb_temp_front",
+      "description": "Ceramic brake disc front temp (°C)",
+      "ecu_address": "0x768",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xD0B1",
+      "name": "porsche_pccb_temp_rear",
+      "description": "Ceramic brake disc rear temp (°C)",
+      "ecu_address": "0x768",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "active_diagnostic_session",
+      "description": "Currently active UDS session",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF187",
+      "name": "spare_part_number",
+      "description": "Porsche service part number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF189",
+      "name": "sw_version_number",
+      "description": "ECU software version",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF190",
+      "name": "vin",
+      "description": "Vehicle identification number",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    },
+    {
+      "did": "0xF197",
+      "name": "system_name",
+      "description": "ECU long name",
+      "source": "oem-extension",
+      "verified": false,
+      "decoder": {
+        "kind": "bytes"
+      }
+    }
   ],
   "routines": [
-    { "id": "0x0203", "name": "reset_adaptations",            "description": "Reset adaptive learning", "ecu_address": "0x7E0" },
-    { "id": "0x0204", "name": "throttle_relearn",             "description": "Throttle pedal relearn (PIWIS)", "ecu_address": "0x7E0" },
-    { "id": "0x0205", "name": "porsche_pdk_clutch_calibration","description": "PDK clutch-touchpoint calibration", "ecu_address": "0x7E1" },
-    { "id": "0x0F00", "name": "sas_calibration",              "description": "Steering-angle sensor reset", "ecu_address": "0x770" },
-    { "id": "0x0F02", "name": "pasm_calibration",             "description": "PASM ride-height calibration", "ecu_address": "0x7E2" },
-    { "id": "0x0F03", "name": "pdcc_calibration",             "description": "PDCC active anti-roll calibration", "ecu_address": "0x7E3" },
-    { "id": "0x0F04", "name": "tpms_relearn",                 "description": "TPMS sensor relearn", "ecu_address": "0x770" },
-    { "id": "0x0F05", "name": "battery_register",             "description": "12 V battery registration after replacement", "ecu_address": "0x720" },
-    { "id": "0x0F06", "name": "porsche_kessy_relearn",        "description": "Entry & Drive (KESSY) proximity relearn", "ecu_address": "0x758" }
-  ]
+    {
+      "id": "0x0203",
+      "name": "reset_adaptations",
+      "description": "Reset adaptive learning",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0204",
+      "name": "throttle_relearn",
+      "description": "Throttle pedal relearn (PIWIS)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0205",
+      "name": "porsche_pdk_clutch_calibration",
+      "description": "PDK clutch-touchpoint calibration",
+      "ecu_address": "0x7E1"
+    },
+    {
+      "id": "0x0F00",
+      "name": "sas_calibration",
+      "description": "Steering-angle sensor reset",
+      "ecu_address": "0x770"
+    },
+    {
+      "id": "0x0F02",
+      "name": "pasm_calibration",
+      "description": "PASM ride-height calibration",
+      "ecu_address": "0x7E2"
+    },
+    {
+      "id": "0x0F03",
+      "name": "pdcc_calibration",
+      "description": "PDCC active anti-roll calibration",
+      "ecu_address": "0x7E3"
+    },
+    {
+      "id": "0x0F04",
+      "name": "tpms_relearn",
+      "description": "TPMS sensor relearn",
+      "ecu_address": "0x770"
+    },
+    {
+      "id": "0x0F05",
+      "name": "battery_register",
+      "description": "12 V battery registration after replacement",
+      "ecu_address": "0x720"
+    },
+    {
+      "id": "0x0F06",
+      "name": "porsche_kessy_relearn",
+      "description": "Entry & Drive (KESSY) proximity relearn",
+      "ecu_address": "0x758"
+    },
+    {
+      "id": "0xFF00",
+      "name": "erase_memory",
+      "description": "Pre-flash erase"
+    },
+    {
+      "id": "0xFF02",
+      "name": "verify_checksum",
+      "description": "Post-flash checksum verification"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [],
+  "actuator_tests": [],
+  "live_pids": [],
+  "dtc_extended_data": []
 }
