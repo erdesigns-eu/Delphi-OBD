@@ -3564,6 +3564,557 @@
         { "name": "max_power_w", "label": "Max charging power (W)", "kind": "uint8", "byte_offset": 1, "default": 15, "min": 5, "max": 50, "unit": "W" },
         { "name": "qi_compatible", "label": "Qi-compatible", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 }
       ]
+    },
+    {
+      "did": "0xF1CA", "name": "bcm_long_coding_byte_5_to_15",
+      "description": "BCM (J393) long-coding — additional bytes 5-15",
+      "ecu_address": "0x746", "payload_size": 16,
+      "fields": [
+        { "name": "panic_alarm_button_count", "label": "Panic alarm — fob press count", "kind": "uint8", "byte_offset": 5, "default": 3, "min": 1, "max": 5 },
+        { "name": "double_press_lock_required", "label": "Double-press required to lock", "kind": "bit", "byte_offset": 5, "bit_offset": 6, "default": 0 },
+        { "name": "interior_light_dim_seconds", "label": "Interior light dim time (s)", "kind": "uint8", "byte_offset": 6, "default": 30, "min": 0, "max": 120 },
+        { "name": "interior_light_door_open_seconds", "label": "Interior light when door open (s)", "kind": "uint8", "byte_offset": 7, "default": 60, "min": 0, "max": 600 },
+        { "name": "windshield_wash_wipe_count", "label": "Wipe count after washer (1-5)", "kind": "uint8", "byte_offset": 8, "default": 3, "min": 1, "max": 5 },
+        { "name": "auto_wiper_after_wash_enabled", "label": "Auto-wipe after washer", "kind": "bit", "byte_offset": 8, "bit_offset": 4, "default": 1 },
+        { "name": "rear_wiper_in_reverse_with_front", "label": "Rear wiper auto in reverse if front on", "kind": "bit", "byte_offset": 8, "bit_offset": 5, "default": 1 },
+        { "name": "rain_sensor_default_sensitivity", "label": "Rain sensor default sensitivity (1-10)", "kind": "uint8", "byte_offset": 9, "default": 5, "min": 1, "max": 10 },
+        { "name": "headlight_auto_default_on", "label": "Auto headlights default ON at key-on", "kind": "bit", "byte_offset": 10, "bit_offset": 0, "default": 1 },
+        { "name": "headlight_tunnel_detection", "label": "Tunnel light detection enabled", "kind": "bit", "byte_offset": 10, "bit_offset": 1, "default": 1 },
+        { "name": "tire_pressure_warning_method", "label": "TPMS warning method", "kind": "enum", "byte_offset": 11, "default": 0,
+          "values": { "0": "audio_visual", "1": "visual_only", "2": "audio_only", "3": "off" } },
+        { "name": "service_indicator_visible_distance", "label": "Service warning at distance (km)", "kind": "uint16_be", "byte_offset": 12, "default": 1500, "min": 100, "max": 5000 },
+        { "name": "low_fuel_warning_distance", "label": "Low fuel range warning (km)", "kind": "uint8", "byte_offset": 14, "default": 80, "min": 30, "max": 200 },
+        { "name": "rear_brake_pad_warning", "label": "Rear brake pad wear warning enabled", "kind": "bit", "byte_offset": 15, "bit_offset": 0, "default": 1 },
+        { "name": "front_brake_pad_warning", "label": "Front brake pad wear warning enabled", "kind": "bit", "byte_offset": 15, "bit_offset": 1, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1CB", "name": "cluster_extended_coding",
+      "description": "Cluster (J285) extended-coding bits — display options",
+      "ecu_address": "0x714", "payload_size": 8,
+      "fields": [
+        { "name": "show_oil_temp", "label": "Show oil temperature gauge", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "show_boost_pressure", "label": "Show boost pressure (R/RS/GTI)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "show_lateral_g_meter", "label": "Show lateral g meter (R/RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "show_lap_timer", "label": "Show lap timer (RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "show_torque_distribution", "label": "Show Quattro torque distribution", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 0 },
+        { "name": "show_efficiency_score", "label": "Show efficiency score", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "show_drive_mode", "label": "Show drive mode in cluster", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 1 },
+        { "name": "show_estimated_range", "label": "Show estimated range", "kind": "bit", "byte_offset": 0, "bit_offset": 7, "default": 1 },
+        { "name": "warning_chime_volume", "label": "Warning chime volume (0-7)", "kind": "uint8", "byte_offset": 1, "default": 4, "min": 0, "max": 7 },
+        { "name": "tachometer_redline_blink", "label": "Tachometer redline blink at limit", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "tachometer_redline_color", "label": "Tachometer redline color", "kind": "enum", "byte_offset": 2, "bit_offset": 1, "bit_width": 3, "default": 0,
+          "values": { "0": "red", "1": "amber", "2": "white", "3": "blue", "4": "green" } },
+        { "name": "trip_a_auto_reset", "label": "Trip A auto-reset on key-off", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 },
+        { "name": "trip_b_auto_reset", "label": "Trip B auto-reset on key-off", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 0 },
+        { "name": "service_message_distance_alert_km", "label": "Service message distance alert (km)", "kind": "uint16_be", "byte_offset": 4, "default": 1000, "min": 100, "max": 5000 },
+        { "name": "low_oil_pressure_chime", "label": "Low oil pressure audible warning", "kind": "bit", "byte_offset": 6, "bit_offset": 0, "default": 1 },
+        { "name": "high_coolant_temp_chime", "label": "High coolant temp audible warning", "kind": "bit", "byte_offset": 6, "bit_offset": 1, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1CC", "name": "engine_extended_coding",
+      "description": "Engine ECU extended coding — feature equipment + dynamic options",
+      "ecu_address": "0x7E0", "payload_size": 8,
+      "fields": [
+        { "name": "launch_control_enabled", "label": "Launch control enabled (R/RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "race_telemetry_enabled", "label": "Race telemetry logging enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "performance_data_recorder", "label": "Performance data recorder enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "dyno_mode_unlock", "label": "Dyno mode unlocked (allows ESP off + traction off)", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "rev_match_enabled", "label": "Rev-match downshift enabled (manual)", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "burnout_mode_enabled", "label": "Burnout / line-lock mode enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "valet_mode_speed_limit", "label": "Valet mode speed limit (km/h, 0=off)", "kind": "uint8", "byte_offset": 2, "default": 0, "min": 0, "max": 200, "unit": "km/h" },
+        { "name": "teen_driver_top_speed", "label": "Teen driver top speed (km/h, 0=off)", "kind": "uint8", "byte_offset": 3, "default": 0, "min": 0, "max": 200, "unit": "km/h" },
+        { "name": "off_road_mode_unlocked", "label": "Off-road drive mode unlocked", "kind": "bit", "byte_offset": 4, "bit_offset": 0, "default": 0 },
+        { "name": "snow_mode_unlocked", "label": "Snow drive mode unlocked", "kind": "bit", "byte_offset": 4, "bit_offset": 1, "default": 1 },
+        { "name": "all_road_mode_unlocked", "label": "All-Road mode unlocked (Audi)", "kind": "bit", "byte_offset": 4, "bit_offset": 2, "default": 0 },
+        { "name": "individual_mode_unlocked", "label": "Individual drive mode unlocked", "kind": "bit", "byte_offset": 4, "bit_offset": 3, "default": 1 },
+        { "name": "performance_kit_enabled", "label": "Performance kit enabled (Stage 1+)", "kind": "bit", "byte_offset": 5, "bit_offset": 0, "default": 0 },
+        { "name": "factory_warranty_disable", "label": "Disable factory-warranty enforcement (TUNED)", "kind": "bit", "byte_offset": 5, "bit_offset": 1, "default": 0 },
+        { "name": "abs_off_unlock", "label": "ABS off button unlocked", "kind": "bit", "byte_offset": 5, "bit_offset": 2, "default": 0 },
+        { "name": "esp_off_unlock", "label": "ESP off button unlocked", "kind": "bit", "byte_offset": 5, "bit_offset": 3, "default": 1 },
+        { "name": "active_sound_synthesis_enabled", "label": "Active engine sound synthesis (cabin)", "kind": "bit", "byte_offset": 6, "bit_offset": 0, "default": 0 },
+        { "name": "active_sound_volume", "label": "Active sound volume (0-10)", "kind": "uint8", "byte_offset": 7, "default": 5, "min": 0, "max": 10 }
+      ]
+    },
+    {
+      "did": "0xF1CD", "name": "climate_extended_coding",
+      "description": "Climatronic extended coding — comfort + air-quality options",
+      "ecu_address": "0x740", "payload_size": 4,
+      "fields": [
+        { "name": "auto_demist_enabled", "label": "Auto demist on humidity rise", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "auto_compressor_off_when_window_open", "label": "Auto-compressor OFF when window open", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "soft_velocity_change", "label": "Soft blower velocity change", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "air_quality_filter_class", "label": "Air quality filter class", "kind": "enum", "byte_offset": 1, "default": 1,
+          "values": { "0": "standard", "1": "premium_with_active_carbon", "2": "hepa", "3": "p2_p2.5_pm" } },
+        { "name": "ionizer_fitted", "label": "Cabin ionizer fitted", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "fragrance_dispenser_fitted", "label": "Fragrance dispenser fitted (Mercedes-style)", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "auto_ventilation_during_charge", "label": "Auto-ventilate cabin during EV charging", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 0 },
+        { "name": "remote_climate_via_app_enabled", "label": "Remote climate via We Connect app", "kind": "bit", "byte_offset": 2, "bit_offset": 3, "default": 1 },
+        { "name": "passive_cabin_protection_active", "label": "Passive cabin protection (heat pump prevent freezing)", "kind": "bit", "byte_offset": 2, "bit_offset": 4, "default": 1 },
+        { "name": "max_blower_in_eco_step", "label": "Max blower step in Eco (1-7)", "kind": "uint8", "byte_offset": 3, "default": 4, "min": 1, "max": 7 }
+      ]
+    },
+    {
+      "did": "0xF1CE", "name": "abs_extended_coding",
+      "description": "ABS / ESP extended coding — sport/off-road behaviours",
+      "ecu_address": "0x710", "payload_size": 4,
+      "fields": [
+        { "name": "esp_partial_off_enabled", "label": "ESP partial off (Sport mode)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "esp_full_off_enabled", "label": "ESP full off (track only, with hold)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "tcs_separate_off_enabled", "label": "TCS separate off button enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "abs_partial_off_enabled", "label": "ABS partial off (rally / dirt)", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "trailer_max_weight_kg_braked", "label": "Trailer max weight braked (kg)", "kind": "uint16_be", "byte_offset": 1, "default": 1500, "min": 0, "max": 3500 },
+        { "name": "trailer_max_weight_kg_unbraked", "label": "Trailer max weight unbraked (kg)", "kind": "uint8", "byte_offset": 3, "default": 75, "min": 0, "max": 750 }
+      ]
+    },
+    {
+      "did": "0xF1CF", "name": "epb_coding",
+      "description": "Electronic parking brake (J540) coding",
+      "ecu_address": "0x710", "payload_size": 4,
+      "fields": [
+        { "name": "epb_fitted", "label": "Electronic parking brake fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "auto_hold_fitted", "label": "Auto Hold fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_hold_default_on", "label": "Auto Hold default ON at key-on", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "auto_release_with_throttle", "label": "Auto-release on throttle press", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "auto_engage_on_park", "label": "Auto-engage when shift to Park", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "auto_engage_with_seatbelt_off", "label": "Auto-engage when driver seatbelt unbuckled", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "release_on_creep_detection", "label": "Release on slope-creep detection", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "max_holding_force_n", "label": "Maximum holding force (N)", "kind": "uint16_be", "byte_offset": 2, "default": 12000, "min": 5000, "max": 20000, "unit": "N" }
+      ]
+    },
+    {
+      "did": "0xF1D0", "name": "haldex_extended_coding",
+      "description": "Haldex / 4MOTION extended coding",
+      "ecu_address": "0x7E2", "payload_size": 4,
+      "fields": [
+        { "name": "haldex_fitted", "label": "Haldex coupling fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "haldex_pre_charge_in_sport", "label": "Pre-charge in Sport mode", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "haldex_proactive_in_4motion", "label": "Proactive engagement in 4MOTION mode", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "haldex_torque_split_default_pct", "label": "Default rear torque split (%)", "kind": "uint8", "byte_offset": 1, "default": 50, "min": 0, "max": 100 },
+        { "name": "haldex_off_road_aggression", "label": "Off-road clutch aggression (1-5)", "kind": "uint8", "byte_offset": 2, "default": 3, "min": 1, "max": 5 }
+      ]
+    },
+    {
+      "did": "0xF1D1", "name": "quattro_coding",
+      "description": "Audi Quattro coding — center diff + sport diff",
+      "ecu_address": "0x7E3", "payload_size": 4,
+      "fields": [
+        { "name": "quattro_fitted", "label": "Quattro center diff fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "sport_diff_fitted", "label": "Sport differential fitted (S/RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "quattro_default_split_front_pct", "label": "Default torque to front (%)", "kind": "uint8", "byte_offset": 1, "default": 40, "min": 25, "max": 75 },
+        { "name": "quattro_max_split_rear_pct", "label": "Max torque to rear (% in performance modes)", "kind": "uint8", "byte_offset": 2, "default": 100, "min": 50, "max": 100 },
+        { "name": "drift_mode_fitted", "label": "Drift mode unlocked (RS)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1D2", "name": "ev_drivetrain_extended_coding",
+      "description": "EV drivetrain extended coding (MEB)",
+      "ecu_address": "0x7E6", "payload_size": 4,
+      "fields": [
+        { "name": "drivetrain_variant", "label": "EV drivetrain variant", "kind": "enum", "byte_offset": 0, "default": 0,
+          "values": { "0": "rwd_standard", "1": "rwd_pro", "2": "rwd_pro_s", "3": "awd_4motion", "4": "awd_gtx", "5": "awd_quattro_e_tron", "6": "performance_rs_e_tron" } },
+        { "name": "rear_motor_type", "label": "Rear motor type", "kind": "enum", "byte_offset": 1, "default": 0,
+          "values": { "0": "asm_82kw", "1": "psm_150kw", "2": "psm_210kw", "3": "psm_250kw_performance" } },
+        { "name": "front_motor_type", "label": "Front motor type", "kind": "enum", "byte_offset": 2, "default": 0,
+          "values": { "0": "none", "1": "asm_80kw", "2": "asm_100kw", "3": "psm_140kw" } },
+        { "name": "boost_function_enabled", "label": "Boost function enabled (extra power for 30s)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 },
+        { "name": "boost_function_unlock_keys", "label": "Boost function tied to key", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1D3", "name": "ev_battery_extended_coding",
+      "description": "EV HV battery extended coding",
+      "ecu_address": "0x7E7", "payload_size": 4,
+      "fields": [
+        { "name": "battery_pack_variant", "label": "Battery pack variant", "kind": "enum", "byte_offset": 0, "default": 1,
+          "values": { "0": "55kwh", "1": "62kwh", "2": "77kwh", "3": "82kwh", "4": "95kwh", "5": "100kwh", "6": "150kwh_performance" } },
+        { "name": "battery_supplier", "label": "Battery cell supplier", "kind": "enum", "byte_offset": 1, "default": 0,
+          "values": { "0": "lg_chem_zwickau", "1": "samsung_sdi_braunau", "2": "catl_arnstadt", "3": "panasonic", "4": "northvolt_skelleftea", "5": "powerco_salzgitter", "6": "byd" } },
+        { "name": "thermal_strategy", "label": "Battery thermal strategy", "kind": "enum", "byte_offset": 2, "default": 0,
+          "values": { "0": "conservative_max_life", "1": "balanced", "2": "performance_warm_battery" } },
+        { "name": "isolation_monitoring_strict", "label": "Strict HV isolation monitoring (workshop mode)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1D4", "name": "ev_obc_extended_coding",
+      "description": "EV onboard charger extended coding",
+      "ecu_address": "0x781", "payload_size": 4,
+      "fields": [
+        { "name": "obc_supplier", "label": "OBC supplier", "kind": "enum", "byte_offset": 0, "default": 0,
+          "values": { "0": "delta", "1": "lear", "2": "valeo_siemens_eAutomotive", "3": "vitesco" } },
+        { "name": "obc_max_ac_kw", "label": "OBC max AC power (kW)", "kind": "uint8", "byte_offset": 1, "default": 11, "min": 3, "max": 22, "unit": "kW" },
+        { "name": "supports_3phase_400v", "label": "Supports 3-phase 400 V AC", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "supports_v2g", "label": "V2G supported", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "supports_v2l", "label": "V2L (vehicle-to-load) supported", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 0 },
+        { "name": "supports_v2h", "label": "V2H (vehicle-to-home) supported", "kind": "bit", "byte_offset": 2, "bit_offset": 3, "default": 0 },
+        { "name": "v2x_max_export_w", "label": "V2X max export power (W)", "kind": "uint16_be", "byte_offset": 3, "default": 0, "min": 0, "max": 11000 }
+      ]
+    },
+    {
+      "did": "0xF1D5", "name": "ev_evcc_extended_coding",
+      "description": "EV charge controller extended coding",
+      "ecu_address": "0x7E5", "payload_size": 8,
+      "fields": [
+        { "name": "supports_iso_15118_v2g", "label": "Supports ISO 15118 V2G handshake", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "supports_iso_15118_pnc", "label": "Plug & Charge (PnC) supported", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "supports_din_70121", "label": "DIN 70121 (legacy CCS) supported", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "ccs_max_kw", "label": "CCS DC max power (kW)", "kind": "uint8", "byte_offset": 1, "default": 135, "min": 50, "max": 350, "unit": "kW" },
+        { "name": "supports_chademo", "label": "CHAdeMO supported", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "supports_gbt", "label": "GB/T DC supported", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "supports_nacs_tesla", "label": "NACS / Tesla connector supported", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 0 },
+        { "name": "default_charge_target_pct", "label": "Default charge target (%)", "kind": "uint8", "byte_offset": 3, "default": 80, "min": 50, "max": 100 },
+        { "name": "default_dc_charge_target_pct", "label": "Default DC fast-charge target (%)", "kind": "uint8", "byte_offset": 4, "default": 80, "min": 50, "max": 100 },
+        { "name": "ac_min_current_a", "label": "AC minimum current (A)", "kind": "uint8", "byte_offset": 5, "default": 6, "min": 6, "max": 16 },
+        { "name": "preheat_battery_for_dc", "label": "Pre-heat battery for DC charging", "kind": "bit", "byte_offset": 6, "bit_offset": 0, "default": 1 },
+        { "name": "preheat_lead_time_min", "label": "Pre-heat lead time (min)", "kind": "uint8", "byte_offset": 7, "default": 10, "min": 0, "max": 60 }
+      ]
+    },
+    {
+      "did": "0xF1D6", "name": "adas_lane_assist_coding",
+      "description": "Lane Assist (J769) coding",
+      "ecu_address": "0x76C", "payload_size": 4,
+      "fields": [
+        { "name": "lane_assist_fitted", "label": "Lane Assist fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "lane_keep_active_steering", "label": "Active steering (vs warning only)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "lane_change_assist_fitted", "label": "Auto lane-change fitted (Travel Assist 3.0)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "warning_via_haptic", "label": "Warning via steering wheel haptic", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "warning_via_visual", "label": "Warning via cluster visual", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "warning_via_audio", "label": "Warning via audible chime", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "lane_assist_default_on", "label": "Lane Assist default ON at every key-on", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "min_speed_kmh", "label": "Lane Assist minimum speed (km/h)", "kind": "uint8", "byte_offset": 3, "default": 60, "min": 30, "max": 100 }
+      ]
+    },
+    {
+      "did": "0xF1D7", "name": "adas_acc_coding",
+      "description": "Adaptive Cruise Control (J428) coding",
+      "ecu_address": "0x76C", "payload_size": 4,
+      "fields": [
+        { "name": "acc_fitted", "label": "ACC fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "acc_stop_and_go_fitted", "label": "ACC Stop&Go fitted (full speed range)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "acc_predictive_fitted", "label": "Predictive ACC (uses navi map)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "acc_default_distance", "label": "Default following distance (1-5)", "kind": "uint8", "byte_offset": 1, "default": 3, "min": 1, "max": 5 },
+        { "name": "max_speed_kmh", "label": "ACC maximum set speed (km/h)", "kind": "uint8", "byte_offset": 2, "default": 210, "min": 60, "max": 250 },
+        { "name": "tsr_speed_limit_auto_adopt", "label": "Auto-adopt TSR speed limit", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1D8", "name": "adas_aeb_coding",
+      "description": "AEB / city emergency braking (J428) coding",
+      "ecu_address": "0x76C", "payload_size": 4,
+      "fields": [
+        { "name": "aeb_fitted", "label": "AEB fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "aeb_default_on_at_keyon", "label": "AEB default ON at every key-on (legally required EU)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "aeb_pedestrian_detection", "label": "Pedestrian detection enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "aeb_cyclist_detection", "label": "Cyclist detection enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "aeb_intersection_braking", "label": "Intersection cross-traffic braking", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "aeb_min_speed_kmh", "label": "AEB minimum speed (km/h)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 5, "max": 50 },
+        { "name": "aeb_max_speed_kmh", "label": "AEB maximum speed (km/h)", "kind": "uint8", "byte_offset": 2, "default": 130, "min": 50, "max": 250 },
+        { "name": "aeb_warning_lead_time_ms", "label": "Warning lead time (ms)", "kind": "uint16_be", "byte_offset": 3, "default": 1500, "min": 0, "max": 5000 }
+      ]
+    },
+    {
+      "did": "0xF1D9", "name": "tpms_extended_coding",
+      "description": "RDC / TPMS extended coding — sensors + thresholds",
+      "ecu_address": "0x77E", "payload_size": 8,
+      "fields": [
+        { "name": "tpms_type", "label": "TPMS sensor type", "kind": "enum", "byte_offset": 0, "default": 1,
+          "values": { "0": "indirect_via_abs", "1": "direct_433mhz", "2": "direct_315mhz", "3": "direct_868mhz" } },
+        { "name": "spare_tire_monitored", "label": "Spare-tire sensor monitored", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 0 },
+        { "name": "winter_summer_split_pressures", "label": "Different winter / summer target pressures", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 0 },
+        { "name": "loaded_pressure_split", "label": "Different loaded / unloaded target pressures", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 0 },
+        { "name": "warning_threshold_psi_summer", "label": "Summer warning threshold (psi)", "kind": "uint8", "byte_offset": 1, "default": 4, "min": 1, "max": 10 },
+        { "name": "warning_threshold_psi_winter", "label": "Winter warning threshold (psi)", "kind": "uint8", "byte_offset": 2, "default": 4, "min": 1, "max": 10 },
+        { "name": "severe_threshold_psi", "label": "Severe warning threshold (psi)", "kind": "uint8", "byte_offset": 3, "default": 10, "min": 5, "max": 20 },
+        { "name": "audible_warning_enabled", "label": "Audible warning (vs visual only)", "kind": "bit", "byte_offset": 4, "bit_offset": 0, "default": 1 },
+        { "name": "auto_relearn_after_rotation", "label": "Auto-relearn after tire rotation", "kind": "bit", "byte_offset": 4, "bit_offset": 1, "default": 1 },
+        { "name": "front_target_kpa", "label": "Default front target pressure (kPa)", "kind": "uint16_be", "byte_offset": 5, "default": 230, "min": 150, "max": 400 },
+        { "name": "rear_target_kpa", "label": "Default rear target pressure (kPa)", "kind": "uint16_be", "byte_offset": 7, "default": 230, "min": 150, "max": 400 }
+      ]
+    },
+    {
+      "did": "0xF1DA", "name": "park_assist_extended_coding",
+      "description": "Park Assist extended coding — sonar + memory",
+      "ecu_address": "0x77F", "payload_size": 4,
+      "fields": [
+        { "name": "park_assist_fitted", "label": "Park Assist fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "auto_parking_active", "label": "Auto-park active", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "memory_park_assist_active", "label": "Memory Park Assist (50 m record)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "remote_park_via_phone", "label": "Remote-controlled park via phone (Park Assist Plus)", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "sonar_count", "label": "Sonar sensor count (4 / 8 / 12)", "kind": "uint8", "byte_offset": 1, "default": 8, "min": 4, "max": 12 },
+        { "name": "warning_volume", "label": "Warning beep volume (0-7)", "kind": "uint8", "byte_offset": 2, "default": 4, "min": 0, "max": 7 },
+        { "name": "rear_camera_fitted", "label": "Rear-view camera fitted", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 },
+        { "name": "surround_view_fitted", "label": "Surround / Top-view camera fitted", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1DB", "name": "telematics_extended_coding",
+      "description": "Telematics extended coding — service + connectivity",
+      "ecu_address": "0x73C", "payload_size": 8,
+      "fields": [
+        { "name": "ecall_enabled", "label": "eCall enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "we_connect_enabled", "label": "We Connect / Audi Connect enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "remote_climate_enabled", "label": "Remote climate enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "remote_charge_enabled", "label": "Remote charge control enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "remote_unlock_enabled", "label": "Remote unlock enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "stolen_vehicle_tracking", "label": "Stolen vehicle tracking enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "real_time_traffic", "label": "Real-time traffic data subscription", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 1 },
+        { "name": "online_search", "label": "Online POI search subscription", "kind": "bit", "byte_offset": 0, "bit_offset": 7, "default": 1 },
+        { "name": "wifi_hotspot_enabled", "label": "Wi-Fi hotspot enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "online_radio_enabled", "label": "Online radio (Internet streaming)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "online_voice_assistant_enabled", "label": "Cloud voice assistant enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 1 },
+        { "name": "vehicle_status_share", "label": "Share vehicle status (location + battery)", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
+        { "name": "trip_data_share", "label": "Share trip data with manufacturer", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 0 },
+        { "name": "ota_updates_auto_install", "label": "OTA auto-install enabled", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "ota_only_when_charging", "label": "OTA install only while charging (EV)", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 1 },
+        { "name": "ota_install_time_window_start_hour", "label": "OTA install window start hour", "kind": "uint8", "byte_offset": 3, "default": 1, "min": 0, "max": 23 },
+        { "name": "ota_install_time_window_end_hour", "label": "OTA install window end hour", "kind": "uint8", "byte_offset": 4, "default": 5, "min": 0, "max": 23 },
+        { "name": "geofence_alerts_enabled", "label": "Geofence alerts enabled", "kind": "bit", "byte_offset": 5, "bit_offset": 0, "default": 0 },
+        { "name": "speed_alert_threshold_kmh", "label": "Speed alert threshold (km/h, 0=disable)", "kind": "uint8", "byte_offset": 6, "default": 0, "min": 0, "max": 250 },
+        { "name": "valet_mode_lock_telemetry", "label": "Valet mode locks telemetry sharing", "kind": "bit", "byte_offset": 7, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1DC", "name": "ivi_extended_coding",
+      "description": "MIB infotainment extended coding — features",
+      "ecu_address": "0x758", "payload_size": 8,
+      "fields": [
+        { "name": "carplay_wireless", "label": "CarPlay wireless enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "carplay_wired_only", "label": "CarPlay wired only (no wireless)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "android_auto_wireless", "label": "Android Auto wireless enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "mirroring_screen_to_rse", "label": "Mirror centre screen to RSE", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "navigation_fitted", "label": "Navigation fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "online_navigation", "label": "Online navigation (HD with traffic)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "navigation_ar_overlay", "label": "AR navigation overlay (front camera)", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "head_up_display_navi_link", "label": "Link navigation to HUD", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
+        { "name": "natural_language_voice", "label": "Natural language voice (vs commands)", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "voice_engine_local", "label": "Local voice engine (no cloud)", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "alexa_integration", "label": "Amazon Alexa integration", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 0 },
+        { "name": "google_assistant_integration", "label": "Google Assistant integration", "kind": "bit", "byte_offset": 2, "bit_offset": 3, "default": 0 },
+        { "name": "siri_via_carplay", "label": "Siri via CarPlay", "kind": "bit", "byte_offset": 2, "bit_offset": 4, "default": 1 },
+        { "name": "dab_radio_fitted", "label": "DAB radio fitted", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 },
+        { "name": "sirius_xm_fitted", "label": "SiriusXM (NA)", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 0 },
+        { "name": "internet_radio_fitted", "label": "Internet radio (Spotify / TuneIn)", "kind": "bit", "byte_offset": 3, "bit_offset": 2, "default": 1 },
+        { "name": "music_streaming_subscription", "label": "Music streaming subscription active", "kind": "bit", "byte_offset": 3, "bit_offset": 3, "default": 0 },
+        { "name": "premium_audio_brand", "label": "Premium audio brand", "kind": "enum", "byte_offset": 4, "default": 0,
+          "values": { "0": "standard", "1": "dynaudio", "2": "harman_kardon", "3": "bang_olufsen", "4": "bang_olufsen_3d", "5": "bose", "6": "sony" } },
+        { "name": "speaker_count", "label": "Speaker count", "kind": "uint8", "byte_offset": 5, "default": 8, "min": 4, "max": 22 },
+        { "name": "subwoofer_fitted", "label": "Subwoofer fitted", "kind": "bit", "byte_offset": 6, "bit_offset": 0, "default": 0 },
+        { "name": "screen_mirror_to_phone", "label": "Mirror cluster to phone (We Connect app)", "kind": "bit", "byte_offset": 7, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1DD", "name": "alarm_extended_coding",
+      "description": "Anti-theft alarm extended coding",
+      "ecu_address": "0x735", "payload_size": 4,
+      "fields": [
+        { "name": "alarm_fitted", "label": "Alarm system fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "interior_motion_active", "label": "Interior motion sensor enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "tilt_sensor_active", "label": "Tilt / tow-away sensor enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "glass_break_active", "label": "Glass-break sensor enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "panic_button_enabled", "label": "Panic button on key-fob enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "remote_arm_enabled", "label": "Remote arm via We Connect enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "alarm_horn_volume", "label": "Alarm horn volume (0-7)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 0, "max": 7 },
+        { "name": "alarm_duration_s", "label": "Alarm sounding duration (s)", "kind": "uint16_be", "byte_offset": 2, "default": 30, "min": 5, "max": 120 }
+      ]
+    },
+    {
+      "did": "0xF1DE", "name": "kessy_extended_coding",
+      "description": "KESSY extended coding — antennas + features",
+      "ecu_address": "0x748", "payload_size": 4,
+      "fields": [
+        { "name": "kessy_fitted", "label": "KESSY fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "passive_entry", "label": "Passive entry enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "passive_start", "label": "Passive start enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "walk_away_lock", "label": "Walk-away auto-lock enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "phone_as_key_fitted", "label": "Phone-as-Key (NFC + UWB) fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 0 },
+        { "name": "uwb_antennas_fitted", "label": "UWB antennas fitted (precision range)", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 0 },
+        { "name": "kessy_antenna_count", "label": "Antenna count (4 / 5 with interior)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 4, "max": 8 },
+        { "name": "max_keys", "label": "Maximum learnable keys", "kind": "uint8", "byte_offset": 2, "default": 4, "min": 1, "max": 8 }
+      ]
+    },
+    {
+      "did": "0xF1DF", "name": "lighting_matrix_coding",
+      "description": "Matrix LED extended coding",
+      "ecu_address": "0x754", "payload_size": 4,
+      "fields": [
+        { "name": "matrix_led_fitted", "label": "Matrix LED fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "matrix_segments", "label": "Matrix segment count", "kind": "uint8", "byte_offset": 0, "bit_offset": 1, "bit_width": 7, "default": 24, "min": 8, "max": 84 },
+        { "name": "high_beam_assist", "label": "High-beam assist enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "dynamic_curve_light", "label": "Dynamic curve light enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "headlight_washers_fitted", "label": "Headlight washers fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "afs_adaptive_fitted", "label": "AFS adaptive front lighting fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
+        { "name": "laser_high_beam_fitted", "label": "Laser high-beam fitted (Audi)", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 0 },
+        { "name": "digital_oled_taillights", "label": "Digital OLED taillights fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 5, "default": 0 },
+        { "name": "welcome_animation_pattern", "label": "Welcome animation pattern", "kind": "uint8", "byte_offset": 2, "default": 0, "min": 0, "max": 10 },
+        { "name": "country_pattern_default", "label": "Country pattern default", "kind": "enum", "byte_offset": 3, "default": 0,
+          "values": { "0": "europe_lhd", "1": "europe_rhd", "2": "north_america", "3": "japan", "4": "australia" } }
+      ]
+    },
+    {
+      "did": "0xF1E0", "name": "rear_lighting_coding",
+      "description": "Rear lighting extended coding",
+      "ecu_address": "0x755", "payload_size": 4,
+      "fields": [
+        { "name": "dynamic_blinker_fitted", "label": "Dynamic / sequential blinker fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "blinker_segment_count", "label": "Blinker segment count", "kind": "uint8", "byte_offset": 1, "default": 8, "min": 4, "max": 24 },
+        { "name": "brake_lamp_segment_count", "label": "Brake lamp segment count", "kind": "uint8", "byte_offset": 2, "default": 8, "min": 4, "max": 24 },
+        { "name": "tail_lamp_oled_fitted", "label": "OLED taillamps fitted", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 },
+        { "name": "emergency_brake_signal_enabled", "label": "Emergency brake signal (flashing brakes during AEB)", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1E1", "name": "head_up_display_extended_coding",
+      "description": "Head-up display extended coding",
+      "ecu_address": "0x738", "payload_size": 8,
+      "fields": [
+        { "name": "hud_fitted", "label": "HUD fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "hud_ar_fitted", "label": "AR-HUD fitted (newer ID models / Audi A8)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "show_speed", "label": "Show speed", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "show_speed_limit", "label": "Show speed limit (TSR)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "show_navigation_arrow", "label": "Show navigation arrow", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 1 },
+        { "name": "show_navigation_lane_guidance", "label": "Show navigation lane guidance", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
+        { "name": "show_acc_set_speed", "label": "Show ACC set speed", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 1 },
+        { "name": "show_acc_distance_setting", "label": "Show ACC distance setting", "kind": "bit", "byte_offset": 1, "bit_offset": 5, "default": 1 },
+        { "name": "show_lane_assist", "label": "Show Lane Assist visualisation", "kind": "bit", "byte_offset": 1, "bit_offset": 6, "default": 1 },
+        { "name": "show_phone_caller", "label": "Show incoming phone caller", "kind": "bit", "byte_offset": 1, "bit_offset": 7, "default": 1 },
+        { "name": "show_track_artist", "label": "Show music track + artist", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "show_compass", "label": "Show compass heading", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "show_warning_messages", "label": "Show warning messages", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 1 },
+        { "name": "show_g_meter_in_track_mode", "label": "Show g-meter in Track mode", "kind": "bit", "byte_offset": 2, "bit_offset": 3, "default": 0 },
+        { "name": "ar_route_overlay_density", "label": "AR overlay density (1-3)", "kind": "uint8", "byte_offset": 3, "default": 2, "min": 1, "max": 3 },
+        { "name": "default_brightness_pct", "label": "Default brightness (%)", "kind": "uint8", "byte_offset": 4, "default": 70, "min": 0, "max": 100 },
+        { "name": "default_position_offset", "label": "Default vertical offset (-10..+10)", "kind": "int8", "byte_offset": 5, "default": 0, "min": -10, "max": 10 }
+      ]
+    },
+    {
+      "did": "0xF1E2", "name": "ambient_lighting_extended_coding",
+      "description": "Ambient lighting extended coding — per-zone configuration",
+      "ecu_address": "0x788", "payload_size": 8,
+      "fields": [
+        { "name": "ambient_fitted", "label": "Ambient lighting fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rgb_capable", "label": "RGB (full-color) capable", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "zone_count", "label": "Lighting zone count", "kind": "uint8", "byte_offset": 1, "default": 4, "min": 1, "max": 30 },
+        { "name": "welcome_animation_enabled", "label": "Welcome animation enabled", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "drive_mode_color_link", "label": "Color follows drive mode", "kind": "bit", "byte_offset": 2, "bit_offset": 1, "default": 0 },
+        { "name": "phone_call_color_change", "label": "Color changes on phone call", "kind": "bit", "byte_offset": 2, "bit_offset": 2, "default": 0 },
+        { "name": "warning_color_change", "label": "Color flashes on warning", "kind": "bit", "byte_offset": 2, "bit_offset": 3, "default": 0 },
+        { "name": "music_beat_sync", "label": "Light beat-sync to music", "kind": "bit", "byte_offset": 2, "bit_offset": 4, "default": 0 },
+        { "name": "default_intensity_drive", "label": "Default intensity driving (%)", "kind": "uint8", "byte_offset": 3, "default": 50, "min": 0, "max": 100 },
+        { "name": "default_intensity_park", "label": "Default intensity parked (%)", "kind": "uint8", "byte_offset": 4, "default": 30, "min": 0, "max": 100 },
+        { "name": "auto_dim_at_night", "label": "Auto-dim at night", "kind": "bit", "byte_offset": 5, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1E3", "name": "panoramic_roof_extended_coding",
+      "description": "Panoramic roof extended coding",
+      "ecu_address": "0x725", "payload_size": 4,
+      "fields": [
+        { "name": "panoramic_fitted", "label": "Panoramic glass roof fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "tilt_function_fitted", "label": "Tilt function fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_close_on_rain", "label": "Auto-close on rain detection", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "auto_close_on_lock", "label": "Auto-close when locking via key", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "anti_pinch_force_n", "label": "Anti-pinch force threshold (N)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 50, "max": 200 },
+        { "name": "max_speed_during_open_kmh", "label": "Max vehicle speed for open operation (km/h)", "kind": "uint8", "byte_offset": 2, "default": 250, "min": 30, "max": 250 },
+        { "name": "panoramic_dimming_fitted", "label": "Electrochromic dimming fitted (Audi e-tron, ID.Buzz)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1E4", "name": "trunk_lid_extended_coding",
+      "description": "Electric trunk extended coding",
+      "ecu_address": "0x749", "payload_size": 4,
+      "fields": [
+        { "name": "electric_trunk_fitted", "label": "Electric tailgate fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "kick_sensor_fitted", "label": "Foot kick sensor fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "soft_close_fitted", "label": "Soft-close (Audi) fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "kick_sensor_sensitivity", "label": "Kick sensor sensitivity (1-5)", "kind": "uint8", "byte_offset": 1, "default": 3, "min": 1, "max": 5 },
+        { "name": "max_open_height_pct", "label": "Maximum trunk-open height (%)", "kind": "uint8", "byte_offset": 2, "default": 100, "min": 50, "max": 100 },
+        { "name": "release_via_key_remote", "label": "Release via key remote double-click", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 },
+        { "name": "release_via_app", "label": "Release via We Connect app", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1E5", "name": "seat_extended_coding_driver",
+      "description": "Driver seat extended coding — features + memory",
+      "ecu_address": "0x716", "payload_size": 8,
+      "fields": [
+        { "name": "memory_fitted", "label": "Memory fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "memory_slots", "label": "Memory slot count", "kind": "uint8", "byte_offset": 0, "bit_offset": 1, "bit_width": 3, "default": 3, "min": 0, "max": 4 },
+        { "name": "memory_with_mirrors", "label": "Memory includes mirrors", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "memory_with_steering", "label": "Memory includes steering wheel position", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "easy_entry_active", "label": "Easy-entry slide back on key-off", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 0 },
+        { "name": "lumbar_4way", "label": "Lumbar 4-way (vs 2-way)", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "side_bolster_adjustable", "label": "Adjustable side bolsters (S/RS)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "thigh_extension_fitted", "label": "Thigh extension fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "massage_fitted", "label": "Massage fitted", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 0 },
+        { "name": "massage_program_count", "label": "Massage program count", "kind": "uint8", "byte_offset": 1, "bit_offset": 4, "bit_width": 4, "default": 5, "min": 0, "max": 15 },
+        { "name": "ventilation_fitted", "label": "Seat ventilation fitted", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "heat_zones", "label": "Heat zone count (1=seat, 2=seat+back, 3=seat+back+thigh)", "kind": "uint8", "byte_offset": 2, "bit_offset": 1, "bit_width": 3, "default": 2, "min": 1, "max": 4 },
+        { "name": "leather_seats_fitted", "label": "Leather seats fitted", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 },
+        { "name": "valcona_premium_leather", "label": "Valcona / premium Nappa leather", "kind": "bit", "byte_offset": 3, "bit_offset": 1, "default": 0 },
+        { "name": "headrest_screen_fitted", "label": "Rear-passenger headrest screen", "kind": "bit", "byte_offset": 3, "bit_offset": 2, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1E6", "name": "audi_drive_select_coding",
+      "description": "Audi Drive Select coding — modes available",
+      "ecu_address": "0x744", "payload_size": 4,
+      "fields": [
+        { "name": "drive_select_fitted", "label": "Audi Drive Select fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "comfort_unlocked", "label": "Comfort mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_unlocked", "label": "Auto mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "dynamic_unlocked", "label": "Dynamic mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "individual_unlocked", "label": "Individual mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "efficiency_unlocked", "label": "Efficiency mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "all_road_unlocked", "label": "All-Road mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 0 },
+        { "name": "off_road_unlocked", "label": "Off-Road mode unlocked", "kind": "bit", "byte_offset": 0, "bit_offset": 7, "default": 0 },
+        { "name": "race_unlocked", "label": "Race mode unlocked (RS)", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 0 },
+        { "name": "rs_individual_1_unlocked", "label": "RS Individual 1 unlocked", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "rs_individual_2_unlocked", "label": "RS Individual 2 unlocked", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 0 },
+        { "name": "drift_unlocked", "label": "Drift mode unlocked (RS6 GT / RS7 SE)", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 0 },
+        { "name": "snow_unlocked", "label": "Snow mode unlocked", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1E7", "name": "rear_axle_steer_extended_coding",
+      "description": "Rear-axle steering extended coding",
+      "ecu_address": "0x71D", "payload_size": 4,
+      "fields": [
+        { "name": "rear_steer_fitted", "label": "Rear-axle steering fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "rear_steer_max_angle_deg", "label": "Maximum rear-axle steering angle (deg)", "kind": "uint8", "byte_offset": 1, "default": 5, "min": 1, "max": 10 },
+        { "name": "low_speed_counter_phase_threshold_kmh", "label": "Low-speed counter-phase threshold (km/h)", "kind": "uint8", "byte_offset": 2, "default": 50, "min": 30, "max": 80 },
+        { "name": "high_speed_in_phase_threshold_kmh", "label": "High-speed in-phase threshold (km/h)", "kind": "uint8", "byte_offset": 3, "default": 80, "min": 50, "max": 150 }
+      ]
+    },
+    {
+      "did": "0xF1E8", "name": "dcc_extended_coding",
+      "description": "DCC adaptive chassis control extended coding",
+      "ecu_address": "0x72D", "payload_size": 4,
+      "fields": [
+        { "name": "dcc_fitted", "label": "DCC dampers fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "active_arb_fitted", "label": "Active anti-roll bar fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "magnetic_ride_fitted", "label": "Magnetic Ride MRC fitted (R8/TT RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "predictive_active_susp_fitted", "label": "Predictive active suspension fitted (e-tron/A8)", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "default_profile", "label": "Default DCC profile", "kind": "enum", "byte_offset": 1, "default": 1,
+          "values": { "0": "comfort", "1": "auto", "2": "sport", "3": "individual" } },
+        { "name": "race_mode_unlocked", "label": "Race mode unlocked", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 },
+        { "name": "self_levelling_fitted", "label": "Self-levelling fitted (load-dependent)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1E9", "name": "audi_pre_sense_extended_coding",
+      "description": "Audi Pre-Sense extended coding",
+      "ecu_address": "0x76C", "payload_size": 4,
+      "fields": [
+        { "name": "pre_sense_front_fitted", "label": "Pre-Sense Front fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "pre_sense_rear_fitted", "label": "Pre-Sense Rear fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "pre_sense_side_fitted", "label": "Pre-Sense Side fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "auto_belt_pretension_enabled", "label": "Auto belt pretension enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "auto_window_close_enabled", "label": "Auto window close on imminent crash", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "auto_sunroof_close_enabled", "label": "Auto sunroof close on imminent crash", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 1 },
+        { "name": "auto_seat_position_enabled", "label": "Auto seat-position upright on imminent crash", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
+        { "name": "post_collision_braking", "label": "Post-collision auto-braking enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 1 }
+      ]
     }
   ],
   "adaptations": [
