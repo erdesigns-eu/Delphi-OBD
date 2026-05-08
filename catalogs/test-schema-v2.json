@@ -1,0 +1,88 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v2.json",
+  "version": 2,
+  "manufacturer_key": "SCHEMA_V2_FIXTURE",
+  "display_name": "Schema v2 Test Fixture",
+  "applicable_wmis": [],
+  "default_source": "phase-a-fixture",
+  "ecus": [
+    { "address": "0x7E0", "name": "engine",  "common_name": "Test Engine ECU" },
+    { "address": "0x740", "name": "bcm",     "common_name": "Test BCM" }
+  ],
+  "dids": [
+    { "did": "0xF190", "name": "vin", "description": "Vehicle identification number", "ecu_address": "0x7E0",
+      "decoder": { "kind": "ascii" } }
+  ],
+  "routines": [
+    { "id": "0x0203", "name": "reset_adaptations", "description": "Reset adaptive learning", "ecu_address": "0x7E0" }
+  ],
+  "coding_blocks": [
+    {
+      "did": "0xF1A0",
+      "name": "bcm_long_coding",
+      "description": "BCM long-coding payload (4 bytes)",
+      "ecu_address": "0x740",
+      "payload_size": 4,
+      "fields": [
+        { "name": "drl_enabled", "label": "Daytime Running Lights", "kind": "bit",
+          "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "rear_fog_lamp", "label": "Rear Fog Lamp", "kind": "bit",
+          "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "auto_lock_speed", "label": "Auto-Lock Threshold", "kind": "uint8",
+          "byte_offset": 1, "default": 15, "min": 0, "max": 30, "description": "Speed (km/h) at which doors auto-lock" },
+        { "name": "headlight_country", "label": "Headlight Country Pattern", "kind": "enum",
+          "byte_offset": 2, "default": 1,
+          "values": { "0": "left_hand_drive", "1": "right_hand_drive", "2": "japan", "3": "north_america" } }
+      ]
+    }
+  ],
+  "adaptations": [
+    {
+      "channel": "0x0001",
+      "name": "idle_rpm_target",
+      "description": "Idle RPM target",
+      "ecu_address": "0x7E0",
+      "kind": "uint16_be",
+      "min": 600, "max": 1200, "default": 750, "unit": "rpm"
+    },
+    {
+      "channel": "0x0014",
+      "name": "service_interval_km",
+      "description": "Service interval in km",
+      "ecu_address": "0x740",
+      "kind": "uint32_be",
+      "min": 10000, "max": 30000, "default": 15000, "unit": "km"
+    }
+  ],
+  "actuator_tests": [
+    {
+      "id": "0x0F50",
+      "name": "cooling_fan_low_speed",
+      "description": "Cycle the engine cooling fan at low speed",
+      "ecu_address": "0x7E0",
+      "duration_ms": 5000,
+      "safety_warning": "Keep clear of the radiator fan.",
+      "response_kind": "boolean",
+      "response_label": "Fan running"
+    }
+  ],
+  "live_pids": [
+    {
+      "mode": "service22",
+      "pid": "0xD050",
+      "name": "engine_rpm_live",
+      "description": "Live engine RPM stream",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" }
+    }
+  ],
+  "dtc_extended_data": [
+    { "code": "P0301", "record": "0x01", "kind": "occurrence_counter",
+      "description": "Cylinder 1 misfire occurrence counter",
+      "decoder": { "kind": "uint8" } },
+    { "code": "P0301", "record": "0x05", "kind": "miles_since_cleared",
+      "description": "Distance travelled since DTCs cleared (km)",
+      "decoder": { "kind": "uint16_be", "unit": "km" } }
+  ]
+}

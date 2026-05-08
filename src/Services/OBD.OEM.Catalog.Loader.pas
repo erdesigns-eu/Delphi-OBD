@@ -61,6 +61,22 @@ procedure MergeCatalogJSON(const FileName: string;
   var Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>); overload;
 
+/// <summary>
+///   v3.29 Phase A — load the extended-catalog sections (coding
+///   blocks, adaptations, actuator tests, live PIDs, DTC extended-data
+///   records) from <c>FileName</c> and merge them into the supplied
+///   arrays. Same merge semantics as <c>MergeCatalogJSON</c>: entries
+///   matching by primary key (DID, channel, identifier, mode+pid,
+///   code+record) are replaced; new ones are appended. Silently
+///   no-ops when the file isn't found.
+/// </summary>
+procedure MergeExtendedCatalogJSON(const FileName: string;
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+
 implementation
 
 var
@@ -196,6 +212,226 @@ begin
     // Log via the standard logger sink in production code; here we
     // silently fall through so a malformed catalog doesn't break
     // application startup.
+  end;
+end;
+
+//==============================================================================
+// v3.29 Phase A — extended-catalog merge
+//==============================================================================
+function ConvertCodingBlock(const E: TOBDCodingBlockEntry): TOBDOEMCodingBlock;
+var
+  I: Integer;
+  Field: TOBDCodingField;
+  FE: TOBDCodingFieldEntry;
+begin
+  Result := Default(TOBDOEMCodingBlock);
+  Result.DataIdentifier := E.DataIdentifier;
+  Result.Name := E.Name;
+  Result.Description := E.Description;
+  Result.EcuAddress := E.EcuAddress;
+  Result.PayloadSize := E.PayloadSize;
+  SetLength(Result.Fields, Length(E.Fields));
+  for I := 0 to High(E.Fields) do
+  begin
+    FE := E.Fields[I];
+    Field := Default(TOBDCodingField);
+    Field.Name := FE.Name;
+    Field.Label_ := FE.Label_;
+    Field.Description := FE.Description;
+    Field.Kind := ParseCodingFieldKind(FE.KindStr);
+    Field.ByteOffset := FE.ByteOffset;
+    Field.BitOffset := FE.BitOffset;
+    Field.BitWidth := FE.BitWidth;
+    Field.DefaultValue := FE.DefaultValue;
+    Field.DefaultAscii := FE.DefaultAscii;
+    Field.MinValue := FE.MinValue;
+    Field.MaxValue := FE.MaxValue;
+    Field.EnumValues := FE.EnumValues;
+    Result.Fields[I] := Field;
+  end;
+end;
+
+function ConvertAdaptation(const E: TOBDAdaptationEntry): TOBDOEMAdaptation;
+begin
+  Result := Default(TOBDOEMAdaptation);
+  Result.Channel := E.Channel;
+  Result.Name := E.Name;
+  Result.Description := E.Description;
+  Result.EcuAddress := E.EcuAddress;
+  Result.Kind := ParseAdaptationKind(E.KindStr);
+  Result.MinValue := E.MinValue;
+  Result.MaxValue := E.MaxValue;
+  Result.DefaultValue := E.DefaultValue;
+  Result.Unit_ := E.Unit_;
+  Result.EnumValues := E.EnumValues;
+end;
+
+function ConvertActuatorTest(const E: TOBDActuatorTestEntry): TOBDOEMActuatorTest;
+begin
+  Result := Default(TOBDOEMActuatorTest);
+  Result.Identifier := E.Identifier;
+  Result.Name := E.Name;
+  Result.Description := E.Description;
+  Result.EcuAddress := E.EcuAddress;
+  Result.DurationMs := E.DurationMs;
+  Result.SafetyWarning := E.SafetyWarning;
+  Result.ExpectedResponseKind := ParseActuatorResponseKind(E.ExpectedResponseKind);
+  Result.ExpectedResponseLabel := E.ExpectedResponseLabel;
+end;
+
+function ConvertLivePID(const E: TOBDLivePIDEntry): TOBDOEMLivePID;
+begin
+  Result := Default(TOBDOEMLivePID);
+  Result.Mode := ParseLivePIDMode(E.Mode);
+  Result.PID := E.PID;
+  Result.Name := E.Name;
+  Result.Description := E.Description;
+  Result.EcuAddress := E.EcuAddress;
+  Result.FrameOffset := E.FrameOffset;
+  Result.DecoderKind := ParseOEMDecoderKind(E.DecoderKindStr);
+  Result.Scale := E.Scale;
+  Result.Offset := E.Offset;
+  Result.Unit_ := E.Unit_;
+end;
+
+function ConvertDtcExtended(const E: TOBDDtcExtendedDataEntry): TOBDDtcExtendedDataRecord;
+begin
+  Result := Default(TOBDDtcExtendedDataRecord);
+  Result.DtcCode := E.DtcCode;
+  Result.RecordNumber := E.RecordNumber;
+  Result.Kind := ParseDtcExtendedKind(E.KindStr);
+  Result.Description := E.Description;
+  Result.DecoderKind := ParseOEMDecoderKind(E.DecoderKindStr);
+  Result.Scale := E.Scale;
+  Result.Offset := E.Offset;
+  Result.Unit_ := E.Unit_;
+end;
+
+procedure MergeCodingBlocks(var Existing: TArray<TOBDOEMCodingBlock>;
+  const Loaded: TArray<TOBDOEMCodingBlock>);
+var I, J: Integer; Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if Existing[J].DataIdentifier = Loaded[I].DataIdentifier then
+      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+    if not Found then Existing := Existing + [Loaded[I]];
+  end;
+end;
+
+procedure MergeAdaptations(var Existing: TArray<TOBDOEMAdaptation>;
+  const Loaded: TArray<TOBDOEMAdaptation>);
+var I, J: Integer; Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if (Existing[J].Channel = Loaded[I].Channel) and
+         (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
+      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+    if not Found then Existing := Existing + [Loaded[I]];
+  end;
+end;
+
+procedure MergeActuatorTests(var Existing: TArray<TOBDOEMActuatorTest>;
+  const Loaded: TArray<TOBDOEMActuatorTest>);
+var I, J: Integer; Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if (Existing[J].Identifier = Loaded[I].Identifier) and
+         (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
+      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+    if not Found then Existing := Existing + [Loaded[I]];
+  end;
+end;
+
+procedure MergeLivePIDs(var Existing: TArray<TOBDOEMLivePID>;
+  const Loaded: TArray<TOBDOEMLivePID>);
+var I, J: Integer; Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if (Existing[J].Mode = Loaded[I].Mode) and
+         (Existing[J].PID = Loaded[I].PID) and
+         (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
+      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+    if not Found then Existing := Existing + [Loaded[I]];
+  end;
+end;
+
+procedure MergeDtcExtended(var Existing: TArray<TOBDDtcExtendedDataRecord>;
+  const Loaded: TArray<TOBDDtcExtendedDataRecord>);
+var I, J: Integer; Found: Boolean;
+begin
+  for I := 0 to High(Loaded) do
+  begin
+    Found := False;
+    for J := 0 to High(Existing) do
+      if (Existing[J].DtcCode = Loaded[I].DtcCode) and
+         (Existing[J].RecordNumber = Loaded[I].RecordNumber) then
+      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+    if not Found then Existing := Existing + [Loaded[I]];
+  end;
+end;
+
+procedure MergeExtendedCatalogJSON(const FileName: string;
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+var
+  Path: string;
+  Catalog: TOBDOEMJSONCatalog;
+  I: Integer;
+  CB: TArray<TOBDOEMCodingBlock>;
+  Ad: TArray<TOBDOEMAdaptation>;
+  AT: TArray<TOBDOEMActuatorTest>;
+  LP: TArray<TOBDOEMLivePID>;
+  DX: TArray<TOBDDtcExtendedDataRecord>;
+begin
+  Path := ResolveCatalogPath(FileName);
+  if Path = '' then Exit;
+  try
+    Catalog := TOBDOEMJSONCatalog.Create(Path);
+    try
+      SetLength(CB, Catalog.CodingBlockCount);
+      for I := 0 to Catalog.CodingBlockCount - 1 do
+        CB[I] := ConvertCodingBlock(Catalog.CodingBlock(I));
+      MergeCodingBlocks(CodingBlocks, CB);
+
+      SetLength(Ad, Catalog.AdaptationCount);
+      for I := 0 to Catalog.AdaptationCount - 1 do
+        Ad[I] := ConvertAdaptation(Catalog.Adaptation(I));
+      MergeAdaptations(Adaptations, Ad);
+
+      SetLength(AT, Catalog.ActuatorTestCount);
+      for I := 0 to Catalog.ActuatorTestCount - 1 do
+        AT[I] := ConvertActuatorTest(Catalog.ActuatorTest(I));
+      MergeActuatorTests(ActuatorTests, AT);
+
+      SetLength(LP, Catalog.LivePIDCount);
+      for I := 0 to Catalog.LivePIDCount - 1 do
+        LP[I] := ConvertLivePID(Catalog.LivePID(I));
+      MergeLivePIDs(LivePIDs, LP);
+
+      SetLength(DX, Catalog.DtcExtendedCount);
+      for I := 0 to Catalog.DtcExtendedCount - 1 do
+        DX[I] := ConvertDtcExtended(Catalog.DtcExtended(I));
+      MergeDtcExtended(DtcExtended, DX);
+    finally
+      Catalog.Free;
+    end;
+  except
+    // Same silent-fall-through policy as MergeCatalogJSON.
   end;
 end;
 

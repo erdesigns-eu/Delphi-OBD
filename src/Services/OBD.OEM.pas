@@ -69,6 +69,151 @@ type
     Routines: TArray<TOBDOEMRoutine>;
   end;
 
+  //----------------------------------------------------------------------------
+  // v3.29 Phase A — extended catalog schema
+  //----------------------------------------------------------------------------
+
+  /// <summary>Decoder kinds shared between live-PID and DTC extended-data
+  /// records. Mirrors the JSON loader's <c>TOBDDecoderKind</c> so the
+  /// extended schema can express its own decoders without pulling the
+  /// JSON-layer unit into <c>OBD.OEM</c>.</summary>
+  TOBDOEMDecoderKind = (
+    dkUnknown, dkAscii, dkHex, dkUInt8, dkUInt16BE, dkUInt32BE,
+    dkInt16BE, dkInt32BE, dkBcdDate, dkEnum, dkBitmask, dkSeconds);
+
+  /// <summary>Field-type tag inside a writeable coding block. Sub-byte
+  /// fields use <c>cfkBit</c> (one bit) or <c>cfkEnum</c> /
+  /// <c>cfkBitmask</c> with <c>BitWidth</c>.</summary>
+  TOBDCodingFieldKind = (
+    cfkUnknown, cfkBit, cfkUInt8, cfkUInt16BE, cfkUInt32BE,
+    cfkInt16BE, cfkInt32BE, cfkAscii, cfkEnum, cfkBitmask);
+
+  /// <summary>One field inside a writeable coding block. <c>ByteOffset</c>
+  /// is the byte position from the start of the block payload;
+  /// <c>BitOffset</c> + <c>BitWidth</c> are used for sub-byte fields. UI
+  /// renders bit/bool fields as checkboxes, enum as combo, numeric as
+  /// spinner, ASCII as text input.</summary>
+  TOBDCodingField = record
+    Name: string;
+    Label_: string;            // human-readable for UI
+    Description: string;
+    Kind: TOBDCodingFieldKind;
+    ByteOffset: Integer;
+    BitOffset: Integer;        // 0..7 (only meaningful for cfkBit / sub-byte cfkEnum)
+    BitWidth: Integer;         // 1..N — when 0, defaults from Kind
+    DefaultValue: Int64;       // baseline / "factory" value (numeric kinds)
+    DefaultAscii: string;      // for cfkAscii
+    MinValue: Int64;
+    MaxValue: Int64;
+    EnumValues: TArray<TPair<Integer, string>>;
+  end;
+
+  /// <summary>Writeable DID with a known bit-field structure. Coding
+  /// tools render this as a form: read the current payload, surface the
+  /// fields, capture edits, write the modified payload back via
+  /// <c>2E DID-hi DID-lo …</c>.</summary>
+  TOBDOEMCodingBlock = record
+    DataIdentifier: Word;
+    Name: string;
+    Description: string;
+    EcuAddress: Word;
+    PayloadSize: Integer;      // expected length of the writeable block
+    Fields: TArray<TOBDCodingField>;
+  end;
+
+  TOBDAdaptationKind = (
+    adkUnknown, adkUInt8, adkUInt16BE, adkUInt32BE,
+    adkInt16BE, adkInt32BE, adkEnum);
+
+  /// <summary>One numbered adaptation channel (VAG-style). Read with
+  /// SID 0x22, write with SID 0x2E. <c>MinValue</c> / <c>MaxValue</c> /
+  /// <c>DefaultValue</c> let a coding tool clamp inputs and offer a
+  /// "reset to factory" affordance.</summary>
+  TOBDOEMAdaptation = record
+    Channel: Word;
+    Name: string;
+    Description: string;
+    EcuAddress: Word;
+    Kind: TOBDAdaptationKind;
+    MinValue: Int64;
+    MaxValue: Int64;
+    DefaultValue: Int64;
+    Unit_: string;
+    EnumValues: TArray<TPair<Integer, string>>;
+  end;
+
+  TOBDActuatorResponseKind = (
+    arkNone, arkBoolean, arkUInt8, arkUInt16BE, arkAscii);
+
+  /// <summary>Forced-output actuation step ("cycle the cooling fan",
+  /// "fire injector 3 once"). Most OEMs bind these to RoutineControl
+  /// (SID 0x31) — <c>Identifier</c> is then the RID. <c>SafetyWarning</c>
+  /// surfaces in the UI before the tool fires the actuation.</summary>
+  TOBDOEMActuatorTest = record
+    Identifier: Word;
+    Name: string;
+    Description: string;
+    EcuAddress: Word;
+    DurationMs: Cardinal;
+    SafetyWarning: string;
+    ExpectedResponseKind: TOBDActuatorResponseKind;
+    ExpectedResponseLabel: string;
+  end;
+
+  TOBDLivePIDMode = (lpmUnknown, lpmService01, lpmService22);
+
+  /// <summary>One streamable PID. <c>Service01</c> PIDs follow J1979 /
+  /// ISO 15031-5 framing (<c>01 PID</c>); <c>Service22</c> PIDs are
+  /// 16-bit OEM PIDs (<c>22 PID-hi PID-lo</c>) typical for OBD-II
+  /// extended modes. <c>FrameOffset</c> is the byte offset into the
+  /// response payload at which this signal starts.</summary>
+  TOBDOEMLivePID = record
+    Mode: TOBDLivePIDMode;
+    PID: Word;
+    Name: string;
+    Description: string;
+    EcuAddress: Word;
+    FrameOffset: Integer;
+    DecoderKind: TOBDOEMDecoderKind;
+    Scale: Double;
+    Offset: Double;
+    Unit_: string;
+  end;
+
+  TOBDDtcExtendedDataKind = (
+    xdkUnknown, xdkOccurrenceCounter, xdkAgingCounter,
+    xdkMilesSinceCleared, xdkFreezeFrameTemplate,
+    xdkOemStatusByte, xdkEnvironmentalData);
+
+  /// <summary>One extended-data record attached to a DTC. UDS service
+  /// 0x19 sub-function 0x06 retrieves these on demand. The catalog
+  /// describes the layout so a tool can render the record after
+  /// reading it.</summary>
+  TOBDDtcExtendedDataRecord = record
+    DtcCode: string;
+    RecordNumber: Byte;        // sub-record number for SID 19 06
+    Kind: TOBDDtcExtendedDataKind;
+    Description: string;
+    DecoderKind: TOBDOEMDecoderKind;
+    Scale: Double;
+    Offset: Double;
+    Unit_: string;
+  end;
+
+  /// <summary>Companion to <c>IOBDOEMExtension</c>. Adds accessors for
+  /// the v3.29 extended catalog: coding blocks, adaptations, actuator
+  /// tests, live PIDs, DTC extended-data records. Implemented by
+  /// <c>TOBDOEMExtensionBase</c> on every OEM extension; tooling
+  /// queries via <c>Supports(Ext, IOBDOEMExtensionV2, V2)</c>.</summary>
+  IOBDOEMExtensionV2 = interface
+    ['{2C8B6F0E-7A3D-4C5E-8B9A-1F4E6D2A8C90}']
+    function CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    function Adaptations: TArray<TOBDOEMAdaptation>;
+    function ActuatorTests: TArray<TOBDOEMActuatorTest>;
+    function LivePIDs: TArray<TOBDOEMLivePID>;
+    function DtcExtendedDataRecords: TArray<TOBDDtcExtendedDataRecord>;
+  end;
+
   /// <summary>
   ///   Implemented by every manufacturer-specific extension. The
   ///   contract is intentionally narrow: the OBD framework calls the
@@ -185,11 +330,16 @@ type
   ///   <c>ManufacturerKey</c>, <c>DisplayName</c>, <c>ApplicableToVIN</c>,
   ///   and the catalog loaders.
   /// </summary>
-  TOBDOEMExtensionBase = class(TInterfacedObject, IOBDOEMExtension)
+  TOBDOEMExtensionBase = class(TInterfacedObject, IOBDOEMExtension, IOBDOEMExtensionV2)
   strict private
     FDIDs: TArray<TOBDOEMDataIdentifier>;
     FRoutines: TArray<TOBDOEMRoutine>;
     FECUs: TArray<TOBDOEMECU>;
+    FCodingBlocks: TArray<TOBDOEMCodingBlock>;
+    FAdaptations: TArray<TOBDOEMAdaptation>;
+    FActuatorTests: TArray<TOBDOEMActuatorTest>;
+    FLivePIDs: TArray<TOBDOEMLivePID>;
+    FDtcExtended: TArray<TOBDDtcExtendedDataRecord>;
     FCatalogLoaded: Boolean;
     FCatalogLock: TCriticalSection;
     FSessionNegotiator: IOBDSessionNegotiator;
@@ -213,6 +363,17 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); virtual; abstract;
+    /// <summary>v3.29 Phase A — override-point for the extended
+    /// catalog. Default is a no-op so the 46 v3.28-era OEM extensions
+    /// continue to compile unchanged. Subclasses that opt in populate
+    /// the arrays from JSON via <c>MergeExtendedCatalogJSON</c> in
+    /// <c>OBD.OEM.Catalog.Loader</c>.</summary>
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -232,6 +393,12 @@ type
     function DtcCatalog: TOBDDtcCatalog; virtual;
     function DescribeDTC(const Code: string;
       out Entry: TOBDDtcCatalogEntry): Boolean; virtual;
+    // IOBDOEMExtensionV2
+    function CodingBlocks: TArray<TOBDOEMCodingBlock>; virtual;
+    function Adaptations: TArray<TOBDOEMAdaptation>; virtual;
+    function ActuatorTests: TArray<TOBDOEMActuatorTest>; virtual;
+    function LivePIDs: TArray<TOBDOEMLivePID>; virtual;
+    function DtcExtendedDataRecords: TArray<TOBDDtcExtendedDataRecord>; virtual;
   protected
     /// <summary>Override-point: subclasses return their OEM-specific
     /// negotiator. Default returns a fresh
@@ -472,10 +639,54 @@ begin
   try
     if FCatalogLoaded then Exit;
     BuildCatalog(FDIDs, FRoutines, FECUs);
+    BuildExtendedCatalog(FCodingBlocks, FAdaptations, FActuatorTests,
+                         FLivePIDs, FDtcExtended);
     FCatalogLoaded := True;
   finally
     FCatalogLock.Leave;
   end;
+end;
+
+procedure TOBDOEMExtensionBase.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  // Default: no-op. Subclasses (v3.29 Phase B onward) populate by
+  // calling MergeExtendedCatalogJSON('xxx.json', ...) — same shape as
+  // BuildCatalog's MergeCatalogJSON pattern.
+end;
+
+function TOBDOEMExtensionBase.CodingBlocks: TArray<TOBDOEMCodingBlock>;
+begin
+  EnsureCatalog;
+  Result := FCodingBlocks;
+end;
+
+function TOBDOEMExtensionBase.Adaptations: TArray<TOBDOEMAdaptation>;
+begin
+  EnsureCatalog;
+  Result := FAdaptations;
+end;
+
+function TOBDOEMExtensionBase.ActuatorTests: TArray<TOBDOEMActuatorTest>;
+begin
+  EnsureCatalog;
+  Result := FActuatorTests;
+end;
+
+function TOBDOEMExtensionBase.LivePIDs: TArray<TOBDOEMLivePID>;
+begin
+  EnsureCatalog;
+  Result := FLivePIDs;
+end;
+
+function TOBDOEMExtensionBase.DtcExtendedDataRecords: TArray<TOBDDtcExtendedDataRecord>;
+begin
+  EnsureCatalog;
+  Result := FDtcExtended;
 end;
 
 function TOBDOEMExtensionBase.ECUs: TArray<TOBDOEMECU>;

@@ -272,3 +272,145 @@ When citing a community wiki, include the page slug or commit hash
 in the `source` field if the citation is load-bearing (e.g.
 `ross-tech-wiki/Long_coding_helper`). Plain `community-pr` should
 only appear on entries the maintainer hasn't checked at all.
+
+---
+
+## Schema v2 (v3.29 Phase A — extended catalog)
+
+The v2 schema is **additive** to v1: every existing v1 catalog
+parses unchanged. v2 introduces five new top-level arrays. Bump
+`"version"` to `2` when you use any of the new sections.
+
+### `coding_blocks[]` — writeable DIDs with bit-field structure
+
+A coding block is one writeable DID plus a `fields[]` list that
+describes the bit-field layout of its payload. UI tools render
+bit fields as checkboxes, enums as combo boxes, numeric fields
+as spinners.
+
+```json
+{
+  "did": "0xF1A0",
+  "name": "bcm_long_coding",
+  "description": "BCM long-coding payload",
+  "ecu_address": "0x740",
+  "payload_size": 4,
+  "fields": [
+    { "name": "drl_enabled", "label": "Daytime Running Lights",
+      "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+    { "name": "auto_lock_speed", "label": "Auto-Lock Threshold",
+      "kind": "uint8", "byte_offset": 1, "default": 15,
+      "min": 0, "max": 30 },
+    { "name": "headlight_country", "label": "Headlight Country",
+      "kind": "enum", "byte_offset": 2, "default": 1,
+      "values": { "0": "lhd", "1": "rhd", "2": "japan", "3": "north_america" } }
+  ]
+}
+```
+
+Field kinds: `bit`, `uint8`, `uint16_be`, `uint32_be`, `int16_be`,
+`int32_be`, `ascii`, `enum`, `bitmask`.
+
+### `adaptations[]` — numbered adaptation channels
+
+VAG-style numbered channels read with SID 0x22 and written with
+SID 0x2E.
+
+```json
+{
+  "channel": "0x0001",
+  "name": "idle_rpm_target",
+  "description": "Idle RPM target",
+  "ecu_address": "0x7E0",
+  "kind": "uint16_be",
+  "min": 600, "max": 1200, "default": 750, "unit": "rpm"
+}
+```
+
+Kinds: `uint8`, `uint16_be`, `uint32_be`, `int16_be`, `int32_be`,
+`enum`. Enum adaptations include a `values` map identical to the
+DID `enum` decoder.
+
+### `actuator_tests[]` — forced-output actuations
+
+```json
+{
+  "id": "0x0F50",
+  "name": "cooling_fan_low_speed",
+  "description": "Cycle the engine cooling fan at low speed",
+  "ecu_address": "0x7E0",
+  "duration_ms": 5000,
+  "safety_warning": "Keep clear of the radiator fan.",
+  "response_kind": "boolean",
+  "response_label": "Fan running"
+}
+```
+
+`id` is the RoutineControl RID (SID 0x31) for OEMs that bind
+actuators that way; vendor-index alternatives are also supported.
+`safety_warning` is what the UI shows the technician before firing
+the actuation. Response kinds: `none`, `boolean`, `uint8`,
+`uint16_be`, `ascii`.
+
+### `live_pids[]` — streamable signals
+
+```json
+{
+  "mode": "service22",
+  "pid": "0xD050",
+  "name": "engine_rpm_live",
+  "description": "Live engine RPM",
+  "ecu_address": "0x7E0",
+  "frame_offset": 0,
+  "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" }
+}
+```
+
+`mode` is `service01` (J1979 / ISO 15031-5 — `01 PID`) or
+`service22` (16-bit OEM PIDs — `22 PID-hi PID-lo`).
+`frame_offset` is the byte offset into the response payload at
+which this signal starts.
+
+### `dtc_extended_data[]` — extended-data record templates
+
+Per-DTC records retrieved with UDS service 0x19 sub-function 0x06.
+The catalog describes the byte layout so a tool can render the
+record after reading it.
+
+```json
+[
+  { "code": "P0301", "record": "0x01",
+    "kind": "occurrence_counter",
+    "description": "Cylinder 1 misfire occurrence counter",
+    "decoder": { "kind": "uint8" } },
+  { "code": "P0301", "record": "0x05",
+    "kind": "miles_since_cleared",
+    "description": "Distance travelled since DTCs cleared",
+    "decoder": { "kind": "uint16_be", "unit": "km" } }
+]
+```
+
+Kinds: `occurrence_counter`, `aging_counter`, `miles_since_cleared`,
+`freeze_frame_template`, `oem_status_byte`, `environmental_data`.
+
+### Loading the extended catalog
+
+OEM extensions opt into v2 by overriding `BuildExtendedCatalog`
+and calling `MergeExtendedCatalogJSON`:
+
+```pascal
+procedure TOBDOEMExtensionMyOEM.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+begin
+  MergeExtendedCatalogJSON('myoem.json',
+    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
+```
+
+The 46 v3.28-era extensions inherit the no-op default and continue
+to work unchanged. Tooling queries the new content via
+`Supports(Ext, IOBDOEMExtensionV2, V2)`.

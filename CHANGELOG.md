@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.29.0] - 2026-05-08 — Schema v2: extended catalog (Phase A)
+
+### Added (additive schema — every existing v3.28 catalog continues to parse)
+- **Coding blocks** (`coding_blocks[]`) — writeable DIDs with bit-field structure. Each block carries a `payload_size` and a `fields[]` list of `bit` / `uint8` / `uint16_be` / `uint32_be` / `int16_be` / `int32_be` / `ascii` / `enum` / `bitmask` fields with `byte_offset`, `bit_offset`, `bit_width`, `default`, `min`, `max`, and per-enum `values` maps. UI tools render this as a coding form (checkboxes for bits, combos for enums, spinners for numerics).
+- **Adaptations** (`adaptations[]`) — numbered adaptation channels (VAG-style). Read with SID 0x22, write with SID 0x2E. Each entry carries `min` / `max` / `default` / `unit` plus optional `enum` `values` map for clamped + factory-reset support.
+- **Actuator tests** (`actuator_tests[]`) — forced-output catalog (cycle the cooling fan, fire injector N, EVAP solenoid, ABS pump bleed, etc.). Each entry carries `id` (RoutineControl RID), `duration_ms`, `safety_warning` (surfaced in the UI before firing), and `response_kind` / `response_label`.
+- **Live PIDs** (`live_pids[]`) — streamable signals with framing layout. `mode` is `service01` (J1979) or `service22` (16-bit OEM PIDs). Each entry carries `frame_offset` (byte offset into response payload) plus `decoder` (kind / scale / offset / unit).
+- **DTC extended-data records** (`dtc_extended_data[]`) — per-DTC record templates for UDS 0x19 0x06. Kinds: `occurrence_counter`, `aging_counter`, `miles_since_cleared`, `freeze_frame_template`, `oem_status_byte`, `environmental_data`.
+
+### Added (Pascal API)
+- New record types in `OBD.OEM.pas`: `TOBDCodingField` / `TOBDOEMCodingBlock` / `TOBDOEMAdaptation` / `TOBDOEMActuatorTest` / `TOBDOEMLivePID` / `TOBDDtcExtendedDataRecord`, plus shared `TOBDOEMDecoderKind` / `TOBDCodingFieldKind` / `TOBDAdaptationKind` / `TOBDActuatorResponseKind` / `TOBDLivePIDMode` / `TOBDDtcExtendedDataKind` enums.
+- New companion interface `IOBDOEMExtensionV2` (separate GUID — keeps `IOBDOEMExtension` binary-compatible). Adds `CodingBlocks`, `Adaptations`, `ActuatorTests`, `LivePIDs`, `DtcExtendedDataRecords` accessors. Implemented by `TOBDOEMExtensionBase` so every existing extension automatically supports it.
+- New override-point `TOBDOEMExtensionBase.BuildExtendedCatalog`. Default is a no-op so the 46 v3.28 OEM extensions continue to compile + work unchanged.
+- New loader helper `MergeExtendedCatalogJSON` in `OBD.OEM.Catalog.Loader`. Same merge semantics as `MergeCatalogJSON`: by-key replacement (DID, channel, identifier+ecu, mode+pid+ecu, code+record).
+- `OBD.OEM.Catalog.JSON` extended to parse the five new sections, with `ParseOEMDecoderKind` / `ParseCodingFieldKind` / `ParseAdaptationKind` / `ParseActuatorResponseKind` / `ParseLivePIDMode` / `ParseDtcExtendedKind` helpers.
+- Test fixture `catalogs/test-schema-v2.json` exercising every new section.
+- `Tests.OEM.SchemaV2` — 22 cases across parser, kind-string mapping, merge semantics, and a regression assertion that every v1 catalog still parses under the v2 loader.
+
+### Changed
+- `docs/CATALOG_FORMAT.md` adds the **Schema v2** section with examples for each new array and a Pascal opt-in snippet.
+
+### Why this matters
+- Schema v2 is the prerequisite for the rest of the per-OEM diagnostic-depth roadmap (Phase B per-ECU enrichment, Phase C coding tables, Phase D actuator + adaptation catalogs, Phase E live PID expansion, Phase F DTC depth). Shipping the schema first means subsequent phases drop content into pre-validated structures rather than redesigning the data model mid-flight. Backwards compatibility is total — no v3.28 catalog or extension needs editing.
+
 ## [3.28.0] - 2026-05-08 — Unified coding / WriteDataByIdentifier API
 
 ### Added
