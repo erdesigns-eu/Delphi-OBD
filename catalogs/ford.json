@@ -68,51 +68,6 @@
       "common_name": "HVAC — Climate Control"
     },
     {
-      "address": "0x07E0",
-      "name": "pcm",
-      "common_name": "PCM — Powertrain Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "tcm",
-      "common_name": "TCM — Transmission Control"
-    },
-    {
-      "address": "0x07E2",
-      "name": "pcm_secondary",
-      "common_name": "Secondary PCM (V-engines)"
-    },
-    {
-      "address": "0x0760",
-      "name": "abs",
-      "common_name": "ABS / Stability"
-    },
-    {
-      "address": "0x0720",
-      "name": "rcm",
-      "common_name": "RCM — Restraints Control"
-    },
-    {
-      "address": "0x0726",
-      "name": "ipc",
-      "common_name": "IPC — Instrument Panel Cluster"
-    },
-    {
-      "address": "0x0731",
-      "name": "bcm",
-      "common_name": "BCM — Body Control Module"
-    },
-    {
-      "address": "0x0733",
-      "name": "gwm",
-      "common_name": "GWM — Gateway Module"
-    },
-    {
-      "address": "0x0740",
-      "name": "hvac",
-      "common_name": "HVAC — Climate Control"
-    },
-    {
       "address": "0x7E3",
       "name": "ev_secondary",
       "common_name": "Secondary EV controller"

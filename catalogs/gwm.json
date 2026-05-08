@@ -92,56 +92,6 @@
       "common_name": "Tank crawl-mode / off-road controller (Tank 300 / 500 / 700)"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "EMS — Engine Management"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "TCU — Transmission Control (incl. 9HAT)"
-    },
-    {
-      "address": "0x07E2",
-      "name": "hybrid",
-      "common_name": "GWM Hi4 hybrid controller (PHEV)"
-    },
-    {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (ORA / Coffee EV)"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Instrument Cluster"
-    },
-    {
-      "address": "0x0740",
-      "name": "bcm",
-      "common_name": "BCM — Body Control"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0762",
-      "name": "abs",
-      "common_name": "ABS / ESP"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "Climate Control"
-    },
-    {
-      "address": "0x0724",
-      "name": "adas",
-      "common_name": "ADAS / Coffee Pilot"
-    },
-    {
       "address": "0x7E3",
       "name": "tcase",
       "common_name": "Transfer case / AWD"

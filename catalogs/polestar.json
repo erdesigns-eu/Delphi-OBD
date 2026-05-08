@@ -85,56 +85,6 @@
       "common_name": "Polestar 3 / 4 — Luminar lidar"
     },
     {
-      "address": "0x0740",
-      "name": "cem",
-      "common_name": "CEM — Central Electronic Module"
-    },
-    {
-      "address": "0x0742",
-      "name": "cluster",
-      "common_name": "DIM — Driver Information Module"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0762",
-      "name": "abs",
-      "common_name": "ABS / DSTC"
-    },
-    {
-      "address": "0x0770",
-      "name": "sensus",
-      "common_name": "Sensus / IHU — Infotainment"
-    },
-    {
-      "address": "0x0782",
-      "name": "bms",
-      "common_name": "BMS — High-voltage battery (75/79/82/106 kWh)"
-    },
-    {
-      "address": "0x0785",
-      "name": "evcc",
-      "common_name": "On-board Charger + Charge Port"
-    },
-    {
-      "address": "0x0710",
-      "name": "motor_front",
-      "common_name": "Front Motor Inverter (single / dual-motor)"
-    },
-    {
-      "address": "0x0712",
-      "name": "motor_rear",
-      "common_name": "Rear Motor Inverter (Performance Pack)"
-    },
-    {
-      "address": "0x0724",
-      "name": "pilot_assist",
-      "common_name": "Pilot Assist driver-assistance computer"
-    },
-    {
       "address": "0x7E0",
       "name": "ecm",
       "common_name": "ECM"

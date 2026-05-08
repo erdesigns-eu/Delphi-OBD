@@ -97,56 +97,6 @@
       "common_name": "Smart Key / passive entry"
     },
     {
-      "address": "0x07E0",
-      "name": "pcm",
-      "common_name": "PCM — Powertrain Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "tcm",
-      "common_name": "TCM — Transmission"
-    },
-    {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (I-Pace / Range Rover EV)"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "IPC — Instrument Cluster"
-    },
-    {
-      "address": "0x0731",
-      "name": "cjb",
-      "common_name": "CJB — Central Junction Box (BCM)"
-    },
-    {
-      "address": "0x0746",
-      "name": "abs",
-      "common_name": "ABS / DSC"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0762",
-      "name": "tcb",
-      "common_name": "TCB — Telematics / SOS"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "ATC — Climate Control"
-    },
-    {
-      "address": "0x0770",
-      "name": "ivi",
-      "common_name": "IVI / Touch Pro Duo"
-    },
-    {
       "address": "0x7E3",
       "name": "tcase",
       "common_name": "Transfer case (Land Rover 4WD)"

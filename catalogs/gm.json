@@ -66,51 +66,6 @@
       "common_name": "Radio / Infotainment"
     },
     {
-      "address": "0x07E0",
-      "name": "ecm",
-      "common_name": "ECM — Engine Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "tcm",
-      "common_name": "TCM — Transmission Control"
-    },
-    {
-      "address": "0x0241",
-      "name": "ebcm",
-      "common_name": "EBCM — ABS / Stability"
-    },
-    {
-      "address": "0x0242",
-      "name": "sdm",
-      "common_name": "SDM — Sensing Diagnostic Module (Airbag)"
-    },
-    {
-      "address": "0x0243",
-      "name": "bcm",
-      "common_name": "BCM — Body Control Module"
-    },
-    {
-      "address": "0x0244",
-      "name": "ipc",
-      "common_name": "IPC — Instrument Panel Cluster"
-    },
-    {
-      "address": "0x0245",
-      "name": "eps",
-      "common_name": "EPS — Electric Power Steering"
-    },
-    {
-      "address": "0x0246",
-      "name": "hvac",
-      "common_name": "HVAC — Climate"
-    },
-    {
-      "address": "0x0247",
-      "name": "radio",
-      "common_name": "Radio / Infotainment"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"
@@ -31200,7 +31155,7 @@
       "name": "trailering",
       "description": "Trailering Package",
       "ecu_address": "0x760",
-      "payload_size": 2,
+      "payload_size": 3,
       "fields": [
         {
           "name": "max_trailering",

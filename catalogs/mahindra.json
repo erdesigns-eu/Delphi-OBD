@@ -71,66 +71,6 @@
       "common_name": "Air-suspension (XUV700 AX7L Adventure)"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "Engine ECU (mHawk diesel / mStallion petrol)"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "Transmission Control (Aisin / Punch CVT / 6-speed AT)"
-    },
-    {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (XUV400 EV / BE EV)"
-    },
-    {
-      "address": "0x07E6",
-      "name": "ev_motor",
-      "common_name": "EV Drive Motor Inverter (BE EV)"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Instrument Cluster (digital MID)"
-    },
-    {
-      "address": "0x0740",
-      "name": "bcm",
-      "common_name": "BCM — Body Control"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag (six-airbag standard from MY2024)"
-    },
-    {
-      "address": "0x0762",
-      "name": "abs",
-      "common_name": "ABS / ESP"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "Climate Control"
-    },
-    {
-      "address": "0x0770",
-      "name": "ivi",
-      "common_name": "AdrenoX / Sony Synaptic IVI"
-    },
-    {
-      "address": "0x0724",
-      "name": "adas",
-      "common_name": "ADAS Level 2 (XUV700 / Scorpio-N AX7L)"
-    },
-    {
-      "address": "0x07B0",
-      "name": "air_susp",
-      "common_name": "Air-suspension (XUV700 AX7L Adventure)"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"

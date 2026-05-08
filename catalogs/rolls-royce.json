@@ -94,21 +94,6 @@
       "common_name": "Starlight Headliner / Doors"
     },
     {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "Spectre — AC + DC charge controller (195 kW)"
-    },
-    {
-      "address": "0x07E6",
-      "name": "ev_motor",
-      "common_name": "Spectre — dual e-motor (430 kW)"
-    },
-    {
-      "address": "0x07E7",
-      "name": "ev_battery",
-      "common_name": "Spectre — 102 kWh HV battery (Gen5 BMW eDrive)"
-    },
-    {
       "address": "0x7E0",
       "name": "ecm",
       "common_name": "ECM"

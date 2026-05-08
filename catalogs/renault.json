@@ -64,51 +64,6 @@
       "common_name": "EV Charge Controller"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "EMS — Engine Management"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "TCU — Transmission Control"
-    },
-    {
-      "address": "0x0760",
-      "name": "uch",
-      "common_name": "UCH — Unité Centrale Habitacle (BCM)"
-    },
-    {
-      "address": "0x0762",
-      "name": "cluster",
-      "common_name": "Instrument Cluster (TdB)"
-    },
-    {
-      "address": "0x0763",
-      "name": "abs",
-      "common_name": "ABS / ESP"
-    },
-    {
-      "address": "0x0765",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "Climate Control"
-    },
-    {
-      "address": "0x0772",
-      "name": "pas",
-      "common_name": "PAS — Power-Assisted Steering"
-    },
-    {
-      "address": "0x0785",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (Zoe / Megane E-Tech)"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"

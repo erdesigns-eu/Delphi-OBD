@@ -55,46 +55,6 @@
       "common_name": "Tester (functional address)"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "Engine ECU (ME / CDI)"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "Transmission (722.x / 7G-Tronic)"
-    },
-    {
-      "address": "0x07E2",
-      "name": "me_secondary",
-      "common_name": "Secondary engine controller (V-engines)"
-    },
-    {
-      "address": "0x0620",
-      "name": "esp",
-      "common_name": "ESP / Brakes"
-    },
-    {
-      "address": "0x0630",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0640",
-      "name": "cluster",
-      "common_name": "Instrument Cluster (IC)"
-    },
-    {
-      "address": "0x0660",
-      "name": "eis",
-      "common_name": "EIS — Electronic Ignition Switch"
-    },
-    {
-      "address": "0x06F1",
-      "name": "tester",
-      "common_name": "Tester (functional address)"
-    },
-    {
       "address": "0x7E3",
       "name": "ev_secondary",
       "common_name": "Secondary EV controller"

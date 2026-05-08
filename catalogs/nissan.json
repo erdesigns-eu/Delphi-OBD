@@ -65,51 +65,6 @@
       "common_name": "EV Charge Controller (Leaf / Ariya)"
     },
     {
-      "address": "0x07E0",
-      "name": "ecm",
-      "common_name": "ECM — Engine Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "tcm",
-      "common_name": "TCM — Transmission Control"
-    },
-    {
-      "address": "0x0740",
-      "name": "bcm",
-      "common_name": "BCM — Body Control"
-    },
-    {
-      "address": "0x0745",
-      "name": "ipdm",
-      "common_name": "IPDM E/R — Power Distribution"
-    },
-    {
-      "address": "0x0763",
-      "name": "abs",
-      "common_name": "ABS / VDC"
-    },
-    {
-      "address": "0x075A",
-      "name": "cluster",
-      "common_name": "Combination Meter"
-    },
-    {
-      "address": "0x075D",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0768",
-      "name": "avm",
-      "common_name": "AVM — Around-View Monitor"
-    },
-    {
-      "address": "0x0793",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (Leaf / Ariya)"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"

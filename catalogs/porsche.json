@@ -90,56 +90,6 @@
       "common_name": "Porsche Entry & Drive (KESSY-equivalent)"
     },
     {
-      "address": "0x07E0",
-      "name": "dme",
-      "common_name": "DME — Engine Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "pdk",
-      "common_name": "PDK — Doppelkupplungsgetriebe (DCT)"
-    },
-    {
-      "address": "0x07E2",
-      "name": "pasm",
-      "common_name": "PASM — Active Suspension Management"
-    },
-    {
-      "address": "0x07E5",
-      "name": "pe_inverter",
-      "common_name": "EV Inverter / Front Motor (Taycan)"
-    },
-    {
-      "address": "0x07E7",
-      "name": "pe_battery",
-      "common_name": "High-Voltage Battery (Taycan)"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Instrument Cluster"
-    },
-    {
-      "address": "0x0740",
-      "name": "pcm",
-      "common_name": "PCM — Infotainment"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0762",
-      "name": "pccm",
-      "common_name": "Climate Control"
-    },
-    {
-      "address": "0x0724",
-      "name": "lwl_radar",
-      "common_name": "Driver assist / radar (LWL fiber-bus gateway)"
-    },
-    {
       "address": "0x7E4",
       "name": "battery_hv",
       "common_name": "HV battery (Taycan / Macan EV)"

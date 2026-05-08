@@ -568,6 +568,36 @@
       "address": "0x783",
       "name": "ev_clutch_disconnect",
       "common_name": "EV rear-axle disconnect clutch"
+    },
+    {
+      "address": "0x0747",
+      "name": "aux_module_0747",
+      "common_name": "Auxiliary module @ 0x0747"
+    },
+    {
+      "address": "0x0753",
+      "name": "aux_module_0753",
+      "common_name": "Auxiliary module @ 0x0753"
+    },
+    {
+      "address": "0x0757",
+      "name": "adas_aux_0757",
+      "common_name": "ADAS auxiliary @ 0x0757"
+    },
+    {
+      "address": "0x076B",
+      "name": "aux_module_076B",
+      "common_name": "Auxiliary module @ 0x076B"
+    },
+    {
+      "address": "0x077B",
+      "name": "aux_module_077B",
+      "common_name": "Auxiliary module @ 0x077B"
+    },
+    {
+      "address": "0x07C0",
+      "name": "aux_module_07C0",
+      "common_name": "Auxiliary module @ 0x07C0"
     }
   ],
   "dids": [
@@ -37620,7 +37650,7 @@
       "name": "battery_sensor_coding",
       "description": "12 V battery sensor (J644) coding — battery type / capacity",
       "ecu_address": "0x728",
-      "payload_size": 4,
+      "payload_size": 84,
       "fields": [
         {
           "name": "battery_type",
@@ -39194,7 +39224,7 @@
       "name": "ev_obc_extended_coding",
       "description": "EV onboard charger extended coding",
       "ecu_address": "0x781",
-      "payload_size": 4,
+      "payload_size": 5,
       "fields": [
         {
           "name": "obc_supplier",
@@ -39511,7 +39541,7 @@
       "name": "adas_aeb_coding",
       "description": "AEB / city emergency braking (J428) coding",
       "ecu_address": "0x76C",
-      "payload_size": 4,
+      "payload_size": 5,
       "fields": [
         {
           "name": "aeb_fitted",
@@ -39587,7 +39617,7 @@
       "name": "tpms_extended_coding",
       "description": "RDC / TPMS extended coding — sensors + thresholds",
       "ecu_address": "0x77E",
-      "payload_size": 8,
+      "payload_size": 9,
       "fields": [
         {
           "name": "tpms_type",
@@ -41509,7 +41539,7 @@
       "name": "adblue_scr_coding",
       "description": "AdBlue / SCR system coding (diesel Euro 6d)",
       "ecu_address": "0x7E0",
-      "payload_size": 4,
+      "payload_size": 5,
       "fields": [
         {
           "name": "scr_fitted",
@@ -43796,7 +43826,7 @@
       "name": "ev_inverter_coding",
       "description": "EV inverter coding",
       "ecu_address": "0x7E6",
-      "payload_size": 4,
+      "payload_size": 5,
       "fields": [
         {
           "name": "front_inverter_silicon_carbide",
@@ -45568,7 +45598,7 @@
       "name": "sound_synthesis",
       "description": "AVAS + soundaktor synthesis",
       "ecu_address": "0x725",
-      "payload_size": 2,
+      "payload_size": 3,
       "fields": [
         {
           "name": "avas_enable",

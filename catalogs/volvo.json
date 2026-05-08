@@ -64,56 +64,6 @@
       "common_name": "EV Charge Controller"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "EMS — Engine Management"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "TCM — Aisin / Geartronic"
-    },
-    {
-      "address": "0x0740",
-      "name": "cem",
-      "common_name": "CEM — Central Electronic Module"
-    },
-    {
-      "address": "0x0742",
-      "name": "cluster",
-      "common_name": "DIM — Driver Information Module"
-    },
-    {
-      "address": "0x0760",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0762",
-      "name": "abs",
-      "common_name": "ABS / DSTC"
-    },
-    {
-      "address": "0x0765",
-      "name": "pdm",
-      "common_name": "PDM — Power Door Module"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "CCM — Climate Control"
-    },
-    {
-      "address": "0x0770",
-      "name": "sensus",
-      "common_name": "Sensus / IHU — Infotainment"
-    },
-    {
-      "address": "0x0785",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (XC40/EX30/EX90)"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"

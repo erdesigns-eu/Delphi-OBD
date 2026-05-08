@@ -80,11 +80,6 @@
       "common_name": "eDaily Drive Motor Inverter"
     },
     {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "eDaily EV Charge Controller"
-    },
-    {
       "address": "0x7E0",
       "name": "ecm",
       "common_name": "ECM"

@@ -702,6 +702,16 @@
       "address": "0x63C",
       "name": "loyalty_display",
       "common_name": "BMW Curved Display controller"
+    },
+    {
+      "address": "0x0778",
+      "name": "aux_module_0778",
+      "common_name": "Auxiliary module @ 0x0778"
+    },
+    {
+      "address": "0x077F",
+      "name": "aux_module_077F",
+      "common_name": "Auxiliary module @ 0x077F"
     }
   ],
   "dids": [

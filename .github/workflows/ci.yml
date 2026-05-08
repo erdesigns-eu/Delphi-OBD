@@ -89,6 +89,18 @@ jobs:
           done < <(find src tests -name '*.pas' 2>/dev/null)
           exit $fail
 
+      - name: Lint catalogs
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The lint script runs against every catalog file in
+          # catalogs/, validates schema-shaped fields, asserts no
+          # duplicate primary keys, checks coding-block bit-offset
+          # bounds against payload_size, and validates ECU-address
+          # cross-references. Fails on any error; warnings are
+          # surfaced but don't fail unless --strict is requested.
+          python3 tools/lint_catalogs.py
+
   # ------------------------------------------------------------------
   # Build + DUnitX. Requires a self-hosted runner with Delphi 11+ and
   # Skia4Delphi installed. Opt in by adding the `delphi` label to the

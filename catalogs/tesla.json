@@ -87,46 +87,6 @@
       "common_name": "FSD camera array (HW4)"
     },
     {
-      "address": "0x07DF",
-      "name": "gateway",
-      "common_name": "OBD-II broadcast (functional)"
-    },
-    {
-      "address": "0x07E0",
-      "name": "powertrain",
-      "common_name": "Powertrain Controller"
-    },
-    {
-      "address": "0x07E1",
-      "name": "gateway_p",
-      "common_name": "Vehicle Gateway"
-    },
-    {
-      "address": "0x0782",
-      "name": "bms",
-      "common_name": "BMS — Battery Management System"
-    },
-    {
-      "address": "0x0724",
-      "name": "autopilot",
-      "common_name": "Autopilot ECU (FSD/HW3/HW4)"
-    },
-    {
-      "address": "0x0762",
-      "name": "driver_door",
-      "common_name": "Driver-side body controller"
-    },
-    {
-      "address": "0x0772",
-      "name": "cabin",
-      "common_name": "Cabin / cluster (touchscreen IHU)"
-    },
-    {
-      "address": "0x0792",
-      "name": "charging",
-      "common_name": "Charge Port Controller"
-    },
-    {
       "address": "0x7E4",
       "name": "battery_hv",
       "common_name": "HV battery / BMS"

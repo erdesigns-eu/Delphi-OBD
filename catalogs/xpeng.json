@@ -80,56 +80,6 @@
       "common_name": "Rear-wheel steering (X9 MPV)"
     },
     {
-      "address": "0x07E0",
-      "name": "vcu",
-      "common_name": "VCU — Vehicle Control Unit"
-    },
-    {
-      "address": "0x0710",
-      "name": "motor_front",
-      "common_name": "Front Motor Inverter"
-    },
-    {
-      "address": "0x0712",
-      "name": "motor_rear",
-      "common_name": "Rear Motor Inverter"
-    },
-    {
-      "address": "0x0782",
-      "name": "bms",
-      "common_name": "BMS — Battery Management"
-    },
-    {
-      "address": "0x0792",
-      "name": "charge",
-      "common_name": "Charge Port + AC/DC charger"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Instrument Cluster"
-    },
-    {
-      "address": "0x0724",
-      "name": "xpilot",
-      "common_name": "XPILOT — Xpeng ADAS computer"
-    },
-    {
-      "address": "0x0762",
-      "name": "bcm",
-      "common_name": "BCM — Body Control"
-    },
-    {
-      "address": "0x0768",
-      "name": "climate",
-      "common_name": "Climate Control / Heat Pump"
-    },
-    {
-      "address": "0x0770",
-      "name": "xui",
-      "common_name": "Xmart OS — Cabin computer"
-    },
-    {
       "address": "0x7E1",
       "name": "ecm_b",
       "common_name": "ECM bank 2"

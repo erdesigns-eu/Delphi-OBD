@@ -81,46 +81,6 @@
       "common_name": "MI-PILOT ADAS (Outlander / Eclipse Cross)"
     },
     {
-      "address": "0x07E0",
-      "name": "engine",
-      "common_name": "Engine ECU"
-    },
-    {
-      "address": "0x07E1",
-      "name": "transmission",
-      "common_name": "TCM (incl. SST DCT controllers)"
-    },
-    {
-      "address": "0x07B0",
-      "name": "abs",
-      "common_name": "ASC / ABS"
-    },
-    {
-      "address": "0x07C0",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x07C4",
-      "name": "etacs",
-      "common_name": "ETACS — Body Control"
-    },
-    {
-      "address": "0x07C8",
-      "name": "cluster",
-      "common_name": "Combination Meter"
-    },
-    {
-      "address": "0x0762",
-      "name": "awc",
-      "common_name": "AWC — Active Wheel Control (Outlander PHEV)"
-    },
-    {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "EV Charge Controller (Outlander PHEV / iMiEV)"
-    },
-    {
       "address": "0x7E2",
       "name": "tcm",
       "common_name": "TCM"

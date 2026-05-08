@@ -75,21 +75,6 @@
       "common_name": "MINI Cooper E / SE / Aceman HV battery"
     },
     {
-      "address": "0x07E5",
-      "name": "evcc",
-      "common_name": "MINI Cooper E / SE / Aceman EV charge controller"
-    },
-    {
-      "address": "0x07E6",
-      "name": "ev_motor",
-      "common_name": "MINI Cooper E / SE / Aceman EV motor inverter"
-    },
-    {
-      "address": "0x07E7",
-      "name": "ev_battery",
-      "common_name": "MINI Cooper E / SE / Aceman HV battery"
-    },
-    {
       "address": "0x7E0",
       "name": "ecm",
       "common_name": "ECM"

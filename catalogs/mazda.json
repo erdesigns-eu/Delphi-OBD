@@ -89,46 +89,6 @@
       "common_name": "MX-30 EV (35.5 kWh) / e-SkyActiv R-EV (17.8 kWh) HV pack"
     },
     {
-      "address": "0x07E0",
-      "name": "pcm",
-      "common_name": "PCM — Powertrain Control"
-    },
-    {
-      "address": "0x07E1",
-      "name": "tcm",
-      "common_name": "TCM — Transmission Control"
-    },
-    {
-      "address": "0x0726",
-      "name": "rbcm",
-      "common_name": "RBCM — Rear Body Control"
-    },
-    {
-      "address": "0x0731",
-      "name": "bcm",
-      "common_name": "BCM — Body Control"
-    },
-    {
-      "address": "0x0741",
-      "name": "abs",
-      "common_name": "ABS / DSC"
-    },
-    {
-      "address": "0x0732",
-      "name": "srs",
-      "common_name": "SRS / Airbag"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Instrument Cluster"
-    },
-    {
-      "address": "0x07E5",
-      "name": "hvac",
-      "common_name": "Climate Control"
-    },
-    {
       "address": "0x7E3",
       "name": "tcase",
       "common_name": "Transfer case / AWD"

@@ -89,56 +89,6 @@
       "common_name": "Active air-suspension controller"
     },
     {
-      "address": "0x07E0",
-      "name": "vcu",
-      "common_name": "VCU — Vehicle Control Unit"
-    },
-    {
-      "address": "0x0710",
-      "name": "motor_fl",
-      "common_name": "Front-Left Motor Inverter"
-    },
-    {
-      "address": "0x0711",
-      "name": "motor_fr",
-      "common_name": "Front-Right Motor Inverter"
-    },
-    {
-      "address": "0x0712",
-      "name": "motor_rl",
-      "common_name": "Rear-Left Motor Inverter"
-    },
-    {
-      "address": "0x0713",
-      "name": "motor_rr",
-      "common_name": "Rear-Right Motor Inverter"
-    },
-    {
-      "address": "0x0782",
-      "name": "bms",
-      "common_name": "BMS — Pack (Standard / Large / Max)"
-    },
-    {
-      "address": "0x0792",
-      "name": "charge",
-      "common_name": "Charge Port + on-board AC/DC charger"
-    },
-    {
-      "address": "0x0720",
-      "name": "cluster",
-      "common_name": "Driver Display Cluster"
-    },
-    {
-      "address": "0x0770",
-      "name": "central",
-      "common_name": "Central Gateway / IVI"
-    },
-    {
-      "address": "0x0724",
-      "name": "driver_plus",
-      "common_name": "Driver+ ADAS computer"
-    },
-    {
       "address": "0x7E1",
       "name": "ecm_b",
       "common_name": "ECM bank 2"
