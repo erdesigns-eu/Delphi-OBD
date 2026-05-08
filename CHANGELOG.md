@@ -7,6 +7,129 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.35.0] - 2026-05-08 — VW catalog deeper-niche pass (~37% ODIS)
+
+Continuing the VW push to set the parity bar before applying the
+template to other OEMs. Adds 969 more entries focused on niche
+subsystems that previous passes only sampled: per-cell EV battery
+telemetry, per-bulb hours-on counters, per-zone ambient lighting
+RGB, Audi Function-on-Demand subscription metadata, per-ECU
+programming history + signature/checksum, bus topology / network
+discovery, per-camera lens shading + per-radar waveform parameters,
+matrix-headlight per-pixel state, niche adaptations (seat massage
+zones, Webasto fuel calibration deep, HUD/CarPlay/AA fine-grained,
+ambient lighting calibration), and 13 new VAG-specific P-code ext
+ranges (1Axx-1Fxx + 25xx-2Bxx).
+
+### catalogs/vw.json — 3,775 → 4,744 entries
+
+| Section | v3.34 | v3.35 | Change |
+|---|---|---|---|
+| ECUs | 75 | **75** | — |
+| DIDs | 1,417 | **1,910** | +493 |
+| Routines | 348 | **368** | +20 |
+| Coding blocks | 124 (782 fields) | **128 (857 fields)** | +4 / +75 fields |
+| Adaptations | 412 | **484** | +72 |
+| Actuator tests | 206 | **238** | +32 |
+| Live PIDs | 341 | **377** | +36 |
+| DTC extended-data | 852 | **1,164** | +312 |
+
+### Per-cell EV battery telemetry (192 new DIDs)
+0x3C00-0x3C5F: per-cell voltage in mV (96 cells); 0x3C60-0x3CBF:
+per-cell temperature (96 sensors). Covers MEB 8-pack / 12-pack +
+e-tron 36-cell modules with cell-level granularity.
+
+### Per-bulb hours-on counters (32 DIDs)
+0x3400-0x341F: lifetime hours-on for every individual lighting
+circuit — low/high beam L+R, DRL L+R, all turn signals (incl.
+mirrors), brake L+R+CHMSL, reverse L+R, fog F+R, license, interior
+(dome/map L+R/trunk/glovebox), puddle (4 corners), position lamps.
+
+### Per-zone ambient lighting (62 DIDs + 62 adaptations)
+31 ambient zones (dash, doors, footwell, console, headliner,
+cup holders, speaker rings, A/B/C-pillar strips, dash strip,
+door strips) — each with RGB+brightness DID for live read-back
+plus calibration adaptation for static color/intensity.
+
+### Audi Function-on-Demand metadata (34 DIDs)
+17 FoD features × 2 DIDs each (active flag + subscription expiry
+epoch): Matrix high-beam, DAB+, navigation premium, smartphone
+interface, wireless CarPlay/AA, TSR, ACC upgrade, Park Assist Plus,
+Remote Park Pilot, voice premium, connected nav, live traffic,
+hotspot, Audi connect remote, Car2X, predictive efficiency.
+
+### Per-ECU programming history (72 DIDs across 18 ECUs)
+For 18 high-traffic ECUs: programming attempt count, last
+successful programming epoch, software checksum (truncated SHA1),
+software signature verification status (not_signed/valid/invalid).
+
+### Bus topology / network discovery (16 DIDs)
+Per-bus node bitmaps (CAN powertrain/extended/infotainment, LIN1+2,
+FlexRay A+B, MOST150, Ethernet), bus load %, bus-off error counts,
+Ethernet link speed + packet drop count.
+
+### Per-camera lens shading (21 DIDs across 7 cameras)
+Front main + wide, rear, mirrors L+R, front grille (top-down),
+interior driver-attention — each with shading correction matrix,
+white-balance gain (R|G|B), and lens temperature.
+
+### Per-radar waveform parameters (30 DIDs across 5 radars)
+Front + 4 corners — chirp bandwidth, chirp duration, TX power,
+antenna blockage estimate, horizontal + vertical alignment.
+
+### Matrix-headlight per-pixel state (64 DIDs)
+0x3B00-0x3B3F (left) and 0x3B40-0x3B7F (right) — per-pixel PWM
+state for 32-pixel matrix-LED arrays.
+
+### New niche adaptations (40 channels)
+Seat massage program/intensity (driver + passenger), seat lumbar
++ bolster + cushion firmness, ambient global brightness + dynamic
+mode + welcome/leaving/coming-home duration + speed dependence,
+Webasto deep calibration (fuel priming pulses, glow-plug preheat,
+combustion-air min/max PWM, fuel-pump min/max Hz, target CO2),
+trip auto-reset thresholds, cluster + HUD day/night brightness,
+HUD geometry offsets, CarPlay/Android Auto audio priority + 5GHz
+preference, voice wake-word sensitivity + local recognition,
+Car2X warning distance.
+
+### New live PIDs (36)
+On-board charger telemetry (input V/A, efficiency, temp), DC-DC
+(HV in, LV out, current, efficiency, temp), front+rear inverter
+IGBT temps, front+rear motor stator temps + torque + rpm, HV
+battery (SOC, SOH, pack V/A, max/min/avg cell V, max/min cell
+temp, isolation kΩ), DC + AC charge actual power, thermal loop
+(coolant temp, pump rpm, chiller state, PTC heater W, heat-pump
+COP, compressor rpm).
+
+### New routines (20)
+Programming history clear, SW signature recheck, bus topology
+rediscover, camera shading recalibrate, radar alignment self-check,
+matrix headlight pixel sweep, ambient zone color sweep, FoD
+subscription refresh, EV cell balance force, capacity remeasure,
+OBC/DC-DC self-test, seat position end-stop + massage zone calib,
+Webasto burn-off + fuel-quality recal, HUD geometry recal, cluster
+TFT pixel test, MMI touchpad self-test, microphone array test.
+
+### New coding blocks (4 blocks, 75 fields)
+Ambient lighting per-zone enable bitmap (31 fields), FoD features
+enabled bitmap (17 fields), matrix headlight features (14 fields),
+MMI features (12 fields).
+
+### New actuator tests (32)
+Matrix headlight L+R pixel sweep, OLED rear-light choreography,
+ambient zone tests (red/green/blue/white/chase + welcome/leaving
+choreography), seat massage + climate demos, Webasto burn-off +
+glow plug check, HUD + cluster TFT test patterns, MMI touch grid,
+microphone array loopback, speaker sweeps (FL/FR/RL/RR/center/sub),
+EV OBC + DC-DC self-tests, HV chiller + heat-pump self-tests,
+HV thermal pump priming, camera shading capture.
+
+### DTC extended-data (+312)
+Adds VAG-specific P-codes in 1Axx, 1Bxx, 1Cxx, 1Dxx, 1Exx, 1Fxx,
+25xx, 26xx, 27xx, 28xx, 29xx, 2Axx, 2Bxx ranges — each with
+4 extended records (occurrence_counter, aging_counter,
+miles_since_cleared, oem_status_byte).
+
 ## [3.34.0] - 2026-05-08 — VW catalog deep-push toward ceiling (~31% ODIS)
 
 Continuing the public-source crawl + VCDS-dataset reference push
