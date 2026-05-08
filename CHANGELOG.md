@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.27.0] - 2026-05-08 — Existing-OEM catalog deepening
+
+### Changed (16 catalogs deepened to baseline)
+- **`byd.json`** — 6 → 29 DIDs (+ 6 routines). Adds Yangwang quad-motor + DiSus suspension + tri-motor stack + DiPilot lidar + DiLink IVI + brand code (BYD / Denza / Yangwang / FangChengBao) + drivetrain enum (DM-i / DM-p / EV / DM-o) + 8-in-1 thermal-mgmt controller + four-corner DiSus heights + Tank-Turn drive mode.
+- **`tesla.json`** — 6 → 29 DIDs (+ 7 routines). Adds tri-motor Plaid (rear-2 inverter at 0x7E3) + Cybertruck four-wheel-steering + air-suspension controller + Octovalve thermal + FSD camera array + drive-mode enum (Chill/Standard/Sport/Plaid/Track) + four air-suspension heights + Supercharger station ID + V3/V4 charge power + 16 V LV battery + 4680 chemistry tag.
+- **`honda.json`** — 9 → 26 DIDs (+ 10 routines). Adds Honda Sensing camera/radar ECU + i-MMD operating-mode enum (EV/Series/Engine drive) + IMA hybrid SOC + temp + Honda e / Prologue HV stack (35 / 85 kWh) + chassis code, engine code (L15B7 / K20C1 Type R / J35Y8) + brake-pad remaining + 10 routines including Honda Sensing calibration + i-MMD battery test + TPMS relearn.
+- **`mazda.json`** — 8 → 27 DIDs (+ 8 routines). Adds i-Activ AWD coupling + M Hybrid 24V/48V mild-hybrid + CX-60/90 PHEV + MX-30 EV + e-SkyActiv R-EV separate ECUs + chassis code (KE/KF/KK/MJ) + DPF soot load + boost + 8 routines including DPF force regen + battery registration + TPMS relearn.
+- **`subaru.json`** — 8 → 28 DIDs (+ 8 routines). Adds Solterra dual-motor + 71.4 kWh HV pack + AC/DC charge controller + Starlink IVI + EyeSight stereo camera + e-Boxer mild-hybrid + chassis code (GP/SK/VB) + WRX engine code + X-MODE active flag + market code + trim level + 8 routines including EyeSight calibration + battery register + TPMS relearn.
+- **`mitsubishi.json`** — 5 → 25 DIDs (+ 7 routines). Adds Outlander PHEV Twin-Motor (front + rear inverters) + 13.8 / 20 kWh PHEV pack + CHAdeMO + V2H/V2G charge enum + S-AWC torque split + drive-mode enum + AdBlue level + DPF soot load + Triton/L200 diesel DPF controller + MI-PILOT ADAS + 4N16 / 4B12 engine codes + PHEV operating-mode (EV/Series/Parallel) + 7 routines.
+- **`geely.json`** — 6 → 28 DIDs (+ 6 routines). Adds dual-motor stack (front + rear inverters) + Aegis short-blade LFP pack + DHT-Pro hybrid 3-speed + Galaxy OS / Flyme Auto / LYNK OS IVI + Mobileye-derived Pilot Assist + brand code + model code + drive-mode enum (Eco/Comfort/Sport/Snow/Off-road) + four-corner motor data + charge port stack + 6 routines.
+- **`nio.json`** — 5 → 30 DIDs (+ 7 routines). Adds Aquila ADAS suite (33 sensors / 4 lidar) + Adam 4×Orin-X compute + Banyan IVI / NOMI + active air-suspension + ET9 X-By-Wire rear-axle steering + swap count + pack capacity + 800 V architecture + Power Up to 500 kW liquid-cooled charge + 4-lidar status enum + 7 routines including X-By-Wire rear-steer calibration + Aquila ADAS calibration.
+- **`xpeng.json`** — 5 → 29 DIDs (+ 7 routines). Adds X-Power AWD front motor + silicon-carbide rear inverter + Livox Tele-15 / Hesai lidar + Xmart OS 8155 / 8295 cabin computer + active air-suspension (G9 / X9) + X9 rear-wheel steering + S4 800V supercharger (480 kW) + drivetrain enum (RWD / X-Power AWD) + pack chemistry (NCM / LFP / short-blade) + 7 routines including XPILOT / XNGP calibration.
+- **`gwm.json`** — 5 → 27 DIDs (+ 7 routines). Adds Hi4 / Hi4-T hybrid controller + dual-motor inverters + Honeycomb LFP / SVOLT pack + Tank crawl-mode controller + Coffee Pilot ADAS + tank drive-mode enum (Normal/Eco/Sport/Sand/Mud/Snow/Mountain/Crawl/Tank-Turn) + diff-lock state enum (Off/Center/Rear/Front+Rear) + low-range bool + brand code (HAVAL/WEY/ORA/TANK/POER) + 9HAT/9DCT TCU + 7 routines.
+- **`cummins.json`** — 6 → 26 DIDs (+ 5 routines). Adds DEF doser module + hydrocarbon doser + combustion-diagnostic ECU + emissions family + displacement + J1939 SPN-mapped coolant / oil temp + oil pressure + boost + rail pressure + intake-air temp + fuel temperature + EGR valve position + DPF/SCR full chain (inlet temp / diff pressure / SCR inlet / NOx / DEF dosing / consumption) + DPF ash reset + EGR calibration + cylinder-balance test routines.
+- **`detroit.json`** — 5 → 27 DIDs (+ 5 routines). Adds CPC (Common Powertrain Controller) + DEF doser + DD13/DD15/DD16/DD8 engine model code + DT12 clutch position + oil temp + current gear + full DPF/SCR chain (ash load / inlet temp / diff pressure / SCR inlet / NOx) + DT12 clutch calibration + EGR calibration + DEF quality test routines.
+- **`scania.json`** — 5 → 27 DIDs (+ 5 routines). Adds Tachograph (TCO) + Visibility (VIS) + Lane Warning System (LWS) + Cab Climate (CCS) + BCS Body & Chassis + Scania BEV stack (motor + 624 kWh battery) + chassis type (R/S/G/P/L/XT) + Opticruise current gear + oil temp + EBS brake-pad remaining + retarder active % + DPF/SCR full chain + 5 routines including Opticruise calibration + brake-bleed.
+- **`man.json`** — 5 → 26 DIDs (+ 5 routines). Adds Instrument Cluster (IC) + Lane Guard System (LGS) + Trailer Coupling Control (TTC) + MAN eTruck stack (motor + 480 kWh battery) + engine model (D08 / D26 / D38) + TipMatic / TraXon current gear + oil temp + DPF/SCR full chain + EBS brake-pad remaining + 5 routines including TipMatic calibration + brake-bleed.
+- **`paccar.json`** — 5 → 25 DIDs (+ 6 routines). Adds aftertreatment ATD2 (SCR) + Bendix Wingman Fusion radar + Kenworth severe-duty hydraulic options + brand code (Peterbilt / Kenworth / DAF / Leyland) + chassis code expanded (579/567/T880/W990/XF/XG/XG+/Anthem) + factory code expanded (Denton/Chillicothe/Madison/Eindhoven/Leyland) + engine model (MX-11 / MX-13 / Cummins X15) + DPF/SCR full chain + transmission gear + oil temp + EBS brake-pad + Wingman radar status + 6 routines.
+- **`volvotrucks.json`** — 5 → 28 DIDs (+ 6 routines). Adds Tachograph (DTCO 4.0) + VADS Active Driver Support + Lane Keeping Support (LKS) + Volvo FE/FH Electric stack (motor + 180/540 kWh battery) + brand code (Volvo/Mack/Renault Trucks) + engine model (D11/D13/D16/MP7/MP8) + I-Shift / mDRIVE current gear + oil temp + EBS brake-pad + VEB+ engine-brake active % + DPF/SCR full chain + remaining range + 6 routines including VADS calibration.
+
+### Changed (WMI hygiene, continued from v3.26)
+- `paccar.json` no longer lists `SCB` in `applicable_wmis` (Bentley territory; PACCAR Leyland Trucks is `SAR`).
+
+### Total
+- **DIDs added: ~330 across 16 OEMs** (was 110, now ~440).
+- **Routines added: ~75 across 16 OEMs** (was 36, now ~111).
+- All 16 catalogs now meet the established baseline (~25-30 DIDs / 5-10 routines per OEM).
+
 ## [3.26.0] - 2026-05-08 — Six more OEMs (ultra-luxury British + Russian + Eastern-European)
 
 ### Added (6 new full-depth OEM extensions)
