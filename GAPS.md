@@ -52,7 +52,10 @@ markers, CRLF, and (now) duplicate primary keys, but it does not
 verify the test units compile against the current package.
 
 **Status: cannot fix without a Delphi runner. Author needs to run
-the test suite locally before merge.**
+the test suite locally before merge.** Coverage harness is now
+scaffolded in `tools/coverage/` (delphi-code-coverage + LCOV /
+Cobertura output) — wire it into CI as a post-test step once a
+Delphi runner is provisioned.
 
 ### G7. ✅ FIXED — `OBD.Protocol.DoIP.Session.pas` is `{$IFDEF MSWINDOWS}`-guarded
 

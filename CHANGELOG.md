@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.79.0] - 2026-05-08 — Async UDS + cross-platform DoIP + TLS + tooling
+
+**Async UDS client** (`OBD.OEM.UdsClient.Async`): future-returning
+facade over `IOBDUdsClient` so UI threads can fire-and-await every
+diagnostic call without blocking. One serialised worker thread per
+client matches the wire contract (UDS allows one outstanding
+request per ECU). Cooperative cancellation through
+`IOBDCancellationToken` — pre-cancelled tokens never reach the
+wire; CloseSession drains pending futures as cancelled.
+`Tests.OEM.UdsClient.Async` covers Await, OnComplete,
+pre-cancellation, exception propagation, and serial in-order
+completion.
+
+**Capture/replay round-trip** (`Tests.OEM.UdsClient.Replay`):
+new `TCaptureReplayTransport` parses recorded `.obdlog` pairs and
+replays responses by request-byte match. First end-to-end test
+that exercises ResolveCatalogPath + TOBDOEMJSONCatalog +
+IOBDUdsClient + DID decoder against real wire data — VW VIN
+(F190 → "WVWZZZ8N8Z1234567") and VAG part number (F187 →
+"04L906056AA") decode bit-exactly from the captured fixture.
+
+**Cross-platform DoIP** (`OBD.Protocol.DoIP.Session.Cross`):
+TCP-side ISO 13400-2 §8 implementation built on
+`System.Net.Socket` (RTL, all platforms — Windows, macOS, Linux,
+iOS, Android), no Indy or Synapse dependency. Same Connect /
+ActivateRouting / SendReceive / Disconnect surface as the WinSock
+variant; same 16-frame ACK/NACK consumption cap. Self-loop
+integration test (`Tests.Protocol.DoIP.Cross`) spins a
+`TFakeGateway` TThread on 127.0.0.1, walks the routing-activation
+handshake, and asserts a diagnostic round-trip is bit-exact —
+first end-to-end DoIP wire test in the suite.
+
+**DoIP TLS** (`OBD.Protocol.DoIP.Session.TLS`, ISO 13400-3 §7,
+TCP/3496): Indy 10 + OpenSSL TLS-secured session. TLS 1.2
+mandatory minimum (1.3 allowed) per spec. Mutual TLS via
+`TDoIPTLSCredentials` (root CA, client cert+key+passphrase,
+peer-verification toggle, optional cipher-list override for OEM
+policies). Self-loop integration test spins
+`TIdTCPServer + TIdServerIOHandlerSSLOpenSSL` with a fixture
+self-signed cert pair (`tests/fixtures/tls/`); falls back to
+Assert.Pass with skip message if OpenSSL is unavailable on the
+dev machine.
+
+**Catalog Browser VCL example** (`examples/catalogbrowser`):
+programmatic single-form VCL app that walks every shipped OEM
+catalog and lets the user drill into ECUs / DIDs / Routines /
+Coding Blocks / Adaptations / Actuator Tests / Live PIDs / DTC
+Extended Data side by side. Auto-loads from `catalogs/` by
+walking up from the binary; skips schema, DTC catalogs, ISO/UDS
+universal files and test fixtures.
+
+**Coverage harness** (`tools/coverage/`): wires
+`delphi-code-coverage` against the DUnitX test runner. Emits
+HTML + Cobertura XML + LCOV reports. `cov-include.txt` lists the
+OEM / UDS / DoIP / async / capture units to instrument; CI
+post-test upload step is documented for when the Delphi runner
+is provisioned (see GAPS.md G4).
+
+GAPS.md G12 (DoIP TLS + self-loop integration test) marked
+✅ FIXED. The remaining open gap is G4 (CI Delphi runner — process
+constraint, not a code gap) — coverage tooling is now ready for
+it.
+
 ## [3.78.0] - 2026-05-08 — Production-quality gap pass + Phase B vehicle classes
 
 Phase D (DTC content): expanded `dtc_extended_data` across 47 OEM
