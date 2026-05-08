@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.56.0] - 2026-05-08 — Suzuki / Maruti pushed to ~22% ODIS, ~4,900 entries
+
+SDT / Suzuki Diagnostic Tool community.
+
+ALLGRIP 4-mode (Auto/Sport/Snow/Lock + Jimny 4L/4H) + SHVS Smart
+Hybrid + Strong Hybrid + Jimny part-time 4WD low-range + 13 engine
+variants (K14D Boosterjet + K14C SHVS + K10C 3-cyl + K15B/K15C SHVS +
+Z14EET Strong + K12C Dualjet + DDiS diesel + eVX dual motor + e Vitara
+27PL + **Across/Swace Toyota-badge hybrids + RAV4-based PHEV**).
+
 ## [3.55.0] - 2026-05-08 — Mini (BMW Group) pushed to public-source ceiling (~30% ODIS, ~5,000 entries)
 
 BMW ISTA + Mini Connected community sources. Mini is a BMW sub-brand
