@@ -7,6 +7,110 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.46.0] - 2026-05-08 — Honda pushed to public-source ceiling (~26% ODIS, 4108 entries)
+
+Same depth-pattern as VW/BMW/Ford/Mercedes/Toyota, applied to Honda
+via HDS-public + Honda-Tech community sources. Public ceiling is
+moderate because HDS is closed but the community has decent coverage
+of Honda SENSING + i-MMD hybrid + IMA legacy + Acura platforms.
+
+### catalogs/honda.json — 36 → 4,108 entries
+
+| Section | v3.39 | v3.46 |
+|---|---|---|
+| ECUs | 8 | **98** |
+| DIDs | 26 | **1,782** |
+| Routines | 10 | **110** |
+| Coding blocks | 0 | **28 (207 fields)** |
+| Adaptations | 0 | **64** |
+| Actuator tests | 0 | **93** |
+| Live PIDs | 0 | **33** |
+| DTC extended-data | 0 | **1,900** |
+
+#### ECUs (+90)
+HDS bus map: powertrain (ECM, TCM, IMA/IPU, MOT i-MMD, Battery ECU,
+PCU, OBC, DC-DC), chassis (ABS+VSA, SAS, EPS, EPB, TPMS, SRS, OPDS
+occupant), Honda SENSING (CMBS coordinator, FCW camera, FCW radar,
+BLIS L+R, CTA, LKAS/parking, Multi-View Camera, driver attention),
+body (BCM, CGW, multiplex, IC, A/C dual + aux, 2 seats + memory,
+4 doors, 2 mirrors, tilt+telescope, 2 sliding doors Odyssey, power
+tailgate, sunroof + pan roof), lighting (adaptive headlights L+R +
+aim), IVI (Display Audio + nav + HondaLink TCU + amp + ELS Studio
+Acura + TV + sat radio), Smart Entry + immobilizer + alarm, hybrid/EV
+(brake booster HEV + regen brake + thermal + heat pump + DC/AC charge
+inlets + LV battery), aux (auto wiper, mirror, HomeLink, Qi, heated
+steering, seat climate dr+pa, HUD, gesture Acura), AWD (Real-Time /
+SH-AWD), trailer + tow hitch + running boards, zonal (OTA, HSM,
+Ethernet switch, 5 domain controllers, Car2X).
+
+#### DIDs (+1,756)
+- 21 generic UDS DIDs incl. Honda part number, calibration, HDS ID.
+- 50 ECM engine DIDs (RPM, torque, MAP/MAF/lambda, fuel rail, VTEC state, VTC intake+exhaust B1+B2, knock retard, EGR, wastegate, intercooler, cat efficiency B1+B2, idle, ECON mode, brake booster, drive mode 3 modes).
+- 48 per-cylinder (cyl 1-6 × 8) — V6 J35.
+- 144 engine variant DIDs — 18 Honda engines × 8 fields (K20C1 Type R, L15B7/BZ turbo, K24W/Z, J35Y/Z/A, J32A, K20A2/Z, LFA1, LFB1, L13B Fit hybrid, K20A9 Si, 3.0L V6 i-MMD, K20C5, EV motor Honda 0/Prologue).
+- 160 transmission variants — 10 trans × 16 fields (5AT/6AT/9AT/10AT, CVT X-1/L4, i-MMD eCVT, 9DCT NSX/TLX, 6MT Type R/Si, transfer SH-AWD).
+- 64 head-unit gens — Display Audio 8/9, Honda Connect, Acura Premium × 16 fields.
+- 13 ABS+VSA DIDs + 32 per-wheel ABS/TPMS.
+- 25 HV battery DIDs + 192 per-cell (96 × 2) + 72 per-module (12 × 6).
+- 14 Motor/PCU (i-MMD) DIDs.
+- 21 OBC charging DIDs incl. ISO 15118 + Plug & Charge.
+- 24 Honda SENSING ADAS (camera + radar + ACC + LKAS + CMBS + RDM + AHB + Traffic Jam + Low-Speed Follow).
+- 64 ADAS object stack (8 × 8).
+- 15 cluster + iMMD power-flow + 256 last-32-trip + 64 driver-coaching.
+- 31 per-bulb hours-on.
+- 24 ambient zones.
+- 64 per-key data (8 × 8) incl. Smart Entry + Digital Key.
+- 24 per-camera lens shading (6 × 4).
+- 19 ELS Studio audio + 7-band EQ.
+- 96 per-ECU programming (24 ECUs × 4).
+- 30 HondaLink subscription metadata (15 × 2).
+- 11 bus topology (B-CAN + F-CAN + chassis CAN + LIN + Ethernet).
+- 24 per-zone HVAC (3 × 8) + 64 user profiles + 64 service history (incl. valve adjust + timing chain) + 26 vehicle metadata (incl. Si/Type R + Acura A-Spec/Advance).
+
+#### Routines (+100)
+ECM adapt resets (idle, throttle, misfire, kat aging, lambda trim, VTC),
+oil pump + starter + battery register, oil/inspection/brake fluid/air
+filter resets, alternator + compression + valve adjust + timing chain
+inspection, TCM basic + Quick Learn, AWD adapt, per-wheel ABS bleed +
+pump test + SAS + yaw zero, TPMS relearn, EPB workshop mode, BCM init,
+window/mirror init, sunroof, power tailgate + sliding doors L+R, A/C
+basic + compressor + heat-pump tests, headlight aim L+R + AFS, Sensing
+camera dynamic + static + radar alignment, BLIS L+R + Multi-View +
+driver camera + park assist calibrations, IC service reset + mileage
+align, HV cell balance + capacity + isolation + contactor + pre-charge,
+Motor resolver zero + inverter self-test, OBC + DC-DC + thermal loop +
+charge door, hybrid brake booster, 13 module-replacement procedures,
+key pairing/deletion + immobilizer relearn, OTA check/install/rollback,
+HSM provision/zeroize, 5 domain self-tests + Ethernet + Car2X tests,
+seat init dr+pa, wireless charging + HUD calibrate, HondaLink refresh.
+
+#### Coding blocks (28 / 207 fields)
+BCM general, door extended, alarm zones, lighting features (Full LED +
+adaptive + welcome/leaving choreography), Honda SENSING Lane (LKAS +
+LDW + RDM + Traffic Jam Assist), ACC (Low-Speed Follow + curve speed),
+CMBS (pedestrian + cyclist + intersection + reverse), A/C features
+(plasmacluster + heat pump + auto demist), EV charge features (CCS1/2
++ NACS + V2G/V2L/V2H + ISO 15118), Hybrid features (i-MMD: EV/ECON/
+Normal/Sport + regen paddle + predictive EV), head-unit (CarPlay +
+AA + HondaLink + Alexa Built-in + ELS Studio), cluster features (IMA
+power-flow + driver coaching), Smart Entry (Digital Key + walk-away),
+trailer module, AWD (Real-Time + SH-AWD + Intelligent Traction
+Management), driver seat climate, sliding doors (Odyssey), panoramic
+roof, HUD, wireless charging, BLIS, driver attention, OTA, Crypto/HSM,
+HondaLink (Security + Remote + Driver Score + Honda Driver + AcuraLink
+Premium), power tailgate, tow hitch, power running boards.
+
+#### Adaptations (64) + Actuator tests (93) + Live PIDs (33) + DTC ext (1,900)
+Engine + trans + ABS+VSA + TPMS + Honda SENSING + lighting + climate +
+EV/hybrid + comfort + OTA + HSM + HondaLink defaults; full per-actuator
+tests; live engine + HV battery + motor + OBC + Sensing PIDs; broad
+P/B/U/C codes × 4-6 record types incl. environmental_data +
+freeze_frame_template.
+
+Estimated ~26% ODIS coverage — at the realistic HDS-community ceiling
+for Honda. Higher coverage requires commercial HDS / J2534 ODX-D
+licenses.
+
 ## [3.45.0] - 2026-05-08 — Toyota pushed to public-source ceiling (~30% ODIS, 5157 entries)
 
 Same depth-pattern as VW/BMW/Ford/Mercedes, applied to Toyota via
