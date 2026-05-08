@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.58.0] - 2026-05-08 — Bentley ~32% ODIS, ~5,000 entries (VW Group leakage)
+
+W12 + V8 BiTurbo (incl. Continental GT Speed PHEV) + Bentley Dynamic
+Ride 48V active anti-roll + Rotating Display + Breitling rotating
+clock + 15-bit Mulliner bespoke (Naim for Bentley, Akrapovič, crystal
+glass, Linley overmats, diamond knurling, Battue Pack) + Bentley
+Smart Cabin Snapdragon + first all-EV PPE 2026.
+
 ## [3.57.0] - 2026-05-08 — Dacia ~22% ODIS, ~4,800 entries
 
 Shared CLIP/Renolink with Renault. Y-light signature + StarklePack +
