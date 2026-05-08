@@ -71,6 +71,7 @@ uses
   Tests.OEM.UltraLuxuryAndEastern in 'Tests.OEM.UltraLuxuryAndEastern.pas',
   Tests.OEM.CodingCommon in 'Tests.OEM.CodingCommon.pas',
   Tests.OEM.SchemaV2 in 'Tests.OEM.SchemaV2.pas',
+  Tests.OEM.UdsClient in 'Tests.OEM.UdsClient.pas',
   Tests.OEM.VW.Deep in 'Tests.OEM.VW.Deep.pas';
 
 {$IFNDEF TESTINSIGHT}
