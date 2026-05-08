@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.76.0] - 2026-05-08 — Isuzu Motors ~18% ODIS, ~4,800 entries
+
+RZ4E 1.9 diesel + DDi 3.0 Blue Power + 4HK1 5.2 + 6HK1 7.8 + 6UZ1
+9.8 + 6WG1 15.7 + 4HK1 LNG + N-Series Electric + Giga Electric +
+D-Max EV announced + Giga FCEV (Honda fuel cell partnership) + D-Max
+Rough Terrain Mode + Aisin 6/8AT + AMT MZW6E + MIMAMORI + IDSS.
+
 ## [3.75.0] - 2026-05-08 — Volvo Trucks Group ~22% ODIS, ~4,900 entries
 
 Volvo + Mack + Renault Trucks + UD Trucks. D8/D11/D13/D16 + D13TC

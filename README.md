@@ -3,7 +3,7 @@
 [![CI](https://github.com/erdesigns-eu/Delphi-OBD/actions/workflows/ci.yml/badge.svg)](https://github.com/erdesigns-eu/Delphi-OBD/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 [![Delphi](https://img.shields.io/badge/Delphi-11%20%7C%2012-red.svg)](https://www.embarcadero.com/products/delphi)
-[![Roadmap](https://img.shields.io/badge/Roadmap-v3.75%20Volvo%20Trucks%20%7E22%25%20ODIS-brightgreen.svg)](docs/ROADMAP.md)
+[![Roadmap](https://img.shields.io/badge/Roadmap-v3.76%20Isuzu%20%7E18%25%20ODIS-brightgreen.svg)](docs/ROADMAP.md)
 [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-yellow.svg)](CHANGELOG.md)
 
 Comprehensive Delphi library for OBD-II diagnostics, vehicle protocols, and automotive utilities.
