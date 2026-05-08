@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.72.0] - 2026-05-08 — MAN Truck & Bus ~22% ODIS, ~4,900 entries (Traton Group)
+
+D08/D20/D26/D38/D15 + E3876 NG + D38H hydrogen ICE + eTruck eTGX/
+eTGS + eTGM/eTGE BEV + Lion's E City bus + EfficientCruise +
+EfficientRoll + Predictive Powertrain Control + EBA 2 + Lane Return
++ Side Collision Avoidance + TipMatic 12-speed AMT + MAN-cats II.
+
 ## [3.71.0] - 2026-05-08 — Iveco Group ~18% ODIS, ~4,800 entries
 
 Cursor 8/9/11/13/16 + F1C/F1A/NEF + Cursor NG (LNG/CNG) + FPT XC13
