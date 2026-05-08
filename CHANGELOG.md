@@ -7,6 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.51.0] - 2026-05-08 — Tier 2 (5 OEMs) pushed to public-source ceiling (~22-25%, 24,921 entries)
+
+Volvo Cars, Polestar, Subaru, Mazda, Nissan/Infiniti, Mitsubishi
+brought up to depth using community sources (VIDA/DiCE, SSM, M-MDS,
+CONSULT III+, MUT-III). Built via shared parameterized library to
+keep depth pattern consistent with the prior 10 OEMs.
+
+### catalogs/{volvo,polestar,subaru,mazda,nissan,mitsubishi}.json
+
+| OEM | Entries | ECUs | DIDs | Routines | Coding | Adapts | Acts | Live | DTC ext |
+|---|---|---|---|---|---|---|---|---|---|
+| Volvo | 5,034 | 127 | 2,078 | 108 | 28 (241 fields) | 68 | 126 | 39 | 2,460 |
+| Polestar | 4,921 | 127 | 1,970 | 107 | 27 (242 fields) | 66 | 125 | 39 | 2,460 |
+| Subaru | 4,925 | 131 | 1,961 | 111 | 29 (251 fields) | 68 | 126 | 39 | 2,460 |
+| Mazda | 4,960 | 122 | 2,008 | 111 | 28 (245 fields) | 66 | 126 | 39 | 2,460 |
+| Nissan | 5,015 | 125 | 2,058 | 109 | 29 (250 fields) | 68 | 127 | 39 | 2,460 |
+| Mitsubishi | 4,987 | 127 | 2,030 | 109 | 28 (250 fields) | 68 | 126 | 39 | 2,460 |
+
+#### Brand-specific captures
+
+**Volvo** — Pilot Assist + Care Key max-speed limiter + Four-C
+continuously controlled chassis + IntelliSafe + Connected Safety +
+EX90 LiDAR + dual-chamber air suspension + integrated child boosters;
+17 engine variants (B4204T turbo + Drive-E + B6304T V6 + B8444S V8
+Yamaha legacy + EV P2/P3/EX30/EX90/ES90); Pilot Assist 9-bit coding
+(hands-off warn + emergency stop + oncoming lane mit + run-off road
+mit), Care Key max-speed adaptation 50-210 km/h.
+
+**Polestar** — Performance Pack OTA unlock (+25 kW) + Öhlins DFV
+manually adjustable damping + Akebono brakes + front Brembo + gold
+seat belts + 50/50 dual-motor split + Track telemetry recorder; 11
+engine variants (Polestar 1 PHEV 3-motor + Polestar 2/3/4/5/6 incl.
+BST 270/230 + 800V Polestar 5/6); Performance Pack 9-bit coding +
+Öhlins calibrate routine.
+
+**Subaru** — EyeSight stereo camera (9-bit: ACC + Pre-Collision Brake
++ Lane Keep + Sway Warn + Lane Departure + Throttle Mgmt + Emergency
+Lane Keep + DriverFocus) + DriverFocus distraction mitigation + DCCD
+Driver Controlled Center Diff (Auto / Auto- / Auto+ / Manual modes)
++ X-MODE 4-mode coding (Snow/Dirt + Deep Snow/Mud + Hill Descent +
+Normal) + Symmetrical AWD + STARLINK; 11 engine variants (EJ257 +
+FA20DIT + FA24F WRX 2022 + FB20/25 + FA20 BRZ + e-Boxer + Solterra).
+
+**Mazda** — Skyactiv-X SPCCI Spark-Controlled Compression Ignition
+calibrate + GVC Plus G-Vectoring Control + Kinematic Posture Control
++ i-Activsense (9-bit: Smart Brake Support + Distance Recognition +
+Mazda Radar Cruise + Lane Dep + LKA + BSM + RCTA + DAA + Cruising
+Traffic Support) + Wankel Range Extender (MX-30 R-EV); 15 engines
+(Skyactiv-G/X/D + Inline-6 3.3 turbo/PHEV/diesel CX-60/70/90 + e-
+Skyactiv R-EV + EZ-6 EV).
+
+**Nissan/Infiniti** — ProPILOT Assist 2.0 hands-off (9-bit) + Navi-
+link + e-4ORCE 5-mode coding + e-Pedal Step / one-pedal drive +
+Direct Adaptive Steering DAS + Intelligent Around-View; 15 engines
+(VR30DDTT Q50 Red Sport + VR38DETT GT-R + VC-Turbo 2.0 variable
+compression + VC-Turbo 1.5 3-cyl + e-POWER serial hybrid + Leaf Plus
++ Ariya e-4ORCE); VC-Turbo compression-ratio relearn routine.
+
+**Mitsubishi** — S-AWC Super All-Wheel Control 8-bit (Tarmac/Gravel/
+Snow/Mud + AYC Active Yaw Control + ASC + Sport) + Outlander PHEV
+9-bit (EV priority + save + charge + V2H CHAdeMO + V2L 1500W +
+twin-motor 4WD + Power Drive electric AWD + target save SOC) + Twin
+Clutch SST 6-DCT (Evo X) + DCCD-style legacy; 14 engines (4B11T Evo
+X + 4G63T Evo IX + 4B40T Eclipse Cross + Outlander PHEV motors +
+i-MiEV legacy).
+
+Estimated ~22-25% ODIS coverage per OEM — at the realistic
+SSM/M-MDS/CONSULT III+/MUT-III/VIDA-community ceiling.
+
 ## [3.50.0] - 2026-05-08 — Stellantis (14 brands) pushed to public-source ceiling (~30% ODIS, 5754 entries)
 
 Same depth-pattern as the prior 9 OEMs, applied to Stellantis via
