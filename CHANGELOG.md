@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.71.0] - 2026-05-08 — Iveco Group ~18% ODIS, ~4,800 entries
+
+Cursor 8/9/11/13/16 + F1C/F1A/NEF + Cursor NG (LNG/CNG) + FPT XC13
+hydrogen ICE + Hi-SCR (no EGR Iveco trademark) + Hi-Cruise predictive
++ eDaily/eMoover/S-eWay battery EV + ZF TraXon + HI-TRONIX 16AMT.
+
 ## [3.70.0] - 2026-05-08 — Detroit Diesel ~20% ODIS, ~4,900 entries
 
 DD13/DD15/DD16/DD5/DD8 + DT8 legacy + DD5N natural gas + eCascadia
