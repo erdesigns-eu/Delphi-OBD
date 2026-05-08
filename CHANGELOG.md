@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.60.0] - 2026-05-08 — Aston Martin ~18% ODIS, ~4,800 entries
+
+AMG 4.0 V8 BiTurbo DBX707 697hp + Vantage 665hp + DB12 671hp + 5.2
+V12 BiTurbo DBS Superleggera + V12 Speedster + Vanquish 2024 835hp +
+Valhalla PHEV + Valkyrie Cosworth 6.5 V12 NA 1000hp + ZF 8HP rear-
+mount transaxle (DBS) + Mercedes Comand 8 + AML in-house infotainment
++ first all-EV 2026.
+
 ## [3.59.0] - 2026-05-08 — Rolls-Royce ~32% ODIS, ~5,000 entries (BMW Group leakage)
 
 N74 V12 BiTurbo + Black Badge 600 hp + Spectre BMW i7-derived dual
