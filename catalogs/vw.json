@@ -4115,6 +4115,250 @@
         { "name": "auto_seat_position_enabled", "label": "Auto seat-position upright on imminent crash", "kind": "bit", "byte_offset": 1, "bit_offset": 3, "default": 1 },
         { "name": "post_collision_braking", "label": "Post-collision auto-braking enabled", "kind": "bit", "byte_offset": 1, "bit_offset": 4, "default": 1 }
       ]
+    },
+    {
+      "did": "0xF1EA", "name": "climate_zone_driver_coding",
+      "description": "Climate zone — driver-side configuration",
+      "ecu_address": "0x740", "payload_size": 4,
+      "fields": [
+        { "name": "individual_temp_setting", "label": "Individual temperature setting allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "individual_blower_setting", "label": "Individual blower setting allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_demist_priority", "label": "Demist priority over comfort", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "min_temp_c", "label": "Minimum settable temperature (C)", "kind": "uint8", "byte_offset": 1, "default": 16, "min": 14, "max": 24 },
+        { "name": "max_temp_c", "label": "Maximum settable temperature (C)", "kind": "uint8", "byte_offset": 2, "default": 30, "min": 22, "max": 32 },
+        { "name": "vent_distribution_default", "label": "Default vent distribution", "kind": "enum", "byte_offset": 3, "default": 0,
+          "values": { "0": "auto", "1": "face", "2": "face_floor", "3": "floor", "4": "floor_defrost", "5": "defrost" } }
+      ]
+    },
+    {
+      "did": "0xF1EB", "name": "climate_zone_passenger_coding",
+      "description": "Climate zone — passenger-side configuration",
+      "ecu_address": "0x740", "payload_size": 4,
+      "fields": [
+        { "name": "passenger_zone_active", "label": "Passenger climate zone active", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "sync_with_driver_default", "label": "Sync with driver-zone default", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "individual_temp_setting", "label": "Individual temperature allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "individual_blower_setting", "label": "Individual blower allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1EC", "name": "climate_zone_rear_left_coding",
+      "description": "Climate zone — rear-left (4-zone)",
+      "ecu_address": "0x71B", "payload_size": 4,
+      "fields": [
+        { "name": "rear_left_zone_active", "label": "Rear-left zone active", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "individual_temp_setting", "label": "Individual temperature allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "individual_vent_setting", "label": "Individual vent direction allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "rear_lcd_panel_fitted", "label": "Rear B-pillar LCD panel fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1ED", "name": "climate_zone_rear_right_coding",
+      "description": "Climate zone — rear-right (4-zone)",
+      "ecu_address": "0x71B", "payload_size": 4,
+      "fields": [
+        { "name": "rear_right_zone_active", "label": "Rear-right zone active", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "individual_temp_setting", "label": "Individual temperature allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "individual_vent_setting", "label": "Individual vent direction allowed", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1EE", "name": "engine_warmup_strategy_coding",
+      "description": "Engine warmup strategy coding",
+      "ecu_address": "0x7E0", "payload_size": 4,
+      "fields": [
+        { "name": "after_run_strategy", "label": "After-run cooling strategy", "kind": "enum", "byte_offset": 0, "default": 1,
+          "values": { "0": "off", "1": "thermal_aware", "2": "always_30s", "3": "extended_60s" } },
+        { "name": "cold_start_idle_high_strategy", "label": "Cold-start high idle strategy", "kind": "enum", "byte_offset": 1, "default": 0,
+          "values": { "0": "auto_temp_dependent", "1": "always_off", "2": "always_max" } },
+        { "name": "warmup_priority", "label": "Warmup priority", "kind": "enum", "byte_offset": 2, "default": 0,
+          "values": { "0": "balanced", "1": "fastest_emissions", "2": "fuel_economy" } }
+      ]
+    },
+    {
+      "did": "0xF1EF", "name": "engine_idle_strategy_coding",
+      "description": "Engine idle strategy coding",
+      "ecu_address": "0x7E0", "payload_size": 4,
+      "fields": [
+        { "name": "smart_idle_active", "label": "Smart idle (modulates RPM with load)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "cold_idle_offset_default_rpm", "label": "Cold idle offset default (rpm)", "kind": "uint16_be", "byte_offset": 1, "default": 200, "min": 0, "max": 600 },
+        { "name": "ac_compensation_idle_offset", "label": "A/C compensation idle offset (rpm)", "kind": "uint8", "byte_offset": 3, "default": 100, "min": 0, "max": 300 }
+      ]
+    },
+    {
+      "did": "0xF1F0", "name": "adblue_scr_coding",
+      "description": "AdBlue / SCR system coding (diesel Euro 6d)",
+      "ecu_address": "0x7E0", "payload_size": 4,
+      "fields": [
+        { "name": "scr_fitted", "label": "SCR fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "adblue_dual_doser", "label": "Dual AdBlue doser fitted (Euro 6d-temp+)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "adblue_close_coupled", "label": "Close-coupled SCR fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "adblue_low_warning_distance_km", "label": "AdBlue low warning distance (km)", "kind": "uint16_be", "byte_offset": 1, "default": 2400, "min": 500, "max": 5000 },
+        { "name": "adblue_engine_block_distance_km", "label": "AdBlue empty -> block engine restart (km)", "kind": "uint16_be", "byte_offset": 3, "default": 0, "min": 0, "max": 1000 }
+      ]
+    },
+    {
+      "did": "0xF1F1", "name": "dpf_coding",
+      "description": "Diesel particulate filter coding",
+      "ecu_address": "0x7E0", "payload_size": 4,
+      "fields": [
+        { "name": "dpf_fitted", "label": "DPF fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "passive_regen_strategy", "label": "Passive regen strategy", "kind": "enum", "byte_offset": 1, "default": 0,
+          "values": { "0": "active_regen_threshold_high", "1": "passive_optimised_low_temp", "2": "aggressive_active" } },
+        { "name": "regen_inhibit_max_distance_km", "label": "Max distance regen can be inhibited (km)", "kind": "uint16_be", "byte_offset": 2, "default": 1500, "min": 100, "max": 3000 }
+      ]
+    },
+    {
+      "did": "0xF1F2", "name": "convenience_lighting_coding",
+      "description": "Convenience lighting (welcome / leave-home / coming-home) coding",
+      "ecu_address": "0x746", "payload_size": 4,
+      "fields": [
+        { "name": "leaving_home_active", "label": "Leaving-home active", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "coming_home_active", "label": "Coming-home active", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "welcome_lights_active", "label": "Welcome interior lights active", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "puddle_lights_active", "label": "Puddle / mirror lamps active", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "leaving_home_seconds", "label": "Leaving-home duration (s)", "kind": "uint8", "byte_offset": 1, "default": 30, "min": 0, "max": 120 },
+        { "name": "coming_home_seconds", "label": "Coming-home delay (s)", "kind": "uint8", "byte_offset": 2, "default": 30, "min": 0, "max": 120 },
+        { "name": "headlights_in_coming_home", "label": "Use headlights in coming-home (vs DRL/position only)", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1F3", "name": "audible_chime_coding",
+      "description": "Audible chime / warning coding",
+      "ecu_address": "0x746", "payload_size": 4,
+      "fields": [
+        { "name": "seatbelt_chime_enabled", "label": "Seatbelt chime enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "door_ajar_chime_enabled", "label": "Door ajar chime enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "key_in_ignition_chime_enabled", "label": "Key-in-ignition chime enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "lights_on_chime_enabled", "label": "Lights-on with engine off chime", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "seatbelt_chime_max_duration_s", "label": "Seatbelt chime max duration (s, 0=infinite)", "kind": "uint8", "byte_offset": 1, "default": 90, "min": 0, "max": 120 },
+        { "name": "chime_volume", "label": "Chime volume (0-7)", "kind": "uint8", "byte_offset": 2, "default": 4, "min": 0, "max": 7 }
+      ]
+    },
+    {
+      "did": "0xF1F4", "name": "windows_coding_extended",
+      "description": "Window control extended coding",
+      "ecu_address": "0x746", "payload_size": 4,
+      "fields": [
+        { "name": "all_windows_one_touch_up_down", "label": "All windows one-touch up + down", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "rear_window_max_open_pct", "label": "Rear window max open (%, child safety)", "kind": "uint8", "byte_offset": 1, "default": 100, "min": 30, "max": 100 },
+        { "name": "auto_close_above_speed_kmh", "label": "Auto-close windows above speed (km/h, 0=off)", "kind": "uint8", "byte_offset": 2, "default": 0, "min": 0, "max": 250 },
+        { "name": "comfort_close_via_outside_handle", "label": "Comfort close via outside-handle long-press", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1F5", "name": "rearview_mirror_coding",
+      "description": "Rear-view mirror coding",
+      "ecu_address": "0x746", "payload_size": 4,
+      "fields": [
+        { "name": "auto_dim_fitted", "label": "Auto-dim mirror fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "homelink_fitted", "label": "HomeLink fitted (NA)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "compass_fitted", "label": "Compass display fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "auto_dim_sensitivity", "label": "Auto-dim sensitivity (1-5)", "kind": "uint8", "byte_offset": 1, "default": 3, "min": 1, "max": 5 },
+        { "name": "frameless_mirror_fitted", "label": "Frameless mirror fitted", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1F6", "name": "exterior_mirror_coding",
+      "description": "Exterior mirror coding",
+      "ecu_address": "0x746", "payload_size": 4,
+      "fields": [
+        { "name": "power_mirrors_fitted", "label": "Power mirrors fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "heated_mirrors_fitted", "label": "Heated mirrors fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "auto_fold_fitted", "label": "Auto-fold mirrors fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "auto_dim_passenger_fitted", "label": "Auto-dim passenger-side fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "memory_fitted", "label": "Memory positions fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 1 },
+        { "name": "passenger_mirror_dip_in_reverse", "label": "Passenger mirror auto-dip in reverse", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "blind_zone_warning_in_mirror", "label": "Blind-zone LED indicator in mirror", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 1 },
+        { "name": "puddle_lamp_fitted", "label": "Puddle lamp in mirror housing", "kind": "bit", "byte_offset": 1, "bit_offset": 2, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1F7", "name": "child_safety_coding",
+      "description": "Child safety + ISOFIX coding",
+      "ecu_address": "0x715", "payload_size": 4,
+      "fields": [
+        { "name": "passenger_disable_switch_fitted", "label": "Passenger airbag disable switch fitted (key-locked)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 1 },
+        { "name": "auto_passenger_disable_with_child_seat", "label": "Auto-disable passenger airbag with child seat", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "isofix_rear_outboard_fitted", "label": "ISOFIX rear outboard fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "isofix_passenger_fitted", "label": "ISOFIX front passenger fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "isofix_rear_centre_fitted", "label": "ISOFIX rear centre fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 0 },
+        { "name": "rear_door_child_lock_default_on", "label": "Rear door child-lock default ON", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1F8", "name": "ev_thermal_management_coding",
+      "description": "EV thermal management coding",
+      "ecu_address": "0x7E7", "payload_size": 4,
+      "fields": [
+        { "name": "heat_pump_fitted", "label": "Heat pump fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "battery_ptc_heater_fitted", "label": "Battery PTC heater fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 1 },
+        { "name": "cabin_ptc_heater_fitted", "label": "Cabin PTC heater fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 1 },
+        { "name": "waste_heat_recovery_motor", "label": "Waste-heat recovery from motor enabled", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 1 },
+        { "name": "battery_co2_refrigerant", "label": "CO2 refrigerant fitted (R744 — Audi)", "kind": "bit", "byte_offset": 0, "bit_offset": 4, "default": 0 },
+        { "name": "battery_water_glycol_loop", "label": "Battery water-glycol cooling loop fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 5, "default": 1 },
+        { "name": "octovalve_fitted", "label": "Octovalve / multi-position thermal valve fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 6, "default": 1 },
+        { "name": "cabin_recirculation_default", "label": "Cabin recirculation default during heat-pump", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1F9", "name": "ev_regen_coding",
+      "description": "EV regenerative braking coding",
+      "ecu_address": "0x7E6", "payload_size": 4,
+      "fields": [
+        { "name": "regen_levels_count", "label": "Regen level count (3 or 5)", "kind": "uint8", "byte_offset": 0, "default": 5, "min": 1, "max": 5 },
+        { "name": "one_pedal_mode_fitted", "label": "One-pedal driving mode fitted (B mode)", "kind": "bit", "byte_offset": 1, "bit_offset": 0, "default": 1 },
+        { "name": "predictive_regen_fitted", "label": "Predictive regen (uses navi map / radar)", "kind": "bit", "byte_offset": 1, "bit_offset": 1, "default": 0 },
+        { "name": "max_regen_torque_nm", "label": "Maximum regen torque (Nm)", "kind": "uint16_be", "byte_offset": 2, "default": 350, "min": 50, "max": 1000, "unit": "Nm" }
+      ]
+    },
+    {
+      "did": "0xF1FA", "name": "ev_charge_strategy_coding",
+      "description": "EV charge strategy coding",
+      "ecu_address": "0x7E5", "payload_size": 4,
+      "fields": [
+        { "name": "smart_charging_active", "label": "Smart charging active (off-peak / renewable)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "renewable_aware_charging", "label": "Renewable-aware charging (renewable energy hours)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "tariff_aware_charging", "label": "Tariff-aware charging (cheap-rate hours)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "max_ac_a_at_home", "label": "Max AC current at home (A)", "kind": "uint8", "byte_offset": 1, "default": 16, "min": 6, "max": 32 },
+        { "name": "max_ac_a_public", "label": "Max AC current at public chargers (A)", "kind": "uint8", "byte_offset": 2, "default": 32, "min": 6, "max": 32 },
+        { "name": "auto_disconnect_on_complete", "label": "Auto-unlock connector on charge complete", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 0 }
+      ]
+    },
+    {
+      "did": "0xF1FB", "name": "active_aero_coding",
+      "description": "Active aerodynamics coding",
+      "ecu_address": "0x794", "payload_size": 4,
+      "fields": [
+        { "name": "active_grille_shutter_fitted", "label": "Active grille shutter fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "active_rear_spoiler_fitted", "label": "Active rear spoiler fitted (R/RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 1, "default": 0 },
+        { "name": "active_aero_blades_fitted", "label": "Active aero blades fitted (RS6 GT)", "kind": "bit", "byte_offset": 0, "bit_offset": 2, "default": 0 },
+        { "name": "active_underbody_fitted", "label": "Active underbody panels fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 3, "default": 0 },
+        { "name": "spoiler_deploy_speed_kmh", "label": "Rear spoiler deploy speed (km/h)", "kind": "uint8", "byte_offset": 1, "default": 130, "min": 50, "max": 250 },
+        { "name": "spoiler_retract_speed_kmh", "label": "Rear spoiler retract speed (km/h)", "kind": "uint8", "byte_offset": 2, "default": 80, "min": 30, "max": 200 }
+      ]
+    },
+    {
+      "did": "0xF1FC", "name": "valet_mode_coding",
+      "description": "Valet mode coding",
+      "ecu_address": "0x744", "payload_size": 4,
+      "fields": [
+        { "name": "valet_mode_fitted", "label": "Valet mode fitted (Audi/RS)", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "valet_speed_limit_kmh", "label": "Valet speed limit (km/h)", "kind": "uint8", "byte_offset": 1, "default": 60, "min": 0, "max": 200 },
+        { "name": "valet_rpm_limit", "label": "Valet RPM limit (rpm)", "kind": "uint16_be", "byte_offset": 2, "default": 4000, "min": 1500, "max": 7500 },
+        { "name": "valet_mode_locks_glove_box", "label": "Valet mode locks glove box", "kind": "bit", "byte_offset": 3, "bit_offset": 0, "default": 1 }
+      ]
+    },
+    {
+      "did": "0xF1FD", "name": "teen_driver_coding",
+      "description": "Teen / family driver mode coding",
+      "ecu_address": "0x744", "payload_size": 4,
+      "fields": [
+        { "name": "teen_driver_fitted", "label": "Teen driver mode fitted", "kind": "bit", "byte_offset": 0, "bit_offset": 0, "default": 0 },
+        { "name": "teen_speed_limit_kmh", "label": "Teen speed limit (km/h)", "kind": "uint8", "byte_offset": 1, "default": 130, "min": 50, "max": 200 },
+        { "name": "teen_force_seatbelt", "label": "Force seatbelt for radio (mute until belted)", "kind": "bit", "byte_offset": 2, "bit_offset": 0, "default": 1 },
+        { "name": "teen_max_volume", "label": "Teen max audio volume (0-50)", "kind": "uint8", "byte_offset": 3, "default": 30, "min": 0, "max": 50 }
+      ]
     }
   ],
   "adaptations": [
