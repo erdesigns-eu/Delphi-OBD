@@ -7,6 +7,170 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.49.0] - 2026-05-08 — JLR (Jaguar Land Rover) pushed to public-source ceiling (~30% ODIS, 5465 entries)
+
+Same depth-pattern as the prior 8 OEMs, applied to JLR via SDD /
+Pathfinder community + JLRTechInfo. Covers Jaguar (XE/XF/F-Pace/E-
+Pace/I-Pace/F-Type) + Land Rover (Defender/Discovery/Discovery
+Sport/Evoque) + Range Rover (RR/Sport/Velar/Range Rover Electric).
+
+### catalogs/jlr.json — 28 → 5,465 entries
+
+| Section | v3.39 | v3.49 |
+|---|---|---|
+| ECUs | 8 | **154** |
+| DIDs | 20 | **2,396** |
+| Routines | 0 | **150** |
+| Coding blocks | 0 | **32 (303 fields)** |
+| Adaptations | 0 | **75** |
+| Actuator tests | 0 | **149** |
+| Live PIDs | 0 | **49** |
+| DTC extended-data | 0 | **2,460** |
+
+#### ECUs (+146)
+SDD bus map covering ICE + MHEV + PHEV + BEV (I-Pace, EMA, Range
+Rover Electric): powertrain (ECM + bank-2 V8 split + ZF 8HP TCM +
+transfer case + HV battery + front+rear MCU + OBC + LDC + **VCMS**
+EMA + front+rear motor + Dynamic Response + active exhaust flap +
+Launch Control + active engine mount), chassis (ABS + SAS + EPS +
+EPB + TPMS + SRS + occupancy + Park Pilot + **Adaptive Dynamics CDC
++ Active Roll Control / Dynamic Response Pro + rear-wheel steer L460
++ Active e-Diff + 4-corner cross-linked air suspension + ride height
++ Continental MK C1 iBooster + Trailer Stability**), **Land Rover
+off-road** (Terrain Response 2 + Wade Sensing + ATPC + HDC + center
+diff lock + rear diff lock + 2-speed low-range), ADAS (master + front
+camera + radar + rear radar L+R + 4 corner radars + **ClearSight
+ground-view 360 front + rear** + **ClearSight camera mirrors L+R
+Range Rover** + driver attention + **ClearSight Interior Rear-View
+Mirror** + sonar + traffic sign), body (CGW + BCM + 12.3" cluster +
+dual FATC + 4 doors + 4 seats Executive Class 22-way + 2 mirrors +
+steering column + powered tailgate + **inner tailgate Range Rover
+split** + pano roof + **F-Type convertible** + fuel/charge flap),
+**Pixel LED Digital headlights** + **animated taillights** + welcome
+signature, **Pivi Pro** (Snapdragon) + passenger display + 2 rear
+displays Range Rover + **Meridian Signature Sound 3D** + premium amp
++ tuner + 5G TCU Pivi Connect + eCall + Stolen Vehicle Locator,
+**Activity Key** waterproof wristband + smart key + immobilizer +
+alarm + tilt + glass-break, HV/EV thermal (heat pump + PTC + scroll
+compressor + battery heater + chiller + valve block + 2× aux pumps),
+heated steering + 4× seat climate + **Hot Stone massage 4 seats** +
+HUD + **CAIL ambient** + Qi + auto-wiper + **Cabin Air Purification
+Pro PM2.5** + ionizer, trailer (**Advanced Tow Assist**) + power
+hitch + Defender aux battery + **center console fridge**, OTA + HSM
++ Ethernet + 5 domain controllers + Car2X + InControl/Pivi Connect
+TCU + DAB+/HD Radio + **Activity Key inductive charger** + UWB
+**Phone-as-Key**.
+
+#### DIDs (+2,376)
+- 25 generic UDS DIDs incl. JLR part no, calibration, SDD ID, Solihull/Halewood/Castle Bromwich/Nitra factory codes.
+- 75 ECM engine DIDs (RPM/torque/MAP/MAF/lambda B1+B2, 2× turbo + **supercharger rpm 5.0L SC**, 2× wastegate, VCT intake+exhaust B1+B2, idle, drive mode 4 modes, ISS, **Launch Control state+count**, max-RPM/speed/oil-temp lifetime, full-load + overboost seconds, **DPF soot + regen count + distance since regen + active regen flag**, **AdBlue level + remaining km + NOx in/out**, **MHEV 48V belt-starter assist torque + recuperation kW + state**, PHEV charge mode).
+- 64 per-cylinder (1-8) — V8 5.0 SC + BMW N63 4.4 V8 + 3.0 I6.
+- 176 engine variant DIDs — 22 JLR engines × 8 fields (Ingenium 2.0 P200/P250/P300 gas + D150/D180/D200 MHEV/D240 diesel + 3.0 I6 D300/D350 MHEV diesel + 3.0 I6 P360/P400 MHEV gas + 3.0 P510e/P550e PHEV, **AJ-V8 5.0L SC + 5.0L SVR**, **BMW N63 4.4L V8 BiTurbo Range Rover**, I-Pace dual + EMA single/dual + Range Rover Electric, legacy V6/V8 TDV6/SDV8).
+- 176 transmission variants — 11 trans gens × 16 fields (ZF 8HP50/70/76/95, 9HP, 6MT, I-Pace front+rear reducer, EMA 2-speed, transfer 4WD + 2-speed low-range).
+- 48 head-unit gens (InControl Touch Pro Duo + Pivi Pro + Pivi Connect 5G) × 16 fields.
+- 41 ABS + chassis DIDs (Adaptive Dynamics state + ARC state + rear-wheel steer angle + 4× ride height + 4× air-susp pressure + compressor + **cross-link state 4-corner** + e-Diff split + e-Diff oil temp + transfer split + low-range state + center+rear diff lock + **wade depth + max-safe wade** + HDC + ATPC + Terrain Response mode).
+- 64 per-wheel ABS/TPMS (4 × 16) + sensor IDs + camber/toe.
+- 33 HV battery DIDs incl. **800V architecture (EMA / Range Rover EV)** + chemistry + pyrofuse + lifetime charged/discharged.
+- 144 per-cell V (EMA max).
+- 256 per-module (32 × 8 fields).
+- 38 motor/MCU DIDs (front + rear, 19 each).
+- 25 OBC + VCMS DIDs.
+- 34 ADAS (Adaptive Cruise + Intelligent Cruise + Lane Keep + Highway Assist + Steering Assist + AEB + driver condition + Blind Spot + Rear Traffic + **ClearSight Ground View** + **ClearSight Interior Rear-View Mirror** + Park Pilot + remote parking + intersection + swerve + Trailer Reverse Assist).
+- 96 ADAS object stack (12 × 8).
+- 33 cluster + **off-road telemetry** (lap timer + best 0-60/0-100/QM + **pitch + roll + wheel articulation + altitude + max wade depth + off-road minutes + low-range minutes + diff-lock minutes + Terrain Response use distribution + ATPC distance + HDC distance**).
+- 256 last-32-trip × 8.
+- 80 driver coaching (20 × 4 windows incl. off-road + wade + ATPC distance).
+- 44 per-bulb hours (Pixel LED + signature DRL + animated tail + welcome).
+- 36 CAIL ambient zones (incl. **headliner pano + d-pillars + canopy + mood lighting**).
+- 64 per-key (8 × 8) incl. **Activity Key + Phone-as-Key UWB**.
+- 32 per-camera (8 × 4) incl. ClearSight mirrors + Interior Rear-View.
+- 60 Meridian Signature Sound 3D incl. **15-band parametric EQ × 3** (gain/freq/Q).
+- 132 per-ECU programming (33 × 4).
+- 50 InControl/Pivi Connect subscription incl. **EV Route Planner + JLR Charging Service + Connected Navigation Pro + OTA feature unlock**.
+- 20 bus topology (PT/Chassis/Body/Info CAN + LIN + CAN-FD + Ethernet + AVB + SOME/IP).
+- 32 quad-zone HVAC + 96 user profiles + 104 service history (26 × 4 incl. ZF 8HP fluid + e-Diff + supercharger oil + DPF service + AdBlue refill) + 39 vehicle metadata (incl. **SVR + SVAutobiography + Dynamic Pack + First Edition + brand JAG/LR/RR + battery size + chemistry + DC max kW + motor count + EMA platform flag + V2X capable + Meridian Signature 3D fitted + Executive Class seats**).
+
+#### Routines (+150)
+ECM adapt resets (idle, throttle, misfire, kat, lambda, VCT, oil-pump,
+starter) + battery register + oil/inspection/brake fluid resets +
+**DPF forced regen + replace reset + AdBlue priming + Launch Control
+calibrate + supercharger test 5.0 SC + 48V belt-starter init**, ZF
+basic + oil reset + Quick Learn, transfer + e-Diff adapt, per-wheel
+ABS bleed + pump + SAS + yaw zero + TPMS relearn + EPB workshop,
+**Adaptive Dynamics CDC + Active Roll Control + rear-wheel steer +
+4-corner air-susp + ride-height calibrations**, iBooster, **Land
+Rover off-road** (Terrain Response init + Wade Sensing calibrate +
+ATPC + HDC calibrations + center diff + rear diff lock + low-range
+tests), BCM + window + mirror + sunroof + **F-Type convertible top**
++ tailgate + **inner tailgate Range Rover split** calibrations, FATC
+basic + heat-pump self-test, headlight aim L+R + Pixel LED Digital
+calibrate + animated taillight init, front camera dynamic + static +
+radar align + 4 corner/rear radars + **ClearSight 360 + camera mirrors
+L+R + Interior Rear-View** calibrations + driver attention + sonar
+front+rear, cluster + mileage align + **off-road telemetry reset**,
+HV cell balance + capacity + isolation + contactor + pre-charge +
+pyrofuse, motor resolver zero (front+rear) + inverter self-test,
+OBC + LDC + VCMS + thermal + charge flap, exhaust flap test, 22
+module-replacement procedures, key + immobilizer relearn + **Activity
+Key wristband pair + Phone-as-Key UWB pair**, OTA check/install/
+rollback, HSM provision/zeroize, 5 domain self-tests + Ethernet +
+Car2X, seat init dr+pa + **Hot Stone calibrate** + Qi + HUD calibrate,
+**InControl/Pivi Connect refresh + welcome animation load**.
+
+#### Coding blocks (32 / 303 fields)
+BCM general (UWB approach + walk-away), door extended (**flush door
+handles Range Rover + auto-extend at speed**), alarm zones, **Pixel
+LED Digital features** (Digital LED HD + matrix HB + dynamic signature
+DRL + lane lighting + intersection lighting + country-specific),
+animated taillight, ADAS Lane (Highway + Emergency Assist), Adaptive
+Cruise (Intelligent Cruise Stop&Go + predictive + curve speed +
+**Connected Navigation ACC**), AEB (intersection + reverse + swerve),
+Blind Spot + Rear Traffic + **ClearSight Interior Rear-View auto**,
+FATC (heat pump + ionizer + **Cabin Air Purification Pro PM2.5**),
+EV charge (CCS1/2 + NACS + V2G/V2L/V2H + ISO 15118 PnC + 22kW AC +
+200/350kW DC + **800V EMA / Range Rover Electric** + EV Route
+Planner), Sport/Dynamic mode (**Dynamic Pro SVR + Track mode F-Type
++ Predictive Speed Control**), active exhaust (legal quiet mode),
+**Pivi Pro features** (CarPlay + AA + InControl + Meridian Signature
+3D + Meridian Premium + passenger display + rear displays Range
+Rover), cluster (HUD + sport layout F-Type + **off-road layout LR +
+articulation overlay + wade depth overlay**), smart key + Activity
+Key + UWB, trailer + **Advanced Tow Assist** (knob steering),
+**off-road features Land Rover** (Terrain Response 2 + auto + Wade
+Sensing + ATPC + HDC + low-range + center+rear diff lock + ClearSight
+Ground + articulation + pitch & roll indicators + 7 modes incl. rock
+crawl), air suspension + chassis (cross-linked 4-corner + rear-wheel
+steer + ARC + Adaptive Dynamics + e-Diff + Dynamic Response Pro +
+Predictive Terrain Response), driver seat climate + **Hot Stone
+massage** (Relaxation mode), F-Type convertible, panoramic sunroof,
+HUD (AR overlay), Qi, driver attention (gaze tracking), OTA (staged
+rollout), Crypto/HSM (debug locked), **InControl / Pivi Connect**
+(Phone-as-Key + EV Route Planner + JLR Charging Service + voice +
+Alexa + region NA/EU/CN/UK), **ClearSight features** (Ground View +
+Interior Rear-View + camera mirrors + 360 + trailer view + transparent
+hood), tow hitch, **Cabin Air Purification Pro** (PM2.5 + ionizer +
+CO2 management + auto-recirc on smog), fridge / cool box.
+
+#### Adaptations (75) + Actuator tests (149) + Live PIDs (49) + DTC ext (2,460)
+Engine (incl. **Launch max RPM + active exhaust policy + ISS min
+coolant**) + ZF + ABS + Adaptive Dynamics + air-susp (off-road/
+access/loading heights) + rear steer + e-Diff + **Terrain Response
+default + Wade warn depth + ATPC default speed + HDC default speed**
++ Lane Keep + AEB + ACC + Highway Assist + Pixel LED HB + welcome
+animation + comfort + Cabin Air Pro + EV (DC/AC targets + 350kW +
+ISO 15118 PnC + AVAS) + OTA + HSM + Hot Stone + off-road camera auto;
+full per-actuator tests incl. **CDC 4× dampers + ARC actuators + rear-
+steer + 4× air-susp valves + center+rear diff lock + low-range engage
++ inner tailgate Range Rover split + Pixel LED anim L+R + Hot Stone
++ supercharger test + Activity Key charger + fridge**; live engine +
+DPF + AdBlue + MHEV + supercharger + HV battery + front+rear motor +
+OBC + ADAS + chassis (ride heights + **pitch + roll + articulation +
+wade depth + Terrain Response mode**) PIDs; broad P/B/U/C codes ×
+4-6 record types incl. environmental_data + freeze_frame_template.
+
+Estimated ~30% ODIS coverage — at the realistic SDD/Pathfinder-
+community ceiling. Higher coverage requires Pathfinder dealer license.
+
 ## [3.48.0] - 2026-05-08 — HMG (Hyundai/Kia/Genesis) pushed to public-source ceiling (~28% ODIS, 5537 entries)
 
 Same depth-pattern as the prior 7 OEMs, applied to HMG via GDS / KDS
