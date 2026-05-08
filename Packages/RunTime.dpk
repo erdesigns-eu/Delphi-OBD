@@ -168,6 +168,7 @@ contains
   OBD.OEM.McLaren in '..\src\Services\OBD.OEM.McLaren.pas',
   OBD.OEM.Lada in '..\src\Services\OBD.OEM.Lada.pas',
   OBD.OEM.Dacia in '..\src\Services\OBD.OEM.Dacia.pas',
-  OBD.OEM.ServiceFunction in '..\src\Services\OBD.OEM.ServiceFunction.pas';
+  OBD.OEM.ServiceFunction in '..\src\Services\OBD.OEM.ServiceFunction.pas',
+  OBD.OEM.Coding.Common in '..\src\Services\OBD.OEM.Coding.Common.pas';
 
 end.

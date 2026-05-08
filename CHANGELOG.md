@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.28.0] - 2026-05-08 — Unified coding / WriteDataByIdentifier API
+
+### Added
+- **`OBD.OEM.Coding.Common`** — canonical `TOBDCodingFunctionKind` enum (19 coding kinds: vehicle order / FA / commission, As-Built code, FCA wiTech proxi, market region, Rolls-Royce Starlight, daytime running lights, auto-lock/unlock, rear fog lamp, needle sweep, ACC enable, lane-assist enable, TPMS threshold, headlight country, trailer mode, language, units imperial, TPMS calibration, comfort window, soft-top auto). The parallel of v3.25 `ServiceFunction` but for `WriteDataByIdentifier` (SID 0x2E) flows.
+- `FindCodingFunction(Ext, Kind, out Func)` — first-match lookup of a writeable DID across any OEM extension's catalog.
+- `ListCodingFunctions(Ext)` — enumerate every classifiable coding-write DID, ready for a "Coding" menu in a tool.
+- `BuildWriteDataByIdentifier(DID, Data)` — wraps a payload with `2E DID-hi DID-lo …`.
+- `BuildCodingFrame(Func, Data)` — same, against a resolved coding function.
+- `ParseCodingResponse(Response, DID)` — checks the positive response (`6E DID-hi DID-lo`) and confirms the DID matches.
+- `CodingFunctionKindName(Kind)` — display labels for UI binding.
+- `Tests.OEM.CodingCommon` — 19 cases across registry classification, lookup against shipped Rolls-Royce + Mazda catalogs, frame builder, response parser, display labels.
+
+### Why this matters
+- A coding tool no longer needs hard-coded dispatchers for "BMW writes FA, Bentley writes commission, Mazda writes as-built, FCA writes proxi". `FindCodingFunction(Ext, cfVehicleOrder)` works across every OEM that ships an FA-equivalent block, and `ListCodingFunctions` populates the tool's coding menu without OEM-by-OEM enumeration.
+
 ## [3.27.0] - 2026-05-08 — Existing-OEM catalog deepening
 
 ### Changed (16 catalogs deepened to baseline)
