@@ -52,7 +52,33 @@ type
     [Test] procedure NIOCatalogLoads;
     [Test] procedure XpengCatalogLoads;
     [Test] procedure GWMCatalogLoads;
+    [Test] procedure JLRCatalogLoads;
+    [Test] procedure PorscheCatalogLoads;
+    [Test] procedure PolestarCatalogLoads;
+    [Test] procedure MINICatalogLoads;
+    [Test] procedure SmartCatalogLoads;
+    [Test] procedure DaciaCatalogLoads;
+    [Test] procedure LadaCatalogLoads;
+    [Test] procedure MahindraCatalogLoads;
+    [Test] procedure TataCatalogLoads;
+    [Test] procedure AstonMartinCatalogLoads;
+    [Test] procedure BentleyCatalogLoads;
+    [Test] procedure RollsRoyceCatalogLoads;
+    [Test] procedure FerrariCatalogLoads;
+    [Test] procedure McLarenCatalogLoads;
+    [Test] procedure RivianCatalogLoads;
+    [Test] procedure LucidCatalogLoads;
+    [Test] procedure IsuzuCatalogLoads;
+    [Test] procedure IvecoCatalogLoads;
     [Test] procedure DTCISO15031CatalogLoads;
+    /// <summary>Data-driven sweep: every <c>catalogs/*.json</c> that
+    /// isn't a DTC, ISO standard, or test fixture must load without
+    /// raising. Auto-picks up new catalogs (motorcycles, agricultural,
+    /// marine, etc.) without test-file edits.</summary>
+    [Test] procedure AllOEMCatalogsLoadFromDirectory;
+    /// <summary>Every shipped <c>catalogs/dtc-*.json</c> must load and
+    /// declare at least one DTC entry.</summary>
+    [Test] procedure AllDtcCatalogsLoadFromDirectory;
   end;
 
 implementation
@@ -145,7 +171,88 @@ procedure TCatalogLoadSmokeTests.GeelyCatalogLoads;       begin SmokeLoad('geely
 procedure TCatalogLoadSmokeTests.NIOCatalogLoads;         begin SmokeLoad('nio.json'); end;
 procedure TCatalogLoadSmokeTests.XpengCatalogLoads;       begin SmokeLoad('xpeng.json'); end;
 procedure TCatalogLoadSmokeTests.GWMCatalogLoads;         begin SmokeLoad('gwm.json'); end;
+procedure TCatalogLoadSmokeTests.JLRCatalogLoads;         begin SmokeLoad('jlr.json'); end;
+procedure TCatalogLoadSmokeTests.PorscheCatalogLoads;     begin SmokeLoad('porsche.json'); end;
+procedure TCatalogLoadSmokeTests.PolestarCatalogLoads;    begin SmokeLoad('polestar.json'); end;
+procedure TCatalogLoadSmokeTests.MINICatalogLoads;        begin SmokeLoad('mini.json'); end;
+procedure TCatalogLoadSmokeTests.SmartCatalogLoads;       begin SmokeLoad('smart.json'); end;
+procedure TCatalogLoadSmokeTests.DaciaCatalogLoads;       begin SmokeLoad('dacia.json'); end;
+procedure TCatalogLoadSmokeTests.LadaCatalogLoads;        begin SmokeLoad('lada.json'); end;
+procedure TCatalogLoadSmokeTests.MahindraCatalogLoads;    begin SmokeLoad('mahindra.json'); end;
+procedure TCatalogLoadSmokeTests.TataCatalogLoads;        begin SmokeLoad('tata.json'); end;
+procedure TCatalogLoadSmokeTests.AstonMartinCatalogLoads; begin SmokeLoad('aston-martin.json'); end;
+procedure TCatalogLoadSmokeTests.BentleyCatalogLoads;     begin SmokeLoad('bentley.json'); end;
+procedure TCatalogLoadSmokeTests.RollsRoyceCatalogLoads;  begin SmokeLoad('rolls-royce.json'); end;
+procedure TCatalogLoadSmokeTests.FerrariCatalogLoads;     begin SmokeLoad('ferrari.json'); end;
+procedure TCatalogLoadSmokeTests.McLarenCatalogLoads;     begin SmokeLoad('mclaren.json'); end;
+procedure TCatalogLoadSmokeTests.RivianCatalogLoads;      begin SmokeLoad('rivian.json'); end;
+procedure TCatalogLoadSmokeTests.LucidCatalogLoads;       begin SmokeLoad('lucid.json'); end;
+procedure TCatalogLoadSmokeTests.IsuzuCatalogLoads;       begin SmokeLoad('isuzu.json'); end;
+procedure TCatalogLoadSmokeTests.IvecoCatalogLoads;       begin SmokeLoad('iveco.json'); end;
 procedure TCatalogLoadSmokeTests.DTCISO15031CatalogLoads; begin SmokeLoadDtc('dtc-iso-15031.json'); end;
+
+function CatalogsDirectory: string;
+var
+  Candidate: string;
+begin
+  Candidate := TPath.Combine(GetCurrentDir, 'catalogs');
+  if TDirectory.Exists(Candidate) then Exit(Candidate);
+  Candidate := TPath.Combine(TPath.Combine(GetCurrentDir, '..'), 'catalogs');
+  if TDirectory.Exists(Candidate) then
+    Exit(TPath.GetFullPath(Candidate));
+  Result := '';
+end;
+
+procedure TCatalogLoadSmokeTests.AllOEMCatalogsLoadFromDirectory;
+var
+  Dir, FilePath, Name: string;
+  Files: TArray<string>;
+  Loaded, Skipped: Integer;
+begin
+  Dir := CatalogsDirectory;
+  if Dir = '' then Assert.Pass('catalogs/ directory not on path; skipping');
+  Files := TDirectory.GetFiles(Dir, '*.json');
+  Loaded := 0;
+  Skipped := 0;
+  for FilePath in Files do
+  begin
+    Name := TPath.GetFileName(FilePath);
+    // Skip DTC catalogs (loaded via the DTC sweep), ISO/standard
+    // catalogs (different schema), and test fixtures.
+    if Name.StartsWith('dtc-', True) or Name.StartsWith('iso-', True) or
+       Name.StartsWith('uds-', True) or Name.StartsWith('obd2-', True) or
+       Name.StartsWith('test-', True) then
+    begin
+      Inc(Skipped);
+      Continue;
+    end;
+    SmokeLoad(Name);
+    Inc(Loaded);
+  end;
+  Assert.IsTrue(Loaded >= 40,
+    Format('expected >=40 OEM catalogs loaded, got %d (skipped %d)',
+      [Loaded, Skipped]));
+end;
+
+procedure TCatalogLoadSmokeTests.AllDtcCatalogsLoadFromDirectory;
+var
+  Dir, FilePath, Name: string;
+  Files: TArray<string>;
+  Loaded: Integer;
+begin
+  Dir := CatalogsDirectory;
+  if Dir = '' then Assert.Pass('catalogs/ directory not on path; skipping');
+  Files := TDirectory.GetFiles(Dir, 'dtc-*.json');
+  Loaded := 0;
+  for FilePath in Files do
+  begin
+    Name := TPath.GetFileName(FilePath);
+    SmokeLoadDtc(Name);
+    Inc(Loaded);
+  end;
+  Assert.IsTrue(Loaded >= 30,
+    Format('expected >=30 DTC catalogs loaded, got %d', [Loaded]));
+end;
 
 initialization
   TDUnitX.RegisterTestFixture(TCatalogLoadSmokeTests);
