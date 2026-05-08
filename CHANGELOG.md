@@ -7,6 +7,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.50.0] - 2026-05-08 — Stellantis (14 brands) pushed to public-source ceiling (~30% ODIS, 5754 entries)
+
+Same depth-pattern as the prior 9 OEMs, applied to Stellantis via
+wiTech / Mopar / Multiecuscan + FCA-PSA forums. Covers all 14 brands
+(Chrysler/Jeep/Dodge/Ram/Fiat/Alfa Romeo/Maserati/Peugeot/Citroën/
+Opel/Vauxhall/DS/Lancia + Ducati on commercial side) since they share
+wiTech topology post-merger.
+
+### catalogs/stellantis.json — 28 → 5,754 entries
+
+| Section | v3.39 | v3.50 |
+|---|---|---|
+| ECUs | 8 | **166** |
+| DIDs | 20 | **2,633** |
+| Routines | 0 | **159** |
+| Coding blocks | 0 | **34 (322 fields)** |
+| Adaptations | 0 | **81** |
+| Actuator tests | 0 | **168** |
+| Live PIDs | 0 | **53** |
+| DTC extended-data | 0 | **2,460** |
+
+#### ECUs (+158)
+wiTech bus map covering ICE + 4xe PHEV + STLA Large/Medium/Frame BEV
++ Ramcharger REEV: powertrain (ECM + bank-2 V8 Hemi split + ZF 8HP/
+9HP TCM + transfer + HV battery + front+rear MCU + OBC + LDC + VCMS
+STLA + front+rear motor + **SRT/Demon/Hellcat drive mode coordinator**
++ active exhaust + **Launch Control + Line Lock** + active engine
+mount Quadrifoglio), chassis (ABS + SAS + EPS + EPB + TPMS + ORC +
+occupancy + Active Park + **Bilstein Adaptive Damping + Active Roll
+Control Quadrifoglio + rear-axle steering Maserati + Q4 torque
+vectoring Alfa + Quadra-Lift air suspension Jeep/Ram + iBooster +
+Trailer Sway Control**), **Jeep off-road suite** (Selec-Terrain +
+Wade Sensing Wrangler/Gladiator + SelecSpeed Crawl + HDC + NV245
+transfer + **Tru-Lok rear+front diff lock Rubicon** + **electronic
+sway bar disconnect Rubicon**), ADAS (master + Forward Facing Camera
++ Forward Facing Radar + rear radar L+R + 4 corner radars + Surround
+View 4-cam + Driver Status Monitor + **Night Vision Wagoneer/Grand
+Wagoneer** + sonar + traffic sign), body (CGW + BCM + Uconnect 5
+cluster + dual ATC + 4 doors + 4 seats Wagoneer Executive Class
+24-way + 2 mirrors + steering column + 2 sliding doors Pacifica +
+liftgate + pano + convertible Wrangler/Spider/124 + fuel/charge flap
++ **frunk BEV** + **power tonneau Ram/Gladiator**), **Pixel LED
+headlights** + LED tails + welcome signature, **Uconnect 5
+Snapdragon** + passenger display Wagoneer + 2 rear displays + **
+McIntosh / Harman Kardon / Alpine / Sonus Faber Maserati** premium
+amp + tuner + 5G TCU + eCall + SiriusXM Guardian, Passive Entry +
+SKIM + alarm + tilt + glass-break, HV/EV thermal (heat pump + PTC +
+HV scroll compressor + battery heater + chiller + valve block + 2×
+aux pumps + **Range Extender Ramcharger / Jeep 4xe REEV**), heated
+steering + 4× seat climate + HUD + ambient + Qi + 2× massage + auto-
+wiper + **N95 cabin air filter Pacifica** + ionizer, trailer Tow
+Package + power hitch + Defender aux battery + **center console
+fridge** + **Power Running Boards Ram/Wagoneer** + **RamBox**
+lockable + Trailer view camera + **multifunction tailgate Ram** +
+bed lights, OTA + HSM + Ethernet + 5 domain controllers + Car2X +
+**Uconnect / Mopar Owner app gateway** + DAB+/HD Radio + Face Connect
++ **UWB Phone-as-Key**.
+
+#### DIDs (+2,613)
+- 26 generic UDS DIDs incl. Mopar part no, FCA calibration, wiTech ID, brand code (CHR/JEE/DOD/RAM/FIA/ALF/MAS/PEU/CIT/OPL/VAU/DS/LAN).
+- 85 ECM engine DIDs (RPM/torque/MAP/MAF/lambda B1+B2, 2× turbo + **supercharger rpm Hellcat/Demon + supercharger boost**, 2× wastegate, **MDS state + count + active minutes Hemi 4-cyl deact**, VVT intake+exhaust B1+B2, idle, drive mode 9 modes, ISS, **Launch Control + Line Lock count Demon + Red Eye/Demon mode flag**, max-RPM/speed/oil-temp/G lifetime, **DPF soot + regen count + distance since regen + active regen**, **DEF/AdBlue + remaining km + NOx in/out**, **4xe PHEV charge mode + EV distance + Hybrid distance + eTorque 48V assist + state**, SRT chiller water temp).
+- 64 per-cylinder (1-8) — Hemi V8 + V6 Quadrifoglio + 4xe V6.
+- 256 engine variant DIDs — 32 Stellantis engines × 8 fields (Hemi 5.7 / 6.4 392 / 6.2 Hellcat / Hellcat Redeye / **Demon 170 V8** / Hurricane 3.0 SO+HO I6 / Pentastar 3.6 V6 + eTorque + 4xe / EcoDiesel V6 / Alfa 2.0/2.2/2.9 V6 Quadrifoglio / 1.3/1.4/2.4 MultiAir / **Maserati Nettuno V6 Twin Combustion** / V8 / PSA PureTech 1.0/1.2/1.6 + hybrid / BlueHDi 1.5/2.0 / Opel 1.4T / PHEV 1.6 PSA / **STLA Large single/dual/Banshee SRT** / **STLA Medium e-3008/e-Avenger** / **STLA Frame Wagoneer S** / STLA Smallcar e-208/Corsa-e).
+- 240 transmission variants — 15 trans gens × 16 fields (ZF 8HP50/70/75/95 + 9HP48 + EAT8/EAT6 PSA + 6-DCT + 6MT + STLA front/rear reducer + **2-speed Charger Daytona Banshee** + NV245/Rock-Trac/Quadra-Drive II transfers).
+- 64 Uconnect head-unit gens (Uconnect 4 + 5 + PSA NAC + Alfa/Maserati Connect) × 16 fields.
+- 41 ABS + chassis DIDs (Adaptive Damping state + ARC state + rear steer angle + 4× ride height + **4× Quadra-Lift pressure + compressor + mode 5-position Aero/Normal/OR1/OR2/Park** + Q4 split + transfer split + low-range + **front+rear Tru-Lok state + sway bar disconnect state** + wade depth + max-safe wade + HDC + crawl + Selec-Terrain mode).
+- 64 per-wheel ABS/TPMS (4 × 16) + sensor IDs + camber/toe.
+- 33 HV battery DIDs incl. **800V architecture STLA Large** + chemistry + pyrofuse + lifetime charged/discharged.
+- 192 per-cell V (STLA Large max).
+- 256 per-module (32 × 8 fields).
+- 38 motor/MCU DIDs (front + rear, 19 each, incl. **PowerShot active Charger Daytona + overboost remaining**).
+- 31 OBC + VCMS DIDs incl. **V2L active/kW/lifetime + REEV runtime + REEV fuel burned + REEV target SOC** (Ramcharger).
+- 35 ADAS (Adaptive Cruise + Stop & Go + Lane Keep + AEB + Highway Assist + **Hands-Free Active Drive Level 3 STLA AutoDrive** + Intersection Assist + DSM + Blind Spot + Rear Cross Path + Surround View + **Trail Camera Wrangler/Gladiator** + Night Vision + Active Park + remote parking + **Trailer Reverse Steering Control** + Swerve).
+- 96 ADAS object stack (12 × 8).
+- 38 cluster + **Performance Pages** (lap timer + best 0-60/0-100/QM + best 60-0 braking + max long/lat G + **pitch + roll + wheel articulation + altitude + max wade + off-road minutes + low-range minutes + diff-lock minutes + sway-disconnect minutes + Launch + Line Lock + PowerShot + Drift mode minutes + Track minutes**).
+- 256 last-32-trip × 8.
+- 80 driver coaching (20 × 4 windows incl. off-road + wade + PowerShot).
+- 46 per-bulb hours (Pixel LED + welcome + race-track brake + aux off-road + bed lights).
+- 32 ambient zones.
+- 64 per-key (8 × 8) incl. Passive Entry + **UWB Phone-as-Key**.
+- 36 per-camera (9 × 4) incl. Trail + Night Vision IR.
+- 60 premium audio incl. **15-band parametric EQ × 3** (gain/freq/Q).
+- 132 per-ECU programming (33 × 4).
+- 52 Uconnect/SiriusXM Guardian/Mopar Owner subscription incl. **Free2move EV Route Planner + Free2move Charge + Mopar Owner app + Uconnect Market in-car commerce + SiriusXM with 360L**.
+- 20 bus topology (C/B/Diag/Chassis CAN + LIN + CAN-FD + Ethernet + AVB + SOME/IP).
+- 32 quad-zone HVAC + 96 user profiles + 104 service history (26 × 4 incl. ATF + Tru-Lok diff oil + supercharger oil + DPF + DEF) + 43 vehicle metadata (incl. **SRT + Quadrifoglio + Trail Rated + Rubicon + TRX + DT + Rebel + brand 14 codes + STLA platform 4 codes + 4xe PHEV + eTorque + V2L + Mopar pack**).
+
+#### Routines (+159) | Coding blocks (34 / 322 fields) | Adaptations (81) | Actuator tests (168) | Live PIDs (53) | DTC ext (2,460)
+Engine adapt resets + **MDS relearn + DPF forced regen + DEF priming + Launch + Line Lock arm + Red Key/Demon unlock + supercharger test + eTorque init**, ZF + EAT8 + Quick Learn, transfer + Q4 adapts, per-wheel ABS + SAS + yaw zero + TPMS + EPB workshop, **Bilstein Adaptive Damping + ARC + rear-axle steer + Quadra-Lift + ride-height + iBooster calibrations**, **Jeep off-road**: Selec-Terrain init + Wade Sensing + crawl + HDC + center diff + **front+rear Tru-Lok + sway bar disconnect tests**, BCM + window + mirror + sunroof + convertible + liftgate + sliding doors L+R + frunk + tonneau + **Power Running Boards + RamBox + multifunction tailgate** calibrations, ATC basic + heat-pump self-test, headlight aim L+R + Pixel LED calibrate, front camera + radar align + 4 corner/rear radars + Surround View + Trail Camera + Night Vision + DSM + sonar, cluster + mileage align + **Performance Pages reset**, HV cell balance + capacity + isolation + contactor + pre-charge + pyrofuse, motor resolver zero + inverter self-test, OBC + LDC + VCMS + thermal + charge flap, **Range Extender self-test Ramcharger**, exhaust flap test, 23 module-replacement procedures incl. **SKIM**, key + **SKIM relearn + Phone-as-Key UWB pair**, OTA check/install/rollback, HSM provision/zeroize, 5 domain self-tests + Ethernet + Car2X, seat init + massage calibrate + Qi + HUD + **Uconnect/SiriusXM Guardian refresh + welcome animation load + Ramcharger REEV test**.
+
+Coding blocks: BCM + door + alarm + **Pixel LED features** (matrix HB EU + R/T runway projection Daytona + lane lighting + intersection lighting), tail signature (Daytona Charger illuminated strip), ADAS Lane (**Hands-Free Active Drive Level 3 STLA AutoDrive**), ACC (Stop & Go + predictive + curve speed), AEB (intersection + reverse + swerve), Blind Spot + Rear Cross Path, ATC (heat pump + ionizer + N95 cabin filter Pacifica), EV charge (CCS1/2 + NACS + V2L + ISO 15118 PnC + 11/22kW AC + 200/350kW DC + 800V STLA Large + Free2move EV Route Planner), **SRT/Demon/Hellcat features** (Track + Drag + Drift + Custom + Snow + Tow + Eco + Valet + Launch + **Line Lock + Torque Reserve + Trans Brake + Red Key + PowerShot Charger Daytona + Performance Pages + G-meter**), active exhaust (legal quiet mode), **Uconnect 5 features** (CarPlay + AA + Connected + McIntosh + Harman Kardon + Alpine + Sonus Faber Maserati + passenger + rear displays Wagoneer + Uconnect Market), cluster (HUD + **Performance Pages overlay + Off-Road Pages overlay Jeep + articulation + wade depth overlays**), Passive Entry + UWB Phone-as-Key, trailer + **Trailer Reverse Steering Control** + power hitch, **Jeep off-road features** (Selec-Terrain + auto + Wade Sensing + crawl + HDC + low-range + front+rear Tru-Lok + sway bar disconnect + Trail Camera + 7 modes), Quadra-Lift + chassis (rear-wheel steer Maserati + ARC Quadrifoglio + Adaptive Damping + Q4 + Dynamic Response + Predictive Terrain Response), seat climate dr (24-way memory), sliding doors Pacifica, convertible, panoramic sunroof, HUD, Qi, DSM (gaze tracking HFAD), OTA (staged rollout), Crypto/HSM, **Uconnect/SiriusXM Guardian/Mopar Owner** (Phone-as-Key + Free2move EV Route Planner + Free2move Charge + voice + Alexa + Uconnect Market + Mopar Owner app + region NA/EU/CN/SA), **Ram truck features** (RamBox + multifunction tailgate + bed lights + cargo + trailer cameras + Power Running Boards + auto air lift + TRX off-road), frunk BEV, **Ramcharger / Jeep 4xe REEV** (Auto + EV priority + Hybrid + battery charge + save modes), N95 cabin filter, aux battery (Defender/Wrangler dual-battery + auto disconnect on low SoC).
+
+Adaptations: Engine (incl. **MDS default + Launch max RPM + Red Key default + exhaust flap policy**) + ZF + ABS + Adaptive Damping + Quadra-Lift heights (off-road/aero/park) + rear steer + Q4 + **Selec-Terrain default + Wade warn depth + crawl + HDC default speeds** + Lane Keep + AEB + ACC + Highway Assist + Hands-Free Drive + Pixel LED HB + welcome animation + comfort + N95 default + EV (DC/AC targets + 350kW + ISO 15118 PnC + V2L + AVAS) + **Ramcharger REEV target SOC + default mode** + OTA + HSM + massage. Actuator tests incl. **CDC 4× dampers + ARC actuators + rear-steer + 4× Quadra-Lift valves + center diff + front+rear Tru-Lok + sway bar disconnect + frunk + tonneau + Power Running Boards + RamBox + tailgate step + Pixel LED anim + supercharger test + Line Lock demo + PowerShot demo + Range Extender start/stop**. Live PIDs incl. engine + DPF + DEF + MDS state + supercharger + eTorque + HV battery + front+rear motor + OBC + V2L + REEV runtime + ADAS + chassis (pitch/roll/articulation/wade depth/Selec-Terrain mode). DTC ext: broad P/B/U/C codes × 4-6 record types incl. environmental_data + freeze_frame_template.
+
+Estimated ~30% ODIS coverage — at the realistic wiTech/Mopar-community ceiling. Higher coverage requires wiTech 2 dealer license.
+
 ## [3.49.0] - 2026-05-08 — JLR (Jaguar Land Rover) pushed to public-source ceiling (~30% ODIS, 5465 entries)
 
 Same depth-pattern as the prior 8 OEMs, applied to JLR via SDD /
