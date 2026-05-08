@@ -162,6 +162,12 @@ contains
   OBD.OEM.Tata in '..\src\Services\OBD.OEM.Tata.pas',
   OBD.OEM.MINI in '..\src\Services\OBD.OEM.MINI.pas',
   OBD.OEM.Smart in '..\src\Services\OBD.OEM.Smart.pas',
+  OBD.OEM.AstonMartin in '..\src\Services\OBD.OEM.AstonMartin.pas',
+  OBD.OEM.Bentley in '..\src\Services\OBD.OEM.Bentley.pas',
+  OBD.OEM.RollsRoyce in '..\src\Services\OBD.OEM.RollsRoyce.pas',
+  OBD.OEM.McLaren in '..\src\Services\OBD.OEM.McLaren.pas',
+  OBD.OEM.Lada in '..\src\Services\OBD.OEM.Lada.pas',
+  OBD.OEM.Dacia in '..\src\Services\OBD.OEM.Dacia.pas',
   OBD.OEM.ServiceFunction in '..\src\Services\OBD.OEM.ServiceFunction.pas';
 
 end.

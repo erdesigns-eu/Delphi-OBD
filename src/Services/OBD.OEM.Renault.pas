@@ -54,16 +54,13 @@ begin
   WMI := UpperCase(Copy(VIN, 1, 3));
   // Renault: VF1 (Boulogne-Billancourt passenger), VF2 (commercial),
   //   VS5 (Valladolid Spain), VR1 (Tangier Morocco), 3W2 (Mexico).
-  // Dacia (Romanian budget brand owned by Renault): UU1 (Mioveni
-  //   Logan/Sandero), UU3 (smaller models), UU6 (Pickup-RT lineage).
+  // Dacia is delegated to OBD.OEM.Dacia (UU1 / UU3 / LBR / LRY).
   // Alpine (sports brand): VFA, VFD (Dieppe).
   // Renault Korea (formerly Renault Samsung Motors): KNM.
   Result :=
     // Renault SA
     (WMI = 'VF1') or (WMI = 'VF2') or (WMI = 'VS5') or
     (WMI = 'VR1') or (WMI = '3W2') or
-    // Dacia
-    (WMI = 'UU1') or (WMI = 'UU3') or (WMI = 'UU6') or
     // Alpine
     (WMI = 'VFA') or (WMI = 'VFD') or
     // Renault Korea

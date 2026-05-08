@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.26.0] - 2026-05-08 — Six more OEMs (ultra-luxury British + Russian + Eastern-European)
+
+### Added (6 new full-depth OEM extensions)
+- **`OBD.OEM.AstonMartin`** — Aston Martin Lagonda (1 WMI: SCF Gaydon + St Athan). 16-ECU map covering DB12 / Vantage / DBX / DBX 707 / Vanquish + Valhalla PHEV (charge controller + front-axle e-motor + 6.6 kWh PHEV pack at 0x7E5/0x7E6/0x7E7). 25 DIDs including Q by Aston Martin paint + trim codes, manettino-equivalent damper / drive modes, eDiff lock, four-corner air-suspension on DBX, oil pressure / level / runtime, Valhalla PHEV pack voltage / SOC / motor temp. 5 routines.
+- **`OBD.OEM.Bentley`** — Bentley Motors (1 WMI: SCB Crewe). 16-ECU map covering Continental GT / GTC / Flying Spur / Bentayga + V8 PHEV variants (14.1 / 25.9 kWh). 27 DIDs including Bentley Mulliner paint code, commission number, drive mode, air-suspension mode, Dynamic Ride 48 V active-anti-roll status, Flying Spur Mulliner rear-wheel steering angle, four air-suspension heights, PHEV stack. 7 routines including Dynamic Ride calibration + rear-wheel steering calibration.
+- **`OBD.OEM.RollsRoyce`** — Rolls-Royce Motor Cars (1 WMI: SCA Goodwood). BMW Group sub-brand inheriting BMW E-Sys / ISTA — 17-ECU map covering Phantom (RR1) / Ghost (RR21) / Cullinan (RR31) + Spectre EV (RR23) at 0x7E5/0x7E6/0x7E7 with 102 kWh Gen5 BMW eDrive pack. 28 DIDs including factory + current I-Stufe, FA SALAPA option codes, RR model code, Bespoke programme commission number, Starlight Headliner constellation pattern, Magic Carpet Ride active flag, four air heights, rear-wheel steering, Spirit OS version, Spectre pack voltage / SOC / SOH / front + rear motor temps / charge status / range. 7 routines including Bespoke Starlight constellation programming.
+- **`OBD.OEM.McLaren`** — McLaren Automotive (1 WMI: SBM Woking MPC). 17-ECU map covering 720S / 750S / 765LT / GT + Artura V6 PHEV (front-axle e-motor + 7.4 kWh PHEV pack). 27 DIDs including MSO paint code, MonoCell carbon-tub serial, dual-bank turbo temperatures, PCCM handling + powertrain modes, active rear-wing position enum, Vehicle-Lift status, DCT clutch A/B temperatures, brake pad remaining, Artura PHEV stack. 7 routines including 7-DCT (SSG) calibration + active-aero calibration + lift-axle test.
+- **`OBD.OEM.Lada`** — AvtoVAZ / Lada (3 WMIs: XTA Tolyatti + XTC Izhevsk + XTV Bronto). 13-ECU map covering Granta / Vesta / Niva Legend / Niva Travel / Largus with VAZ-21127 / 21179 / 21214 engines + JATCO JF015E CVT / 5AMT / 4AT. 26 DIDs including model code, engine code, transmission code, APS immobilizer state enum, EPS torque + motor current, intake MAF / temperature, throttle / pedal position, manifold pressure, Niva transfer-case mode (2H/4H/4L/N), CVT oil temperature + ratio, AMT clutch position. 6 routines including APS immobilizer key learning + 5AMT clutch calibration.
+- **`OBD.OEM.Dacia`** — Automobile Dacia / Renault Group budget brand (4 WMIs: UU1 + UU3 Mioveni + LBR + LRY Dongfeng-Renault Wuhan). 16-ECU map covering Sandero / Logan / Duster / Jogger / Bigster + ECO-G LPG bi-fuel + Spring EV (26.8 kWh) + Bigster Hybrid 140. 27 DIDs including Renault Group part number, model code, engine code (TCe / ECO-G / Hybrid 140 / 5AQ), assembly plant (Mioveni / Wuhan / Tangier), LPG tank level + active flag, Spring EV pack voltage / SOC / SOH / motor temp / charge status / range, Duster 4x4 mode. 6 routines.
+
+### Added (DTC starters — full depth, 148 entries combined)
+- `dtc-aston-martin.json`: 22 codes (8-cylinder misfires P0301-P0308 for V8 / V12, M177 turbo over/underboost, oil pressure, catalysts, Valhalla HV isolation, DBX air-suspension, Bilstein DTX damper, comm-loss).
+- `dtc-bentley.json`: 24 codes (V8 + W12 misfires, turbo, oil, catalysts, hybrid HV isolation + battery deterioration + AC charge coupler, air-suspension, Dynamic Ride 48 V, rear-wheel steering, KESSY).
+- `dtc-rolls-royce.json`: 25 codes (V12 + V8 misfires, turbo, oil, catalysts, Vanos, Spectre HV stack, AC + DC charge coupler, Magic Carpet air-suspension, rear-wheel steering, Spirit OS comm-loss, Starlight LED).
+- `dtc-mclaren.json`: 24 codes (V8 cylinder misfires P0301-P0308, twin-turbo, dry-sump oil pressure, catalysts, Artura HV stack + AC charge coupler, 7-DCT TCC performance, Vehicle-Lift sensor, active rear-wing sensor, PCCM comm-loss).
+- `dtc-lada.json`: 26 codes (MAF / coolant / TPS / O2 sensor circuits, lean / rich, 4-cylinder misfires, CKP / CMP, catalyst, EVAP, fuel pump, clutch switch, CKP self-learn, APS immobilizer auth, ABS, comm-loss, BCM low voltage).
+- `dtc-dacia.json`: 27 codes (MAF / coolant circuits, lean / rich, TCe turbo, 4-cylinder misfires, catalyst, EVAP, ECO-G LPG injector + pressure, Spring EV HV stack + charge coupler, JF016E CVT, brake-pedal switch, Duster AWD coupling, comm-loss, UCH low voltage).
+
+### Changed (WMI hygiene — collision fixes)
+- `OBD.OEM.PACCAR` no longer claims `SCB` (real-world WMI for PACCAR Leyland Trucks is `SAR`; `SCB` is exclusively Bentley). Regression test guards both directions.
+- `OBD.OEM.Renault` no longer claims `UU1` / `UU3` / `UU6` — Dacia is delegated to its own extension. Regression test guards both directions.
+
+### Total
+- **OEMs: 40 → 46** (six new full-depth extensions).
+- **DTC entries: 148 new starter codes** across the v3.26 OEMs.
+
 ## [3.25.0] - 2026-05-08 — Unified service-function API
 
 ### Added

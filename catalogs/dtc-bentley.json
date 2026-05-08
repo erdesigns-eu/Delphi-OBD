@@ -1,0 +1,32 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Bentley DTC starter",
+  "default_source": "bentley-vag-odis-community",
+  "dtcs": [
+    { "code": "P0301", "severity": "warning",  "description": "Bentley V8 TFSI / W12 TSI — Cylinder 1 misfire detected", "verified": false },
+    { "code": "P0302", "severity": "warning",  "description": "Bentley V8 / W12 — Cylinder 2 misfire detected", "verified": false },
+    { "code": "P0303", "severity": "warning",  "description": "Bentley V8 / W12 — Cylinder 3 misfire detected", "verified": false },
+    { "code": "P0304", "severity": "warning",  "description": "Bentley V8 / W12 — Cylinder 4 misfire detected", "verified": false },
+    { "code": "P0305", "severity": "warning",  "description": "Bentley W12 — Cylinder 5 misfire detected", "verified": false },
+    { "code": "P0306", "severity": "warning",  "description": "Bentley W12 — Cylinder 6 misfire detected", "verified": false },
+    { "code": "P0234", "severity": "critical", "description": "Bentley V8 TFSI / W12 — Turbocharger overboost", "verified": false },
+    { "code": "P0299", "severity": "warning",  "description": "Bentley V8 TFSI / W12 — Turbocharger underboost", "verified": false },
+    { "code": "P0524", "severity": "critical", "description": "Bentley — Engine oil pressure too low", "verified": false },
+    { "code": "P052E", "severity": "warning",  "description": "Bentley — Camshaft phasing performance (Valvelift / chain stretch)", "verified": false },
+    { "code": "P0420", "severity": "warning",  "description": "Bentley — Catalyst Bank 1 efficiency below threshold", "verified": false },
+    { "code": "P0430", "severity": "warning",  "description": "Bentley W12 — Catalyst Bank 2 efficiency below threshold", "verified": false },
+    { "code": "P2002", "severity": "critical", "description": "Bentley diesel-equivalent / Mulsanne — DPF efficiency below threshold", "verified": false },
+    { "code": "P0AA6", "severity": "critical", "description": "Bentley Hybrid — HV battery isolation fault", "verified": false },
+    { "code": "P0A7A", "severity": "warning",  "description": "Bentley Hybrid — Hybrid battery pack deterioration", "verified": false },
+    { "code": "P0D29", "severity": "warning",  "description": "Bentley Hybrid — AC charging coupler latch fault (Type 2)", "verified": false },
+    { "code": "C10C0", "severity": "critical", "description": "Bentley — Air-suspension reservoir pressure too low", "verified": false },
+    { "code": "C10C1", "severity": "warning",  "description": "Bentley — Air-suspension level sensor implausible", "verified": false },
+    { "code": "C0A20", "severity": "warning",  "description": "Bentley — Dynamic Ride 48 V actuator drive fault", "verified": false },
+    { "code": "C1A30", "severity": "warning",  "description": "Bentley Flying Spur Mulliner — Rear-wheel steering position implausible", "verified": false },
+    { "code": "U0073", "severity": "critical", "description": "Bentley — High-speed CAN bus 'A' off", "verified": false },
+    { "code": "U0146", "severity": "warning",  "description": "Bentley — Lost Communication With Gateway 'A'", "verified": false },
+    { "code": "U0184", "severity": "warning",  "description": "Bentley — Lost Communication With Bentley Rotating Display", "verified": false },
+    { "code": "B116F", "severity": "warning",  "description": "Bentley — KESSY antenna circuit fault", "verified": false }
+  ]
+}

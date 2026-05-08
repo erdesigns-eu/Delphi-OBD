@@ -58,11 +58,12 @@ begin
   // Peterbilt: 1XP (Denton TX), 1NP (Madison TN), 5KJ (Mexico).
   // Kenworth: 1NK (Chillicothe OH), 1XK (Renton WA), 2NK (Canada).
   // DAF (Eindhoven): XLR.
-  // Leyland Trucks (UK, PACCAR-owned): SCB.
+  // Leyland Trucks (UK, PACCAR-owned): SAR. (SCB is Bentley — that
+  // WMI was a prior misassignment; real Leyland Trucks WMI is SAR.)
   Result :=
     (WMI = '1XP') or (WMI = '1NP') or (WMI = '5KJ') or
     (WMI = '1NK') or (WMI = '1XK') or (WMI = '2NK') or
-    (WMI = 'XLR') or (WMI = 'SCB');
+    (WMI = 'XLR') or (WMI = 'SAR');
 end;
 
 procedure TOBDOEMExtensionPACCAR.BuildCatalog(

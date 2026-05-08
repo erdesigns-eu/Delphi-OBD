@@ -67,7 +67,8 @@ uses
   Tests.OEM.Premium in 'Tests.OEM.Premium.pas',
   Tests.OBD.Helpers in 'Tests.OBD.Helpers.pas',
   Tests.OEM.LuxuryAndIndian in 'Tests.OEM.LuxuryAndIndian.pas',
-  Tests.OEM.ServiceFunction in 'Tests.OEM.ServiceFunction.pas';
+  Tests.OEM.ServiceFunction in 'Tests.OEM.ServiceFunction.pas',
+  Tests.OEM.UltraLuxuryAndEastern in 'Tests.OEM.UltraLuxuryAndEastern.pas';
 
 {$IFNDEF TESTINSIGHT}
 var
