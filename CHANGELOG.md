@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.53.0] - 2026-05-08 — GM (Chevy/Buick/Cadillac/GMC) pushed to public-source ceiling (~30% ODIS, 5,254 entries)
+
+GDS2 / MDI / Tech2 community sources. Covers all 4 brands sharing GM
+diagnostic topology: Chevrolet, Buick, Cadillac, GMC.
+
+### catalogs/gm.json — 28 → 5,254 entries
+141 ECUs, 2,244 DIDs, 126 routines, 32 coding blocks (309 fields), 78
+adaptations, 134 actuator tests, 39 live PIDs, 2,460 DTC ext.
+
+#### Brand-specific captures
+- **Super Cruise** 13-bit coding (hands-off lane change + hitched towing
+  + speed limit assist + driver attention camera + steering wheel
+  light bar + approved-route only + Super Cruise w/ trailer + max
+  speed)
+- **Ultra Cruise** (Cadillac Celestiq) door-to-door
+- **Hummer EV** 11-bit (CrabWalk diagonal + 4-wheel steering + Extract
+  Mode +6 inch lift + Watts to Freedom launch + Adaptive Air Ride +
+  Ultra Vision UFS underbody + off-road Super Cruise + Infinity Roof
+  sky panels + Power Pack outlets + V2H bidirectional + Terrain Mode)
+- **C8 Corvette modes** 16-bit (Weather/Tour/Sport/Track/MyMode/Z-Mode
+  + 6-level PTM Performance Traction Management Wet→Race 2 + frunk
+  button + front-lift GPS memory + valet mode + Performance Data
+  Recorder)
+- **DFM** Dynamic Fuel Management 17-cylinder modes
+- **OnStar Connected Services** 19-bit (Automatic Crash Response + 5G
+  Wi-Fi + Smart Driver coaching + Google Built-in Maps/Assistant/Play
+  + Alexa + Phone-as-Key UWB + Trailering App + Connected Navigation
+  + my{Chevy/GMC/Cadillac/Buick} app + SiriusXM 360L)
+- **Trailering** 12-bit (Max Trailering + Advanced Trailering System +
+  Transparent Trailer view + Trailer Camera 14 views + Hitch View +
+  Hitch Guidance + Jackknife Alert + Trailer Blind Zone + Trailer
+  TPMS + Super Cruise w/ trailer + max kg up to 11,500)
+- **30 engine variants**: LS3 → LT2 mid-engine C8 Stingray + LT6 5.5
+  flat-plane Z06 670 hp NA + LT7 5.5 twin-turbo ZR1 1064 hp + LT4 SC
+  Z06/ZL1 + L84/L87 DFM + LDD/LM2 3.0 Duramax I6 diesel + L5P 6.6
+  Duramax V8 + L8T 6.6 V8 gas HD + Ecotec 2.0/2.7T + LF3 V6 BiTurbo
+  Blackwing + Ultium Lyriq/Hummer EV dual+tri/Silverado EV/Equinox EV/
+  Blazer EV SS/Celestiq/Escalade IQ/BrightDrop Zevo
+- **12 transmission variants**: 6L50/6L80/8L90/10L80/10L90 +
+  Tremec TR-9080 8-DCT (C8 Corvette) + Tremec 6/7MT manual + VT40 CVT
+  + Ultium 1-speed + Ultium 2-speed Hummer EV / Silverado EV +
+  ATC active transfer
+- **HU gens**: Infotainment 3 Plus + VIP / Global B + VIP Ultium
+  Snapdragon + Ultifi software platform
+- 19 routines incl. **Watts to Freedom launch test + Extract Mode +
+  CrabWalk + Corvette front-lift GPS save + PTM calibrate + DFM
+  cylinder mode relearn + MidGate calibrate Silverado EV + Performance
+  Data Recorder export + UFS underbody calibrate**
+- 15 adaptations incl. **WTF default + Extract lift height + Ultium
+  max DC kW + V2H + V2L Power Pack**
+- 11 actuator tests incl. **Watts to Freedom launch demo + CrabWalk +
+  Extract demo + Corvette front lift + Power Pack outlet test +
+  MidGate demo + Trailer 14-view demo**
+
+Estimated ~30% ODIS coverage — at the realistic GDS2/Tech2-community
+ceiling.
+
 ## [3.52.0] - 2026-05-08 — EV specialists (6 OEMs) pushed to public-source ceiling (~18-22%, 29,626 entries)
 
 Tesla, Rivian, Lucid, BYD, NIO, XPeng brought up to depth using
