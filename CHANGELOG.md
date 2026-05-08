@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.61.0] - 2026-05-08 — Ferrari ~15% ODIS, ~5,000 entries
+
+F154 3.9 V8 BiTurbo (488/F8/Roma/Pista 711hp) + F154 4.0 V8 PHEV
+SF90 1000hp + SF90 XX 1030hp + F163 3.0 V6 PHEV 296 GTB + F140 6.5 V12
+NA (812 Superfast/Competizione/Purosangue/12Cilindri 830hp/Daytona
+SP3 840hp) + LaFerrari HY-KERS + Manettino 8-pos + E-Manettino PHEV +
+SSC Side Slip Control + Active aero + F1-style DRS + first all-EV
+2026 Elettrica.
+
 ## [3.60.0] - 2026-05-08 — Aston Martin ~18% ODIS, ~4,800 entries
 
 AMG 4.0 V8 BiTurbo DBX707 697hp + Vantage 665hp + DB12 671hp + 5.2
