@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.62.0] - 2026-05-08 — McLaren ~15% ODIS, ~4,900 entries
+
+M838T/M840T 3.8/4.0 V8 BiTurbo (720S/765LT/Senna/Speedtail KERS
+1036hp/750S 740hp/W1 PHEV 1258hp/P1 903hp legacy) + M630 3.0 V6
+PHEV Artura 671hp + Artura Spider 700hp + Graziano 7-DCT + Artura
+8-DCT no reverse (uses motor) + Proactive Chassis Control III + Race
+Active Chassis Senna + Active DRS + nose lift + Variable Drift Control
++ Iris II 5G + future all-EV post-2030.
+
 ## [3.61.0] - 2026-05-08 — Ferrari ~15% ODIS, ~5,000 entries
 
 F154 3.9 V8 BiTurbo (488/F8/Roma/Pista 711hp) + F154 4.0 V8 PHEV
