@@ -100,6 +100,34 @@ What's needed to close the gap:
   Linux / iOS / Android). For Windows we'd reuse the existing
   `OBD.ECU.Signature.OpenSSL` library-load path.
 
+### v3.82 / B8 — Toyota / Lexus smart-key — certificate-locked platforms
+
+`OBD.OEM.KeyAdaptation.Toyota` ships the request/response framing
+including the master-key vs PIN authentication mode toggle.
+`FindToyotaPlatform` flags certificate-locked Techstream platforms
+(post-MY2021 generally) as `tpaCertificateRequired`. Apps without a
+licensed Techstream certificate get a clear "out of scope" signal
+rather than a wire-level failure.
+
+### v3.82 / B7 — Ford PATS — gateway-locked platforms
+
+`OBD.OEM.KeyAdaptation.Ford` ships the framing + an applicability
+table. Mustang Mach-E (CD542), F-150 Lightning (P708), and other
+post-2018 FDRS-only platforms are flagged `fpaGatewayLocked` because
+the gateway requires a licensed Ford IDS or FDRS connection. Open
+platforms (P552, CD391, C520) work over plain OBD via the
+documented PATS reset procedure.
+
+### v3.82 / B6 — HMG smart-key — dealer PIN derivation
+
+`OBD.OEM.KeyAdaptation.HMG` ships the request/response framing fully.
+The 4–6 digit PIN that authorises the procedure is derived from the
+dealer portal (Hyundai SST / Kia KDS Online). Open-procedure
+platforms (Hyundai i20 RB, Elantra LD, Sonata JF, Kia Stonic QS) are
+flagged `hpaOpenWithPIN`; E-GMP and Genesis platforms are
+`hpaGatewayLockedPostMY2020` / `hpaCertificateRequired` to signal the
+caller needs a licensed dealer tool instead.
+
 ### v3.82 / B5 — Mercedes SCN central-server solver
 
 `OBD.OEM.SCN.Mercedes` ships the publicly documented version-fetch +
