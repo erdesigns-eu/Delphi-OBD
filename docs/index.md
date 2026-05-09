@@ -39,7 +39,8 @@ Navigation hub for every doc in the repository, grouped by topic.
 - [EXTENSION_PLAN_v3.80.md](EXTENSION_PLAN_v3.80.md) — v3.80 milestone (shipped).
 - [EXTENSION_PLAN_v3.81.md](EXTENSION_PLAN_v3.81.md) — v3.81 milestone (shipped).
 - [EXTENSION_PLAN_v3.82.md](EXTENSION_PLAN_v3.82.md) — v3.82 milestone (shipped).
-- [EXTENSION_PLAN_v3.83.md](EXTENSION_PLAN_v3.83.md) — v3.83 milestone (active).
+- [EXTENSION_PLAN_v3.83.md](EXTENSION_PLAN_v3.83.md) — v3.83 milestone (shipped).
+- [EXTENSION_PLAN_v3.84.md](EXTENSION_PLAN_v3.84.md) — v3.84 milestone (active: style + JSON-catalog alignment).
 - [PROPOSALS.md](PROPOSALS.md) — RFCs awaiting acceptance (with status table).
 - [../GAPS.md](../GAPS.md) — current blockers and recently-resolved gaps.
 - [DATA_GAPS.md](DATA_GAPS.md) — features shipped as framework + stubs because reference data is not publicly available.
