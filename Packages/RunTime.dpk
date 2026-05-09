@@ -187,6 +187,7 @@ contains
   OBD.OEM.Coding.HMG in '..\src\Services\OBD.OEM.Coding.HMG.pas',
   OBD.OEM.Coding.Stellantis in '..\src\Services\OBD.OEM.Coding.Stellantis.pas',
   OBD.ECU.Signature.PQC in '..\src\Services\OBD.ECU.Signature.PQC.pas',
+  OBD.ECU.Flashing.VoltageGate in '..\src\Services\OBD.ECU.Flashing.VoltageGate.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',

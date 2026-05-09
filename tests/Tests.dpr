@@ -37,6 +37,7 @@ uses
   Tests.ECU.Flashing.Checkpoint in 'Tests.ECU.Flashing.Checkpoint.pas',
   Tests.OEM.Coding.NewOEMs in 'Tests.OEM.Coding.NewOEMs.pas',
   Tests.ECU.Signature.PQC in 'Tests.ECU.Signature.PQC.pas',
+  Tests.ECU.Flashing.VoltageGate in 'Tests.ECU.Flashing.VoltageGate.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
