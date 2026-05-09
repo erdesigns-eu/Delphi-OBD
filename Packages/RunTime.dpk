@@ -189,6 +189,7 @@ contains
   OBD.ECU.Signature.PQC in '..\src\Services\OBD.ECU.Signature.PQC.pas',
   OBD.ECU.Flashing.VoltageGate in '..\src\Services\OBD.ECU.Flashing.VoltageGate.pas',
   OBD.Protocol.DoIP.Discovery in '..\src\Protocol\OBD.Protocol.DoIP.Discovery.pas',
+  OBD.Adapter.Capabilities in '..\src\Adapters\OBD.Adapter.Capabilities.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
