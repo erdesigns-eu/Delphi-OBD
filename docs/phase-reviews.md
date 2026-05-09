@@ -2148,3 +2148,173 @@ loop test, per the standing convention.
       timestamp (2024-01-01 = 1704067200).
 - [x] All three runtime components register on the
       **OBD Calibration** palette tab.
+
+---
+
+## Phase 8 — Coding (vendor-agnostic + per-OEM)
+
+### Code landed
+
+**Generic write surface**
+- `src/Coding/OBD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory`.
+  ISO 14229-1 §11.7 WriteMemoryByAddress (SID 0x3D). Same
+  `AutoExecute = False` safety contract as every other write-side
+  component; address / length encoder lifted from the flasher.
+- `src/Coding/OBD.KWP.WriteID.pas` — `TOBDKWPWriteID`. KWP2000
+  WriteDataByLocalIdentifier (SID 0x3B) — the older European-car
+  K-line write counterpart of UDS 0x2E.
+- `src/Coding/OBD.Coding.Diff.pas` — `TOBDCodingDiff`. Byte-level
+  diff / apply / revert. Catches length mismatches, before-byte
+  mismatches, supports growing and shrinking buffers, ascending-
+  offset Sort helper.
+- `src/Coding/OBD.Coding.AuditLog.pas` — `TOBDCodingAuditLog`.
+  Append-only JSONL with optional HMAC-SHA-CMAC chain (each line's
+  HMAC covers `prev_hmac || serialised_line_without_hmac`). Built
+  on the Phase 4e CMAC primitive — no new crypto. `Verify` walks
+  the chain and returns the line index of the first tamper.
+- `src/Coding/OBD.Coding.Session.pas` — `TOBDCodingSession`.
+  Hardware-recoverable orchestrator: snapshot → write → verify →
+  rollback-on-fail. Snapshots **every** step before any write so
+  a partial-write failure can roll the whole batch back. Wired
+  into the audit log when one is attached.
+
+**Per-OEM helpers**
+- `OBD.Coding.VAG` — long-coding parse / format / GetBit / SetBit
+  / GetByte / SetByte; adaptation channel encode / decode.
+- `OBD.Coding.BMW` — CAFD / NCS TLV walk, FindEntry, WriteValue,
+  ReadBit / SetBit on multi-byte values, ParseVehicleOrder for
+  S-code lists.
+- `OBD.Coding.Ford` — AsBuilt section parse / format, two's-
+  complement section checksum compute / verify / seal,
+  GetByte / SetByte by offset, FindSection by name.
+- `OBD.Coding.HMG` — Hyundai / Kia / Genesis configuration-word
+  parse / GetOption / SetOption (1- / 2- / 4-byte values).
+- `OBD.Coding.Honda` — flat-array customisation entries with
+  ranged setter for enum-style options.
+- `OBD.Coding.Mercedes` — variant-coding GetBit / SetBit + sub-
+  byte GetField / SetField; SCN (Software Calibration Number)
+  decode / encode against a fixed-length ASCII field.
+- `OBD.Coding.Stellantis` — FCA Proxi parameter parse / get / set,
+  ID-keyed.
+- `OBD.Coding.Toyota` — customisation menu parse / get / set
+  (id-width-value records).
+- `OBD.OEM.ComponentProtection.VAG` —
+  `TOBDComponentProtectionVAG`. CP DID catalogue + status decoder
+  + challenge-read → authorisation-write flow gated by an
+  `AuthFunc` callback the host wires to its Geko / SVM bridge.
+  No OEM secrets in the unit.
+
+**Tests**
+- `tests/Tests.OBD.Coding.Phase8.pas` — four fixtures, 21 tests:
+  WriteMemory + KWP WriteID safety gates, diff round-trip / apply
+  / revert / mismatch detection, audit-log three-entry round-trip
+  / verify-clean / verify-detects-tampering, plus per-OEM
+  primitive coverage (VAG long-coding round-trip + bit edits,
+  BMW CAFD parse + edit, Ford checksum seal + verify, HMG /
+  Honda / Mercedes / Stellantis / Toyota set / get round-trips).
+
+**Wiring**
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added all 15 new units and the test fixture.
+- `src/DesignTime/OBD.Design.Registration.pas` — registered
+  `TOBDUDSWriteMemory`, `TOBDKWPWriteID`, `TOBDCodingAuditLog`,
+  `TOBDCodingSession`, `TOBDComponentProtectionVAG` on the
+  **OBD Coding** palette tab.
+
+### Architecture highlights
+
+- **One safety contract everywhere.** Every write-side component
+  defaults `AutoExecute = False`; the orchestrator propagates
+  the gate to its child `TOBDDataIdentifierIO` in
+  `EnsureChildren`-style code; the audit log records every
+  attempt.
+- **Snapshot-before-write atomicity.** The session takes
+  *every* snapshot before *any* write so a partial-batch
+  failure can roll back the entire batch, not just the steps
+  reached after the failure.
+- **JSONL audit log + CMAC chain.** Append-only,
+  one-JSON-object-per-line, optional HMAC chain over
+  `prev || line_minus_hmac`. Reuses the Phase 4e CMAC
+  primitive — no new crypto surface area to review. `Verify`
+  returns the line index of the first tamper so a host UI
+  can highlight the offending row.
+- **Per-OEM helpers ship the coding primitives, not OEM
+  catalogues.** Each unit covers the load-bearing
+  parse / get / set surface for that vendor's coding model.
+  Per-OEM option-name tables (e.g. "BIT 0 of byte 7 =
+  daytime running lights") are dealer-database content that
+  hosts wire from their own data sources; shipping invented
+  values would be cargo-culting.
+
+### What's intentionally not in v1
+
+- **Per-OEM option-name catalogues.** As above. Ground truth
+  is dealer-database content; hosts plug their own tables
+  through the public encode / decode surface each unit
+  provides.
+- **Built-in Geko / SVM bridge for VAG Component Protection.**
+  Not legally distributable. The unit ships the unlock flow
+  with a callback hook; hosts attach their access.
+- **OEM coding "label files" / .lbl parser.** VAG, BMW and
+  others ship semi-standard label files separately from the
+  binary coding string; integrating those would tie the
+  package to a specific tool's format. Tracked as an
+  optional follow-up.
+- **Session async path.** `Apply` ships sync + async;
+  individual sub-helpers (snapshot / write / verify) are sync
+  only. The orchestrator is the async entry point.
+
+### Honest review
+
+1. **Audit-log HMAC chain is line-based.** Verify uses a
+   substring search for `,"hmac":"…"}` and re-serialises the
+   body without the HMAC field for comparison. This works
+   because we control the writer's serialisation, but a host
+   that hand-writes log lines with a different field order
+   would defeat the verifier. Documented; the public API
+   only encourages writing through `Append`.
+2. **Diff is byte-level, not run-length-encoded.** A one-byte
+   change in a 64KB buffer produces one change record, but
+   a flipped 64KB buffer produces 64K change records. Fine
+   for coding (sub-100-byte payloads); inadequate for
+   firmware-grade diffing. Tracked.
+3. **Per-OEM helpers don't model the full vendor workflow.**
+   VAG long coding edits work; choosing which DID to read /
+   write the buffer through is the host's job. The same is
+   true of BMW CAFD, Ford AsBuilt, etc. Documented.
+4. **Component Protection unit covers VAG only.** BMW CAS,
+   Mercedes EZS and FCA SGW are similar concepts but
+   distinct flows; each would warrant its own unit. Tracked
+   as a follow-up.
+5. **No dry-run / preview mode on the orchestrator.** The
+   session always writes; a dry-run that emits the audit-log
+   trail without touching the bus would be a useful UX
+   addition for "review before commit" tools. Tracked.
+6. **No real-vehicle integration test.** Same hardware-loop
+   deferral as every prior phase — this is the phase where
+   the gate matters most.
+
+### Phase 8 follow-ups
+
+- Per-OEM option-name catalogues sourced from the host's data
+  files (no OEM secrets shipped here).
+- Dry-run / preview mode for `TOBDCodingSession`.
+- Run-length-encoded diff for firmware-scale buffers.
+- BMW CAS / Mercedes EZS / FCA SGW component-protection
+  helpers paralleling the VAG one.
+- OEM "label file" parsers for VAG / BMW / Ford / Mercedes.
+- Hardware-loop integration.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] `AutoExecute = False` default on every write-side
+      component.
+- [x] Sync + async + audit-log integration on the orchestrator.
+- [x] Diff round-trip pinned to test vectors.
+- [x] Audit-log HMAC chain verified end-to-end with a
+      tamper-detection vector.
+- [x] Every OEM primitive covered by a hand-derived test.
+- [x] Five new components register on the OBD Coding palette.

@@ -92,6 +92,20 @@ uses
   OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas',
   OBD.Coding.Uploader in '..\src\Coding\OBD.Coding.Uploader.pas',
   OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
+  OBD.UDS.WriteMemory in '..\src\Coding\OBD.UDS.WriteMemory.pas',
+  OBD.KWP.WriteID in '..\src\Coding\OBD.KWP.WriteID.pas',
+  OBD.Coding.Diff in '..\src\Coding\OBD.Coding.Diff.pas',
+  OBD.Coding.AuditLog in '..\src\Coding\OBD.Coding.AuditLog.pas',
+  OBD.Coding.Session in '..\src\Coding\OBD.Coding.Session.pas',
+  OBD.Coding.VAG in '..\src\Coding\OBD.Coding.VAG.pas',
+  OBD.Coding.BMW in '..\src\Coding\OBD.Coding.BMW.pas',
+  OBD.Coding.Ford in '..\src\Coding\OBD.Coding.Ford.pas',
+  OBD.Coding.HMG in '..\src\Coding\OBD.Coding.HMG.pas',
+  OBD.Coding.Honda in '..\src\Coding\OBD.Coding.Honda.pas',
+  OBD.Coding.Mercedes in '..\src\Coding\OBD.Coding.Mercedes.pas',
+  OBD.Coding.Stellantis in '..\src\Coding\OBD.Coding.Stellantis.pas',
+  OBD.Coding.Toyota in '..\src\Coding\OBD.Coding.Toyota.pas',
+  OBD.OEM.ComponentProtection.VAG in '..\src\Coding\OBD.OEM.ComponentProtection.VAG.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
   OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
@@ -137,7 +151,8 @@ uses
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
   Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
   Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
-  Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas';
+  Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas',
+  Tests.OBD.Coding.Phase8 in 'Tests.OBD.Coding.Phase8.pas';
 
 {$IFDEF CI}
 var

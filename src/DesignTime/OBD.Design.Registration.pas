@@ -61,7 +61,12 @@ uses
   OBD.Coding.FlashSession,
   OBD.Calibration.XCP,
   OBD.Calibration.CCP,
-  OBD.Speciality.IsoBus;
+  OBD.Speciality.IsoBus,
+  OBD.UDS.WriteMemory,
+  OBD.KWP.WriteID,
+  OBD.Coding.AuditLog,
+  OBD.Coding.Session,
+  OBD.OEM.ComponentProtection.VAG;
 
 procedure Register;
 begin
@@ -105,6 +110,16 @@ begin
     TOBDXCP,
     TOBDCCP,
     TOBDIsoBus
+  ]);
+
+  // Phase 8 additions: extra write-side components and the
+  // session orchestrator.
+  RegisterComponents('OBD Coding', [
+    TOBDUDSWriteMemory,
+    TOBDKWPWriteID,
+    TOBDCodingAuditLog,
+    TOBDCodingSession,
+    TOBDComponentProtectionVAG
   ]);
 end;
 
