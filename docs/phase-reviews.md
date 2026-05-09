@@ -775,19 +775,22 @@ the message when they differ (and the response wasn't negative).
 
 ### Honest review
 
-1. **Inline DT burst on CTS.** The current implementation emits
-   all granted packets in one tight loop. J1939-21 §5.10.4 allows
-   inter-frame gaps (Tr ≈ 50 ms is conventional). Hosts that need
-   that pacing must add it inside their `OnFrameSend`. The
-   manager itself never blocks. Documented; revisit in 4d if a
-   real DoIP / J2534 path needs the manager to wait between
-   frames.
-2. **Timeout sweep granularity.** `SweepTimeouts` checks
-   `MilliSecondsBetween(Now, S.LastActivity)` against the J1939
-   constants. The host calls it on whatever timer it likes
-   (typical: 250 ms). Below that the worst-case false-timeout
-   detection drift is one tick; above it sessions can survive
-   slightly past the spec deadline.
+1. ~~Inline DT burst on CTS~~ **Closed.** New
+   `InterFramePaceMs` property. When set > 0, the manager
+   sleeps between consecutive emits inside both BAM TX and the
+   CTS-driven DT burst. The internal lock is **released** during
+   the sleep so other threads can keep interacting with the
+   manager while the pacing runs. Default 0 (no pacing); the
+   J1939-21 conventional value is 50 ms (Tr).
+2. ~~Timeout sweep granularity~~ **Closed.** Two new properties:
+   `TimeoutMs` (default 1250 ms = J1939_T2_MS) replaces the
+   previous hardcoded threshold, and `AutoSweepEnabled` (default
+   False) toggles a built-in background thread that calls
+   `SweepTimeouts` every `SweepIntervalMs` (default 250 ms).
+   Setting `AutoSweepEnabled := False` stops and joins the
+   thread cleanly; the destructor does the same. Hosts that
+   prefer to drive the sweeper themselves continue to call
+   `SweepTimeouts` from their own timer.
 3. **ETP TX with > 16 packets per CTS.** The manager honours the
    peer's CTS packet count up to 255 (per spec). For very large
    transfers the peer can grant smaller windows; we then emit a
@@ -795,15 +798,41 @@ the message when they differ (and the response wasn't negative).
    handles multiple CTSes correctly per the 4c test suite, but
    real-world bench tests against a heavy-duty ECU should
    confirm the DPO offset is interpreted the same way the
-   ECU expects.
-4. **No CAN-FD long-frame support.** J1939-21:2024 has provisions
-   for CAN-FD frames but the wire format is identical for TP /
-   ETP control bytes; only the DT chunk size changes (from 7 to
-   up to 62). A `MaxFrameBytes` parameter on the manager is the
-   right shape; deferred until we have a CAN-FD-capable test
-   bench.
+   ECU expects. **Defers to hardware loop.**
+4. **No CAN-FD long-frame support.** *Reframed.* CAN-FD support
+   on J1939 is governed by **J1939-22:2023 (Multi-PG)**, not by
+   extending J1939-21 TP / ETP with bigger DT chunks. J1939-22
+   defines an entirely different framing (Multi-PG packs
+   multiple PGNs into one CAN-FD frame and replaces TP / ETP
+   for the long-payload case). Adding CAN-FD support is
+   therefore a separate unit (`OBD.Protocol.J1939.MultiPG`)
+   rather than a `MaxFrameBytes` knob on this one. **Deferred
+   to a post-1.0 unit; the current TP / ETP code is correct
+   for J1939-21 over classic CAN.**
 5. **No real-bus integration test.** Same as Phase 2 / 3.
    Hardware loop is Phase 0 deferred.
+
+### Phase 4c follow-ups closed
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | DT burst pacing | `InterFramePaceMs` property, lock-aware sleep |
+| 2 | Timeout granularity | `TimeoutMs` configurable + opt-in `AutoSweepEnabled` background thread |
+| 4 | CAN-FD long-frame (reframed) | Out-of-scope for J1939-21; tracked for a future J1939-22 unit |
+
+New tests in `Tests.OBD.Protocol.J1939.TP`:
+
+- `InterFramePaceLatency` — measures BAM emission elapsed time
+  with `InterFramePaceMs := 30`; expects ≥ 50 ms (two
+  inter-frame waits) and < 500 ms.
+- `ConfigurableTimeoutAborts` — sets `TimeoutMs := 100`, feeds
+  RTS, sleeps 150 ms, sweeps; expects abort with
+  `arHostTimeout`.
+- `AutoSweeperAbortsIdleSession` — sets short timeout +
+  short sweep interval, enables auto-sweep, feeds RTS,
+  expects abort within 1 s with no manual sweep call.
+- `DisableSweeperStopsThread` — toggles auto-sweep on then off,
+  verifies clean shutdown.
 
 ### Quality bars met
 

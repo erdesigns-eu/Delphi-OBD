@@ -342,6 +342,15 @@ type
     FOnAbort: TJ1939SessionAbortEvent;
     FOnFrameSend: TJ1939FrameSendEvent;
     FTxPriority: Byte;
+    FInterFramePaceMs: Cardinal;
+    FTimeoutMs: Cardinal;
+    FAutoSweepEnabled: Boolean;
+    FSweepIntervalMs: Cardinal;
+    FSweepThread: TThread;
+    FSweepStop: TEvent;
+    procedure SetAutoSweepEnabled(AValue: Boolean);
+    procedure StartSweeper;
+    procedure StopSweeper;
 
     function FindIndex(ASA, ADA: Byte; APGN: Cardinal): Integer;
     procedure UpdateSession(AIndex: Integer; const ASession: TJ1939Session);
@@ -431,6 +440,53 @@ type
     /// <summary>J1939 priority bits used when emitting outbound
     /// frames. Default 6.</summary>
     property TxPriority: Byte read FTxPriority write FTxPriority;
+
+    /// <summary>
+    ///   Inter-frame pace in milliseconds. When > 0, the manager
+    ///   sleeps for this duration between consecutive
+    ///   <c>SendOutbound</c> calls inside a TX burst (BAM cadence,
+    ///   CTS-driven DT burst). Default <c>0</c> — no pacing.
+    /// </summary>
+    /// <remarks>
+    ///   The manager releases its internal lock during the sleep so
+    ///   other threads can still feed frames or query session
+    ///   state. J1939-21 §5.10.4 conventional value is 50 ms (Tr).
+    /// </remarks>
+    property InterFramePaceMs: Cardinal read FInterFramePaceMs
+      write FInterFramePaceMs default 0;
+
+    /// <summary>
+    ///   Per-session inactivity timeout in milliseconds. A session
+    ///   whose <c>LastActivity</c> is older than this is aborted by
+    ///   the next <see cref="SweepTimeouts"/> call. Default
+    ///   <c>1250</c> (J1939-21 T2).
+    /// </summary>
+    property TimeoutMs: Cardinal read FTimeoutMs write FTimeoutMs
+      default J1939_T2_MS;
+
+    /// <summary>
+    ///   When True, the manager spawns an internal thread that
+    ///   calls <see cref="SweepTimeouts"/> every
+    ///   <see cref="SweepIntervalMs"/> milliseconds. When False,
+    ///   the host is responsible for invoking SweepTimeouts on its
+    ///   own timer. Default False.
+    /// </summary>
+    /// <remarks>
+    ///   Setting to True spawns a single background thread with
+    ///   FreeOnTerminate := False. Setting to False stops and
+    ///   joins the thread before returning. The destructor also
+    ///   stops the thread.
+    /// </remarks>
+    property AutoSweepEnabled: Boolean read FAutoSweepEnabled
+      write SetAutoSweepEnabled default False;
+
+    /// <summary>
+    ///   Interval between automatic sweep calls when
+    ///   <see cref="AutoSweepEnabled"/> is True. Default
+    ///   <c>250</c> ms.
+    /// </summary>
+    property SweepIntervalMs: Cardinal read FSweepIntervalMs
+      write FSweepIntervalMs default 250;
   end;
 
   /// <summary>
@@ -659,13 +715,63 @@ begin
   FLock := TCriticalSection.Create;
   FSessions := TList<TJ1939Session>.Create;
   FTxPriority := 6;
+  FTimeoutMs := J1939_T2_MS;
+  FSweepIntervalMs := 250;
+  FSweepStop := TEvent.Create(nil, True, False, '');
 end;
 
 destructor TOBDJ1939SessionManager.Destroy;
 begin
+  StopSweeper;
+  FSweepStop.Free;
   FSessions.Free;
   FLock.Free;
   inherited;
+end;
+
+procedure TOBDJ1939SessionManager.SetAutoSweepEnabled(AValue: Boolean);
+begin
+  if FAutoSweepEnabled = AValue then Exit;
+  FAutoSweepEnabled := AValue;
+  if FAutoSweepEnabled then
+    StartSweeper
+  else
+    StopSweeper;
+end;
+
+procedure TOBDJ1939SessionManager.StartSweeper;
+var
+  Self_: TOBDJ1939SessionManager;
+begin
+  if FSweepThread <> nil then Exit;
+  FSweepStop.ResetEvent;
+  Self_ := Self;
+  FSweepThread := TThread.CreateAnonymousThread(
+    procedure
+    begin
+      while Self_.FSweepStop.WaitFor(Self_.FSweepIntervalMs) <> wrSignaled do
+      begin
+        try
+          Self_.SweepTimeouts(UInt64(GetTickCount64));
+        except
+          // Don't let a transient handler exception kill the sweeper.
+        end;
+      end;
+    end);
+  FSweepThread.FreeOnTerminate := False;
+  FSweepThread.Start;
+end;
+
+procedure TOBDJ1939SessionManager.StopSweeper;
+var
+  Worker: TThread;
+begin
+  Worker := FSweepThread;
+  FSweepThread := nil;
+  if Worker = nil then Exit;
+  FSweepStop.SetEvent;
+  Worker.WaitFor;
+  Worker.Free;
 end;
 
 function TOBDJ1939SessionManager.SessionCount: Integer;
@@ -866,6 +972,9 @@ begin
           UpdateSession(Idx, S);
           // Send the granted burst inline so a host without a
           // real-time scheduler still completes the transfer.
+          // Pacing (when configured) releases the lock between
+          // emits so other threads can continue to interact with
+          // the manager.
           while (S.NextPacket <= S.TotalPackets) and (Packets > 0) do
           begin
             Payload := Copy(S.Buffer,
@@ -875,6 +984,20 @@ begin
               TOBDJ1939TPCodec.EncodeDT(Byte(S.NextPacket), Payload));
             Inc(S.NextPacket);
             Dec(Packets);
+            if (Packets > 0) and (FInterFramePaceMs > 0) then
+            begin
+              UpdateSession(Idx, S);
+              FLock.Leave;
+              try
+                TThread.Sleep(FInterFramePaceMs);
+              finally
+                FLock.Enter;
+              end;
+              // Re-resolve in case the session list mutated.
+              Idx := FindIndex(ADA, ASA, PGN);
+              if Idx < 0 then Break;
+              S := FSessions[Idx];
+            end;
           end;
           if S.NextPacket > S.TotalPackets then
             S.State := ssAwaitingEOMA;
@@ -1186,7 +1309,7 @@ begin
     begin
       S := FSessions[I];
       AgeMs := MilliSecondsBetween(Now, S.LastActivity);
-      if AgeMs > J1939_T2_MS then
+      if AgeMs > FTimeoutMs then
       begin
         if S.IsETP then CMpgn := J1939_PGN_ETP_CM
         else CMpgn := J1939_PGN_TP_CM;
@@ -1258,9 +1381,18 @@ begin
       // Send BAM CM.
       SendOutbound(ASA, ADA, J1939_PGN_TP_CM,
         TOBDJ1939TPCodec.EncodeBAM(APGN, Word(Size), Byte(Packets)));
-      // Send all DT packets back-to-back. Real-world senders
-      // delay 50..200 ms between frames; the host may add
-      // pacing in its OnFrameSend handler if needed.
+      if FInterFramePaceMs > 0 then
+      begin
+        FLock.Leave;
+        try
+          TThread.Sleep(FInterFramePaceMs);
+        finally
+          FLock.Enter;
+        end;
+      end;
+      // Send DT packets, optionally paced. The lock is released
+      // during each sleep so other threads can interact with the
+      // manager. J1939-21 §5.10.4 conventional cadence is 50 ms.
       for P := 1 to Packets do
       begin
         StartOff := Integer(P - 1) * 7;
@@ -1268,6 +1400,15 @@ begin
         SendOutbound(ASA, ADA, J1939_PGN_TP_DT,
           TOBDJ1939TPCodec.EncodeDT(Byte(P),
             Copy(S.Buffer, StartOff, Take)));
+        if (P < Packets) and (FInterFramePaceMs > 0) then
+        begin
+          FLock.Leave;
+          try
+            TThread.Sleep(FInterFramePaceMs);
+          finally
+            FLock.Enter;
+          end;
+        end;
       end;
       S.State := ssCompleted;
       // BAM has no EOMA; complete the session immediately.

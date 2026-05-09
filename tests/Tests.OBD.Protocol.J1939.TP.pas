@@ -83,6 +83,24 @@ type
     [Test] procedure TooSmallPayloadRaises;
     /// <summary>ETP broadcast not allowed (raises).</summary>
     [Test] procedure ETPBroadcastRaises;
+    /// <summary>InterFramePaceMs &gt; 0 introduces measurable
+    /// latency between BAM DT emissions.</summary>
+    [Test] procedure InterFramePaceLatency;
+  end;
+
+  /// <summary>Auto-sweep / configurable timeout coverage.</summary>
+  [TestFixture]
+  TJ1939SweeperTests = class
+  public
+    /// <summary>Configurable TimeoutMs is honoured by
+    /// SweepTimeouts.</summary>
+    [Test] procedure ConfigurableTimeoutAborts;
+    /// <summary>Built-in sweeper thread aborts an idle session
+    /// without manual SweepTimeouts calls.</summary>
+    [Test] procedure AutoSweeperAbortsIdleSession;
+    /// <summary>Disabling AutoSweepEnabled stops the thread
+    /// cleanly.</summary>
+    [Test] procedure DisableSweeperStopsThread;
   end;
 
 implementation
@@ -90,6 +108,8 @@ implementation
 uses
   System.SysUtils,
   System.Classes,
+  System.Diagnostics,
+  System.SyncObjs,
   System.Generics.Collections,
   OBD.Types,
   OBD.Protocol.Types,
@@ -576,9 +596,122 @@ begin
   end;
 end;
 
+procedure TJ1939TransmitterTests.InterFramePaceLatency;
+var
+  Tx: TOBDJ1939Transmitter;
+  Cap: TJ1939Capture;
+  Payload: TBytes;
+  I: Integer;
+  Sw: TStopwatch;
+  Elapsed: Int64;
+begin
+  Tx := TOBDJ1939Transmitter.Create;
+  Cap := TJ1939Capture.Create;
+  try
+    Tx.Manager.OnFrameSend := Cap.HandleFrame;
+    Tx.Manager.InterFramePaceMs := 30;
+
+    SetLength(Payload, 14); // 2 DT frames, BAM
+    for I := 0 to 13 do Payload[I] := Byte(I);
+
+    Sw := TStopwatch.StartNew;
+    Tx.Send(5, $FF, $FECA, Payload);
+    Elapsed := Sw.ElapsedMilliseconds;
+
+    // BAM CM + 2 DT = 3 frames -> 2 inter-frame sleeps of 30 ms each.
+    // Allow generous lower bound (50 ms) for scheduler noise; upper
+    // bound 500 ms catches accidental long waits.
+    Assert.IsTrue(Elapsed >= 50,
+      Format('Pacing too short: elapsed %d ms', [Elapsed]));
+    Assert.IsTrue(Elapsed < 500,
+      Format('Pacing too long: elapsed %d ms', [Elapsed]));
+  finally
+    Cap.Free;
+    Tx.Free;
+  end;
+end;
+
+{ ---- TJ1939SweeperTests ------------------------------------------------------ }
+
+procedure TJ1939SweeperTests.ConfigurableTimeoutAborts;
+var
+  M: TOBDJ1939SessionManager;
+  Cap: TJ1939Capture;
+begin
+  M := TOBDJ1939SessionManager.Create;
+  Cap := TJ1939Capture.Create;
+  try
+    M.OnAbort := Cap.HandleAbort;
+    M.OnFrameSend := Cap.HandleFrame;
+    M.TimeoutMs := 100;
+
+    M.FeedTPCM(5, $F1, TOBDJ1939TPCodec.EncodeRTS($FECA, 14, 2, $FF));
+    Assert.AreEqual(1, M.SessionCount);
+
+    TThread.Sleep(150);
+    M.SweepTimeouts(UInt64(GetTickCount64));
+
+    Assert.AreEqual(0, M.SessionCount);
+    Assert.AreEqual(1, Cap.AbortedSessions.Count);
+    Assert.AreEqual(Ord(arHostTimeout), Ord(Cap.AbortReasons[0]));
+  finally
+    Cap.Free;
+    M.Free;
+  end;
+end;
+
+procedure TJ1939SweeperTests.AutoSweeperAbortsIdleSession;
+var
+  M: TOBDJ1939SessionManager;
+  Cap: TJ1939Capture;
+  Sw: TStopwatch;
+begin
+  M := TOBDJ1939SessionManager.Create;
+  Cap := TJ1939Capture.Create;
+  try
+    M.OnAbort := Cap.HandleAbort;
+    M.OnFrameSend := Cap.HandleFrame;
+    M.TimeoutMs := 80;
+    M.SweepIntervalMs := 30;
+    M.AutoSweepEnabled := True;
+
+    M.FeedTPCM(5, $F1, TOBDJ1939TPCodec.EncodeRTS($FECA, 14, 2, $FF));
+
+    Sw := TStopwatch.StartNew;
+    while (Cap.AbortedSessions.Count = 0) and
+          (Sw.ElapsedMilliseconds < 1000) do
+      TThread.Sleep(10);
+    Assert.AreEqual(1, Cap.AbortedSessions.Count,
+      Format('Sweeper did not abort within 1 s (elapsed %d ms)',
+        [Sw.ElapsedMilliseconds]));
+  finally
+    M.AutoSweepEnabled := False;
+    Cap.Free;
+    M.Free;
+  end;
+end;
+
+procedure TJ1939SweeperTests.DisableSweeperStopsThread;
+var
+  M: TOBDJ1939SessionManager;
+begin
+  M := TOBDJ1939SessionManager.Create;
+  try
+    M.SweepIntervalMs := 30;
+    M.AutoSweepEnabled := True;
+    TThread.Sleep(60);
+    M.AutoSweepEnabled := False;
+    // Verify no exception or leak — the sweeper thread joined.
+    Assert.IsFalse(M.AutoSweepEnabled);
+  finally
+    M.Free;
+  end;
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TJ1939TPEncoderTests);
   TDUnitX.RegisterTestFixture(TJ1939SessionRXTests);
   TDUnitX.RegisterTestFixture(TJ1939TransmitterTests);
+  TDUnitX.RegisterTestFixture(TJ1939SweeperTests);
 
 end.

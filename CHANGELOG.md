@@ -29,6 +29,32 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4c follow-ups (closed before 4d)
+- `TOBDJ1939SessionManager.InterFramePaceMs` — optional inter-
+  frame pace (milliseconds) inserted between consecutive
+  outbound emits inside a TX burst (BAM cadence and CTS-driven
+  DT burst). Default 0 (no pacing). Internal lock released
+  during the sleep so concurrent threads can keep interacting
+  with the manager.
+- `TOBDJ1939SessionManager.TimeoutMs` — configurable per-session
+  inactivity timeout (default 1250 ms = J1939-21 T2). Replaces
+  the previous hardcoded threshold inside `SweepTimeouts`.
+- `TOBDJ1939SessionManager.AutoSweepEnabled` /
+  `SweepIntervalMs` — opt-in built-in background thread that
+  calls `SweepTimeouts` periodically. Default False; set True
+  to spawn a single TThread that ticks every `SweepIntervalMs`
+  (default 250 ms). Setting False stops and joins the thread
+  cleanly; destructor does the same.
+- 4 new DUnitX assertions in `Tests.OBD.Protocol.J1939.TP`:
+  `InterFramePaceLatency`, `ConfigurableTimeoutAborts`,
+  `AutoSweeperAbortsIdleSession`, `DisableSweeperStopsThread`.
+- Phase 4c review honest-review flag #4 (CAN-FD long-frame)
+  reframed: CAN-FD support on J1939 is governed by J1939-22
+  Multi-PG, a separate spec, and lands as a future
+  `OBD.Protocol.J1939.MultiPG` unit rather than as a knob on
+  the existing TP / ETP code (which is correct for J1939-21
+  over classic CAN).
+
 ### Added — Phase 4c (J1939 transport state machine)
 - `OBD.Protocol.J1939.TP` — full TP / ETP transport per
   SAE J1939-21:2024 §5.10:
