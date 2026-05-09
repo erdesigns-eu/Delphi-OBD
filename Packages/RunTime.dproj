@@ -225,6 +225,7 @@
         <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Variants.pas"/>
         <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Registry.pas"/>
         <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Pending.pas"/>
+        <DCCReference Include="..\src\RadioCode\OBD.RadioCode.VinResolver.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -31,6 +31,7 @@ uses
   Tests.RadioCode.Smoke in 'Tests.RadioCode.Smoke.pas',
   Tests.RadioCode.Becker4 in 'Tests.RadioCode.Becker4.pas',
   Tests.RadioCode.Registry in 'Tests.RadioCode.Registry.pas',
+  Tests.RadioCode.VinResolver in 'Tests.RadioCode.VinResolver.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

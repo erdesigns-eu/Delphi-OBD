@@ -182,6 +182,7 @@ contains
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
-  OBD.RadioCode.Pending in '..\src\RadioCode\OBD.RadioCode.Pending.pas';
+  OBD.RadioCode.Pending in '..\src\RadioCode\OBD.RadioCode.Pending.pas',
+  OBD.RadioCode.VinResolver in '..\src\RadioCode\OBD.RadioCode.VinResolver.pas';
 
 end.

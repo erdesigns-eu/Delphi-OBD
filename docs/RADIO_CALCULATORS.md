@@ -93,6 +93,41 @@ end;
 Calling `Calculate` on a `DataAvailable = False` stub raises
 `EOBDRadioCodeDataMissing`, never silently returning a wrong answer.
 
+### VIN-aware resolution
+
+`OBD.RadioCode.VinResolver` ties the registry, the variant manager,
+and `OBD.VIN.Decoder` together so callers can ask "give me the right
+calculator for this car" without juggling regions and year codes.
+
+```pascal
+uses OBD.RadioCode.VinResolver;
+
+var
+  Ctx: TRadioCodeResolveContext;
+  Res: TRadioCodeResolveResult;
+begin
+  Ctx := Default(TRadioCodeResolveContext);
+  Ctx.BrandKey := 'vw';
+  Ctx.VIN := 'WVWZZZ8N8Z1234567';   // year/region decoded from VIN
+  Res := ResolveCalculator(Ctx);
+  if Assigned(Res.Calculator) and Res.DataAvailable then
+    Res.Calculator.Calculate('1234567', Code, Err);
+end;
+```
+
+`TRadioCodeResolveContext` lets callers override the model year or
+region (handy for cars where the VIN has been replaced or for
+post-VIN units), and supply a model hint to disambiguate between
+Concert, RNS, MMI, COMAND, NBT, etc.
+
+The resolver also seeds the variant manager for VW / Audi / Mercedes
+/ BMW with documented per-generation entries (Audi Concert I → III,
+Mercedes Becker → MBUX, BMW Business → iDrive 8, VW Gamma → Discover
+Pro). Variant boundaries are sourced from public service-info notes
+and community archives. The brand-internal calculators continue to
+hold the actual algorithms; the registry-side variants give the
+resolver enough metadata to dispatch.
+
 ## Brand coverage
 
 Each brand has a dedicated unit `OBD.RadioCode.<Brand>.Advanced.pas`
