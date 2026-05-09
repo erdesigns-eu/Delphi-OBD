@@ -100,6 +100,23 @@ What's needed to close the gap:
   Linux / iOS / Android). For Windows we'd reuse the existing
   `OBD.ECU.Signature.OpenSSL` library-load path.
 
+### v3.82 / B3 — BMW immobiliser ISN + EWS/CAS challenge-response
+
+`OBD.OEM.KeyAdaptation.BMW` ships the publicly documented data
+structures (16-byte EWS slot, 16-byte CAS slot, 32-byte FEM-BDC slot)
+and round-trip-correct encoders/decoders. The `IBMWKeyChallengeSolver`
+interface decouples the proprietary parts:
+
+- **Per-ECU ISN derivation** for EWS, CAS, FEM-BDC modules. Documented
+  in NCSExpert / Carly only at a procedural level; the actual
+  cryptographic derivation is dealer-portal-proprietary.
+- **EWS / CAS challenge-response encryption** (the AES-flavour key
+  exchange used to authorise key writes).
+
+Solver implementations would either (a) call out to a dealer-portal
+client the host already has, or (b) consume captured (challenge,
+response) pairs from a real bench session.
+
 ## Resolved
 
 *(empty; populated as gaps close)*

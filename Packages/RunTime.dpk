@@ -204,6 +204,7 @@ contains
   OBD.Protocol.WWHOBD.Readiness in '..\src\Protocol\OBD.Protocol.WWHOBD.Readiness.pas',
   OBD.Service09.Calibration in '..\src\Services\OBD.Service09.Calibration.pas',
   OBD.DriveCycle.Advisor in '..\src\Services\OBD.DriveCycle.Advisor.pas',
+  OBD.OEM.KeyAdaptation.BMW in '..\src\Services\OBD.OEM.KeyAdaptation.BMW.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
