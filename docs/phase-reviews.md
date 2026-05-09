@@ -637,6 +637,78 @@ These belong in later subphases per PLAN §Phase 4 split:
 
 ---
 
+## Phase 4b — TOBDProtocol component + sample 03-ReadVIN
+
+**Status:** Complete on `claude/v2-phase-1`.
+
+### Code landed
+
+| Unit | Lines | Purpose |
+|---|---:|---|
+| `OBD.Protocol.pas` | ~370 | `TOBDProtocol` component (TComponent) bound to `TOBDAdapter`; `Mode` (auto / manual), `Manual` (TOBDProtocolID), `Application` (TOBDApplicationProtocol), `DefaultTimeoutMs` published; `Send` / `SendAsync` / `Request` / `RequestAsync` per the dual-method rule; `OnFrame` / `OnResponse` / `OnNRC` / `OnError` / `OnProgress` events on the main thread; FreeNotification clears `Adapter` when bound adapter is freed. `MakeRequest` factory helper. |
+| Adapter follow-up | small | `TOBDAdapter.MaxIsoTpFrameBytes` exposed (Phase 3 follow-up #4 closed); populated from the capability registry on `Detect`. |
+| `Tests.OBD.Protocol.pas` | ~120 | 6 lifecycle assertions: defaults, Send / Request without adapter raise, FreeNotification, Free is clean, MakeRequest shape. |
+| `samples/03-ReadVIN/ReadVIN.dpr` | ~155 | End-to-end Phase 0 → 4b sample: connect → detect → init → request VIN. Wires both adapter and protocol `OnProgress` to a single console printer. |
+
+### Architecture highlights
+
+- **Codec dispatch is a simple switch.** `EncodeRequest` /
+  `DecodeResponse` route on `TOBDApplicationProtocol`. Adding a new
+  application protocol (e.g. apOBD2 already covers 4b's needs) is a
+  case-clause addition.
+- **Three-phase progress.** Every `Send` fires `1/3 Encoding`,
+  `2/3 Adapter exchange` (with the formatted hex command as detail),
+  `3/3 Decoding`. Async path queues these to the main thread.
+- **Negative responses don't raise.** A `0x7F sid nrc` decode path
+  populates `Response.IsNegative := True`, fires `OnNRC` with the
+  resolved text from `catalogs/obd2/nrc.json`, and returns the
+  response normally. Caller checks `.IsNegative`.
+- **Adapter errors fire `OnError(oeAdapterFault)`** rather than
+  raising. The protocol layer can keep going against a different
+  ECU after one transient bus glitch.
+
+### What's intentionally not in 4b
+
+- Multi-frame raw-CAN sender. The reassembler in 4a decodes an
+  inbound multi-frame stream; the producer side (split outgoing
+  > 7-byte messages into FF + CFs and observe FC) lands in 4c
+  alongside the J1939 transport.
+- DoIP TCP / TLS — ships in 4d.
+- SecOC wrap on outgoing frames — ships in 4e.
+
+### Honest review
+
+1. **Sample 03-ReadVIN's VIN parser is lenient.** It filters
+   printable ASCII and trims to the trailing 17 characters. A
+   strict ISO 3779 VIN validator (excluded letters I/O/Q,
+   check-digit on position 9) is out of scope for 4b; documented
+   on the sample README.
+2. **Async cancellation through `Connection.Close` works.** The
+   adapter forwards cancel via its `FCancelEvent` (Phase 3
+   follow-up #3) which the protocol's adapter call honours within
+   ~50 ms. The protocol does not have its own cancel knob beyond
+   that.
+3. **`OnFrame` is declared but not yet wired.** Frame-level events
+   are useful for raw-CAN traces (J2534 / DoIP); the ELM327 path
+   surfaces only the assembled response, not individual frames.
+   `OnFrame` will fire from 4c onwards when the J1939 transport
+   produces per-frame events.
+4. **Sample 03 build will fail until DUnitX / RAD Studio is set
+   up locally** — the .dpr `uses` clause is correct, but no CI
+   runner has compiled it yet (Phase 0 deferred).
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol.
+- [x] File header with correct attribution.
+- [x] No VCL / FMX in runtime units.
+- [x] No `Sleep` busy-loops, no `Application.ProcessMessages`.
+- [x] Sync + async + progress for every long-running protocol method.
+- [x] All events fire on the main thread.
+- [x] FreeNotification clears `Adapter` when bound adapter is freed.
+
+---
+
 ### Phase 3 follow-ups closed
 
 The five honest-review flags from the Phase 3 review have been

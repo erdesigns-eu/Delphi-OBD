@@ -29,6 +29,21 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4b (TOBDProtocol component + sample 03-ReadVIN)
+- `OBD.Protocol` — `TOBDProtocol` component bound to `TOBDAdapter`;
+  `Mode` (auto/manual), `Manual` (TOBDProtocolID), `Application`
+  (TOBDApplicationProtocol), `DefaultTimeoutMs`; `Send` /
+  `SendAsync` / `Request` / `RequestAsync` per the dual-method rule
+  (PLAN §3.7); `OnFrame` / `OnResponse` / `OnNRC` / `OnError` /
+  `OnProgress` events on the main thread; FreeNotification clears
+  `Adapter` when the bound adapter is freed. `MakeRequest` factory.
+- `TOBDAdapter.MaxIsoTpFrameBytes` — read-only property surfacing
+  the capability-registry value populated by Detect. **Closes
+  Phase 3 follow-up #4.**
+- `Tests.OBD.Protocol` — 6 lifecycle assertions.
+- Sample `03-ReadVIN` — end-to-end Phase 0 → 4b chain
+  (connect → detect → init → request VIN via Service 09 PID 02).
+
 ### Added — Phase 4a (Wire codecs)
 - `OBD.Protocol.Types` — `TOBDApplicationProtocol`, `TOBDFrameKind`,
   `TOBDFrame`, `TOBDRequest`, `TOBDResponse`, event types,

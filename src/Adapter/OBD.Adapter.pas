@@ -75,6 +75,7 @@ type
     FFamily: TOBDAdapterFamily;
     FIdentity: TOBDAdapterIdentity;
     FCapabilities: TOBDAdapterCapabilities;
+    FMaxIsoTpFrameBytes: Cardinal;
     FInitCommands: TStrings;
     FCommandTimeoutMs: Cardinal;
     FAutoSubscribed: Boolean;
@@ -252,6 +253,16 @@ type
     /// <summary>Read-only capability set populated by <c>Detect</c>
     /// from the registry.</summary>
     property Capabilities: TOBDAdapterCapabilities read FCapabilities;
+    /// <summary>
+    ///   Largest ISO-TP frame the adapter can carry (bytes).
+    /// </summary>
+    /// <remarks>
+    ///   Populated from the capability registry alongside
+    ///   <c>Capabilities</c> on a successful <c>Detect</c>. <c>0</c>
+    ///   when not yet detected. The protocol layer (Phase 4b)
+    ///   reads this to decide whether long-frame ISO-TP is available.
+    /// </remarks>
+    property MaxIsoTpFrameBytes: Cardinal read FMaxIsoTpFrameBytes;
   published
     /// <summary>Bound connection. Required before any I/O.</summary>
     property Connection: TOBDConnection read FConnection write SetConnection;
@@ -707,9 +718,15 @@ begin
 
   // Capability lookup
   if TOBDAdapterCapabilityRegistry.Default.TryFind(Identity.AdapterKey, Entry) then
-    FCapabilities := Entry.Capabilities
+  begin
+    FCapabilities := Entry.Capabilities;
+    FMaxIsoTpFrameBytes := Entry.MaxIsoTpFrameBytes;
+  end
   else
+  begin
     FCapabilities := [];
+    FMaxIsoTpFrameBytes := 0;
+  end;
 
   FIdentity := Identity;
   FFamily := Identity.Family;
