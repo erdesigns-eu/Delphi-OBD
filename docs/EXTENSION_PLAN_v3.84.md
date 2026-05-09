@@ -142,8 +142,20 @@ WWH-OBD packing), pure logic (coding diff/audit, flashing checkpoint,
 voltage gate, EV health math, tachograph signature, CalID/CVN
 sweep, session helper).
 
-**Scope:** ~13 new JSON catalogs + corresponding Pascal refactor +
-schema validation tests.
+### Pre-existing units with hardcoded data (added to S5 scope)
+
+| Unit | Hardcoded data | Target catalog | Lines |
+|---|---|---|---|
+| `OBD.RadioCode.Becker4` | 10,000-entry serial→code array | `catalogs/radiocode-becker4.json` | ~1,000 |
+| `OBD.RadioCode.Becker5` | 10,000-entry serial→code array | `catalogs/radiocode-becker5.json` | ~1,000 |
+| `OBD.VIN.Constants` | WMI region + country + manufacturer tables | `catalogs/vin-regions.json` + `catalogs/vin-countries.json` + `catalogs/vin-wmi-manufacturers.json` | ~900 |
+| Per-brand `OBD.RadioCode.<Brand>.Advanced` (32+ units) | Variant manager seed tables (year/region/security version per generation) | `catalogs/radiocode-variants/<brand>.json` | varies |
+
+**Total:** ~3,000 lines of pure data moves out of Pascal sources.
+
+**Scope (revised):** ~13 new-code JSON catalogs + ~3 pre-existing
+catalogs (Becker4, Becker5, VIN constants) + per-brand variant
+catalogs + corresponding Pascal refactor + schema validation tests.
 
 **Exit criterion:** A maintainer can add a new service routine,
 correct an NRC description, register a new key-adaptation platform,
