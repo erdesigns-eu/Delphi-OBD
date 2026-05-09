@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "spec": "ISO 3779",
+  "description": "VIN region ranges keyed by first WMI character.",
+  "entries": [
+    {
+      "range_start": "A",
+      "range_end": "C",
+      "name": "Africa"
+    },
+    {
+      "range_start": "J",
+      "range_end": "R",
+      "name": "Asia"
+    },
+    {
+      "range_start": "S",
+      "range_end": "Z",
+      "name": "Europe"
+    },
+    {
+      "range_start": "1",
+      "range_end": "5",
+      "name": "North America"
+    },
+    {
+      "range_start": "6",
+      "range_end": "7",
+      "name": "Oceania"
+    },
+    {
+      "range_start": "8",
+      "range_end": "9",
+      "name": "South America"
+    }
+  ]
+}
