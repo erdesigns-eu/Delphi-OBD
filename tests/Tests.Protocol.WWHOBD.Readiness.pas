@@ -1,0 +1,165 @@
+//------------------------------------------------------------------------------
+// UNIT           : Tests.Protocol.WWHOBD.Readiness
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
+//------------------------------------------------------------------------------
+unit Tests.Protocol.WWHOBD.Readiness;
+
+interface
+
+uses
+  DUnitX.TestFramework;
+
+type
+  [TestFixture]
+  TWWHOBDReadinessTests = class
+  public
+    [Test] procedure DecodeRejectsTooShort;
+    [Test] procedure MILBitDecodes;
+    [Test] procedure DTCCountFromLowerSevenBits;
+    [Test] procedure ContinuousMisfireSupportedNotComplete;
+    [Test] procedure NonContinuousCatalystComplete;
+    [Test] procedure RoundTripFourByteForm;
+    [Test] procedure RoundTripSixByteFormWithDieselMonitors;
+    [Test] procedure AllReadyTrueWhenEverythingComplete;
+    [Test] procedure AllReadyTrueWhenUnsupported;
+    [Test] procedure PendingMonitorsListsIncomplete;
+  end;
+
+implementation
+
+uses
+  System.SysUtils, OBD.Protocol.WWHOBD.Readiness;
+
+procedure TWWHOBDReadinessTests.DecodeRejectsTooShort;
+begin
+  Assert.WillRaise(
+    procedure begin DecodeWWHOBDReadiness(TBytes.Create($00, $00)); end,
+    EOBDWWHOBDReadiness);
+end;
+
+procedure TWWHOBDReadinessTests.MILBitDecodes;
+var R: TWWHOBDReadinessSet;
+begin
+  R := DecodeWWHOBDReadiness(TBytes.Create($85, $00, $00, $00));
+  Assert.IsTrue(R.MILActive);
+  Assert.AreEqual(Integer(5), Integer(R.DTCCount));
+end;
+
+procedure TWWHOBDReadinessTests.DTCCountFromLowerSevenBits;
+var R: TWWHOBDReadinessSet;
+begin
+  R := DecodeWWHOBDReadiness(TBytes.Create($0A, $00, $00, $00));
+  Assert.IsFalse(R.MILActive);
+  Assert.AreEqual(Integer(10), Integer(R.DTCCount));
+end;
+
+procedure TWWHOBDReadinessTests.ContinuousMisfireSupportedNotComplete;
+var R: TWWHOBDReadinessSet;
+begin
+  // bit 0 set in low nibble (Misfire supported), bit 4 set in high
+  // nibble (Misfire NotComplete).
+  R := DecodeWWHOBDReadiness(TBytes.Create($00, $11, $00, $00));
+  Assert.IsTrue(R.Misfire.Supported);
+  Assert.IsFalse(R.Misfire.Complete);
+end;
+
+procedure TWWHOBDReadinessTests.NonContinuousCatalystComplete;
+var R: TWWHOBDReadinessSet;
+begin
+  // Catalyst supported (byte 2 bit 0), Catalyst Complete (byte 3 bit 0 NOT set)
+  R := DecodeWWHOBDReadiness(TBytes.Create($00, $00, $01, $00));
+  Assert.IsTrue(R.Catalyst.Supported);
+  Assert.IsTrue(R.Catalyst.Complete);
+end;
+
+procedure TWWHOBDReadinessTests.RoundTripFourByteForm;
+var
+  In_, Out_: TWWHOBDReadinessSet;
+  Bytes: TBytes;
+begin
+  In_ := Default(TWWHOBDReadinessSet);
+  In_.MILActive := True;
+  In_.DTCCount := 7;
+  In_.Misfire.Supported := True;          In_.Misfire.Complete := False;
+  In_.FuelSystem.Supported := True;       In_.FuelSystem.Complete := True;
+  In_.Comprehensive.Supported := True;    In_.Comprehensive.Complete := True;
+  In_.Catalyst.Supported := True;         In_.Catalyst.Complete := False;
+  In_.OxygenSensor.Supported := True;     In_.OxygenSensor.Complete := True;
+  In_.EvaporativeSystem.Supported := True;In_.EvaporativeSystem.Complete := False;
+  Bytes := EncodeWWHOBDReadiness(In_);
+  Assert.AreEqual(4, Length(Bytes));
+  Out_ := DecodeWWHOBDReadiness(Bytes);
+  Assert.IsTrue(Out_.MILActive);
+  Assert.AreEqual(Integer(7), Integer(Out_.DTCCount));
+  Assert.IsTrue(Out_.Misfire.Supported);
+  Assert.IsFalse(Out_.Misfire.Complete);
+  Assert.IsTrue(Out_.FuelSystem.Complete);
+  Assert.IsTrue(Out_.Catalyst.Supported);
+  Assert.IsFalse(Out_.Catalyst.Complete);
+  Assert.IsTrue(Out_.EvaporativeSystem.Supported);
+  Assert.IsFalse(Out_.EvaporativeSystem.Complete);
+end;
+
+procedure TWWHOBDReadinessTests.RoundTripSixByteFormWithDieselMonitors;
+var
+  In_, Out_: TWWHOBDReadinessSet;
+  Bytes: TBytes;
+begin
+  In_ := Default(TWWHOBDReadinessSet);
+  In_.PMFilter.Supported := True;
+  In_.PMFilter.Complete := True;
+  In_.NOxAftertreatment.Supported := True;
+  In_.NOxAftertreatment.Complete := False;
+  Bytes := EncodeWWHOBDReadiness(In_);
+  Assert.AreEqual(6, Length(Bytes), 'Should extend to 6 bytes for diesel set');
+  Out_ := DecodeWWHOBDReadiness(Bytes);
+  Assert.IsTrue(Out_.PMFilter.Supported);
+  Assert.IsTrue(Out_.PMFilter.Complete);
+  Assert.IsTrue(Out_.NOxAftertreatment.Supported);
+  Assert.IsFalse(Out_.NOxAftertreatment.Complete);
+end;
+
+procedure TWWHOBDReadinessTests.AllReadyTrueWhenEverythingComplete;
+var R: TWWHOBDReadinessSet;
+begin
+  R := Default(TWWHOBDReadinessSet);
+  R.Misfire.Supported := True; R.Misfire.Complete := True;
+  R.Catalyst.Supported := True; R.Catalyst.Complete := True;
+  Assert.IsTrue(R.AllReady);
+end;
+
+procedure TWWHOBDReadinessTests.AllReadyTrueWhenUnsupported;
+var R: TWWHOBDReadinessSet;
+begin
+  R := Default(TWWHOBDReadinessSet);
+  // No monitors supported -> AllReady is trivially true.
+  Assert.IsTrue(R.AllReady);
+end;
+
+procedure TWWHOBDReadinessTests.PendingMonitorsListsIncomplete;
+var
+  R: TWWHOBDReadinessSet;
+  Pending: TArray<string>;
+  S: string;
+  HasCatalyst, HasMisfire: Boolean;
+begin
+  R := Default(TWWHOBDReadinessSet);
+  R.Misfire.Supported := True;        R.Misfire.Complete := True;
+  R.Catalyst.Supported := True;       R.Catalyst.Complete := False;
+  R.OxygenSensor.Supported := True;   R.OxygenSensor.Complete := False;
+  Pending := R.PendingMonitors;
+  Assert.AreEqual(2, Length(Pending));
+  HasCatalyst := False; HasMisfire := False;
+  for S in Pending do
+  begin
+    if S = 'Catalyst' then HasCatalyst := True;
+    if S = 'Misfire' then HasMisfire := True;
+  end;
+  Assert.IsTrue(HasCatalyst);
+  Assert.IsFalse(HasMisfire, 'Complete monitors must not appear');
+end;
+
+initialization
+  TDUnitX.RegisterTestFixture(TWWHOBDReadinessTests);
+
+end.
