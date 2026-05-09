@@ -73,11 +73,14 @@ the same form.
 | `TOBDConnection` | Transport. Single component, conditional sub-settings. | `Active: Boolean`, `Transport: TOBDTransport`, `SerialSettings`, `BluetoothSettings`, `BLESettings`, `WiFiSettings`, `UDPSettings`, `FTDISettings` (all `TPersistent`), `RetryPolicy`, `Timeout` | `OnConnect`, `OnDisconnect`, `OnRawData`, `OnError` |
 | `TOBDAdapter` | Chip abstraction. | `Connection`, `Family: TOBDAdapterFamily`, `InitCommands: TStrings`, `Identity: TOBDAdapterIdentity` (read-only), `Capabilities: TOBDAdapterCapabilities` (read-only set) | `OnReady`, `OnATResponse`, `OnError` |
 | `TOBDProtocol` | Wire protocol. | `Adapter`, `Mode: pmAuto / pmManual`, `Manual: TOBDProtocolID`, `Header`, `AllowLongMessages`, `IsoTpTiming` | `OnFrame`, `OnError` |
-| `TOBDLiveData` | Modes 01/05 (and PID-shaped requests for any service). | `Protocol`, `PIDs: TOBDPIDList` (collection), `Interval: Cardinal`, `Active: Boolean` | `OnPIDValue(Sender; PID; const Value: TOBDValue)`, `OnSupportedChanged` |
-| `TOBDDTC` | Modes 03/07/0A bundle. | `Protocol`, `IncludeStored`, `IncludePending`, `IncludePermanent` | `OnDTCList(Sender; const DTCs: TArray<TOBDTroubleCode>)` |
-| `TOBDClearDTC` | Mode 04. Action component. | `Protocol`, `RequireConfirmation: Boolean` | `OnCleared`, `OnError` |
-| `TOBDFreezeFrame` | Mode 02. | `Protocol`, `FrameIndex: Byte`, `PIDs: TOBDPIDList` | `OnFrame(Sender; const Snapshot: TOBDFreezeFrame)` |
-| `TOBDVehicleInfo` | Mode 09. | `Protocol` | `OnVIN`, `OnCalibrationIDs`, `OnCVNs`, `OnECUName`, `OnInUseTracking` |
+| `TOBDLiveData` | Mode 01 — current sensor data. Batched PID polling, supported-PID handling. | `Protocol`, `PIDs: TOBDPIDList` (collection), `Interval: Cardinal`, `Active: Boolean` | `OnPIDValue(Sender; PID; const Value: TOBDValue)`, `OnSupportedChanged` |
+| `TOBDFreezeFrame` | Mode 02 — freeze-frame snapshot at the moment a DTC was stored. | `Protocol`, `FrameIndex: Byte`, `PIDs: TOBDPIDList` | `OnFrame(Sender; const Snapshot: TOBDFreezeFrame)` |
+| `TOBDDTC` | Modes 03/07/0A bundle — stored, pending, permanent DTCs. | `Protocol`, `IncludeStored`, `IncludePending`, `IncludePermanent` | `OnDTCList(Sender; const DTCs: TArray<TOBDTroubleCode>)` |
+| `TOBDClearDTC` | Mode 04 — clear DTCs and freeze frames. Action component. | `Protocol`, `RequireConfirmation: Boolean` | `OnCleared`, `OnError` |
+| `TOBDOxygenMonitor` | Mode 05 — O₂ sensor monitoring (non-CAN). Test-ID structured, distinct from Mode 01. | `Protocol`, `TestIDs: TOBDTestIDList`, `Sensor: TOBDOxygenSensor` | `OnTestResult(Sender; const Result: TOBDOxygenTestResult)` |
+| `TOBDMonitorResults` | Mode 06 — on-board monitoring test results (CAN). MID/TID/UASID structured; ranges per test (min/max/value). | `Protocol`, `MonitorIDs: TOBDMonitorIDList` | `OnMonitorResult(Sender; const Result: TOBDMonitorTestResult)`, `OnAvailabilityChanged` |
+| `TOBDSystemControl` | Mode 08 — bidirectional control / actuator tests. Action component. | `Protocol`, `TestID: Byte`, `RequireConfirmation: Boolean` | `OnControlResponse`, `OnError` |
+| `TOBDVehicleInfo` | Mode 09 — vehicle information (VIN, CalIDs, CVNs, ECU Name, IPT, ESN). Includes calibration helpers (verify CVN against CalID, range checks). | `Protocol`, `Calibration: TOBDCalibrationHelper` (sub-object) | `OnVIN`, `OnCalibrationIDs`, `OnCVNs`, `OnInUsePerformanceSpark`, `OnInUsePerformanceCompression`, `OnECUName`, `OnECUNameExtended`, `OnEngineSerialNumber`, `OnAuxInputStatus` |
 | `TOBDUDS` | UDS (ISO 14229) client. | `Protocol`, `Session`, `SecurityLevel`, `Tester` | `OnDIDValue`, `OnRoutineFinished`, `OnNRC`, `OnError` |
 | `TOBDKWP` | KWP2000 client. | `Protocol`, `EcuAddress` | `OnFrame`, `OnError` |
 | `TOBDJ1939` | J1939 client. | `Connection`, `SourceAddress`, `Subscriptions: TOBDPGNList` | `OnPGN(Sender; const PGN: TOBDPGNValue)` |
@@ -164,8 +167,10 @@ fire `OnError`.
 │   │   ├── pids-mode01.json
 │   │   ├── pids-mode02.json
 │   │   ├── pids-mode05.json
-│   │   ├── pids-mode06.json
+│   │   ├── pids-mode06.json    ← MIDs/TIDs for on-board monitoring
+│   │   ├── pids-mode08.json    ← bidirectional-control test IDs
 │   │   ├── pids-mode09.json
+│   │   ├── monitors.json       ← MID/TID/UASID definitions for Mode 06
 │   │   ├── dtcs.json
 │   │   └── nrc.json
 │   ├── j1939/pgns.json
@@ -183,7 +188,11 @@ fire `OnError`.
 │   ├── 07-RecordReplay/
 │   ├── 08-UDSReadDID/
 │   ├── 09-J1939Listener/
-│   └── 10-DoIPDiagnostics/
+│   ├── 10-DoIPDiagnostics/
+│   ├── 11-MonitorResults/      ← Mode 06
+│   ├── 12-VehicleInfo/         ← Mode 09 (VIN, CalIDs, CVNs, IPT, ESN)
+│   ├── 13-OxygenMonitor/       ← Mode 05
+│   └── 14-SystemControl/       ← Mode 08
 └── docs/
     ├── architecture.md
     ├── components/             ← one .md per component
@@ -256,16 +265,31 @@ Each phase ships independently and ends with a green CI run. `[ ]` = open,
 - [ ] Tests: frame encode/decode round-trips against captured `.obdlog` fixtures
 - [ ] Sample `03-ReadVIN`
 
-### Phase 5 — Service-mode components (~3 weeks)
-- [ ] `OBD.LiveData.pas` — `TOBDLiveData`, batched PID requests (≤6/frame on CAN), polling timer, supported-PID handling
-- [ ] `OBD.PIDList.pas` — `TOBDPIDList` collection + `TOBDPIDItem`
-- [ ] `OBD.DTC.pas` — `TOBDDTC`, single canonical DTC decoder
-- [ ] `OBD.ClearDTC.pas` — `TOBDClearDTC`
-- [ ] `OBD.FreezeFrame.pas` — `TOBDFreezeFrame`
-- [ ] `OBD.VehicleInfo.pas` — `TOBDVehicleInfo`
+### Phase 5 — Service-mode components (~4 weeks)
+
+All ten OBD-II service modes (01–0A) covered by dedicated components.
+
+- [ ] `OBD.LiveData.pas` — `TOBDLiveData` (Mode 01), batched PID requests (≤6/frame on CAN), polling timer, supported-PID handling
+- [ ] `OBD.PIDList.pas` — `TOBDPIDList` collection + `TOBDPIDItem` (shared by LiveData, FreezeFrame)
+- [ ] `OBD.FreezeFrame.pas` — `TOBDFreezeFrame` (Mode 02), frame-number-aware decoder
+- [ ] `OBD.DTC.pas` — `TOBDDTC` (Modes 03/07/0A), single canonical DTC decoder per ISO 15031-5
+- [ ] `OBD.ClearDTC.pas` — `TOBDClearDTC` (Mode 04)
+- [ ] `OBD.OxygenMonitor.pas` — `TOBDOxygenMonitor` (Mode 05), test-ID structured, non-CAN
+- [ ] `OBD.MonitorResults.pas` — `TOBDMonitorResults` (Mode 06), MID/TID/UASID structured with min/max/value ranges; catalog-driven via `catalogs/obd2/monitors.json`
+- [ ] `OBD.SystemControl.pas` — `TOBDSystemControl` (Mode 08), bidirectional control / actuator tests
+- [ ] `OBD.VehicleInfo.pas` — `TOBDVehicleInfo` (Mode 09) covering full PID set:
+  - [ ] PID 02 — VIN
+  - [ ] PID 04 — Calibration ID(s)
+  - [ ] PID 06 — Calibration Verification Number(s)
+  - [ ] PID 08 — In-Use Performance Tracking (spark ignition)
+  - [ ] PID 0A — ECU Name
+  - [ ] PID 0B — In-Use Performance Tracking (compression ignition)
+  - [ ] PID 0D — Engine Serial Number
+  - [ ] Aux input status
+  - [ ] `TOBDCalibrationHelper` sub-object: VerifyCVN, IsCalIDInRange, format helpers (port logic from existing `OBD.Service09.Calibration.pas` for reference only)
 - [ ] `OBD.DataSource.pas` — `TOBDDataSource` bridge
-- [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs
-- [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`
+- [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement
+- [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`, `11-MonitorResults`, `12-VehicleInfo`
 
 ### Phase 6 — Advanced protocols as components (~3 weeks)
 - [ ] `OBD.UDS.pas` — `TOBDUDS` component (high-level API over `OBD.Protocol.UDS`)
