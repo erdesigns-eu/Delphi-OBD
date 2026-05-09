@@ -123,6 +123,14 @@ uses
   OBD.Signature.OpenSSL in '..\src\Flashing\OBD.Signature.OpenSSL.pas',
   OBD.Signature.HSM in '..\src\Flashing\OBD.Signature.HSM.pas',
   OBD.Signature.PQC in '..\src\Flashing\OBD.Signature.PQC.pas',
+  OBD.Flash.OEM.Common in '..\src\Flashing\OBD.Flash.OEM.Common.pas',
+  OBD.Flash.OEM.VAG in '..\src\Flashing\OBD.Flash.OEM.VAG.pas',
+  OBD.Flash.OEM.BMW in '..\src\Flashing\OBD.Flash.OEM.BMW.pas',
+  OBD.Flash.OEM.Ford in '..\src\Flashing\OBD.Flash.OEM.Ford.pas',
+  OBD.Flash.OEM.HMG in '..\src\Flashing\OBD.Flash.OEM.HMG.pas',
+  OBD.Flash.OEM.Mercedes in '..\src\Flashing\OBD.Flash.OEM.Mercedes.pas',
+  OBD.Flash.OEM.Stellantis in '..\src\Flashing\OBD.Flash.OEM.Stellantis.pas',
+  OBD.Flash.OEM.Toyota in '..\src\Flashing\OBD.Flash.OEM.Toyota.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
   OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
@@ -174,7 +182,8 @@ uses
   Tests.OBD.Flashing.Phase9a in 'Tests.OBD.Flashing.Phase9a.pas',
   Tests.OBD.Flashing.Phase9b in 'Tests.OBD.Flashing.Phase9b.pas',
   Tests.OBD.Flashing.Phase9c in 'Tests.OBD.Flashing.Phase9c.pas',
-  Tests.OBD.Flashing.Phase9d in 'Tests.OBD.Flashing.Phase9d.pas';
+  Tests.OBD.Flashing.Phase9d in 'Tests.OBD.Flashing.Phase9d.pas',
+  Tests.OBD.Flashing.Phase9e in 'Tests.OBD.Flashing.Phase9e.pas';
 
 {$IFDEF CI}
 var
