@@ -40,6 +40,78 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ---
 
+### 🚀 dashboard/
+**Complexity**: Intermediate
+**Connection**: Simulator by default; live mode via the connection component
+**What it demonstrates**:
+- Multi-pane diagnostic dashboard built **entirely in code** (no `.dfm`)
+- Four `TOBDCircularGauge` instances (RPM, Speed, Coolant Temp, Throttle)
+- Three `TOBDLed` indicators (MIL, Connected, Error)
+- Touch header + statusbar + log memo
+- 20 fps simulator tick that drives gauges with no adapter attached
+- "Simulate" / "Connect Live" mode toggle
+
+**Best for**: Reference end-to-end app; reads top-to-bottom as a tutorial.
+
+---
+
+### 📱 mobile_dashboard/
+**Complexity**: Intermediate
+**Connection**: Simulator (Proposal B in docs/PROPOSALS.md adds live transports)
+**What it demonstrates**:
+- FMX dashboard exercising **every** v3.1 FMX component
+  (LinearGauge, Tachometer, TrendGraph, DtcList, Terminal, Knob,
+  SegmentedSwitch, LED)
+- Runs on Win32, Win64, macOS, iOS, Android — same source, same
+  shared renderers as the VCL components
+
+**Best for**: Mobile / cross-platform diagnostic apps; reference for
+the renderer-extract pattern proven across all v3.1 FMX bindings.
+
+---
+
+### ⚙️ ecuflashing_console/
+**Complexity**: Intermediate
+**Connection**: Simulated ECU
+**What it demonstrates**:
+- End-to-end `TOBDECUFlashing` pipeline against a fake ECU
+- Real RSA-PKCS1-SHA256 / ECDSA-P256 signature verification via
+  Windows BCrypt — no external DLLs
+- Pre-check, snapshot, signature gate, blocked write, finalise,
+  post-flash verify, automatic rollback on failure
+- Snapshot persistence to disk
+
+**Best for**: Wiring the flashing pipeline to your own OEM-specific
+UDS sequence; shows what the four host-side callbacks need to
+return.
+
+---
+
+### 🏷️ oem_demo/
+**Complexity**: Beginner
+**Connection**: None (registry lookup only)
+**What it demonstrates**:
+- `IOBDOEMExtension` framework + `TOBDOEMRegistry` lookup by VIN
+- Reference VW group + BMW extensions
+- DID + RoutineControl catalog inspection
+- Per-DID payload decoding with unit conversion
+
+**Best for**: Adding manufacturer-specific UDS coverage to your project.
+
+---
+
+### ⏯️ replay/
+**Complexity**: Beginner
+**Connection**: None (reads `.obdlog` files)
+**What it demonstrates**:
+- `TOBDRecorder` / `TOBDReplayer` round-trip
+- Console replay with configurable speed multiplier
+- File format documentation for capturing real adapter sessions
+
+**Best for**: Building deterministic test fixtures, debugging parsers without a vehicle, recording demo sessions.
+
+---
+
 ### 🔌 serial/
 **Complexity**: Intermediate  
 **Connection**: Serial (COM port)  

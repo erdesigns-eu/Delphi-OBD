@@ -1,0 +1,241 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Hyundai / Kia / Genesis DTC starter",
+  "default_source": "HMG GDS / KDS / E-GMP community DTCs",
+  "dtcs": [
+    {
+      "code": "B1101",
+      "severity": "warning",
+      "description": "Battery Voltage Low (Hyundai/Kia BCM)",
+      "verified": false
+    },
+    {
+      "code": "C1604",
+      "severity": "warning",
+      "description": "ECM Hardware Fault (Hyundai/Kia HCU)",
+      "verified": false
+    },
+    {
+      "code": "P0014",
+      "severity": "warning",
+      "description": "CVVD Camshaft Position Performance (HMG Smartstream)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A1F",
+      "severity": "critical",
+      "description": "Drive Motor 'A' Inverter (E-GMP)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "HV Battery Cooling System Performance (E-GMP)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0AC4",
+      "severity": "critical",
+      "description": "Hybrid Powertrain Control Module Internal",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P11A6",
+      "severity": "warning",
+      "description": "Air Mass Sensor Performance — high (Hyundai)",
+      "verified": false
+    },
+    {
+      "code": "P1326",
+      "severity": "critical",
+      "description": "Glow plug control module — Theta II rod-bearing knock sensor detection (Hyundai/Kia)",
+      "verified": false
+    },
+    {
+      "code": "P1599",
+      "severity": "info",
+      "description": "N Launch Control: Calibration Out of Range",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1693",
+      "severity": "warning",
+      "description": "Trouble Code in Other Module (Hyundai/Kia gateway DTC)",
+      "verified": false
+    },
+    {
+      "code": "P1AE0",
+      "severity": "critical",
+      "description": "HV Battery Voltage Sense (E-GMP)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "hv_pack_v"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P2AAB",
+      "severity": "warning",
+      "description": "Cylinder 1 air/fuel imbalance (Hyundai/Kia GDI)",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Lost Communication With Radio (Hyundai/Kia)",
+      "verified": false
+    },
+    {
+      "code": "U2306",
+      "severity": "warning",
+      "description": "Front Camera Module: HDA Calibration Required",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "sensing_camera_dynamic"
+      ],
+      "oem_bulletin": ""
+    }
+  ]
+}

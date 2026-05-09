@@ -1,0 +1,311 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Ford DTC starter (FDRS / IDS common P1 / B / U codes)",
+  "default_source": "Ford FORScan / Motorcraft community DTCs",
+  "dtcs": [
+    {
+      "code": "B1318",
+      "severity": "info",
+      "description": "Battery Voltage Low (Ford BCM)",
+      "verified": false
+    },
+    {
+      "code": "P0660",
+      "severity": "warning",
+      "description": "Intake Manifold Tuning Valve Control Circuit (Ford)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A09",
+      "severity": "critical",
+      "description": "DC/DC Converter Status: Open Circuit (Ford Hybrid)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0AFA",
+      "severity": "critical",
+      "description": "Hybrid Battery System Voltage Low (Ford)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "hv_pack_v"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1000",
+      "severity": "info",
+      "description": "OBD Drive Cycle Not Complete (Ford)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run a full Ford drive cycle per service manual.",
+        "2) Re-check readiness flags."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1131",
+      "severity": "warning",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switches — Indicates Lean (Ford)",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "severity": "warning",
+      "description": "CKP/CMP Sensor Range/Performance",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1450",
+      "severity": "warning",
+      "description": "Unable to Bleed Up Fuel Tank Vacuum (Ford EVAP)",
+      "possible_causes": [
+        "Stuck-closed vapor management valve",
+        "Damaged charcoal canister"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [
+        "ecm_evap_purge"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1518",
+      "severity": "warning",
+      "description": "Intake Manifold Runner Control Stuck Open",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1633",
+      "severity": "info",
+      "description": "Keep-Alive Power Voltage Too Low (Ford KAM)",
+      "verified": false
+    },
+    {
+      "code": "P2008",
+      "severity": "warning",
+      "description": "Intake Manifold Runner Control Circuit / Open Bank 1",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P2106",
+      "severity": "warning",
+      "description": "Throttle Actuator Control System — Forced Limited Power (Ford)",
+      "verified": false
+    },
+    {
+      "code": "P2110",
+      "severity": "critical",
+      "description": "Throttle Actuator Control System — Forced Limited RPM",
+      "verified": false
+    },
+    {
+      "code": "P218A",
+      "severity": "info",
+      "description": "Power Take-Off Engagement Switch: Range/Performance (Ford)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0019",
+      "severity": "warning",
+      "description": "Lost Communication With Medium Speed CAN (Ford MS-CAN)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Control Module Communication Bus 'A' Off (Ford HS-CAN)",
+      "verified": false
+    }
+  ]
+}

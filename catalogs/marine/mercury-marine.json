@@ -1,0 +1,4320 @@
+{
+  "$schema": "https://erdesigns.eu/schema/oem-catalog-v2.json",
+  "version": 2,
+  "manufacturer_key": "MERCURY-MARINE",
+  "display_name": "Mercury Marine (Brunswick)",
+  "applicable_wmis": [
+    "MAR"
+  ],
+  "default_source": "CDS G3 / SmartCraft community / NMEA 2000",
+  "ecus": [
+    {
+      "address": "0x7E0",
+      "name": "ecm",
+      "common_name": "Engine Control Module"
+    },
+    {
+      "address": "0x7E1",
+      "name": "tcm",
+      "common_name": "Transmission / drive control"
+    },
+    {
+      "address": "0x7E2",
+      "name": "trim",
+      "common_name": "Trim + tilt actuator"
+    },
+    {
+      "address": "0x7E3",
+      "name": "joystick",
+      "common_name": "Joystick / Skyhook coordinator"
+    },
+    {
+      "address": "0x7E4",
+      "name": "battery_lithium",
+      "common_name": "Lithium house bank monitor"
+    },
+    {
+      "address": "0x7E5",
+      "name": "shore_power",
+      "common_name": "Shore-power converter / inverter"
+    },
+    {
+      "address": "0x7E6",
+      "name": "fuel_level",
+      "common_name": "Fuel + DEF level senders"
+    },
+    {
+      "address": "0x7E7",
+      "name": "engine_alarm",
+      "common_name": "Engine alarm / oil pressure / temp"
+    },
+    {
+      "address": "0x7E8",
+      "name": "vesselview",
+      "common_name": "VesselView / Volvo Glass Cockpit display"
+    },
+    {
+      "address": "0x7E9",
+      "name": "telemetry",
+      "common_name": "Marine telemetry (Mercury Vessel-net / Volvo Connect)"
+    },
+    {
+      "address": "0x7EA",
+      "name": "navigation",
+      "common_name": "Chartplotter integration / NMEA 2000 gateway"
+    },
+    {
+      "address": "0x710",
+      "name": "abs_drag_brake",
+      "common_name": "Drag-brake (jet inboards)"
+    },
+    {
+      "address": "0x711",
+      "name": "imu",
+      "common_name": "Marine IMU + gyro"
+    },
+    {
+      "address": "0x712",
+      "name": "cluster",
+      "common_name": "Helm cluster / SmartCraft display"
+    },
+    {
+      "address": "0x713",
+      "name": "auto_pilot",
+      "common_name": "Autopilot / Mercury Joystick Piloting"
+    },
+    {
+      "address": "0x714",
+      "name": "ev_motor_inverter",
+      "common_name": "Electric drive motor (Torqeedo / etc.)"
+    },
+    {
+      "address": "0x715",
+      "name": "active_trim",
+      "common_name": "Active Trim / Sport Power Trim"
+    },
+    {
+      "address": "0x716",
+      "name": "thruster",
+      "common_name": "Bow / stern thruster"
+    },
+    {
+      "address": "0x717",
+      "name": "windlass",
+      "common_name": "Anchor windlass control"
+    },
+    {
+      "address": "0x718",
+      "name": "horn_nav_lights",
+      "common_name": "Horn + nav-light controller"
+    },
+    {
+      "address": "0x719",
+      "name": "blower",
+      "common_name": "Engine bay blower"
+    },
+    {
+      "address": "0x71A",
+      "name": "bilge_pump",
+      "common_name": "Bilge pump"
+    }
+  ],
+  "dids": [
+    {
+      "did": "0xF110",
+      "name": "ecu_serial",
+      "description": "Serial",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF111",
+      "name": "ecu_part",
+      "description": "Part",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0xF112",
+      "name": "ecu_hw",
+      "description": "HW version",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0xF113",
+      "name": "ecu_sw",
+      "description": "SW version",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF114",
+      "name": "ecu_boot",
+      "description": "Bootloader",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0xF115",
+      "name": "ecu_calibration_id",
+      "description": "Calibration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 16
+      }
+    },
+    {
+      "did": "0xF11A",
+      "name": "ecu_name",
+      "description": "ECU name",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 20
+      }
+    },
+    {
+      "did": "0xF180",
+      "name": "reset_count",
+      "description": "Reset count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0xF181",
+      "name": "operating_hours",
+      "description": "Op hours",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0xF182",
+      "name": "supply_voltage",
+      "description": "Supply V",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0xF183",
+      "name": "internal_temp",
+      "description": "Internal temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8"
+      }
+    },
+    {
+      "did": "0xF186",
+      "name": "flash_free",
+      "description": "Flash free",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4000",
+      "name": "ecm_rpm",
+      "description": "Engine RPM",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x4001",
+      "name": "ecm_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x4002",
+      "name": "ecm_throttle",
+      "description": "Throttle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4003",
+      "name": "ecm_pedal",
+      "description": "Pedal/Lever",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4004",
+      "name": "ecm_coolant",
+      "description": "Coolant",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4005",
+      "name": "ecm_oil_temp",
+      "description": "Oil temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4006",
+      "name": "ecm_oil_level",
+      "description": "Oil level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4007",
+      "name": "ecm_oil_pressure",
+      "description": "Oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x4008",
+      "name": "ecm_intake_temp",
+      "description": "Intake temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4009",
+      "name": "ecm_maf",
+      "description": "MAF",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "g/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x400A",
+      "name": "ecm_map",
+      "description": "MAP",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x400D",
+      "name": "ecm_lambda_target",
+      "description": "Lambda target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x400E",
+      "name": "ecm_lambda_actual",
+      "description": "Lambda actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4014",
+      "name": "ecm_fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 10
+      }
+    },
+    {
+      "did": "0x4015",
+      "name": "ecm_fuel_consumption",
+      "description": "Fuel L/h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "L/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4017",
+      "name": "ecm_ignition_advance",
+      "description": "Ignition advance",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4018",
+      "name": "ecm_knock_corr",
+      "description": "Knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x401E",
+      "name": "ecm_misfire",
+      "description": "Misfire (drive)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x401F",
+      "name": "ecm_misfire_lifetime",
+      "description": "Misfire lifetime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4020",
+      "name": "ecm_runtime",
+      "description": "Engine runtime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x4021",
+      "name": "ecm_runtime_total",
+      "description": "Lifetime runtime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x4022",
+      "name": "ecm_starts",
+      "description": "Engine starts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4023",
+      "name": "ecm_battery",
+      "description": "Battery V",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4024",
+      "name": "ecm_alternator_load",
+      "description": "Alternator load",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x4030",
+      "name": "ecm_co2",
+      "description": "CO2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "g/km",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4031",
+      "name": "ecm_service_remaining_hours",
+      "description": "Service remaining",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x4032",
+      "name": "ecm_drive_mode",
+      "description": "Mode (Sport/Rain/Touring/...)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x4036",
+      "name": "ecm_max_rpm_reached",
+      "description": "Max RPM reached",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x4038",
+      "name": "ecm_max_g_long",
+      "description": "Max long G",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4039",
+      "name": "ecm_max_g_lat",
+      "description": "Max lat G",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4100",
+      "name": "ecm_cyl1_misfire",
+      "description": "Cyl 1 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4101",
+      "name": "ecm_cyl1_knock",
+      "description": "Cyl 1 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4102",
+      "name": "ecm_cyl1_inj_corr",
+      "description": "Cyl 1 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4103",
+      "name": "ecm_cyl1_egt",
+      "description": "Cyl 1 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4104",
+      "name": "ecm_cyl2_misfire",
+      "description": "Cyl 2 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4105",
+      "name": "ecm_cyl2_knock",
+      "description": "Cyl 2 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4106",
+      "name": "ecm_cyl2_inj_corr",
+      "description": "Cyl 2 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4107",
+      "name": "ecm_cyl2_egt",
+      "description": "Cyl 2 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4108",
+      "name": "ecm_cyl3_misfire",
+      "description": "Cyl 3 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4109",
+      "name": "ecm_cyl3_knock",
+      "description": "Cyl 3 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410A",
+      "name": "ecm_cyl3_inj_corr",
+      "description": "Cyl 3 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x410B",
+      "name": "ecm_cyl3_egt",
+      "description": "Cyl 3 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410C",
+      "name": "ecm_cyl4_misfire",
+      "description": "Cyl 4 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x410D",
+      "name": "ecm_cyl4_knock",
+      "description": "Cyl 4 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x410E",
+      "name": "ecm_cyl4_inj_corr",
+      "description": "Cyl 4 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x410F",
+      "name": "ecm_cyl4_egt",
+      "description": "Cyl 4 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4110",
+      "name": "ecm_cyl5_misfire",
+      "description": "Cyl 5 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4111",
+      "name": "ecm_cyl5_knock",
+      "description": "Cyl 5 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4112",
+      "name": "ecm_cyl5_inj_corr",
+      "description": "Cyl 5 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4113",
+      "name": "ecm_cyl5_egt",
+      "description": "Cyl 5 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4114",
+      "name": "ecm_cyl6_misfire",
+      "description": "Cyl 6 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4115",
+      "name": "ecm_cyl6_knock",
+      "description": "Cyl 6 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4116",
+      "name": "ecm_cyl6_inj_corr",
+      "description": "Cyl 6 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4117",
+      "name": "ecm_cyl6_egt",
+      "description": "Cyl 6 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4118",
+      "name": "ecm_cyl7_misfire",
+      "description": "Cyl 7 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4119",
+      "name": "ecm_cyl7_knock",
+      "description": "Cyl 7 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x411A",
+      "name": "ecm_cyl7_inj_corr",
+      "description": "Cyl 7 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x411B",
+      "name": "ecm_cyl7_egt",
+      "description": "Cyl 7 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x411C",
+      "name": "ecm_cyl8_misfire",
+      "description": "Cyl 8 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x411D",
+      "name": "ecm_cyl8_knock",
+      "description": "Cyl 8 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x411E",
+      "name": "ecm_cyl8_inj_corr",
+      "description": "Cyl 8 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x411F",
+      "name": "ecm_cyl8_egt",
+      "description": "Cyl 8 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4120",
+      "name": "ecm_cyl9_misfire",
+      "description": "Cyl 9 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4121",
+      "name": "ecm_cyl9_knock",
+      "description": "Cyl 9 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4122",
+      "name": "ecm_cyl9_inj_corr",
+      "description": "Cyl 9 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4123",
+      "name": "ecm_cyl9_egt",
+      "description": "Cyl 9 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4124",
+      "name": "ecm_cyl10_misfire",
+      "description": "Cyl 10 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4125",
+      "name": "ecm_cyl10_knock",
+      "description": "Cyl 10 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4126",
+      "name": "ecm_cyl10_inj_corr",
+      "description": "Cyl 10 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4127",
+      "name": "ecm_cyl10_egt",
+      "description": "Cyl 10 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x4128",
+      "name": "ecm_cyl11_misfire",
+      "description": "Cyl 11 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4129",
+      "name": "ecm_cyl11_knock",
+      "description": "Cyl 11 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x412A",
+      "name": "ecm_cyl11_inj_corr",
+      "description": "Cyl 11 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x412B",
+      "name": "ecm_cyl11_egt",
+      "description": "Cyl 11 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x412C",
+      "name": "ecm_cyl12_misfire",
+      "description": "Cyl 12 misfire",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x412D",
+      "name": "ecm_cyl12_knock",
+      "description": "Cyl 12 knock retard",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x412E",
+      "name": "ecm_cyl12_inj_corr",
+      "description": "Cyl 12 injection corr",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x412F",
+      "name": "ecm_cyl12_egt",
+      "description": "Cyl 12 EGT",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C",
+        "scale": 0.5
+      }
+    },
+    {
+      "did": "0x5000",
+      "name": "verado_v8_300_displacement_cc",
+      "description": "Verado 300 V8 4.6L — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5001",
+      "name": "verado_v8_300_max_power_kw",
+      "description": "Verado 300 V8 4.6L — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5002",
+      "name": "verado_v8_300_max_torque_nm",
+      "description": "Verado 300 V8 4.6L — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5003",
+      "name": "verado_v8_300_redline_rpm",
+      "description": "Verado 300 V8 4.6L — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5004",
+      "name": "verado_v8_300_compression_ratio",
+      "description": "Verado 300 V8 4.6L — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5005",
+      "name": "verado_v8_300_bore_mm",
+      "description": "Verado 300 V8 4.6L — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5006",
+      "name": "verado_v8_300_stroke_mm",
+      "description": "Verado 300 V8 4.6L — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5007",
+      "name": "verado_v8_300_weight_kg",
+      "description": "Verado 300 V8 4.6L — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5008",
+      "name": "verado_v10_400_displacement_cc",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5009",
+      "name": "verado_v10_400_max_power_kw",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x500A",
+      "name": "verado_v10_400_max_torque_nm",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x500B",
+      "name": "verado_v10_400_redline_rpm",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x500C",
+      "name": "verado_v10_400_compression_ratio",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x500D",
+      "name": "verado_v10_400_bore_mm",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x500E",
+      "name": "verado_v10_400_stroke_mm",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x500F",
+      "name": "verado_v10_400_weight_kg",
+      "description": "Verado 400 V10 7.6L (Sea Pro) — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5010",
+      "name": "verado_v12_600_displacement_cc",
+      "description": "Verado 600 V12 7.6L Twin-Prop — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5011",
+      "name": "verado_v12_600_max_power_kw",
+      "description": "Verado 600 V12 7.6L Twin-Prop — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5012",
+      "name": "verado_v12_600_max_torque_nm",
+      "description": "Verado 600 V12 7.6L Twin-Prop — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5013",
+      "name": "verado_v12_600_redline_rpm",
+      "description": "Verado 600 V12 7.6L Twin-Prop — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5014",
+      "name": "verado_v12_600_compression_ratio",
+      "description": "Verado 600 V12 7.6L Twin-Prop — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5015",
+      "name": "verado_v12_600_bore_mm",
+      "description": "Verado 600 V12 7.6L Twin-Prop — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5016",
+      "name": "verado_v12_600_stroke_mm",
+      "description": "Verado 600 V12 7.6L Twin-Prop — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5017",
+      "name": "verado_v12_600_weight_kg",
+      "description": "Verado 600 V12 7.6L Twin-Prop — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5018",
+      "name": "pro_xs_v8_250_displacement_cc",
+      "description": "Pro XS V8 4.6L 250 hp — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5019",
+      "name": "pro_xs_v8_250_max_power_kw",
+      "description": "Pro XS V8 4.6L 250 hp — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x501A",
+      "name": "pro_xs_v8_250_max_torque_nm",
+      "description": "Pro XS V8 4.6L 250 hp — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x501B",
+      "name": "pro_xs_v8_250_redline_rpm",
+      "description": "Pro XS V8 4.6L 250 hp — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x501C",
+      "name": "pro_xs_v8_250_compression_ratio",
+      "description": "Pro XS V8 4.6L 250 hp — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x501D",
+      "name": "pro_xs_v8_250_bore_mm",
+      "description": "Pro XS V8 4.6L 250 hp — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x501E",
+      "name": "pro_xs_v8_250_stroke_mm",
+      "description": "Pro XS V8 4.6L 250 hp — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x501F",
+      "name": "pro_xs_v8_250_weight_kg",
+      "description": "Pro XS V8 4.6L 250 hp — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5020",
+      "name": "seapro_3_4_v6_200_displacement_cc",
+      "description": "SeaPro 3.4L V6 200 hp — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5021",
+      "name": "seapro_3_4_v6_200_max_power_kw",
+      "description": "SeaPro 3.4L V6 200 hp — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5022",
+      "name": "seapro_3_4_v6_200_max_torque_nm",
+      "description": "SeaPro 3.4L V6 200 hp — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5023",
+      "name": "seapro_3_4_v6_200_redline_rpm",
+      "description": "SeaPro 3.4L V6 200 hp — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5024",
+      "name": "seapro_3_4_v6_200_compression_ratio",
+      "description": "SeaPro 3.4L V6 200 hp — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5025",
+      "name": "seapro_3_4_v6_200_bore_mm",
+      "description": "SeaPro 3.4L V6 200 hp — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5026",
+      "name": "seapro_3_4_v6_200_stroke_mm",
+      "description": "SeaPro 3.4L V6 200 hp — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5027",
+      "name": "seapro_3_4_v6_200_weight_kg",
+      "description": "SeaPro 3.4L V6 200 hp — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5028",
+      "name": "racing_v8_500r_displacement_cc",
+      "description": "Racing 500R V8 4.6L — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5029",
+      "name": "racing_v8_500r_max_power_kw",
+      "description": "Racing 500R V8 4.6L — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x502A",
+      "name": "racing_v8_500r_max_torque_nm",
+      "description": "Racing 500R V8 4.6L — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x502B",
+      "name": "racing_v8_500r_redline_rpm",
+      "description": "Racing 500R V8 4.6L — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x502C",
+      "name": "racing_v8_500r_compression_ratio",
+      "description": "Racing 500R V8 4.6L — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x502D",
+      "name": "racing_v8_500r_bore_mm",
+      "description": "Racing 500R V8 4.6L — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x502E",
+      "name": "racing_v8_500r_stroke_mm",
+      "description": "Racing 500R V8 4.6L — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x502F",
+      "name": "racing_v8_500r_weight_kg",
+      "description": "Racing 500R V8 4.6L — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5030",
+      "name": "avator_7_5e_electric_displacement_cc",
+      "description": "Avator 7.5e electric — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5031",
+      "name": "avator_7_5e_electric_max_power_kw",
+      "description": "Avator 7.5e electric — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5032",
+      "name": "avator_7_5e_electric_max_torque_nm",
+      "description": "Avator 7.5e electric — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5033",
+      "name": "avator_7_5e_electric_redline_rpm",
+      "description": "Avator 7.5e electric — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5034",
+      "name": "avator_7_5e_electric_compression_ratio",
+      "description": "Avator 7.5e electric — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5035",
+      "name": "avator_7_5e_electric_bore_mm",
+      "description": "Avator 7.5e electric — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5036",
+      "name": "avator_7_5e_electric_stroke_mm",
+      "description": "Avator 7.5e electric — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5037",
+      "name": "avator_7_5e_electric_weight_kg",
+      "description": "Avator 7.5e electric — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5038",
+      "name": "avator_20e_electric_displacement_cc",
+      "description": "Avator 20e electric — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5039",
+      "name": "avator_20e_electric_max_power_kw",
+      "description": "Avator 20e electric — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x503A",
+      "name": "avator_20e_electric_max_torque_nm",
+      "description": "Avator 20e electric — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x503B",
+      "name": "avator_20e_electric_redline_rpm",
+      "description": "Avator 20e electric — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x503C",
+      "name": "avator_20e_electric_compression_ratio",
+      "description": "Avator 20e electric — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x503D",
+      "name": "avator_20e_electric_bore_mm",
+      "description": "Avator 20e electric — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x503E",
+      "name": "avator_20e_electric_stroke_mm",
+      "description": "Avator 20e electric — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x503F",
+      "name": "avator_20e_electric_weight_kg",
+      "description": "Avator 20e electric — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5040",
+      "name": "avator_35e_electric_displacement_cc",
+      "description": "Avator 35e electric — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5041",
+      "name": "avator_35e_electric_max_power_kw",
+      "description": "Avator 35e electric — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5042",
+      "name": "avator_35e_electric_max_torque_nm",
+      "description": "Avator 35e electric — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5043",
+      "name": "avator_35e_electric_redline_rpm",
+      "description": "Avator 35e electric — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5044",
+      "name": "avator_35e_electric_compression_ratio",
+      "description": "Avator 35e electric — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5045",
+      "name": "avator_35e_electric_bore_mm",
+      "description": "Avator 35e electric — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5046",
+      "name": "avator_35e_electric_stroke_mm",
+      "description": "Avator 35e electric — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5047",
+      "name": "avator_35e_electric_weight_kg",
+      "description": "Avator 35e electric — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5048",
+      "name": "mercruiser_v8_6_2_displacement_cc",
+      "description": "MerCruiser 6.2L MPI sterndrive — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5049",
+      "name": "mercruiser_v8_6_2_max_power_kw",
+      "description": "MerCruiser 6.2L MPI sterndrive — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x504A",
+      "name": "mercruiser_v8_6_2_max_torque_nm",
+      "description": "MerCruiser 6.2L MPI sterndrive — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x504B",
+      "name": "mercruiser_v8_6_2_redline_rpm",
+      "description": "MerCruiser 6.2L MPI sterndrive — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x504C",
+      "name": "mercruiser_v8_6_2_compression_ratio",
+      "description": "MerCruiser 6.2L MPI sterndrive — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x504D",
+      "name": "mercruiser_v8_6_2_bore_mm",
+      "description": "MerCruiser 6.2L MPI sterndrive — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x504E",
+      "name": "mercruiser_v8_6_2_stroke_mm",
+      "description": "MerCruiser 6.2L MPI sterndrive — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x504F",
+      "name": "mercruiser_v8_6_2_weight_kg",
+      "description": "MerCruiser 6.2L MPI sterndrive — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5050",
+      "name": "mercruiser_8_2_displacement_cc",
+      "description": "MerCruiser 8.2L MAG sterndrive — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5051",
+      "name": "mercruiser_8_2_max_power_kw",
+      "description": "MerCruiser 8.2L MAG sterndrive — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x5052",
+      "name": "mercruiser_8_2_max_torque_nm",
+      "description": "MerCruiser 8.2L MAG sterndrive — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x5053",
+      "name": "mercruiser_8_2_redline_rpm",
+      "description": "MerCruiser 8.2L MAG sterndrive — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x5054",
+      "name": "mercruiser_8_2_compression_ratio",
+      "description": "MerCruiser 8.2L MAG sterndrive — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5055",
+      "name": "mercruiser_8_2_bore_mm",
+      "description": "MerCruiser 8.2L MAG sterndrive — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5056",
+      "name": "mercruiser_8_2_stroke_mm",
+      "description": "MerCruiser 8.2L MAG sterndrive — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x5057",
+      "name": "mercruiser_8_2_weight_kg",
+      "description": "MerCruiser 8.2L MAG sterndrive — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5058",
+      "name": "4_5l_diesel_tdi_displacement_cc",
+      "description": "MerCruiser 4.5L TDI diesel — displacement",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "cc"
+      }
+    },
+    {
+      "did": "0x5059",
+      "name": "4_5l_diesel_tdi_max_power_kw",
+      "description": "MerCruiser 4.5L TDI diesel — max power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kW"
+      }
+    },
+    {
+      "did": "0x505A",
+      "name": "4_5l_diesel_tdi_max_torque_nm",
+      "description": "MerCruiser 4.5L TDI diesel — max torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x505B",
+      "name": "4_5l_diesel_tdi_redline_rpm",
+      "description": "MerCruiser 4.5L TDI diesel — redline",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x505C",
+      "name": "4_5l_diesel_tdi_compression_ratio",
+      "description": "MerCruiser 4.5L TDI diesel — compression",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x505D",
+      "name": "4_5l_diesel_tdi_bore_mm",
+      "description": "MerCruiser 4.5L TDI diesel — bore",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x505E",
+      "name": "4_5l_diesel_tdi_stroke_mm",
+      "description": "MerCruiser 4.5L TDI diesel — stroke",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      }
+    },
+    {
+      "did": "0x505F",
+      "name": "4_5l_diesel_tdi_weight_kg",
+      "description": "MerCruiser 4.5L TDI diesel — weight",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kg"
+      }
+    },
+    {
+      "did": "0x5180",
+      "name": "verado_2_speed_supplier",
+      "description": "Verado 2-speed transmission — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5181",
+      "name": "verado_2_speed_hw_rev",
+      "description": "Verado 2-speed transmission — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5182",
+      "name": "verado_2_speed_sw_train",
+      "description": "Verado 2-speed transmission — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x5183",
+      "name": "verado_2_speed_oil_type",
+      "description": "Verado 2-speed transmission — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5184",
+      "name": "verado_2_speed_oil_age_h",
+      "description": "Verado 2-speed transmission — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x5185",
+      "name": "verado_2_speed_oil_temp_max",
+      "description": "Verado 2-speed transmission — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x5186",
+      "name": "verado_2_speed_shift_count",
+      "description": "Verado 2-speed transmission — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5187",
+      "name": "verado_2_speed_clutch_engagement",
+      "description": "Verado 2-speed transmission — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5188",
+      "name": "bravo_one_xr_supplier",
+      "description": "Bravo One XR sterndrive — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5189",
+      "name": "bravo_one_xr_hw_rev",
+      "description": "Bravo One XR sterndrive — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x518A",
+      "name": "bravo_one_xr_sw_train",
+      "description": "Bravo One XR sterndrive — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x518B",
+      "name": "bravo_one_xr_oil_type",
+      "description": "Bravo One XR sterndrive — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x518C",
+      "name": "bravo_one_xr_oil_age_h",
+      "description": "Bravo One XR sterndrive — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x518D",
+      "name": "bravo_one_xr_oil_temp_max",
+      "description": "Bravo One XR sterndrive — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x518E",
+      "name": "bravo_one_xr_shift_count",
+      "description": "Bravo One XR sterndrive — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x518F",
+      "name": "bravo_one_xr_clutch_engagement",
+      "description": "Bravo One XR sterndrive — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5190",
+      "name": "bravo_three_supplier",
+      "description": "Bravo Three counter-rotating sterndrive — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5191",
+      "name": "bravo_three_hw_rev",
+      "description": "Bravo Three counter-rotating sterndrive — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5192",
+      "name": "bravo_three_sw_train",
+      "description": "Bravo Three counter-rotating sterndrive — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x5193",
+      "name": "bravo_three_oil_type",
+      "description": "Bravo Three counter-rotating sterndrive — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5194",
+      "name": "bravo_three_oil_age_h",
+      "description": "Bravo Three counter-rotating sterndrive — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x5195",
+      "name": "bravo_three_oil_temp_max",
+      "description": "Bravo Three counter-rotating sterndrive — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x5196",
+      "name": "bravo_three_shift_count",
+      "description": "Bravo Three counter-rotating sterndrive — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5197",
+      "name": "bravo_three_clutch_engagement",
+      "description": "Bravo Three counter-rotating sterndrive — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5198",
+      "name": "ev_2_speed_avator_supplier",
+      "description": "Avator 2-speed reducer — Supplier",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x5199",
+      "name": "ev_2_speed_avator_hw_rev",
+      "description": "Avator 2-speed reducer — HW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x519A",
+      "name": "ev_2_speed_avator_sw_train",
+      "description": "Avator 2-speed reducer — SW",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 6
+      }
+    },
+    {
+      "did": "0x519B",
+      "name": "ev_2_speed_avator_oil_type",
+      "description": "Avator 2-speed reducer — Oil",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 4
+      }
+    },
+    {
+      "did": "0x519C",
+      "name": "ev_2_speed_avator_oil_age_h",
+      "description": "Avator 2-speed reducer — Oil h",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "h"
+      }
+    },
+    {
+      "did": "0x519D",
+      "name": "ev_2_speed_avator_oil_temp_max",
+      "description": "Avator 2-speed reducer — Max temp",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x519E",
+      "name": "ev_2_speed_avator_shift_count",
+      "description": "Avator 2-speed reducer — Shifts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x519F",
+      "name": "ev_2_speed_avator_clutch_engagement",
+      "description": "Avator 2-speed reducer — Clutch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5300",
+      "name": "vesselview_902_1303_hw_part",
+      "description": "VesselView 902/1303 multi-function display — HW part",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x5301",
+      "name": "vesselview_902_1303_sw_train",
+      "description": "VesselView 902/1303 multi-function display — SW train",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x5302",
+      "name": "vesselview_902_1303_uptime",
+      "description": "VesselView 902/1303 multi-function display — Uptime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x5303",
+      "name": "vesselview_902_1303_boot_count",
+      "description": "VesselView 902/1303 multi-function display — Boots",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x5304",
+      "name": "vesselview_902_1303_ota_status",
+      "description": "VesselView 902/1303 multi-function display — OTA status",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x5305",
+      "name": "vesselview_902_1303_voice_engine",
+      "description": "VesselView 902/1303 multi-function display — Voice",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x5306",
+      "name": "vesselview_902_1303_nav_engine",
+      "description": "VesselView 902/1303 multi-function display — Nav",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x5307",
+      "name": "vesselview_902_1303_media_engine",
+      "description": "VesselView 902/1303 multi-function display — Media",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x5308",
+      "name": "vesselview_link_hw_part",
+      "description": "VesselView Link mobile gateway — HW part",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x5309",
+      "name": "vesselview_link_sw_train",
+      "description": "VesselView Link mobile gateway — SW train",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 11
+      }
+    },
+    {
+      "did": "0x530A",
+      "name": "vesselview_link_uptime",
+      "description": "VesselView Link mobile gateway — Uptime",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x530B",
+      "name": "vesselview_link_boot_count",
+      "description": "VesselView Link mobile gateway — Boots",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x530C",
+      "name": "vesselview_link_ota_status",
+      "description": "VesselView Link mobile gateway — OTA status",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x530D",
+      "name": "vesselview_link_voice_engine",
+      "description": "VesselView Link mobile gateway — Voice",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x530E",
+      "name": "vesselview_link_nav_engine",
+      "description": "VesselView Link mobile gateway — Nav",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x530F",
+      "name": "vesselview_link_media_engine",
+      "description": "VesselView Link mobile gateway — Media",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "ascii",
+        "length": 8
+      }
+    },
+    {
+      "did": "0x4400",
+      "name": "chs_yaw",
+      "description": "Yaw",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4401",
+      "name": "chs_lat_g",
+      "description": "Lat G",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4402",
+      "name": "chs_long_g",
+      "description": "Long G",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "g",
+        "scale": 0.001
+      }
+    },
+    {
+      "did": "0x4403",
+      "name": "chs_speed_front",
+      "description": "Front speed",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4404",
+      "name": "chs_speed_rear",
+      "description": "Rear speed",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4405",
+      "name": "chs_brake_pressure",
+      "description": "Brake pressure",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x4406",
+      "name": "chs_abs_intervention",
+      "description": "ABS interv",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4407",
+      "name": "chs_tc_intervention",
+      "description": "TC interv",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    },
+    {
+      "did": "0x4408",
+      "name": "chs_lean_angle",
+      "description": "Lean angle (moto)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4409",
+      "name": "chs_ride_height",
+      "description": "Ride height",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440A",
+      "name": "chs_steering_angle",
+      "description": "Steering / handlebar",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440B",
+      "name": "chs_front_susp_travel",
+      "description": "Front susp travel",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440C",
+      "name": "chs_rear_susp_travel",
+      "description": "Rear susp travel",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mm",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x440D",
+      "name": "chs_damper_state",
+      "description": "Damper state",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x440E",
+      "name": "chs_brake_temp_f",
+      "description": "Front brake temp",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x440F",
+      "name": "chs_brake_temp_r",
+      "description": "Rear brake temp",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4500",
+      "name": "hv_pack_v",
+      "description": "Pack V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4501",
+      "name": "hv_pack_a",
+      "description": "Pack A",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.1
+      }
+    },
+    {
+      "did": "0x4502",
+      "name": "hv_soc",
+      "description": "SOC",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4504",
+      "name": "hv_soh",
+      "description": "SOH",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4505",
+      "name": "hv_max_cell_v",
+      "description": "Max cell",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4506",
+      "name": "hv_min_cell_v",
+      "description": "Min cell",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4509",
+      "name": "hv_max_temp",
+      "description": "Max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x450C",
+      "name": "hv_isolation",
+      "description": "Isolation",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kΩ"
+      }
+    },
+    {
+      "did": "0x450D",
+      "name": "hv_capacity_remaining",
+      "description": "Cap rem",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kWh",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x450F",
+      "name": "hv_charge_count",
+      "description": "Charges",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint32_be"
+      }
+    },
+    {
+      "did": "0x4600",
+      "name": "hv_cell_001_v",
+      "description": "HV cell 1 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4601",
+      "name": "hv_cell_002_v",
+      "description": "HV cell 2 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4602",
+      "name": "hv_cell_003_v",
+      "description": "HV cell 3 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4603",
+      "name": "hv_cell_004_v",
+      "description": "HV cell 4 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4604",
+      "name": "hv_cell_005_v",
+      "description": "HV cell 5 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4605",
+      "name": "hv_cell_006_v",
+      "description": "HV cell 6 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4606",
+      "name": "hv_cell_007_v",
+      "description": "HV cell 7 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4607",
+      "name": "hv_cell_008_v",
+      "description": "HV cell 8 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4608",
+      "name": "hv_cell_009_v",
+      "description": "HV cell 9 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4609",
+      "name": "hv_cell_010_v",
+      "description": "HV cell 10 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460A",
+      "name": "hv_cell_011_v",
+      "description": "HV cell 11 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460B",
+      "name": "hv_cell_012_v",
+      "description": "HV cell 12 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460C",
+      "name": "hv_cell_013_v",
+      "description": "HV cell 13 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460D",
+      "name": "hv_cell_014_v",
+      "description": "HV cell 14 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460E",
+      "name": "hv_cell_015_v",
+      "description": "HV cell 15 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x460F",
+      "name": "hv_cell_016_v",
+      "description": "HV cell 16 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4610",
+      "name": "hv_cell_017_v",
+      "description": "HV cell 17 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4611",
+      "name": "hv_cell_018_v",
+      "description": "HV cell 18 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4612",
+      "name": "hv_cell_019_v",
+      "description": "HV cell 19 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4613",
+      "name": "hv_cell_020_v",
+      "description": "HV cell 20 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4614",
+      "name": "hv_cell_021_v",
+      "description": "HV cell 21 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4615",
+      "name": "hv_cell_022_v",
+      "description": "HV cell 22 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4616",
+      "name": "hv_cell_023_v",
+      "description": "HV cell 23 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4617",
+      "name": "hv_cell_024_v",
+      "description": "HV cell 24 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4618",
+      "name": "hv_cell_025_v",
+      "description": "HV cell 25 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4619",
+      "name": "hv_cell_026_v",
+      "description": "HV cell 26 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461A",
+      "name": "hv_cell_027_v",
+      "description": "HV cell 27 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461B",
+      "name": "hv_cell_028_v",
+      "description": "HV cell 28 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461C",
+      "name": "hv_cell_029_v",
+      "description": "HV cell 29 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461D",
+      "name": "hv_cell_030_v",
+      "description": "HV cell 30 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461E",
+      "name": "hv_cell_031_v",
+      "description": "HV cell 31 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x461F",
+      "name": "hv_cell_032_v",
+      "description": "HV cell 32 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4620",
+      "name": "hv_cell_033_v",
+      "description": "HV cell 33 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4621",
+      "name": "hv_cell_034_v",
+      "description": "HV cell 34 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4622",
+      "name": "hv_cell_035_v",
+      "description": "HV cell 35 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4623",
+      "name": "hv_cell_036_v",
+      "description": "HV cell 36 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4624",
+      "name": "hv_cell_037_v",
+      "description": "HV cell 37 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4625",
+      "name": "hv_cell_038_v",
+      "description": "HV cell 38 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4626",
+      "name": "hv_cell_039_v",
+      "description": "HV cell 39 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4627",
+      "name": "hv_cell_040_v",
+      "description": "HV cell 40 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4628",
+      "name": "hv_cell_041_v",
+      "description": "HV cell 41 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4629",
+      "name": "hv_cell_042_v",
+      "description": "HV cell 42 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462A",
+      "name": "hv_cell_043_v",
+      "description": "HV cell 43 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462B",
+      "name": "hv_cell_044_v",
+      "description": "HV cell 44 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462C",
+      "name": "hv_cell_045_v",
+      "description": "HV cell 45 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462D",
+      "name": "hv_cell_046_v",
+      "description": "HV cell 46 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462E",
+      "name": "hv_cell_047_v",
+      "description": "HV cell 47 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x462F",
+      "name": "hv_cell_048_v",
+      "description": "HV cell 48 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4630",
+      "name": "hv_cell_049_v",
+      "description": "HV cell 49 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4631",
+      "name": "hv_cell_050_v",
+      "description": "HV cell 50 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4632",
+      "name": "hv_cell_051_v",
+      "description": "HV cell 51 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4633",
+      "name": "hv_cell_052_v",
+      "description": "HV cell 52 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4634",
+      "name": "hv_cell_053_v",
+      "description": "HV cell 53 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4635",
+      "name": "hv_cell_054_v",
+      "description": "HV cell 54 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4636",
+      "name": "hv_cell_055_v",
+      "description": "HV cell 55 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4637",
+      "name": "hv_cell_056_v",
+      "description": "HV cell 56 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4638",
+      "name": "hv_cell_057_v",
+      "description": "HV cell 57 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4639",
+      "name": "hv_cell_058_v",
+      "description": "HV cell 58 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463A",
+      "name": "hv_cell_059_v",
+      "description": "HV cell 59 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463B",
+      "name": "hv_cell_060_v",
+      "description": "HV cell 60 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463C",
+      "name": "hv_cell_061_v",
+      "description": "HV cell 61 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463D",
+      "name": "hv_cell_062_v",
+      "description": "HV cell 62 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463E",
+      "name": "hv_cell_063_v",
+      "description": "HV cell 63 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x463F",
+      "name": "hv_cell_064_v",
+      "description": "HV cell 64 V",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      }
+    },
+    {
+      "did": "0x4700",
+      "name": "hv_module_01_voltage",
+      "description": "Module 1 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4701",
+      "name": "hv_module_01_current",
+      "description": "Module 1 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4702",
+      "name": "hv_module_01_temp_max",
+      "description": "Module 1 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4703",
+      "name": "hv_module_01_temp_min",
+      "description": "Module 1 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4704",
+      "name": "hv_module_02_voltage",
+      "description": "Module 2 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4705",
+      "name": "hv_module_02_current",
+      "description": "Module 2 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4706",
+      "name": "hv_module_02_temp_max",
+      "description": "Module 2 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4707",
+      "name": "hv_module_02_temp_min",
+      "description": "Module 2 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4708",
+      "name": "hv_module_03_voltage",
+      "description": "Module 3 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4709",
+      "name": "hv_module_03_current",
+      "description": "Module 3 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x470A",
+      "name": "hv_module_03_temp_max",
+      "description": "Module 3 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x470B",
+      "name": "hv_module_03_temp_min",
+      "description": "Module 3 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x470C",
+      "name": "hv_module_04_voltage",
+      "description": "Module 4 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x470D",
+      "name": "hv_module_04_current",
+      "description": "Module 4 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x470E",
+      "name": "hv_module_04_temp_max",
+      "description": "Module 4 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x470F",
+      "name": "hv_module_04_temp_min",
+      "description": "Module 4 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4710",
+      "name": "hv_module_05_voltage",
+      "description": "Module 5 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4711",
+      "name": "hv_module_05_current",
+      "description": "Module 5 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4712",
+      "name": "hv_module_05_temp_max",
+      "description": "Module 5 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4713",
+      "name": "hv_module_05_temp_min",
+      "description": "Module 5 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4714",
+      "name": "hv_module_06_voltage",
+      "description": "Module 6 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4715",
+      "name": "hv_module_06_current",
+      "description": "Module 6 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4716",
+      "name": "hv_module_06_temp_max",
+      "description": "Module 6 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4717",
+      "name": "hv_module_06_temp_min",
+      "description": "Module 6 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x4718",
+      "name": "hv_module_07_voltage",
+      "description": "Module 7 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x4719",
+      "name": "hv_module_07_current",
+      "description": "Module 7 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x471A",
+      "name": "hv_module_07_temp_max",
+      "description": "Module 7 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x471B",
+      "name": "hv_module_07_temp_min",
+      "description": "Module 7 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x471C",
+      "name": "hv_module_08_voltage",
+      "description": "Module 8 voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x471D",
+      "name": "hv_module_08_current",
+      "description": "Module 8 current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A",
+        "scale": 0.01
+      }
+    },
+    {
+      "did": "0x471E",
+      "name": "hv_module_08_temp_max",
+      "description": "Module 8 max T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "did": "0x471F",
+      "name": "hv_module_08_temp_min",
+      "description": "Module 8 min T",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    }
+  ],
+  "routines": [
+    {
+      "id": "0x0210",
+      "name": "ecm_idle_adapt",
+      "description": "Idle adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0211",
+      "name": "ecm_throttle_adapt",
+      "description": "Throttle adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0212",
+      "name": "ecm_misfire_adapt",
+      "description": "Misfire adapt",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0214",
+      "name": "ecm_lambda_trim",
+      "description": "Lambda trim",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0218",
+      "name": "ecm_battery_register",
+      "description": "Battery reg",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0219",
+      "name": "ecm_oil_service_reset",
+      "description": "Oil reset",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x021A",
+      "name": "ecm_inspection_reset",
+      "description": "Inspection reset",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x021E",
+      "name": "ecm_dpf_regen",
+      "description": "DPF regen (diesel)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0220",
+      "name": "ecm_def_priming",
+      "description": "DEF priming (diesel)",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0221",
+      "name": "ecm_launch_calibrate",
+      "description": "Launch calibrate",
+      "ecu_address": "0x7E0"
+    },
+    {
+      "id": "0x0226",
+      "name": "abs_pump_test",
+      "description": "ABS pump test",
+      "ecu_address": "0x7E3"
+    },
+    {
+      "id": "0x022C",
+      "name": "yaw_zero",
+      "description": "Yaw zero",
+      "ecu_address": "0x7E3"
+    },
+    {
+      "id": "0x022D",
+      "name": "tpms_relearn",
+      "description": "TPMS relearn",
+      "ecu_address": "0x7E3"
+    },
+    {
+      "id": "0x0245",
+      "name": "headlight_aim",
+      "description": "Headlight aim",
+      "ecu_address": "0x7E3"
+    }
+  ],
+  "coding_blocks": [],
+  "adaptations": [
+    {
+      "channel": "0x0100",
+      "name": "idle_target",
+      "description": "Idle target",
+      "ecu_address": "0x7E0",
+      "kind": "uint16_be",
+      "min": 600,
+      "max": 1500,
+      "default": 1100,
+      "unit": "rpm"
+    },
+    {
+      "channel": "0x0101",
+      "name": "overrev",
+      "description": "Overrev",
+      "ecu_address": "0x7E0",
+      "kind": "uint16_be",
+      "min": 6000,
+      "max": 14000,
+      "default": 11000,
+      "unit": "rpm"
+    },
+    {
+      "channel": "0x0103",
+      "name": "torque_limit",
+      "description": "Torque limit",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 50,
+      "max": 110,
+      "default": 100,
+      "unit": "%"
+    },
+    {
+      "channel": "0x0107",
+      "name": "exhaust_default",
+      "description": "Exhaust default",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x010C",
+      "name": "abs_mode",
+      "description": "ABS mode",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 0,
+      "max": 3,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x010D",
+      "name": "abs_off_unlock",
+      "description": "ABS off unlock",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "unit": ""
+    },
+    {
+      "channel": "0x010E",
+      "name": "tc_off_unlock",
+      "description": "TC off unlock",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "unit": ""
+    },
+    {
+      "channel": "0x0110",
+      "name": "tpms_target_f",
+      "description": "TPMS f",
+      "ecu_address": "0x7E3",
+      "kind": "uint16_be",
+      "min": 150,
+      "max": 400,
+      "default": 240,
+      "unit": "kPa"
+    },
+    {
+      "channel": "0x0111",
+      "name": "tpms_target_r",
+      "description": "TPMS r",
+      "ecu_address": "0x7E3",
+      "kind": "uint16_be",
+      "min": 150,
+      "max": 400,
+      "default": 250,
+      "unit": "kPa"
+    },
+    {
+      "channel": "0x0118",
+      "name": "lean_angle_max",
+      "description": "Max lean angle",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 30,
+      "max": 60,
+      "default": 55,
+      "unit": "°"
+    },
+    {
+      "channel": "0x0142",
+      "name": "ota_min_battery",
+      "description": "OTA min batt",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 20,
+      "max": 100,
+      "default": 50,
+      "unit": "%"
+    },
+    {
+      "channel": "0x0140",
+      "name": "ride_mode_default",
+      "description": "Ride mode default",
+      "ecu_address": "0x7E0",
+      "kind": "uint8",
+      "min": 0,
+      "max": 4,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x0150",
+      "name": "skyhook_default",
+      "description": "Skyhook default",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "unit": ""
+    },
+    {
+      "channel": "0x0151",
+      "name": "joystick_sensitivity",
+      "description": "Joystick sensitivity",
+      "ecu_address": "0x7E3",
+      "kind": "uint8",
+      "min": 0,
+      "max": 5,
+      "default": 3,
+      "unit": "step"
+    }
+  ],
+  "actuator_tests": [
+    {
+      "id": "0x0301",
+      "name": "throttle",
+      "description": "Throttle motor",
+      "ecu_address": "0x7E0",
+      "duration_ms": 5000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0302",
+      "name": "fuel_pump",
+      "description": "Fuel pump",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0303",
+      "name": "starter",
+      "description": "Starter motor",
+      "ecu_address": "0x7E0",
+      "duration_ms": 3000,
+      "safety_warning": "Disconnect ignition for safety",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0304",
+      "name": "alternator",
+      "description": "Alternator field",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0305",
+      "name": "radiator_fan",
+      "description": "Radiator fan",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0306",
+      "name": "evap_purge",
+      "description": "Evap purge",
+      "ecu_address": "0x7E0",
+      "duration_ms": 10000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0310",
+      "name": "abs_pump",
+      "description": "ABS pump",
+      "ecu_address": "0x7E3",
+      "duration_ms": 5000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0311",
+      "name": "abs_inlet_f",
+      "description": "Inlet front",
+      "ecu_address": "0x7E3",
+      "duration_ms": 2000,
+      "safety_warning": "Wheels off",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0312",
+      "name": "abs_outlet_f",
+      "description": "Outlet front",
+      "ecu_address": "0x7E3",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0313",
+      "name": "abs_inlet_r",
+      "description": "Inlet rear",
+      "ecu_address": "0x7E3",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0314",
+      "name": "abs_outlet_r",
+      "description": "Outlet rear",
+      "ecu_address": "0x7E3",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0340",
+      "name": "horn",
+      "description": "Horn",
+      "ecu_address": "0x7E3",
+      "duration_ms": 2000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0350",
+      "name": "headlight_lo",
+      "description": "Low beam",
+      "ecu_address": "0x7E3",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0351",
+      "name": "headlight_hi",
+      "description": "High beam",
+      "ecu_address": "0x7E3",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0359",
+      "name": "brake_light",
+      "description": "Brake light",
+      "ecu_address": "0x7E3",
+      "duration_ms": 3000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0360",
+      "name": "skyhook_engage",
+      "description": "Skyhook GPS station-keep",
+      "ecu_address": "0x7E3",
+      "duration_ms": 30000,
+      "safety_warning": "Engines warmed + clear water",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    },
+    {
+      "id": "0x0361",
+      "name": "active_trim_default",
+      "description": "Active Trim default test",
+      "ecu_address": "0x715",
+      "duration_ms": 5000,
+      "safety_warning": "",
+      "response_kind": "uint8",
+      "response_label": "Status"
+    }
+  ],
+  "live_pids": [
+    {
+      "mode": "service22",
+      "pid": "0x4000",
+      "name": "live_engine_rpm",
+      "description": "RPM",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4004",
+      "name": "live_coolant",
+      "description": "Coolant",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4005",
+      "name": "live_oil_temp",
+      "description": "Oil",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int8",
+        "unit": "°C"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x400A",
+      "name": "live_map",
+      "description": "MAP",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 0.1
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x400E",
+      "name": "live_lambda",
+      "description": "Lambda",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "λ",
+        "scale": 0.001
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4014",
+      "name": "live_fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa",
+        "scale": 10
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4023",
+      "name": "live_battery",
+      "description": "12V",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V",
+        "scale": 0.001
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4032",
+      "name": "live_drive_mode",
+      "description": "Mode",
+      "ecu_address": "0x7E0",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4400",
+      "name": "live_yaw",
+      "description": "Yaw",
+      "ecu_address": "0x7E3",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°/s",
+        "scale": 0.01
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4408",
+      "name": "live_lean_angle",
+      "description": "Lean",
+      "ecu_address": "0x7E3",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°",
+        "scale": 0.1
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4403",
+      "name": "live_speed_front",
+      "description": "Front speed",
+      "ecu_address": "0x7E3",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    },
+    {
+      "mode": "service22",
+      "pid": "0x4404",
+      "name": "live_speed_rear",
+      "description": "Rear speed",
+      "ecu_address": "0x7E3",
+      "frame_offset": 0,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h",
+        "scale": 0.01
+      }
+    }
+  ],
+  "dtc_extended_data": [
+    {
+      "code": "P0301",
+      "record": "0x01",
+      "kind": "occurrence_counter",
+      "description": "Cylinder 1 misfire occurrence counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0301",
+      "record": "0x02",
+      "kind": "aging_counter",
+      "description": "Cylinder 1 misfire aging counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0420",
+      "record": "0x01",
+      "kind": "occurrence_counter",
+      "description": "Catalyst efficiency occurrence counter",
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "code": "P0420",
+      "record": "0x06",
+      "kind": "miles_since_cleared",
+      "description": "Catalyst miles since cleared",
+      "decoder": {
+        "kind": "uint16_be"
+      }
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/oem-catalog-v2.json",
+  "title": "OEM Catalog v2",
+  "description": "Schema for catalogs/<oem>.json — covers DIDs, routines, ECUs, coding blocks, adaptations, actuator tests, live PIDs, DTC extended-data records.",
+  "type": "object",
+  "required": ["version", "manufacturer_key", "display_name", "applicable_wmis"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "version": {"type": "integer", "enum": [1, 2]},
+    "manufacturer_key": {"type": "string", "minLength": 1},
+    "display_name": {"type": "string"},
+    "applicable_wmis": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Z0-9]{3}$"}
+    },
+    "default_source": {"type": "string"},
+    "default_ecu_address": {"$ref": "#/$defs/address"},
+    "ecus": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/ecu"}
+    },
+    "dids": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/did"}
+    },
+    "routines": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/routine"}
+    },
+    "coding_blocks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/coding_block"}
+    },
+    "adaptations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/adaptation"}
+    },
+    "actuator_tests": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/actuator_test"}
+    },
+    "live_pids": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/live_pid"}
+    },
+    "dtc_extended_data": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dtc_extended_data_record"}
+    },
+    "dtc_ranges": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dtc_range"}
+    }
+  },
+  "$defs": {
+    "address": {
+      "oneOf": [
+        {"type": "integer", "minimum": 0, "maximum": 65535},
+        {"type": "string", "pattern": "^(0x[0-9A-Fa-f]{1,4}|\\d+)$"}
+      ]
+    },
+    "decoder": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["ascii", "hex", "uint8", "uint16_be", "uint32_be",
+                   "int8", "int16_be", "int32_be", "bool", "bytes",
+                   "enum", "bitmask", "bcd_date", "seconds"]
+        },
+        "scale": {"type": "number"},
+        "offset": {"type": "number"},
+        "unit": {"type": "string"},
+        "length": {"type": "integer", "minimum": 1},
+        "size": {"type": "integer", "minimum": 1},
+        "values": {"type": "object"},
+        "bits": {"type": "object"}
+      }
+    },
+    "ecu": {
+      "type": "object",
+      "required": ["address"],
+      "properties": {
+        "address": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "common_name": {"type": "string"}
+      }
+    },
+    "did": {
+      "type": "object",
+      "required": ["did", "name"],
+      "properties": {
+        "did": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "source": {"type": "string"},
+        "verified": {"type": "boolean"},
+        "ecu_address": {"$ref": "#/$defs/address"},
+        "decoder": {"$ref": "#/$defs/decoder"}
+      }
+    },
+    "routine": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "verified": {"type": "boolean"},
+        "ecu_address": {"$ref": "#/$defs/address"}
+      }
+    },
+    "coding_field": {
+      "type": "object",
+      "required": ["name", "kind", "byte_offset"],
+      "properties": {
+        "name": {"type": "string"},
+        "label": {"type": "string"},
+        "description": {"type": "string"},
+        "kind": {
+          "type": "string",
+          "enum": ["bit", "uint8", "uint16_be", "uint32_be",
+                   "int16_be", "int32_be", "ascii", "enum", "bitmask"]
+        },
+        "byte_offset": {"type": "integer", "minimum": 0},
+        "bit_offset": {"type": "integer", "minimum": 0, "maximum": 7},
+        "bit_width": {"type": "integer", "minimum": 1, "maximum": 64},
+        "default": {"type": ["integer", "string"]},
+        "min": {"type": "integer"},
+        "max": {"type": "integer"},
+        "values": {"type": "object"}
+      }
+    },
+    "coding_block": {
+      "type": "object",
+      "required": ["did", "name", "payload_size", "fields"],
+      "properties": {
+        "did": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "ecu_address": {"$ref": "#/$defs/address"},
+        "payload_size": {"type": "integer", "minimum": 1},
+        "fields": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/coding_field"}
+        }
+      }
+    },
+    "adaptation": {
+      "type": "object",
+      "required": ["channel", "name", "kind"],
+      "properties": {
+        "channel": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "ecu_address": {"$ref": "#/$defs/address"},
+        "kind": {
+          "type": "string",
+          "enum": ["uint8", "uint16_be", "uint32_be",
+                   "int16_be", "int32_be", "enum", "bool"]
+        },
+        "min": {"type": "integer"},
+        "max": {"type": "integer"},
+        "default": {"type": "integer"},
+        "unit": {"type": "string"}
+      }
+    },
+    "actuator_test": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "ecu_address": {"$ref": "#/$defs/address"},
+        "duration_ms": {"type": "integer", "minimum": 0},
+        "safety_warning": {"type": "string"},
+        "response_kind": {"type": "string"},
+        "response_label": {"type": "string"}
+      }
+    },
+    "live_pid": {
+      "type": "object",
+      "required": ["pid", "name"],
+      "properties": {
+        "mode": {"type": "string"},
+        "pid": {"$ref": "#/$defs/address"},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "ecu_address": {"$ref": "#/$defs/address"},
+        "frame_offset": {"type": "integer", "minimum": 0},
+        "decoder": {"$ref": "#/$defs/decoder"}
+      }
+    },
+    "dtc_extended_data_record": {
+      "type": "object",
+      "required": ["code", "record"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[PCBU][0-9A-Fa-f]{4}$"},
+        "record": {"$ref": "#/$defs/address"},
+        "kind": {"type": "string"},
+        "description": {"type": "string"},
+        "decoder": {"$ref": "#/$defs/decoder"}
+      }
+    },
+    "dtc_range": {
+      "type": "object",
+      "properties": {
+        "start": {"type": "string"},
+        "end": {"type": "string"},
+        "source": {"type": "string"}
+      }
+    }
+  }
+}

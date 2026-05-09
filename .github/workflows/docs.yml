@@ -1,0 +1,64 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PasDoc
+        run: |
+          set -euo pipefail
+          PASDOC_VERSION=0.16.0
+          wget -q "https://github.com/pasdoc/pasdoc/releases/download/${PASDOC_VERSION}/pasdoc-${PASDOC_VERSION}-linux-x86_64.tar.gz"
+          tar -xzf "pasdoc-${PASDOC_VERSION}-linux-x86_64.tar.gz"
+          chmod +x pasdoc/pasdoc
+          echo "$PWD/pasdoc" >> $GITHUB_PATH
+
+      - name: Build API reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/pasdoc
+          # Run from docs/ so pasdoc.cfg's relative paths resolve.
+          cd docs
+          pasdoc @pasdoc.cfg \
+            --output=../build/pasdoc \
+            $(find ../src -name '*.pas' -print)
+
+      - name: Stage Markdown alongside the API reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp README.md            build/pasdoc/
+          cp CHANGELOG.md         build/pasdoc/
+          cp -R docs              build/pasdoc/docs
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/pasdoc
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

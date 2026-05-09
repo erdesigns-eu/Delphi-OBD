@@ -1,0 +1,239 @@
+//------------------------------------------------------------------------------
+// UNIT           : Tests.OEM.CodingCommon
+// COPYRIGHT      : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// NOTE           : Coverage tests for the v3.28 unified coding /
+//                  WriteDataByIdentifier API.
+//------------------------------------------------------------------------------
+unit Tests.OEM.CodingCommon;
+
+interface
+
+uses
+  DUnitX.TestFramework;
+
+type
+  [TestFixture]
+  TCodingRegistryTests = class
+  public
+    [Test] procedure NameMatchesKindIsCaseInsensitive;
+    [Test] procedure ClassifyVehicleOrderTokens;
+    [Test] procedure ClassifyAsBuiltCodeTokens;
+    [Test] procedure ClassifyFcaProxiTokens;
+    [Test] procedure ClassifyMarketRegionTokens;
+    [Test] procedure ClassifyStarlightTokens;
+    [Test] procedure ClassifyUnknownReturnsCfUnknown;
+  end;
+
+  [TestFixture]
+  TCodingLookupTests = class
+  public
+    [Test] procedure RollsRoyceResolvesVehicleOrder;
+    [Test] procedure RollsRoyceResolvesStarlightPattern;
+    [Test] procedure MazdaResolvesAsBuiltCode;
+    [Test] procedure MazdaResolvesMarketRegion;
+    [Test] procedure UnsupportedKindReturnsFalse;
+    [Test] procedure NilExtensionReturnsFalse;
+  end;
+
+  [TestFixture]
+  TCodingFrameTests = class
+  public
+    [Test] procedure WriteDataByIdentifierWrapsSidAndDID;
+    [Test] procedure WriteDataByIdentifierAppendsPayload;
+    [Test] procedure ParseAcceptsPositiveResponse;
+    [Test] procedure ParseRejectsWrongSid;
+    [Test] procedure ParseRejectsWrongDID;
+    [Test] procedure KindNameProducesHumanLabel;
+  end;
+
+implementation
+
+uses
+  System.SysUtils,
+  OBD.OEM, OBD.OEM.Coding.Common,
+  OBD.OEM.RollsRoyce, OBD.OEM.Mazda;
+
+procedure TCodingRegistryTests.NameMatchesKindIsCaseInsensitive;
+begin
+  Assert.IsTrue(TOBDCodingFunctionRegistry.NameMatchesKind(
+    'FA_ASSEMBLY', cfVehicleOrder));
+  Assert.IsTrue(TOBDCodingFunctionRegistry.NameMatchesKind(
+    'Fa_Assembly', cfVehicleOrder));
+end;
+
+procedure TCodingRegistryTests.ClassifyVehicleOrderTokens;
+begin
+  Assert.AreEqual(Ord(cfVehicleOrder), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('fa_assembly')));
+  Assert.AreEqual(Ord(cfVehicleOrder), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('bentley_commission_no')));
+  Assert.AreEqual(Ord(cfVehicleOrder), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('vehicle_order')));
+end;
+
+procedure TCodingRegistryTests.ClassifyAsBuiltCodeTokens;
+begin
+  Assert.AreEqual(Ord(cfAsBuiltCode), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('mazda_as_built_code')));
+  Assert.AreEqual(Ord(cfAsBuiltCode), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('ford_as_built_block')));
+end;
+
+procedure TCodingRegistryTests.ClassifyFcaProxiTokens;
+begin
+  Assert.AreEqual(Ord(cfFcaProxi), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('witech_proxi_align')));
+end;
+
+procedure TCodingRegistryTests.ClassifyMarketRegionTokens;
+begin
+  Assert.AreEqual(Ord(cfMarketRegion), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('mazda_market_code')));
+  Assert.AreEqual(Ord(cfMarketRegion), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('subaru_market_code')));
+end;
+
+procedure TCodingRegistryTests.ClassifyStarlightTokens;
+begin
+  Assert.AreEqual(Ord(cfStarlightPattern), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('rr_starlight_pattern')));
+end;
+
+procedure TCodingRegistryTests.ClassifyUnknownReturnsCfUnknown;
+begin
+  Assert.AreEqual(Ord(cfUnknown), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('battery_voltage_12v')));
+  Assert.AreEqual(Ord(cfUnknown), Ord(
+    TOBDCodingFunctionRegistry.ClassifyName('engine_oil_pressure')));
+end;
+
+//==============================================================================
+// Lookup against shipped OEM catalogs
+//==============================================================================
+procedure TCodingLookupTests.RollsRoyceResolvesVehicleOrder;
+var
+  Ext: IOBDOEMExtension;
+  Func: TOBDCodingFunction;
+begin
+  Ext := TOBDOEMExtensionRollsRoyce.Create;
+  Assert.IsTrue(FindCodingFunction(Ext, cfVehicleOrder, Func));
+  Assert.AreEqual(Ord(cfVehicleOrder), Ord(Func.Kind));
+  Assert.AreEqual('fa_assembly', Func.DidName);
+end;
+
+procedure TCodingLookupTests.RollsRoyceResolvesStarlightPattern;
+var
+  Ext: IOBDOEMExtension;
+  Func: TOBDCodingFunction;
+begin
+  Ext := TOBDOEMExtensionRollsRoyce.Create;
+  Assert.IsTrue(FindCodingFunction(Ext, cfStarlightPattern, Func));
+  Assert.AreEqual('rr_starlight_pattern', Func.DidName);
+end;
+
+procedure TCodingLookupTests.MazdaResolvesAsBuiltCode;
+var
+  Ext: IOBDOEMExtension;
+  Func: TOBDCodingFunction;
+begin
+  Ext := TOBDOEMExtensionMazda.Create;
+  Assert.IsTrue(FindCodingFunction(Ext, cfAsBuiltCode, Func));
+  Assert.AreEqual('mazda_as_built_code', Func.DidName);
+end;
+
+procedure TCodingLookupTests.MazdaResolvesMarketRegion;
+var
+  Ext: IOBDOEMExtension;
+  Func: TOBDCodingFunction;
+begin
+  Ext := TOBDOEMExtensionMazda.Create;
+  Assert.IsTrue(FindCodingFunction(Ext, cfMarketRegion, Func));
+  Assert.AreEqual('mazda_market_code', Func.DidName);
+end;
+
+procedure TCodingLookupTests.UnsupportedKindReturnsFalse;
+var
+  Ext: IOBDOEMExtension;
+  Func: TOBDCodingFunction;
+begin
+  // Mazda does not ship a Rolls-Royce Starlight programming DID.
+  Ext := TOBDOEMExtensionMazda.Create;
+  Assert.IsFalse(FindCodingFunction(Ext, cfStarlightPattern, Func));
+  Assert.AreEqual(Ord(cfUnknown), Ord(Func.Kind));
+end;
+
+procedure TCodingLookupTests.NilExtensionReturnsFalse;
+var
+  Func: TOBDCodingFunction;
+begin
+  Assert.IsFalse(FindCodingFunction(nil, cfVehicleOrder, Func));
+end;
+
+//==============================================================================
+// Frame builder + display labels
+//==============================================================================
+procedure TCodingFrameTests.WriteDataByIdentifierWrapsSidAndDID;
+var
+  Frame: TBytes;
+begin
+  Frame := BuildWriteDataByIdentifier($F1A2, nil);
+  Assert.AreEqual(3, Length(Frame));
+  Assert.AreEqual($2E, Integer(Frame[0]), 'SID = 0x2E');
+  Assert.AreEqual($F1, Integer(Frame[1]), 'DID hi byte');
+  Assert.AreEqual($A2, Integer(Frame[2]), 'DID lo byte');
+end;
+
+procedure TCodingFrameTests.WriteDataByIdentifierAppendsPayload;
+var
+  Frame, Data: TBytes;
+begin
+  Data := TBytes.Create($AA, $BB, $CC, $DD);
+  Frame := BuildWriteDataByIdentifier($1234, Data);
+  Assert.AreEqual(7, Length(Frame));
+  Assert.AreEqual($AA, Integer(Frame[3]));
+  Assert.AreEqual($BB, Integer(Frame[4]));
+  Assert.AreEqual($CC, Integer(Frame[5]));
+  Assert.AreEqual($DD, Integer(Frame[6]));
+end;
+
+procedure TCodingFrameTests.ParseAcceptsPositiveResponse;
+var
+  Resp: TBytes;
+begin
+  // 0x6E = 0x2E + 0x40 (positive WriteDataByIdentifier response)
+  Resp := TBytes.Create($6E, $F1, $A2);
+  Assert.IsTrue(ParseCodingResponse(Resp, $F1A2));
+end;
+
+procedure TCodingFrameTests.ParseRejectsWrongSid;
+var
+  Resp: TBytes;
+begin
+  Resp := TBytes.Create($62, $F1, $A2);   // 0x62 = ReadData response
+  Assert.IsFalse(ParseCodingResponse(Resp, $F1A2));
+end;
+
+procedure TCodingFrameTests.ParseRejectsWrongDID;
+var
+  Resp: TBytes;
+begin
+  Resp := TBytes.Create($6E, $F1, $A0);
+  Assert.IsFalse(ParseCodingResponse(Resp, $F1A2));
+end;
+
+procedure TCodingFrameTests.KindNameProducesHumanLabel;
+begin
+  Assert.AreEqual('Vehicle Order / FA / Commission',
+    CodingFunctionKindName(cfVehicleOrder));
+  Assert.AreEqual('FCA wiTech Proxi Alignment',
+    CodingFunctionKindName(cfFcaProxi));
+  Assert.AreEqual('Unknown Coding Function',
+    CodingFunctionKindName(cfUnknown));
+end;
+
+initialization
+  TDUnitX.RegisterTestFixture(TCodingRegistryTests);
+  TDUnitX.RegisterTestFixture(TCodingLookupTests);
+  TDUnitX.RegisterTestFixture(TCodingFrameTests);
+
+end.

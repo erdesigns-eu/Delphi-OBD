@@ -1,0 +1,240 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Honda / Acura DTC starter",
+  "default_source": "Honda HDS / Honda-Tech community DTCs",
+  "dtcs": [
+    {
+      "code": "B1131",
+      "severity": "warning",
+      "description": "Driver airbag deployment loop resistance high (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "critical",
+      "description": "Cylinder 3 Misfire (1.5L turbo oil dilution warning)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": "Honda S/B 18-114"
+    },
+    {
+      "code": "P0496",
+      "severity": "warning",
+      "description": "Evap System High Purge Flow (Honda)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A1F",
+      "severity": "critical",
+      "description": "Drive Motor 'A' Inverter Performance (Honda i-MMD)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "HV Battery Cooling System Performance (Honda i-MMD)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1259",
+      "severity": "warning",
+      "description": "VTEC System Malfunction Bank 1 (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P1399",
+      "severity": "warning",
+      "description": "Random Cylinder Misfire Detected (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P1456",
+      "severity": "info",
+      "description": "EVAP Emission Control System Leak Detected — Fuel Tank (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "severity": "info",
+      "description": "EVAP Emission Control System Leak Detected — Canister (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P14B9",
+      "severity": "warning",
+      "description": "Direct Adaptive Steering Calibration Lost",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P162F",
+      "severity": "warning",
+      "description": "Steering wheel angle sensor calibration not learned (Honda)",
+      "verified": false
+    },
+    {
+      "code": "P2646",
+      "severity": "warning",
+      "description": "VTEC Oil Pressure Switch Stuck OFF (Honda K-series)",
+      "possible_causes": [
+        "Aged engine oil",
+        "Failed VTEC pressure switch",
+        "VTEC solenoid failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": "Honda S/B 06-022"
+    },
+    {
+      "code": "U0028",
+      "severity": "critical",
+      "description": "F-CAN Bus Off (Honda body bus)",
+      "verified": false
+    },
+    {
+      "code": "U3000",
+      "severity": "warning",
+      "description": "Front Camera Module: Calibration Required (Honda SENSING)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "sensing_camera_dynamic"
+      ],
+      "oem_bulletin": ""
+    }
+  ]
+}

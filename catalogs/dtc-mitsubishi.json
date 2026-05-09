@@ -1,0 +1,127 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Mitsubishi Motors DTC starter",
+  "default_source": "Mitsubishi MUT-III community DTCs",
+  "dtcs": [
+    {
+      "code": "B1408",
+      "severity": "warning",
+      "description": "ETACS Battery Voltage Low (Mitsubishi)",
+      "verified": false
+    },
+    {
+      "code": "C2200",
+      "severity": "warning",
+      "description": "ASC ECU Internal Failure (Mitsubishi ASC)",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst Efficiency Below Threshold (Mitsubishi)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": false,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0455",
+      "severity": "info",
+      "description": "EVAP Emission Control System Leak — Large (Mitsubishi)",
+      "verified": false
+    },
+    {
+      "code": "P0741",
+      "severity": "warning",
+      "description": "Torque Converter Clutch Performance (Mitsubishi 4-/5-speed AT)",
+      "verified": false
+    },
+    {
+      "code": "P181E",
+      "severity": "warning",
+      "description": "SST Clutch Position Sensor — Range/Performance (Mitsubishi SST DCT)",
+      "verified": false
+    },
+    {
+      "code": "P1A1F",
+      "severity": "critical",
+      "description": "HV Battery Voltage Sensor (Outlander PHEV)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "hv_pack_v"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P2128",
+      "severity": "warning",
+      "description": "APS 'E' Performance (Mitsubishi)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U1135",
+      "severity": "critical",
+      "description": "Lost Communication With Engine Control Module (Mitsubishi LIN/CAN)",
+      "verified": false
+    }
+  ]
+}
