@@ -69,6 +69,11 @@ uses
   OBD.Protocol.DoIP.Transport in '..\src\Protocol\OBD.Protocol.DoIP.Transport.pas',
   OBD.Protocol.DoIP.Client in '..\src\Protocol\OBD.Protocol.DoIP.Client.pas',
   OBD.Protocol.DoIP in '..\src\Protocol\OBD.Protocol.DoIP.pas',
+  OBD.Protocol.SecOC.AES in '..\src\Protocol\OBD.Protocol.SecOC.AES.pas',
+  OBD.Protocol.SecOC.CMAC in '..\src\Protocol\OBD.Protocol.SecOC.CMAC.pas',
+  OBD.Protocol.SecOC.Keys in '..\src\Protocol\OBD.Protocol.SecOC.Keys.pas',
+  OBD.Protocol.SecOC.Freshness in '..\src\Protocol\OBD.Protocol.SecOC.Freshness.pas',
+  OBD.Protocol.SecOC in '..\src\Protocol\OBD.Protocol.SecOC.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
@@ -94,7 +99,8 @@ uses
   Tests.OBD.Protocol in 'Tests.OBD.Protocol.pas',
   Tests.OBD.Protocol.VIN in 'Tests.OBD.Protocol.VIN.pas',
   Tests.OBD.Protocol.J1939.TP in 'Tests.OBD.Protocol.J1939.TP.pas',
-  Tests.OBD.Protocol.DoIP in 'Tests.OBD.Protocol.DoIP.pas';
+  Tests.OBD.Protocol.DoIP in 'Tests.OBD.Protocol.DoIP.pas',
+  Tests.OBD.Protocol.SecOC in 'Tests.OBD.Protocol.SecOC.pas';
 
 {$IFDEF CI}
 var

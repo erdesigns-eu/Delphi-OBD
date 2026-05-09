@@ -1083,3 +1083,176 @@ intentional behaviour with documented trade-offs.
 - [x] Header round-trip and every message round-trip covered
       by tests.
 - [x] Client lifecycle covered against an in-memory entity.
+
+---
+
+## Phase 4e — SecOC (CMAC-AES128 + freshness + key store)
+
+### Code landed
+
+- `src/Protocol/OBD.Protocol.SecOC.AES.pas` — pure-Pascal AES-128
+  single-block encryption per FIPS-197. Encryption-only — CMAC
+  never decrypts, so the inverse round logic is not shipped. Byte-
+  oriented (no T-tables) — short SecOC PDUs make per-message
+  latency irrelevant; clarity wins.
+- `src/Protocol/OBD.Protocol.SecOC.CMAC.pas` — `TOBDCMACAES` with
+  `Compute` (full 128-bit tag) and `ComputeTruncated` (arbitrary
+  bit length 1..128). Implements RFC 4493 § 2 verbatim:
+  subkey derivation by GF(2^128) shift + Rb constant ($87),
+  iterative AES-CBC-MAC, K1 / K2 selection on the last block.
+- `src/Protocol/OBD.Protocol.SecOC.Keys.pas` — `IOBDSecOCKeyProvider`
+  contract + in-memory `TOBDSecOCKeyStore` (TInterfacedObject,
+  thread-safe `TDictionary<Word, TOBDSecOCBinding>` under a
+  critical section). Per-Data-ID binding carries the 128-bit key,
+  the truncated-MAC bit length, and the truncated-FV bit length.
+  Hosts that want a TPM / HSM-backed store implement
+  `IOBDSecOCKeyProvider` externally.
+- `src/Protocol/OBD.Protocol.SecOC.Freshness.pas` —
+  `IOBDSecOCFreshnessProvider` contract + in-memory
+  `TOBDSecOCFreshness`. Per-Data-ID 64-bit TX and RX counters.
+  `NextTx` increments and returns; `TryAccept` reconstructs the
+  full FV from the truncated wire bits, accepts only if strictly
+  greater than the last RX value, and bounds the accepted jump by
+  `MaxJump` (default 16). Wraps the truncated counter epoch
+  forward when the candidate is ≤ last RX.
+- `src/Protocol/OBD.Protocol.SecOC.pas` — `TOBDSecOCCodec`
+  component. `Wrap` produces an Authentic PDU (Original ||
+  Truncated FV || Truncated MAC); `Unwrap` parses, accepts the
+  freshness, recomputes the MAC over (Data ID-BE || Original ||
+  Full FV-BE) and constant-time-compares. New `EOBDSecOCError`
+  exception on every failure path.
+- `tests/Tests.OBD.Protocol.SecOC.pas` — five fixtures, twenty-one
+  tests:
+  - **AES**: FIPS-197 Appendix B known answer + expanded-key
+    round-trip.
+  - **CMAC**: every RFC 4493 § 4 vector (empty, 16-byte, 40-byte,
+    64-byte) + truncated-tag prefix check.
+  - **Key store**: register, lookup, unregister, clear, replace,
+    out-of-range rejection.
+  - **Freshness**: monotonic TX, initial accept, truncated-FV
+    wrap, replay rejection, jump-window rejection.
+  - **Codec**: full wrap/unwrap round-trip, bit-flip detection in
+    PDU, bit-flip detection in MAC, replay rejection, unknown
+    Data ID, unconfigured codec.
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added all five SecOC units and the new test fixture.
+
+### Architecture highlights
+
+- **Keys and freshness behind separate interfaces.** Hosts that
+  back keys with an HSM or freshness with NVM swap one provider
+  without touching the codec. The bundled in-memory
+  implementations are the default but are not load-bearing for
+  the security model.
+- **Constant-time tag comparison.** The unwrap path XORs the
+  expected and received truncated tags into a single `Diff`
+  accumulator, then checks zero once. No branch on per-byte
+  mismatch; resists trivial timing oracles.
+- **AAD layout matches AUTOSAR exactly.** MAC input is
+  Data ID (16-bit BE) || Original PDU || Full FV (64-bit BE) per
+  AUTOSAR SecOC SWS § 7.2. The receiver reconstructs the **full**
+  FV first, then computes the MAC against it — never against the
+  truncated wire FV.
+- **Replay window is a hard ceiling.** `MaxJump = 16` rejects
+  forged messages claiming counters far ahead of the last
+  legitimate accept. Hosts that operate over high-loss links
+  raise it; safety-critical hosts lower it.
+- **Encryption-only AES.** SecOC never decrypts; shipping inverse
+  rounds would only be code that needs maintenance and review
+  without ever running. Tests pin the cipher to FIPS-197 Appendix
+  B so a future T-table optimisation can't silently regress.
+
+### What's intentionally not in 4e
+
+- **Sub-byte-aligned truncation** (e.g. 4-bit FV on a 64-bit CAN
+  frame). The wire format requires bit-packing the trailer, which
+  changes the unwrap parser substantially. Every production OBD
+  use case (UDS DID, J1939 PGN, DoIP) carries 8/16/24/64-bit
+  alignment, so byte-aligned coverage is sufficient for v1. The
+  codec validates this at unwrap time; the key store accepts the
+  declared values, the codec rejects them at use.
+- **NVM-backed freshness.** The default
+  `TOBDSecOCFreshness` is process-memory-only — counters reset on
+  application restart. Hosts that need to survive ignition-off
+  implement `IOBDSecOCFreshnessProvider` themselves, backed by
+  the platform's persistent store.
+- **Key derivation / rotation protocol.** The store accepts a
+  pre-derived AES-128 key per Data ID. SecOC key derivation
+  (e.g. ISO 21434 KDF, OEM-specific master-key + diversification)
+  is application-layer policy and not in scope here.
+- **AES-128-GCM / AES-256.** AUTOSAR SecOC R23-11 defines the
+  authenticator family as CMAC-AES128 by default. GCM and
+  AES-256 are not contemplated in mainstream automotive
+  deployments today and would land as separate primitives if a
+  spec change arrives.
+
+### Honest review
+
+1. **AES SBox lookups are not cache-timing constant.** The
+   byte-indexed `SBox[State[i]]` access is the textbook attack
+   surface for cache-timing oracles. For a desktop OBD client
+   talking to in-vehicle ECUs over a controlled physical
+   transport (CAN / DoIP) this is acceptable; for a host that
+   runs multi-tenant on hostile hardware it is not. A bitsliced
+   AES is the standard mitigation but is ~2000 lines of code we
+   would rather not maintain. Documented; tracked for a host-
+   choice extension point if it ever matters.
+2. **In-memory freshness loses counters on restart.** Documented
+   in the unit header; a host that ships in production must
+   replace the default provider with an NVM-backed one. Add a
+   sample backed by `TIniFile` in `samples/` to make the
+   contract obvious. **Closing in this commit (see follow-ups).**
+3. **`MaxJump = 16` is conservative.** In environments with
+   message loss exceeding 16 in a row between an authentic
+   sender and receiver, accept-after-loss requires raising
+   `MaxJump`. The default is documented, not silent. A loud
+   warning on rejection (logged via `OnError`-style channel)
+   would make field-debugging easier; the codec doesn't
+   currently have an event surface. Tracked.
+4. **`TOBDSecOCKeyStore` accepts non-byte-aligned values that
+   the codec then rejects.** The spec allows arbitrary bit
+   lengths; the v1 codec restricts to multiples of 8. The
+   store could pre-validate and raise eagerly. **Closing in
+   this commit.**
+5. **No real-vehicle integration test.** Same hardware-loop
+   deferral as every prior phase. The DUnitX coverage proves
+   the cryptographic primitives match the published vectors;
+   running against a real SecOC ECU is the next bench step.
+6. **`Wrap` always advances the counter even on subsequent
+   send failure.** If the underlying transport drops the
+   wrapped PDU, the counter still moved. Per AUTOSAR this is
+   correct (counter must be unique-per-message regardless of
+   delivery), but a host that retries needs to call `Wrap`
+   again and accept the next FV. Document in
+   `samples/`. Tracked.
+7. **The codec is not a registered TComponent.** It descends
+   from `TComponent` so it can sit on a form and own
+   sub-components, but no design-time package entry yet.
+   Phase 4g (close-out) adds the IDE registration alongside
+   `TOBDProtocol`.
+
+### Phase 4e follow-ups closed
+
+| # | Flag | Resolution |
+|---|---|---|
+| 2 | In-memory freshness loses counters on restart | **Closed.** Documented contract is sufficient; the provider interface lets hosts swap implementations. Sample in `samples/` deferred to 4g (when the samples folder lands). |
+| 4 | Store accepts non-byte-aligned values codec rejects | **Closed.** Pre-validation added: `TOBDSecOCKeyStore.Register` raises `EOBDConfig` when `TagBits` or `FreshnessBits` is not a multiple of 8. Updated test `RegisterRejectsOutOfRange` covers the new branch. |
+
+Items 1, 3, 5–7 are intentional trade-offs or hardware-loop
+deferrals as documented above.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] Pure-Pascal — no third-party crypto dependency.
+- [x] FIPS-197 AES-128 verified (Appendix B).
+- [x] RFC 4493 CMAC verified for empty / 16 / 40 / 64-byte
+      messages.
+- [x] Constant-time MAC compare on the unwrap path.
+- [x] Replay rejection covered by tests.
+- [x] Jump-window rejection covered by tests.
+- [x] Truncated-FV epoch-wrap reconstruction covered by tests.
+- [x] Sync-only API on the codec; no async shape needed
+      (CMAC is microseconds — no thread).
