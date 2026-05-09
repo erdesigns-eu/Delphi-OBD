@@ -37,7 +37,7 @@ parser is unit-tested against captured frames. CI is green on every PR.
 
 | # | Topic | Decision |
 |---|---|---|
-| 1 | v1 scope | **Complete diagnostics + coding + flashing**: all OBD-II modes 01–0A; full UDS surface incl. coding & flashing (0x10/11/14/19/22/23/24/27/28/29/2A/2C/2E/2F/31/34/35/36/37/3D/3E/83/85/86/87); full KWP2000 surface (0x10/14/18/19/1A/21/22/27/2F/30/31/32/33/3E); J1939 DM1–DM32 + DM14–DM18 memory access; DoIP incl. TLS + discovery; signature verification (BCrypt/HSM/OpenSSL/PQC); per-OEM coding (BMW, Ford, HMG, Honda, Mercedes, Stellantis, Toyota, VAG); voltage gate + checkpoint/recovery during flashing; audit logging. **Hardware-safety risk acknowledged**: flashing can brick ECUs, so v1 ships with extended bug-bash window and explicit warnings. |
+| 1 | v1 scope | **Complete diagnostics + coding + flashing + calibration + speciality buses**: all OBD-II modes 01–0A; WWH-OBD (GTR-5) incl. readiness monitor; full UDS surface incl. coding & flashing (0x10/11/14/19/22/23/24/27/28/29/2A/2C/2E/2F/31/34/35/36/37/3D/3E/83/85/86/87); full KWP2000 surface (0x10/14/18/19/1A/21/22/27/2F/30/31/32/33/3E); J1939 DM1–DM32 + DM14–DM18; DoIP incl. TLS + discovery; SecOC (AUTOSAR secure on-board comms); CCP + XCP (calibration / measurement on CAN, Ethernet, FlexRay, USB); ISO 11783 IsoBus (Virtual Terminal, Task Controller, File Server, GNSS); EU digital tachograph (Reg. 165/2014); side-buses LIN, FlexRay, MOST; signature verification (BCrypt/HSM/OpenSSL/PQC); per-OEM coding (BMW, Ford, HMG, Honda, Mercedes, Stellantis, Toyota, VAG); voltage gate + checkpoint/recovery during flashing; audit logging. **Hardware-safety risk acknowledged**: flashing can brick ECUs, so v1 ships with extended bug-bash window and explicit warnings. |
 | 2 | Delphi versions | 10.3 Rio → 12 Athens. No inline vars, no custom managed records; conditional compilation for newer features. Generics + anonymous methods + parallel library available. |
 | 3 | UI framework | Headless — zero `Vcl.*` / `FMX.*` references in any runtime unit. Demos ship as separate sample projects. Design-time package may use VCL because the IDE is VCL. |
 | 4 | Component granularity | One component per role, enum-driven. `TOBDConnection` (Transport), `TOBDAdapter` (Family), `TOBDProtocol` (Mode + Manual). Sub-settings shown conditionally in the inspector. |
@@ -108,6 +108,29 @@ the same form.
 | **DoIP (ISO 13400)** — diagnostics over IP. | | | |
 | `TOBDDoIP` | Vehicle ID, routing activation, alive-check, diagnostic message exchange, power-mode, entity status. Supports plain TCP and TLS. | `Host`, `Port`, `LogicalAddress`, `TLS: TOBDDoIPTLS`, `Tester` | `OnVehicleIdentified`, `OnRoutingActivated`, `OnPowerModeInfo`, `OnEntityStatus`, `OnDiagnosticAck`, `OnError` |
 | `TOBDDoIPDiscovery` | UDP vehicle-announcement / vehicle-identification discovery on the local network. | `Port`, `Active` | `OnVehicleFound(Sender; const Info: TOBDDoIPVehicleInfo)` |
+| **WWH-OBD (GTR No. 5)** — Heavy-duty harmonised OBD on top of UDS. | | | |
+| `TOBDWWHOBD` | Wraps a `TOBDUDS`. Adds WWH-specific DID set, generic monitor results, and DTC class A/B1/B2/C handling. | `UDS` | `OnDTC`, `OnReadiness`, `OnFreezeFrame` |
+| `TOBDWWHReadiness` | WWH-OBD readiness monitor (PIDs/DIDs reporting whether each monitor has run). | `WWHOBD` | `OnReadinessChanged` |
+| **SecOC (AUTOSAR Secure On-Board Communication)** — authenticated CAN/CAN-FD frames. | | | |
+| `TOBDSecOC` | Wraps a `TOBDProtocol` (or a J1939 client). Verifies/produces Freshness Value + truncated MAC; routes frames to upper layers transparently. | `Protocol`, `KeyStore: TOBDSecOCKeyStore`, `FreshnessProvider`, `MACAlgorithm` (CMAC-AES128 default), `TruncatedMacLength` | `OnAuthenticated`, `OnAuthFailure(Sender; CANID; Reason)`, `OnFreshnessSync` |
+| **XCP / CCP** — Calibration & measurement (note: development-time tuning, distinct from OEM coding). | | | |
+| `TOBDXCP` | XCP master (ASAM MCD-1). Connect/Disconnect, GET_VERSION, GET_DAQ_PROCESSOR_INFO, SHORT_UPLOAD/DOWNLOAD, DAQ list configuration. Transports: CAN, CAN-FD, Ethernet (TCP/UDP), FlexRay, USB. | `Connection` (or direct `Host`/`Port`), `Transport: TXCPTransport`, `Slave: TOBDXCPSlaveID`, `Seed/KeyHandler` | `OnConnected`, `OnEvent`, `OnError` |
+| `TOBDXCPMeasurement` | DAQ-list driven measurement. Collection of variables (name, address, size, scale). Streams values into `OnSample`. | `XCP`, `Variables: TOBDXCPVariableList`, `Rate: TXCPRate`, `Active` | `OnSample(Sender; Timestamp; const Values)` |
+| `TOBDXCPCalibration` | Online parameter editing. Read/write of calibration variables backed by an A2L description. | `XCP`, `A2LFile`, `Variable`, `Value` | `OnRead`, `OnWritten`, `OnError` |
+| `TOBDA2L` | A2L (ASAM MCD-2 MC) parser/loader. Resolves variable name → address/size/conversion/limits. Headless component, no XCP coupling so it can drive other tools. | `FileName`, `Loaded` | `OnLoaded`, `OnError` |
+| `TOBDCCP` | Legacy CCP master (CAN-only, predecessor to XCP). Same pattern as `TOBDXCP`, smaller surface. | `Connection`, `StationAddress` | `OnEvent`, `OnError` |
+| **ISO 11783 (IsoBus / agricultural)** — built on J1939. | | | |
+| `TOBDIsoBus` | IsoBus client. Address claim, NAME handling, transport (TP / ETP), proprietary A/B PGNs. Owns a `TOBDJ1939` underneath. | `Connection`, `NAME: TOBDIsoBusName`, `Function`, `Industry: igAgriculture` | `OnAddressClaimed`, `OnPGN`, `OnError` |
+| `TOBDIsoBusVT` | Virtual Terminal client (ISO 11783-6). Object pool upload, soft keys, masks, input handling. | `IsoBus`, `Pool: TOBDIsoBusObjectPool`, `WorkingSetMaster` | `OnVTConnected`, `OnSoftKey`, `OnInputChanged` |
+| `TOBDIsoBusTC` | Task Controller client (ISO 11783-10). Device descriptor (DDOP) upload, device process data, task data exchange (TASKDATA.XML). | `IsoBus`, `DDOP: TOBDIsoBusDDOP`, `TaskFile` | `OnTaskStarted`, `OnDDValue`, `OnTaskCompleted` |
+| `TOBDIsoBusFS` | File Server client (ISO 11783-13). Read/write directories and files on an IsoBus FS. | `IsoBus`, `RootPath` | `OnDirectoryRead`, `OnFileRead`, `OnFileWritten` |
+| `TOBDIsoBusGNSS` | GNSS receiver consumer (ISO 11783-7 / NMEA2000). | `IsoBus` | `OnPosition(Sender; const Fix: TOBDGNSSFix)` |
+| **Digital Tachograph (EU 165/2014)** — read-only diagnostic surface for fleet apps. | | | |
+| `TOBDTachograph` | Talks to a Vehicle Unit (VU) over the diagnostic bus (or driver card via reader). Reads activity records, events, faults, calibration history, speed/RPM trace. Honours card hierarchy (Workshop / Control / Company / Driver). | `Protocol`, `Card: TOBDTachoCard`, `Authentication` | `OnActivity`, `OnEvent`, `OnFault`, `OnCalibration`, `OnError` |
+| **Side-buses** — niche but present in the existing repo and worth carrying forward. | | | |
+| `TOBDLIN` | LIN bus client. Master/slave roles, schedule tables, signal extraction via LDF. | `Connection`, `LDFFile`, `Role: lrMaster/lrSlave`, `Schedule` | `OnFrame`, `OnSignalChanged`, `OnError` |
+| `TOBDFlexRay` | FlexRay frame interface. Static/dynamic segment, slot ID, channel A/B. Read-mostly — write requires a FlexRay-capable adapter. | `Connection`, `ColdStart`, `Slots: TOBDFlexRaySlotList` | `OnFrame`, `OnError` |
+| `TOBDMOST` | MOST25/50/150 listener. Control/async/streaming channels. Read-only on most adapters. | `Connection`, `Speed: tmsMOST25/MOST50/MOST150` | `OnControlMessage`, `OnAsyncData`, `OnError` |
 | **Coding** — write DIDs, audit, diff, OEM-specific helpers. | | | |
 | `TOBDCodingSession` | Coding orchestrator. Wraps a `TOBDUDS` (or `TOBDKWP`) and adds: pre-coding snapshot via ReadDID, write via 0x2E, post-coding verify, automatic rollback on failure. | `UDS`, `Mode: cmDryRun/cmApply`, `AuditLog: TOBDCodingAuditLog`, `Backup: Boolean` | `OnBeforeWrite(Sender; DID; Old, New: TBytes; var Allow)`, `OnAfterWrite`, `OnRolledBack` |
 | `TOBDCodingDiff` | Compute and present diff between two coding snapshots. Non-visual; emits structured diff. | `Before`, `After` | `OnDiff(Sender; const Diff: TOBDCodingDiff)` |
@@ -244,6 +267,9 @@ without modifying the core.
 │   │   ├── pgns.json           ← incl. DM1..DM32 PGNs
 │   │   ├── spns.json           ← Suspect Parameter Numbers
 │   │   └── fmis.json           ← Failure Mode Identifiers
+│   ├── tacho/data-types.json   ← ASN.1-derived field schemas (EU 165/2014)
+│   ├── lin/ldf-samples/        ← reference LIN description files
+│   ├── secoc/                  ← key-store schema, freshness profiles
 │   └── oem/                    ← OEM overlay catalogs (empty in v1; populated post-1.0)
 │       ├── vag/
 │       ├── bmw/
@@ -285,8 +311,16 @@ without modifying the core.
 │   ├── 25-CodingDiff/          ← snapshot diff
 │   ├── 26-CodingRollback/      ← failure-rollback flow
 │   ├── 27-FlashDryRun/         ← safe-mode flash simulation
-│   ├── 28-FlashSignedFirmware/ ← real flash, requires {$DEFINE OBD_DANGEROUS_FLASHING}
-│   └── 29-J1939Flash/          ← J1939 DM14-DM18 flashing
+│   ├── 28-FlashSignedFirmware/ ← real flash, with brick-risk safety banner
+│   ├── 29-J1939Flash/          ← J1939 DM14-DM18 flashing
+│   ├── 30-WWHOBD/              ← WWH-OBD readiness + DTC class A/B1/B2/C
+│   ├── 31-XCPMeasurement/      ← XCP DAQ list streaming
+│   ├── 32-XCPCalibration/      ← XCP online parameter editing
+│   ├── 33-IsoBusVT/            ← Virtual Terminal client
+│   ├── 34-IsoBusTaskController/← Task Controller
+│   ├── 35-Tachograph/          ← VU activity records
+│   ├── 36-LINSchedule/         ← LIN master with LDF
+│   └── 37-FlexRaySlot/         ← FlexRay slot read
 └── docs/
     ├── architecture.md
     ├── components/             ← one .md per component
@@ -347,16 +381,20 @@ Each phase ships independently and ends with a green CI run. `[ ]` = open,
 - [ ] Tests: mocked AT-response detection, capability matrix, init sequence per family
 - [ ] Sample `02-DetectAdapter`
 
-### Phase 4 — Protocol layer (~3 weeks)
+### Phase 4 — Protocol layer (~4 weeks)
 - [ ] `OBD.Protocol.pas` — `TOBDProtocol` component, mode/manual selection
 - [ ] `OBD.Protocol.ISO15765.pas` — incl. ISO-TP framing for 11/29-bit @ 250/500 kbps
 - [ ] `OBD.Protocol.ISO9141.pas`
 - [ ] `OBD.Protocol.KWP2000.pas` — fast + 5-baud init
 - [ ] `OBD.Protocol.J1850.pas` — PWM + VPW
-- [ ] `OBD.Protocol.J1939.pas`
+- [ ] `OBD.Protocol.J1939.pas` — incl. TP.CM/TP.DT/ETP transport
 - [ ] `OBD.Protocol.UDS.pas` — request/response, NRCs, session control, security access
-- [ ] `OBD.Protocol.DoIP.pas` — incl. TLS, routing activation
-- [ ] Tests: frame encode/decode round-trips against captured `.obdlog` fixtures
+- [ ] `OBD.Protocol.DoIP.pas` — incl. TLS 1.2/1.3, routing activation
+- [ ] `OBD.Protocol.SecOC.pas` — AUTOSAR Secure On-Board Comms wrapper (Freshness Value + truncated MAC, CMAC-AES128); `TOBDSecOC` component
+- [ ] `OBD.Protocol.LIN.pas` — LIN master/slave, schedule tables, LDF parser; `TOBDLIN` component
+- [ ] `OBD.Protocol.FlexRay.pas` — static + dynamic segment frames; `TOBDFlexRay` component
+- [ ] `OBD.Protocol.MOST.pas` — control/async/streaming channels; `TOBDMOST` component (read-mostly)
+- [ ] Tests: frame encode/decode round-trips against captured `.obdlog` fixtures; SecOC MAC verification vectors; LIN signal extraction from sample LDFs
 - [ ] Sample `03-ReadVIN`
 
 ### Phase 5 — Service-mode components (~4 weeks)
@@ -381,9 +419,11 @@ All ten OBD-II service modes (01–0A) covered by dedicated components.
   - [ ] PID 0D — Engine Serial Number
   - [ ] Aux input status
   - [ ] `TOBDCalibrationHelper` sub-object: VerifyCVN, IsCalIDInRange, format helpers (port logic from existing `OBD.Service09.Calibration.pas` for reference only)
+- [ ] `OBD.WWHOBD.pas` — `TOBDWWHOBD` (heavy-duty harmonised OBD over UDS, DTC class A/B1/B2/C handling)
+- [ ] `OBD.WWHOBD.Readiness.pas` — `TOBDWWHReadiness` (monitor-completion reporting)
 - [ ] `OBD.DataSource.pas` — `TOBDDataSource` bridge
-- [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement
-- [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`, `11-MonitorResults`, `12-VehicleInfo`
+- [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement; WWH-OBD class-mapping coverage
+- [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`, `11-MonitorResults`, `12-VehicleInfo`, `30-WWHOBD`
 
 ### Phase 6 — Advanced diagnostics as components (~5 weeks)
 
@@ -434,7 +474,34 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 - [ ] DUnitX coverage per service: capture-driven encode/decode, NRC handling, multi-frame ISO-TP for long DIDs, UDS session timing
 - [ ] Samples: `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`, `15-UDSReadDTC`, `16-UDSRoutine`, `17-UDSIOControl`, `18-KWPReadID`, `19-J1939DM`, `20-DoIPDiscovery`
 
-### Phase 7 — Coding (~3 weeks)
+### Phase 7 — Calibration & speciality buses (~4 weeks)
+
+XCP/CCP, IsoBus, Tachograph. Built on the Phase 4 protocol layer (SecOC, LIN, FlexRay, MOST already covered there).
+
+**XCP / CCP / A2L**
+- [ ] `OBD.A2L.pas` — `TOBDA2L` parser/loader (variable name → address/size/conversion/limits/group)
+- [ ] `OBD.XCP.pas` — `TOBDXCP` master; transports: CAN, CAN-FD, Ethernet (TCP/UDP), FlexRay, USB
+- [ ] `OBD.XCP.Measurement.pas` — `TOBDXCPMeasurement` (DAQ list, streamed samples)
+- [ ] `OBD.XCP.Calibration.pas` — `TOBDXCPCalibration` (online parameter editing, A2L-driven)
+- [ ] `OBD.CCP.pas` — `TOBDCCP` legacy CAN-only master
+
+**ISO 11783 (IsoBus)**
+- [ ] `OBD.IsoBus.pas` — `TOBDIsoBus` (NAME, address claim, TP/ETP)
+- [ ] `OBD.IsoBus.VT.pas` — `TOBDIsoBusVT` Virtual Terminal (object pool, soft keys, masks, input)
+- [ ] `OBD.IsoBus.TC.pas` — `TOBDIsoBusTC` Task Controller (DDOP, process data, TASKDATA.XML)
+- [ ] `OBD.IsoBus.FS.pas` — `TOBDIsoBusFS` File Server
+- [ ] `OBD.IsoBus.GNSS.pas` — `TOBDIsoBusGNSS` (NMEA2000 position fixes)
+
+**Digital Tachograph (EU 165/2014)**
+- [ ] `OBD.Tachograph.pas` — `TOBDTachograph` (VU diagnostic surface, card hierarchy: Workshop/Control/Company/Driver, activity/event/fault/calibration records)
+- [ ] Card-reader integration (PC/SC) for driver/workshop card authentication
+- [ ] Catalogue: `catalogs/tacho/data-types.json` (ASN.1-derived field schemas)
+
+**Tests & samples**
+- [ ] DUnitX coverage: A2L round-trip on common fragments; XCP DAQ list lifecycle; SecOC MAC vectors (Phase 4 dependency); IsoBus VT object-pool upload; Tachograph activity-record decode against published vectors
+- [ ] Samples: `31-XCPMeasurement`, `32-XCPCalibration`, `33-IsoBusVT`, `34-IsoBusTaskController`, `35-Tachograph`, `36-LINSchedule`, `37-FlexRaySlot`
+
+### Phase 8 — Coding (~3 weeks)
 
 Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable failure mode (bad coding values can be reverted by writing back the snapshot).
 
@@ -463,7 +530,7 @@ Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable 
 - [ ] DUnitX coverage: snapshot/write/verify round-trip, rollback on NRC, audit log integrity, diff correctness
 - [ ] Samples: `21-CodingDryRun`, `22-CodingApply`, `23-VAGLongCoding`, `24-BMWCAFD`, `25-CodingDiff`, `26-CodingRollback`
 
-### Phase 8 — Flashing (~6 weeks)
+### Phase 9 — Flashing (~6 weeks)
 
 Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash window mandatory before any 1.0 release.
 
@@ -496,22 +563,23 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 
 **Audit & safety**
 - [ ] `TOBDFlasher` writes a full audit log via `TOBDCodingAuditLog` for every flash
-- [ ] Compile-time guard: `{$DEFINE OBD_DANGEROUS_FLASHING}` required to enable real-write paths in `TOBDFlasher`. Without it, `TOBDFlasher` runs in dry-run mode (computes everything, never sends 0x36 Transfer Data). Forces conscious opt-in.
 - [ ] Confirmation gate: `RequireConfirmation` published property defaults `True`; bypassing requires explicit code
+- [ ] Voltage-source warning: a `TOBDFlasher` with no `VoltageGate` assigned logs a `WARN` event at start of flash but proceeds (developer choice)
+- [ ] Loud documentation: every flashing component's XMLDoc opens with a brick-risk warning; `docs/flashing-safety.md` is a required read
 
 **Tests & samples**
 - [ ] DUnitX coverage: transfer state machine on captured fixtures (no real ECU), checkpoint resume, voltage-gate abort, signature pass/fail, audit-log signing
 - [ ] Bench-test playbook: documented manual procedure with bricked-ECU recovery (separate `docs/flashing-safety.md`)
-- [ ] Samples: `27-FlashDryRun` (default safe mode), `28-FlashSignedFirmware` (requires `{$DEFINE OBD_DANGEROUS_FLASHING}`), `29-J1939Flash`
+- [ ] Samples: `27-FlashDryRun` (computes everything, never sends 0x36), `28-FlashSignedFirmware` (real flash; opens with safety banner), `29-J1939Flash`
 
-### Phase 9 — Recorder/Replayer (~1 week)
+### Phase 10 — Recorder/Replayer (~1 week)
 - [ ] `OBD.Recorder.pas`
 - [ ] `OBD.Replayer.pas`
 - [ ] Carry over `.obdlog` format from v1 (already clean)
 - [ ] Tests
 - [ ] Sample `07-RecordReplay`
 
-### Phase 10 — Design-time package (~2 weeks)
+### Phase 11 — Design-time package (~2 weeks)
 - [ ] Component icons (16/24/32 px, dark + light)
 - [ ] Property editors:
   - [ ] `TOBDPortProperty` — live COM port enum at design time
@@ -530,7 +598,7 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 - [ ] Help keyword registration
 - [ ] Manual install test on a clean RAD Studio 12 and 10.3
 
-### Phase 11 — Documentation & samples (~3 weeks)
+### Phase 12 — Documentation & samples (~3 weeks)
 - [ ] `docs/architecture.md` — component diagram, data flow, threading model
 - [ ] `docs/components/<Component>.md` — one per component, properties + events + methods + sample snippet
 - [ ] `docs/catalogs.md` — JSON schemas + how to contribute a PID/DTC/DID
@@ -541,7 +609,7 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 - [ ] All ~30 sample projects build green in CI
 - [ ] At least one full screenshot per sample in its README
 
-### Phase 12 — Release prep (~3 weeks — extended bug-bash for flashing)
+### Phase 13 — Release prep (~3 weeks — extended bug-bash for flashing)
 - [ ] Beta tag `v2.0.0-beta.1`, public RC announcement
 - [ ] **Extended** bug bash window (≥4 weeks community testing — flashing requires real ECUs)
 - [ ] Address blocker issues, ship `v2.0.0-rc.1`
@@ -550,7 +618,7 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 - [ ] GetIt package metadata + submission
 - [ ] Archive v1 announcement on `main` README
 
-**Total estimated effort: ~33 weeks (~7–8 months) of focused work for v1.0.**
+**Total estimated effort: ~42 weeks (~9–10 months) of focused work for v1.0.**
 
 Phase breakdown:
 | Phase | Weeks | Cumulative |
@@ -559,15 +627,16 @@ Phase breakdown:
 | 1 — Core types + catalog | 1 | 2 |
 | 2 — Connection | 2 | 4 |
 | 3 — Adapter | 2 | 6 |
-| 4 — Protocol | 3 | 9 |
-| 5 — Service modes | 4 | 13 |
-| 6 — Advanced diagnostics | 5 | 18 |
-| 7 — Coding | 3 | 21 |
-| 8 — Flashing | 6 | 27 |
-| 9 — Recorder | 1 | 28 |
-| 10 — Design-time | 2 | 30 |
-| 11 — Docs + samples | 3 | 33 |
-| 12 — Release prep | 3 | 36 |
+| 4 — Protocol (incl. SecOC, LIN, FlexRay, MOST) | 4 | 10 |
+| 5 — Service modes (incl. WWH-OBD) | 4 | 14 |
+| 6 — Advanced diagnostics (UDS/KWP/J1939/DoIP) | 5 | 19 |
+| 7 — Calibration & speciality buses (XCP, IsoBus, Tachograph) | 4 | 23 |
+| 8 — Coding | 3 | 26 |
+| 9 — Flashing | 6 | 32 |
+| 10 — Recorder | 1 | 33 |
+| 11 — Design-time | 2 | 35 |
+| 12 — Docs + samples | 3 | 38 |
+| 13 — Release prep | 3 | 41 |
 
 ---
 
@@ -593,12 +662,19 @@ These are non-negotiable for a 1.0 release.
 - **API stability.** Once 1.0 ships, breaking changes only at major versions.
   Deprecations marked with `deprecated 'replacement'` and kept for one major
   version.
-- **Flashing safety.** Real-write code paths in `TOBDFlasher` are guarded by
-  `{$IFDEF OBD_DANGEROUS_FLASHING}`; the default build cannot brick an ECU.
-  The CI build does **not** define this symbol. Sample `28-FlashSignedFirmware`
-  ships with the define commented out and a `README` warning. Every flashing
-  operation writes a signed audit log entry. `RequireConfirmation: Boolean`
-  defaults `True`. Voltage gate is required, not optional, for real flashes.
+- **Flashing safety.** No artificial gates — the developer using the package
+  is responsible for what they flash. The package surfaces the safety
+  primitives and documents the risk loudly:
+  - Every flashing component's XMLDoc, the README, and `docs/flashing-safety.md`
+    carry an unambiguous warning that misuse can permanently brick an ECU.
+  - `TOBDFlasher.RequireConfirmation: Boolean` defaults `True` (user can
+    disable consciously).
+  - `TOBDVoltageGate` ships pre-wired in samples; using `TOBDFlasher` without
+    a voltage source is allowed but logged as a warning at start-up.
+  - Every flash operation writes a signed audit log entry via
+    `TOBDCodingAuditLog`.
+  - Sample `28-FlashSignedFirmware` ships with a top-of-file safety banner
+    listing pre-conditions and recovery procedures.
 
 ---
 
