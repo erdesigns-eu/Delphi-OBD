@@ -18,6 +18,9 @@ uses
 
   OBD.ECU.Signature;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDTachographSignature = class(Exception);
 
@@ -74,8 +77,14 @@ type
     function VerifyChain(const Bytes: TBytes): TDDDChainResult;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   // Tags seen in the wild on Gen1 / Gen2 driver cards. Source: EU
   // 2016/799 Annex 1C Appendix 7. Values are spec-stable and

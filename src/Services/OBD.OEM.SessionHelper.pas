@@ -20,6 +20,9 @@ uses
   OBD.ECU.Flashing.VoltageGate,
   OBD.UDS.NRC;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDOEMSessionHelper = class(Exception);
 
@@ -106,6 +109,9 @@ type
     property VoltageGate: TOBDProgrammingVoltageGate read FVoltageGate;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDOEMSessionHelper.Create(VoltageGate: TOBDProgrammingVoltageGate);

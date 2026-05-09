@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDVAGCP = class(Exception);
   EOBDVAGCPNoSolver = class(EOBDVAGCP);
@@ -51,6 +54,9 @@ function DecodeVAGCPRequest(const Bytes: TBytes): TVAGCPRequest;
 function EncodeVAGCPResponse(const Response: TVAGCPResponse): TBytes;
 function DecodeVAGCPResponse(const Bytes: TBytes): TVAGCPResponse;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function PutWord(var Out_: TBytes; Cursor: Integer; W: Word): Integer;

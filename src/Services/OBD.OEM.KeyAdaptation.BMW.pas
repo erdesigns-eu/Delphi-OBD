@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDBMWKey = class(Exception);
   EBMWKeyChallengeNotAvailable = class(EOBDBMWKey);
@@ -74,8 +77,14 @@ function DecodeKeyDataFem(const Bytes: TBytes): TBMWKeyDataFem;
 /// <summary>Validate the slot index for a given immobiliser generation.</summary>
 function ValidateSlotIndex(Gen: TBMWImmoGeneration; Slot: Byte): Boolean;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   EWS_SLOT_BYTES  = 16;
   CAS_SLOT_BYTES  = 16;

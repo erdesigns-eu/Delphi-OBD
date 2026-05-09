@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDWWHOBDReadiness = class(Exception);
 
@@ -71,8 +74,14 @@ function DecodeWWHOBDReadiness(const Bytes: TBytes): TWWHOBDReadinessSet;
 /// <summary>Inverse encoder for round-trip / fixture testing.</summary>
 function EncodeWWHOBDReadiness(const Set_: TWWHOBDReadinessSet): TBytes;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   // ISO 27145-3 §6.4 / ISO 15031-5 §8.6.1 — non-continuous monitor
   // bit positions, byte 2 (Supported) / byte 3 (NotComplete = bit set

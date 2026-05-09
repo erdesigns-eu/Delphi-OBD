@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Generics.Collections;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDServiceRoutine = class(Exception);
 
@@ -68,6 +71,10 @@ type
 function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;
 
 /// <summary>Process-wide routine registry (read-only after init).</summary>
+
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   TOBDServiceRoutineRegistry = class
   private
@@ -90,6 +97,9 @@ type
       out Routines: TArray<TOBDServiceRoutine>);
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;

@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, OBD.OEM.Coding;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>Mutable Toyota Customize byte block. Constructed from
   /// the Techstream "Customize Read" payload, round-trips back via
@@ -37,6 +40,9 @@ type
     function ToHex: string;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDToyotaCustomize.Create(const Length: Integer);

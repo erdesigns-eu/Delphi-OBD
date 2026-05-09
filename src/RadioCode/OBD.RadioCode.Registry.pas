@@ -19,6 +19,9 @@ uses
 
   OBD.RadioCode, OBD.RadioCode.Variants;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>Raised when a calculator is registered but its underlying
   /// algorithm/database is not available in this build.</summary>
@@ -77,6 +80,9 @@ type
     function Count: Integer;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 { TOBDRadioCodeBrand }

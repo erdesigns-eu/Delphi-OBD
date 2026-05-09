@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDToyotaKey = class(Exception);
 
@@ -54,6 +57,9 @@ function DecodeToyotaKeyRegisterResponse(const Bytes: TBytes): TToyotaKeyRegiste
 
 function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function EncodeToyotaKeyRegisterRequest(const Req: TToyotaKeyRegisterRequest): TBytes;

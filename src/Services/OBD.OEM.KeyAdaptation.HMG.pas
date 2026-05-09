@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDHMGKey = class(Exception);
 
@@ -54,6 +57,9 @@ function DecodeHMGKeyRegisterResponse(const Bytes: TBytes): THMGKeyRegisterRespo
 /// for unknown platforms (fail-safe default).</summary>
 function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function EncodeHMGKeyRegisterRequest(const Req: THMGKeyRegisterRequest): TBytes;

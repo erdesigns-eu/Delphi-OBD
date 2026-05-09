@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Generics.Collections;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDIsoTpTiming = class(Exception);
 
@@ -88,6 +91,9 @@ function DecodeStminMicros(const StminByte: Byte): Integer;
 /// 100 us granularity in [100..900] us. Out-of-range raises.</summary>
 function EncodeStminMicros(const Micros: Integer): Byte;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function DecodeStminMicros(const StminByte: Byte): Integer;

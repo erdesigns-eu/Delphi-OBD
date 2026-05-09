@@ -17,6 +17,9 @@ uses
   System.SysUtils, System.Classes, System.JSON, System.IOUtils,
   System.DateUtils, System.Hash;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDCodingAuditLog = class(Exception);
 
@@ -65,6 +68,9 @@ type
     property Path: string read FPath;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDCodingAuditLog.Create(const APath: string; const AKey: TBytes);
@@ -95,6 +101,10 @@ begin
 end;
 
 function TOBDCodingAuditLog.HexEncode(const Bytes: TBytes): string;
+
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   HexChars: array[0..15] of Char =
     ('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');

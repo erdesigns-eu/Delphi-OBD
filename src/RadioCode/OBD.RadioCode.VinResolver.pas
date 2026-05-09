@@ -19,6 +19,9 @@ uses
   OBD.RadioCode, OBD.RadioCode.Registry, OBD.RadioCode.Variants,
   OBD.VIN.Decoder, OBD.VIN.Types;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>Optional metadata supplied alongside the VIN. Any field
   /// left blank is filled from the VIN itself or from the brand's
@@ -49,6 +52,9 @@ function MapVINRegionToRadioCodeRegion(const VinRegionName: string): TRadioCodeR
 /// the brand is data-pending.</summary>
 function ResolveCalculator(const Ctx: TRadioCodeResolveContext): TRadioCodeResolveResult;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 uses

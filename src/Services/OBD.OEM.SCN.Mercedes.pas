@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDMBSCN = class(Exception);
   EOBDMBSCNNoSolver = class(EOBDMBSCN);
@@ -66,6 +69,9 @@ function DecodeMBSCNCodingRequest(const Bytes: TBytes): TMBSCNCodingRequest;
 function EncodeMBSCNCodingResponse(const Resp: TMBSCNCodingResponse): TBytes;
 function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function PutWord(var Out_: TBytes; Cursor: Integer; W: Word): Integer;

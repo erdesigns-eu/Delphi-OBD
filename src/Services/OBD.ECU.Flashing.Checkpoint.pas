@@ -17,6 +17,9 @@ uses
   System.SysUtils, System.Classes, System.IOUtils, System.JSON,
   System.Hash, System.DateUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDFlashCheckpoint = class(Exception);
 
@@ -70,6 +73,9 @@ type
     property SidecarPath: string read FSidecarPath;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 class function TOBDFlashCheckpoint.Sha256OfFile(const FirmwarePath: string): string;

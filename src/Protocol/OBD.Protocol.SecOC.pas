@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Hash;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDSecOC = class(Exception);
   EOBDSecOCAlgorithmNotAvailable = class(EOBDSecOC);
@@ -54,8 +57,14 @@ type
   function SecOCEncodePDU(const Ctx: TSecOCContext;
     const Payload, Authenticator: TBytes): TBytes;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   SHA256_DIGEST_BYTES = 32;
   CMAC_AES_BLOCK_BYTES = 16;

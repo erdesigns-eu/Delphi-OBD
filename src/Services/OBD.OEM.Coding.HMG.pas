@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, OBD.OEM.Coding;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   TOBDHMGVariantCoding = class
   strict private
@@ -33,6 +36,9 @@ type
     function ToHex: string;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDHMGVariantCoding.Create(const Length: Integer);

@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.SyncObjs, System.Generics.Collections;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>One capability bit. Stable enum values; never renumber.</summary>
   TOBDAdapterCapability = (
@@ -69,12 +72,18 @@ function AdapterSupports(const AdapterKey: string;
 /// when acISOTPLargeFrame is set.</summary>
 function ResolveIsoTpFrameBytes(const AdapterKey: string): Integer;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 var
   GLock: TCriticalSection;
   GByKey: TDictionary<string, TOBDAdapterCapabilities>;
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   CapNames: array[TOBDAdapterCapability] of string = (
     'CAN', 'CAN-FD', 'ISO-TP', 'ISO-TP-LF', 'DoIP', 'J1939', 'K-Line',

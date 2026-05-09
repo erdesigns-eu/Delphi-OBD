@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, OBD.OEM.Coding;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDStellantisProxi = class(EOBDCodingError);
 
@@ -47,6 +50,9 @@ type
     procedure SetChecksum(const Crc: Word; const Offset: Integer);
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDStellantisProxi.Create(const Length: Integer);

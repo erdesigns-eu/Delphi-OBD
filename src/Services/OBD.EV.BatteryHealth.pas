@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Math;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDBatteryHealth = class(Exception);
 
@@ -72,6 +75,9 @@ function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
 function NormaliseChargingSession(const Raw: TOBDChargingSession):
   TOBDChargingSession;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalance;

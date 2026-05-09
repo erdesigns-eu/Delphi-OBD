@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDWWHOBD = class(Exception);
 
@@ -37,6 +40,9 @@ type
     Description: string;
   end;
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   // ISO 27145-3 Table 1 — Universal WWH-OBD DIDs.
   WWHOBD_DID_VIN                       = $F190;
@@ -78,6 +84,9 @@ function UnpackWWHDtcStream(const Bytes: TBytes): TArray<TWWHDtc>;
 /// for unknown ids; never raises.</summary>
 function FindWWHOBDDataIdentifier(DID: Word): TWWHOBDDataIdentifier;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 { TWWHDtc }

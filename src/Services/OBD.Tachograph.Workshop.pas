@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.DateUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDTachoWorkshop = class(Exception);
 
@@ -94,6 +97,9 @@ function EncodeSealedActivation(const Op: TTachoSealedActivation): TBytes;
 function DateTimeToTimeReal(const DT: TDateTime): UInt32;
 function TimeRealToDateTime(const T: UInt32): TDateTime;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function DateTimeToTimeReal(const DT: TDateTime): UInt32;

@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDCalibration = class(Exception);
 
@@ -57,8 +60,14 @@ function FormatCVN(const CVN: UInt32): string;
 function PairCalIDsAndCVNs(const IDs: TArray<TOBDCalibrationID>;
   const VNs: TArray<TOBDCalibrationVerification>): TArray<TOBDCalibrationPair>;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   CALID_BLOCK_BYTES = 16;
   CVN_BLOCK_BYTES   = 4;

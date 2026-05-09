@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Generics.Collections, System.Generics.Defaults;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   TJ1939PGNDescriptor = record
     PGN: UInt32;
@@ -41,6 +44,9 @@ function J1939PGNCount: Integer;
 /// <summary>Iterate all PGNs in ascending order.</summary>
 function J1939PGNAll: TArray<TJ1939PGNDescriptor>;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 var

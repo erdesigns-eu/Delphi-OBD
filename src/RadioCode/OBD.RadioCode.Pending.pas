@@ -18,6 +18,9 @@ uses
 
   OBD.RadioCode, OBD.RadioCode.Registry, OBD.RadioCode.Variants;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>Common base for data-pending calculator stubs. Validate
   /// returns False with a clear message; Calculate raises
@@ -35,6 +38,9 @@ type
       var ErrorMessage: string): Boolean; override;
   end;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 { TOBDRadioCodePending }
@@ -82,6 +88,9 @@ type
     Key, Name, Notes: string;
   end;
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   PendingFactories: array[0..7] of TPendingFactory = (
     (Key: 'pioneer';

@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils, System.Generics.Collections;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDProgrammingVoltageTooLow = class(Exception);
   EOBDProgrammingVoltageUnavailable = class(Exception);
@@ -70,11 +73,17 @@ type
       const OEMKey: string = '');
   end;
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   /// <summary>Conservative passenger-car minimum from ISO 22900-2
   /// informative annex.</summary>
   DEFAULT_PROGRAMMING_VOLTAGE_MIN: Single = 12.5;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 constructor TOBDProgrammingVoltageGate.Create;

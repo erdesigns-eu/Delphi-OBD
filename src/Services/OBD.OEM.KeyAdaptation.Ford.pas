@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDFordPATS = class(Exception);
 
@@ -54,6 +57,9 @@ function DecodeFordPATSStatus(const Bytes: TBytes): TFordPATSStatus;
 /// <summary>Per-platform applicability lookup (chassis code keys).</summary>
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function EncodeFordPATSRequest(const Req: TFordPATSRequest): TBytes;

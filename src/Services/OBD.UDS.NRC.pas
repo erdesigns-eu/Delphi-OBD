@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   TOBDUDSNrcCategory = (
     nrcGeneral,
@@ -46,6 +49,9 @@ function FormatNRC(NRC: Byte): string;
 /// (busy / repeat-request, conditions-not-correct).</summary>
 function IsTransientNRC(NRC: Byte): Boolean;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function NewInfo(Code: Byte; const Short, Desc: string;

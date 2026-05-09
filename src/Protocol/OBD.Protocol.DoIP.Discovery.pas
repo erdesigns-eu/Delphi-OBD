@@ -16,6 +16,9 @@ interface
 uses
   System.SysUtils;
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
 const
   DOIP_UDP_PORT_DISCOVERY = 13400;
   DOIP_PROTOCOL_VERSION_2012 = $02;
@@ -36,6 +39,9 @@ const
   DOIP_NACK_OUT_OF_MEMORY         = $03;
   DOIP_NACK_INVALID_PAYLOAD       = $04;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   EOBDDoIPDiscovery = class(Exception);
 
@@ -100,6 +106,9 @@ function ParseDoIPHeader(const Bytes: TBytes): TDoIPFrame;
 function ParseVehicleAnnouncement(const Frame: TDoIPFrame):
   TDoIPVehicleAnnouncement;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function BuildDoIPFrame(PayloadType: Word; const Payload: TBytes;

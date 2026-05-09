@@ -18,6 +18,9 @@ uses
 
   OBD.ECU.Signature;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   /// <summary>Algorithm tag stored inside the envelope. Stable wire
   /// values; never renumber.</summary>
@@ -69,6 +72,9 @@ function DecodePQCEnvelope(const Bytes: TBytes): TOBDPQCEnvelope;
 /// <summary>Human-readable algorithm name.</summary>
 function PQCAlgorithmName(const A: TOBDPQCAlgorithm): string;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function PQCAlgorithmName(const A: TOBDPQCAlgorithm): string;

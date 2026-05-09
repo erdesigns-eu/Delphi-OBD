@@ -18,6 +18,9 @@ uses
 
   OBD.Protocol.WWHOBD.Readiness;
 
+//------------------------------------------------------------------------------
+// TYPES
+//------------------------------------------------------------------------------
 type
   TDriveCycleStep = record
     /// <summary>Short-name of the monitor the step targets.</summary>
@@ -50,6 +53,9 @@ procedure RegisterDriveCycleResolver(const OEMKey: string;
 /// custom resolvers can compose with it.</summary>
 function GenericStepFor(const MonitorName: string): TDriveCycleStep;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 var

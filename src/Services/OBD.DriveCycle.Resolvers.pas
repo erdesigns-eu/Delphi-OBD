@@ -18,6 +18,9 @@ uses
 
   OBD.DriveCycle.Advisor;
 
+//------------------------------------------------------------------------------
+// IMPLEMENTATION
+//------------------------------------------------------------------------------
 implementation
 
 function Step(const Mon, Desc: string; Dur: Integer): TDriveCycleStep;
