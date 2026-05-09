@@ -1235,10 +1235,11 @@ intentional behaviour with documented trade-offs.
 
 | # | Flag | Resolution |
 |---|---|---|
+| 1 | AES S-box lookups are not cache-timing constant | **Closed.** New `AESConstantTimeSBox` function replaces every `SBox[X]` access in `KeyExpand` and `SubBytes`. The function scans the full 256-byte table on every call and combines entries with a constant-time equality mask (`((Diff shr 1) or Diff)…and 1) - 1`), so the memory-access pattern is independent of the secret input. ShiftRows / MixColumns / AddRoundKey are already pure bitwise / fixed-index operations, and the only branch in the cipher is the public rounds counter. New 256-input test `ConstantTimeSBoxMatchesFIPS197` pins the function to FIPS-197 Table 4 verbatim so a future regression in either side surfaces immediately. Performance impact for SecOC (microseconds per CMAC) is negligible. |
 | 2 | In-memory freshness loses counters on restart | **Closed.** Documented contract is sufficient; the provider interface lets hosts swap implementations. Sample in `samples/` deferred to 4g (when the samples folder lands). |
 | 4 | Store accepts non-byte-aligned values codec rejects | **Closed.** Pre-validation added: `TOBDSecOCKeyStore.Register` raises `EOBDConfig` when `TagBits` or `FreshnessBits` is not a multiple of 8. Updated test `RegisterRejectsOutOfRange` covers the new branch. |
 
-Items 1, 3, 5–7 are intentional trade-offs or hardware-loop
+Items 3 and 5–7 are intentional trade-offs or hardware-loop
 deferrals as documented above.
 
 ### Quality bars met

@@ -10,6 +10,17 @@
 //  clarity; SecOC PDUs are short so per-message latency is
 //  irrelevant compared to the network round-trip.
 //
+//  Constant-time S-box: the textbook implementation indexes the
+//  S-box with a secret byte, which is the canonical cache-timing
+//  attack surface. We instead scan the whole 256-byte table on
+//  every call and combine entries with a constant-time equality
+//  mask. The memory-access pattern is therefore independent of the
+//  input, ShiftRows / MixColumns / AddRoundKey are already pure
+//  bitwise / fixed-index operations, and the only branch in the
+//  cipher is the rounds counter (a public value). The test fixture
+//  pins <c>AESConstantTimeSBox</c> to FIPS-197 Table 4 for all 256
+//  inputs to catch any regression.
+//
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
@@ -73,6 +84,16 @@ procedure AES128EncryptBlock(const ASchedule: TAES128Schedule;
 procedure AES128Encrypt(const AKey: TAES128Key;
   const AInput: TAESBlock; out AOutput: TAESBlock);
 
+/// <summary>
+///   Constant-time S-box lookup. Returns the FIPS-197 Table 4
+///   substitution of <c>AInput</c>. Implemented as a masked scan of
+///   the full table so the access pattern is independent of
+///   <c>AInput</c>.
+/// </summary>
+/// <param name="AInput">Byte to substitute.</param>
+/// <returns>S-box image of <c>AInput</c>.</returns>
+function AESConstantTimeSBox(AInput: Byte): Byte;
+
 implementation
 
 const
@@ -99,6 +120,33 @@ const
   // Round constants. Only the first 10 entries are needed for AES-128.
   Rcon: array[0..10] of Byte =
     ($00, $01, $02, $04, $08, $10, $20, $40, $80, $1B, $36);
+
+function AESConstantTimeSBox(AInput: Byte): Byte;
+var
+  I: Integer;
+  Diff, Mask: Cardinal;
+  Acc: Byte;
+begin
+  Acc := 0;
+  // The loop bound and access pattern are independent of AInput.
+  // Every iteration reads SBox[I], computes a CT equality mask,
+  // and ORs the masked entry into Acc. Only the entry where
+  // I = AInput contributes a non-zero value.
+  for I := 0 to 255 do
+  begin
+    Diff := Cardinal(Byte(I) xor AInput);
+    // Smear any non-zero bit down to bit 0; bit 0 = 0 iff Diff = 0.
+    Diff := (Diff shr 1) or Diff;
+    Diff := (Diff shr 2) or Diff;
+    Diff := (Diff shr 4) or Diff;
+    // Mask = $FF when Diff = 0 (i.e. I = AInput); $00 otherwise.
+    // Cardinal underflow on (0 - 1) wraps to $FFFFFFFF; Byte() takes
+    // the low 8 bits.
+    Mask := (Diff and 1) - 1;
+    Acc := Acc or (SBox[I] and Byte(Mask));
+  end;
+  Result := Acc;
+end;
 
 function XTime(B: Byte): Byte; inline;
 begin
@@ -135,11 +183,11 @@ begin
       Temp[1] := Temp[2];
       Temp[2] := Temp[3];
       Temp[3] := T;
-      // SubWord
-      Temp[0] := SBox[Temp[0]];
-      Temp[1] := SBox[Temp[1]];
-      Temp[2] := SBox[Temp[2]];
-      Temp[3] := SBox[Temp[3]];
+      // SubWord (constant-time S-box lookup)
+      Temp[0] := AESConstantTimeSBox(Temp[0]);
+      Temp[1] := AESConstantTimeSBox(Temp[1]);
+      Temp[2] := AESConstantTimeSBox(Temp[2]);
+      Temp[3] := AESConstantTimeSBox(Temp[3]);
       // Round constant XOR
       Temp[0] := Temp[0] xor Rcon[I div AES_128_KEY_SIZE];
     end;
@@ -167,7 +215,7 @@ var
   I: Integer;
 begin
   for I := 0 to AES_BLOCK_SIZE - 1 do
-    AState[I] := SBox[AState[I]];
+    AState[I] := AESConstantTimeSBox(AState[I]);
 end;
 
 procedure ShiftRows(var AState: TAESBlock); inline;
