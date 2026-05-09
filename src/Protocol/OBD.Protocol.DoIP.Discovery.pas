@@ -1,22 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Protocol.DoIP.Discovery.pas
-// CONTENTS       : ISO 13400-2 UDP-side discovery + AliveCheck wire codec.
-//                : Frame builders and parsers only (no TCP/UDP I/O), so the
-//                : unit is fully testable in isolation. Production code
-//                : composes these with System.Net.Socket UDP (via the
-//                : existing OBD.Connection.* abstraction).
-//
-// Coverage       :
-//   * Vehicle Identification Request (no EID/VIN)         — payload type 0x0001
-//   * Vehicle Identification Request with EID             — payload type 0x0002
-//   * Vehicle Identification Request with VIN             — payload type 0x0003
-//   * Vehicle Announcement / Identification Response      — payload type 0x0004
-//   * AliveCheck Request                                  — payload type 0x0007
-//   * AliveCheck Response                                 — payload type 0x0008
-//   * Generic DoIP Header NACK                            — payload type 0x0000
-//
-// Spec ref       : ISO 13400-2:2019 §5.4 + §5.5 (UDP discovery), §8.2
-//                : (AliveCheck), §6 (header format / NACK codes).
+// CONTENTS       : ISO 13400-2 UDP discovery and AliveCheck
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Protocol.DoIP.Discovery;
 

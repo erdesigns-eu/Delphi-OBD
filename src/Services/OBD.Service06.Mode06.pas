@@ -1,23 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Service06.Mode06.pas
-// CONTENTS       : OBD-II Service $06 (Mode 06) on-board monitoring test
-//                : results — request encoder, response decoder, and the
-//                : standardised Test ID / Component ID / Unit-and-Scaling
-//                : tables from ISO 15031-5:2015 §B.
-//
-// Why            : Mode 06 is what professional scan tools rely on for
-//                : diagnosing monitors that pass but read close to a
-//                : pass/fail threshold. Every scan tool worth the name
-//                : decodes Mode 06 properly; this unit gives every
-//                : Delphi-OBD app the same capability.
-//
-// Wire format    :
-//   Request:  46 OBDMID
-//   Response: 46 OBDMID  (TID UCSID Test-Value-MSB Test-Value-LSB
-//                          Min-MSB Min-LSB Max-MSB Max-LSB)*
-//
-// Spec ref       : ISO 15031-5:2015 §6.5 (Mode 06 wire format), §B
-//                : (Test IDs and Unit IDs).
+// CONTENTS       : OBD-II Service 06 on-board monitoring (ISO 15031-5)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Service06.Mode06;
 

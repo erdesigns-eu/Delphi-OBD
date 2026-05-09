@@ -1,10 +1,13 @@
 //------------------------------------------------------------------------------
-// UNIT           : Tests.Tachograph.Signature
+// UNIT           : Tests.Tachograph.Signature.pas
+// CONTENTS       : Tests for OBD.Tachograph.Signature
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux
+// RELEASE DATE   : 09/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
-// NOTE           : Tests use a controllable verifier so the cert-chain
-//                  walk can be exercised without an OpenSSL binding. The
-//                  real production tests will land alongside the OpenSSL
-//                  ECDSA-P256 binding (see docs/DATA_GAPS.md).
 //------------------------------------------------------------------------------
 unit Tests.Tachograph.Signature;
 

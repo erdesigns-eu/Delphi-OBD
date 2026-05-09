@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.UDS.NRC.pas
-// CONTENTS       : ISO 14229-1 §A.1 Negative Response Code (NRC) catalog.
-//                : Maps each 0x10..0x9F NRC byte to its short name,
-//                : description, and standardised category. Production
-//                : code uses DescribeNRC(Byte) as the canonical formatter
-//                : everywhere the wire layer surfaces a NRC value.
-//
-// Spec ref       : ISO 14229-1:2020 Annex A — Diagnostic Service / NRC.
-//                : Spec is public; the table below mirrors §A.1 verbatim.
+// CONTENTS       : ISO 14229-1 UDS Negative Response Code catalog
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.UDS.NRC;
 

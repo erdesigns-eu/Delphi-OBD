@@ -1,9 +1,12 @@
 //------------------------------------------------------------------------------
-// UNIT           : Tests.RadioCode.VinResolver
-// CONTENTS       : Tests for the VIN-aware resolver. Covers brand registration
-//                  (VW/Audi/Mercedes/BMW), variant boundary selection,
-//                  invalid-VIN fallback, region override, and the
-//                  data-available shortcut on the resolved record.
+// UNIT           : Tests.RadioCode.VinResolver.pas
+// CONTENTS       : Tests for OBD.RadioCode.VinResolver
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux
+// RELEASE DATE   : 09/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit Tests.RadioCode.VinResolver;

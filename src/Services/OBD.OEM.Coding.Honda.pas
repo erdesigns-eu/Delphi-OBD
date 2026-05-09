@@ -1,9 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.Honda.pas
-// CONTENTS       : Honda HDS option-byte coding wrapper. Same shape as
-//                : OBD.OEM.Coding.Toyota / .VW: fixed-length bytes with
-//                : bit/byte accessors. Per-controller bit semantics live
-//                : in catalogs/coding-honda-*.json.
+// CONTENTS       : Honda HDS option-byte coding wrapper
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.Honda;
 

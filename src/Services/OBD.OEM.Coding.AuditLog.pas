@@ -1,22 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.AuditLog.pas
-// CONTENTS       : Tamper-evident, append-only audit log for coding writes.
-//                : One JSON record per line. Each record carries an
-//                : HMAC-SHA256 chained signature: HMAC = HMAC(K, Prev || Body)
-//                : where Prev is the previous record's HMAC (zero-bytes for
-//                : the first). Verifying the chain detects any insert /
-//                : delete / mutation; the tampered position is reported.
-//
-// Why            : When a workshop bricks a coding session, you need a
-//                : forensic trail that can't be quietly edited. Plain
-//                : log files don't survive a determined operator; signed
-//                : per-record audit chains do.
-//
-// Key handling   : The HMAC key is supplied at construction. Apps will
-//                : typically pull it from TOBDSecureSettings (DPAPI-
-//                : encrypted on Windows). Rotating the key starts a new
-//                : chain on a fresh file; old chains remain verifiable
-//                : with the old key.
+// CONTENTS       : Tamper-evident HMAC-chained coding audit log
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.AuditLog;
 

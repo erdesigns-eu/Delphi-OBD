@@ -1,15 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.SCN.Mercedes.pas
-// CONTENTS       : Mercedes-Benz SCN (Software Calibration Number) coding
-//                : flow used by XENTRY / Vediamo / SDconnect. Encodes the
-//                : version-fetch + SCN-coding requests, decodes the
-//                : central-server response, and applies it back to the ECU.
-//
-// Solver         : The actual SCN computation is performed by the central
-//                : Daimler server — IMBSCNSolver decouples it. Production
-//                : code wires either a dealer-portal client or a captured
-//                : (request, response) replay; the default solver fails
-//                : closed via EOBDMBSCNNoSolver.
+// CONTENTS       : Mercedes-Benz SCN coding flow framing
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.SCN.Mercedes;
 

@@ -1,10 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.KeyAdaptation.Toyota.pas
-// CONTENTS       : Toyota / Lexus smart-key learning framing per the public
-//                : Techstream service procedures. Encodes the request /
-//                : response shapes for the OBD-side timing dance available
-//                : on platforms that haven't moved behind certificate-
-//                : locked Techstream.
+// CONTENTS       : Toyota/Lexus smart-key learning framing
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.KeyAdaptation.Toyota;
 

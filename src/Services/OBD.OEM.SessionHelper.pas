@@ -1,19 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.SessionHelper.pas
-// CONTENTS       : One-call wrapper that turns a TOBDServiceRoutine record
-//                : (v3.81/A1) into a complete "open session, optionally
-//                : check voltage, run routine, read result, close session"
-//                : flow with typed error reporting.
-//
-// Design         : The helper is callback-driven so tests don't have to
-//                : stand up a real TOBDDiagSession + connection. Production
-//                : callers wire each callback to the matching method on
-//                : their TOBDDiagSession instance.
-//
-//                : Pre/post-conditions and safety class come straight from
-//                : the routine record; the helper enforces the voltage gate
-//                : (v3.80/4.6) for routines marked srsBatteryMin12V5 and
-//                : annotates failures with the NRC catalog (v3.81/A6).
+// CONTENTS       : One-call wrapper for service-routine execution
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.SessionHelper;
 

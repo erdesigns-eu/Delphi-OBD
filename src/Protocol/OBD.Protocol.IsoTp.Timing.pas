@@ -1,20 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Protocol.IsoTp.Timing.pas
-// CONTENTS       : ISO 15765-2 timing helpers + audit harness. Decodes /
-//                : encodes the STmin and BlockSize byte values, and
-//                : provides TOBDIsoTpTimingChecker that walks a recorded
-//                : sequence of frame timestamps and asserts spec
-//                : compliance (interframe gap >= STmin, BlockSize
-//                : honoured between flow-control frames).
-//
-// Why            : Real timing measurements need a CAN bus simulator on
-//                : a CI runner; this harness lets capture-replay tests
-//                : assert STmin compliance offline, against fixtures,
-//                : without hardware. When the simulator is in place,
-//                : the same checker accepts live timestamps.
-//
-// Spec ref       : ISO 15765-2:2016 §6.5.5 (STmin), §6.5.4 (BlockSize),
-//                : Table 4 (STmin encoding).
+// CONTENTS       : ISO 15765-2 STmin/BS timing audit harness
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Protocol.IsoTp.Timing;
 

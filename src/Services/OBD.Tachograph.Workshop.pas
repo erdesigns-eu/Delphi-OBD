@@ -1,29 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Tachograph.Workshop.pas
-// CONTENTS       : EU smart-tachograph workshop-card operations spec'd in
-//                : EU 2016/799 + 2021/1228 Annex 1C Appendix 1B/7. Encodes
-//                : / decodes the calibration records that workshop tools
-//                : write to the vehicle unit (VU) under workshop-card
-//                : authentication.
-//
-// Coverage       :
-//   * UTC time sync                    — set VU clock from workshop card
-//   * K / L / W speed-source factors   — pulses/km, gearbox factor, tyre
-//   * Tyre size                        — millimetre rolling circumference
-//   * Vehicle identification (VIN)     — 17 ASCII bytes
-//   * Vehicle registration plate       — variable-length plate string
-//   * Speed source pulses-per-rev      — for the speedometer pickup
-//   * Sealed-state activation          — final calibration commit
-//
-// Reuses         : OBD.Tachograph.Signature for the cert-chain crypto.
-//                : Each operation record produces a TBytes blob ready for
-//                : the workshop-card-authenticated UDS exchange; production
-//                : code feeds the blob through the IFirmwareSignatureVerifier
-//                : pair set up via TOBDTachographSignatureChecker.
-//
-// Spec ref       : EU 2016/799 Annex 1C Appendix 1B (Data dictionary) +
-//                : Appendix 7 (Data downloading protocols). Public
-//                : regulatory documents.
+// CONTENTS       : EU tachograph workshop-card calibration ops
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Tachograph.Workshop;
 

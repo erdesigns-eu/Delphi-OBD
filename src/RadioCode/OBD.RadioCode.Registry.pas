@@ -1,11 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.RadioCode.Registry.pas
-// CONTENTS       : Global brand registry for radio-code calculators with
-//                : variant-aware lookup. Brands self-register at unit init.
+// CONTENTS       : Brand registry for radio-code calculators
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.RadioCode.Registry;
 

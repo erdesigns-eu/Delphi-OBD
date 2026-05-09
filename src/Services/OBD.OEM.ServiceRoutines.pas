@@ -1,26 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.ServiceRoutines.pas
-// CONTENTS       : Registry of publicly documented workshop service routines.
-//                : Each entry is a TOBDServiceRoutine record describing a
-//                : UDS RoutineControl (0x31) operation along with its
-//                : pre-conditions, OptionRecord layout, post-conditions,
-//                : safety warnings, and citation. The unit also exposes a
-//                : frame builder that turns the record into the spec-correct
-//                : 0x31 request bytes.
-//
-// Why            : The single most-asked-for capability of professional
-//                : scan tools is the service-routine library: oil reset,
-//                : SAS calibration, EPB service-mode, DPF regen, battery
-//                : registration, etc. The procedures themselves are
-//                : documented in OEM service info, TSBs, and reputable
-//                : community archives; centralising them here lets every
-//                : Delphi-OBD app surface them without rewriting per app.
-//
-// Coverage       : ~30+ routines across Maintenance, Steering & Brakes,
-//                : Powertrain, Comfort, Battery & Electrical, TPMS.
-//                : Per-OEM applicability and citations live alongside
-//                : each entry; see docs/SERVICE_ROUTINES.md for the
-//                : per-routine prose.
+// CONTENTS       : Workshop service routines registry
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.ServiceRoutines;
 

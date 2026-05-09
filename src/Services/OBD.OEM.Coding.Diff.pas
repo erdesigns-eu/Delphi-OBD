@@ -1,19 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.Diff.pas
-// CONTENTS       : Coding diff & dry-run flow on top of the OBD.OEM.Coding
-//                : helpers. Reads current ECU coding bytes, computes a
-//                : structured diff against the target, and only writes when
-//                : the caller explicitly confirms.
-//
-// Why            : Coding writes can brick an ECU. Treating "compute target
-//                : -> blast write" as one atomic step is a footgun. This
-//                : module forces a four-step flow:
-//                :   1. Snapshot Current bytes.
-//                :   2. Build a TOBDCodingPlan(Current, Target [, Schema]).
-//                :   3. Inspect Plan.Diff / Plan.IsNoOp / Plan.AsText.
-//                :   4. Plan.Apply(Confirmed=True, WriteCallback).
-//                : Step 4 is a no-op unless Confirmed is True; the type
-//                : signature makes the confirm explicit.
+// CONTENTS       : Coding diff and dry-run with explicit confirm
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.Diff;
 

@@ -1,8 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.HMG.pas
-// CONTENTS       : Hyundai/Kia/Genesis GDS variant-coding wrapper. Same
-//                : shape as the Toyota / Honda / VW siblings. Per-controller
-//                : bit semantics live in catalogs/coding-hmg-*.json.
+// CONTENTS       : Hyundai/Kia/Genesis GDS variant-coding wrapper
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.HMG;
 

@@ -1,33 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Protocol.SecOC.pas
-// CONTENTS       : AUTOSAR Secure Onboard Communication (SecOC) framing,
-//                : freshness-value handling, and authentication-vector
-//                : compute / verify. Targets Classic / Adaptive AUTOSAR
-//                : SecOC profiles 1, 2 and 3.
-//
-// Spec ref       : AUTOSAR SecOC SWS R22-11 (latest public release at
-//                : 2026-05-09). Profiles:
-//                :   Profile 1: CMAC/AES-128, 24-bit truncated FV,
-//                :              24-bit truncated authenticator.
-//                :   Profile 2: CMAC/AES-128, full 64-bit FV,
-//                :              configurable authenticator length.
-//                :   Profile 3: HMAC/SHA-256, configurable FV length,
-//                :              configurable authenticator length.
-//
-// Algorithm      : Profile 3 (HMAC-SHA-256) is fully implemented using
-// support       : System.Hash. Profiles 1/2 (CMAC-AES-128) ship as
-//                : framework + stub raising EOBDSecOCAlgorithmNotAvailable
-//                : because Delphi RTL has no built-in CMAC; the
-//                : production path will plug in OpenSSL EVP_MAC at the
-//                : same place existing OpenSSL bindings live (gap
-//                : tracked in docs/DATA_GAPS.md).
-//
-// Freshness      : FV monotonic-counter handling is a per-OEM concern
-// values         : (sync mechanism, truncation policy, reset behaviour
-//                : on OBC). This unit ships TSecOCFreshnessCounter as a
-//                : monotonic in-memory baseline so tests and reference
-//                : implementations work; per-OEM gateways register
-//                : their own resolver via SetFreshnessResolver.
+// CONTENTS       : AUTOSAR SecOC framing and authentication
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Protocol.SecOC;
 

@@ -1,22 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.ECU.Flashing.VoltageGate.pas
-// CONTENTS       : Pre-flash battery-voltage gate. Reads the adapter's
-//                : measured pack voltage and refuses to proceed when it's
-//                : below the OEM-required minimum, raising
-//                : EOBDProgrammingVoltageTooLow.
-//
-// Why            : Flashing under brownout conditions is the #1 cause of
-//                : bricked ECUs in the field. ISO 22900-2 informative
-//                : annex specifies 12.5 V as the conservative passenger-
-//                : car minimum; some EVs need a specific HV-system state
-//                : in addition. This unit lets callers gate the flash
-//                : with one method call, with a per-OEM override map for
-//                : platforms that need a different threshold.
-//
-// Dependencies   : OBD.Adapter (for IOBDVoltageProvider) — declared
-//                : locally so this unit doesn't pull a hard adapter
-//                : dependency. Any class exposing GetVoltage / Connected
-//                : satisfies the contract via duck-type wrapper.
+// CONTENTS       : Pre-flash battery-voltage gate
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.ECU.Flashing.VoltageGate;
 

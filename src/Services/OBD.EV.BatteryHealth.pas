@@ -1,31 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.EV.BatteryHealth.pas
-// CONTENTS       : EV-specific high-level helpers built on top of the
-//                : per-cell DIDs the OEM catalogs already ship.
-//                :   * TOBDBatterySoH  — derive a state-of-health figure
-//                :                       from per-cell voltages, capacity
-//                :                       DIDs, and cycle counts.
-//                :   * TOBDCellImbalance — spread / std-dev / outlier
-//                :                          detection across the per-cell
-//                :                          voltage array.
-//                :   * TOBDChargingSession — decode a charging-session
-//                :                            telemetry record (start/end
-//                :                            SoC, energy, peak power,
-//                :                            average temperature).
-//
-// Why            : v3.34+ shipped per-cell voltages / temperatures + pack
-//                : SoC/SoH DIDs across VW MEB, Tesla, BMW i, HMG E-GMP,
-//                : Volvo / Polestar, Lucid, NIO, BYD, Xpeng, Rivian
-//                : (~108-192 cells per pack on the bigger entries). The
-//                : data has been shipped for a while; the missing bit
-//                : was the high-level API to turn raw cell numbers into
-//                : workshop-grade SoH and imbalance reports.
-//
-// Notes          : This unit is pure math + decoders. It does not call
-//                : the wire-level UDS layer; production callers fetch
-//                : the underlying DIDs through the existing OEM client
-//                : and pass the results in. That keeps tests pure and
-//                : the unit reusable across capture-replay fixtures.
+// CONTENTS       : EV battery state-of-health and cell-imbalance helpers
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.EV.BatteryHealth;
 

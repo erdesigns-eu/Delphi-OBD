@@ -1,24 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.ComponentProtection.VAG.pas
-// CONTENTS       : VAG Component Protection (CP) request/response framing.
-//                : Used by ODIS / VCDS to authorise a replaced component
-//                : (radio, cluster, AC/HVAC, gateway) against the vehicle
-//                : via the dealer-side SVM (Service Verification Manager).
-//
-// Wire format    :
-//   Challenge envelope (component -> tester):
-//     uint16 ECUType  uint16 ComponentSerialLength  bytes ComponentSerial
-//     uint8  VINLength (always 17)                  bytes VIN
-//     uint16 NonceLength                            bytes Nonce
-//
-//   Activation envelope (tester -> component, after SVM):
-//     uint16 ResponseLength  bytes Response
-//     uint16 SignatureLength bytes Signature
-//
-// Solver         : The challenge -> response transform is dealer-portal
-//                : proprietary. IVAGCPSolver decouples it; the default
-//                : TVAGCPSolverNotAvailable raises EOBDVAGCPNoSolver so
-//                : code that calls Solve without wiring fails closed.
+// CONTENTS       : VAG Component Protection request/response framing
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.ComponentProtection.VAG;
 

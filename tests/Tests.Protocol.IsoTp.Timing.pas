@@ -1,5 +1,12 @@
 //------------------------------------------------------------------------------
-// UNIT           : Tests.Protocol.IsoTp.Timing
+// UNIT           : Tests.Protocol.IsoTp.Timing.pas
+// CONTENTS       : Tests for OBD.Protocol.IsoTp.Timing
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux
+// RELEASE DATE   : 09/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit Tests.Protocol.IsoTp.Timing;

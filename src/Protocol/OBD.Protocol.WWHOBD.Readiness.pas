@@ -1,25 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Protocol.WWHOBD.Readiness.pas
-// CONTENTS       : Decoder for the WWH-OBD readiness DID (FD05) payload
-//                : per ISO 27145-3 §6.4. Extends the v3.81 / A4 WWH-OBD
-//                : work by turning the bit-packed monitor-status bytes
-//                : into a TWWHOBDReadinessSet record with named per-
-//                : monitor (Supported, Complete) booleans.
-//
-// Spec ref       : ISO 27145-3:2012 §6.4 — readiness monitor bit layout.
-//                : Mirrors ISO 15031-5 §8.6.1 PID 0x01 layout for the
-//                : continuous monitors, with the WWH-OBD non-continuous
-//                : set extended to cover NMHC catalyst, NOx after-
-//                : treatment, boost pressure, exhaust gas sensor, and
-//                : PM filter.
-//
-// Wire form      : 4 bytes:
-//                :   byte 0: bit7 = MIL active, bits 6..0 = DTC count
-//                :   byte 1: continuous monitor support+status
-//                :   byte 2: non-continuous monitor support
-//                :   byte 3: non-continuous monitor status (0=complete)
-//                : The continuous-monitor byte uses (Supported, NotComplete)
-//                : pairs in the high/low nibbles per ISO 15031-5 §8.6.1.
+// CONTENTS       : WWH-OBD readiness monitor decoder (ISO 27145-3)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Protocol.WWHOBD.Readiness;
 

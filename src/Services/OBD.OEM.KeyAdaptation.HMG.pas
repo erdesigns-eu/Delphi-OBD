@@ -1,10 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.KeyAdaptation.HMG.pas
-// CONTENTS       : Hyundai / Kia / Genesis smart-key registration framing
-//                : per the public GDS / KDS service procedures. Encodes the
-//                : PIN-required request, decodes the result code, and
-//                : carries a per-platform applicability table noting which
-//                : platforms are open vs gateway-locked.
+// CONTENTS       : Hyundai/Kia/Genesis smart-key registration framing
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.KeyAdaptation.HMG;
 

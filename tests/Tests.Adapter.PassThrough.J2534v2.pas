@@ -1,5 +1,12 @@
 //------------------------------------------------------------------------------
-// UNIT           : Tests.Adapter.PassThrough.J2534v2
+// UNIT           : Tests.Adapter.PassThrough.J2534v2.pas
+// CONTENTS       : Tests for OBD.Adapter.PassThrough.J2534v2
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux
+// RELEASE DATE   : 09/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit Tests.Adapter.PassThrough.J2534v2;

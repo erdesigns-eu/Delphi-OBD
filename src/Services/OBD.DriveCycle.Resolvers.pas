@@ -1,24 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.DriveCycle.Resolvers.pas
-// CONTENTS       : Per-OEM drive-cycle resolvers that override the ISO
-//                : 15031-7 generic baseline shipped in v3.82/B2. Each
-//                : resolver returns OEM-specific TDriveCycleStep records
-//                : for the monitors that the OEM publishes a tighter
-//                : procedure for; monitors not overridden fall through
-//                : to the generic step automatically.
-//
-// Sources        :
-//   VW       — VW Self-Study Programs (SSP) covering EOBD readiness
-//              + EVAP test conditions.
-//   BMW      — BMW TIS published drive cycle for OBD II readiness.
-//   Mercedes — Mercedes WIS readiness drive-cycle reference (EOBD).
-//   Ford     — Ford TSB on OBD II readiness drive cycle (UN GTR No.5
-//              variant).
-//   Toyota   — Toyota Repair Manual EOBD readiness procedure +
-//              Techstream service notes for catalyst & EVAP monitors.
-//
-// All five sets are publicly distributed in service-info packages and
-// reproduced verbatim in OEM technician training materials.
+// CONTENTS       : Per-OEM drive-cycle resolvers (VW/BMW/MB/Ford/Toyota)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.DriveCycle.Resolvers;
 

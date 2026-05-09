@@ -1,14 +1,12 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.Toyota.pas
-// CONTENTS       : Toyota CUW (Customize Utility) coding wrapper.
-//                : Mirrors the OBD.OEM.Coding.VW pattern: thin byte/bit
-//                : accessors over the bytes returned by Techstream's
-//                : Customize Read; per-controller bit semantics live in
-//                : per-OEM JSON catalogs. Schemas referenced from
-//                : catalogs/coding-toyota-*.json (loaded by the existing
-//                : OBD.OEM.Catalog.Loader).
+// CONTENTS       : Toyota CUW Customize coding wrapper
 // VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.Toyota;

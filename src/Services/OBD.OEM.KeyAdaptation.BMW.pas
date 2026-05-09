@@ -1,23 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.KeyAdaptation.BMW.pas
-// CONTENTS       : BMW key data record encoders / decoders for the three
-//                : major immobiliser generations:
-//                :   EWS   (E-series, ~1995–2003)         16-byte slot
-//                :   CAS   (E-series later, ~2003–2014)   16-byte slot
-//                :   FEM-BDC (F/G-series, ~2013+)         32-byte slot
-//
-// What ships     : The wire-level data structures (slot index, key
-//                : status flags, key cuts, cylinder code, ISN field)
-//                : are publicly documented across NCSExpert / BimmerCode
-//                : / Carly / community forums; this unit encodes /
-//                : decodes them.
-//
-// What's missing : The Individual Serial Number (ISN) calculation per
-//                : ECU + the EWS/CAS challenge-response encryption are
-//                : dealer-portal-proprietary. Those operations live
-//                : behind IBMWKeyChallengeSolver and raise
-//                : EBMWKeyChallengeNotAvailable when no solver is
-//                : installed. See docs/DATA_GAPS.md.
+// CONTENTS       : BMW key adaptation framing (EWS/CAS/FEM-BDC)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.KeyAdaptation.BMW;
 

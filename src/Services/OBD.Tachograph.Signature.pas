@@ -1,26 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Tachograph.Signature.pas
-// CONTENTS       : EU digital-tachograph DDD-file signature verification.
-//                : Walks the cert chain ERCA -> MSCA -> Card cert and
-//                : verifies each block of the .ddd download against the
-//                : embedded signature using the existing OBD.ECU.Signature
-//                : OpenSSL primitives.
-//
-// Spec ref       : EU Commission Implementing Regulation 2016/799 +
-//                : 2021/1228 (smart tachograph generation 2v2). Annex 1C
-//                : appendix 11 covers Common Security Mechanisms; the
-//                : ERCA + MSCA cert chain is published by the JRC at
-//                : https://dtc.jrc.ec.europa.eu/ as DER-encoded X.509.
-//
-// Status         : The block-walking parser, header validation, and
-//                : signature-block boundary detection are implemented in
-//                : this unit. The cryptographic primitives (RSA-PSS for
-//                : Gen1, ECDSA-P256/P384 for Gen2) delegate to
-//                : IFirmwareSignatureVerifier instances that the host
-//                : configures via SetVerifierFor(SignatureBlockKind, V).
-//                : This decoupling lets unit tests run with a permissive
-//                : verifier and production runs with the real OpenSSL
-//                : binding.
+// CONTENTS       : EU tachograph DDD signature chain verification
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Tachograph.Signature;
 

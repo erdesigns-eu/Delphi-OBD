@@ -1,17 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Service09.Calibration.pas
-// CONTENTS       : Calibration ID (Service 09 PID $04) and Calibration
-//                : Verification Number (PID $06) encode/decode + a
-//                : sweep orchestrator that walks every responding ECU
-//                : and pairs CalID with CVN.
-//
-// Wire format    :
-//   Request:  09 04                  -> ECU returns ASCII CalID(s)
-//   Request:  09 06                  -> ECU returns CVN(s)
-//   Response: 49 04 NCAL ASCII...    (NCAL = number of 16-byte CalID blocks)
-//   Response: 49 06 NCVN CVN[4]...   (NCVN = number of 4-byte CVN blocks)
-//
-// Spec ref       : ISO 15031-5 §8.6.4 (CalID), §8.6.6 (CVN).
+// CONTENTS       : OBD-II Service 09 CalibrationID and CVN sweep
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Service09.Calibration;
 

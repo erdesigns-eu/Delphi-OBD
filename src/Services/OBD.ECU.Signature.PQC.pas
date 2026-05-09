@@ -1,31 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.ECU.Signature.PQC.pas
-// CONTENTS       : Post-quantum-cryptography signature verifier scaffolding for
-//                : ML-DSA-65 (FIPS 204, formerly Dilithium-3 final) and
-//                : SLH-DSA-SHA2-128s (FIPS 205, formerly SPHINCS+).
-//
-// Status         : EXPERIMENTAL. No OEM has shipped a signed-PQC ECU yet, so
-//                : there's no production wire format to validate against.
-//                : The verifier delegates to OpenSSL 3.x EVP if loaded;
-//                : otherwise it raises EOBDPQCNotAvailable. The byte-level
-//                : envelope encoding (algorithm tag + signature length +
-//                : signature + public-key-id) is fixed in this unit so when
-//                : an OEM publishes a PQC ECU spec, only the OpenSSL EVP
-//                : binding has to change.
-//
-// Why            : OEM crypto roadmaps cite NIST FIPS 204/205 as the
-//                : mandatory baseline for ECUs entering production from
-//                : 2027 onwards. Shipping the framework now means the
-//                : moment a published spec arrives, the verifier slots in
-//                : through the existing IFirmwareSignatureVerifier
-//                : interface without disturbing the rest of the flashing
-//                : pipeline.
-//
-// Test surface   : The unit ships a self-test that round-trips the
-//                : envelope encoding (fixed layout) so regressions in the
-//                : framing logic are caught even without a working
-//                : OpenSSL EVP backend. Full crypto KAT vectors from
-//                : NIST will land when the OpenSSL binding lands.
+// CONTENTS       : Post-quantum signature verifier scaffolding
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.ECU.Signature.PQC;
 

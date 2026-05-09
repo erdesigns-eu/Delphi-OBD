@@ -1,26 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.OEM.Coding.Stellantis.pas
-// CONTENTS       : Stellantis (FCA) Proxi configuration wrapper. Mirrors the
-//                : Toyota / Honda / HMG / VW siblings.
-//
-// NOTE on Proxi : Proxi alignment under wiTECH is a module-to-module
-//                : synchronisation procedure where the BCM-resident
-//                : configuration is propagated to every networked
-//                : module, with a CRC over the configuration map. The
-//                : exact CRC polynomial used by FCA / Stellantis for
-//                : Proxi is not publicly documented and is tracked in
-//                : docs/DATA_GAPS.md. This unit ships the byte / bit
-//                : surface; ComputeChecksum is a placeholder that
-//                : returns 0 and raises if the caller asks for a
-//                : verified-CRC byte stream.
-//                :
-// Public web research: 2026-05-09. PROXI alignment workflow is
-// documented in FCA TSBs (incl. NHTSA-published bulletins) and by
-// third-party Proxi tools, but the wire-level CRC algorithm is not
-// disclosed. Cited:
-//   - PROXI Alignment Guide (FCA/Stellantis) — fcaproxitool.com
-//   - NHTSA TSB MC-10251789-9999 (January 2024 ORC PROXI)
-//   - I-CAR CRN-1291 — Identifying FCA/Stellantis Programming Differences
+// CONTENTS       : Stellantis FCA Proxi configuration wrapper
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.OEM.Coding.Stellantis;
 

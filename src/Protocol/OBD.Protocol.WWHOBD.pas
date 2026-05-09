@@ -1,23 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Protocol.WWHOBD.pas
-// CONTENTS       : World-Wide Harmonized OBD (WWH-OBD) helpers per
-//                : UN GTR No.5 + ISO 27145-1..-6 + ISO 15031-5 §7.
-//                : Covers the J1939-style DTC packing used on the OBD-II
-//                : socket of WWH-OBD-equipped vehicles, plus the named
-//                : monitor / DID set introduced in ISO 27145-3.
-//
-// J1939-FMI DTC  : 4 bytes per DTC on the wire:
-//                :   SPN low 8 bits        (byte 0)
-//                :   SPN middle 8 bits     (byte 1)
-//                :   FMI 5 bits | SPN top 3 bits  (byte 2)
-//                :   CM 1 bit | OC 7 bits          (byte 3)
-//                : where SPN is 19 bits, FMI is 5 bits (ISO 11992-3
-//                : failure-mode indicator), CM is the conversion
-//                : method bit, OC is occurrence count (0..127).
-//
-// ISO 27145-3    : Adds DID-based identifiers (instead of PIDs) for
-//                : the WWH-OBD monitor set; this unit provides the
-//                : selection that's universally implemented.
+// CONTENTS       : WWH-OBD support (UN GTR No.5 / ISO 27145)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Protocol.WWHOBD;
 

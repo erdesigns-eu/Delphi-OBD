@@ -1,21 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.J1939.PGNs.pas
-// CONTENTS       : Named-PGN catalog from SAE J1939-71 (Application Layer),
-//                : J1939-73 (Application Layer — Diagnostics), and J1939-75
-//                : (Application Layer — Generator Sets and Industrial). Each
-//                : entry is a TJ1939PGNDescriptor record carrying the PGN
-//                : id, mnemonic, human name, default transmission rate,
-//                : default priority, length, and the spec section it's
-//                : sourced from.
-//
-// Lookup         : FindPGN(PGNId) -> descriptor (or zero record on miss).
-//                : The table is sorted by PGN id at registration; lookup
-//                : is binary search. Custom PGNs can be added via Register.
-//
-// Sources        : SAE J1939-71:2024 §5 (App Layer), J1939-73:2024 §5
-//                : (Diagnostics), J1939-75:2024 §6 (Gen Sets). Spec
-//                : sections are public; the table here covers the most
-//                : commonly seen PGNs across passenger HD and gen-set use.
+// CONTENTS       : SAE J1939-71/73/75 named-PGN catalog
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 09/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.J1939.PGNs;
 

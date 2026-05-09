@@ -1,20 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.RadioCode.VinResolver.pas
-// CONTENTS       : Variant-aware lookup that ties the brand registry, the
-//                : variant manager, and the VIN decoder together.
-//
-// Public surface :
-//   ResolveCalculator(BrandKey, VIN [, ModelYearOverride, ModelHint])
-//     -> IOBDRadioCode pre-configured for the matching variant.
-//
-//   MapVINRegionToRadioCodeRegion(VINRegionName) -> TRadioCodeRegion
-//
-// Also registers VW / Audi-Concert / Mercedes / BMW into the brand
-// registry (DataAvailable = True) so callers can find them through the
-// same surface as the data-pending stubs in OBD.RadioCode.Pending.
+// CONTENTS       : VIN-aware radio-code calculator resolver
 // VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.RadioCode.VinResolver;
 

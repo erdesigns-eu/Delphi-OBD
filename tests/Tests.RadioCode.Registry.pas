@@ -1,7 +1,12 @@
 //------------------------------------------------------------------------------
-// UNIT           : Tests.RadioCode.Registry
-// CONTENTS       : Tests for OBD.RadioCode.Registry + the eight pending brands
-//                  registered through OBD.RadioCode.Pending.
+// UNIT           : Tests.RadioCode.Registry.pas
+// CONTENTS       : Tests for OBD.RadioCode.Registry
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux
+// RELEASE DATE   : 09/05/2026
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit Tests.RadioCode.Registry;

@@ -1,24 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Adapter.Capabilities.pas
-// CONTENTS       : Adapter capability set for feature-gating CAN-FD,
-//                : ISO-TP, DoIP, J1939, voltage monitoring, secure-onboard
-//                : communication, and J2534 pass-through. A read-only
-//                : process-wide registry maps adapter-kind keys to their
-//                : capability set so callers can ask "does this connected
-//                : adapter handle CAN-FD?" without instantiating it.
-//
-// Why            : Apps that mix ELM327 (CAN only), OBDLink EX (CAN-FD),
-//                : and DoIP gateways need a uniform way to detect
-//                : capabilities and pick the right transport at runtime.
-//                : Until now, capability detection was scattered across
-//                : adapter-specific probes; centralising it removes a
-//                : recurring source of "works on my bench, fails in the
-//                : field" bugs.
-//
-// Adopting       : Existing adapter units can opt in by calling
-//                : RegisterAdapterCapabilities at unit init. Until they
-//                : do, callers can probe at runtime via the per-adapter
-//                : feature flags this unit defines.
+// CONTENTS       : Adapter capability registry (CAN, CAN-FD, ISO-TP, DoIP, ...)
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Adapter.Capabilities;
 

@@ -1,31 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.ECU.Flashing.Checkpoint.pas
-// CONTENTS       : Resumable-flashing checkpoint sidecar for TOBDECUFlashing.
-//                : Persists (SnapshotPath, FirmwareSHA256, LastCompletedBlock,
-//                : TotalBlocks, BlockSize, Timestamp) to a JSON sidecar so a
-//                : flash interrupted by power loss / disconnect can be resumed
-//                : without re-writing already-completed blocks.
-//
-// Flow           :
-//   On flash start :
-//     CP := TOBDFlashCheckpoint.Initialise(SidecarPath, FirmwarePath,
-//                                          BlockSize, TotalBlocks,
-//                                          SnapshotPath);
-//   On every block ack :
-//     CP.MarkBlockComplete(BlockIndex);
-//   On flash success :
-//     CP.Clear; (deletes the sidecar)
-//
-//   On restart of the application :
-//     R := TOBDFlashCheckpoint.LoadAndVerify(SidecarPath, FirmwarePath);
-//     if R.Resumable then continue from R.NextBlock else start fresh.
-//
-// Why a sidecar : Embedding resume into TOBDECUFlashing directly would
-//               : entangle a known-good unit with a concern that's
-//               : optional for most callers. Keeping it separate lets
-//               : apps opt in by holding a TOBDFlashCheckpoint and
-//               : invoking MarkBlockComplete from their own block-ack
-//               : handler.
+// CONTENTS       : Resumable-flashing checkpoint sidecar
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.ECU.Flashing.Checkpoint;
 

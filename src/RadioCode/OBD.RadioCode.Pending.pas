@@ -1,26 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.RadioCode.Pending.pas
-// CONTENTS       : Eight brand stubs that satisfy IOBDRadioCode but raise
-//                : EOBDRadioCodeDataMissing on Calculate. Each brand has a
-//                : registry entry with a precise data-gap description so a
-//                : maintainer with reference data can replace the stub
-//                : without touching call sites.
-//
-// AFFECTED BRANDS:
-//   Pioneer, Kenwood, JVC, Sony, Philips, Grundig, Panasonic, Continental/VDO
-//
-// WHY STUBS     : Public web research conducted 2026-05-09 confirmed that no
-//                : freely available algorithm or lookup table exists for any
-//                : of these brands. Commercial unlock services rely on
-//                : licensed databases (Philips: ~14M-entry DB) or EEPROM
-//                : extraction. Existing Becker4/Becker5 lookup tables
-//                : (10,000 entries each) are exceptions for a specific
-//                : older product line. See docs/DATA_GAPS.md for the precise
-//                : reference data each brand needs.
+// CONTENTS       : Data-pending stubs for radio-code brands not yet operational
 // VERSION        : 1.0
 // TARGET         : Embarcadero Delphi 11 or higher
 // AUTHOR         : Ernst Reidinga (ERDesigns)
 // STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows / macOS / Linux / iOS / Android
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.RadioCode.Pending;
 

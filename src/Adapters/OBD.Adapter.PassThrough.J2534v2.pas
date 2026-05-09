@@ -1,28 +1,13 @@
 //------------------------------------------------------------------------------
 // UNIT           : OBD.Adapter.PassThrough.J2534v2.pas
-// CONTENTS       : SAE J2534-2 (2018) IOCTL constants and SET_CONFIG
-//                : extended parameter helpers. Sits next to the existing
-//                : OBD.Adapter.PassThrough J2534-1 binding; production
-//                : code chooses which constant table to use based on
-//                : whether OBD.Adapter.Capabilities reports acJ2534v2 for
-//                : the loaded vendor DLL.
-//
-// Status         : The IOCTL identifier table and parameter ranges in
-//                : this unit come from the publicly distributed J2534-2
-//                : header definitions (2018 release) shipped by major
-//                : tool vendors (Drew Technologies, Bosch MTS, ETAS).
-//                : The actual `PassThruIoctl` DLL call lives in the
-//                : pre-existing OBD.Adapter.PassThrough unit; this unit
-//                : only contributes the constants + a TConfigList
-//                : builder that production code passes into the
-//                : SET_CONFIG IOCTL.
-//
-// Coverage       : ISO 15765 timing parameters (P2_MIN/MAX, P2*_MIN/MAX,
-//                : ST_MIN, BS, MAX_FC_WAIT_FRAMES, ISO15765_BS_TX,
-//                : ISO15765_STMIN_TX), CAN-FD specifics
-//                : (CAN_DATA_RATE, CAN_FD_DATA_RATE, BIT_SAMPLE_POINT,
-//                : SYNC_JUMP_WIDTH), and the mixed-mode flag
-//                : (CAN_MIXED_FORMAT).
+// CONTENTS       : J2534-2 (2018) IOCTL constants and SCONFIG_LIST builder
+// VERSION        : 1.0
+// TARGET         : Embarcadero Delphi 11 or higher
+// AUTHOR         : Ernst Reidinga (ERDesigns)
+// STATUS         : Open source under Apache 2.0 library
+// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
+// RELEASE DATE   : 08/05/2026
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 //------------------------------------------------------------------------------
 unit OBD.Adapter.PassThrough.J2534v2;
 
