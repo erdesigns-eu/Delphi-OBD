@@ -1,0 +1,171 @@
+//------------------------------------------------------------------------------
+// UNIT           : Tests.OEM.ServiceRoutines
+// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
+//------------------------------------------------------------------------------
+unit Tests.OEM.ServiceRoutines;
+
+interface
+
+uses
+  DUnitX.TestFramework;
+
+type
+  [TestFixture]
+  TServiceRoutinesTests = class
+  public
+    [Test] procedure RegistryHasAtLeastThirty;
+    [Test] procedure EveryEntryHasCitation;
+    [Test] procedure EveryEntryHasNonEmptyKeyAndName;
+    [Test] procedure RIDsAreNonZero;
+    [Test] procedure SubFunctionIsValidUDS;
+    [Test] procedure FindIsCaseInsensitive;
+    [Test] procedure GetByCategoryReturnsMaintenance;
+    [Test] procedure GetByOEMReturnsBMWRoutines;
+    [Test] procedure FrameBuilderProducesCorrectLayout;
+    [Test] procedure FrameBuilderRejectsBadSubFunction;
+    [Test] procedure NoDuplicateKeys;
+  end;
+
+implementation
+
+uses
+  System.SysUtils, OBD.OEM.ServiceRoutines;
+
+procedure TServiceRoutinesTests.RegistryHasAtLeastThirty;
+begin
+  Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Count >= 25,
+    'Should have at least 25 routines, got ' +
+    IntToStr(TOBDServiceRoutineRegistry.Instance.Count));
+end;
+
+procedure TServiceRoutinesTests.EveryEntryHasCitation;
+var
+  I: Integer;
+  R: TOBDServiceRoutine;
+begin
+  for I := 0 to TOBDServiceRoutineRegistry.Instance.Count - 1 do
+  begin
+    R := TOBDServiceRoutineRegistry.Instance.Get(I);
+    Assert.IsNotEmpty(R.Citation,
+      'Routine ' + R.Key + ' missing citation');
+  end;
+end;
+
+procedure TServiceRoutinesTests.EveryEntryHasNonEmptyKeyAndName;
+var
+  I: Integer;
+  R: TOBDServiceRoutine;
+begin
+  for I := 0 to TOBDServiceRoutineRegistry.Instance.Count - 1 do
+  begin
+    R := TOBDServiceRoutineRegistry.Instance.Get(I);
+    Assert.IsNotEmpty(R.Key);
+    Assert.IsNotEmpty(R.DisplayName);
+  end;
+end;
+
+procedure TServiceRoutinesTests.RIDsAreNonZero;
+var
+  I: Integer;
+  R: TOBDServiceRoutine;
+begin
+  for I := 0 to TOBDServiceRoutineRegistry.Instance.Count - 1 do
+  begin
+    R := TOBDServiceRoutineRegistry.Instance.Get(I);
+    Assert.IsTrue(R.RoutineIdentifier <> 0,
+      R.Key + ' has zero RID');
+  end;
+end;
+
+procedure TServiceRoutinesTests.SubFunctionIsValidUDS;
+var
+  I: Integer;
+  R: TOBDServiceRoutine;
+begin
+  for I := 0 to TOBDServiceRoutineRegistry.Instance.Count - 1 do
+  begin
+    R := TOBDServiceRoutineRegistry.Instance.Get(I);
+    Assert.IsTrue(R.SubFunction in [$01, $02, $03],
+      R.Key + ' has invalid sub-function');
+  end;
+end;
+
+procedure TServiceRoutinesTests.FindIsCaseInsensitive;
+var
+  R: TOBDServiceRoutine;
+begin
+  Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Find('OIL_RESET_BMW', R));
+  Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Find('Oil_Reset_BMW', R));
+  Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Find('oil_reset_bmw', R));
+  Assert.AreEqual('Oil Service Reset (BMW CBS)', R.DisplayName);
+end;
+
+procedure TServiceRoutinesTests.GetByCategoryReturnsMaintenance;
+var
+  Routines: TArray<TOBDServiceRoutine>;
+begin
+  TOBDServiceRoutineRegistry.Instance.GetByCategory(srcMaintenance, Routines);
+  Assert.IsTrue(Length(Routines) >= 5,
+    'Maintenance category should have several entries');
+end;
+
+procedure TServiceRoutinesTests.GetByOEMReturnsBMWRoutines;
+var
+  Routines: TArray<TOBDServiceRoutine>;
+  R: TOBDServiceRoutine;
+  Found: Boolean;
+begin
+  TOBDServiceRoutineRegistry.Instance.GetByOEM('bmw', Routines);
+  Assert.IsTrue(Length(Routines) >= 3, 'Expected several BMW routines');
+  Found := False;
+  for R in Routines do
+    if R.Key = 'oil_reset_bmw' then Found := True;
+  Assert.IsTrue(Found, 'BMW lookup should include oil_reset_bmw');
+end;
+
+procedure TServiceRoutinesTests.FrameBuilderProducesCorrectLayout;
+var
+  R: TOBDServiceRoutine;
+  Frame: TBytes;
+begin
+  Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Find('sas_zero', R));
+  Frame := BuildRoutineControlFrame(R);
+  Assert.AreEqual($31, Integer(Frame[0]));
+  Assert.AreEqual($01, Integer(Frame[1]));
+  Assert.AreEqual($03, Integer(Frame[2])); // RID hi (0x0301)
+  Assert.AreEqual($01, Integer(Frame[3])); // RID lo
+  Assert.AreEqual(4, Length(Frame), 'No OptionRecord -> 4 bytes total');
+end;
+
+procedure TServiceRoutinesTests.FrameBuilderRejectsBadSubFunction;
+var
+  R: TOBDServiceRoutine;
+begin
+  R := Default(TOBDServiceRoutine);
+  R.RoutineIdentifier := $0301;
+  R.SubFunction := $99;
+  Assert.WillRaise(
+    procedure begin BuildRoutineControlFrame(R); end,
+    EOBDServiceRoutine);
+end;
+
+procedure TServiceRoutinesTests.NoDuplicateKeys;
+var
+  Seen: TArray<string>;
+  I, J: Integer;
+  R: TOBDServiceRoutine;
+begin
+  SetLength(Seen, TOBDServiceRoutineRegistry.Instance.Count);
+  for I := 0 to TOBDServiceRoutineRegistry.Instance.Count - 1 do
+  begin
+    R := TOBDServiceRoutineRegistry.Instance.Get(I);
+    for J := 0 to I - 1 do
+      Assert.AreNotEqual(Seen[J], R.Key, 'Duplicate key: ' + R.Key);
+    Seen[I] := R.Key;
+  end;
+end;
+
+initialization
+  TDUnitX.RegisterTestFixture(TServiceRoutinesTests);
+
+end.
