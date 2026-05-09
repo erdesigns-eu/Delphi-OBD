@@ -42,6 +42,7 @@ uses
   Tests.Adapter.Capabilities in 'Tests.Adapter.Capabilities.pas',
   Tests.Protocol.SecOC in 'Tests.Protocol.SecOC.pas',
   Tests.Protocol.IsoTp.Timing in 'Tests.Protocol.IsoTp.Timing.pas',
+  Tests.Adapter.PassThrough.J2534v2 in 'Tests.Adapter.PassThrough.J2534v2.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
