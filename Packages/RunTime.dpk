@@ -199,6 +199,7 @@ contains
   OBD.Tachograph.Workshop in '..\src\Services\OBD.Tachograph.Workshop.pas',
   OBD.Service06.Mode06 in '..\src\Services\OBD.Service06.Mode06.pas',
   OBD.Protocol.WWHOBD in '..\src\Protocol\OBD.Protocol.WWHOBD.pas',
+  OBD.J1939.PGNs in '..\src\Protocol\OBD.J1939.PGNs.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',

@@ -49,6 +49,7 @@ uses
   Tests.Tachograph.Workshop in 'Tests.Tachograph.Workshop.pas',
   Tests.Service06.Mode06 in 'Tests.Service06.Mode06.pas',
   Tests.Protocol.WWHOBD in 'Tests.Protocol.WWHOBD.pas',
+  Tests.J1939.PGNs in 'Tests.J1939.PGNs.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
