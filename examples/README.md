@@ -12,7 +12,7 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ## Examples Overview
 
-**Total Examples**: 14 (7 connection types + 1 advanced dashboard + 6 protocol-specific examples)
+**Total Examples**: 23 (connection types, dashboards, protocol stacks, OEM/UDS/DoIP tooling, ECU flashing, replay, tachograph)
 
 ### 📦 minimal/
 **Complexity**: Beginner  
@@ -57,9 +57,9 @@ This directory contains full Delphi projects (DPR + PAS + DFM) that illustrate h
 
 ### 📱 mobile_dashboard/
 **Complexity**: Intermediate
-**Connection**: Simulator (Proposal B in docs/PROPOSALS.md adds live transports)
+**Connection**: Simulator (live transports tracked in docs/PROPOSALS.md)
 **What it demonstrates**:
-- FMX dashboard exercising **every** v3.1 FMX component
+- FMX dashboard exercising **every** shipped FMX component
   (LinearGauge, Tachometer, TrendGraph, DtcList, Terminal, Knob,
   SegmentedSwitch, LED)
 - Runs on Win32, Win64, macOS, iOS, Android — same source, same
@@ -338,7 +338,7 @@ OBDConnection1.WifiHost := '192.168.0.10';  // Your adapter's IP
 OBDConnection1.WifiPort := 35000;           // Common: 35000, 23
 ```
 
-### DoIP/UDP Connection (New in v2.0)
+### DoIP/UDP Connection
 ```delphi
 uses
   OBD.Connection.UDP, OBD.Protocol.DoIP;
