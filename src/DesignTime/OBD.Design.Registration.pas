@@ -46,16 +46,31 @@ uses
   OBD.Adapter,
   OBD.Protocol,
   OBD.Protocol.DoIP.Client,
-  OBD.Protocol.SecOC;
+  OBD.Protocol.SecOC,
+  OBD.Service.LiveData,
+  OBD.Service.DTCs,
+  OBD.Service.VIN,
+  OBD.Service.FreezeFrame;
 
 procedure Register;
 begin
+  // Lower-level building blocks: connection, adapter, protocol,
+  // network and security.
   RegisterComponents('OBD', [
     TOBDConnection,
     TOBDAdapter,
     TOBDProtocol,
     TOBDDoIPClient,
     TOBDSecOCCodec
+  ]);
+
+  // Service-mode (Phase 5): higher-level diagnostics that sit on
+  // top of TOBDProtocol.
+  RegisterComponents('OBD Services', [
+    TOBDLiveData,
+    TOBDDTCs,
+    TOBDVIN,
+    TOBDFreezeFrame
   ]);
 end;
 

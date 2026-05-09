@@ -1562,3 +1562,160 @@ These items are explicitly tracked into Phase 5 and beyond:
 
 Phase 4 is closed. Phase 5 (service-mode components — TOBDLiveData,
 TOBDFreezeFrame, TOBDDTCs, TOBDVIN) is the next milestone.
+
+---
+
+## Phase 5 — Service-mode components
+
+### Code landed
+
+- `src/Service/OBD.Service.LiveData.pas` — `TOBDLiveData`. Reads
+  OBD-II Mode 01 PIDs synchronously and asynchronously, walks
+  the support-bitmap PIDs (0x00 / 0x20 / 0x40 / 0x60 / 0x80 /
+  0xA0 / 0xC0 / 0xE0) into a sorted set of supported PIDs, and
+  drives a background poll over an arbitrary PID list at a
+  caller-chosen interval. Ships a built-in decoder dictionary
+  for ~16 of the SAE J1979 classics (RPM, vehicle speed,
+  coolant / intake / ambient / oil temperature, MAF, throttle,
+  engine load, fuel level / pressure, fuel rate, control-module
+  voltage, distance with MIL on, run time since engine start,
+  barometric pressure, calculated load).
+- `src/Service/OBD.Service.DTCs.pas` — `TOBDDTCs`. Reads
+  confirmed (Mode 03), pending (Mode 07), permanent (Mode 0A)
+  and UDS Service 0x19 sub-function 0x02 DTCs. Decodes the
+  raw 2-byte codes to SAE J2012 string form (`"P0301"`,
+  `"C0123"`, `"B1234"`, `"U0073"`). Resolves descriptions via
+  the `OBD.Catalog` DTC table when one is loaded. Includes
+  `Clear` (Mode 04). Tolerates the optional leading-count byte
+  some controllers prepend (parity-based detection).
+- `src/Service/OBD.Service.VIN.pas` — `TOBDVIN`. Two read
+  paths: OBD-II Service 09 PID 02 (legacy) and UDS Service 22
+  DID 0xF190. Validates the result against the Phase 4b
+  `TOBDVINValidator` (ISO 3779 check digit) and returns
+  `Valid` plus `RawVIN`.
+- `src/Service/OBD.Service.FreezeFrame.pas` — `TOBDFreezeFrame`.
+  Reads Mode 02 PIDs against a configurable frame index (0 =
+  most recent stored snapshot). Mirrors `TOBDLiveData`'s
+  request shape but with the index byte appended.
+- `tests/Tests.OBD.Service.pas` — two fixtures: built-in
+  decoder formula coverage (RPM, speed, coolant offset, engine
+  load) and J2012 decoder coverage across all four DTC family
+  letters plus the `P0000` zero-sentinel.
+- `src/DesignTime/OBD.Design.Registration.pas` — registers the
+  four new components on a new **OBD Services** palette tab,
+  separating them from the lower-level building blocks on
+  **OBD**.
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added the four new units and the test fixture.
+
+### Architecture highlights
+
+- **Dual-method everywhere.** Every reader is `Foo` /
+  `FooAsync` per PLAN §3.7. The async paths run on
+  `TThread.CreateAnonymousThread`, deliver results via main-
+  thread `TThread.Queue`, and surface failures through
+  `OnError` so a host doesn't have to wrap the call in try/
+  except.
+- **Single source of decoded values.** `TOBDPIDValue` carries
+  both the raw bytes and the engineering value + unit when a
+  built-in decoder matches. Hosts that want OEM-specific
+  decoding subscribe to `OnRaw` and skip the built-in path.
+- **Polling is opt-in.** `TOBDLiveData.Poll` runs a single
+  background worker that cycles a PID list at a fixed
+  interval; `PollStop` joins it cleanly. The destructor calls
+  `PollStop` so a host that never calls it explicitly still
+  shuts down without leaking.
+- **Free-notification on the protocol property.** All four
+  components subscribe to `FreeNotification` on their
+  `Protocol` property and clear the field when the protocol
+  is destroyed first — standard VCL pattern, prevents
+  dangling pointers in async callbacks.
+- **DTCs leave catalogue lookups optional.** When the host
+  has not loaded a DTC catalogue, `Description` is blank;
+  `Code` (the J2012 string) is always populated.
+
+### What's intentionally not in v1
+
+- **OEM PID extensions.** The built-in decoder dictionary
+  covers the J1979 classics. OEM PIDs (0xC0..0xFF range) vary
+  per manufacturer; hosts subscribe to `OnRaw` and decode
+  them.
+- **Mode 06 (on-board monitoring test results).** Heavy
+  parsing surface (per-MID + TID + UASID), rarely used
+  outside emissions-test rigs. Tracked for a Phase 5
+  follow-up if a host actually needs it.
+- **Mode 08 (control of on-board systems / actuators).**
+  Safety-significant — hosts that drive Mode 08 do it
+  through `TOBDProtocol.Request` directly with their own
+  policy.
+- **UDS RoutineControl / WriteDataByIdentifier.** Phase 6
+  coding/flashing components. The plumbing here only reads.
+- **Catalogue-driven PID decoder.** The built-in dictionary
+  is a hand-coded `case` statement. A future improvement
+  feeds the same formulas from a JSON catalogue so adding
+  PIDs doesn't recompile. Tracked.
+
+### Honest review
+
+1. **Built-in PID decoder dictionary covers 16 PIDs.** The
+   universally-supported J1979 list runs to ~50 PIDs; the
+   16 here are the most-asked. Hosts that want the long tail
+   read `Raw` from `OnValue` and decode themselves. **Tracked**
+   as: move the table to JSON in `data/` and load at startup.
+2. **`TOBDLiveData.SupportedPIDs` does not cache.** Each call
+   re-walks the bitmap PIDs, costing ~8 round-trips. A host
+   that calls it repeatedly should cache the result. Adding
+   in-component caching would make Read-after-disconnect
+   behaviour confusing; documented instead.
+3. **Mode 03 count-byte detection is parity-based.** Some
+   ECUs prepend a 1-byte count, others don't. The current
+   code uses payload-length parity (odd → count present) which
+   is right for all confirmed / pending / permanent DTCs we've
+   seen, but a malicious / malformed ECU could trip it. The
+   J2012 decoder operates on whatever bytes survive, so the
+   worst case is one bogus DTC at the head of the list.
+4. **DTC catalogue lookup uses a synthetic numeric encoding**
+   (P=0x00xxxx, C=0x01xxxx, B=0x02xxxx, U=0x03xxxx). This is
+   internal to the unit; the catalogue JSON files would need
+   the same encoding. Not yet shipped — `Description` is
+   empty until a Phase 11+ DTC catalogue arrives. Tracked.
+5. **`TOBDVIN.ReadOBDII` strips a leading message-count byte
+   heuristically.** Service 09 PID 02 returns "PID echo +
+   message count + VIN bytes"; some adapters silently drop
+   the message count when they handle ISO-TP reassembly
+   themselves. The current code accepts both shapes; a
+   genuinely malformed payload could produce a wrong VIN
+   that the validator then rejects (the host sees `Valid =
+   False`, which is the documented contract).
+6. **Async helpers do not enforce single-in-flight.** Unlike
+   the DoIP client, `LiveData` / `DTCs` / `VIN` / `FreezeFrame`
+   permit concurrent async reads — the underlying
+   `TOBDProtocol` already serialises them via `WaitForAsync`,
+   so two `ReadAsync` calls in parallel run sequentially.
+   Documented; matching the DoIP discipline is a low-priority
+   follow-up.
+7. **No real-vehicle integration test.** Same hardware-loop
+   deferral as every prior phase.
+
+### Phase 5 follow-ups carried forward
+
+| # | Flag | Plan |
+|---|---|---|
+| 1 | Built-in PID decoder dictionary | Move to JSON catalogue |
+| 4 | DTC description catalogue | Ship a `data/dtc-*.json` set |
+| 6 | Single-in-flight discipline | Apply DoIP's `GuardSingleAsync` pattern |
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] Sync + async dual-method rule for every public read.
+- [x] All events fire on the main thread.
+- [x] `FreeNotification` wired on every component's `Protocol`
+      property.
+- [x] J2012 DTC decoder verified for all four family letters
+      plus the zero-sentinel.
+- [x] J1979 PID decoder formulas pinned to test vectors.
+- [x] All four service components register on the **OBD
+      Services** palette tab.

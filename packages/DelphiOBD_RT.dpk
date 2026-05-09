@@ -78,6 +78,10 @@ contains
   OBD.Protocol.LIN.LDF in '..\src\Protocol\OBD.Protocol.LIN.LDF.pas',
   OBD.Protocol.FlexRay.Frame in '..\src\Protocol\OBD.Protocol.FlexRay.Frame.pas',
   OBD.Protocol.MOST.Control in '..\src\Protocol\OBD.Protocol.MOST.Control.pas',
-  OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas';
+  OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
+  OBD.Service.LiveData in '..\src\Service\OBD.Service.LiveData.pas',
+  OBD.Service.DTCs in '..\src\Service\OBD.Service.DTCs.pas',
+  OBD.Service.VIN in '..\src\Service\OBD.Service.VIN.pas',
+  OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas';
 
 end.
