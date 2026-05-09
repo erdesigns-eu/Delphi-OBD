@@ -47,6 +47,9 @@ type
     [Test] procedure ClearWrittenResetsCapture;
     /// <summary>State transitions fire OnStateChanged.</summary>
     [Test] procedure StateChangedFiresOnTransitions;
+    /// <summary>SimulateProgress invokes OnProgress with the supplied
+    /// step-style snapshot; Percent helper computes the ratio.</summary>
+    [Test] procedure ProgressEventCarriesStep;
   end;
 
 implementation
@@ -219,6 +222,42 @@ begin
     Assert.AreEqual(Ord(csOpen),    Ord(States[1]));
     Assert.AreEqual(Ord(csClosing), Ord(States[2]));
     Assert.AreEqual(Ord(csClosed),  Ord(States[3]));
+  finally
+    Mock.Free;
+  end;
+end;
+
+procedure TConnectionMockTests.ProgressEventCarriesStep;
+var
+  Mock: TOBDMockTransport;
+  GotIndex: Cardinal;
+  GotCount: Cardinal;
+  GotName: string;
+  GotDetail: string;
+  GotPercent: Double;
+begin
+  Mock := TOBDMockTransport.Create;
+  GotIndex := 0;
+  GotCount := 0;
+  GotName := '';
+  GotDetail := '';
+  GotPercent := 0;
+  try
+    Mock.OnProgress :=
+      procedure(Sender: TObject; const AStep: TOBDProgressStep)
+      begin
+        GotIndex := AStep.Index;
+        GotCount := AStep.Count;
+        GotName := AStep.Name;
+        GotDetail := AStep.Detail;
+        GotPercent := AStep.Percent;
+      end;
+    Mock.SimulateProgress(2, 5, 'Connecting', 'host:port');
+    Assert.AreEqual<Cardinal>(2, GotIndex);
+    Assert.AreEqual<Cardinal>(5, GotCount);
+    Assert.AreEqual('Connecting', GotName);
+    Assert.AreEqual('host:port', GotDetail);
+    Assert.AreEqual(2 / 5, GotPercent, 1E-9);
   finally
     Mock.Free;
   end;

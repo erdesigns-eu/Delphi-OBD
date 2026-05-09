@@ -38,6 +38,7 @@ uses
   OBD.Connection.Types in '..\src\Connection\OBD.Connection.Types.pas',
   OBD.Connection.Settings in '..\src\Connection\OBD.Connection.Settings.pas',
   OBD.Connection.Retry in '..\src\Connection\OBD.Connection.Retry.pas',
+  OBD.Connection.Transport.Base in '..\src\Connection\OBD.Connection.Transport.Base.pas',
   OBD.Connection.Mock in '..\src\Connection\OBD.Connection.Mock.pas',
   OBD.Connection.Bluetooth in '..\src\Connection\OBD.Connection.Bluetooth.pas',
   OBD.Connection.BLE in '..\src\Connection\OBD.Connection.BLE.pas',
@@ -57,7 +58,8 @@ uses
   Tests.OBD.Connection.Mock in 'Tests.OBD.Connection.Mock.pas',
   Tests.OBD.Connection.Retry in 'Tests.OBD.Connection.Retry.pas',
   Tests.OBD.Connection in 'Tests.OBD.Connection.pas',
-  Tests.OBD.Connection.Async in 'Tests.OBD.Connection.Async.pas';
+  Tests.OBD.Connection.Async in 'Tests.OBD.Connection.Async.pas',
+  Tests.OBD.Connection.Progress in 'Tests.OBD.Connection.Progress.pas';
 
 {$IFDEF CI}
 var

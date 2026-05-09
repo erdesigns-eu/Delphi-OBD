@@ -325,3 +325,66 @@ method rule. The PLAN §3.7 table lists the pairs each phase owes
 FlashAsync, etc.). Reviewers should treat a public method without an
 async counterpart (when the rule applies) as an incomplete PR.
 
+### Phase 2 follow-up — Progress events + TOBDBaseTransport extraction
+
+Mid-phase the user asked: *"For long-running events can we add
+progress to it? Like Bluetooth connect can be multiple steps of the
+same action — open BT, open port, connect."*
+
+Adopted as part of the same dual-method rule (PLAN §3.7 expanded,
+STYLE §6 mirrored). Every component that has a long-running method
+publishes `OnProgress: TOBDProgressEvent` carrying a unified
+`TOBDProgressStep` record:
+
+- Step-style fields (`Index`, `Count`, `Name`, `Detail`) for
+  sequential phases.
+- Transfer-style fields (`BytesDone`, `BytesTotal`) for byte-counted
+  ops.
+- `Percent` helper returning a unified 0..1 ratio (prefers byte
+  counts, falls back to step counts).
+- `MakeStep` / `MakeBytes` constructor helpers.
+
+Progress fires on the main thread on the host component. Each
+transport documents its specific phase sequence in the `OnProgress`
+XMLDoc on `TOBDConnection`:
+
+| Transport | Phases |
+|---|---|
+| Serial | 1/3 Opening port → 2/3 Configuring → 3/3 Ready |
+| Wi-Fi | 1/3 Resolving host → 2/3 Connecting → 3/3 Ready |
+| UDP | 1/2 Binding → 2/2 Ready |
+| Bluetooth | 1/5 Adapter check → 2/5 Locating device → 3/5 Creating socket → 4/5 Connecting → 5/5 Ready |
+| BLE | 1/6 Adapter check → 2/6 Locating device → 3/6 Connecting → 4/6 Discovering service → 5/6 Subscribing notifications → 6/6 Ready |
+| FTDI | 1/4 Loading D2XX → 2/4 Opening device → 3/4 Configuring → 4/4 Ready |
+
+Bonus refactor (also at the user's request): the seven transports
+(six concrete + mock) now inherit from a new
+**`TOBDBaseTransport`** abstract class that owns the lock, lifecycle
+state, event-handler fields, and `FireXxx` helpers. Each transport
+shed ~80 lines of repeated boilerplate; the seven transports total
+~480 lines lighter. Adding a future transport (POSIX termios, USB-CDC
+direct, …) is now under 100 lines per transport.
+
+`TOBDConnection.DoOpen` was rewritten to use a flat instantiate→wire
+→open three-step sequence per transport instead of duplicating the
+event-wiring inside each `case` branch. The four transport callbacks
+(`OnDataReceived`, `OnStateChanged`, `OnTransportError`,
+`OnProgress`) are wired uniformly through the
+`IOBDConnectionTransport` interface.
+
+New tests:
+
+- `Tests.OBD.Connection.Progress` — record helpers, `Percent`
+  semantics including saturate-at-1 and zero-when-unknown (6
+  assertions).
+- `Tests.OBD.Connection.Mock.ProgressEventCarriesStep` — verifies
+  the mock's `SimulateProgress` and the round-trip through the
+  `OnProgress` event.
+
+Sample 01-ConnectAndPing now wires `OnProgress` and prints each phase
+with the unified percent.
+
+Going forward, every component in Phases 3–9 that has a long-running
+method must publish `OnProgress` and document its phase sequence.
+The §3.7 progress section is now part of the rule.
+

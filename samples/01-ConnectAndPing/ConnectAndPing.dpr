@@ -34,6 +34,7 @@ uses
   OBD.Connection.Types in '..\..\src\Connection\OBD.Connection.Types.pas',
   OBD.Connection.Settings in '..\..\src\Connection\OBD.Connection.Settings.pas',
   OBD.Connection.Retry in '..\..\src\Connection\OBD.Connection.Retry.pas',
+  OBD.Connection.Transport.Base in '..\..\src\Connection\OBD.Connection.Transport.Base.pas',
   OBD.Connection.Mock in '..\..\src\Connection\OBD.Connection.Mock.pas',
   OBD.Connection.Bluetooth in '..\..\src\Connection\OBD.Connection.Bluetooth.pas',
   OBD.Connection.BLE in '..\..\src\Connection\OBD.Connection.BLE.pas',
@@ -62,6 +63,19 @@ procedure HandleError(Sender: TObject; ACode: TOBDErrorCode;
   const AMessage: string; var AHandled: Boolean);
 begin
   Writeln(ErrOutput, Format('[error %d] %s', [Ord(ACode), AMessage]));
+end;
+
+procedure HandleProgress(Sender: TObject; const AStep: TOBDProgressStep);
+var
+  Pct: Integer;
+begin
+  Pct := Round(AStep.Percent * 100);
+  if AStep.Detail <> '' then
+    Writeln(Format('  [%d/%d %3d%%] %s — %s',
+      [AStep.Index, AStep.Count, Pct, AStep.Name, AStep.Detail]))
+  else
+    Writeln(Format('  [%d/%d %3d%%] %s',
+      [AStep.Index, AStep.Count, Pct, AStep.Name]));
 end;
 
 var
@@ -116,6 +130,7 @@ begin
     Connection.WiFiSettings.Host := Host;
     Connection.WiFiSettings.Port := Port;
     Connection.OnDataReceived := HandleData;
+    Connection.OnProgress := HandleProgress;
 
     if UseAsync then
     begin

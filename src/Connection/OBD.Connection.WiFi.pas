@@ -5,14 +5,16 @@
 //  clones at 192.168.0.10:35000, ESP-Link ECU bridges, DoIP TCP
 //  channels).
 //
-//  Cross-platform via <c>System.Net.Socket</c> (available 10.3+).
+//  Cross-platform via <c>System.Net.Socket</c>.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Phase 2 initial.
+//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.WiFi;
@@ -26,14 +28,11 @@ uses
   System.Net.Socket,
   OBD.Types,
   OBD.Connection.Types,
-  OBD.Connection.Settings;
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
 type
-  TOBDWiFiTransport = class;
-
   /// <summary>Read loop for the Wi-Fi transport.</summary>
-  /// <remarks>Owned by the parent transport; joined inside
-  /// <see cref="TOBDWiFiTransport.Close"/>.</remarks>
   TOBDWiFiReadThread = class(TThread)
   strict private
     FSocket: TSocket;
@@ -45,76 +44,48 @@ type
     procedure Execute; override;
   public
     /// <summary>Spawns the thread bound to a connected TCP socket.</summary>
-    /// <param name="ASocket">Connected <c>TSocket</c>. Owned by the
-    /// caller.</param>
-    /// <param name="AOnBytes">Callback for inbound bytes. Required.</param>
-    /// <param name="AOnError">Callback for socket errors. Optional.</param>
+    /// <param name="ASocket">Connected <c>TSocket</c>.</param>
+    /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
+    /// <param name="AOnError">Error callback. Optional.</param>
     constructor Create(ASocket: TSocket;
       const AOnBytes: TProc<TBytes>;
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
   /// <summary>TCP transport (Wi-Fi / Ethernet).</summary>
-  TOBDWiFiTransport = class(TInterfacedObject, IOBDConnectionTransport)
+  TOBDWiFiTransport = class(TOBDBaseTransport)
   strict private
-    FLock: TCriticalSection;
     FSocket: TSocket;
-    FState: TOBDConnectionState;
     FReader: TOBDWiFiReadThread;
-    FOnDataReceived: TOBDBytesEvent;
-    FOnStateChanged: TOBDStateEvent;
-    FOnTransportError: TOBDTransportErrorEvent;
-    procedure SetState(ANewState: TOBDConnectionState);
-    procedure HandleBytes(const ABytes: TBytes);
-    procedure HandleError(ACode: TOBDErrorCode; const AMessage: string);
   public
     /// <summary>Constructs an idle TCP transport.</summary>
     constructor Create;
-    /// <summary>Closes the socket if open and releases the lock.</summary>
+    /// <summary>Closes the socket if open.</summary>
     destructor Destroy; override;
 
     /// <summary>
-    ///   Resolves the host, opens a TCP connection to
-    ///   <c>ASettings.Host:ASettings.Port</c>, and starts the read
-    ///   thread.
+    ///   Resolves <c>ASettings.Host</c>, opens a TCP connection,
+    ///   starts the read thread.
     /// </summary>
-    /// <param name="ASettings">Host, port, keep-alive flag, connect
-    /// timeout. <c>Host</c> must be non-empty and <c>Port</c> non-zero.</param>
+    /// <param name="ASettings">Host, port, keep-alive, connect
+    /// timeout.</param>
+    /// <remarks>
+    ///   Synchronous. Fires three step-progress events:
+    ///   <c>1/3 Resolving host</c>, <c>2/3 Connecting</c>,
+    ///   <c>3/3 Ready</c>.
+    /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>,
-    /// <c>Host</c> is empty, or <c>Port</c> is zero.</exception>
-    /// <exception cref="EOBDError">Connect failed (DNS, refused,
-    /// timed out).</exception>
+    /// <c>Host</c> empty, or <c>Port</c> zero.</exception>
+    /// <exception cref="EOBDError">Connect failed.</exception>
     procedure Open(const ASettings: TOBDWiFiSettings);
 
     /// <summary>Closes the socket and joins the read thread.</summary>
-    procedure Close;
-    /// <summary>True when the socket is connected.</summary>
-    /// <returns><c>True</c> if state is <c>csOpen</c>.</returns>
-    function IsOpen: Boolean;
-    /// <summary>Current lifecycle state.</summary>
-    /// <returns>State enum.</returns>
-    function State: TOBDConnectionState;
+    procedure Close; override;
     /// <summary>Sends bytes via <c>TSocket.Send</c>.</summary>
-    /// <param name="ABytes">Bytes to send. Empty returns 0.</param>
+    /// <param name="ABytes">Bytes to send.</param>
     /// <returns>Number of bytes the OS accepted.</returns>
     /// <exception cref="EOBDNotConnected">Socket not open.</exception>
-    function WriteBytes(const ABytes: TBytes): Integer;
-
-    /// <summary>Internal accessor.</summary>
-    function GetOnDataReceived: TOBDBytesEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnDataReceived(const AValue: TOBDBytesEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnStateChanged: TOBDStateEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnStateChanged(const AValue: TOBDStateEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnTransportError: TOBDTransportErrorEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+    function WriteBytes(const ABytes: TBytes): Integer; override;
   end;
 
 implementation
@@ -143,12 +114,9 @@ begin
   while not Terminated do
   begin
     try
-      // ReceiveLength reads up to Length(Buffer) bytes; non-blocking
-      // to allow the Terminated check on socket close.
       Got := FSocket.Receive(Buffer, 0, Length(Buffer), [TSocketFlag.WAITALL]);
       if Got <= 0 then
       begin
-        // Peer closed or socket shut down.
         if not Terminated and Assigned(FOnError) then
           FOnError(oeIO, 'Peer closed connection');
         Break;
@@ -171,56 +139,18 @@ end;
 constructor TOBDWiFiTransport.Create;
 begin
   inherited;
-  FLock := TCriticalSection.Create;
-  FState := csClosed;
 end;
 
 destructor TOBDWiFiTransport.Destroy;
 begin
   Close;
-  FLock.Free;
   inherited;
-end;
-
-procedure TOBDWiFiTransport.SetState(ANewState: TOBDConnectionState);
-var
-  Handler: TOBDStateEvent;
-begin
-  FLock.Enter;
-  try
-    if FState = ANewState then Exit;
-    FState := ANewState;
-    Handler := FOnStateChanged;
-  finally
-    FLock.Leave;
-  end;
-  if Assigned(Handler) then
-    Handler(Self, ANewState);
-end;
-
-procedure TOBDWiFiTransport.HandleBytes(const ABytes: TBytes);
-var
-  Handler: TOBDBytesEvent;
-begin
-  Handler := FOnDataReceived;
-  if Assigned(Handler) then
-    Handler(Self, ABytes);
-end;
-
-procedure TOBDWiFiTransport.HandleError(ACode: TOBDErrorCode;
-  const AMessage: string);
-var
-  Handler: TOBDTransportErrorEvent;
-begin
-  Handler := FOnTransportError;
-  if Assigned(Handler) then
-    Handler(Self, ACode, AMessage);
-  SetState(csError);
 end;
 
 procedure TOBDWiFiTransport.Open(const ASettings: TOBDWiFiSettings);
 var
   Endpoint: TNetEndpoint;
+  ResolvedAddr: TIPAddress;
 begin
   if ASettings = nil then
     raise EOBDConfig.Create('Wi-Fi settings are nil');
@@ -232,8 +162,12 @@ begin
   SetState(csOpening);
   FSocket := TSocket.Create(TSocketType.TCP, TEncoding.ASCII);
   try
-    Endpoint := TNetEndpoint.Create(
-      TIPAddress.LookupName(ASettings.Host), ASettings.Port);
+    FireProgress(1, 3, 'Resolving host', ASettings.Host);
+    ResolvedAddr := TIPAddress.LookupName(ASettings.Host);
+
+    FireProgress(2, 3, 'Connecting',
+      Format('%s:%d', [ASettings.Host, ASettings.Port]));
+    Endpoint := TNetEndpoint.Create(ResolvedAddr, ASettings.Port);
     FSocket.Connect(Endpoint);
     if ASettings.KeepAlive then
       FSocket.SetKeepAlive(True);
@@ -248,9 +182,10 @@ begin
   end;
 
   FReader := TOBDWiFiReadThread.Create(FSocket,
-    procedure(const Bytes: TBytes) begin HandleBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; const Msg: string) begin HandleError(Code, Msg); end);
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
 
+  FireProgress(3, 3, 'Ready', '');
   SetState(csOpen);
 end;
 
@@ -283,21 +218,6 @@ begin
   SetState(csClosed);
 end;
 
-function TOBDWiFiTransport.IsOpen: Boolean;
-begin
-  Result := State = csOpen;
-end;
-
-function TOBDWiFiTransport.State: TOBDConnectionState;
-begin
-  FLock.Enter;
-  try
-    Result := FState;
-  finally
-    FLock.Leave;
-  end;
-end;
-
 function TOBDWiFiTransport.WriteBytes(const ABytes: TBytes): Integer;
 begin
   if not IsOpen then
@@ -309,24 +229,10 @@ begin
   except
     on E: Exception do
     begin
-      HandleError(oeIO, E.Message);
+      FireError(oeIO, E.Message);
       Result := 0;
     end;
   end;
 end;
-
-function TOBDWiFiTransport.GetOnDataReceived: TOBDBytesEvent;
-begin Result := FOnDataReceived; end;
-procedure TOBDWiFiTransport.SetOnDataReceived(const AValue: TOBDBytesEvent);
-begin FOnDataReceived := AValue; end;
-function TOBDWiFiTransport.GetOnStateChanged: TOBDStateEvent;
-begin Result := FOnStateChanged; end;
-procedure TOBDWiFiTransport.SetOnStateChanged(const AValue: TOBDStateEvent);
-begin FOnStateChanged := AValue; end;
-function TOBDWiFiTransport.GetOnTransportError: TOBDTransportErrorEvent;
-begin Result := FOnTransportError; end;
-procedure TOBDWiFiTransport.SetOnTransportError(
-  const AValue: TOBDTransportErrorEvent);
-begin FOnTransportError := AValue; end;
 
 end.

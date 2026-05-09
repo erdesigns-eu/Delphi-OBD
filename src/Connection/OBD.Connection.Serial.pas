@@ -12,7 +12,7 @@
 //  later without changing the public API.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  References  :
@@ -21,6 +21,8 @@
 //
 //  History     :
 //    2026-05-09  ERD  Phase 2 initial Win32 implementation.
+//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
 //
 //  Future work :
 //    - POSIX backend (Linux / macOS) using termios.
@@ -43,7 +45,8 @@ uses
   System.SyncObjs,
   OBD.Types,
   OBD.Connection.Types,
-  OBD.Connection.Settings;
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
 type
   /// <summary>
@@ -53,8 +56,6 @@ type
   /// <remarks>
   ///   Lifetime is owned by the parent transport. Terminated and
   ///   joined inside <see cref="TOBDSerialTransport.Close"/>.
-  ///   <c>FreeOnTerminate</c> is forced False so the parent can wait
-  ///   on the join cleanly.
   /// </remarks>
   TOBDSerialReadThread = class(TThread)
   strict private
@@ -78,74 +79,41 @@ type
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
-  /// <summary>
-  ///   Win32 serial-port transport.
-  /// </summary>
-  TOBDSerialTransport = class(TInterfacedObject, IOBDConnectionTransport)
+  /// <summary>Win32 serial-port transport.</summary>
+  TOBDSerialTransport = class(TOBDBaseTransport)
   strict private
-    FLock: TCriticalSection;
     FHandle: THandle;
-    FState: TOBDConnectionState;
     FReader: TOBDSerialReadThread;
-    FOnDataReceived: TOBDBytesEvent;
-    FOnStateChanged: TOBDStateEvent;
-    FOnTransportError: TOBDTransportErrorEvent;
-    procedure SetState(ANewState: TOBDConnectionState);
-    procedure HandleBytes(const ABytes: TBytes);
-    procedure HandleError(ACode: TOBDErrorCode; const AMessage: string);
     procedure ApplySettings(const ASettings: TOBDSerialSettings);
   public
     /// <summary>Constructs an idle serial transport.</summary>
     constructor Create;
-    /// <summary>Closes the port (if open) and releases the lock.</summary>
+    /// <summary>Closes the port if open.</summary>
     destructor Destroy; override;
 
     /// <summary>
     ///   Opens the configured COM port and starts the read thread.
     /// </summary>
-    /// <param name="ASettings">Port name, baud rate, framing and
-    /// timeouts. Must not be <c>nil</c>; <c>Port</c> must be non-empty.</param>
+    /// <param name="ASettings">Port name, baud rate, framing,
+    /// timeouts. <c>Port</c> must be non-empty.</param>
     /// <remarks>
-    ///   Synchronous — returns once the port is open and the read
-    ///   thread is running. Use <see cref="TOBDConnection.RetryPolicy"/>
-    ///   for transient-failure retry.
+    ///   Synchronous. Fires three step-progress events:
+    ///   <c>1/3 Opening port</c>, <c>2/3 Configuring</c>,
+    ///   <c>3/3 Ready</c>.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c> or
     /// <c>Port</c> is empty.</exception>
     /// <exception cref="EOBDError"><c>CreateFile</c> /
-    /// <c>SetCommState</c> / <c>SetCommTimeouts</c> failed; the
-    /// underlying Win32 error is included in the message.</exception>
+    /// <c>SetCommState</c> / <c>SetCommTimeouts</c> failed.</exception>
     procedure Open(const ASettings: TOBDSerialSettings);
 
     /// <summary>Closes the port and joins the read thread.</summary>
-    procedure Close;
-    /// <summary>True when the port is open and ready for I/O.</summary>
-    /// <returns><c>True</c> if state is <c>csOpen</c>.</returns>
-    function IsOpen: Boolean;
-    /// <summary>Current lifecycle state.</summary>
-    /// <returns>State enum.</returns>
-    function State: TOBDConnectionState;
+    procedure Close; override;
     /// <summary>Writes bytes through <c>WriteFile</c>.</summary>
-    /// <param name="ABytes">Bytes to send. Empty returns 0.</param>
+    /// <param name="ABytes">Bytes to send.</param>
     /// <returns>Number of bytes accepted by the OS.</returns>
     /// <exception cref="EOBDNotConnected">Port is not open.</exception>
-    function WriteBytes(const ABytes: TBytes): Integer;
-
-    /// <summary>Internal accessor.</summary>
-    function GetOnDataReceived: TOBDBytesEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnDataReceived(const AValue: TOBDBytesEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnStateChanged: TOBDStateEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnStateChanged(const AValue: TOBDStateEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnTransportError: TOBDTransportErrorEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+    function WriteBytes(const ABytes: TBytes): Integer; override;
   end;
 
 implementation
@@ -214,7 +182,6 @@ begin
     if not ReadFile(FHandle, Buf, ChunkSize, Read, nil) then
     begin
       ErrCode := GetLastError;
-      // ERROR_OPERATION_ABORTED happens when the handle is closed; treat as EOL.
       if (ErrCode = ERROR_OPERATION_ABORTED) or
          (ErrCode = ERROR_INVALID_HANDLE) then
         Break;
@@ -229,8 +196,6 @@ begin
       if Assigned(FOnBytes) then
         FOnBytes(Slice);
     end;
-    // ReadFile with COMMTIMEOUTS will return 0 bytes when the read
-    // interval expires; loop again and check Terminated.
   end;
 end;
 
@@ -239,52 +204,13 @@ end;
 constructor TOBDSerialTransport.Create;
 begin
   inherited;
-  FLock := TCriticalSection.Create;
   FHandle := INVALID_HANDLE_VALUE;
-  FState := csClosed;
 end;
 
 destructor TOBDSerialTransport.Destroy;
 begin
   Close;
-  FLock.Free;
   inherited;
-end;
-
-procedure TOBDSerialTransport.SetState(ANewState: TOBDConnectionState);
-var
-  Handler: TOBDStateEvent;
-begin
-  FLock.Enter;
-  try
-    if FState = ANewState then Exit;
-    FState := ANewState;
-    Handler := FOnStateChanged;
-  finally
-    FLock.Leave;
-  end;
-  if Assigned(Handler) then
-    Handler(Self, ANewState);
-end;
-
-procedure TOBDSerialTransport.HandleBytes(const ABytes: TBytes);
-var
-  Handler: TOBDBytesEvent;
-begin
-  Handler := FOnDataReceived;
-  if Assigned(Handler) then
-    Handler(Self, ABytes);
-end;
-
-procedure TOBDSerialTransport.HandleError(ACode: TOBDErrorCode;
-  const AMessage: string);
-var
-  Handler: TOBDTransportErrorEvent;
-begin
-  Handler := FOnTransportError;
-  if Assigned(Handler) then
-    Handler(Self, ACode, AMessage);
-  SetState(csError);
 end;
 
 procedure TOBDSerialTransport.ApplySettings(
@@ -303,7 +229,6 @@ begin
   DCB.Parity   := ParityToWin(ASettings.Parity);
   DCB.StopBits := StopBitsToWin(ASettings.StopBits);
 
-  // Reset all flag bits we manage so each Open is deterministic.
   DCB.Flags := 0;
   DCB.Flags := DCB.Flags or $00000001;          // fBinary
   if ASettings.FlowControl = fcHardware then
@@ -340,6 +265,8 @@ begin
     raise EOBDConfig.Create('Serial port name is empty');
 
   SetState(csOpening);
+
+  FireProgress(1, 3, 'Opening port', ASettings.Port);
   Path := PortPath(ASettings.Port);
   FHandle := CreateFile(PChar(Path), GENERIC_READ or GENERIC_WRITE, 0, nil,
     OPEN_EXISTING, 0, 0);
@@ -350,6 +277,7 @@ begin
       [Path, SysErrorMessage(GetLastError)]);
   end;
 
+  FireProgress(2, 3, 'Configuring', '');
   try
     ApplySettings(ASettings);
   except
@@ -362,13 +290,14 @@ begin
   FReader := TOBDSerialReadThread.Create(FHandle,
     procedure(const Bytes: TBytes)
     begin
-      HandleBytes(Bytes);
+      FireBytes(Bytes);
     end,
     procedure(Code: TOBDErrorCode; const Msg: string)
     begin
-      HandleError(Code, Msg);
+      FireError(Code, Msg);
     end);
 
+  FireProgress(3, 3, 'Ready', '');
   SetState(csOpen);
 end;
 
@@ -401,21 +330,6 @@ begin
   SetState(csClosed);
 end;
 
-function TOBDSerialTransport.IsOpen: Boolean;
-begin
-  Result := State = csOpen;
-end;
-
-function TOBDSerialTransport.State: TOBDConnectionState;
-begin
-  FLock.Enter;
-  try
-    Result := FState;
-  finally
-    FLock.Leave;
-  end;
-end;
-
 function TOBDSerialTransport.WriteBytes(const ABytes: TBytes): Integer;
 var
   Written: DWORD;
@@ -426,41 +340,10 @@ begin
     Exit(0);
   if not WriteFile(FHandle, ABytes[0], Length(ABytes), Written, nil) then
   begin
-    HandleError(oeIO, SysErrorMessage(GetLastError));
+    FireError(oeIO, SysErrorMessage(GetLastError));
     Exit(0);
   end;
   Result := Integer(Written);
-end;
-
-function TOBDSerialTransport.GetOnDataReceived: TOBDBytesEvent;
-begin
-  Result := FOnDataReceived;
-end;
-
-procedure TOBDSerialTransport.SetOnDataReceived(const AValue: TOBDBytesEvent);
-begin
-  FOnDataReceived := AValue;
-end;
-
-function TOBDSerialTransport.GetOnStateChanged: TOBDStateEvent;
-begin
-  Result := FOnStateChanged;
-end;
-
-procedure TOBDSerialTransport.SetOnStateChanged(const AValue: TOBDStateEvent);
-begin
-  FOnStateChanged := AValue;
-end;
-
-function TOBDSerialTransport.GetOnTransportError: TOBDTransportErrorEvent;
-begin
-  Result := FOnTransportError;
-end;
-
-procedure TOBDSerialTransport.SetOnTransportError(
-  const AValue: TOBDTransportErrorEvent);
-begin
-  FOnTransportError := AValue;
 end;
 
 end.

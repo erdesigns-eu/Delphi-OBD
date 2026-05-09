@@ -83,6 +83,7 @@ type
     FOnDisconnect: TNotifyEvent;
     FOnDataReceived: TOBDBytesEvent;
     FOnStateChanged: TOBDStateEvent;
+    FOnProgress: TOBDProgressEvent;
     FOnError: TOBDConnectionErrorEvent;
 
     procedure SetActive(AValue: Boolean);
@@ -108,6 +109,8 @@ type
       NewState: TOBDConnectionState);
     procedure HandleTransportError(Sender: TObject; ACode: TOBDErrorCode;
       const AMessage: string);
+    procedure HandleTransportProgress(Sender: TObject;
+      const AStep: TOBDProgressStep);
   public
     /// <summary>Allocates default sub-objects and initialises the
     /// component.</summary>
@@ -245,6 +248,25 @@ type
     /// <summary>Fires on every state transition (main thread).</summary>
     property OnStateChanged: TOBDStateEvent read FOnStateChanged
       write FOnStateChanged;
+    /// <summary>
+    ///   Fires as a long-running operation progresses (main thread).
+    /// </summary>
+    /// <remarks>
+    ///   Step-style snapshots are fired by each transport at named
+    ///   phase boundaries during <c>Open</c> / <c>OpenAsync</c>:
+    ///   <list type="table">
+    ///     <listheader><term>Transport</term><description>Phases</description></listheader>
+    ///     <item><term>Serial</term><description>1/3 Opening port → 2/3 Configuring → 3/3 Ready</description></item>
+    ///     <item><term>Wi-Fi</term><description>1/3 Resolving host → 2/3 Connecting → 3/3 Ready</description></item>
+    ///     <item><term>UDP</term><description>1/2 Binding → 2/2 Ready</description></item>
+    ///     <item><term>Bluetooth</term><description>1/5 Adapter check → 2/5 Locating device → 3/5 Creating socket → 4/5 Connecting → 5/5 Ready</description></item>
+    ///     <item><term>BLE</term><description>1/6 Adapter check → 2/6 Locating device → 3/6 Connecting → 4/6 Discovering service → 5/6 Subscribing notifications → 6/6 Ready</description></item>
+    ///     <item><term>FTDI</term><description>1/4 Loading D2XX → 2/4 Opening device → 3/4 Configuring → 4/4 Ready</description></item>
+    ///   </list>
+    ///   Bind a progress bar to <c>AStep.Percent</c>; bind a label to
+    ///   <c>AStep.Name</c> / <c>AStep.Detail</c>.
+    /// </remarks>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Fires on transient I/O errors.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
@@ -335,83 +357,52 @@ var
   Attempt: Cardinal;
   Delay: Cardinal;
   LastError: Exception;
-{$IFDEF MSWINDOWS}
-  SerialT: TOBDSerialTransport;
-  FTDIT: TOBDFTDITransport;
-{$ENDIF}
-  WiFiT: TOBDWiFiTransport;
-  UDPT: TOBDUDPTransport;
-  BTT: TOBDBluetoothTransport;
-  BLET: TOBDBLETransport;
 begin
   Attempt := 0;
   LastError := nil;
   repeat
     Inc(Attempt);
     try
+      // Step 1: instantiate the transport per Transport enum.
       case FTransport of
 {$IFDEF MSWINDOWS}
-        otSerial:
-          begin
-            SerialT := TOBDSerialTransport.Create;
-            FTransportImpl := SerialT;
-            SerialT.OnDataReceived := HandleTransportBytes;
-            SerialT.OnStateChanged := HandleTransportState;
-            SerialT.OnTransportError := HandleTransportError;
-            SerialT.Open(FSerialSettings);
-          end;
-        otFTDI:
-          begin
-            FTDIT := TOBDFTDITransport.Create;
-            FTransportImpl := FTDIT;
-            FTDIT.OnDataReceived := HandleTransportBytes;
-            FTDIT.OnStateChanged := HandleTransportState;
-            FTDIT.OnTransportError := HandleTransportError;
-            FTDIT.Open(FFTDISettings);
-          end;
+        otSerial:    FTransportImpl := TOBDSerialTransport.Create;
+        otFTDI:      FTransportImpl := TOBDFTDITransport.Create;
 {$ELSE}
         otSerial, otFTDI:
           raise EOBDUnsupported.Create(
             'Serial / FTDI transports are Windows-only in v1');
 {$ENDIF}
-        otBluetooth:
-          begin
-            BTT := TOBDBluetoothTransport.Create;
-            FTransportImpl := BTT;
-            BTT.OnDataReceived := HandleTransportBytes;
-            BTT.OnStateChanged := HandleTransportState;
-            BTT.OnTransportError := HandleTransportError;
-            BTT.Open(FBluetoothSettings);
-          end;
-        otBLE:
-          begin
-            BLET := TOBDBLETransport.Create;
-            FTransportImpl := BLET;
-            BLET.OnDataReceived := HandleTransportBytes;
-            BLET.OnStateChanged := HandleTransportState;
-            BLET.OnTransportError := HandleTransportError;
-            BLET.Open(FBLESettings);
-          end;
-        otWiFi:
-          begin
-            WiFiT := TOBDWiFiTransport.Create;
-            FTransportImpl := WiFiT;
-            WiFiT.OnDataReceived := HandleTransportBytes;
-            WiFiT.OnStateChanged := HandleTransportState;
-            WiFiT.OnTransportError := HandleTransportError;
-            WiFiT.Open(FWiFiSettings);
-          end;
-        otUDP:
-          begin
-            UDPT := TOBDUDPTransport.Create;
-            FTransportImpl := UDPT;
-            UDPT.OnDataReceived := HandleTransportBytes;
-            UDPT.OnStateChanged := HandleTransportState;
-            UDPT.OnTransportError := HandleTransportError;
-            UDPT.Open(FUDPSettings);
-          end;
+        otBluetooth: FTransportImpl := TOBDBluetoothTransport.Create;
+        otBLE:       FTransportImpl := TOBDBLETransport.Create;
+        otWiFi:      FTransportImpl := TOBDWiFiTransport.Create;
+        otUDP:       FTransportImpl := TOBDUDPTransport.Create;
       else
         raise EOBDConfig.CreateFmt('Unknown transport %d', [Ord(FTransport)]);
+      end;
+
+      // Step 2: wire the four callbacks via the interface (uniform).
+      FTransportImpl.OnDataReceived   := HandleTransportBytes;
+      FTransportImpl.OnStateChanged   := HandleTransportState;
+      FTransportImpl.OnTransportError := HandleTransportError;
+      FTransportImpl.OnProgress       := HandleTransportProgress;
+
+      // Step 3: open the transport with the matching settings sub-object.
+      case FTransport of
+{$IFDEF MSWINDOWS}
+        otSerial:
+          (FTransportImpl as TOBDSerialTransport).Open(FSerialSettings);
+        otFTDI:
+          (FTransportImpl as TOBDFTDITransport).Open(FFTDISettings);
+{$ENDIF}
+        otBluetooth:
+          (FTransportImpl as TOBDBluetoothTransport).Open(FBluetoothSettings);
+        otBLE:
+          (FTransportImpl as TOBDBLETransport).Open(FBLESettings);
+        otWiFi:
+          (FTransportImpl as TOBDWiFiTransport).Open(FWiFiSettings);
+        otUDP:
+          (FTransportImpl as TOBDUDPTransport).Open(FUDPSettings);
       end;
 
       // Success
@@ -740,6 +731,26 @@ begin
         Handled := False;
         if Assigned(FOnError) then
           FOnError(Self, Code, Msg, Handled);
+      end);
+end;
+
+procedure TOBDConnection.HandleTransportProgress(Sender: TObject;
+  const AStep: TOBDProgressStep);
+var
+  Snapshot: TOBDProgressStep;
+begin
+  Snapshot := AStep;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnProgress) then
+      FOnProgress(Self, Snapshot);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnProgress) then
+          FOnProgress(Self, Snapshot);
       end);
 end;
 

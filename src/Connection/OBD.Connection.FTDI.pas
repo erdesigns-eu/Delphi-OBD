@@ -8,11 +8,10 @@
 //
 //  D2XX is dynamically loaded; the package does not link against
 //  ftd2xx.dll at build time. If the DLL is missing, Open raises with a
-//  clear message instead of failing at module-load time. This means
-//  applications that don't use FTDI never need the DLL.
+//  clear message instead of failing at module-load time.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  References  :
@@ -20,9 +19,13 @@
 //
 //  History     :
 //    2026-05-09  ERD  Phase 2 initial.
+//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
 //
 //  Future work :
 //    - 64-bit FTDI EEPROM reading helper (Phase 3 detection)
+//    - FT_SetEventNotification to replace the 2 ms idle in the read
+//      loop.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.FTDI;
@@ -40,14 +43,13 @@ uses
   System.SyncObjs,
   OBD.Types,
   OBD.Connection.Types,
-  OBD.Connection.Settings;
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
 type
   TOBDFTDITransport = class;
 
   /// <summary>FTDI D2XX read loop.</summary>
-  /// <remarks>Owned by the parent transport; pulls bytes via
-  /// <c>FT_Read</c>.</remarks>
   TOBDFTDIReadThread = class(TThread)
   strict private
     FOwner: TOBDFTDITransport;
@@ -67,75 +69,44 @@ type
   end;
 
   /// <summary>FTDI D2XX direct transport.</summary>
-  TOBDFTDITransport = class(TInterfacedObject, IOBDConnectionTransport)
+  TOBDFTDITransport = class(TOBDBaseTransport)
   strict private
-    FLock: TCriticalSection;
-    FHandle: Pointer;          // FT_HANDLE
-    FState: TOBDConnectionState;
+    FHandle: Pointer;
     FReader: TOBDFTDIReadThread;
-    FOnDataReceived: TOBDBytesEvent;
-    FOnStateChanged: TOBDStateEvent;
-    FOnTransportError: TOBDTransportErrorEvent;
-    procedure SetState(ANewState: TOBDConnectionState);
-    procedure HandleBytes(const ABytes: TBytes);
-    procedure HandleError(ACode: TOBDErrorCode; const AMessage: string);
     function GetHandle: Pointer;
   public
     /// <summary>Constructs an idle FTDI transport.</summary>
     constructor Create;
-    /// <summary>Closes the device if open and releases the lock.</summary>
+    /// <summary>Closes the device if open.</summary>
     destructor Destroy; override;
 
     /// <summary>
     ///   Opens the configured FTDI device. Selection precedence:
     ///   <c>SerialNumber</c> > <c>Description</c> > <c>DeviceIndex</c>.
-    ///   Sets baud, framing, timeouts and latency timer; flushes both
-    ///   buffers; starts the read thread.
     /// </summary>
     /// <param name="ASettings">FTDI matcher and tuneables.</param>
     /// <remarks>
-    ///   <c>ftd2xx.dll</c> is loaded lazily on first use; if the DLL
-    ///   is missing, <c>EOBDError</c> is raised with a clear message
-    ///   instead of failing at module-load time.
+    ///   Synchronous. Fires four step-progress events:
+    ///   <c>1/4 Loading D2XX</c>, <c>2/4 Opening device</c>,
+    ///   <c>3/4 Configuring</c>, <c>4/4 Ready</c>. <c>ftd2xx.dll</c>
+    ///   is loaded lazily on first use; missing DLL raises with a
+    ///   clear message.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>.</exception>
-    /// <exception cref="EOBDError">D2XX DLL missing, device not found,
-    /// or any FT_* call returned non-zero.</exception>
+    /// <exception cref="EOBDError">D2XX DLL missing, device not
+    /// found, or any FT_* call returned non-zero.</exception>
     procedure Open(const ASettings: TOBDFTDISettings);
 
     /// <summary>Closes the device and joins the read thread.</summary>
-    procedure Close;
-    /// <summary>True when the device is open.</summary>
-    /// <returns><c>True</c> if state is <c>csOpen</c>.</returns>
-    function IsOpen: Boolean;
-    /// <summary>Current lifecycle state.</summary>
-    /// <returns>State enum.</returns>
-    function State: TOBDConnectionState;
+    procedure Close; override;
     /// <summary>Writes bytes via <c>FT_Write</c>.</summary>
-    /// <param name="ABytes">Bytes to send. Empty returns 0.</param>
+    /// <param name="ABytes">Bytes to send.</param>
     /// <returns>Number of bytes the driver accepted.</returns>
     /// <exception cref="EOBDNotConnected">Device not open.</exception>
-    function WriteBytes(const ABytes: TBytes): Integer;
-
-    /// <summary>Internal accessor.</summary>
-    function GetOnDataReceived: TOBDBytesEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnDataReceived(const AValue: TOBDBytesEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnStateChanged: TOBDStateEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnStateChanged(const AValue: TOBDStateEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnTransportError: TOBDTransportErrorEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+    function WriteBytes(const ABytes: TBytes): Integer; override;
 
     /// <summary>Internal: <c>FT_HANDLE</c> the read thread reads
     /// from.</summary>
-    /// <returns>Opaque handle. <c>nil</c> when closed.</returns>
     property Handle: Pointer read GetHandle;
   end;
 
@@ -201,7 +172,7 @@ begin
   NeedProc(FT_Read_F,           'FT_Read');
   NeedProc(FT_Write_F,          'FT_Write');
   NeedProc(FT_SetBaudRate_F,    'FT_SetBaudRate');
-  NeedProc(FT_SetDataChars_F,   'FT_SetDataChars');
+  NeedProc(FT_SetDataChars_F,   'FT_SetDataCharacteristics');
   NeedProc(FT_SetTimeouts_F,    'FT_SetTimeouts');
   NeedProc(FT_SetLatency_F,     'FT_SetLatencyTimer');
   NeedProc(FT_Purge_F,          'FT_Purge');
@@ -212,7 +183,7 @@ function StopBitsToFTDI(AValue: TOBDStopBits): Byte;
 begin
   case AValue of
     sb1:  Result := 0;
-    sb1_5: Result := 1; // not standardised on FTDI but tolerated
+    sb1_5: Result := 1;
     sb2:  Result := 2;
   else
     Result := 0;
@@ -284,51 +255,12 @@ end;
 constructor TOBDFTDITransport.Create;
 begin
   inherited;
-  FLock := TCriticalSection.Create;
-  FState := csClosed;
 end;
 
 destructor TOBDFTDITransport.Destroy;
 begin
   Close;
-  FLock.Free;
   inherited;
-end;
-
-procedure TOBDFTDITransport.SetState(ANewState: TOBDConnectionState);
-var
-  Handler: TOBDStateEvent;
-begin
-  FLock.Enter;
-  try
-    if FState = ANewState then Exit;
-    FState := ANewState;
-    Handler := FOnStateChanged;
-  finally
-    FLock.Leave;
-  end;
-  if Assigned(Handler) then
-    Handler(Self, ANewState);
-end;
-
-procedure TOBDFTDITransport.HandleBytes(const ABytes: TBytes);
-var
-  Handler: TOBDBytesEvent;
-begin
-  Handler := FOnDataReceived;
-  if Assigned(Handler) then
-    Handler(Self, ABytes);
-end;
-
-procedure TOBDFTDITransport.HandleError(ACode: TOBDErrorCode;
-  const AMessage: string);
-var
-  Handler: TOBDTransportErrorEvent;
-begin
-  Handler := FOnTransportError;
-  if Assigned(Handler) then
-    Handler(Self, ACode, AMessage);
-  SetState(csError);
 end;
 
 function TOBDFTDITransport.GetHandle: Pointer;
@@ -340,13 +272,24 @@ procedure TOBDFTDITransport.Open(const ASettings: TOBDFTDISettings);
 var
   Status: FT_STATUS;
   Tmp: AnsiString;
+  Detail: string;
 begin
   if ASettings = nil then
     raise EOBDConfig.Create('FTDI settings are nil');
 
-  EnsureD2XX;
   SetState(csOpening);
   try
+    FireProgress(1, 4, 'Loading D2XX', '');
+    EnsureD2XX;
+
+    if Trim(ASettings.SerialNumber) <> '' then
+      Detail := 'serial=' + ASettings.SerialNumber
+    else if Trim(ASettings.Description) <> '' then
+      Detail := 'description=' + ASettings.Description
+    else
+      Detail := Format('index=%d', [ASettings.DeviceIndex]);
+    FireProgress(2, 4, 'Opening device', Detail);
+
     if Trim(ASettings.SerialNumber) <> '' then
     begin
       Tmp := AnsiString(ASettings.SerialNumber);
@@ -367,20 +310,19 @@ begin
     if Status <> FT_OK then
       raise EOBDError.CreateFmt('FT_Open failed (status %d)', [Status]);
 
+    FireProgress(3, 4, 'Configuring',
+      Format('%d baud', [OBDBaudRateValue(ASettings.BaudRate)]));
     Status := FT_SetBaudRate_F(FHandle, OBDBaudRateValue(ASettings.BaudRate));
     if Status <> FT_OK then
       raise EOBDError.CreateFmt('FT_SetBaudRate failed (status %d)', [Status]);
-
     Status := FT_SetDataChars_F(FHandle, 8,
       StopBitsToFTDI(sb1), ParityToFTDI(paNone));
     if Status <> FT_OK then
       raise EOBDError.CreateFmt('FT_SetDataCharacteristics failed (status %d)', [Status]);
-
     Status := FT_SetTimeouts_F(FHandle,
       ASettings.ReadTimeout, ASettings.WriteTimeout);
     if Status <> FT_OK then
       raise EOBDError.CreateFmt('FT_SetTimeouts failed (status %d)', [Status]);
-
     Status := FT_SetLatency_F(FHandle, ASettings.LatencyTimer);
     if Status <> FT_OK then
       raise EOBDError.CreateFmt('FT_SetLatencyTimer failed (status %d)', [Status]);
@@ -400,9 +342,10 @@ begin
   end;
 
   FReader := TOBDFTDIReadThread.Create(Self,
-    procedure(const Bytes: TBytes) begin HandleBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; const Msg: string) begin HandleError(Code, Msg); end);
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
 
+  FireProgress(4, 4, 'Ready', '');
   SetState(csOpen);
 end;
 
@@ -433,21 +376,6 @@ begin
   SetState(csClosed);
 end;
 
-function TOBDFTDITransport.IsOpen: Boolean;
-begin
-  Result := State = csOpen;
-end;
-
-function TOBDFTDITransport.State: TOBDConnectionState;
-begin
-  FLock.Enter;
-  try
-    Result := FState;
-  finally
-    FLock.Leave;
-  end;
-end;
-
 function TOBDFTDITransport.WriteBytes(const ABytes: TBytes): Integer;
 var
   Status: FT_STATUS;
@@ -461,25 +389,11 @@ begin
   Status := FT_Write_F(FHandle, @ABytes[0], Length(ABytes), Written);
   if Status <> FT_OK then
   begin
-    HandleError(oeIO, Format('FT_Write failed (status %d)', [Status]));
+    FireError(oeIO, Format('FT_Write failed (status %d)', [Status]));
     Exit(0);
   end;
   Result := Integer(Written);
 end;
-
-function TOBDFTDITransport.GetOnDataReceived: TOBDBytesEvent;
-begin Result := FOnDataReceived; end;
-procedure TOBDFTDITransport.SetOnDataReceived(const AValue: TOBDBytesEvent);
-begin FOnDataReceived := AValue; end;
-function TOBDFTDITransport.GetOnStateChanged: TOBDStateEvent;
-begin Result := FOnStateChanged; end;
-procedure TOBDFTDITransport.SetOnStateChanged(const AValue: TOBDStateEvent);
-begin FOnStateChanged := AValue; end;
-function TOBDFTDITransport.GetOnTransportError: TOBDTransportErrorEvent;
-begin Result := FOnTransportError; end;
-procedure TOBDFTDITransport.SetOnTransportError(
-  const AValue: TOBDTransportErrorEvent);
-begin FOnTransportError := AValue; end;
 
 initialization
 

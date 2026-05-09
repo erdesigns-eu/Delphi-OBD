@@ -149,6 +149,84 @@ type
     ACode: TOBDErrorCode; const AMessage: string) of object;
 
   /// <summary>
+  ///   Snapshot of progress through a long-running operation.
+  /// </summary>
+  /// <remarks>
+  ///   Carries both step-style progress (<c>Index</c> /
+  ///   <c>Count</c> / <c>Name</c> / <c>Detail</c>) for sequential
+  ///   phases (open Bluetooth, locate device, connect socket, …) and
+  ///   transfer-style progress (<c>BytesDone</c> /
+  ///   <c>BytesTotal</c>) for byte-counted operations (flash, upload,
+  ///   download).
+  ///
+  ///   A single firing typically populates one shape or the other;
+  ///   call <see cref="Percent"/> for a unified 0..1 ratio that
+  ///   prefers byte counts when present and falls back to step counts.
+  ///
+  ///   <c>Count</c> or <c>BytesTotal</c> may be <c>0</c> to indicate
+  ///   the total is unknown; consumers should render an indeterminate
+  ///   bar / spinner in that case.
+  /// </remarks>
+  TOBDProgressStep = record
+    /// <summary>1-based step index. <c>0</c> when only byte progress
+    /// is being reported.</summary>
+    Index: Cardinal;
+    /// <summary>Total expected step count. <c>0</c> when unknown.</summary>
+    Count: Cardinal;
+    /// <summary>Human-readable phase name (e.g. <c>'Resolving DNS'</c>,
+    /// <c>'Subscribing to notifications'</c>).</summary>
+    Name: string;
+    /// <summary>Optional sub-detail (e.g. the host being resolved, the
+    /// device address being dialled). May be empty.</summary>
+    Detail: string;
+    /// <summary>Bytes transferred so far. <c>0</c> for non-transfer
+    /// progress.</summary>
+    BytesDone: Int64;
+    /// <summary>Total bytes to transfer. <c>0</c> when unknown or not
+    /// applicable.</summary>
+    BytesTotal: Int64;
+
+    /// <summary>Computes a 0..1 ratio. Prefers
+    /// <c>BytesDone / BytesTotal</c> when both are non-zero; falls
+    /// back to <c>Index / Count</c> when no byte counts are
+    /// available; returns 0 when both are unknown.</summary>
+    function Percent: Double;
+    /// <summary>Convenience constructor for a step-style progress
+    /// snapshot.</summary>
+    /// <param name="AIndex">1-based step index.</param>
+    /// <param name="ACount">Total expected steps; pass <c>0</c> if
+    /// unknown.</param>
+    /// <param name="AName">Human-readable phase name.</param>
+    /// <param name="ADetail">Optional sub-detail.</param>
+    /// <returns>Initialised record.</returns>
+    class function MakeStep(AIndex, ACount: Cardinal;
+      const AName, ADetail: string): TOBDProgressStep; static;
+    /// <summary>Convenience constructor for a transfer-style progress
+    /// snapshot.</summary>
+    /// <param name="ABytesDone">Bytes transferred so far.</param>
+    /// <param name="ABytesTotal">Total bytes to transfer; <c>0</c> if
+    /// unknown.</param>
+    /// <param name="AName">Human-readable phase name.</param>
+    /// <returns>Initialised record.</returns>
+    class function MakeBytes(ABytesDone, ABytesTotal: Int64;
+      const AName: string): TOBDProgressStep; static;
+  end;
+
+  /// <summary>
+  ///   Event raised as a long-running operation progresses.
+  /// </summary>
+  /// <param name="Sender">Source component / transport.</param>
+  /// <param name="AStep">Snapshot of current progress.</param>
+  /// <remarks>
+  ///   On <c>TOBDConnection</c> and downstream components, fires on
+  ///   the main thread. On <c>IOBDConnectionTransport</c> directly,
+  ///   fires on the transport's worker thread; consumers normally
+  ///   subscribe at the component level instead.
+  /// </remarks>
+  TOBDProgressEvent = procedure(Sender: TObject;
+    const AStep: TOBDProgressStep) of object;
+
+  /// <summary>
   ///   Settings root for a transport. Concrete subclasses
   ///   (<c>TOBDSerialSettings</c>, <c>TOBDWiFiSettings</c>, …) live in
   ///   <c>OBD.Connection.Settings</c>; this base just provides a uniform
@@ -232,6 +310,11 @@ type
     /// <summary>Internal mutator for <c>OnTransportError</c>.</summary>
     /// <param name="AValue">New handler. <c>nil</c> clears the event.</param>
     procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+    /// <summary>Internal accessor for <c>OnProgress</c>.</summary>
+    function GetOnProgress: TOBDProgressEvent;
+    /// <summary>Internal mutator for <c>OnProgress</c>.</summary>
+    /// <param name="AValue">New handler. <c>nil</c> clears the event.</param>
+    procedure SetOnProgress(const AValue: TOBDProgressEvent);
 
     /// <summary>
     ///   Fires when bytes arrive from the wire.
@@ -263,6 +346,17 @@ type
     /// </remarks>
     property OnTransportError: TOBDTransportErrorEvent
       read GetOnTransportError write SetOnTransportError;
+
+    /// <summary>
+    ///   Fires as a long-running operation progresses.
+    /// </summary>
+    /// <remarks>
+    ///   Fires on the transport's worker thread. The TOBDConnection
+    ///   component re-fires its own <c>OnProgress</c> on the main
+    ///   thread; consumers normally subscribe there.
+    /// </remarks>
+    property OnProgress: TOBDProgressEvent
+      read GetOnProgress write SetOnProgress;
   end;
 
 /// <summary>
@@ -278,6 +372,47 @@ implementation
 function OBDBaudRateValue(ABaud: TOBDBaudRate): Cardinal;
 begin
   Result := Cardinal(ABaud);
+end;
+
+{ ---- TOBDProgressStep -------------------------------------------------------- }
+
+function TOBDProgressStep.Percent: Double;
+begin
+  if (BytesTotal > 0) and (BytesDone >= 0) then
+  begin
+    if BytesDone >= BytesTotal then
+      Exit(1.0);
+    Exit(BytesDone / BytesTotal);
+  end;
+  if (Count > 0) and (Index > 0) then
+  begin
+    if Index >= Count then
+      Exit(1.0);
+    Exit(Index / Count);
+  end;
+  Result := 0;
+end;
+
+class function TOBDProgressStep.MakeStep(AIndex, ACount: Cardinal;
+  const AName, ADetail: string): TOBDProgressStep;
+begin
+  Result.Index := AIndex;
+  Result.Count := ACount;
+  Result.Name := AName;
+  Result.Detail := ADetail;
+  Result.BytesDone := 0;
+  Result.BytesTotal := 0;
+end;
+
+class function TOBDProgressStep.MakeBytes(ABytesDone, ABytesTotal: Int64;
+  const AName: string): TOBDProgressStep;
+begin
+  Result.Index := 0;
+  Result.Count := 0;
+  Result.Name := AName;
+  Result.Detail := '';
+  Result.BytesDone := ABytesDone;
+  Result.BytesTotal := ABytesTotal;
 end;
 
 end.

@@ -297,6 +297,45 @@ inputs produce the same outputs, same exceptions, same events. The only
 difference is "who blocks": sync blocks the caller; async blocks the
 worker.
 
+#### Progress reporting on long-running ops
+
+Every method that takes long enough to warrant async also publishes
+**`OnProgress`** on the same component, surfacing a
+`TOBDProgressStep` record:
+
+| Field | Meaning |
+|---|---|
+| `Index` | 1-based step index. `0` when only byte progress is being reported. |
+| `Count` | Total expected steps. `0` when unknown. |
+| `Name` | Human-readable phase name (e.g. *"Resolving DNS"*, *"Subscribing to notifications"*, *"Transferring block 42 of 312"*). Required. |
+| `Detail` | Optional sub-detail (host being resolved, device being dialled, MAC address, ECU address). May be empty. |
+| `BytesDone` / `BytesTotal` | For byte-counted operations (flashing, downloads). `0` when not applicable. |
+| `Percent` | Helper returning a unified 0..1 ratio. Prefers byte counts when present, falls back to step counts. Returns `0` when nothing is known. |
+
+A single `OnProgress` firing typically populates one shape (steps OR
+bytes); consumers branch on whichever is set. The `Percent` helper
+hides the branch for simple progress-bar use.
+
+**Progress firing rules:**
+
+- Fired on the main thread on the host component (consumers can
+  bind UI directly).
+- Fired at every named phase boundary inside the operation. Coarse is
+  better than fine — *"Resolving DNS"* once, not 50 spinner ticks.
+- For transfer-shaped operations, fire `OnProgress` per logical block
+  (per ISO-TP frame, per UDS Transfer Data sequence) — coalesced if
+  the operation would fire more often than ~10× per second.
+- Fires regardless of sync vs async path. The sync caller can ignore
+  the events; the async caller wires them to a progress bar.
+- Component must document the **specific phase sequence** in its
+  XMLDoc on `OnProgress` (see `TOBDConnection.OnProgress` for the
+  per-transport phase tables).
+
+**Where the rule applies:** every component in the §3.7 sync/async
+table that has a long-running method. A method that can take more
+than ~50 ms with no intermediate signal is a UX problem; instrument
+it with progress events.
+
 #### Destructive components
 
 Components with the `AutoExecute` / `OnConfirmExecute` pattern (§3.4)

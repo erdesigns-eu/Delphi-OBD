@@ -29,6 +29,36 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 2 follow-up #2 (Progress events + base-class extraction)
+- `TOBDProgressStep` record + `TOBDProgressEvent` — unified shape
+  carrying step-style (`Index`/`Count`/`Name`/`Detail`) and
+  transfer-style (`BytesDone`/`BytesTotal`) progress, plus a
+  `Percent` helper that prefers byte counts and falls back to step
+  counts.
+- `OnProgress` event added to `IOBDConnectionTransport` and to
+  `TOBDConnection` (re-fired on the main thread).
+- Each transport's `Open` now fires named-phase progress events
+  (Serial 3 phases, Wi-Fi 3, UDP 2, Bluetooth 5, BLE 6, FTDI 4).
+- New `TOBDBaseTransport` abstract base class owns the lock,
+  lifecycle state, event fields, and `FireXxx` helpers — every
+  transport rebased onto it (~480 lines of duplication removed).
+- `TOBDConnection.DoOpen` rewritten as a flat instantiate → wire →
+  open sequence using the `IOBDConnectionTransport` interface
+  uniformly.
+- New tests: `Tests.OBD.Connection.Progress` (record helpers, 6
+  assertions) and a new `ProgressEventCarriesStep` test in
+  `Tests.OBD.Connection.Mock`.
+- Sample `01-ConnectAndPing` prints each phase with the unified
+  percent.
+
+### Changed — design rules
+- **PLAN §3.7 expanded with the progress contract.** Every component
+  with a long-running method publishes `OnProgress` carrying a
+  `TOBDProgressStep`. Progress fires at named phase boundaries on
+  the main thread; transfer progress is coalesced to ~10 Hz; the
+  component documents its specific phase sequence in the
+  `OnProgress` XMLDoc. STYLE.md §6 mirrors the rule.
+
 ### Added — Phase 2 follow-up (Sync + Async dual-method rule)
 - `TOBDConnection.OpenAsync` / `CloseAsync` — non-blocking
   counterparts to `Open` / `Close`, fire `OnConnect` / `OnDisconnect` /

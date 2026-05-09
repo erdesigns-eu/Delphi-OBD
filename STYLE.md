@@ -307,6 +307,15 @@ procedure ReadVINAsync;
   to the main thread on completion; the host component must cancel +
   join any in-flight worker in its destructor and in any
   lifecycle-cancelling method (`Close`, `Disconnect`, etc.).
+- **Progress events on long-running ops.** Every component that has a
+  long-running method (and therefore a sync/async pair) publishes
+  `OnProgress: TOBDProgressEvent` carrying a `TOBDProgressStep` record
+  (steps + bytes + name + detail; `Percent` helper). Fire at every
+  named phase boundary (coarse, not per-spinner-tick). Coalesce
+  transfer progress to ~10 Hz. Fires on the main thread on the host
+  component. Document the specific phase sequence in the component's
+  XMLDoc on `OnProgress` so consumers know what to expect. See
+  [`PLAN.md` §3.7](PLAN.md) for the full contract.
 
 ---
 

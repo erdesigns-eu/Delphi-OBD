@@ -10,11 +10,13 @@
 //  the same UUID.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Phase 2 initial.
+//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
 //
 //  Future work :
 //    - Pairing / passkey events surfaced through OnTransportError so
@@ -32,13 +34,11 @@ uses
   System.Bluetooth,
   OBD.Types,
   OBD.Connection.Types,
-  OBD.Connection.Settings;
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
 type
-  TOBDBluetoothTransport = class;
-
   /// <summary>Read loop for the Bluetooth Classic socket.</summary>
-  /// <remarks>Owned by the parent transport.</remarks>
   TOBDBluetoothReadThread = class(TThread)
   strict private
     FSocket: TBluetoothSocket;
@@ -49,7 +49,8 @@ type
     /// <c>Terminated</c>.</summary>
     procedure Execute; override;
   public
-    /// <summary>Spawns the thread bound to a connected RFCOMM socket.</summary>
+    /// <summary>Spawns the thread bound to a connected RFCOMM
+    /// socket.</summary>
     /// <param name="ASocket">Connected <c>TBluetoothSocket</c>.</param>
     /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
     /// <param name="AOnError">Error callback. Optional.</param>
@@ -59,38 +60,31 @@ type
   end;
 
   /// <summary>Bluetooth Classic / RFCOMM transport.</summary>
-  TOBDBluetoothTransport = class(TInterfacedObject, IOBDConnectionTransport)
+  TOBDBluetoothTransport = class(TOBDBaseTransport)
   strict private
-    FLock: TCriticalSection;
     FManager: TBluetoothManager;
     FDevice: TBluetoothDevice;
     FSocket: TBluetoothSocket;
-    FState: TOBDConnectionState;
     FReader: TOBDBluetoothReadThread;
-    FOnDataReceived: TOBDBytesEvent;
-    FOnStateChanged: TOBDStateEvent;
-    FOnTransportError: TOBDTransportErrorEvent;
-    procedure SetState(ANewState: TOBDConnectionState);
-    procedure HandleBytes(const ABytes: TBytes);
-    procedure HandleError(ACode: TOBDErrorCode; const AMessage: string);
     function FindDevice(const AAddress: string): TBluetoothDevice;
   public
     /// <summary>Constructs an idle Bluetooth transport.</summary>
     constructor Create;
-    /// <summary>Closes the socket if open and releases the lock.</summary>
+    /// <summary>Closes the socket if open.</summary>
     destructor Destroy; override;
 
     /// <summary>
-    ///   Locates the paired device by address or name, opens an RFCOMM
-    ///   client socket against the configured service UUID, and starts
-    ///   the read thread.
+    ///   Locates the paired device and opens an RFCOMM client socket
+    ///   against the configured service UUID.
     /// </summary>
     /// <param name="ASettings">Device address + service UUID +
-    /// connect timeout. <c>DeviceAddress</c> and <c>ServiceUUID</c>
-    /// must be non-empty.</param>
+    /// connect timeout.</param>
     /// <remarks>
-    ///   The device must already be paired with the host OS — pairing
-    ///   is outside the scope of this package.
+    ///   Synchronous. Fires five step-progress events:
+    ///   <c>1/5 Adapter check</c>, <c>2/5 Locating device</c>,
+    ///   <c>3/5 Creating socket</c>, <c>4/5 Connecting</c>,
+    ///   <c>5/5 Ready</c>. The device must already be paired with
+    ///   the host OS.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>,
     /// device address empty, or service UUID empty.</exception>
@@ -99,35 +93,13 @@ type
     procedure Open(const ASettings: TOBDBluetoothSettings);
 
     /// <summary>Closes the socket and joins the read thread.</summary>
-    procedure Close;
-    /// <summary>True when the RFCOMM socket is open.</summary>
-    /// <returns><c>True</c> if state is <c>csOpen</c>.</returns>
-    function IsOpen: Boolean;
-    /// <summary>Current lifecycle state.</summary>
-    /// <returns>State enum.</returns>
-    function State: TOBDConnectionState;
+    procedure Close; override;
     /// <summary>Sends bytes through the RFCOMM socket.</summary>
     /// <param name="ABytes">Bytes to send.</param>
-    /// <returns>Always <c>Length(ABytes)</c> on success; 0 on transport
+    /// <returns><c>Length(ABytes)</c> on success; 0 on transport
     /// error.</returns>
     /// <exception cref="EOBDNotConnected">Socket not open.</exception>
-    function WriteBytes(const ABytes: TBytes): Integer;
-
-    /// <summary>Internal accessor.</summary>
-    function GetOnDataReceived: TOBDBytesEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnDataReceived(const AValue: TOBDBytesEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnStateChanged: TOBDStateEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnStateChanged(const AValue: TOBDStateEvent);
-    /// <summary>Internal accessor.</summary>
-    function GetOnTransportError: TOBDTransportErrorEvent;
-    /// <summary>Internal mutator.</summary>
-    /// <param name="AValue">New handler. <c>nil</c> clears.</param>
-    procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+    function WriteBytes(const ABytes: TBytes): Integer; override;
   end;
 
 implementation
@@ -152,7 +124,7 @@ begin
   while not Terminated do
   begin
     try
-      Got := FSocket.ReceiveData; // blocks
+      Got := FSocket.ReceiveData;
       if Length(Got) > 0 then
       begin
         if Assigned(FOnBytes) then
@@ -174,51 +146,12 @@ end;
 constructor TOBDBluetoothTransport.Create;
 begin
   inherited;
-  FLock := TCriticalSection.Create;
-  FState := csClosed;
 end;
 
 destructor TOBDBluetoothTransport.Destroy;
 begin
   Close;
-  FLock.Free;
   inherited;
-end;
-
-procedure TOBDBluetoothTransport.SetState(ANewState: TOBDConnectionState);
-var
-  Handler: TOBDStateEvent;
-begin
-  FLock.Enter;
-  try
-    if FState = ANewState then Exit;
-    FState := ANewState;
-    Handler := FOnStateChanged;
-  finally
-    FLock.Leave;
-  end;
-  if Assigned(Handler) then
-    Handler(Self, ANewState);
-end;
-
-procedure TOBDBluetoothTransport.HandleBytes(const ABytes: TBytes);
-var
-  Handler: TOBDBytesEvent;
-begin
-  Handler := FOnDataReceived;
-  if Assigned(Handler) then
-    Handler(Self, ABytes);
-end;
-
-procedure TOBDBluetoothTransport.HandleError(ACode: TOBDErrorCode;
-  const AMessage: string);
-var
-  Handler: TOBDTransportErrorEvent;
-begin
-  Handler := FOnTransportError;
-  if Assigned(Handler) then
-    Handler(Self, ACode, AMessage);
-  SetState(csError);
 end;
 
 function TOBDBluetoothTransport.FindDevice(
@@ -253,18 +186,25 @@ begin
 
   SetState(csOpening);
   try
+    FireProgress(1, 5, 'Adapter check', '');
     FManager := TBluetoothManager.Current;
     if (FManager = nil) or not FManager.CurrentAdapter.Activated then
       raise EOBDError.Create('Bluetooth adapter is not available or activated');
+
+    FireProgress(2, 5, 'Locating device', ASettings.DeviceAddress);
     FDevice := FindDevice(ASettings.DeviceAddress);
     if FDevice = nil then
       raise EOBDError.CreateFmt(
         'Bluetooth device "%s" is not paired with this host',
         [ASettings.DeviceAddress]);
+
+    FireProgress(3, 5, 'Creating socket', ASettings.ServiceUUID);
     ServiceGUID := StringToGUID('{' + ASettings.ServiceUUID + '}');
     FSocket := FDevice.CreateClientSocket(ServiceGUID, False);
     if FSocket = nil then
       raise EOBDError.Create('Failed to create RFCOMM client socket');
+
+    FireProgress(4, 5, 'Connecting', '');
     FSocket.Connect;
   except
     on E: Exception do
@@ -276,9 +216,10 @@ begin
   end;
 
   FReader := TOBDBluetoothReadThread.Create(FSocket,
-    procedure(const Bytes: TBytes) begin HandleBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; const Msg: string) begin HandleError(Code, Msg); end);
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
 
+  FireProgress(5, 5, 'Ready', '');
   SetState(csOpen);
 end;
 
@@ -307,24 +248,9 @@ begin
 
   if Assigned(Local) then
     Local.Free;
-  FDevice := nil; // not owned
+  FDevice := nil;
 
   SetState(csClosed);
-end;
-
-function TOBDBluetoothTransport.IsOpen: Boolean;
-begin
-  Result := State = csOpen;
-end;
-
-function TOBDBluetoothTransport.State: TOBDConnectionState;
-begin
-  FLock.Enter;
-  try
-    Result := FState;
-  finally
-    FLock.Leave;
-  end;
 end;
 
 function TOBDBluetoothTransport.WriteBytes(const ABytes: TBytes): Integer;
@@ -339,24 +265,10 @@ begin
   except
     on E: Exception do
     begin
-      HandleError(oeIO, E.Message);
+      FireError(oeIO, E.Message);
       Result := 0;
     end;
   end;
 end;
-
-function TOBDBluetoothTransport.GetOnDataReceived: TOBDBytesEvent;
-begin Result := FOnDataReceived; end;
-procedure TOBDBluetoothTransport.SetOnDataReceived(const AValue: TOBDBytesEvent);
-begin FOnDataReceived := AValue; end;
-function TOBDBluetoothTransport.GetOnStateChanged: TOBDStateEvent;
-begin Result := FOnStateChanged; end;
-procedure TOBDBluetoothTransport.SetOnStateChanged(const AValue: TOBDStateEvent);
-begin FOnStateChanged := AValue; end;
-function TOBDBluetoothTransport.GetOnTransportError: TOBDTransportErrorEvent;
-begin Result := FOnTransportError; end;
-procedure TOBDBluetoothTransport.SetOnTransportError(
-  const AValue: TOBDTransportErrorEvent);
-begin FOnTransportError := AValue; end;
 
 end.
