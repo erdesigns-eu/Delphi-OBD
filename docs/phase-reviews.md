@@ -1900,14 +1900,28 @@ Phase 2 and is gated on the rig the user actually owns.
    state). The functional `SeedToKey` form is the cleaner
    path for stateless transforms.
 
-### Phase 6 follow-ups (tracked, not closed)
+### Phase 6 follow-ups closed
 
-- `TOBDUploader` for UDS Service 0x35 RequestUpload.
-- `TOBDFlashSession` orchestrator that wraps Session control +
-  SecurityAccess + erase-routine + 0x34/0x36/0x37 + verify-
-  routine + ECUReset into a single call.
-- Per-chunk retry budget on TransferData.
-- Strict-mode multi-DID read with declared per-DID lengths.
+User pulled every Phase 6 follow-up forward — including the
+SecurityAccess all-zero-seed and TransferData NRC 0x78 review-
+flag items. All six are closed:
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | `TOBDUploader` for UDS Service 0x35 | **Closed.** New `OBD.Coding.Uploader` unit mirrors `TOBDFlasher`: 0x35 RequestUpload + 0x36 TransferData (read-side, response carries data) + 0x37 RequestTransferExit. Same NRC 0x78 pending-retry budget and same per-chunk retry budget. Reads are non-destructive so `AutoExecute` is not gated; `OnBeforeUpload` still fires for hosts that want a confirmation flow. |
+| 2 | `TOBDFlashSession` orchestrator | **Closed.** New `OBD.Coding.FlashSession` unit composes the classic UDS reflash choreography into a single `Flash` / `FlashAsync` call: `0x10/02 programmingSession` → `0x27 SecurityAccess` → `0x31/01 erase RID` → flasher → `0x31/01 verify RID` → `0x11/01 hardReset`. Every step is configurable (`SecurityLevel`, `EraseRoutineID`, `VerifyRoutineID`, `ResetAfterFlash`, `SessionAtStart`); setting an `RID` to `0` disables that step. Children are lazily created and inherit `Protocol`, `AutoExecute` and `SeedToKey`. |
+| 3 | TransferData NRC 0x78 (responsePending) handling | **Closed.** New `RequestWithPending` helper in both `TOBDFlasher` and `TOBDUploader` retransmits the same request on NRC 0x78 up to `MaxPendingRetries` (default 10), with `PendingDelayMs` (default 50 ms) between attempts. Applied uniformly to RequestDownload, RequestUpload, every TransferData chunk, and RequestTransferExit. |
+| 4 | Per-chunk retry budget on TransferData | **Closed.** New `MaxChunkRetries` (default 3) and `ChunkRetryDelayMs` (default 20 ms) properties on both flasher and uploader. A non-pending negative on a chunk re-sends the same BSC up to the budget, with each retry surfaced through `OnProgress` so a UI can display "BSC 12 retry 2/3 (transferDataSuspended)". |
+| 5 | Strict-mode multi-DID read | **Closed.** New `TOBDDataIdentifierIO.ReadStrict(ADIDs, ALengths)` overload. The host declares the data length per DID; the response is split deterministically by length (no heuristic next-DID-echo scan). Length-array size mismatch raises `EOBDConfig` eagerly. |
+| 6 | All-zero seed = "already unlocked" | **Closed.** `TOBDSecurityAccess` now treats both a zero-byte seed *and* an all-zero-byte seed as "already unlocked" per ISO 14229-1 §9.4.5.2. Backed by an internal `AllZero` helper. |
+
+New components on the **OBD Coding** palette: `TOBDUploader`,
+`TOBDFlashSession`. New tests cover retry-budget defaults,
+upload zero-size rejection, flash-session AutoExecute gate +
+empty-image rejection, strict-mode length-mismatch rejection,
+and the security-access guard order.
+
+Hardware-loop verification stays the only standing deferral.
 
 ### Quality bars met
 

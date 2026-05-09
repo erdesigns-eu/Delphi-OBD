@@ -90,6 +90,8 @@ uses
   OBD.Coding.DataIdentifierIO in '..\src\Coding\OBD.Coding.DataIdentifierIO.pas',
   OBD.Coding.RoutineControl in '..\src\Coding\OBD.Coding.RoutineControl.pas',
   OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas',
+  OBD.Coding.Uploader in '..\src\Coding\OBD.Coding.Uploader.pas',
+  OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',

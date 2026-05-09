@@ -56,7 +56,9 @@ uses
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
   OBD.Coding.RoutineControl,
-  OBD.Coding.Flasher;
+  OBD.Coding.Flasher,
+  OBD.Coding.Uploader,
+  OBD.Coding.FlashSession;
 
 procedure Register;
 begin
@@ -88,7 +90,9 @@ begin
     TOBDSecurityAccess,
     TOBDDataIdentifierIO,
     TOBDRoutineControl,
-    TOBDFlasher
+    TOBDFlasher,
+    TOBDUploader,
+    TOBDFlashSession
   ]);
 end;
 

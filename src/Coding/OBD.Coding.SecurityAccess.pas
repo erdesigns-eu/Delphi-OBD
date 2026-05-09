@@ -128,6 +128,14 @@ implementation
 uses
   System.Math;
 
+function AllZero(const ABytes: TBytes): Boolean;
+var I: Integer;
+begin
+  for I := 0 to High(ABytes) do
+    if ABytes[I] <> 0 then Exit(False);
+  Result := True;
+end;
+
 constructor TOBDSecurityAccess.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -219,10 +227,10 @@ begin
   if Length(Seed) > 0 then
     Move(Resp.Data[Off], Seed[0], Length(Seed));
 
-  // Some ECUs answer with a zero-byte seed when already unlocked;
-  // ISO 14229-1 §9.4.5.2 says the tester treats that as "already
-  // unlocked, no further action".
-  if Length(Seed) = 0 then
+  // ISO 14229-1 §9.4.5.2: ECU reports "already unlocked" via either
+  // a zero-byte seed OR an all-zero seed (vendor-dependent). Either
+  // pattern short-circuits the sendKey step.
+  if (Length(Seed) = 0) or AllZero(Seed) then
   begin
     FireProgress(3, 3, 'Security access', 'already unlocked');
     Result := True;

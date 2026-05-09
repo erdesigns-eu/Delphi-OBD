@@ -84,6 +84,21 @@ type
     /// <exception cref="EOBDProtocolErr">Negative response or
     /// malformed reply.</exception>
     function Read(const ADIDs: array of Word): TArray<TOBDDIDValue>;
+    /// <summary>
+    ///   Strict-mode read: the caller declares the data length per
+    ///   DID, so the response is split deterministically by length
+    ///   instead of heuristically by next-DID-echo. Use this when
+    ///   one of your DIDs could legitimately produce payload bytes
+    ///   that collide with another requested DID's byte pair.
+    /// </summary>
+    /// <param name="ADIDs">DIDs to read.</param>
+    /// <param name="ALengths">Per-DID payload byte counts. Length
+    /// must match <c>ADIDs</c>.</param>
+    /// <exception cref="EOBDConfig">Length-array size mismatch.</exception>
+    /// <exception cref="EOBDProtocolErr">DID echo mismatch or
+    /// truncated response.</exception>
+    function ReadStrict(const ADIDs: array of Word;
+      const ALengths: array of Integer): TArray<TOBDDIDValue>;
     /// <summary>Convenience: read a single DID.</summary>
     function ReadOne(ADID: Word): TBytes;
     /// <summary>Non-blocking <see cref="Read"/>.</summary>
@@ -238,6 +253,66 @@ function TOBDDataIdentifierIO.Read(
   const ADIDs: array of Word): TArray<TOBDDIDValue>;
 begin
   Result := DoRead(ADIDs);
+  FireRead(Result);
+end;
+
+function TOBDDataIdentifierIO.ReadStrict(const ADIDs: array of Word;
+  const ALengths: array of Integer): TArray<TOBDDIDValue>;
+var
+  Body: TBytes;
+  Resp: TOBDResponse;
+  I, Off, Total: Integer;
+  Acc: TList<TOBDDIDValue>;
+  Cur: TOBDDIDValue;
+  CurDID: Word;
+begin
+  if FProtocol = nil then
+    raise EOBDConfig.Create('TOBDDataIdentifierIO: Protocol not assigned');
+  if Length(ADIDs) = 0 then
+    raise EOBDConfig.Create('ReadStrict: no DIDs');
+  if Length(ADIDs) <> Length(ALengths) then
+    raise EOBDConfig.Create(
+      'ReadStrict: ADIDs and ALengths must have the same length');
+
+  SetLength(Body, 2 * Length(ADIDs));
+  for I := 0 to High(ADIDs) do
+  begin
+    Body[I * 2]     := Hi(ADIDs[I]);
+    Body[I * 2 + 1] := Lo(ADIDs[I]);
+  end;
+  Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Body);
+  if Resp.IsNegative then
+    raise EOBDProtocolErr.CreateFmt(
+      'ReadStrict negative: %s', [Resp.NRCText]);
+
+  Total := Length(Resp.Data);
+  Acc := TList<TOBDDIDValue>.Create;
+  try
+    Off := 0;
+    for I := 0 to High(ADIDs) do
+    begin
+      if Off + 2 + ALengths[I] > Total then
+        raise EOBDProtocolErr.CreateFmt(
+          'ReadStrict: response truncated at DID 0x%4.4X (need %d B + 2 B echo, have %d)',
+          [ADIDs[I], ALengths[I], Total - Off]);
+      CurDID := (Word(Resp.Data[Off]) shl 8) or Word(Resp.Data[Off + 1]);
+      if CurDID <> ADIDs[I] then
+        raise EOBDProtocolErr.CreateFmt(
+          'ReadStrict: expected DID 0x%4.4X at offset %d, got 0x%4.4X',
+          [ADIDs[I], Off, CurDID]);
+      Inc(Off, 2);
+      Cur := Default(TOBDDIDValue);
+      Cur.DID := CurDID;
+      SetLength(Cur.Data, ALengths[I]);
+      if ALengths[I] > 0 then
+        Move(Resp.Data[Off], Cur.Data[0], ALengths[I]);
+      Inc(Off, ALengths[I]);
+      Acc.Add(Cur);
+    end;
+    Result := Acc.ToArray;
+  finally
+    Acc.Free;
+  end;
   FireRead(Result);
 end;
 
