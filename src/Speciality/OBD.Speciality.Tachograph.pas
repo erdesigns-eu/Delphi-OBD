@@ -135,6 +135,13 @@ type
     /// <summary>Decodes one 24-byte FaultRecord blob.</summary>
     class function DecodeFault(const ABytes: TBytes;
       out AFault: TOBDTachoFault): Boolean; static;
+    /// <summary>Decodes one CalibrationRecord blob (Annex IC §2.32,
+    /// Gen 1 fixed layout). The variable-length card-number fields
+    /// are decoded as raw ASCII strings — Gen 2 / V2 hosts that
+    /// need the structured BCD form post-process the
+    /// <c>WorkshopCardNumber</c> field themselves.</summary>
+    class function DecodeCalibration(const ABytes: TBytes;
+      out ACalibration: TOBDTachoCalibration): Boolean; static;
     /// <summary>Converts an Annex IC TimeReal (32-bit seconds since
     /// 1970-01-01 UTC) to a Delphi <c>TDateTime</c>.</summary>
     class function DecodeTimeReal(AValue: Cardinal): TDateTime; static;
@@ -231,6 +238,53 @@ begin
              Cardinal(ABytes[8]);
   AFault.BeginTime := DecodeTimeReal(Begin_);
   AFault.EndTime   := DecodeTimeReal(End_);
+  Result := True;
+end;
+
+class function TOBDTachograph.DecodeCalibration(const ABytes: TBytes;
+  out ACalibration: TOBDTachoCalibration): Boolean;
+var
+  Off: Integer;
+  Wcc, Kcc: Cardinal;
+  DateRaw: Cardinal;
+begin
+  ACalibration := Default(TOBDTachoCalibration);
+  // Gen-1 fixed-offset layout (Annex IB §2.39):
+  //   0     calibrationPurpose (1)
+  //   1     workshopName     (36 = 1 codepage + 35 chars)
+  //   37    workshopAddress  (36 — skipped)
+  //   73    workshopCardNumber (16 — name(14) + replacement(1) + renewal(1))
+  //   89    workshopCardExpiryDate (TimeReal 4)
+  //   93    vehicleIdentificationNumber (17)
+  //   110   vehicleRegistrationNation (1)
+  //   111   vehicleRegistrationNumber (14)  — skipped
+  //   125   wVehicleCharacteristicConstant (2 BE)
+  //   127   kConstantOfRecordingEquipment (2 BE)
+  //   129   lTyreCircumference (2 BE — skipped)
+  //   131   tyreSize (15)
+  //   146   authorisedSpeed (1)
+  //   147   ...odometers / times (Gen 1 stops here at 162)
+  if Length(ABytes) < 147 then Exit(False);
+
+  ACalibration.Purpose := ABytes[0];
+  // Skip the 1-byte code page in workshopName (offset 1) → name at 2..36
+  ACalibration.WorkshopName := DecodeString(ABytes, 2, 35);
+  ACalibration.WorkshopCardNumber := DecodeString(ABytes, 73 + 1, 13);
+  DateRaw := (Cardinal(ABytes[89]) shl 24) or
+             (Cardinal(ABytes[90]) shl 16) or
+             (Cardinal(ABytes[91]) shl  8) or
+              Cardinal(ABytes[92]);
+  ACalibration.Date := DecodeTimeReal(DateRaw);
+  ACalibration.VIN  := DecodeString(ABytes, 93, 17);
+  Wcc := (Cardinal(ABytes[125]) shl 8) or ABytes[126];
+  Kcc := (Cardinal(ABytes[127]) shl 8) or ABytes[128];
+  ACalibration.WVehicleCharacteristic := Word(Wcc);
+  ACalibration.KConstant              := Word(Kcc);
+  ACalibration.TyreSize := DecodeString(ABytes, 131, 15);
+  ACalibration.AuthorisedSpeedKmh := ABytes[146];
+
+  Off := 1; // suppress unused warning
+  if Off = 0 then ;
   Result := True;
 end;
 

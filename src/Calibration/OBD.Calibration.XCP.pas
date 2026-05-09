@@ -61,8 +61,28 @@ const
   XCP_CMD_SET_CAL_PAGE        = $EB;
   XCP_CMD_GET_CAL_PAGE        = $EA;
   XCP_CMD_GET_DAQ_PROCESSOR_INFO = $DA;
-  XCP_CMD_START_STOP_DAQ_LIST = $DE;
-  XCP_CMD_START_STOP_SYNCH    = $DD;
+  XCP_CMD_GET_DAQ_RESOLUTION_INFO= $D9;
+  XCP_CMD_GET_DAQ_LIST_MODE      = $DF;
+  XCP_CMD_FREE_DAQ               = $D6;
+  XCP_CMD_ALLOC_DAQ              = $D5;
+  XCP_CMD_ALLOC_ODT              = $D4;
+  XCP_CMD_ALLOC_ODT_ENTRY        = $D3;
+  XCP_CMD_SET_DAQ_PTR            = $E2;
+  XCP_CMD_WRITE_DAQ              = $E1;
+  XCP_CMD_SET_DAQ_LIST_MODE      = $E0;
+  XCP_CMD_START_STOP_DAQ_LIST    = $DE;
+  XCP_CMD_START_STOP_SYNCH       = $DD;
+
+  // ---- ProgramFlash (PGM resource) ----
+  XCP_CMD_PROGRAM_START   = $D2;
+  XCP_CMD_PROGRAM_CLEAR   = $D1;
+  XCP_CMD_PROGRAM         = $D0;
+  XCP_CMD_PROGRAM_RESET   = $CF;
+  XCP_CMD_PROGRAM_PREPARE = $CC;
+  XCP_CMD_PROGRAM_FORMAT  = $CB;
+  XCP_CMD_PROGRAM_NEXT    = $CA;
+  XCP_CMD_PROGRAM_MAX     = $C9;
+  XCP_CMD_PROGRAM_VERIFY  = $C8;
 
   // ---- Slave response PIDs ----
   XCP_RES_OK    = $FF;
@@ -182,6 +202,54 @@ type
     procedure StartStopDAQList(AMode, ADaqList: Byte);
     /// <summary>Stops every DAQ list at once.</summary>
     procedure StopAllDAQ;
+
+    // ---- DAQ programming -----------------------------------------------------
+
+    /// <summary>FREE_DAQ — releases all DAQ list resources.</summary>
+    procedure FreeDAQ;
+    /// <summary>ALLOC_DAQ — allocates <c>ACount</c> DAQ lists.</summary>
+    procedure AllocDAQ(ACount: Word);
+    /// <summary>ALLOC_ODT — allocates <c>ACount</c> ODTs in
+    /// <c>ADaqList</c>.</summary>
+    procedure AllocODT(ADaqList: Word; ACount: Byte);
+    /// <summary>ALLOC_ODT_ENTRY — allocates <c>ACount</c> entries in
+    /// <c>(ADaqList, AOdtIndex)</c>.</summary>
+    procedure AllocODTEntry(ADaqList: Word; AOdtIndex, ACount: Byte);
+    /// <summary>SET_DAQ_PTR — points the cursor at
+    /// <c>(ADaqList, AOdtIndex, AOdtEntry)</c> for the next
+    /// <c>WriteDAQ</c>.</summary>
+    procedure SetDAQPtr(ADaqList: Word; AOdtIndex, AOdtEntry: Byte);
+    /// <summary>WRITE_DAQ — fills the current ODT entry slot with
+    /// <c>(BitOffset, Size, AddressExtension, Address)</c>.</summary>
+    procedure WriteDAQ(ABitOffset, ASize, AAddressExt: Byte;
+      AAddress: UInt32);
+    /// <summary>SET_DAQ_LIST_MODE — configures <c>ADaqList</c>'s
+    /// transmission characteristics (mode, event channel,
+    /// prescaler, priority).</summary>
+    procedure SetDAQListMode(AMode: Byte; ADaqList, AEventChannel: Word;
+      APrescaler, APriority: Byte);
+
+    // ---- ProgramFlash (PGM resource) ----------------------------------------
+
+    /// <summary>PROGRAM_START — opens a programming session.
+    /// Returns slave's COMM_MODE_PGM, MAX_CTO_PGM and
+    /// MAX_BS_PGM.</summary>
+    procedure ProgramStart(out ACommMode, AMaxCTO, AMaxBS,
+      AMinST: Byte);
+    /// <summary>PROGRAM_CLEAR — erases <c>ALen</c> bytes starting
+    /// at MTA. <c>AAccessMode</c> 0 = absolute, 1 = functional.</summary>
+    procedure ProgramClear(AAccessMode: Byte; ALen: UInt32);
+    /// <summary>PROGRAM — writes one block of programming data
+    /// (≤ MAX_CTO − 2 bytes per call). The caller chunks.</summary>
+    procedure Program_(const AData: TBytes);
+    /// <summary>PROGRAM_RESET — closes the programming session and
+    /// resets the slave.</summary>
+    procedure ProgramReset;
+    /// <summary>PROGRAM_VERIFY — asks the slave to verify a region
+    /// against an expected value. <c>AVerificationMode</c> selects
+    /// the algorithm (vendor-defined).</summary>
+    procedure ProgramVerify(AVerificationMode: Byte;
+      AVerificationType: Word; AVerificationValue: UInt32);
 
     /// <summary>Bound transport. Set before <c>Connect</c>.</summary>
     property Transport: IOBDXCPTransport read FTransport write FTransport;
@@ -521,6 +589,207 @@ begin
   SetLength(Cmd, 2);
   Cmd[0] := XCP_CMD_START_STOP_SYNCH;
   Cmd[1] := XCP_DAQ_STOP;
+  Exchange(Cmd);
+end;
+
+{ ---- DAQ programming ------------------------------------------------------- }
+
+procedure WriteWordOrder(var ABuf: TBytes; AOff: Integer; AValue: Word;
+  ABigEndian: Boolean);
+begin
+  if ABigEndian then
+  begin
+    ABuf[AOff]     := Byte((AValue shr 8) and $FF);
+    ABuf[AOff + 1] := Byte(AValue and $FF);
+  end
+  else
+  begin
+    ABuf[AOff]     := Byte(AValue and $FF);
+    ABuf[AOff + 1] := Byte((AValue shr 8) and $FF);
+  end;
+end;
+
+procedure TOBDXCP.FreeDAQ;
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 1);
+  Cmd[0] := XCP_CMD_FREE_DAQ;
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.AllocDAQ(ACount: Word);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 4);
+  Cmd[0] := XCP_CMD_ALLOC_DAQ;
+  Cmd[1] := 0;  // reserved
+  WriteWordOrder(Cmd, 2, ACount, FBigEndian);
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.AllocODT(ADaqList: Word; ACount: Byte);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 5);
+  Cmd[0] := XCP_CMD_ALLOC_ODT;
+  Cmd[1] := 0;
+  WriteWordOrder(Cmd, 2, ADaqList, FBigEndian);
+  Cmd[4] := ACount;
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.AllocODTEntry(ADaqList: Word; AOdtIndex, ACount: Byte);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 6);
+  Cmd[0] := XCP_CMD_ALLOC_ODT_ENTRY;
+  Cmd[1] := 0;
+  WriteWordOrder(Cmd, 2, ADaqList, FBigEndian);
+  Cmd[4] := AOdtIndex;
+  Cmd[5] := ACount;
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.SetDAQPtr(ADaqList: Word; AOdtIndex, AOdtEntry: Byte);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 6);
+  Cmd[0] := XCP_CMD_SET_DAQ_PTR;
+  Cmd[1] := 0;
+  WriteWordOrder(Cmd, 2, ADaqList, FBigEndian);
+  Cmd[4] := AOdtIndex;
+  Cmd[5] := AOdtEntry;
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.WriteDAQ(ABitOffset, ASize, AAddressExt: Byte;
+  AAddress: UInt32);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 8);
+  Cmd[0] := XCP_CMD_WRITE_DAQ;
+  Cmd[1] := ABitOffset;
+  Cmd[2] := ASize;
+  Cmd[3] := AAddressExt;
+  WriteAddrPacket(Cmd, 4, AAddress, AAddressExt);
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.SetDAQListMode(AMode: Byte; ADaqList,
+  AEventChannel: Word; APrescaler, APriority: Byte);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 8);
+  Cmd[0] := XCP_CMD_SET_DAQ_LIST_MODE;
+  Cmd[1] := AMode;
+  WriteWordOrder(Cmd, 2, ADaqList, FBigEndian);
+  WriteWordOrder(Cmd, 4, AEventChannel, FBigEndian);
+  Cmd[6] := APrescaler;
+  Cmd[7] := APriority;
+  Exchange(Cmd);
+end;
+
+{ ---- PGM (ProgramFlash) ---------------------------------------------------- }
+
+procedure TOBDXCP.ProgramStart(out ACommMode, AMaxCTO, AMaxBS,
+  AMinST: Byte);
+var
+  Cmd, Resp: TBytes;
+begin
+  SetLength(Cmd, 1);
+  Cmd[0] := XCP_CMD_PROGRAM_START;
+  Resp := Exchange(Cmd);
+  if Length(Resp) < 7 then
+    raise EOBDProtocolErr.Create('XCP PROGRAM_START: short response');
+  // Resp: [PID, reserved, COMM_MODE_PGM, MAX_CTO_PGM, MAX_BS_PGM, MIN_ST_PGM, QUEUE_SIZE_PGM]
+  ACommMode := Resp[2];
+  AMaxCTO   := Resp[3];
+  AMaxBS    := Resp[4];
+  AMinST    := Resp[5];
+end;
+
+procedure TOBDXCP.ProgramClear(AAccessMode: Byte; ALen: UInt32);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 8);
+  Cmd[0] := XCP_CMD_PROGRAM_CLEAR;
+  Cmd[1] := AAccessMode;
+  Cmd[2] := 0;
+  Cmd[3] := 0;
+  // 4-byte length, slave byte order.
+  if FBigEndian then
+  begin
+    Cmd[4] := Byte((ALen shr 24) and $FF);
+    Cmd[5] := Byte((ALen shr 16) and $FF);
+    Cmd[6] := Byte((ALen shr  8) and $FF);
+    Cmd[7] := Byte(ALen and $FF);
+  end
+  else
+  begin
+    Cmd[4] := Byte(ALen and $FF);
+    Cmd[5] := Byte((ALen shr  8) and $FF);
+    Cmd[6] := Byte((ALen shr 16) and $FF);
+    Cmd[7] := Byte((ALen shr 24) and $FF);
+  end;
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.Program_(const AData: TBytes);
+var
+  Cmd: TBytes;
+  N: Integer;
+begin
+  N := Length(AData);
+  if N = 0 then Exit;
+  SetLength(Cmd, 2 + N);
+  Cmd[0] := XCP_CMD_PROGRAM;
+  Cmd[1] := Byte(N);
+  Move(AData[0], Cmd[2], N);
+  Exchange(Cmd);
+end;
+
+procedure TOBDXCP.ProgramReset;
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 1);
+  Cmd[0] := XCP_CMD_PROGRAM_RESET;
+  // PROGRAM_RESET response is optional; some slaves drop the link.
+  try Exchange(Cmd); except end;
+  FConnected := False;
+end;
+
+procedure TOBDXCP.ProgramVerify(AVerificationMode: Byte;
+  AVerificationType: Word; AVerificationValue: UInt32);
+var
+  Cmd: TBytes;
+begin
+  SetLength(Cmd, 8);
+  Cmd[0] := XCP_CMD_PROGRAM_VERIFY;
+  Cmd[1] := AVerificationMode;
+  WriteWordOrder(Cmd, 2, AVerificationType, FBigEndian);
+  if FBigEndian then
+  begin
+    Cmd[4] := Byte((AVerificationValue shr 24) and $FF);
+    Cmd[5] := Byte((AVerificationValue shr 16) and $FF);
+    Cmd[6] := Byte((AVerificationValue shr  8) and $FF);
+    Cmd[7] := Byte(AVerificationValue and $FF);
+  end
+  else
+  begin
+    Cmd[4] := Byte(AVerificationValue and $FF);
+    Cmd[5] := Byte((AVerificationValue shr  8) and $FF);
+    Cmd[6] := Byte((AVerificationValue shr 16) and $FF);
+    Cmd[7] := Byte((AVerificationValue shr 24) and $FF);
+  end;
   Exchange(Cmd);
 end;
 

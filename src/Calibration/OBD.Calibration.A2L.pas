@@ -77,6 +77,18 @@ type
     A, B, C, D, E, F: Double;
   end;
 
+  /// <summary>One verbal-table entry (raw value → text).</summary>
+  TOBDA2LCompuVTabEntry = record
+    Raw: Int64;
+    Text: string;
+  end;
+
+  /// <summary>One numeric-table interpolation point.</summary>
+  TOBDA2LCompuTabEntry = record
+    Raw: Double;
+    Phys: Double;
+  end;
+
   /// <summary>Decoded conversion method.</summary>
   TOBDA2LCompuMethod = record
     Name: string;
@@ -85,6 +97,42 @@ type
     Format: string;
     Unit_: string;
     Coeffs: TOBDA2LCoeffs;
+    /// <summary>Verbal-table entries when <c>Kind = cmTabVerb</c>.</summary>
+    VerbalTable: TArray<TOBDA2LCompuVTabEntry>;
+    /// <summary>Numeric-table entries when <c>Kind = cmTabIntp</c>
+    /// or <c>cmTabNointp</c>.</summary>
+    NumericTable: TArray<TOBDA2LCompuTabEntry>;
+  end;
+
+  /// <summary>Module-level defaults read from <c>MOD_COMMON</c> and
+  /// <c>MOD_PAR</c> (ASAM MCD-2 MC §2.6.1).</summary>
+  TOBDA2LModuleCommon = record
+    /// <summary>Default deposit (record-layout name).</summary>
+    Deposit: string;
+    /// <summary>Default byte order on the ECU side: <c>'MSB_FIRST'</c>
+    /// or <c>'MSB_LAST'</c>.</summary>
+    ByteOrder: string;
+    /// <summary>Data alignment in bytes for byte / word / long /
+    /// int64 / float32 / float64.</summary>
+    AlignmentByte: Byte;
+    AlignmentWord: Byte;
+    AlignmentLong: Byte;
+    AlignmentInt64: Byte;
+    AlignmentFloat32: Byte;
+    AlignmentFloat64: Byte;
+  end;
+
+  /// <summary>Module-parameter info from <c>MOD_PAR</c>.</summary>
+  TOBDA2LModulePar = record
+    Comment: string;
+    /// <summary>Optional ECU identifier (calibration / build ID).</summary>
+    EpkValue: string;
+    /// <summary>Address where the EPK string lives in the ECU.</summary>
+    EpkAddress: UInt64;
+    /// <summary>Customer / vehicle identification.</summary>
+    Customer: string;
+    /// <summary>Software-version string.</summary>
+    Version: string;
   end;
 
   /// <summary>Decoded MEASUREMENT (ECU variable to read).</summary>
@@ -119,6 +167,12 @@ type
     Measurements: TArray<TOBDA2LMeasurement>;
     Characteristics: TArray<TOBDA2LCharacteristic>;
     CompuMethods: TArray<TOBDA2LCompuMethod>;
+    Common: TOBDA2LModuleCommon;
+    Par: TOBDA2LModulePar;
+    /// <summary>True when a <c>MOD_COMMON</c> block was present.</summary>
+    HasCommon: Boolean;
+    /// <summary>True when a <c>MOD_PAR</c> block was present.</summary>
+    HasPar: Boolean;
   end;
 
   /// <summary>Stateless A2L parser.</summary>
@@ -134,9 +188,15 @@ type
     class function ParseDataType(const AText: string): TOBDA2LDataType; static;
     /// <summary>Applies a CompuMethod to a raw integer value, in
     /// the spec convention (LINEAR: phys = a*raw + b; RAT_FUNC:
-    /// phys = (a*r^2 + b*r + c) / (d*r^2 + e*r + f)).</summary>
+    /// phys = (a*r^2 + b*r + c) / (d*r^2 + e*r + f); TAB_INTP:
+    /// linear interpolation between sorted Raw/Phys pairs;
+    /// TAB_NOINTP: nearest-lower lookup).</summary>
     class function Convert(const ACompu: TOBDA2LCompuMethod;
       ARaw: Double): Double; static;
+    /// <summary>Resolves a verbal-table entry (TAB_VERB).
+    /// Returns False when the raw value has no entry.</summary>
+    class function ConvertVerbal(const ACompu: TOBDA2LCompuMethod;
+      ARaw: Int64; out AText: string): Boolean; static;
   end;
 
 implementation
@@ -489,6 +549,202 @@ begin
   end;
 end;
 
+procedure ParseCompuVTab(ALex: TA2LLexer; out AOut: TOBDA2LCompuMethod);
+var
+  Tok: TA2LToken;
+  Count: Integer;
+  Entries: TList<TOBDA2LCompuVTabEntry>;
+  Entry: TOBDA2LCompuVTabEntry;
+  I: Integer;
+begin
+  AOut := Default(TOBDA2LCompuMethod);
+  AOut.Kind := cmTabVerb;
+  // Header: name desc count
+  Tok := ALex.Next; AOut.Name := Tok.Text;
+  Tok := ALex.Next; AOut.Description := Tok.Text;
+  Tok := ALex.Next; Count := Integer(ParseUInt64(Tok.Text));
+  Entries := TList<TOBDA2LCompuVTabEntry>.Create;
+  try
+    for I := 0 to Count - 1 do
+    begin
+      Tok := ALex.Next;
+      if Tok.Kind = atEOF then Break;
+      Entry.Raw := Round(ParseDouble(Tok.Text));
+      Tok := ALex.Next;
+      if Tok.Kind = atEOF then Break;
+      Entry.Text := Tok.Text;
+      Entries.Add(Entry);
+    end;
+    AOut.VerbalTable := Entries.ToArray;
+  finally
+    Entries.Free;
+  end;
+
+  // Eat trailing /end COMPU_VTAB.
+  while True do
+  begin
+    Tok := ALex.Next;
+    if Tok.Kind = atEOF then Exit;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
+    begin
+      ALex.Next;
+      Exit;
+    end;
+  end;
+end;
+
+procedure ParseCompuTab(ALex: TA2LLexer; out AOut: TOBDA2LCompuMethod);
+var
+  Tok: TA2LToken;
+  Count, I: Integer;
+  Entries: TList<TOBDA2LCompuTabEntry>;
+  Entry: TOBDA2LCompuTabEntry;
+  ConvType: string;
+begin
+  AOut := Default(TOBDA2LCompuMethod);
+  // Header: name desc conv count
+  Tok := ALex.Next; AOut.Name := Tok.Text;
+  Tok := ALex.Next; AOut.Description := Tok.Text;
+  Tok := ALex.Next; ConvType := Tok.Text;
+  if SameText(ConvType, 'TAB_INTP') then AOut.Kind := cmTabIntp
+  else if SameText(ConvType, 'TAB_NOINTP') then AOut.Kind := cmTabNointp
+  else AOut.Kind := cmTabIntp;
+  Tok := ALex.Next; Count := Integer(ParseUInt64(Tok.Text));
+  Entries := TList<TOBDA2LCompuTabEntry>.Create;
+  try
+    for I := 0 to Count - 1 do
+    begin
+      Tok := ALex.Next;
+      if Tok.Kind = atEOF then Break;
+      Entry.Raw := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      if Tok.Kind = atEOF then Break;
+      Entry.Phys := ParseDouble(Tok.Text);
+      Entries.Add(Entry);
+    end;
+    AOut.NumericTable := Entries.ToArray;
+  finally
+    Entries.Free;
+  end;
+
+  while True do
+  begin
+    Tok := ALex.Next;
+    if Tok.Kind = atEOF then Exit;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
+    begin
+      ALex.Next;
+      Exit;
+    end;
+  end;
+end;
+
+procedure ParseModCommon(ALex: TA2LLexer; var ACluster: TOBDA2LCluster);
+var
+  Tok: TA2LToken;
+begin
+  // Header: description
+  Tok := ALex.Next; // description string
+  ACluster.HasCommon := True;
+  while True do
+  begin
+    Tok := ALex.Next;
+    if Tok.Kind = atEOF then Exit;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
+    begin
+      ALex.Next; Exit;
+    end;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
+    begin
+      Tok := ALex.Next;
+      SkipBlock(ALex, Tok.Text);
+      Continue;
+    end;
+    if Tok.Kind <> atIdent then Continue;
+    if SameText(Tok.Text, 'DEPOSIT') then
+    begin
+      Tok := ALex.Next; ACluster.Common.Deposit := Tok.Text;
+    end
+    else if SameText(Tok.Text, 'BYTE_ORDER') then
+    begin
+      Tok := ALex.Next; ACluster.Common.ByteOrder := Tok.Text;
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_BYTE') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentByte := Byte(ParseUInt64(Tok.Text));
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_WORD') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentWord := Byte(ParseUInt64(Tok.Text));
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_LONG') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentLong := Byte(ParseUInt64(Tok.Text));
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_INT64') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentInt64 := Byte(ParseUInt64(Tok.Text));
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_FLOAT32_IEEE') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentFloat32 := Byte(ParseUInt64(Tok.Text));
+    end
+    else if SameText(Tok.Text, 'ALIGNMENT_FLOAT64_IEEE') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Common.AlignmentFloat64 := Byte(ParseUInt64(Tok.Text));
+    end;
+  end;
+end;
+
+procedure ParseModPar(ALex: TA2LLexer; var ACluster: TOBDA2LCluster);
+var
+  Tok: TA2LToken;
+begin
+  Tok := ALex.Next;
+  ACluster.Par.Comment := Tok.Text;
+  ACluster.HasPar := True;
+  while True do
+  begin
+    Tok := ALex.Next;
+    if Tok.Kind = atEOF then Exit;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
+    begin
+      ALex.Next; Exit;
+    end;
+    if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
+    begin
+      Tok := ALex.Next;
+      SkipBlock(ALex, Tok.Text);
+      Continue;
+    end;
+    if Tok.Kind <> atIdent then Continue;
+    if SameText(Tok.Text, 'EPK') then
+    begin
+      Tok := ALex.Next; ACluster.Par.EpkValue := Tok.Text;
+    end
+    else if SameText(Tok.Text, 'ADDR_EPK') then
+    begin
+      Tok := ALex.Next;
+      ACluster.Par.EpkAddress := ParseUInt64(Tok.Text);
+    end
+    else if SameText(Tok.Text, 'CUSTOMER') or
+            SameText(Tok.Text, 'CUSTOMER_NO') then
+    begin
+      Tok := ALex.Next; ACluster.Par.Customer := Tok.Text;
+    end
+    else if SameText(Tok.Text, 'VERSION') then
+    begin
+      Tok := ALex.Next; ACluster.Par.Version := Tok.Text;
+    end;
+  end;
+end;
+
 procedure ParseCompuMethod(ALex: TA2LLexer; out AOut: TOBDA2LCompuMethod);
 var
   Tok: TA2LToken;
@@ -575,6 +831,21 @@ begin
           ParseCompuMethod(Lex, Compu);
           CompuMethods.Add(Compu);
         end
+        else if SameText(BlockName, 'COMPU_VTAB') or
+                SameText(BlockName, 'COMPU_VTAB_RANGE') then
+        begin
+          ParseCompuVTab(Lex, Compu);
+          CompuMethods.Add(Compu);
+        end
+        else if SameText(BlockName, 'COMPU_TAB') then
+        begin
+          ParseCompuTab(Lex, Compu);
+          CompuMethods.Add(Compu);
+        end
+        else if SameText(BlockName, 'MOD_COMMON') then
+          ParseModCommon(Lex, Result)
+        else if SameText(BlockName, 'MOD_PAR') then
+          ParseModPar(Lex, Result)
         else if SameText(BlockName, 'PROJECT') then
         begin
           Tok := Lex.Next; Result.Project := Tok.Text;
@@ -606,6 +877,33 @@ begin
   Result := Parse(TFile.ReadAllText(AFileName, TEncoding.UTF8));
 end;
 
+function InterpTable(const ATab: TArray<TOBDA2LCompuTabEntry>;
+  ARaw: Double; AInterp: Boolean): Double;
+var
+  I: Integer;
+  T: Double;
+begin
+  if Length(ATab) = 0 then Exit(NaN);
+  // Below the lowest point: clamp.
+  if ARaw <= ATab[0].Raw then Exit(ATab[0].Phys);
+  // Above the highest: clamp.
+  if ARaw >= ATab[High(ATab)].Raw then Exit(ATab[High(ATab)].Phys);
+  for I := 0 to High(ATab) - 1 do
+  begin
+    if (ARaw >= ATab[I].Raw) and (ARaw <= ATab[I + 1].Raw) then
+    begin
+      if AInterp and (ATab[I + 1].Raw <> ATab[I].Raw) then
+      begin
+        T := (ARaw - ATab[I].Raw) / (ATab[I + 1].Raw - ATab[I].Raw);
+        Exit(ATab[I].Phys + T * (ATab[I + 1].Phys - ATab[I].Phys));
+      end
+      else
+        Exit(ATab[I].Phys);
+    end;
+  end;
+  Result := NaN;
+end;
+
 class function TOBDA2L.Convert(const ACompu: TOBDA2LCompuMethod;
   ARaw: Double): Double;
 var
@@ -616,10 +914,6 @@ begin
     cmLinear:   Result := ACompu.Coeffs.A * ARaw + ACompu.Coeffs.B;
     cmRatFunc:
     begin
-      // ASAM convention: phys-from-raw inverts the ratfunc, so raw =
-      // (a*phys^2 + b*phys + c) / (d*phys^2 + e*phys + f). For the
-      // common "(a, b, c) = (0, scale, offset), (d, e, f) = (0, 0, 1)"
-      // case the formula reduces to phys = (raw - offset) / scale.
       Den := ACompu.Coeffs.D * ARaw * ARaw + ACompu.Coeffs.E * ARaw +
              ACompu.Coeffs.F;
       Num := ACompu.Coeffs.A * ARaw * ARaw + ACompu.Coeffs.B * ARaw +
@@ -627,9 +921,26 @@ begin
       if Den = 0 then Result := NaN
       else Result := Num / Den;
     end;
+    cmTabIntp:   Result := InterpTable(ACompu.NumericTable, ARaw, True);
+    cmTabNointp: Result := InterpTable(ACompu.NumericTable, ARaw, False);
   else
     Result := ARaw;
   end;
+end;
+
+class function TOBDA2L.ConvertVerbal(const ACompu: TOBDA2LCompuMethod;
+  ARaw: Int64; out AText: string): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  AText := '';
+  for I := 0 to High(ACompu.VerbalTable) do
+    if ACompu.VerbalTable[I].Raw = ARaw then
+    begin
+      AText := ACompu.VerbalTable[I].Text;
+      Exit(True);
+    end;
 end;
 
 end.

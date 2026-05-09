@@ -59,6 +59,7 @@ const
   CCP_CMD_SET_DAQ_PTR      = $15;
   CCP_CMD_WRITE_DAQ        = $16;
   CCP_CMD_START_STOP       = $06;
+  CCP_CMD_START_STOP_ALL   = $08;
 
   // CCP packet IDs in the slave response.
   CCP_RES_OK    = $FF;
@@ -112,6 +113,20 @@ type
     /// <summary>Starts or stops a DAQ list.</summary>
     procedure StartStop(AMode, ADaqList, ALastODT, AEventChan: Byte;
       APrescaler: Word);
+
+    /// <summary>GET_DAQ_SIZE — returns the size of the requested
+    /// DAQ list (number of ODTs) and resets the DAQ pointer.</summary>
+    function GetDAQSize(ADaqList: Byte; ACanID: UInt32;
+      out AFirstPID: Byte): Byte;
+    /// <summary>SET_DAQ_PTR — points the cursor at
+    /// <c>(ADaqList, AOdt, AOdtElement)</c>.</summary>
+    procedure SetDAQPtr(ADaqList, AOdt, AOdtElement: Byte);
+    /// <summary>WRITE_DAQ — writes the current ODT element with
+    /// (Size, AddressExt, Address).</summary>
+    procedure WriteDAQ(ASize, AAddressExt: Byte; AAddress: UInt32);
+    /// <summary>START_STOP_ALL — synchronous start / stop of every
+    /// DAQ list at once.</summary>
+    procedure StartStopAll(AStart: Boolean);
 
     property Transport: IOBDXCPTransport read FTransport write FTransport;
     /// <summary>Currently connected station address.</summary>
@@ -320,6 +335,60 @@ begin
   Args[4] := Byte((APrescaler shr 8) and $FF);
   Args[5] := Byte(APrescaler and $FF);
   Exchange(CCP_CMD_START_STOP, Args);
+end;
+
+function TOBDCCP.GetDAQSize(ADaqList: Byte; ACanID: UInt32;
+  out AFirstPID: Byte): Byte;
+var
+  Args, Resp: TBytes;
+begin
+  SetLength(Args, 6);
+  Args[0] := ADaqList;
+  Args[1] := 0;
+  Args[2] := Byte((ACanID shr 24) and $FF);
+  Args[3] := Byte((ACanID shr 16) and $FF);
+  Args[4] := Byte((ACanID shr 8)  and $FF);
+  Args[5] := Byte(ACanID and $FF);
+  Resp := Exchange(CCP_CMD_GET_DAQ_SIZE, Args);
+  // Resp: PID, ERR, CTR, DAQListSize, FirstPID
+  if Length(Resp) < 5 then
+    raise EOBDProtocolErr.Create('CCP GET_DAQ_SIZE: short response');
+  Result := Resp[3];
+  AFirstPID := Resp[4];
+end;
+
+procedure TOBDCCP.SetDAQPtr(ADaqList, AOdt, AOdtElement: Byte);
+var
+  Args: TBytes;
+begin
+  SetLength(Args, 3);
+  Args[0] := ADaqList;
+  Args[1] := AOdt;
+  Args[2] := AOdtElement;
+  Exchange(CCP_CMD_SET_DAQ_PTR, Args);
+end;
+
+procedure TOBDCCP.WriteDAQ(ASize, AAddressExt: Byte; AAddress: UInt32);
+var
+  Args: TBytes;
+begin
+  SetLength(Args, 6);
+  Args[0] := ASize;
+  Args[1] := AAddressExt;
+  Args[2] := Byte((AAddress shr 24) and $FF);
+  Args[3] := Byte((AAddress shr 16) and $FF);
+  Args[4] := Byte((AAddress shr 8)  and $FF);
+  Args[5] := Byte(AAddress and $FF);
+  Exchange(CCP_CMD_WRITE_DAQ, Args);
+end;
+
+procedure TOBDCCP.StartStopAll(AStart: Boolean);
+var
+  Args: TBytes;
+begin
+  SetLength(Args, 1);
+  if AStart then Args[0] := $01 else Args[0] := $00;
+  Exchange(CCP_CMD_START_STOP_ALL, Args);
 end;
 
 end.

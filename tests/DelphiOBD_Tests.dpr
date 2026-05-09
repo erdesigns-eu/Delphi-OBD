@@ -94,9 +94,14 @@ uses
   OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
+  OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
   OBD.Calibration.XCP in '..\src\Calibration\OBD.Calibration.XCP.pas',
   OBD.Calibration.CCP in '..\src\Calibration\OBD.Calibration.CCP.pas',
   OBD.Speciality.IsoBus in '..\src\Speciality\OBD.Speciality.IsoBus.pas',
+  OBD.Speciality.IsoBus.VT in '..\src\Speciality\OBD.Speciality.IsoBus.VT.pas',
+  OBD.Speciality.IsoBus.TC in '..\src\Speciality\OBD.Speciality.IsoBus.TC.pas',
+  OBD.Speciality.IsoBus.FS in '..\src\Speciality\OBD.Speciality.IsoBus.FS.pas',
+  OBD.Speciality.IsoBus.GNSS in '..\src\Speciality\OBD.Speciality.IsoBus.GNSS.pas',
   OBD.Speciality.Tachograph in '..\src\Speciality\OBD.Speciality.Tachograph.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
@@ -131,7 +136,8 @@ uses
   Tests.OBD.Service in 'Tests.OBD.Service.pas',
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
   Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
-  Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas';
+  Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
+  Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas';
 
 {$IFDEF CI}
 var

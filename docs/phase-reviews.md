@@ -2107,21 +2107,31 @@ Hardware-loop verification stays the only standing deferral.
 6. **No real-vehicle integration test.** Same hardware-loop
    deferral.
 
-### Phase 7 follow-ups
+### Phase 7 follow-ups closed
 
-- Sample `IOBDXCPTransport` implementation backed by raw CAN
-  via the existing `TOBDProtocol` adapter (text-based ELM327
-  cannot carry XCP cleanly — the sample would target a
-  raw-CAN-capable adapter such as Vector XL or PEAK).
-- Full XCP DAQ programming (SET_DAQ_PTR, WRITE_DAQ,
-  ALLOC_DAQ / ODT / ODT_ENTRY).
-- XCP ProgramFlash group (PGM).
-- CCP DAQ programming (SET_DAQ_PTR / WRITE_DAQ).
-- A2L `MOD_COMMON` / `MOD_PAR` global-defaults handling.
-- A2L `COMPU_VTAB` / table interpolation.
-- IsoBus VT, TC, FS, GNSS.
-- Tachograph CalibrationRecord decoder + PC/SC card-reader
-  integration.
+User pulled every Phase 7 follow-up forward. All eight are now
+closed:
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | Sample `IOBDXCPTransport` | **Closed.** New `OBD.Calibration.XCP.Loopback` unit ships `TOBDXCPLoopbackTransport`: an in-process implementation backed by a thread-safe queue + event. Useful both as a reference for hosts wiring real CAN drivers and as test infrastructure. The new test fixture exercises every closed-flag case through it. |
+| 2 | Full XCP DAQ programming | **Closed.** `TOBDXCP` gained `FreeDAQ`, `AllocDAQ`, `AllocODT`, `AllocODTEntry`, `SetDAQPtr`, `WriteDAQ`, `SetDAQListMode`. Every multi-byte field honours the slave-declared byte order via the existing `BigEndian` flag. |
+| 3 | XCP ProgramFlash (PGM) | **Closed.** `TOBDXCP` gained `ProgramStart`, `ProgramClear`, `Program_`, `ProgramReset`, `ProgramVerify`. Address / length encoding mirrors UPLOAD / DOWNLOAD and follows the slave byte order. `ProgramReset` swallows the optional response per spec. |
+| 4 | CCP DAQ programming | **Closed.** `TOBDCCP` gained `GetDAQSize`, `SetDAQPtr`, `WriteDAQ`, `StartStopAll`. Big-endian addresses per ASAP1a. |
+| 5 | A2L `MOD_COMMON` / `MOD_PAR` | **Closed.** New `TOBDA2LModuleCommon` and `TOBDA2LModulePar` records on the cluster; the parser fills `Common.ByteOrder` / `Deposit` / `AlignmentByte..Float64` and `Par.EpkValue` / `EpkAddress` / `Customer` / `Version`. `HasCommon` / `HasPar` flags signal presence so a host doesn't confuse a missing block with all-zero defaults. |
+| 6 | A2L `COMPU_VTAB` / table interpolation | **Closed.** New `TOBDA2LCompuVTabEntry` + `TOBDA2LCompuTabEntry` records, parser branches for `COMPU_VTAB` / `COMPU_VTAB_RANGE` / `COMPU_TAB`, and a new `TOBDA2L.ConvertVerbal` lookup. `Convert` now interpolates `cmTabIntp` and does nearest-lower lookup for `cmTabNointp`, with clamping outside the table. |
+| 7 | IsoBus VT, TC, FS, GNSS | **Closed.** Four new units shipping the framing helpers every IsoBus host needs. `TOBDIsoBusVT`: Get_Memory, Get_Versions, Load/Store/Delete_Version, End_Of_Object_Pool, Audio_Signal, Change_Active_Mask + Soft_Key_Activation and VT_Status decoders. `TOBDIsoBusTC`: Status decoder, Value / SetValue / SetValue / RequestVersion / RequestDDOP / ProcessDataAck builders + a Value round-trip decoder. `TOBDIsoBusFS`: Get_Properties, Open / Read / Write / Seek / Close, GetCWD / ChangeCWD. `TOBDIsoBusGNSS`: NMEA 2000 decoders for PGN 129025 (Position Rapid), PGN 129026 (COG/SOG), PGN 129029 (full GNSS Position). |
+| 8 | Tachograph CalibrationRecord + PC/SC | **Closed.** `TOBDTachograph.DecodeCalibration` covers the Gen-1 fixed-offset CalibrationRecord per Annex IB §2.39 (purpose, workshop name, card number, date, VIN, w / k constants, tyre size, authorised speed). New `OBD.Speciality.Tachograph.PCSC` unit dynamic-loads `winscard.dll` (Win) / `libpcsclite.so.1` (Posix) and wraps `SCardEstablishContext` / `SCardListReaders` / `SCardConnect` / `SCardTransmit` / `SCardDisconnect` with proper resource lifetime. Same dynamic-load pattern as the Phase 4d OpenSSL plug — no compile-time dependency. |
+
+New `Tests.OBD.Calibration.Followups` fixture: 22 tests across
+five fixtures covering the new A2L blocks, XCP DAQ + PGM
+encoding (using the loopback transport), CCP DAQ encoding,
+IsoBus VT / TC / FS / GNSS framing, and a 147-byte Tachograph
+CalibrationRecord vector decoded against hand-derived expected
+fields.
+
+The only remaining Phase 7 item is the real-vehicle hardware-
+loop test, per the standing convention.
 
 ### Quality bars met
 
