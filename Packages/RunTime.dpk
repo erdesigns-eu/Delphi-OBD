@@ -198,6 +198,7 @@ contains
   OBD.OEM.ServiceRoutines in '..\src\Services\OBD.OEM.ServiceRoutines.pas',
   OBD.Tachograph.Workshop in '..\src\Services\OBD.Tachograph.Workshop.pas',
   OBD.Service06.Mode06 in '..\src\Services\OBD.Service06.Mode06.pas',
+  OBD.Protocol.WWHOBD in '..\src\Protocol\OBD.Protocol.WWHOBD.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
