@@ -52,6 +52,8 @@ uses
   Tests.J1939.PGNs in 'Tests.J1939.PGNs.pas',
   Tests.UDS.NRC in 'Tests.UDS.NRC.pas',
   Tests.Protocol.WWHOBD.Readiness in 'Tests.Protocol.WWHOBD.Readiness.pas',
+  Tests.Service09.Calibration in 'Tests.Service09.Calibration.pas',
+  Tests.DriveCycle.Advisor in 'Tests.DriveCycle.Advisor.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

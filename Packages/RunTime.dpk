@@ -202,6 +202,8 @@ contains
   OBD.J1939.PGNs in '..\src\Protocol\OBD.J1939.PGNs.pas',
   OBD.UDS.NRC in '..\src\Services\OBD.UDS.NRC.pas',
   OBD.Protocol.WWHOBD.Readiness in '..\src\Protocol\OBD.Protocol.WWHOBD.Readiness.pas',
+  OBD.Service09.Calibration in '..\src\Services\OBD.Service09.Calibration.pas',
+  OBD.DriveCycle.Advisor in '..\src\Services\OBD.DriveCycle.Advisor.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
