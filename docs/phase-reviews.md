@@ -538,6 +538,105 @@ under `catalogs/adapter/`.
    read-only property on `TOBDAdapter` — the protocol layer
    (Phase 4) will need it. *Open — Phase 4 will pull it through.*
 
+## Phase 4a — Wire codecs (the foundation)
+
+**Status:** Complete on `claude/v2-phase-1`.
+
+Phase 4 is broad enough to deserve subphases (PLAN §Phase 4 split).
+Each subphase ships production-ready code on its scope; nothing leaves
+a subphase boundary as a scaffold. 4a is the first.
+
+### Code landed
+
+| Unit | Lines | Purpose |
+|---|---:|---|
+| `OBD.Protocol.Types.pas` | ~250 | Application-protocol enum, frame kind enum, `TOBDFrame`, `TOBDRequest`, `TOBDResponse`, event signatures, `EOBDProtocolErr`, `BytesToHex` / `HexToBytes` helpers, request/response factory functions. |
+| `OBD.Protocol.ISO15765.pas` | ~245 | Full ISO-TP encoder + decoder + reassembler. SF / FF / CF / FC encoding; multi-frame reassembler with sequence-error abort. `ClassifyFrame` for inbound classification. OBD-II broadcast / response ID constants. |
+| `OBD.Protocol.UDS.pas` | ~200 | UDS service-ID constants (SID 0x10..0x87), common NRC constants, encoder, decoder with `0x7F sid nrc` detection and catalogue-resolved NRC text, `ExpectedPositiveResponse` (+0x40). |
+| `OBD.Protocol.KWP2000.pas` | ~120 | KWP2000 service-ID constants (SID 0x10..0x3E), encoder; decode delegates to UDS (response shapes are identical). |
+| `OBD.Protocol.ISO9141.pas` | ~110 | 3-byte header (FMT 0x68 / TGT / SRC), modulo-256 checksum, full encode. |
+| `OBD.Protocol.J1850.pas` | ~95 | 3-byte header, CRC-8 (poly 0x1D, init 0xFF, post-XOR 0xFF), encode. |
+| `OBD.Protocol.J1939.pas` | ~150 | 29-bit CAN ID encode/decode (priority/EDP/DP/PF/PS/SA), PGN computation, PDU1 vs PDU2 detection, full DM1..DM32 PGN catalogue, `IsDMPGN` predicate. |
+| **Total runtime** | **~1,170** | |
+| `Tests.OBD.Protocol.Types.pas` | ~110 | 7 assertions: hex round-trip, whitespace tolerance, case insensitivity, defaults. |
+| `Tests.OBD.Protocol.ISO15765.pas` | ~165 | 10 assertions: encode SF/FF/CF/FC, overflow guards, reassembly round-trip (single + multi-frame), sequence-error abort, classify. |
+| `Tests.OBD.Protocol.UDS.pas` | ~145 | 8 assertions: encode 22 F1 90, zero-SID raise, positive decode, negative decode with known NRC, negative decode with unknown NRC (synthetic text), expected positive response, empty input, noisy hex. |
+| `Tests.OBD.Protocol.J1939.pas` | ~85 | 6 assertions: DM1 broadcast decode, PDU1 request decode, encode/decode round-trip, PDU1 boundary, IsDMPGN coverage. |
+| `Tests.OBD.Protocol.Legacy.pas` | ~135 | 8 assertions across ISO 9141 (header / checksum / encode), J1850 (CRC8 / encode), KWP2000 (encode / zero-SID / delegated decode). |
+| **Total tests** | **~640** | |
+
+**39 new assertions across the protocol codec layer.**
+
+### Architecture highlights
+
+- **Codecs are stateless static-method classes.** `TOBDUDSCodec.Encode`,
+  `TOBDIso15765Reassembler.EncodeSingleFrame`, `TOBDJ1939Codec.DecodeId`,
+  etc. all take their inputs and return their outputs without holding
+  state. The reassembler is the one exception (multi-frame requires
+  state) and is documented as not-thread-safe.
+- **NRC text resolution flows through the catalogue.**
+  `TOBDUDSCodec.Decode` calls `TOBDCatalogStore.Default.FindText` for
+  the NRC byte; fallback is a synthetic `'NRC 0xXX'`. This means a
+  contributor adding a new NRC to `catalogs/obd2/nrc.json` immediately
+  changes the resolved text — no Pascal recompile.
+- **KWP2000 reuses UDS for decode.** Both protocols share the
+  `0x7F sid nrc` shape so the KWP2000 decoder is a one-line delegation.
+  The encoders differ (different SID set) so each ships its own.
+- **J1939 ID encode/decode is bit-true.** Test verifies the PDU1
+  boundary at PF 240 and a round-trip from priority/PGN/DA/SA back
+  through `DecodeId`.
+
+### What's intentionally not in 4a
+
+These belong in later subphases per PLAN §Phase 4 split:
+
+| Item | Subphase |
+|---|---|
+| `TOBDProtocol` component (binding to TOBDAdapter, sync/async/progress, OnFrame routing) | 4b |
+| Sample 03-ReadVIN | 4b |
+| `MaxIsoTpFrameBytes` exposed on `TOBDAdapter` | 4b (Phase 3 follow-up #4 closeout) |
+| J1939 TP.CM / TP.DT / ETP transport state machine | 4c |
+| DoIP (TCP/UDP/TLS, routing activation, vehicle identification) | 4d |
+| SecOC (CMAC-AES128 + freshness + key-store) | 4e |
+| LIN, FlexRay, MOST | 4f |
+| Final close-out review | 4g |
+
+### Honest review
+
+1. **CAN-FD long-frame ISO-TP not yet implemented.** Classic CAN's 7-byte
+   single-frame and 4095-byte multi-frame limits are correct; CAN-FD's
+   62-byte single-frame and longer-than-4095 multi-frame land alongside
+   the J1939 transport in 4c.
+2. **No raw-CAN sender/receiver yet.** The reassembler decodes raw
+   payloads but there is no producer that splits an outgoing >7-byte
+   message into FF + CFs and observes flow-control. Lands in 4c with
+   the J1939 transport (same state-machine concept).
+3. **UDS positive-response SID mismatch is silent.** `Decode` returns
+   the SID it sees but does not flag a mismatch with
+   `ExpectedPositiveResponse`. Caller can compare; the protocol
+   component (4b) will surface this via `OnError(oeUnexpectedFrame)`.
+4. **J1939 EDP bit packing.** `EncodeId` packs EDP+DP at bits 25..24
+   directly from the PGN's high nibble; this is correct for J1939
+   (EDP = 0) and for ISO 11783 (EDP = 1) when the higher 17th bit of
+   PGN is set. Worth re-verifying once the J1939 transport state
+   machine in 4c sends real frames against captured wire traces.
+5. **No ISO 9141 / J1850 wire init.** This is by design — the chip
+   handles 5-baud / fast init in its `ATSP` selection. The codecs
+   only build the application-layer frame.
+
+### Quality bars met
+
+- [x] Every public type / method / record member has full XMLDoc per
+      the mandatory-tag table.
+- [x] Every `.pas` file has the standard file header.
+- [x] No `Vcl.*` / `FMX.*` references.
+- [x] No `Sleep` busy-loops, no `Application.ProcessMessages`.
+- [x] All codecs are deterministic / side-effect-free (the reassembler's
+      state is documented).
+- [x] All catalogue lookups go through `OBD.Catalog`.
+
+---
+
 ### Phase 3 follow-ups closed
 
 The five honest-review flags from the Phase 3 review have been

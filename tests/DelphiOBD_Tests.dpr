@@ -55,6 +55,13 @@ uses
   OBD.Adapter.Detection in '..\src\Adapter\OBD.Adapter.Detection.pas',
   OBD.Adapter.Init in '..\src\Adapter\OBD.Adapter.Init.pas',
   OBD.Adapter in '..\src\Adapter\OBD.Adapter.pas',
+  OBD.Protocol.Types in '..\src\Protocol\OBD.Protocol.Types.pas',
+  OBD.Protocol.ISO15765 in '..\src\Protocol\OBD.Protocol.ISO15765.pas',
+  OBD.Protocol.UDS in '..\src\Protocol\OBD.Protocol.UDS.pas',
+  OBD.Protocol.KWP2000 in '..\src\Protocol\OBD.Protocol.KWP2000.pas',
+  OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
+  OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
+  OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -70,7 +77,12 @@ uses
   Tests.OBD.Adapter.Capabilities in 'Tests.OBD.Adapter.Capabilities.pas',
   Tests.OBD.Adapter.Detection in 'Tests.OBD.Adapter.Detection.pas',
   Tests.OBD.Adapter in 'Tests.OBD.Adapter.pas',
-  Tests.OBD.Adapter.Followups in 'Tests.OBD.Adapter.Followups.pas';
+  Tests.OBD.Adapter.Followups in 'Tests.OBD.Adapter.Followups.pas',
+  Tests.OBD.Protocol.Types in 'Tests.OBD.Protocol.Types.pas',
+  Tests.OBD.Protocol.ISO15765 in 'Tests.OBD.Protocol.ISO15765.pas',
+  Tests.OBD.Protocol.UDS in 'Tests.OBD.Protocol.UDS.pas',
+  Tests.OBD.Protocol.J1939 in 'Tests.OBD.Protocol.J1939.pas',
+  Tests.OBD.Protocol.Legacy in 'Tests.OBD.Protocol.Legacy.pas';
 
 {$IFDEF CI}
 var

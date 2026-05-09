@@ -552,21 +552,69 @@ Each phase ships independently and ends with a green CI run. `[ ]` = open,
 - [x] Tests: `Tests.OBD.Adapter.Commands` (12 assertions on FormatCommand + catalogue), `Tests.OBD.Adapter.Capabilities` (6 assertions on registry + JSON loader + parse synonyms), `Tests.OBD.Adapter.Detection` (7 assertions covering ELM327 v1.5/v2.3/clone, OBDLink MX, STN1110, six-phase progress, info-line variants, nil-sender), `Tests.OBD.Adapter` (7 assertions on lifecycle + EOBDNotConnected/EOBDUnsupported gates + FreeNotification)
 - [x] Sample `02-DetectAdapter` — `DetectAsync` with progress, identity printout, capability list
 
-### Phase 4 — Protocol layer (~4 weeks)
-- [ ] `OBD.Protocol.pas` — `TOBDProtocol` component, mode/manual selection
-- [ ] `OBD.Protocol.ISO15765.pas` — incl. ISO-TP framing for 11/29-bit @ 250/500 kbps
-- [ ] `OBD.Protocol.ISO9141.pas`
-- [ ] `OBD.Protocol.KWP2000.pas` — fast + 5-baud init
-- [ ] `OBD.Protocol.J1850.pas` — PWM + VPW
-- [ ] `OBD.Protocol.J1939.pas` — incl. TP.CM/TP.DT/ETP transport
-- [ ] `OBD.Protocol.UDS.pas` — request/response, NRCs, session control, security access
-- [ ] `OBD.Protocol.DoIP.pas` — incl. TLS 1.2/1.3, routing activation
-- [ ] `OBD.Protocol.SecOC.pas` — AUTOSAR Secure On-Board Comms wrapper (Freshness Value + truncated MAC, CMAC-AES128); `TOBDSecOC` component
-- [ ] `OBD.Protocol.LIN.pas` — LIN master/slave, schedule tables, LDF parser; `TOBDLIN` component
-- [ ] `OBD.Protocol.FlexRay.pas` — static + dynamic segment frames; `TOBDFlexRay` component
-- [ ] `OBD.Protocol.MOST.pas` — control/async/streaming channels; `TOBDMOST` component (read-mostly)
-- [ ] Tests: frame encode/decode round-trips against captured `.obdlog` fixtures; SecOC MAC verification vectors; LIN signal extraction from sample LDFs
-- [ ] Sample `03-ReadVIN`
+### Phase 4 — Protocol layer (~4 weeks, split into 4a..4g)
+
+The protocol layer is broad enough to deserve its own subphases. Each
+subphase is committed and reviewed independently; nothing carries
+"scaffold" status across a subphase boundary — every subphase ends
+with production-ready code on its scope.
+
+#### Phase 4a — Wire codecs (the foundation)
+- [ ] `OBD.Protocol.Types.pas` — request / response / frame records, application-protocol enum, hex helpers, NRC catalogue lookup hook
+- [ ] `OBD.Protocol.ISO15765.pas` — full ISO-TP SF / FF / CF / FC encoders + decoders + multi-frame reassembler (classic CAN; CAN-FD long-frame variant lands in 4c when J1939 transport gives us a tested broadcast/peer-to-peer chassis)
+- [ ] `OBD.Protocol.UDS.pas` — full encode + decode + NRC catalogue resolution; `0x7F sid nrc` shape detected and dispatched via `OnNRC`
+- [ ] `OBD.Protocol.KWP2000.pas` — full encode + delegated decode (response shape identical to UDS)
+- [ ] `OBD.Protocol.ISO9141.pas` — header + ISO 9141 checksum + encode (wire init owned by the adapter)
+- [ ] `OBD.Protocol.J1850.pas` — header + CRC-8 (poly 0x1D) + encode for PWM and VPW
+- [ ] `OBD.Protocol.J1939.pas` — 29-bit CAN ID encode / decode, PGN / DA / SA / PDU1 helpers, full DM1..DM32 PGN catalogue, IsDMPGN/IsPDU1 predicates
+- [ ] DUnitX coverage per codec (≥ 5 assertions each)
+
+#### Phase 4b — TOBDProtocol component + sample 03-ReadVIN
+- [ ] `OBD.Protocol.pas` — `TOBDProtocol` component bound to `TOBDAdapter`; `Mode = pmAuto / pmManual`; sync + async + progress for `Send` / `Request`; OnFrame routing; OnNRC; OnError
+- [ ] `MaxIsoTpFrameBytes` exposed on `TOBDAdapter` (Phase 3 follow-up #4 closeout)
+- [ ] DUnitX coverage of the request → encode → adapter → decode → response round-trip via mock adapter
+- [ ] Sample `03-ReadVIN` — Wi-Fi → Adapter.DetectAsync → Adapter.InitAsync → Protocol.RequestAsync(0x09, [0x02]) → printed VIN
+
+#### Phase 4c — J1939 transport state machine
+- [ ] TP.CM (RTS / CTS / EndOfMsgAck / BAM / Abort) framing constants + parsers
+- [ ] TP.DT framing
+- [ ] ETP variants for messages > 1785 bytes
+- [ ] `TOBDJ1939Session` (TX side) — split, send, await CTS, send DT chunks, retry on missing CTS
+- [ ] `TOBDJ1939SessionManager` (RX side) — track concurrent sessions per `(SA, DA, PGN)` key
+- [ ] Broadcast (BAM) send + receive
+- [ ] DUnitX coverage with captured wire traces
+
+#### Phase 4d — DoIP (ISO 13400)
+- [ ] `OBD.Protocol.DoIP.Header.pas` — header decode (0x02 0xFD signature, payload type, length)
+- [ ] Routing activation request / response (0x0005 / 0x0006)
+- [ ] Diagnostic message (0x8001) + ACK / NACK (0x8002 / 0x8003)
+- [ ] Alive check request / response (0x0007 / 0x0008)
+- [ ] Vehicle identification request / response (0x0001 / 0x0004)
+- [ ] Power mode info request / response (0x4003 / 0x4004)
+- [ ] Entity status request / response (0x4001 / 0x4002)
+- [ ] TCP transport (uses `TOBDConnection` Wi-Fi)
+- [ ] UDP discovery (uses `TOBDConnection` UDP)
+- [ ] TLS 1.2 / 1.3 wrapper for the TCP side
+- [ ] DUnitX coverage with captured DoIP frames
+
+#### Phase 4e — SecOC (AUTOSAR Secure On-Board Communication)
+- [ ] CMAC-AES128 implementation
+- [ ] Freshness value tracker (rolling counter + truncated MAC convention)
+- [ ] `IOBDSecOCKeyStore` interface + in-memory implementation
+- [ ] `TOBDSecOC` wrapper that authenticates outgoing frames and verifies inbound ones
+- [ ] Test vectors from NIST SP 800-38B (CMAC-AES128) + AUTOSAR specification
+
+#### Phase 4f — Side buses
+- [ ] `OBD.Protocol.LIN.pas` — LDF parser, master schedule executor, slave responder, signal pack/unpack (LIN 1.x / 2.x), classic 0x55 break + sync
+- [ ] `OBD.Protocol.FlexRay.pas` — static / dynamic segment frame format, header CRC, payload CRC, slot / cycle indexing, controller-host interface
+- [ ] `OBD.Protocol.MOST.pas` — MOST25 / MOST50 / MOST150 control / async / streaming channel framing
+- [ ] DUnitX coverage from sample LDFs / FlexRay clusters
+
+#### Phase 4g — Phase 4 close-out
+- [ ] End-to-end integration tests using captured `.obdlog` fixtures
+- [ ] Phase 4 review report (consolidates 4a..4f honest reviews)
+- [ ] Confirm CHANGELOG covers every subphase
+- [ ] Confirm sample 03-ReadVIN works end-to-end
 
 ### Phase 5 — Service-mode components (~4 weeks)
 

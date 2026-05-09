@@ -54,6 +54,13 @@ contains
   OBD.Adapter.Commands in '..\src\Adapter\OBD.Adapter.Commands.pas',
   OBD.Adapter.Detection in '..\src\Adapter\OBD.Adapter.Detection.pas',
   OBD.Adapter.Init in '..\src\Adapter\OBD.Adapter.Init.pas',
-  OBD.Adapter in '..\src\Adapter\OBD.Adapter.pas';
+  OBD.Adapter in '..\src\Adapter\OBD.Adapter.pas',
+  OBD.Protocol.Types in '..\src\Protocol\OBD.Protocol.Types.pas',
+  OBD.Protocol.ISO15765 in '..\src\Protocol\OBD.Protocol.ISO15765.pas',
+  OBD.Protocol.UDS in '..\src\Protocol\OBD.Protocol.UDS.pas',
+  OBD.Protocol.KWP2000 in '..\src\Protocol\OBD.Protocol.KWP2000.pas',
+  OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
+  OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
+  OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas';
 
 end.

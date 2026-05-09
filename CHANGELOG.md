@@ -29,6 +29,32 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4a (Wire codecs)
+- `OBD.Protocol.Types` — `TOBDApplicationProtocol`, `TOBDFrameKind`,
+  `TOBDFrame`, `TOBDRequest`, `TOBDResponse`, event types,
+  `EOBDProtocolErr`, `BytesToHex` / `HexToBytes` helpers.
+- `OBD.Protocol.ISO15765` — full ISO-TP encoder + decoder
+  (single / first / consecutive / flow-control), reassembler with
+  sequence-error abort, `ClassifyFrame`.
+- `OBD.Protocol.UDS` — service-ID constants (SID 0x10..0x87), common
+  NRC constants, encoder, decoder with negative-response detection
+  and catalogue-driven NRC text resolution.
+- `OBD.Protocol.KWP2000` — service-ID constants, encoder (decode
+  delegates to UDS).
+- `OBD.Protocol.ISO9141` — 3-byte header + modulo-256 checksum
+  encoder.
+- `OBD.Protocol.J1850` — 3-byte header + CRC-8 (poly 0x1D) encoder
+  for PWM + VPW.
+- `OBD.Protocol.J1939` — 29-bit ID encode/decode, PDU1 vs PDU2,
+  full DM1..DM32 PGN catalogue, `IsDMPGN` predicate.
+- DUnitX coverage: 39 new assertions across
+  `Tests.OBD.Protocol.{Types, ISO15765, UDS, J1939, Legacy}`.
+
+### Changed — design
+- PLAN.md Phase 4 split into subphases 4a..4g. Each subphase ships
+  production-ready code on its scope (no scaffolds across subphase
+  boundaries).
+
 ### Added — Phase 3 (Adapter layer)
 - `OBD.Adapter.Types` — `TOBDAdapterCapability` (15-bit set),
   `TOBDAdapterCapabilities` set type, `TOBDAdapterIdentity`,
