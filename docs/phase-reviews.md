@@ -518,14 +518,42 @@ under `catalogs/adapter/`.
 
 ### Suggested follow-up before Phase 4
 
-1. Wire async cancellation: `TOBDAdapter` should honour a cancel
-   flag in its `WaitFor` loop so `Connection.Close` aborts in-flight
-   ops within ~50 ms.
-2. Add `TOBDAdapterInitializer.LoadFromJSON` so the shipped
-   `init-sequences.json` actually overrides the built-ins.
-3. Decide on echo-edge-case handling — keep best-effort or document
-   the requirement that `ATE0` always succeeds in the init sequence.
+1. ~~Wire async cancellation~~ **Done.** `TOBDAdapter.Close` (new
+   public method) signals an `FCancelEvent` that the WaitFor poll
+   loop checks every 50 ms; in-flight sync calls raise
+   `EOBDAdapter('Operation cancelled …')`. Destructor signals the
+   same event before joining async workers.
+2. ~~Add `TOBDAdapterInitializer.LoadFromJSON`~~ **Done.** New
+   `LoadFromJSON` parses the on-disk `init-sequences.json` schema
+   and registers per-family overrides via `RegisterOverride`.
+   `ResolvedSequence` (new) consults overrides first, falls back to
+   built-ins. Unknown families in the JSON are skipped silently for
+   forward-compat.
+3. ~~Decide on echo-edge-case handling~~ **Done — best-effort
+   stripping.** `StripLeadingEcho` (new helper) drops a leading
+   echo with arbitrary surrounding whitespace / CR / LF, while the
+   per-line dedup that already existed acts as a belt-and-braces
+   for chips that echo mid-stream.
 4. Consider exposing the catalogue's `MaxIsoTpFrameBytes` as a
    read-only property on `TOBDAdapter` — the protocol layer
-   (Phase 4) will need it.
+   (Phase 4) will need it. *Open — Phase 4 will pull it through.*
+
+### Phase 3 follow-ups closed
+
+The five honest-review flags from the Phase 3 review have been
+addressed:
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | Response collector charset (ASCII mangled 0x80+) | New `BytesToWireString` does a 1:1 byte→Char copy; high bytes pass through unchanged. |
+| 2 | Echo handling robustness | New `StripLeadingEcho` strips a leading echo with arbitrary whitespace + CR/LF; the existing per-line dedup remains as a fallback. |
+| 3 | Async cancellation | New `TOBDAdapter.Close` + `FCancelEvent`; SendCommand poll loop wakes within ~50 ms; destructor signals before joining. |
+| 4 | AT@1 / AT@2 best-effort tolerance | Inline comments explain the swallow-and-continue contract; `IsError` is also checked so a `?` response leaves the field empty (instead of accidentally storing `?` as the description). XMLDoc on `Detect` documents both the swallow and the clone-heuristic interaction. |
+| 5 | Init JSON loader not wired | Implemented; `TOBDAdapter.DoInit` now calls `ResolvedSequence` (overrides + builtins) instead of `BuiltinSequence`. |
+
+New tests added in `Tests.OBD.Adapter.Followups`: charset preservation
+(0xFE / 0x80 / 0x7F / 0x00), echo stripping with whitespace and CR/LF
+variants, cancel-without-pending no-op timing, SendCommand connection
+guard ordering, JSON override register / resolve / clear-revert /
+malformed / unknown-family skip.
 

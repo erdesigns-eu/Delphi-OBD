@@ -81,15 +81,28 @@ type
     /// </summary>
     /// <param name="ASender">Command sender. Must not be
     /// <c>nil</c>.</param>
-    /// <param name="AIdentity">Output identity. Populated only when
-    /// the function returns True; left untouched on failure.</param>
+    /// <param name="AIdentity">Output identity. Always populated;
+    /// fields the chip did not report stay empty.</param>
     /// <param name="AOnProgress">Optional progress callback. May be
     /// <c>nil</c>.</param>
     /// <param name="ATimeoutMs">Per-command timeout in
     /// milliseconds. Default 5000.</param>
-    /// <returns>True when at least the <c>ATI</c> step produced a
-    /// recognisable response; False on hard failure (no ATI
-    /// response).</returns>
+    /// <returns>True when the <c>ATI</c> step produced a recognisable
+    /// signature (ELM327 / OBDLink / STN…). False when <c>ATI</c>
+    /// returned text the parser does not recognise; <c>AIdentity</c>
+    /// still carries the raw response and the family stays at the
+    /// fallback <c>afELM327</c>.</returns>
+    /// <remarks>
+    ///   Phases <c>4/6 AT@1</c> and <c>5/6 AT@2</c> are
+    ///   <b>best-effort</b>: clones often respond <c>?</c> or time
+    ///   out, in which case the corresponding identity field stays
+    ///   empty. The <see cref="LooksLikeClone"/> heuristic uses
+    ///   empty description / identifier on a v1.5 chip as a clone
+    ///   signal.
+    ///
+    ///   Phase <c>6/6 STI</c> is skipped on non-OBDLink chips to
+    ///   avoid the <c>?</c> noise from ELM327-only adapters.
+    /// </remarks>
     /// <exception cref="EOBDAdapter"><c>ASender</c> is <c>nil</c>.</exception>
     class function Detect(const ASender: IOBDAdapterCommandSender;
       out AIdentity: TOBDAdapterIdentity;
@@ -256,20 +269,31 @@ begin
   ATIRecognised := ParseInfoLine(InfoLine,
     AIdentity.Family, AIdentity.FirmwareVersion);
 
-  // 4/6 Description
+  // 4/6 Description.
+  //
+  // AT@1 is best-effort by design. Many ELM327 clones answer '?'
+  // (treated by the parser as an error response, then by SendCommand
+  // as a successful exchange — but with IsError = True). Some chips
+  // raise on the request (timeout, bus glitch). We swallow either
+  // outcome and leave Description empty; the LooksLikeClone heuristic
+  // uses an empty Description as one of its signals.
   ReportProgress(AOnProgress, 4, 6, 'Reading AT@1', '');
   try
     Resp := ASender.SendCommand('AT@1', ATimeoutMs);
-    AIdentity.Description := Trim(FirstNonEmptyLine(Resp.Lines));
+    if not Resp.IsError then
+      AIdentity.Description := Trim(FirstNonEmptyLine(Resp.Lines));
   except
+    // Swallow on purpose — see the AT@1 contract above.
   end;
 
-  // 5/6 Identifier
+  // 5/6 Identifier. Same swallow-and-continue contract as AT@1.
   ReportProgress(AOnProgress, 5, 6, 'Reading AT@2', '');
   try
     Resp := ASender.SendCommand('AT@2', ATimeoutMs);
-    AIdentity.DeviceIdentifier := Trim(FirstNonEmptyLine(Resp.Lines));
+    if not Resp.IsError then
+      AIdentity.DeviceIdentifier := Trim(FirstNonEmptyLine(Resp.Lines));
   except
+    // Swallow on purpose — see the AT@1 contract above.
   end;
 
   // 6/6 STI for OBDLink — skip for non-OBDLink families to avoid the

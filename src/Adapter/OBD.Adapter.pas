@@ -85,6 +85,7 @@ type
     FRxLock: TCriticalSection;
     FRxBuffer: string;
     FRxComplete: TEvent;
+    FCancelEvent: TEvent;
     FCurrentCommand: string;
 
     // Async worker
@@ -106,6 +107,8 @@ type
     function TerminatorIndex(const ABuffer: string): Integer;
     function ParseResponse(const ARaw: string;
       const ACommand: string; AElapsed: Cardinal): TOBDAdapterResponse;
+    function BytesToWireString(const ABytes: TBytes): string;
+    function StripLeadingEcho(const ABuffer, ACommand: string): string;
 
     procedure SubscribeIfNeeded;
     procedure UnsubscribeIfNeeded;
@@ -140,9 +143,28 @@ type
     /// <param name="ATimeoutMs">Timeout in milliseconds.</param>
     /// <returns>Parsed response.</returns>
     /// <exception cref="EOBDNotConnected">Connection not active.</exception>
-    /// <exception cref="EOBDAdapter">Timeout waiting for the prompt.</exception>
+    /// <exception cref="EOBDAdapter">Timeout, or operation cancelled
+    /// via <see cref="Close"/>.</exception>
     function SendCommand(const ACommand: string;
       ATimeoutMs: Cardinal): TOBDAdapterResponse;
+
+    /// <summary>
+    ///   Cancels every in-flight sync / async operation, joins the
+    ///   async worker thread, and unsubscribes from the connection's
+    ///   raw byte hook.
+    /// </summary>
+    /// <remarks>
+    ///   Safe to call from any thread. Sync calls already in their
+    ///   <c>WaitFor</c> loop wake within ~50 ms and raise
+    ///   <see cref="EOBDAdapter"/>; async calls fire <c>OnError</c>
+    ///   with <c>oeIO</c> and a "cancelled" message.
+    ///
+    ///   Equivalent to disconnecting the bound connection from the
+    ///   adapter's perspective; the connection itself is not closed.
+    ///   Set <c>Connection := nil</c> after this if you want to fully
+    ///   detach.
+    /// </remarks>
+    procedure Close;
 
     /// <summary>
     ///   Identifies the adapter chip and populates <c>Identity</c> +
@@ -294,18 +316,32 @@ begin
   FIdentity := MakeAdapterIdentity;
   FRxLock := TCriticalSection.Create;
   FRxComplete := TEvent.Create(nil, True, False, '');
+  FCancelEvent := TEvent.Create(nil, True, False, '');
   FAsyncLock := TCriticalSection.Create;
 end;
 
 destructor TOBDAdapter.Destroy;
 begin
+  // Signal cancel so any in-flight sync caller wakes and exits with
+  // EOBDAdapter rather than blocking the destructor on its WaitFor.
+  if Assigned(FCancelEvent) then
+    FCancelEvent.SetEvent;
   WaitForAsync;
   UnsubscribeIfNeeded;
   FAsyncLock.Free;
+  FCancelEvent.Free;
   FRxComplete.Free;
   FRxLock.Free;
   FInitCommands.Free;
   inherited;
+end;
+
+procedure TOBDAdapter.Close;
+begin
+  FCancelEvent.SetEvent;
+  WaitForAsync;
+  UnsubscribeIfNeeded;
+  FCancelEvent.ResetEvent;
 end;
 
 procedure TOBDAdapter.Notification(AComponent: TComponent; Operation: TOperation);
@@ -350,7 +386,10 @@ var
   Chunk: string;
 begin
   if Length(ABytes) = 0 then Exit;
-  Chunk := TEncoding.ASCII.GetString(ABytes);
+  // 1:1 byte-to-Char preservation. ELM327 / OBDLink chips are 7-bit
+  // clean by spec but clones may emit 0x80+ bytes; preserving them
+  // lets a higher layer distinguish "junk byte 0xFE" from '?'.
+  Chunk := BytesToWireString(ABytes);
   FRxLock.Enter;
   try
     FRxBuffer := FRxBuffer + Chunk;
@@ -358,6 +397,51 @@ begin
       FRxComplete.SetEvent;
   finally
     FRxLock.Leave;
+  end;
+end;
+
+function TOBDAdapter.BytesToWireString(const ABytes: TBytes): string;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(ABytes));
+  for I := 0 to High(ABytes) do
+    Result[I + 1] := Char(ABytes[I]);
+end;
+
+function TOBDAdapter.StripLeadingEcho(const ABuffer,
+  ACommand: string): string;
+var
+  Trimmed: string;
+  CmdNorm: string;
+  Idx, J: Integer;
+  Len: Integer;
+begin
+  Result := ABuffer;
+  CmdNorm := Trim(ACommand);
+  if CmdNorm = '' then Exit;
+  Trimmed := Result;
+
+  // Drop leading whitespace / CR / LF before checking.
+  J := 1;
+  while (J <= Length(Trimmed)) and
+        CharInSet(Trimmed[J], [#9, #10, #13, ' ']) do
+    Inc(J);
+  if J > 1 then
+    Trimmed := Copy(Trimmed, J, MaxInt);
+
+  // Echo present only when the buffer starts with the command
+  // (case-insensitive) followed by a separator.
+  Len := Length(CmdNorm);
+  if (Length(Trimmed) >= Len) and
+     SameText(Copy(Trimmed, 1, Len), CmdNorm) then
+  begin
+    Idx := Len + 1;
+    // Drop the terminator(s) that follow the echoed command.
+    while (Idx <= Length(Trimmed)) and
+          CharInSet(Trimmed[Idx], [#9, #10, #13, ' ']) do
+      Inc(Idx);
+    Result := Copy(Trimmed, Idx, MaxInt);
   end;
 end;
 
@@ -388,10 +472,12 @@ begin
     Body := Copy(ARaw, 1, Idx - 1)
   else
     Body := ARaw;
+  // Strip echo at the head of the buffer first — some clones emit
+  // arbitrary whitespace / line endings around the echo.
+  Body := StripLeadingEcho(Body, ACommand);
   Result.Raw := Body;
 
   Lines := SplitString(Body, #13#10);
-  // Re-split if the adapter used CR or LF only.
   if Length(Lines) <= 1 then
     Lines := SplitString(Body, #13);
   if Length(Lines) <= 1 then
@@ -402,7 +488,7 @@ begin
   begin
     Trimmed := Trim(Lines[I]);
     if Trimmed = '' then Continue;
-    // Echo of the command itself (some chips can't disable echo) — drop.
+    // Belt-and-braces: a trailing per-line echo (rare) is still dropped.
     if SameText(Trimmed, Trim(ACommand)) then Continue;
     SetLength(Result.Lines, Length(Result.Lines) + 1);
     Result.Lines[High(Result.Lines)] := Trimmed;
@@ -446,6 +532,13 @@ begin
   Effective := ATimeoutMs;
   if Effective = 0 then Effective := FCommandTimeoutMs;
 
+  // FCancelEvent's lifecycle is owned by Close / destructor — never
+  // reset here. A cancel set between two commands of a Detect / Init
+  // sequence must persist so the next SendCommand exits immediately.
+  if FCancelEvent.WaitFor(0) = wrSignaled then
+    raise EOBDAdapter.Create(
+      'Adapter is cancelled (Close was called)');
+
   FRxLock.Enter;
   try
     FRxBuffer := '';
@@ -458,12 +551,24 @@ begin
   Sw := TStopwatch.StartNew;
   FConnection.WriteString(ACommand + #13);
 
-  if FRxComplete.WaitFor(Effective) <> wrSignaled then
+  // Poll-loop on FRxComplete + FCancelEvent so an external Close (or
+  // destructor) can abort within ~50 ms instead of waiting out the
+  // full timeout.
+  while True do
   begin
-    FireOnError(oeTimeout,
-      Format('Timeout waiting for response to "%s"', [ACommand]));
-    raise EOBDAdapter.CreateFmt(
-      'Timeout waiting for response to "%s"', [ACommand]);
+    if FRxComplete.WaitFor(50) = wrSignaled then
+      Break;
+    if FCancelEvent.WaitFor(0) = wrSignaled then
+      raise EOBDAdapter.CreateFmt(
+        'Operation cancelled while waiting for response to "%s"',
+        [ACommand]);
+    if Cardinal(Sw.ElapsedMilliseconds) >= Effective then
+    begin
+      FireOnError(oeTimeout,
+        Format('Timeout waiting for response to "%s"', [ACommand]));
+      raise EOBDAdapter.CreateFmt(
+        'Timeout waiting for response to "%s"', [ACommand]);
+    end;
   end;
 
   FRxLock.Enter;
@@ -616,7 +721,9 @@ var
   Sequence: TOBDInitSequence;
   ProgressCb: TOBDDetectionProgress;
 begin
-  Sequence := TOBDAdapterInitializer.BuiltinSequence(FFamily);
+  // ResolvedSequence consults JSON-loaded overrides first and falls
+  // back to the in-source built-ins.
+  Sequence := TOBDAdapterInitializer.ResolvedSequence(FFamily);
   Sequence := TOBDAdapterInitializer.ExtendSequence(Sequence, FInitCommands);
   ProgressCb :=
     procedure(AIndex, ACount: Cardinal; const AName, ADetail: string)

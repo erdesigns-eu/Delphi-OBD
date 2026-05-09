@@ -27,6 +27,8 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.IOUtils,
+  System.JSON,
   System.Generics.Collections,
   OBD.Types,
   OBD.Adapter.Types,
@@ -62,14 +64,56 @@ type
   ///   <see cref="EOBDAdapter"/>.
   /// </remarks>
   TOBDAdapterInitializer = class
+  strict private
+    class var FOverrides: TDictionary<TOBDAdapterFamily, TOBDInitSequence>;
+    class procedure EnsureOverrides; static;
   public
+    /// <summary>Releases the override registry. Called from this
+    /// unit's finalisation.</summary>
+    class procedure ReleaseOverrides; static;
+
     /// <summary>
-    ///   Returns the built-in sequence for the given family.
+    ///   Returns the resolved sequence for the given family. Falls
+    ///   back to the in-source built-in when no JSON override is
+    ///   registered.
+    /// </summary>
+    /// <param name="AFamily">Adapter family.</param>
+    /// <returns>Array of steps. Empty for families that don't have an
+    /// AT/ST init phase (J2534, DoIP).</returns>
+    class function ResolvedSequence(
+      AFamily: TOBDAdapterFamily): TOBDInitSequence; static;
+
+    /// <summary>
+    ///   Returns the in-source built-in sequence for the given
+    ///   family, ignoring any JSON overrides.
     /// </summary>
     /// <param name="AFamily">Adapter family.</param>
     /// <returns>Array of steps.</returns>
     class function BuiltinSequence(
       AFamily: TOBDAdapterFamily): TOBDInitSequence; static;
+
+    /// <summary>
+    ///   Replaces (or registers) the override sequence for a family.
+    ///   Pass an empty array to clear the override.
+    /// </summary>
+    /// <param name="AFamily">Family to override.</param>
+    /// <param name="ASequence">Sequence to use in place of the
+    /// built-in.</param>
+    class procedure RegisterOverride(AFamily: TOBDAdapterFamily;
+      const ASequence: TOBDInitSequence); static;
+
+    /// <summary>
+    ///   Loads override sequences from a JSON file (matching the
+    ///   <c>catalogs/adapter/init-sequences.json</c> schema). Each
+    ///   recognised family's array is registered as an override; the
+    ///   built-ins remain in place for families the file does not
+    ///   mention.
+    /// </summary>
+    /// <param name="AFileName">Path to the JSON file.</param>
+    /// <returns>Number of family overrides registered.</returns>
+    /// <exception cref="EOBDConfig">File missing, malformed JSON, or
+    /// schema-incompatible.</exception>
+    class function LoadFromJSON(const AFileName: string): Integer; static;
 
     /// <summary>
     ///   Concatenates a base sequence with optional user-supplied
@@ -116,6 +160,170 @@ begin
 end;
 
 { ---- TOBDAdapterInitializer -------------------------------------------------- }
+
+class procedure TOBDAdapterInitializer.EnsureOverrides;
+begin
+  if FOverrides = nil then
+    FOverrides := TDictionary<TOBDAdapterFamily, TOBDInitSequence>.Create;
+end;
+
+class procedure TOBDAdapterInitializer.ReleaseOverrides;
+begin
+  FreeAndNil(FOverrides);
+end;
+
+class procedure TOBDAdapterInitializer.RegisterOverride(
+  AFamily: TOBDAdapterFamily; const ASequence: TOBDInitSequence);
+begin
+  EnsureOverrides;
+  if Length(ASequence) = 0 then
+    FOverrides.Remove(AFamily)
+  else
+    FOverrides.AddOrSetValue(AFamily, Copy(ASequence));
+end;
+
+class function TOBDAdapterInitializer.ResolvedSequence(
+  AFamily: TOBDAdapterFamily): TOBDInitSequence;
+var
+  Seq: TOBDInitSequence;
+begin
+  EnsureOverrides;
+  if FOverrides.TryGetValue(AFamily, Seq) then
+    Exit(Copy(Seq));
+  Result := BuiltinSequence(AFamily);
+end;
+
+function FamilyFromString(const AKey: string;
+  out AFamily: TOBDAdapterFamily): Boolean;
+var
+  Norm: string;
+begin
+  Norm := LowerCase(Trim(AKey));
+  Result := True;
+  if      Norm = 'elm327'  then AFamily := afELM327
+  else if Norm = 'obdlink' then AFamily := afOBDLink
+  else if Norm = 'j2534'   then AFamily := afJ2534
+  else if Norm = 'doip'    then AFamily := afDoIP
+  else Result := False;
+end;
+
+class function TOBDAdapterInitializer.LoadFromJSON(
+  const AFileName: string): Integer;
+var
+  Json: string;
+  Doc: TJSONValue;
+  Root, FamilyObj, StepObj: TJSONObject;
+  Families, Steps: TJSONArray;
+  KeyVal: TJSONValue;
+  TypeStr: string;
+  Version: Integer;
+  I, J: Integer;
+  Family: TOBDAdapterFamily;
+  FamilyKey: string;
+  Sequence: TOBDInitSequence;
+  Step: TOBDInitStep;
+begin
+  if not TFile.Exists(AFileName) then
+    raise EOBDConfig.CreateFmt('Init-sequences file not found: %s',
+      [AFileName]);
+
+  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(Json);
+  if Doc = nil then
+    raise EOBDConfig.CreateFmt('%s: invalid JSON', [AFileName]);
+
+  Result := 0;
+  try
+    if not (Doc is TJSONObject) then
+      raise EOBDConfig.CreateFmt('%s: root is not an object', [AFileName]);
+    Root := Doc as TJSONObject;
+
+    KeyVal := Root.GetValue('version');
+    if (KeyVal <> nil) and (KeyVal is TJSONNumber) then
+      Version := (KeyVal as TJSONNumber).AsInt
+    else
+      Version := 1;
+    if Version <> 1 then
+      raise EOBDConfig.CreateFmt('%s: unsupported schema version %d',
+        [AFileName, Version]);
+
+    KeyVal := Root.GetValue('type');
+    if KeyVal <> nil then
+      TypeStr := KeyVal.Value
+    else
+      TypeStr := 'adapter-init-sequences';
+    if not SameText(TypeStr, 'adapter-init-sequences') then
+      raise EOBDConfig.CreateFmt(
+        '%s: type "%s" is not "adapter-init-sequences"',
+        [AFileName, TypeStr]);
+
+    if not (Root.GetValue('families') is TJSONArray) then
+      raise EOBDConfig.CreateFmt('%s: "families" must be an array',
+        [AFileName]);
+    Families := Root.GetValue('families') as TJSONArray;
+
+    for I := 0 to Families.Count - 1 do
+    begin
+      if not (Families.Items[I] is TJSONObject) then
+        raise EOBDConfig.CreateFmt('%s: families[%d] is not an object',
+          [AFileName, I]);
+      FamilyObj := Families.Items[I] as TJSONObject;
+
+      KeyVal := FamilyObj.GetValue('family');
+      if KeyVal = nil then
+        raise EOBDConfig.CreateFmt(
+          '%s: families[%d].family missing', [AFileName, I]);
+      FamilyKey := KeyVal.Value;
+      if not FamilyFromString(FamilyKey, Family) then
+        // Unknown family — skip silently rather than raise; lets
+        // future families be added to the JSON without breaking
+        // older builds.
+        Continue;
+
+      if not (FamilyObj.GetValue('steps') is TJSONArray) then
+        raise EOBDConfig.CreateFmt(
+          '%s: families[%d].steps must be an array', [AFileName, I]);
+      Steps := FamilyObj.GetValue('steps') as TJSONArray;
+
+      SetLength(Sequence, 0);
+      for J := 0 to Steps.Count - 1 do
+      begin
+        if not (Steps.Items[J] is TJSONObject) then
+          raise EOBDConfig.CreateFmt(
+            '%s: families[%d].steps[%d] is not an object',
+            [AFileName, I, J]);
+        StepObj := Steps.Items[J] as TJSONObject;
+
+        Step.Verb := '';
+        Step.Name := '';
+        Step.Required := False;
+
+        KeyVal := StepObj.GetValue('verb');
+        if KeyVal <> nil then Step.Verb := KeyVal.Value;
+        if Trim(Step.Verb) = '' then
+          raise EOBDConfig.CreateFmt(
+            '%s: families[%d].steps[%d].verb is empty',
+            [AFileName, I, J]);
+
+        KeyVal := StepObj.GetValue('name');
+        if KeyVal <> nil then Step.Name := KeyVal.Value;
+        if Step.Name = '' then Step.Name := Step.Verb;
+
+        KeyVal := StepObj.GetValue('required');
+        if (KeyVal <> nil) and (KeyVal is TJSONBool) then
+          Step.Required := (KeyVal as TJSONBool).AsBoolean;
+
+        SetLength(Sequence, Length(Sequence) + 1);
+        Sequence[High(Sequence)] := Step;
+      end;
+
+      RegisterOverride(Family, Sequence);
+      Inc(Result);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
 
 class function TOBDAdapterInitializer.BuiltinSequence(
   AFamily: TOBDAdapterFamily): TOBDInitSequence;
@@ -203,5 +411,10 @@ begin
     end;
   end;
 end;
+
+initialization
+
+finalization
+  TOBDAdapterInitializer.ReleaseOverrides;
 
 end.

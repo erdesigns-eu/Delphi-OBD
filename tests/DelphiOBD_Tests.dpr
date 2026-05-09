@@ -69,7 +69,8 @@ uses
   Tests.OBD.Adapter.Commands in 'Tests.OBD.Adapter.Commands.pas',
   Tests.OBD.Adapter.Capabilities in 'Tests.OBD.Adapter.Capabilities.pas',
   Tests.OBD.Adapter.Detection in 'Tests.OBD.Adapter.Detection.pas',
-  Tests.OBD.Adapter in 'Tests.OBD.Adapter.pas';
+  Tests.OBD.Adapter in 'Tests.OBD.Adapter.pas',
+  Tests.OBD.Adapter.Followups in 'Tests.OBD.Adapter.Followups.pas';
 
 {$IFDEF CI}
 var
