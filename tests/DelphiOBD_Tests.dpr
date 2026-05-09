@@ -74,6 +74,10 @@ uses
   OBD.Protocol.SecOC.Keys in '..\src\Protocol\OBD.Protocol.SecOC.Keys.pas',
   OBD.Protocol.SecOC.Freshness in '..\src\Protocol\OBD.Protocol.SecOC.Freshness.pas',
   OBD.Protocol.SecOC in '..\src\Protocol\OBD.Protocol.SecOC.pas',
+  OBD.Protocol.LIN.Frame in '..\src\Protocol\OBD.Protocol.LIN.Frame.pas',
+  OBD.Protocol.LIN.LDF in '..\src\Protocol\OBD.Protocol.LIN.LDF.pas',
+  OBD.Protocol.FlexRay.Frame in '..\src\Protocol\OBD.Protocol.FlexRay.Frame.pas',
+  OBD.Protocol.MOST.Control in '..\src\Protocol\OBD.Protocol.MOST.Control.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
@@ -100,7 +104,10 @@ uses
   Tests.OBD.Protocol.VIN in 'Tests.OBD.Protocol.VIN.pas',
   Tests.OBD.Protocol.J1939.TP in 'Tests.OBD.Protocol.J1939.TP.pas',
   Tests.OBD.Protocol.DoIP in 'Tests.OBD.Protocol.DoIP.pas',
-  Tests.OBD.Protocol.SecOC in 'Tests.OBD.Protocol.SecOC.pas';
+  Tests.OBD.Protocol.SecOC in 'Tests.OBD.Protocol.SecOC.pas',
+  Tests.OBD.Protocol.LIN in 'Tests.OBD.Protocol.LIN.pas',
+  Tests.OBD.Protocol.FlexRay in 'Tests.OBD.Protocol.FlexRay.pas',
+  Tests.OBD.Protocol.MOST in 'Tests.OBD.Protocol.MOST.pas';
 
 {$IFDEF CI}
 var

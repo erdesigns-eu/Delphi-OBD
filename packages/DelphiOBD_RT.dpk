@@ -74,6 +74,10 @@ contains
   OBD.Protocol.SecOC.Keys in '..\src\Protocol\OBD.Protocol.SecOC.Keys.pas',
   OBD.Protocol.SecOC.Freshness in '..\src\Protocol\OBD.Protocol.SecOC.Freshness.pas',
   OBD.Protocol.SecOC in '..\src\Protocol\OBD.Protocol.SecOC.pas',
+  OBD.Protocol.LIN.Frame in '..\src\Protocol\OBD.Protocol.LIN.Frame.pas',
+  OBD.Protocol.LIN.LDF in '..\src\Protocol\OBD.Protocol.LIN.LDF.pas',
+  OBD.Protocol.FlexRay.Frame in '..\src\Protocol\OBD.Protocol.FlexRay.Frame.pas',
+  OBD.Protocol.MOST.Control in '..\src\Protocol\OBD.Protocol.MOST.Control.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas';
 
 end.

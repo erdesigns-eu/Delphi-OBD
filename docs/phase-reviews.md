@@ -1257,3 +1257,164 @@ deferrals as documented above.
 - [x] Truncated-FV epoch-wrap reconstruction covered by tests.
 - [x] Sync-only API on the codec; no async shape needed
       (CMAC is microseconds — no thread).
+
+---
+
+## Phase 4f — LIN + FlexRay + MOST
+
+### Code landed
+
+- `src/Protocol/OBD.Protocol.LIN.Frame.pas` — LIN frame
+  primitives. Protected Identifier (6-bit ID + 2 parity bits per
+  LIN 2.2A § 2.3), classic and enhanced 8-bit one's-complement
+  checksums, frame encoder / decoder over the data portion of the
+  bus. Sync break / sync byte 0x55 are physical-layer concerns
+  and not produced here. Default-checksum selector follows the
+  LIN 2.2A § 2.8.4 rule (classic for diagnostic IDs 0x3C / 0x3D,
+  enhanced for everything else).
+- `src/Protocol/OBD.Protocol.LIN.LDF.pas` — LIN Description File
+  parser. Tokenizer (line-tracked, comment-aware) + recursive
+  descent over the structural sections (`Nodes`, `Signals`,
+  `Frames`, `Schedule_tables`). Header values (protocol version,
+  language version, bus speed in bps) are decoded from
+  `LIN_protocol_version` / `LIN_language_version` /
+  `LIN_speed`. Schedule slot delays are stored as integer
+  microseconds. Unknown sections are skipped cleanly so future
+  spec additions do not break parsing.
+- `src/Protocol/OBD.Protocol.FlexRay.Frame.pas` — FlexRay frame
+  primitives per ISO 17458-1 / FlexRay 2.1A. 5-byte header
+  (reserved + 4 indicator bits + 11-bit Frame ID + 7-bit payload
+  length + 11-bit header CRC + 6-bit cycle count). Header
+  CRC-11 (poly 0x385, init 0x1A). Frame CRC-24 (poly 0x5D6DCB,
+  init 0xFEDCBA) over header + padded payload. `FlexRayEncodeHeader` /
+  `FlexRayEncodeFrame` compute the CRCs when the corresponding
+  fields are zero on input; the decoders verify them and return
+  False on mismatch.
+- `src/Protocol/OBD.Protocol.MOST.Control.pas` — MOST control-
+  message frame: 16-bit source/destination addresses, 8-bit
+  FBlock ID + Inst ID, 12-bit Fkt ID + 4-bit OPType, 4-bit
+  Tel ID + 4-bit Tel Len, variable data. Common FBlock and
+  OPType constants from the MOST Cooperation function-block
+  catalog. Speed selector (`msMOST25` / `msMOST50` / `msMOST150`)
+  controls the data-length ceiling.
+- `tests/Tests.OBD.Protocol.LIN.pas` — eight LIN frame tests +
+  four LDF parser tests. PID Table 2.3 vectors, full
+  round-trip across all 64 IDs, parity-flip rejection, classic
+  + enhanced checksum vectors, default-kind selection,
+  encode/decode round-trip, checksum tamper detection. LDF tests
+  cover minimal cluster, schedule-delay micros, unknown-section
+  skip, comma-separated slave list.
+- `tests/Tests.OBD.Protocol.FlexRay.pas` — seven tests covering
+  header round-trip, deterministic header CRC fitting in 11 bits,
+  identifier bit-flip rejection, full-frame round-trip, payload
+  bit-flip rejection, invalid Frame ID rejection, cycle-count
+  overflow rejection.
+- `tests/Tests.OBD.Protocol.MOST.pas` — five tests covering
+  control-message round-trip, too-short buffer rejection,
+  oversized FktID rejection, MOST25 data ceiling, MOST50 longer
+  data acceptance.
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added all four new units and the three new test fixtures.
+
+### Architecture highlights
+
+- **Single-file LDF parser, no external dependency.** The
+  tokenizer walks the source string once, tracks line numbers
+  for diagnostic messages, and handles `//` + `/* */` comments.
+  The grammar is a recursive descent that recognises the four
+  structural sections by name and skips anything else. A future
+  Phase 6 component can layer signal-encoding-types on top
+  without re-tokenising.
+- **CRC core is one helper.** Both FlexRay CRCs (11-bit header,
+  24-bit frame) reduce to the same `CRCStep` MSB-first
+  polynomial step parameterised by width and polynomial. New
+  CRCs (e.g. CAN-FD's 17/21-bit) drop in trivially.
+- **MOST is intentionally minimal.** Synchronous and isochronous
+  channels are out of scope for an OBD diagnostics package; they
+  carry audio / video, not application bytes. The control-
+  message structure is the only piece a diagnostics flow ever
+  touches (FBlock 0x20 = Diagnosis), so we ship that and stop.
+
+### What's intentionally not in 4f
+
+- **LIN schedule runtime.** The LDF parser produces a structural
+  description; driving the schedule against a UART / LIN
+  transceiver is a host-side concern and lands when a Phase 7
+  bus-runtime component arrives. The structural data has
+  microsecond-precision slot delays so a host that wants to
+  drive the bus directly already has what it needs.
+- **LDF signal-encoding tables and signal-representation
+  blocks.** The parser skips them cleanly. They are only needed
+  for human-readable signal display (a Phase 6+ concern); the
+  raw signal bit-layout used by encoders / decoders is already
+  in `Frames`.
+- **FlexRay startup / wakeup state machine.** Specific to the
+  cluster controller hardware; no portable representation makes
+  sense here.
+- **MOST stream connection management** (synchronous /
+  isochronous channel allocation). Not a diagnostic concern.
+- **Real-bus integration tests.** Same hardware-loop deferral
+  as every prior phase.
+
+### Honest review
+
+1. **FlexRay header / frame CRCs are validated by round-trip and
+   tamper detection but not against a published spec test
+   vector.** The polynomials and init values match ISO 17458-1,
+   but a bench loop against a real FlexRay analyser is the
+   gold-standard cross-check. **Tracked.**
+2. **LIN encoder pads checksum but doesn't enforce frame slot
+   length on encode.** Real LIN clusters know each frame's slot
+   size from the LDF; passing a 4-byte payload for an 8-byte
+   slot would today silently produce a 4-byte data section. The
+   decoder takes `ADataLen` explicitly and rejects size
+   mismatches, but the encoder is permissive. **Closing in
+   this commit:** add a length-mismatch raise.
+3. **LDF `Sporadic_frames`, `Event_triggered_frames`, and
+   `Diagnostic_frames` sections are recognised by name but
+   skipped.** They use the same syntactic shape as `Frames` and
+   should be parsed into the same `Frames` array (with a tag
+   field). **Tracked** as a follow-up; closing it now would
+   require re-shaping `TOBDLDFFrame`.
+4. **LDF `LIN_protocol_version` other than 2.x is accepted
+   silently.** The parser stores whatever the file declares but
+   does not refuse 1.3 or 3.x (no such version exists yet).
+   Hosts that care should inspect `Cluster.ProtocolVersion`
+   themselves.
+5. **MOST control message segmentation is exposed as raw
+   `TelID` / `TelLen` fields but no segmenter is shipped.**
+   Hosts that need to send > 12-byte payloads on MOST25 (or
+   > 45-byte on MOST50) compose the segments themselves. The
+   primitives carry the necessary fields; no production OBD
+   flow has ever needed this.
+6. **No real-bus integration test** (LIN UART, FlexRay
+   controller, MOST INIC). Same hardware-loop deferral.
+7. **LDF parser does not preserve whitespace / formatting for
+   round-trip writing.** Read-only by design — Phase 4f does
+   not need to emit LDFs. Tracked as a follow-up if a host ever
+   needs a diff-friendly editor.
+
+### Phase 4f follow-ups closed
+
+| # | Flag | Resolution |
+|---|---|---|
+| 2 | LIN encoder doesn't enforce slot length | **Closed.** New optional `ASlotSize` parameter on `LINEncodeFrame`; when non-zero the encoder raises `EOBDConfig` if `Length(Data) <> ASlotSize`. Default `0` preserves existing flexibility for raw frames. |
+
+Items 1, 3–7 are deferred (hardware loop, future restructuring,
+or out-of-scope for diagnostics).
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] LIN PID matches LIN 2.2A Table 2.3 for all 64 IDs.
+- [x] Classic + enhanced LIN checksums covered with hand-derived
+      test vectors.
+- [x] FlexRay header + frame CRC round-trip + tamper-detection
+      coverage.
+- [x] FlexRay CRC polynomials and init values match ISO 17458-1.
+- [x] MOST control-message field-range validation rejects
+      oversized FktID / OPType / Tel*.
+- [x] LDF parser handles unknown sections gracefully.
+- [x] LDF schedule delays preserved at microsecond resolution.
