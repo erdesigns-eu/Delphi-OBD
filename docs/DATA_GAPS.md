@@ -61,6 +61,22 @@ catalogs need verified bit layouts captured from real ECUs.
 (fcaproxitool.com), I-CAR CRN-1291 "Identifying FCA/Stellantis
 Programming Differences", NHTSA TSB MC-10251789-9999.
 
+### v3.80 / 5.3 — SecOC CMAC-AES-128 (profiles 1 & 2)
+
+`OBD.Protocol.SecOC` ships profile 3 (HMAC-SHA-256) end-to-end using
+`System.Hash.THashSHA2.GetHMAC`. Profiles 1 and 2 (CMAC-AES-128) are
+the most common AUTOSAR baseline but require CMAC, which Delphi RTL
+does not expose. `SecOCComputeAuthenticator` for profile 1 / 2 raises
+`EOBDSecOCAlgorithmNotAvailable` until OpenSSL 3.x EVP_MAC is bound at
+the same place existing OpenSSL bindings live
+(`OBD.ECU.Signature.OpenSSL`). The freshness-value handling, MAC
+truncation, PDU envelope, and constant-time verify path are all
+shared, so the binding is a single ~30-line addition.
+
+What's needed: `EVP_MAC_fetch("CMAC")` + `EVP_MAC_init` + `EVP_MAC_update`
++ `EVP_MAC_final` against the AES-128-CBC cipher. Public AUTOSAR test
+vectors will validate the binding the moment it lands.
+
 ### v3.80 / 4.5 — Post-quantum signature OpenSSL binding
 
 `OBD.ECU.Signature.PQC` ships the envelope codec
