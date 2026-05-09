@@ -89,7 +89,9 @@ type
 
   /// <summary>One (parameter, value) entry as understood by SET_CONFIG.</summary>
   TJ2534ConfigEntry = record
+    /// <summary>Parameter.</summary>
     Parameter: Cardinal;
+    /// <summary>Value.</summary>
     Value: Cardinal;
   end;
 
@@ -103,8 +105,11 @@ type
   private
     FEntries: TArray<TJ2534ConfigEntry>;
   public
+    /// <summary>Add.</summary>
     procedure Add(Parameter, Value: Cardinal);
+    /// <summary>Count.</summary>
     function Count: Integer;
+    /// <summary>To bytes.</summary>
     function ToBytes: TBytes;
   end;
 
@@ -113,6 +118,9 @@ type
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// ADD
+//------------------------------------------------------------------------------
 procedure TJ2534ConfigList.Add(Parameter, Value: Cardinal);
 var
   E: TJ2534ConfigEntry;
@@ -122,6 +130,9 @@ begin
   FEntries := FEntries + [E];
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TJ2534ConfigList.Count: Integer;
 begin
   Result := Length(FEntries);

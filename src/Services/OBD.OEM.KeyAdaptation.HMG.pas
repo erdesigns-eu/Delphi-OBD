@@ -26,13 +26,16 @@ type
 
   THMGKeyRegisterRequest = record
     VIN: string;          // 17 ASCII chars
+    /// <summary>Mode.</summary>
     Mode: THMGKeyMode;
     PIN: string;          // 4..6 ASCII digits, dealer-supplied
     KeyIndex: Byte;       // 0..7; ignored for EraseAll/ReadCount
   end;
 
   THMGKeyRegisterResponse = record
+    /// <summary>Mode.</summary>
     Mode: THMGKeyMode;
+    /// <summary>Success.</summary>
     Success: Boolean;
     KeyCount: Byte;       // populated for ReadCount or after AddKey
     StatusCode: Byte;     // OEM-defined
@@ -42,9 +45,13 @@ type
                         hpaCertificateRequired);
 
   THMGPlatformInfo = record
+    /// <summary>Key.</summary>
     Key: string;
+    /// <summary>Display name.</summary>
     DisplayName: string;
+    /// <summary>Access.</summary>
     Access: THMGPlatformAccess;
+    /// <summary>Notes.</summary>
     Notes: string;
   end;
 
@@ -66,6 +73,9 @@ uses
   System.Classes, System.JSON,
   OBD.Catalog.Path;
 
+//------------------------------------------------------------------------------
+// ENCODE HMGKEY REGISTER REQUEST
+//------------------------------------------------------------------------------
 function EncodeHMGKeyRegisterRequest(const Req: THMGKeyRegisterRequest): TBytes;
 var
   PINLen, I: Integer;
@@ -87,6 +97,9 @@ begin
   Result[19 + PINLen] := Req.KeyIndex;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE HMGKEY REGISTER REQUEST
+//------------------------------------------------------------------------------
 function DecodeHMGKeyRegisterRequest(const Bytes: TBytes): THMGKeyRegisterRequest;
 var
   PINLen, I: Integer;
@@ -107,6 +120,9 @@ begin
   Result.KeyIndex := Bytes[19 + PINLen];
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE HMGKEY REGISTER RESPONSE
+//------------------------------------------------------------------------------
 function EncodeHMGKeyRegisterResponse(const Resp: THMGKeyRegisterResponse): TBytes;
 begin
   SetLength(Result, 4);
@@ -116,6 +132,9 @@ begin
   Result[3] := Resp.StatusCode;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE HMGKEY REGISTER RESPONSE
+//------------------------------------------------------------------------------
 function DecodeHMGKeyRegisterResponse(const Bytes: TBytes): THMGKeyRegisterResponse;
 begin
   if Length(Bytes) <> 4 then
@@ -129,6 +148,9 @@ end;
 var
   GHMGPlatforms: TDictionary<string, THMGPlatformInfo> = nil;
 
+//------------------------------------------------------------------------------
+// HMGACCESS FROM STRING
+//------------------------------------------------------------------------------
 function HMGAccessFromString(const S: string): THMGPlatformAccess;
 begin
   if SameText(S, 'open_with_pin') then Exit(hpaOpenWithPIN);
@@ -136,6 +158,9 @@ begin
   Result := hpaCertificateRequired;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD HMGCATALOG
+//------------------------------------------------------------------------------
 procedure LoadHMGCatalog;
 var
   Path, Raw: string;
@@ -176,6 +201,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND HMGPLATFORM
+//------------------------------------------------------------------------------
 function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 var Lookup: string;
 begin

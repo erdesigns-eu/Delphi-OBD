@@ -38,8 +38,10 @@ type
 
   /// <summary>Decoded envelope: algorithm + key-id + raw signature.</summary>
   TOBDPQCEnvelope = record
+    /// <summary>Algorithm.</summary>
     Algorithm: TOBDPQCAlgorithm;
     KeyId: TBytes;        // up to 32 bytes; opaque to this unit
+    /// <summary>Signature.</summary>
     Signature: TBytes;
   end;
 
@@ -52,9 +54,12 @@ type
     FAlgorithm: TOBDPQCAlgorithm;
     FPublicKey: TBytes;
   public
+    /// <summary>Create.</summary>
     constructor Create(const AAlgorithm: TOBDPQCAlgorithm;
       const APublicKey: TBytes);
+    /// <summary>Algorithm name.</summary>
     function AlgorithmName: string;
+    /// <summary>Verify.</summary>
     function Verify(const Firmware, Signature: TBytes): Boolean;
   end;
 
@@ -77,6 +82,9 @@ function PQCAlgorithmName(const A: TOBDPQCAlgorithm): string;
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// PQCALGORITHM NAME
+//------------------------------------------------------------------------------
 function PQCAlgorithmName(const A: TOBDPQCAlgorithm): string;
 begin
   case A of
@@ -90,6 +98,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE PQCENVELOPE
+//------------------------------------------------------------------------------
 function EncodePQCEnvelope(const Env: TOBDPQCEnvelope): TBytes;
 var
   Out_: TBytes;
@@ -121,6 +132,9 @@ begin
   Result := Out_;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE PQCENVELOPE
+//------------------------------------------------------------------------------
 function DecodePQCEnvelope(const Bytes: TBytes): TOBDPQCEnvelope;
 var
   Cursor, KeyLen: Integer;
@@ -157,6 +171,9 @@ end;
 
 { TOBDPQCSignatureVerifier }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDPQCSignatureVerifier.Create(const AAlgorithm: TOBDPQCAlgorithm;
   const APublicKey: TBytes);
 begin
@@ -169,6 +186,9 @@ begin
   FPublicKey := Copy(APublicKey);
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDPQCSignatureVerifier.AlgorithmName: string;
 begin
   Result := PQCAlgorithmName(FAlgorithm);

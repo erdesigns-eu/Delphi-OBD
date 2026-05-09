@@ -27,7 +27,9 @@ type
   /// left blank is filled from the VIN itself or from the brand's
   /// default variant.</summary>
   TRadioCodeResolveContext = record
+    /// <summary>Brand key.</summary>
     BrandKey: string;
+    /// <summary>Vin.</summary>
     VIN: string;
     ModelYearOverride: Integer;  // 0 = use ModelYear from VIN
     ModelHint: string;           // optional radio-model name
@@ -36,6 +38,7 @@ type
 
   /// <summary>Outcome of a resolution attempt.</summary>
   TRadioCodeResolveResult = record
+    /// <summary>Calculator.</summary>
     Calculator: IOBDRadioCode;
     Brand: TOBDRadioCodeBrand;     // nil if not found
     Variant: TRadioCodeVariant;    // nil if no variant manager populated
@@ -63,6 +66,9 @@ uses
   OBD.RadioCode.Mercedes.Advanced,
   OBD.RadioCode.BMW.Advanced;
 
+//------------------------------------------------------------------------------
+// MAP VINREGION TO RADIO CODE REGION
+//------------------------------------------------------------------------------
 function MapVINRegionToRadioCodeRegion(const VinRegionName: string): TRadioCodeRegion;
 var
   N: string;
@@ -79,6 +85,9 @@ begin
   Result := rcrUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE CALCULATOR
+//------------------------------------------------------------------------------
 function ResolveCalculator(const Ctx: TRadioCodeResolveContext): TRadioCodeResolveResult;
 var
   Brand: TOBDRadioCodeBrand;
@@ -136,6 +145,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// MAKE FACTORY AUDI CONCERT
+//------------------------------------------------------------------------------
 function MakeFactoryAudiConcert: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
@@ -144,6 +156,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// MAKE FACTORY MERCEDES
+//------------------------------------------------------------------------------
 function MakeFactoryMercedes: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
@@ -152,6 +167,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// MAKE FACTORY BMW
+//------------------------------------------------------------------------------
 function MakeFactoryBMW: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
@@ -160,6 +178,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// SEED VWVARIANTS
+//------------------------------------------------------------------------------
 procedure SeedVWVariants(Brand: TOBDRadioCodeBrand);
 begin
   // Mirrors the variants TOBDRadioCodeVWAdvanced builds internally so
@@ -178,6 +199,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEED AUDI VARIANTS
+//------------------------------------------------------------------------------
 procedure SeedAudiVariants(Brand: TOBDRadioCodeBrand);
 begin
   with Brand.Variants do
@@ -192,6 +216,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEED MERCEDES VARIANTS
+//------------------------------------------------------------------------------
 procedure SeedMercedesVariants(Brand: TOBDRadioCodeBrand);
 begin
   with Brand.Variants do
@@ -209,6 +236,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEED BMWVARIANTS
+//------------------------------------------------------------------------------
 procedure SeedBMWVariants(Brand: TOBDRadioCodeBrand);
 begin
   with Brand.Variants do
@@ -225,6 +255,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER DATA AVAILABLE BRANDS
+//------------------------------------------------------------------------------
 procedure RegisterDataAvailableBrands;
 var
   VW, Audi, MB, BMW: TOBDRadioCodeBrand;

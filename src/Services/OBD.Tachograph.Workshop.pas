@@ -55,6 +55,7 @@ type
   end;
 
   TTachoSpeedSource = record
+    /// <summary>Pulses per revolution.</summary>
     PulsesPerRevolution: UInt16;
   end;
 
@@ -102,6 +103,9 @@ function TimeRealToDateTime(const T: UInt32): TDateTime;
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// DATE TIME TO TIME REAL
+//------------------------------------------------------------------------------
 function DateTimeToTimeReal(const DT: TDateTime): UInt32;
 begin
   Result := UInt32(SecondsBetween(EncodeDate(1970, 1, 1), DT));
@@ -112,6 +116,9 @@ begin
   Result := IncSecond(EncodeDate(1970, 1, 1), Integer(T));
 end;
 
+//------------------------------------------------------------------------------
+// WRITE UINT16 BE
+//------------------------------------------------------------------------------
 function WriteUInt16BE(Out_: TBytes; Cursor: Integer; V: UInt16): Integer;
 begin
   Out_[Cursor]     := Byte(V shr 8);
@@ -119,6 +126,9 @@ begin
   Result := Cursor + 2;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE UINT32 BE
+//------------------------------------------------------------------------------
 function WriteUInt32BE(Out_: TBytes; Cursor: Integer; V: UInt32): Integer;
 begin
   Out_[Cursor]     := Byte(V shr 24);
@@ -128,6 +138,9 @@ begin
   Result := Cursor + 4;
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT16 BE
+//------------------------------------------------------------------------------
 function ReadUInt16BE(const B: TBytes; Off: Integer): UInt16;
 begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
@@ -141,6 +154,9 @@ begin
          or  UInt32(B[Off + 3]);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE UTCSYNC
+//------------------------------------------------------------------------------
 function EncodeUTCSync(const Op: TTachoUTCSync): TBytes;
 begin
   if Length(Op.WorkshopCardId) <> 16 then
@@ -151,6 +167,9 @@ begin
   Move(Op.WorkshopCardId[0], Result[4], 16);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE UTCSYNC
+//------------------------------------------------------------------------------
 function DecodeUTCSync(const Bytes: TBytes): TTachoUTCSync;
 begin
   if Length(Bytes) <> 20 then
@@ -160,6 +179,9 @@ begin
   Move(Bytes[4], Result.WorkshopCardId[0], 16);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE KLW
+//------------------------------------------------------------------------------
 function EncodeKLW(const Op: TTachoKLWFactors): TBytes;
 begin
   if (Op.K < 4000) or (Op.K > 25000) then
@@ -171,6 +193,9 @@ begin
   WriteUInt16BE(Result, 4, Op.W);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE KLW
+//------------------------------------------------------------------------------
 function DecodeKLW(const Bytes: TBytes): TTachoKLWFactors;
 begin
   if Length(Bytes) <> 6 then
@@ -180,6 +205,9 @@ begin
   Result.W := ReadUInt16BE(Bytes, 4);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE TYRE SIZE
+//------------------------------------------------------------------------------
 function EncodeTyreSize(const Op: TTachoTyreSize): TBytes;
 begin
   if (Op.CircumferenceMm < 1500) or (Op.CircumferenceMm > 4500) then
@@ -190,6 +218,9 @@ begin
   WriteUInt16BE(Result, 0, Op.CircumferenceMm);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE TYRE SIZE
+//------------------------------------------------------------------------------
 function DecodeTyreSize(const Bytes: TBytes): TTachoTyreSize;
 begin
   if Length(Bytes) <> 2 then
@@ -197,6 +228,9 @@ begin
   Result.CircumferenceMm := ReadUInt16BE(Bytes, 0);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE VIN
+//------------------------------------------------------------------------------
 function EncodeVIN(const Op: TTachoVINUpdate): TBytes;
 var I: Integer;
 begin
@@ -207,6 +241,9 @@ begin
   for I := 0 to 16 do Result[I] := Byte(Ord(Op.VIN[I + 1]));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE VIN
+//------------------------------------------------------------------------------
 function DecodeVIN(const Bytes: TBytes): TTachoVINUpdate;
 var I: Integer;
 begin
@@ -216,6 +253,9 @@ begin
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE VRPLATE
+//------------------------------------------------------------------------------
 function EncodeVRPlate(const Op: TTachoVRPlate): TBytes;
 var
   Plate: TBytes;
@@ -231,6 +271,9 @@ begin
   Result[High(Result)] := Op.NationalSymbol;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE VRPLATE
+//------------------------------------------------------------------------------
 function DecodeVRPlate(const Bytes: TBytes): TTachoVRPlate;
 var
   N, I: Integer;
@@ -245,6 +288,9 @@ begin
   Result.NationalSymbol := Bytes[1 + N];
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE SPEED SOURCE
+//------------------------------------------------------------------------------
 function EncodeSpeedSource(const Op: TTachoSpeedSource): TBytes;
 begin
   if Op.PulsesPerRevolution = 0 then
@@ -253,6 +299,9 @@ begin
   WriteUInt16BE(Result, 0, Op.PulsesPerRevolution);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE SEALED ACTIVATION
+//------------------------------------------------------------------------------
 function EncodeSealedActivation(const Op: TTachoSealedActivation): TBytes;
 var
   Note: TBytes;

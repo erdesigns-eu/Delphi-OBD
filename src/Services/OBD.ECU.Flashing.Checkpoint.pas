@@ -25,17 +25,24 @@ type
 
   TOBDFlashCheckpointState = record
     Sha256: string;             // hex of firmware SHA-256 at checkpoint create
+    /// <summary>Block size.</summary>
     BlockSize: Integer;
+    /// <summary>Total blocks.</summary>
     TotalBlocks: Integer;
     LastCompletedBlock: Integer;  // -1 = nothing completed
+    /// <summary>Snapshot path.</summary>
     SnapshotPath: string;
+    /// <summary>Updated at utc.</summary>
     UpdatedAtUtc: TDateTime;
   end;
 
   TOBDFlashCheckpointVerifyResult = record
+    /// <summary>Resumable.</summary>
     Resumable: Boolean;
     NextBlock: Integer;          // next block to write (= LastCompletedBlock + 1)
+    /// <summary>State.</summary>
     State: TOBDFlashCheckpointState;
+    /// <summary>Reason.</summary>
     Reason: string;
   end;
 
@@ -43,6 +50,7 @@ type
   private
     FSidecarPath: string;
     FState: TOBDFlashCheckpointState;
+    /// <summary>Save.</summary>
     procedure Save;
   public
     /// <summary>Compute the SHA-256 hex digest of <c>FirmwarePath</c>.
@@ -69,7 +77,9 @@ type
     /// <summary>Delete the sidecar (call on successful flash completion).</summary>
     procedure Clear;
 
+    /// <summary>State.</summary>
     property State: TOBDFlashCheckpointState read FState;
+    /// <summary>Sidecar path.</summary>
     property SidecarPath: string read FSidecarPath;
   end;
 
@@ -78,6 +88,9 @@ type
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// SHA256 OF FILE
+//------------------------------------------------------------------------------
 class function TOBDFlashCheckpoint.Sha256OfFile(const FirmwarePath: string): string;
 var
   Stream: TFileStream;
@@ -99,6 +112,9 @@ begin
   Result := Hash.HashAsString;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALISE
+//------------------------------------------------------------------------------
 class function TOBDFlashCheckpoint.Initialise(
   const ASidecarPath, AFirmwarePath: string;
   ABlockSize, ATotalBlocks: Integer;
@@ -122,6 +138,9 @@ begin
   Result.Save;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD AND VERIFY
+//------------------------------------------------------------------------------
 class function TOBDFlashCheckpoint.LoadAndVerify(
   const ASidecarPath, AFirmwarePath: string): TOBDFlashCheckpointVerifyResult;
 var
@@ -179,6 +198,9 @@ begin
       + Result.State.Sha256 + ' actual=' + Sha;
 end;
 
+//------------------------------------------------------------------------------
+// MARK BLOCK COMPLETE
+//------------------------------------------------------------------------------
 procedure TOBDFlashCheckpoint.MarkBlockComplete(BlockIndex: Integer);
 begin
   if BlockIndex < 0 then Exit;
@@ -193,12 +215,18 @@ begin
   Save;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDFlashCheckpoint.Clear;
 begin
   if TFile.Exists(FSidecarPath) then
     TFile.Delete(FSidecarPath);
 end;
 
+//------------------------------------------------------------------------------
+// SAVE
+//------------------------------------------------------------------------------
 procedure TOBDFlashCheckpoint.Save;
 var
   Json: TJSONObject;

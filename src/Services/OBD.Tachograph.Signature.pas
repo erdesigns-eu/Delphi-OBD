@@ -38,18 +38,25 @@ type
   );
 
   TDDDBlock = record
+    /// <summary>Kind.</summary>
     Kind: TDDDBlockKind;
     Tag: Word;             // raw 2-byte TLV tag from the file
+    /// <summary>Length.</summary>
     Length: Integer;
     Offset: Integer;       // byte offset within the file
+    /// <summary>Data.</summary>
     Data: TBytes;
   end;
 
   TDDDChainResult = record
+    /// <summary>Verified.</summary>
     Verified: Boolean;
+    /// <summary>Blocks parsed.</summary>
     BlocksParsed: Integer;
+    /// <summary>Signatures verified.</summary>
     SignaturesVerified: Integer;
     FirstFailureBlockIndex: Integer; // -1 on success
+    /// <summary>Reason.</summary>
     Reason: string;
   end;
 
@@ -57,6 +64,7 @@ type
   private
     FVerifierForCard: IFirmwareSignatureVerifier;
     FVerifierForVU: IFirmwareSignatureVerifier;
+    /// <summary>Classify tag.</summary>
     function ClassifyTag(Tag: Word): TDDDBlockKind;
   public
     /// <summary>Set the verifier used for the card-side signature
@@ -100,18 +108,27 @@ const
   TAG_CARD_CHIP        = $0508;
   TAG_SIGNATURE        = $050E;
 
+//------------------------------------------------------------------------------
+// SET CARD VERIFIER
+//------------------------------------------------------------------------------
 procedure TOBDTachographSignatureChecker.SetCardVerifier(
   const V: IFirmwareSignatureVerifier);
 begin
   FVerifierForCard := V;
 end;
 
+//------------------------------------------------------------------------------
+// SET VUVERIFIER
+//------------------------------------------------------------------------------
 procedure TOBDTachographSignatureChecker.SetVUVerifier(
   const V: IFirmwareSignatureVerifier);
 begin
   FVerifierForVU := V;
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY TAG
+//------------------------------------------------------------------------------
 function TOBDTachographSignatureChecker.ClassifyTag(Tag: Word): TDDDBlockKind;
 begin
   case Tag of
@@ -129,6 +146,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE BLOCKS
+//------------------------------------------------------------------------------
 function TOBDTachographSignatureChecker.ParseBlocks(
   const Bytes: TBytes): TArray<TDDDBlock>;
 var
@@ -166,6 +186,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY CHAIN
+//------------------------------------------------------------------------------
 function TOBDTachographSignatureChecker.VerifyChain(
   const Bytes: TBytes): TDDDChainResult;
 var

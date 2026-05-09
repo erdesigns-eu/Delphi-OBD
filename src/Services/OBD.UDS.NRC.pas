@@ -30,9 +30,13 @@ type
   );
 
   TOBDUDSNrcInfo = record
+    /// <summary>Code.</summary>
     Code: Byte;
+    /// <summary>Short name.</summary>
     ShortName: string;
+    /// <summary>Description.</summary>
     Description: string;
+    /// <summary>Category.</summary>
     Category: TOBDUDSNrcCategory;
   end;
 
@@ -66,6 +70,9 @@ const
 var
   GMap: TDictionary<Byte, TOBDUDSNrcInfo> = nil;
 
+//------------------------------------------------------------------------------
+// CATEGORY FROM STRING
+//------------------------------------------------------------------------------
 function CategoryFromString(const S: string): TOBDUDSNrcCategory;
 begin
   if SameText(S, 'general')      then Exit(nrcGeneral);
@@ -76,6 +83,9 @@ begin
   Result := nrcReserved;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEX BYTE
+//------------------------------------------------------------------------------
 function ParseHexByte(const S: string; out B: Byte): Boolean;
 var
   V: Integer;
@@ -90,6 +100,9 @@ begin
   if Result then B := Byte(V);
 end;
 
+//------------------------------------------------------------------------------
+// LOAD CATALOG
+//------------------------------------------------------------------------------
 procedure LoadCatalog;
 var
   Path, Raw: string;
@@ -131,6 +144,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DESCRIBE NRC
+//------------------------------------------------------------------------------
 function DescribeNRC(NRC: Byte): TOBDUDSNrcInfo;
 begin
   if (GMap <> nil) and GMap.TryGetValue(NRC, Result) then Exit;
@@ -140,6 +156,9 @@ begin
   Result.Category    := nrcReserved;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT NRC
+//------------------------------------------------------------------------------
 function FormatNRC(NRC: Byte): string;
 var Info: TOBDUDSNrcInfo;
 begin
@@ -147,6 +166,9 @@ begin
   Result := Format('NRC 0x%.2x (%s: %s)', [NRC, Info.ShortName, Info.Description]);
 end;
 
+//------------------------------------------------------------------------------
+// IS TRANSIENT NRC
+//------------------------------------------------------------------------------
 function IsTransientNRC(NRC: Byte): Boolean;
 begin
   Result := (NRC = $21) or (NRC = $22) or (NRC = $78) or (NRC = $94);

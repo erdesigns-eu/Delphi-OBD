@@ -35,13 +35,16 @@ type
   end;
 
   TMBSCNCodingRequest = record
+    /// <summary>Vin.</summary>
     VIN: string;
+    /// <summary>Ecu id.</summary>
     ECUId: Word;
     Variant: TBytes;             // OEM variant code per ECU
     AccessoryList: TBytes;       // OEM accessory bitmap / list
   end;
 
   TMBSCNCodingResponse = record
+    /// <summary>New scn.</summary>
     NewSCN: TBytes;
     ServerSignature: TBytes;     // server-side signature, opaque
   end;
@@ -50,14 +53,17 @@ type
     ['{0A8F4B2D-8E1C-4D3A-B7E9-1F4C9E8D7A11}']
     function FetchCurrentVersion(const Req: TMBSCNVersionRequest):
       TMBSCNVersionResponse;
+    /// <summary>Request coding.</summary>
     function RequestCoding(const Req: TMBSCNCodingRequest):
       TMBSCNCodingResponse;
   end;
 
   TMBSCNSolverNotAvailable = class(TInterfacedObject, IMBSCNSolver)
   public
+    /// <summary>Fetch current version.</summary>
     function FetchCurrentVersion(const Req: TMBSCNVersionRequest):
       TMBSCNVersionResponse;
+    /// <summary>Request coding.</summary>
     function RequestCoding(const Req: TMBSCNCodingRequest):
       TMBSCNCodingResponse;
   end;
@@ -74,6 +80,9 @@ function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// PUT WORD
+//------------------------------------------------------------------------------
 function PutWord(var Out_: TBytes; Cursor: Integer; W: Word): Integer;
 begin
   Out_[Cursor]     := Byte(W shr 8);
@@ -81,6 +90,9 @@ begin
   Result := Cursor + 2;
 end;
 
+//------------------------------------------------------------------------------
+// GET WORD
+//------------------------------------------------------------------------------
 function GetWord(const B: TBytes; Off: Integer): Word;
 begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
@@ -97,6 +109,9 @@ begin
   PutWord(Result, 17, Req.ECUId);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE MBSCNVERSION REQUEST
+//------------------------------------------------------------------------------
 function DecodeMBSCNVersionRequest(const Bytes: TBytes): TMBSCNVersionRequest;
 var I: Integer;
 begin
@@ -108,6 +123,9 @@ begin
   Result.ECUId := GetWord(Bytes, 17);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE MBSCNCODING REQUEST
+//------------------------------------------------------------------------------
 function EncodeMBSCNCodingRequest(const Req: TMBSCNCodingRequest): TBytes;
 var
   Cursor, I: Integer;
@@ -139,6 +157,9 @@ begin
     Move(Req.AccessoryList[0], Result[Cursor], Length(Req.AccessoryList));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE MBSCNCODING REQUEST
+//------------------------------------------------------------------------------
 function DecodeMBSCNCodingRequest(const Bytes: TBytes): TMBSCNCodingRequest;
 var
   Cursor, Len, I: Integer;
@@ -164,6 +185,9 @@ begin
   if Len > 0 then Move(Bytes[Cursor], Result.AccessoryList[0], Len);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE MBSCNCODING RESPONSE
+//------------------------------------------------------------------------------
 function EncodeMBSCNCodingResponse(const Resp: TMBSCNCodingResponse): TBytes;
 var Cursor: Integer;
 begin
@@ -185,6 +209,9 @@ begin
     Move(Resp.ServerSignature[0], Result[Cursor], Length(Resp.ServerSignature));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE MBSCNCODING RESPONSE
+//------------------------------------------------------------------------------
 function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
 var Cursor, Len: Integer;
 begin
@@ -208,6 +235,9 @@ end;
 
 { TMBSCNSolverNotAvailable }
 
+//------------------------------------------------------------------------------
+// FETCH CURRENT VERSION
+//------------------------------------------------------------------------------
 function TMBSCNSolverNotAvailable.FetchCurrentVersion(
   const Req: TMBSCNVersionRequest): TMBSCNVersionResponse;
 begin
@@ -217,6 +247,9 @@ begin
     '(see docs/DATA_GAPS.md).');
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST CODING
+//------------------------------------------------------------------------------
 function TMBSCNSolverNotAvailable.RequestCoding(
   const Req: TMBSCNCodingRequest): TMBSCNCodingResponse;
 begin

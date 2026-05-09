@@ -24,13 +24,18 @@ type
 
   /// <summary>Cell-imbalance summary computed from the per-cell array.</summary>
   TOBDCellImbalance = record
+    /// <summary>Cell count.</summary>
     CellCount: Integer;
+    /// <summary>Min voltage.</summary>
     MinVoltage: Single;
+    /// <summary>Max voltage.</summary>
     MaxVoltage: Single;
+    /// <summary>Mean voltage.</summary>
     MeanVoltage: Single;
     StdDev: Single;          // population standard deviation
     SpreadVolts: Single;     // Max - Min, the workshop-friendly figure
     OutlierIndex: Integer;   // -1 if no cell deviates > 3 sigma; else its index
+    /// <summary>Outlier delta sigma.</summary>
     OutlierDeltaSigma: Single;
   end;
 
@@ -38,9 +43,12 @@ type
   /// rated capacity. SoHFromCapacity is the canonical form; the other
   /// fields are intermediate values shown to the workshop UI.</summary>
   TOBDBatterySoH = record
+    /// <summary>Rated capacity kwh.</summary>
     RatedCapacityKwh: Single;
+    /// <summary>Observed capacity kwh.</summary>
     ObservedCapacityKwh: Single;
     SoHFromCapacity: Single;     // 0..1 (1.0 = brand new)
+    /// <summary>Equivalent full cycles.</summary>
     EquivalentFullCycles: Integer;
     DeratingFromTemperature: Single; // 0..1 multiplier; 1.0 = no derating
     CompositeSoH: Single;        // SoHFromCapacity * DeratingFromTemperature
@@ -50,11 +58,17 @@ type
   /// feed this come in slightly different units across OEMs; the
   /// caller normalises before constructing.</summary>
   TOBDChargingSession = record
+    /// <summary>Start so c percent.</summary>
     StartSoCPercent: Single;
+    /// <summary>End so c percent.</summary>
     EndSoCPercent: Single;
+    /// <summary>Energy delivered kwh.</summary>
     EnergyDeliveredKwh: Single;
+    /// <summary>Peak power kw.</summary>
     PeakPowerKw: Single;
+    /// <summary>Average battery temp c.</summary>
     AverageBatteryTempC: Single;
+    /// <summary>Duration seconds.</summary>
     DurationSeconds: Integer;
     SessionType: string;          // 'AC', 'DC', 'V2L', 'V2G', etc.
   end;
@@ -67,7 +81,9 @@ function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalan
 /// must be positive. Optional temperature derating multiplier in
 /// 0..1; default 1.0 (no derating).</summary>
 function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
+  /// <summary>Equivalent full cycles.</summary>
   EquivalentFullCycles: Integer = 0;
+  /// <summary>Derating from temperature.</summary>
   DeratingFromTemperature: Single = 1.0): TOBDBatterySoH;
 
 /// <summary>Normalise a charging-session record. Validates the
@@ -80,6 +96,9 @@ function NormaliseChargingSession(const Raw: TOBDChargingSession):
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// COMPUTE CELL IMBALANCE
+//------------------------------------------------------------------------------
 function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalance;
 var
   I: Integer;
@@ -134,6 +153,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE BATTERY SO H
+//------------------------------------------------------------------------------
 function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
   EquivalentFullCycles: Integer; DeratingFromTemperature: Single): TOBDBatterySoH;
 begin
@@ -154,6 +176,9 @@ begin
   Result.CompositeSoH := Result.SoHFromCapacity * DeratingFromTemperature;
 end;
 
+//------------------------------------------------------------------------------
+// NORMALISE CHARGING SESSION
+//------------------------------------------------------------------------------
 function NormaliseChargingSession(const Raw: TOBDChargingSession):
   TOBDChargingSession;
 begin

@@ -25,7 +25,9 @@ type
   TToyotaKeyMode = (tkmAddKey, tkmEraseAll, tkmReadCount);
 
   TToyotaKeyRegisterRequest = record
+    /// <summary>Vin.</summary>
     VIN: string;
+    /// <summary>Mode.</summary>
     Mode: TToyotaKeyMode;
     /// <summary>True if a master (black-shell) key is in the slot —
     /// most pre-2015 platforms require this; smart-key-only cars
@@ -35,8 +37,11 @@ type
   end;
 
   TToyotaKeyRegisterResponse = record
+    /// <summary>Mode.</summary>
     Mode: TToyotaKeyMode;
+    /// <summary>Success.</summary>
     Success: Boolean;
+    /// <summary>Key count.</summary>
     KeyCount: Byte;
     AddedKeyId: TBytes;      // 4-byte transponder id of the new key
   end;
@@ -44,9 +49,13 @@ type
   TToyotaPlatformAccess = (tpaMasterKey, tpaPin, tpaCertificateRequired);
 
   TToyotaPlatformInfo = record
+    /// <summary>Key.</summary>
     Key: string;
+    /// <summary>Display name.</summary>
     DisplayName: string;
+    /// <summary>Access.</summary>
     Access: TToyotaPlatformAccess;
+    /// <summary>Notes.</summary>
     Notes: string;
   end;
 
@@ -69,6 +78,9 @@ uses
 var
   GToyotaPlatforms: TDictionary<string, TToyotaPlatformInfo> = nil;
 
+//------------------------------------------------------------------------------
+// TOYOTA ACCESS FROM STRING
+//------------------------------------------------------------------------------
 function ToyotaAccessFromString(const S: string): TToyotaPlatformAccess;
 begin
   if SameText(S, 'master_key') then Exit(tpaMasterKey);
@@ -76,6 +88,9 @@ begin
   Result := tpaCertificateRequired;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD TOYOTA CATALOG
+//------------------------------------------------------------------------------
 procedure LoadToyotaCatalog;
 var
   Path, Raw: string;
@@ -116,6 +131,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE TOYOTA KEY REGISTER REQUEST
+//------------------------------------------------------------------------------
 function EncodeToyotaKeyRegisterRequest(const Req: TToyotaKeyRegisterRequest): TBytes;
 var
   Cursor, PINLen, I: Integer;
@@ -140,6 +158,9 @@ begin
     Result[Cursor + I] := Byte(Ord(Req.PIN[I + 1]));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE TOYOTA KEY REGISTER REQUEST
+//------------------------------------------------------------------------------
 function DecodeToyotaKeyRegisterRequest(const Bytes: TBytes): TToyotaKeyRegisterRequest;
 var
   Cursor, PINLen, I: Integer;
@@ -162,6 +183,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE TOYOTA KEY REGISTER RESPONSE
+//------------------------------------------------------------------------------
 function EncodeToyotaKeyRegisterResponse(const Resp: TToyotaKeyRegisterResponse): TBytes;
 var Cursor: Integer;
 begin
@@ -175,6 +199,9 @@ begin
   Move(Resp.AddedKeyId[0], Result[Cursor], 4);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE TOYOTA KEY REGISTER RESPONSE
+//------------------------------------------------------------------------------
 function DecodeToyotaKeyRegisterResponse(const Bytes: TBytes): TToyotaKeyRegisterResponse;
 begin
   if Length(Bytes) <> 7 then
@@ -187,6 +214,9 @@ begin
   Move(Bytes[3], Result.AddedKeyId[0], 4);
 end;
 
+//------------------------------------------------------------------------------
+// FIND TOYOTA PLATFORM
+//------------------------------------------------------------------------------
 function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
 var Lookup: string;
 begin

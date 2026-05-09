@@ -31,9 +31,13 @@ type
   TOBDCodingFieldKind = (cfkBit, cfkByte, cfkUInt16);
 
   TOBDCodingFieldSchema = record
+    /// <summary>Name.</summary>
     Name: string;
+    /// <summary>Description.</summary>
     Description: string;
+    /// <summary>Kind.</summary>
     Kind: TOBDCodingFieldKind;
+    /// <summary>Byte index.</summary>
     ByteIndex: Integer;
     BitIndex: Integer;       // valid only for cfkBit
   end;
@@ -45,10 +49,14 @@ type
   TOBDCodingDiffEntry = record
     FieldName: string;       // empty when byte-level
     Description: string;     // empty when byte-level
+    /// <summary>Byte index.</summary>
     ByteIndex: Integer;
     BitIndex: Integer;       // -1 for byte/uint16 entries
+    /// <summary>Before value.</summary>
     BeforeValue: UInt32;
+    /// <summary>After value.</summary>
     AfterValue: UInt32;
+    /// <summary>As text.</summary>
     function AsText: string;
   end;
 
@@ -70,19 +78,29 @@ type
     FSchema: TOBDCodingSchema;
     FDiff: TOBDCodingDiff;
     FApplied: Boolean;
+    /// <summary>Compute diff.</summary>
     procedure ComputeDiff;
   public
+    /// <summary>Create.</summary>
     constructor Create(const Current, Target: TBytes;
       const Schema: TOBDCodingSchema = nil);
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
+    /// <summary>Is no op.</summary>
     function IsNoOp: Boolean;
+    /// <summary>As text.</summary>
     function AsText: string;
+    /// <summary>Apply.</summary>
     procedure Apply(Confirmed: Boolean; const Writer: TOBDCodingWriter);
 
+    /// <summary>Current.</summary>
     property Current: TBytes read FCurrent;
+    /// <summary>Target.</summary>
     property Target: TBytes read FTarget;
+    /// <summary>Diff.</summary>
     property Diff: TOBDCodingDiff read FDiff;
+    /// <summary>Applied.</summary>
     property Applied: Boolean read FApplied;
   end;
 
@@ -93,6 +111,9 @@ implementation
 
 { TOBDCodingDiffEntry }
 
+//------------------------------------------------------------------------------
+// AS TEXT
+//------------------------------------------------------------------------------
 function TOBDCodingDiffEntry.AsText: string;
 begin
   if FieldName <> '' then
@@ -113,6 +134,9 @@ end;
 
 { TOBDCodingPlan }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDCodingPlan.Create(const Current, Target: TBytes;
   const Schema: TOBDCodingSchema);
 begin
@@ -127,6 +151,9 @@ begin
   ComputeDiff;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDCodingPlan.Destroy;
 begin
   inherited;
@@ -206,6 +233,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS NO OP
+//------------------------------------------------------------------------------
 function TOBDCodingPlan.IsNoOp: Boolean;
 begin
   Result := Length(FDiff) = 0;
@@ -229,6 +259,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// APPLY
+//------------------------------------------------------------------------------
 procedure TOBDCodingPlan.Apply(Confirmed: Boolean;
   const Writer: TOBDCodingWriter);
 begin

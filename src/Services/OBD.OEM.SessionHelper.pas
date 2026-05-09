@@ -40,8 +40,11 @@ type
   );
 
   TOBDRoutineExecutionResult = record
+    /// <summary>Success.</summary>
     Success: Boolean;
+    /// <summary>Routine key.</summary>
     RoutineKey: string;
+    /// <summary>Abort stage.</summary>
     AbortStage: TOBDRoutineExecutionStage;
     NRC: Byte;                  // 0 if no NRC was raised
     ErrorMessage: string;       // populated on failure
@@ -77,9 +80,13 @@ type
   /// <summary>Bundle of callbacks the helper needs. Production callers
   /// wire each to their TOBDDiagSession; tests inject lambdas.</summary>
   TOBDOEMSessionCallbacks = record
+    /// <summary>Open session.</summary>
     OpenSession: TOBDSessionOpenCallback;
+    /// <summary>Start routine.</summary>
     StartRoutine: TOBDRoutineStartCallback;
+    /// <summary>Read result.</summary>
     ReadResult: TOBDRoutineResultCallback;
+    /// <summary>Close session.</summary>
     CloseSession: TOBDSessionCloseCallback;
     ReadVoltage: TOBDOEMSessionVoltageReader;  // optional; only consulted
                                                // when Routine.Safety = srsBatteryMin12V5
@@ -89,9 +96,11 @@ type
   private
     FVoltageGate: TOBDProgrammingVoltageGate;
     FOwnsGate: Boolean;
+    /// <summary>Apply voltage gate.</summary>
     function ApplyVoltageGate(const Routine: TOBDServiceRoutine;
       const ReadVoltage: TOBDOEMSessionVoltageReader;
       var Res: TOBDRoutineExecutionResult): Boolean;
+    /// <summary>Set failure.</summary>
     procedure SetFailure(var Res: TOBDRoutineExecutionResult;
       Stage: TOBDRoutineExecutionStage; NRC: Byte; const Msg: string);
   public
@@ -99,8 +108,10 @@ type
     /// Pass nil to let the helper own a default gate (12.5 V threshold).
     /// </summary>
     constructor Create(VoltageGate: TOBDProgrammingVoltageGate = nil);
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
+    /// <summary>Run service routine.</summary>
     function RunServiceRoutine(const Routine: TOBDServiceRoutine;
       const Callbacks: TOBDOEMSessionCallbacks): TOBDRoutineExecutionResult;
 
@@ -114,6 +125,9 @@ type
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDOEMSessionHelper.Create(VoltageGate: TOBDProgrammingVoltageGate);
 begin
   inherited Create;
@@ -129,12 +143,18 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDOEMSessionHelper.Destroy;
 begin
   if FOwnsGate then FVoltageGate.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SET FAILURE
+//------------------------------------------------------------------------------
 procedure TOBDOEMSessionHelper.SetFailure(var Res: TOBDRoutineExecutionResult;
   Stage: TOBDRoutineExecutionStage; NRC: Byte; const Msg: string);
 begin
@@ -147,6 +167,9 @@ begin
     Res.ErrorMessage := Msg;
 end;
 
+//------------------------------------------------------------------------------
+// APPLY VOLTAGE GATE
+//------------------------------------------------------------------------------
 function TOBDOEMSessionHelper.ApplyVoltageGate(
   const Routine: TOBDServiceRoutine;
   const ReadVoltage: TOBDOEMSessionVoltageReader;
@@ -174,6 +197,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// RUN SERVICE ROUTINE
+//------------------------------------------------------------------------------
 function TOBDOEMSessionHelper.RunServiceRoutine(
   const Routine: TOBDServiceRoutine;
   const Callbacks: TOBDOEMSessionCallbacks): TOBDRoutineExecutionResult;

@@ -44,17 +44,29 @@ type
 
   /// <summary>One workshop routine description.</summary>
   TOBDServiceRoutine = record
+    /// <summary>Key.</summary>
     Key: string;
+    /// <summary>Display name.</summary>
     DisplayName: string;
+    /// <summary>Category.</summary>
     Category: TOBDServiceRoutineCategory;
+    /// <summary>Applicability.</summary>
     Applicability: string;
+    /// <summary>Routine identifier.</summary>
     RoutineIdentifier: Word;
+    /// <summary>Sub function.</summary>
     SubFunction: Byte;
+    /// <summary>Option record.</summary>
     OptionRecord: TBytes;
+    /// <summary>Required session type.</summary>
     RequiredSessionType: Byte;
+    /// <summary>Safety.</summary>
     Safety: TOBDServiceRoutineSafety;
+    /// <summary>Pre conditions.</summary>
     PreConditions: string;
+    /// <summary>Post conditions.</summary>
     PostConditions: string;
+    /// <summary>Citation.</summary>
     Citation: string;
   end;
 
@@ -69,18 +81,28 @@ type
     class var FInstance: TOBDServiceRoutineRegistry;
     FRoutines: TList<TOBDServiceRoutine>;
     FByKey: TDictionary<string, Integer>;
+    /// <summary>Load from catalog.</summary>
     procedure LoadFromCatalog;
   public
+    /// <summary>Create.</summary>
     constructor Create;
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
+    /// <summary>Instance.</summary>
     class function Instance: TOBDServiceRoutineRegistry;
+    /// <summary>Free instance.</summary>
     class procedure FreeInstance; reintroduce;
 
+    /// <summary>Count.</summary>
     function Count: Integer;
+    /// <summary>Get.</summary>
     function Get(Index: Integer): TOBDServiceRoutine;
+    /// <summary>Find.</summary>
     function Find(const Key: string; out Routine: TOBDServiceRoutine): Boolean;
+    /// <summary>Get by category.</summary>
     procedure GetByCategory(Category: TOBDServiceRoutineCategory;
       out Routines: TArray<TOBDServiceRoutine>);
+    /// <summary>Get by oem.</summary>
     procedure GetByOEM(const OEMKey: string;
       out Routines: TArray<TOBDServiceRoutine>);
   end;
@@ -97,6 +119,9 @@ uses
 const
   CatalogFileName = 'service-routines.json';
 
+//------------------------------------------------------------------------------
+// BUILD ROUTINE CONTROL FRAME
+//------------------------------------------------------------------------------
 function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;
 var
   Out_: TBytes;
@@ -117,6 +142,9 @@ begin
   Result := Out_;
 end;
 
+//------------------------------------------------------------------------------
+// CATEGORY FROM STRING
+//------------------------------------------------------------------------------
 function CategoryFromString(const S: string): TOBDServiceRoutineCategory;
 begin
   if SameText(S, 'maintenance')        then Exit(srcMaintenance);
@@ -129,6 +157,9 @@ begin
   Result := srcMaintenance;
 end;
 
+//------------------------------------------------------------------------------
+// SAFETY FROM STRING
+//------------------------------------------------------------------------------
 function SafetyFromString(const S: string): TOBDServiceRoutineSafety;
 begin
   if SameText(S, 'none')                       then Exit(srsNone);
@@ -141,6 +172,9 @@ begin
   Result := srsNone;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEX INT
+//------------------------------------------------------------------------------
 function ParseHexInt(const S: string; Default_: Integer): Integer;
 var
   T: string;
@@ -150,6 +184,9 @@ begin
   if not TryStrToInt(T, Result) then Result := Default_;
 end;
 
+//------------------------------------------------------------------------------
+// HEX STRING TO BYTES
+//------------------------------------------------------------------------------
 function HexStringToBytes(const S: string): TBytes;
 var
   Clean: string;
@@ -166,6 +203,9 @@ end;
 
 { TOBDServiceRoutineRegistry }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDServiceRoutineRegistry.Create;
 begin
   inherited;
@@ -174,6 +214,9 @@ begin
   LoadFromCatalog;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDServiceRoutineRegistry.Destroy;
 begin
   FByKey.Free;
@@ -181,6 +224,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// INSTANCE
+//------------------------------------------------------------------------------
 class function TOBDServiceRoutineRegistry.Instance: TOBDServiceRoutineRegistry;
 begin
   if FInstance = nil then
@@ -188,6 +234,9 @@ begin
   Result := FInstance;
 end;
 
+//------------------------------------------------------------------------------
+// FREE INSTANCE
+//------------------------------------------------------------------------------
 class procedure TOBDServiceRoutineRegistry.FreeInstance;
 begin
   FreeAndNil(FInstance);
@@ -196,6 +245,9 @@ end;
 function TOBDServiceRoutineRegistry.Count: Integer;
 begin Result := FRoutines.Count; end;
 
+//------------------------------------------------------------------------------
+// GET
+//------------------------------------------------------------------------------
 function TOBDServiceRoutineRegistry.Get(Index: Integer): TOBDServiceRoutine;
 begin Result := FRoutines[Index]; end;
 
@@ -207,6 +259,9 @@ begin
   if Result then Routine := FRoutines[Idx];
 end;
 
+//------------------------------------------------------------------------------
+// GET BY CATEGORY
+//------------------------------------------------------------------------------
 procedure TOBDServiceRoutineRegistry.GetByCategory(
   Category: TOBDServiceRoutineCategory;
   out Routines: TArray<TOBDServiceRoutine>);
@@ -224,6 +279,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// GET BY OEM
+//------------------------------------------------------------------------------
 procedure TOBDServiceRoutineRegistry.GetByOEM(const OEMKey: string;
   out Routines: TArray<TOBDServiceRoutine>);
 var
@@ -243,6 +301,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDServiceRoutineRegistry.LoadFromCatalog;
 var
   Path, Raw: string;

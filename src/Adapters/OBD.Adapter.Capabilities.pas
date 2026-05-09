@@ -42,7 +42,9 @@ type
 
   TOBDAdapterCapabilities = record
     AdapterKey: string;       // e.g. 'elm327', 'obdlink_ex', 'doip_gateway'
+    /// <summary>Display name.</summary>
     DisplayName: string;
+    /// <summary>Cap set.</summary>
     CapSet: TOBDAdapterCapabilitySet;
     /// <summary>Maximum ISO-TP frame body length in bytes. 7 for CAN
     /// classic single-frame; 62 for CAN-FD 64-byte single-frame.</summary>
@@ -94,6 +96,9 @@ const
     'Voltage', 'SecOC', 'J2534', 'J2534v2', 'BLE', 'WiFi', 'FTDI'
   );
 
+//------------------------------------------------------------------------------
+// CAPABILITY SET TO STRING
+//------------------------------------------------------------------------------
 function CapabilitySetToString(const S: TOBDAdapterCapabilitySet): string;
 var
   C: TOBDAdapterCapability;
@@ -112,6 +117,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER ADAPTER CAPABILITIES
+//------------------------------------------------------------------------------
 procedure RegisterAdapterCapabilities(const Caps: TOBDAdapterCapabilities);
 var
   Stored: TOBDAdapterCapabilities;
@@ -130,6 +138,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND ADAPTER CAPABILITIES
+//------------------------------------------------------------------------------
 function FindAdapterCapabilities(const AdapterKey: string;
   out Caps: TOBDAdapterCapabilities): Boolean;
 begin
@@ -141,6 +152,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ADAPTER SUPPORTS
+//------------------------------------------------------------------------------
 function AdapterSupports(const AdapterKey: string;
   Capability: TOBDAdapterCapability): Boolean;
 var
@@ -150,6 +164,9 @@ begin
             and (Capability in Caps.CapSet);
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE ISO TP FRAME BYTES
+//------------------------------------------------------------------------------
 function ResolveIsoTpFrameBytes(const AdapterKey: string): Integer;
 var
   Caps: TOBDAdapterCapabilities;
@@ -163,6 +180,9 @@ begin
   Result := 7;
 end;
 
+//------------------------------------------------------------------------------
+// CAPABILITY FROM STRING
+//------------------------------------------------------------------------------
 function CapabilityFromString(const S: string; out C: TOBDAdapterCapability): Boolean;
 var I: TOBDAdapterCapability;
 begin
@@ -174,6 +194,9 @@ begin
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ADAPTER CATALOG
+//------------------------------------------------------------------------------
 procedure LoadAdapterCatalog;
 var
   Path, Raw: string;

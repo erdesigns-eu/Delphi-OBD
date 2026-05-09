@@ -30,6 +30,9 @@ implementation
 var
   GGlobalCatalogPath: string = '';
 
+//------------------------------------------------------------------------------
+// SET GLOBAL CATALOG PATH
+//------------------------------------------------------------------------------
 procedure SetGlobalCatalogPath(const Path: string);
 begin
   GGlobalCatalogPath := Path;

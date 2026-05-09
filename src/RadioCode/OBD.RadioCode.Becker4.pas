@@ -27,8 +27,11 @@ type
   /// at unit init so a corrected entry can be shipped without recompiling.</summary>
   TOBDRadioCodeBecker4 = class(TOBDRadioCode)
   public
+    /// <summary>Get description.</summary>
     function GetDescription: string; override;
+    /// <summary>Validate.</summary>
     function Validate(const Input: string; var ErrorMessage: string): Boolean; override;
+    /// <summary>Calculate.</summary>
     function Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean; override;
   end;
 
@@ -46,6 +49,9 @@ var
   GDatabase: array[0..TableSize - 1] of string;
   GLoaded: Boolean = False;
 
+//------------------------------------------------------------------------------
+// LOAD CATALOG
+//------------------------------------------------------------------------------
 procedure LoadCatalog;
 var
   Path, Raw: string;

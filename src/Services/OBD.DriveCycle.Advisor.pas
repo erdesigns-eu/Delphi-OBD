@@ -66,6 +66,9 @@ var
   GResolvers: TDictionary<string, TDriveCycleResolver>;
   GGeneric: TDictionary<string, TDriveCycleStep> = nil;
 
+//------------------------------------------------------------------------------
+// LOAD GENERIC CATALOG
+//------------------------------------------------------------------------------
 procedure LoadGenericCatalog;
 var
   Path, Raw: string;
@@ -105,6 +108,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// GENERIC STEP FOR
+//------------------------------------------------------------------------------
 function GenericStepFor(const MonitorName: string): TDriveCycleStep;
 begin
   if (GGeneric <> nil) and GGeneric.TryGetValue(MonitorName, Result) then Exit;
@@ -113,6 +119,9 @@ begin
   Result.DurationSeconds := 0;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD DRIVE CYCLE
+//------------------------------------------------------------------------------
 function BuildDriveCycle(const Readiness: TWWHOBDReadinessSet;
   const OEMKey: string): TArray<TDriveCycleStep>;
 var
@@ -138,6 +147,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER DRIVE CYCLE RESOLVER
+//------------------------------------------------------------------------------
 procedure RegisterDriveCycleResolver(const OEMKey: string;
   const Resolver: TDriveCycleResolver);
 begin

@@ -24,20 +24,29 @@ type
   EOBDCodingAuditLog = class(Exception);
 
   TOBDCodingAuditRecord = record
+    /// <summary>Timestamp.</summary>
     Timestamp: TDateTime;
+    /// <summary>Vin.</summary>
     VIN: string;
+    /// <summary>Ecu.</summary>
     ECU: string;
+    /// <summary>Block.</summary>
     Block: string;
     BeforeHex: string;     // hex-encoded current bytes
     AfterHex: string;      // hex-encoded target bytes
+    /// <summary>Operator.</summary>
     Operator: string;
+    /// <summary>Reason.</summary>
     Reason: string;
   end;
 
   TOBDCodingAuditChainResult = record
+    /// <summary>Total records.</summary>
     TotalRecords: Integer;
+    /// <summary>Verified.</summary>
     Verified: Boolean;
     FirstTamperLine: Integer;   // 1-based; 0 if Verified
+    /// <summary>Reason.</summary>
     Reason: string;
   end;
 
@@ -47,14 +56,22 @@ type
     FKey: TBytes;
     FPrevHmac: TBytes;
     FInitialised: Boolean;
+    /// <summary>Ensure initialised.</summary>
     procedure EnsureInitialised;
+    /// <summary>Canonical body.</summary>
     function CanonicalBody(const Rec: TOBDCodingAuditRecord): string;
+    /// <summary>Compute hmac.</summary>
     function ComputeHmac(const Prev: TBytes; const Body: string): TBytes;
+    /// <summary>Hex encode.</summary>
     function HexEncode(const Bytes: TBytes): string;
+    /// <summary>Hex decode.</summary>
     function HexDecode(const S: string): TBytes;
+    /// <summary>Load last hmac.</summary>
     function LoadLastHmac: TBytes;
   public
+    /// <summary>Create.</summary>
     constructor Create(const APath: string; const AKey: TBytes);
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
     /// <summary>Append a record. The HMAC binds it to the previous
@@ -65,6 +82,7 @@ type
     /// every record's HMAC matches the recomputed value.</summary>
     function Verify: TOBDCodingAuditChainResult;
 
+    /// <summary>Path.</summary>
     property Path: string read FPath;
   end;
 
@@ -73,6 +91,9 @@ type
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDCodingAuditLog.Create(const APath: string; const AKey: TBytes);
 begin
   inherited Create;
@@ -82,6 +103,9 @@ begin
   FKey := Copy(AKey);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDCodingAuditLog.Destroy;
 begin
   inherited;
@@ -100,6 +124,9 @@ begin
   FInitialised := True;
 end;
 
+//------------------------------------------------------------------------------
+// HEX ENCODE
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.HexEncode(const Bytes: TBytes): string;
 
 //------------------------------------------------------------------------------
@@ -119,6 +146,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HEX DECODE
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.HexDecode(const S: string): TBytes;
 
   function NibbleOf(C: Char): Byte;
@@ -141,6 +171,9 @@ begin
     Result[I] := (NibbleOf(S[I * 2 + 1]) shl 4) or NibbleOf(S[I * 2 + 2]);
 end;
 
+//------------------------------------------------------------------------------
+// CANONICAL BODY
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.CanonicalBody(const Rec: TOBDCodingAuditRecord): string;
 var
   Json: TJSONObject;
@@ -164,6 +197,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE HMAC
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.ComputeHmac(const Prev: TBytes; const Body: string): TBytes;
 var
   Input: TBytes;
@@ -182,6 +218,9 @@ begin
   Result := HexDecode(Hex);
 end;
 
+//------------------------------------------------------------------------------
+// LOAD LAST HMAC
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.LoadLastHmac: TBytes;
 var
   Reader: TStreamReader;
@@ -213,6 +252,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// APPEND
+//------------------------------------------------------------------------------
 procedure TOBDCodingAuditLog.Append(const Rec: TOBDCodingAuditRecord);
 var
   Body, Line: string;
@@ -243,6 +285,9 @@ begin
   FPrevHmac := Hmac;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDCodingAuditLog.Verify: TOBDCodingAuditChainResult;
 var
   Reader: TStreamReader;

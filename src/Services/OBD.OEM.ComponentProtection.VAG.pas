@@ -24,14 +24,19 @@ type
   EOBDVAGCPNoSolver = class(EOBDVAGCP);
 
   TVAGCPRequest = record
+    /// <summary>Ecu type.</summary>
     ECUType: Word;
+    /// <summary>Component serial.</summary>
     ComponentSerial: TBytes;
     VIN: string;              // 17 ASCII chars, validated
+    /// <summary>Nonce.</summary>
     Nonce: TBytes;
   end;
 
   TVAGCPResponse = record
+    /// <summary>Response.</summary>
     Response: TBytes;
+    /// <summary>Signature.</summary>
     Signature: TBytes;
   end;
 
@@ -46,6 +51,7 @@ type
   /// <summary>Default solver that fails closed.</summary>
   TVAGCPSolverNotAvailable = class(TInterfacedObject, IVAGCPSolver)
   public
+    /// <summary>Solve.</summary>
     function Solve(const Request: TVAGCPRequest): TVAGCPResponse;
   end;
 
@@ -59,6 +65,9 @@ function DecodeVAGCPResponse(const Bytes: TBytes): TVAGCPResponse;
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// PUT WORD
+//------------------------------------------------------------------------------
 function PutWord(var Out_: TBytes; Cursor: Integer; W: Word): Integer;
 begin
   Out_[Cursor]     := Byte(W shr 8);
@@ -66,6 +75,9 @@ begin
   Result := Cursor + 2;
 end;
 
+//------------------------------------------------------------------------------
+// GET WORD
+//------------------------------------------------------------------------------
 function GetWord(const B: TBytes; Off: Integer): Word;
 begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
@@ -108,6 +120,9 @@ begin
     Move(Request.Nonce[0], Result[Cursor], Length(Request.Nonce));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE VAGCPREQUEST
+//------------------------------------------------------------------------------
 function DecodeVAGCPRequest(const Bytes: TBytes): TVAGCPRequest;
 var
   Cursor, Len, I: Integer;
@@ -142,6 +157,9 @@ begin
   if Len > 0 then Move(Bytes[Cursor], Result.Nonce[0], Len);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE VAGCPRESPONSE
+//------------------------------------------------------------------------------
 function EncodeVAGCPResponse(const Response: TVAGCPResponse): TBytes;
 var
   Cursor: Integer;
@@ -165,6 +183,9 @@ begin
     Move(Response.Signature[0], Result[Cursor], Length(Response.Signature));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE VAGCPRESPONSE
+//------------------------------------------------------------------------------
 function DecodeVAGCPResponse(const Bytes: TBytes): TVAGCPResponse;
 var
   Cursor, Len: Integer;
@@ -189,6 +210,9 @@ end;
 
 { TVAGCPSolverNotAvailable }
 
+//------------------------------------------------------------------------------
+// SOLVE
+//------------------------------------------------------------------------------
 function TVAGCPSolverNotAvailable.Solve(const Request: TVAGCPRequest): TVAGCPResponse;
 begin
   raise EOBDVAGCPNoSolver.Create(

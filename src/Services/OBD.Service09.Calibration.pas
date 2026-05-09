@@ -29,6 +29,7 @@ type
 
   TOBDCalibrationVerification = record
     CVN: UInt32;               // 4 raw bytes interpreted as big-endian
+    /// <summary>Source ecu.</summary>
     SourceECU: Word;
   end;
 
@@ -36,8 +37,11 @@ type
   /// returned in the same order the ECU emitted them; ISO 15031-5
   /// guarantees positional correspondence.</summary>
   TOBDCalibrationPair = record
+    /// <summary>Source ecu.</summary>
     SourceECU: Word;
+    /// <summary>Cal id.</summary>
     CalID: string;
+    /// <summary>Cvn.</summary>
     CVN: UInt32;
   end;
 
@@ -79,6 +83,9 @@ begin
   Result[1] := $04;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE CVNREQUEST
+//------------------------------------------------------------------------------
 function EncodeCVNRequest: TBytes;
 begin
   SetLength(Result, 2);
@@ -86,6 +93,9 @@ begin
   Result[1] := $06;
 end;
 
+//------------------------------------------------------------------------------
+// STRIP TRAILING NULLS
+//------------------------------------------------------------------------------
 function StripTrailingNulls(const S: string): string;
 var
   N: Integer;
@@ -96,6 +106,9 @@ begin
   Result := Copy(S, 1, N);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CAL IDRESPONSE
+//------------------------------------------------------------------------------
 function DecodeCalIDResponse(const Bytes: TBytes): TArray<TOBDCalibrationID>;
 var
   Cursor, Count, I, J: Integer;
@@ -126,6 +139,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CVNRESPONSE
+//------------------------------------------------------------------------------
 function DecodeCVNResponse(const Bytes: TBytes): TArray<TOBDCalibrationVerification>;
 var
   Cursor, Count, I: Integer;
@@ -155,6 +171,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT CVN
+//------------------------------------------------------------------------------
 function FormatCVN(const CVN: UInt32): string;
 begin
   Result := Format('%.8X', [CVN]);

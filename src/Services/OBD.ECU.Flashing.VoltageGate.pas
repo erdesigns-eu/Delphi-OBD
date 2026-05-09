@@ -38,20 +38,27 @@ type
   end;
 
   TOBDVoltageGateResult = record
+    /// <summary>Passed.</summary>
     Passed: Boolean;
+    /// <summary>Measured volts.</summary>
     MeasuredVolts: Single;
+    /// <summary>Required volts.</summary>
     RequiredVolts: Single;
     OEMUsed: string;          // empty if generic
+    /// <summary>Reason.</summary>
     Reason: string;
   end;
 
   TOBDProgrammingVoltageGate = class
   private
     FConfig: TOBDVoltageGateConfig;
+    /// <summary>Resolve threshold.</summary>
     function ResolveThreshold(const OEMKey: string;
       out OEMUsed: string): Single;
   public
+    /// <summary>Create.</summary>
     constructor Create;
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
     /// <summary>Set the generic minimum threshold (default 12.5 V).</summary>
@@ -86,6 +93,9 @@ const
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDProgrammingVoltageGate.Create;
 begin
   inherited;
@@ -93,12 +103,18 @@ begin
   FConfig.PerOEM := TDictionary<string, Single>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDProgrammingVoltageGate.Destroy;
 begin
   FConfig.PerOEM.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SET MINIMUM VOLTS
+//------------------------------------------------------------------------------
 procedure TOBDProgrammingVoltageGate.SetMinimumVolts(V: Single);
 begin
   if V <= 0 then
@@ -107,6 +123,9 @@ begin
   FConfig.MinimumVolts := V;
 end;
 
+//------------------------------------------------------------------------------
+// SET OEMTHRESHOLD
+//------------------------------------------------------------------------------
 procedure TOBDProgrammingVoltageGate.SetOEMThreshold(const OEMKey: string;
   V: Single);
 begin
@@ -119,6 +138,9 @@ begin
   FConfig.PerOEM.AddOrSetValue(LowerCase(OEMKey), V);
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE THRESHOLD
+//------------------------------------------------------------------------------
 function TOBDProgrammingVoltageGate.ResolveThreshold(const OEMKey: string;
   out OEMUsed: string): Single;
 var
@@ -137,6 +159,9 @@ begin
   Result := FConfig.MinimumVolts;
 end;
 
+//------------------------------------------------------------------------------
+// CHECK
+//------------------------------------------------------------------------------
 function TOBDProgrammingVoltageGate.Check(const Reader: TOBDVoltageReader;
   const OEMKey: string): TOBDVoltageGateResult;
 begin
@@ -170,6 +195,9 @@ begin
       [Result.MeasuredVolts, Result.RequiredVolts]);
 end;
 
+//------------------------------------------------------------------------------
+// REQUIRE PASS
+//------------------------------------------------------------------------------
 procedure TOBDProgrammingVoltageGate.RequirePass(const Reader: TOBDVoltageReader;
   const OEMKey: string);
 var

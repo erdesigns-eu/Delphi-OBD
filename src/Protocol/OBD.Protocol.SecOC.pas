@@ -31,9 +31,12 @@ type
   );
 
   TSecOCContext = record
+    /// <summary>Profile.</summary>
     Profile: TSecOCProfile;
+    /// <summary>Key id.</summary>
     KeyId: Word;
     Key: TBytes;              // 16 bytes for CMAC-AES-128, any length for HMAC
+    /// <summary>Freshness value.</summary>
     FreshnessValue: UInt64;
     AuthenticatorBits: Integer; // typically 24 (Profile 1) or 32 / 64
   end;
@@ -80,6 +83,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// AUTH LEN BYTES
+//------------------------------------------------------------------------------
 function AuthLenBytes(const Ctx: TSecOCContext): Integer;
 begin
   Result := (Ctx.AuthenticatorBits + 7) div 8;
@@ -88,6 +94,9 @@ begin
       'AuthenticatorBits must be > 0 (got %d)', [Ctx.AuthenticatorBits]);
 end;
 
+//------------------------------------------------------------------------------
+// FV TO BYTES
+//------------------------------------------------------------------------------
 function FvToBytes(P: TSecOCProfile; FV: UInt64): TBytes;
 var
   Width, I: Integer;
@@ -98,6 +107,9 @@ begin
     Result[Width - 1 - I] := Byte((FV shr (I * 8)) and $FF);
 end;
 
+//------------------------------------------------------------------------------
+// CONCAT BYTES
+//------------------------------------------------------------------------------
 function ConcatBytes(const A, B, C: TBytes): TBytes;
 var
   Off: Integer;
@@ -109,6 +121,9 @@ begin
   if Length(C) > 0 then Move(C[0], Result[Off], Length(C));
 end;
 
+//------------------------------------------------------------------------------
+// HMAC SHA256 OF MESSAGE
+//------------------------------------------------------------------------------
 function HmacSha256OfMessage(const Key, Msg: TBytes): TBytes;
 var
   Hex: string;
@@ -128,6 +143,9 @@ begin
     Result[I] := StrToInt('$' + Copy(Hex, I * 2 + 1, 2));
 end;
 
+//------------------------------------------------------------------------------
+// SEC OCCOMPUTE AUTHENTICATOR
+//------------------------------------------------------------------------------
 function SecOCComputeAuthenticator(const Ctx: TSecOCContext;
   const Payload: TBytes): TBytes;
 var
@@ -164,6 +182,9 @@ begin
   Move(Mac[0], Result[0], Want);
 end;
 
+//------------------------------------------------------------------------------
+// SEC OCVERIFY AUTHENTICATOR
+//------------------------------------------------------------------------------
 function SecOCVerifyAuthenticator(const Ctx: TSecOCContext;
   const Payload, Authenticator: TBytes): Boolean;
 var
@@ -180,6 +201,9 @@ begin
   Result := Acc = 0;
 end;
 
+//------------------------------------------------------------------------------
+// SEC OCENCODE PDU
+//------------------------------------------------------------------------------
 function SecOCEncodePDU(const Ctx: TSecOCContext;
   const Payload, Authenticator: TBytes): TBytes;
 var

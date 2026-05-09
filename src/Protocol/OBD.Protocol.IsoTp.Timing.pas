@@ -31,6 +31,7 @@ type
 
   /// <summary>One observed frame on the bus or in a capture.</summary>
   TIsoTpFrameObservation = record
+    /// <summary>Kind.</summary>
     Kind: TIsoTpFrameKind;
     /// <summary>Wall-clock time of the frame in microseconds since
     /// some arbitrary t0. Resolution must be at least 1 ms.</summary>
@@ -48,15 +49,22 @@ type
   );
 
   TIsoTpTimingViolation = record
+    /// <summary>Kind.</summary>
     Kind: TIsoTpTimingViolationKind;
+    /// <summary>Frame index.</summary>
     FrameIndex: Integer;
+    /// <summary>Detail.</summary>
     Detail: string;
   end;
 
   TIsoTpTimingResult = record
+    /// <summary>Compliant.</summary>
     Compliant: Boolean;
+    /// <summary>Declared stmin micros.</summary>
     DeclaredStminMicros: Integer;
+    /// <summary>Declared block size.</summary>
     DeclaredBlockSize: Integer;
+    /// <summary>Violations.</summary>
     Violations: TArray<TIsoTpTimingViolation>;
   end;
 
@@ -65,10 +73,12 @@ type
     FStminMicros: Integer;
     FBlockSize: Integer;
     FToleranceMicros: Integer;
+    /// <summary>Note.</summary>
     procedure Note(var Result: TIsoTpTimingResult;
       Kind: TIsoTpTimingViolationKind; FrameIndex: Integer;
       const Detail: string);
   public
+    /// <summary>Create.</summary>
     constructor Create;
     /// <summary>Configure the checker from the FC byte values
     /// observed on the wire (STmin: 0x00..0x7F = ms; 0xF1..0xF9 =
@@ -79,6 +89,7 @@ type
     /// timer jitter on a typical adapter.</summary>
     property ToleranceMicros: Integer read FToleranceMicros write FToleranceMicros;
 
+    /// <summary>Audit.</summary>
     function Audit(const Frames: TArray<TIsoTpFrameObservation>): TIsoTpTimingResult;
   end;
 
@@ -96,6 +107,9 @@ function EncodeStminMicros(const Micros: Integer): Byte;
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// DECODE STMIN MICROS
+//------------------------------------------------------------------------------
 function DecodeStminMicros(const StminByte: Byte): Integer;
 begin
   if StminByte <= $7F then
@@ -106,6 +120,9 @@ begin
     'Reserved STmin byte 0x%.2x', [StminByte]);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE STMIN MICROS
+//------------------------------------------------------------------------------
 function EncodeStminMicros(const Micros: Integer): Byte;
 var
   Ms: Integer;
@@ -127,6 +144,9 @@ end;
 
 { TOBDIsoTpTimingChecker }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDIsoTpTimingChecker.Create;
 begin
   inherited;
@@ -135,6 +155,9 @@ begin
   FToleranceMicros := 200;
 end;
 
+//------------------------------------------------------------------------------
+// APPLY FLOW CONTROL
+//------------------------------------------------------------------------------
 procedure TOBDIsoTpTimingChecker.ApplyFlowControl(
   const StminByte, BlockSizeByte: Byte);
 begin
@@ -142,6 +165,9 @@ begin
   FBlockSize := BlockSizeByte;
 end;
 
+//------------------------------------------------------------------------------
+// NOTE
+//------------------------------------------------------------------------------
 procedure TOBDIsoTpTimingChecker.Note(var Result: TIsoTpTimingResult;
   Kind: TIsoTpTimingViolationKind; FrameIndex: Integer;
   const Detail: string);
@@ -155,6 +181,9 @@ begin
   Result.Violations := Result.Violations + [V];
 end;
 
+//------------------------------------------------------------------------------
+// AUDIT
+//------------------------------------------------------------------------------
 function TOBDIsoTpTimingChecker.Audit(
   const Frames: TArray<TIsoTpFrameObservation>): TIsoTpTimingResult;
 var

@@ -27,23 +27,35 @@ type
     OBDMID: Byte;          // On-Board Diagnostic Monitor ID
     TestId: Byte;          // What was measured (TID)
     UnitsAndScalingId: Byte;  // How to interpret the value (UCSID)
+    /// <summary>Test value.</summary>
     TestValue: Word;
+    /// <summary>Min limit.</summary>
     MinLimit: Word;
+    /// <summary>Max limit.</summary>
     MaxLimit: Word;
+    /// <summary>Passed test.</summary>
     function PassedTest: Boolean;  // Min <= TestValue <= Max
+    /// <summary>Scale factor.</summary>
     function ScaleFactor: Single;  // multiplier from UCSID
+    /// <summary>Unit name.</summary>
     function UnitName: string;     // 'V', 'mA', '%', etc.
   end;
 
   TOBDMode06Response = record
+    /// <summary>Obdmid.</summary>
     OBDMID: Byte;
+    /// <summary>Records.</summary>
     Records: TArray<TOBDMode06TestRecord>;
   end;
 
   TOBDMode06UnitInfo = record
+    /// <summary>Ucsid.</summary>
     UCSID: Byte;
+    /// <summary>Scale.</summary>
     Scale: Single;
+    /// <summary>Unit name.</summary>
     UnitName: string;
+    /// <summary>Description.</summary>
     Description: string;
   end;
 
@@ -89,6 +101,9 @@ var
   GOBDMIDs: TDictionary<Byte, string> = nil;
   GUCSIDs:  TDictionary<Byte, TOBDMode06UnitInfo> = nil;
 
+//------------------------------------------------------------------------------
+// PARSE HEX BYTE OR ZERO
+//------------------------------------------------------------------------------
 function ParseHexByteOrZero(const S: string): Integer;
 var T: string;
 begin
@@ -97,6 +112,9 @@ begin
   if not TryStrToInt(T, Result) then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD STRING MAP
+//------------------------------------------------------------------------------
 procedure LoadStringMap(const FileName, KeyField: string;
   Map: TDictionary<Byte, string>);
 var
@@ -135,6 +153,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD UCSIDCATALOG
+//------------------------------------------------------------------------------
 procedure LoadUCSIDCatalog;
 var
   Path, Raw: string;
@@ -177,18 +198,27 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND MODE06 TEST ID NAME
+//------------------------------------------------------------------------------
 function FindMode06TestIdName(TID: Byte): string;
 begin
   if (GTIDs <> nil) and GTIDs.TryGetValue(TID, Result) and (Result <> '') then Exit;
   Result := Format('TID 0x%.2X', [TID]);
 end;
 
+//------------------------------------------------------------------------------
+// FIND MODE06 OBDMIDNAME
+//------------------------------------------------------------------------------
 function FindMode06OBDMIDName(OBDMID: Byte): string;
 begin
   if (GOBDMIDs <> nil) and GOBDMIDs.TryGetValue(OBDMID, Result) and (Result <> '') then Exit;
   Result := Format('OBDMID 0x%.2X', [OBDMID]);
 end;
 
+//------------------------------------------------------------------------------
+// FIND MODE06 UNIT
+//------------------------------------------------------------------------------
 function FindMode06Unit(UCSID: Byte): TOBDMode06UnitInfo;
 begin
   if (GUCSIDs <> nil) and GUCSIDs.TryGetValue(UCSID, Result) then Exit;
@@ -200,6 +230,9 @@ end;
 
 { TOBDMode06TestRecord }
 
+//------------------------------------------------------------------------------
+// PASSED TEST
+//------------------------------------------------------------------------------
 function TOBDMode06TestRecord.PassedTest: Boolean;
 begin
   Result := (TestValue >= MinLimit) and (TestValue <= MaxLimit);
@@ -210,6 +243,9 @@ begin
   Result := FindMode06Unit(UnitsAndScalingId).Scale;
 end;
 
+//------------------------------------------------------------------------------
+// UNIT NAME
+//------------------------------------------------------------------------------
 function TOBDMode06TestRecord.UnitName: string;
 begin
   Result := FindMode06Unit(UnitsAndScalingId).UnitName;
@@ -222,6 +258,9 @@ begin
   Result[1] := OBDMID;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE MODE06 RESPONSE
+//------------------------------------------------------------------------------
 function ParseMode06Response(const Bytes: TBytes): TOBDMode06Response;
 var
   Cursor, RecordsRoom: Integer;

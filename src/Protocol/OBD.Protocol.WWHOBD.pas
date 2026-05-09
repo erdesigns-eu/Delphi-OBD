@@ -28,6 +28,7 @@ type
     FMI: Byte;               // 0..31 (5-bit field)
     OccurrenceCount: Byte;   // 0..127
     ConversionMethod: Byte;  // 0 = J1939-73 §5.7.1, 1 = §5.7.2
+    /// <summary>As string.</summary>
     function AsString: string;  // 'SPN 4794, FMI 4 (CM=0, OC=12)'
   end;
 
@@ -35,8 +36,11 @@ type
   /// Annex A. The values are spec-stable; the host fetches them via
   /// UDS 0x22 ReadDataByIdentifier.</summary>
   TWWHOBDDataIdentifier = record
+    /// <summary>Did.</summary>
     DID: Word;
+    /// <summary>Name.</summary>
     Name: string;
+    /// <summary>Description.</summary>
     Description: string;
   end;
 
@@ -99,6 +103,9 @@ const
 var
   GDIDs: TDictionary<Word, TWWHOBDDataIdentifier> = nil;
 
+//------------------------------------------------------------------------------
+// PARSE HEX WORD
+//------------------------------------------------------------------------------
 function ParseHexWord(const S: string; out W: Word): Boolean;
 var
   T: string;
@@ -110,6 +117,9 @@ begin
   if Result then W := Word(V);
 end;
 
+//------------------------------------------------------------------------------
+// LOAD DIDCATALOG
+//------------------------------------------------------------------------------
 procedure LoadDIDCatalog;
 var
   Path, Raw: string;
@@ -150,12 +160,18 @@ end;
 
 { TWWHDtc }
 
+//------------------------------------------------------------------------------
+// AS STRING
+//------------------------------------------------------------------------------
 function TWWHDtc.AsString: string;
 begin
   Result := Format('SPN %d, FMI %d (CM=%d, OC=%d)',
     [SPN, FMI, ConversionMethod, OccurrenceCount]);
 end;
 
+//------------------------------------------------------------------------------
+// PACK WWHDTC
+//------------------------------------------------------------------------------
 function PackWWHDtc(const Dtc: TWWHDtc): TBytes;
 begin
   if Dtc.SPN > $7FFFF then
@@ -177,6 +193,9 @@ begin
             or (Dtc.OccurrenceCount and $7F);
 end;
 
+//------------------------------------------------------------------------------
+// UNPACK WWHDTC
+//------------------------------------------------------------------------------
 function UnpackWWHDtc(const Bytes: TBytes): TWWHDtc;
 var
   SpnHi3: Byte;
@@ -191,6 +210,9 @@ begin
   Result.OccurrenceCount := Bytes[3] and $7F;
 end;
 
+//------------------------------------------------------------------------------
+// UNPACK WWHDTC STREAM
+//------------------------------------------------------------------------------
 function UnpackWWHDtcStream(const Bytes: TBytes): TArray<TWWHDtc>;
 var
   Count, I: Integer;
@@ -209,6 +231,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND WWHOBDDATA IDENTIFIER
+//------------------------------------------------------------------------------
 function FindWWHOBDDataIdentifier(DID: Word): TWWHOBDDataIdentifier;
 begin
   if (GDIDs <> nil) and GDIDs.TryGetValue(DID, Result) then Exit;

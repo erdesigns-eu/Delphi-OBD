@@ -26,6 +26,7 @@ type
 
   TFordPATSRequest = record
     VIN: string;          // 17 ASCII chars
+    /// <summary>Operation.</summary>
     Operation: TFordPATSOperation;
     /// <summary>Programmer present byte; some platforms require a
     /// captured value from a dealer programmer to authorise destructive
@@ -34,18 +35,25 @@ type
   end;
 
   TFordPATSStatus = record
+    /// <summary>Key count.</summary>
     KeyCount: Byte;
+    /// <summary>Lockout active.</summary>
     LockoutActive: Boolean;
     SecondsRemaining: UInt16;   // when locked out
+    /// <summary>Pin code present.</summary>
     PinCodePresent: Boolean;
   end;
 
   TFordPlatformAccess = (fpaOpen, fpaPinRequired, fpaGatewayLocked);
 
   TFordPlatformInfo = record
+    /// <summary>Key.</summary>
     Key: string;
+    /// <summary>Display name.</summary>
     DisplayName: string;
+    /// <summary>Access.</summary>
     Access: TFordPlatformAccess;
+    /// <summary>Notes.</summary>
     Notes: string;
   end;
 
@@ -69,6 +77,9 @@ uses
 var
   GFordPlatforms: TDictionary<string, TFordPlatformInfo> = nil;
 
+//------------------------------------------------------------------------------
+// FORD ACCESS FROM STRING
+//------------------------------------------------------------------------------
 function FordAccessFromString(const S: string): TFordPlatformAccess;
 begin
   if SameText(S, 'open')         then Exit(fpaOpen);
@@ -76,6 +87,9 @@ begin
   Result := fpaGatewayLocked;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FORD CATALOG
+//------------------------------------------------------------------------------
 procedure LoadFordCatalog;
 var
   Path, Raw: string;
@@ -116,6 +130,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE FORD PATSREQUEST
+//------------------------------------------------------------------------------
 function EncodeFordPATSRequest(const Req: TFordPATSRequest): TBytes;
 var I: Integer;
 begin
@@ -128,6 +145,9 @@ begin
   Result[18] := Req.ProgrammerPresentByte;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE FORD PATSREQUEST
+//------------------------------------------------------------------------------
 function DecodeFordPATSRequest(const Bytes: TBytes): TFordPATSRequest;
 var I: Integer;
 begin
@@ -140,6 +160,9 @@ begin
   Result.ProgrammerPresentByte := Bytes[18];
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE FORD PATSSTATUS
+//------------------------------------------------------------------------------
 function EncodeFordPATSStatus(const Status: TFordPATSStatus): TBytes;
 begin
   SetLength(Result, 5);
@@ -150,6 +173,9 @@ begin
   if Status.PinCodePresent then Result[4] := $01 else Result[4] := $00;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE FORD PATSSTATUS
+//------------------------------------------------------------------------------
 function DecodeFordPATSStatus(const Bytes: TBytes): TFordPATSStatus;
 begin
   if Length(Bytes) <> 5 then
@@ -161,6 +187,9 @@ begin
   Result.PinCodePresent := Bytes[4] <> 0;
 end;
 
+//------------------------------------------------------------------------------
+// FIND FORD PLATFORM
+//------------------------------------------------------------------------------
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
 var Lookup: string;
 begin

@@ -32,9 +32,13 @@ type
     FDisplayName: string;
     FDataNotes: string;
   public
+    /// <summary>Create.</summary>
     constructor Create(const BrandKey, DisplayName, DataNotes: string);
+    /// <summary>Get description.</summary>
     function GetDescription: string; override;
+    /// <summary>Validate.</summary>
     function Validate(const Input: string; var ErrorMessage: string): Boolean; override;
+    /// <summary>Calculate.</summary>
     function Calculate(const Input: string; var Output: string;
       var ErrorMessage: string): Boolean; override;
   end;
@@ -46,6 +50,9 @@ implementation
 
 { TOBDRadioCodePending }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodePending.Create(const BrandKey, DisplayName,
   DataNotes: string);
 begin
@@ -55,6 +62,9 @@ begin
   FDataNotes := DataNotes;
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodePending.GetDescription: string;
 begin
   Result := Format(
@@ -62,6 +72,9 @@ begin
     [FDisplayName, FDataNotes]);
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodePending.Validate(const Input: string;
   var ErrorMessage: string): Boolean;
 begin
@@ -71,6 +84,9 @@ begin
     [FDisplayName, FDataNotes]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodePending.Calculate(const Input: string;
   var Output: string; var ErrorMessage: string): Boolean;
 begin
@@ -92,6 +108,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD PENDING BRANDS
+//------------------------------------------------------------------------------
 procedure LoadPendingBrands;
 var
   Path, Raw, K, N, Notes: string;

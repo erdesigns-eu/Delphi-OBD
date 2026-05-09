@@ -21,12 +21,19 @@ uses
 //------------------------------------------------------------------------------
 type
   TJ1939PGNDescriptor = record
+    /// <summary>Pgn.</summary>
     PGN: UInt32;
+    /// <summary>Mnemonic.</summary>
     Mnemonic: string;
+    /// <summary>Name.</summary>
     Name: string;
+    /// <summary>Length bytes.</summary>
     LengthBytes: Integer;
+    /// <summary>Default priority.</summary>
     DefaultPriority: Byte;
+    /// <summary>Tx rate ms.</summary>
     TxRateMs: Integer;
+    /// <summary>Spec section.</summary>
     SpecSection: string;
   end;
 
@@ -59,6 +66,9 @@ const
 var
   GPGNs: TList<TJ1939PGNDescriptor>;
 
+//------------------------------------------------------------------------------
+// FIND PGNINDEX
+//------------------------------------------------------------------------------
 function FindPGNIndex(PGN: UInt32; out Idx: Integer): Boolean;
 var
   Lo, Hi, Mid: Integer;
@@ -77,6 +87,9 @@ begin
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// SORT BY PGN
+//------------------------------------------------------------------------------
 procedure SortByPGN;
 begin
   GPGNs.Sort(TComparer<TJ1939PGNDescriptor>.Construct(
@@ -88,6 +101,9 @@ begin
     end));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEX UINT32
+//------------------------------------------------------------------------------
 function ParseHexUInt32(const S: string; out V: UInt32): Boolean;
 var
   T: string;
@@ -99,6 +115,9 @@ begin
   if Result then V := UInt32(I64);
 end;
 
+//------------------------------------------------------------------------------
+// LOAD CATALOG
+//------------------------------------------------------------------------------
 procedure LoadCatalog;
 var
   Path, Raw: string;
@@ -142,6 +161,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND PGN
+//------------------------------------------------------------------------------
 function FindPGN(const PGN: UInt32): TJ1939PGNDescriptor;
 var Idx: Integer;
 begin
@@ -149,6 +171,9 @@ begin
   else Result := Default(TJ1939PGNDescriptor);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER J1939 PGN
+//------------------------------------------------------------------------------
 procedure RegisterJ1939PGN(const Desc: TJ1939PGNDescriptor);
 var Idx: Integer;
 begin
@@ -160,6 +185,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// J1939 PGNCOUNT
+//------------------------------------------------------------------------------
 function J1939PGNCount: Integer;
 begin Result := GPGNs.Count; end;
 

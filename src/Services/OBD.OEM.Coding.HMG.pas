@@ -24,15 +24,25 @@ type
   strict private
     FBytes: TBytes;
   public
+    /// <summary>Create.</summary>
     constructor Create(const Length: Integer); overload;
+    /// <summary>Create.</summary>
     constructor Create(const Bytes: TBytes); overload;
+    /// <summary>Create from hex.</summary>
     constructor CreateFromHex(const HexString: string);
+    /// <summary>Byte count.</summary>
     function ByteCount: Integer;
+    /// <summary>Get byte.</summary>
     function GetByte(const Index: Integer): Byte;
+    /// <summary>Set byte.</summary>
     procedure SetByte(const Index: Integer; const Value: Byte);
+    /// <summary>Get bit.</summary>
     function GetBit(const ByteIndex, BitIndex: Integer): Boolean;
+    /// <summary>Set bit.</summary>
     procedure SetBit(const ByteIndex, BitIndex: Integer; const Value: Boolean);
+    /// <summary>To bytes.</summary>
     function ToBytes: TBytes;
+    /// <summary>To hex.</summary>
     function ToHex: string;
   end;
 
@@ -41,6 +51,9 @@ type
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.Create(const Length: Integer);
 begin
   inherited Create;
@@ -50,18 +63,27 @@ begin
   SetLength(FBytes, Length);
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.Create(const Bytes: TBytes);
 begin
   inherited Create;
   FBytes := Copy(Bytes);
 end;
 
+//------------------------------------------------------------------------------
+// CREATE FROM HEX
+//------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.CreateFromHex(const HexString: string);
 begin
   inherited Create;
   FBytes := HexStringToBytes(HexString);
 end;
 
+//------------------------------------------------------------------------------
+// BYTE COUNT
+//------------------------------------------------------------------------------
 function TOBDHMGVariantCoding.ByteCount: Integer;
 begin
   Result := Length(FBytes);
@@ -75,6 +97,9 @@ begin
   Result := FBytes[Index];
 end;
 
+//------------------------------------------------------------------------------
+// SET BYTE
+//------------------------------------------------------------------------------
 procedure TOBDHMGVariantCoding.SetByte(const Index: Integer; const Value: Byte);
 begin
   if (Index < 0) or (Index > High(FBytes)) then
@@ -83,6 +108,9 @@ begin
   FBytes[Index] := Value;
 end;
 
+//------------------------------------------------------------------------------
+// GET BIT
+//------------------------------------------------------------------------------
 function TOBDHMGVariantCoding.GetBit(const ByteIndex, BitIndex: Integer): Boolean;
 begin
   Result := OBD.OEM.Coding.GetBit(FBytes, ByteIndex, BitIndex);
@@ -94,6 +122,9 @@ begin
   OBD.OEM.Coding.SetBit(FBytes, ByteIndex, BitIndex, Value);
 end;
 
+//------------------------------------------------------------------------------
+// TO BYTES
+//------------------------------------------------------------------------------
 function TOBDHMGVariantCoding.ToBytes: TBytes;
 begin
   Result := Copy(FBytes);

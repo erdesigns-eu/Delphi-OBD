@@ -36,22 +36,29 @@ type
 
   /// <summary>CAS key slot — 16 bytes per spec. Slot 0..9.</summary>
   TBMWKeyDataCas = record
+    /// <summary>Slot index.</summary>
     SlotIndex: Byte;
+    /// <summary>Key enabled.</summary>
     KeyEnabled: Boolean;
     KeyCutCode: TBytes;     // 4 bytes
     RemoteId: UInt32;       // remote-control identifier
     KMReadingThousands: UInt16; // odometer captured by this key
+    /// <summary>Reserved.</summary>
     Reserved: TBytes;
   end;
 
   /// <summary>FEM-BDC key slot — 32 bytes (F/G-series). Slot 0..7.</summary>
   TBMWKeyDataFem = record
+    /// <summary>Slot index.</summary>
     SlotIndex: Byte;
+    /// <summary>Key enabled.</summary>
     KeyEnabled: Boolean;
     PersonalSettingsBank: Byte;  // 1..4 (driver profile binding)
     KeyCutCode: TBytes;          // 4 bytes
     DigitalKeySerial: TBytes;    // 7 bytes (CD UWB key id, 0..) or zero
+    /// <summary>Usage counter.</summary>
     UsageCounter: UInt32;
+    /// <summary>Last km reading.</summary>
     LastKMReading: UInt32;
     Reserved: TBytes;            // padding to 32 bytes
   end;
@@ -63,6 +70,7 @@ type
     ['{F2DE8AB1-7DBA-4F1E-A5C0-0F9A2D0D3C50}']
     function ComputeISN(Generation: TBMWImmoGeneration;
       const ECUSerial: TBytes; const VIN: string): TBytes;
+    /// <summary>Solve challenge.</summary>
     function SolveChallenge(Generation: TBMWImmoGeneration;
       const Challenge: TBytes): TBytes;
   end;
@@ -100,6 +108,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE BYTES PAD
+//------------------------------------------------------------------------------
 procedure WriteBytesPad(var Out_: TBytes; Cursor: Integer; const Src: TBytes;
   Width: Integer);
 var
@@ -113,6 +124,9 @@ begin
   // remainder stays zero
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE KEY DATA E
+//------------------------------------------------------------------------------
 function EncodeKeyDataE(const Key: TBMWKeyDataE): TBytes;
 var
   Status: Byte;
@@ -133,6 +147,9 @@ begin
     WriteBytesPad(Result, 8, Key.Reserved, EWS_SLOT_BYTES - 8);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE KEY DATA E
+//------------------------------------------------------------------------------
 function DecodeKeyDataE(const Bytes: TBytes): TBMWKeyDataE;
 begin
   if Length(Bytes) <> EWS_SLOT_BYTES then
@@ -148,6 +165,9 @@ begin
   Move(Bytes[8], Result.Reserved[0], EWS_SLOT_BYTES - 8);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE KEY DATA CAS
+//------------------------------------------------------------------------------
 function EncodeKeyDataCas(const Key: TBMWKeyDataCas): TBytes;
 var
   Status: Byte;
@@ -172,6 +192,9 @@ begin
     WriteBytesPad(Result, 12, Key.Reserved, CAS_SLOT_BYTES - 12);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE KEY DATA CAS
+//------------------------------------------------------------------------------
 function DecodeKeyDataCas(const Bytes: TBytes): TBMWKeyDataCas;
 begin
   if Length(Bytes) <> CAS_SLOT_BYTES then
@@ -189,6 +212,9 @@ begin
   Move(Bytes[12], Result.Reserved[0], CAS_SLOT_BYTES - 12);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE KEY DATA FEM
+//------------------------------------------------------------------------------
 function EncodeKeyDataFem(const Key: TBMWKeyDataFem): TBytes;
 var
   Status: Byte;
@@ -222,6 +248,9 @@ begin
     WriteBytesPad(Result, 22, Key.Reserved, FEM_SLOT_BYTES - 22);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE KEY DATA FEM
+//------------------------------------------------------------------------------
 function DecodeKeyDataFem(const Bytes: TBytes): TBMWKeyDataFem;
 begin
   if Length(Bytes) <> FEM_SLOT_BYTES then

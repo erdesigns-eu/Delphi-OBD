@@ -49,9 +49,13 @@ type
   /// payload bytes. Build via the helper functions; parse via
   /// ParseDoIPHeader / ParseVehicleAnnouncement.</summary>
   TDoIPFrame = record
+    /// <summary>Protocol version.</summary>
     ProtocolVersion: Byte;
+    /// <summary>Inverse protocol version.</summary>
     InverseProtocolVersion: Byte;
+    /// <summary>Payload type.</summary>
     PayloadType: Word;
+    /// <summary>Payload.</summary>
     Payload: TBytes;
   end;
 
@@ -111,6 +115,9 @@ function ParseVehicleAnnouncement(const Frame: TDoIPFrame):
 //------------------------------------------------------------------------------
 implementation
 
+//------------------------------------------------------------------------------
+// BUILD DO IPFRAME
+//------------------------------------------------------------------------------
 function BuildDoIPFrame(PayloadType: Word; const Payload: TBytes;
   ProtocolVersion: Byte): TBytes;
 var
@@ -132,6 +139,9 @@ begin
   Result := Out_;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT REQUEST
+//------------------------------------------------------------------------------
 function BuildVehicleIdentRequest(ProtocolVersion: Byte): TBytes;
 begin
   Result := BuildDoIPFrame(DOIP_PT_VEHICLE_IDENT_REQ, nil, ProtocolVersion);
@@ -153,6 +163,9 @@ begin
     ProtocolVersion);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT REQUEST EID
+//------------------------------------------------------------------------------
 function BuildVehicleIdentRequestEID(const EID: TBytes;
   ProtocolVersion: Byte): TBytes;
 begin
@@ -163,6 +176,9 @@ begin
     ProtocolVersion);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD ALIVE CHECK REQUEST
+//------------------------------------------------------------------------------
 function BuildAliveCheckRequest(ProtocolVersion: Byte): TBytes;
 begin
   Result := BuildDoIPFrame(DOIP_PT_ALIVE_CHECK_REQUEST, nil, ProtocolVersion);
@@ -180,6 +196,9 @@ begin
     ProtocolVersion);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DO IPHEADER
+//------------------------------------------------------------------------------
 function ParseDoIPHeader(const Bytes: TBytes): TDoIPFrame;
 var
   PayloadLen: UInt32;
@@ -205,6 +224,9 @@ begin
     Move(Bytes[8], Result.Payload[0], PayloadLen);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE VEHICLE ANNOUNCEMENT
+//------------------------------------------------------------------------------
 function ParseVehicleAnnouncement(const Frame: TDoIPFrame):
   TDoIPVehicleAnnouncement;
 var

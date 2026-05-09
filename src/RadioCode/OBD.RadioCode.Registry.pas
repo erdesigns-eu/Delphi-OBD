@@ -39,9 +39,11 @@ type
     FFactory: TOBDRadioCodeFactory;
     FVariants: TRadioCodeVariantManager;
   public
+    /// <summary>Create.</summary>
     constructor Create(const BrandKey, DisplayName: string;
       DataAvailable: Boolean; const DataNotes: string;
       const Factory: TOBDRadioCodeFactory);
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
     /// <summary>Lower-case brand identifier (e.g. 'pioneer', 'philips').</summary>
@@ -57,6 +59,7 @@ type
     /// <summary>Variant manager for region/year/security-version dispatch.</summary>
     property Variants: TRadioCodeVariantManager read FVariants;
 
+    /// <summary>Create calculator.</summary>
     function CreateCalculator: IOBDRadioCode;
   end;
 
@@ -68,15 +71,23 @@ type
     FBrands: TObjectList<TOBDRadioCodeBrand>;
     FByKey: TDictionary<string, TOBDRadioCodeBrand>;
   public
+    /// <summary>Create.</summary>
     constructor Create;
+    /// <summary>Destroy.</summary>
     destructor Destroy; override;
 
+    /// <summary>Instance.</summary>
     class function Instance: TOBDRadioCodeRegistry;
+    /// <summary>Free instance.</summary>
     class procedure FreeInstance; reintroduce;
 
+    /// <summary>Register.</summary>
     procedure Register(Brand: TOBDRadioCodeBrand);
+    /// <summary>Find.</summary>
     function Find(const BrandKey: string): TOBDRadioCodeBrand;
+    /// <summary>Get brand keys.</summary>
     procedure GetBrandKeys(Keys: TStrings);
+    /// <summary>Count.</summary>
     function Count: Integer;
   end;
 
@@ -87,6 +98,9 @@ implementation
 
 { TOBDRadioCodeBrand }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeBrand.Create(const BrandKey, DisplayName: string;
   DataAvailable: Boolean; const DataNotes: string;
   const Factory: TOBDRadioCodeFactory);
@@ -100,12 +114,18 @@ begin
   FVariants := TRadioCodeVariantManager.Create(DisplayName);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeBrand.Destroy;
 begin
   FVariants.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// CREATE CALCULATOR
+//------------------------------------------------------------------------------
 function TOBDRadioCodeBrand.CreateCalculator: IOBDRadioCode;
 begin
   if not Assigned(FFactory) then
@@ -116,6 +136,9 @@ end;
 
 { TOBDRadioCodeRegistry }
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeRegistry.Create;
 begin
   inherited;
@@ -124,6 +147,9 @@ begin
   FByKey := TDictionary<string, TOBDRadioCodeBrand>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeRegistry.Destroy;
 begin
   FByKey.Free;
@@ -132,6 +158,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// INSTANCE
+//------------------------------------------------------------------------------
 class function TOBDRadioCodeRegistry.Instance: TOBDRadioCodeRegistry;
 begin
   if FInstance = nil then
@@ -139,6 +168,9 @@ begin
   Result := FInstance;
 end;
 
+//------------------------------------------------------------------------------
+// FREE INSTANCE
+//------------------------------------------------------------------------------
 class procedure TOBDRadioCodeRegistry.FreeInstance;
 begin
   FreeAndNil(FInstance);
@@ -161,6 +193,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND
+//------------------------------------------------------------------------------
 function TOBDRadioCodeRegistry.Find(const BrandKey: string): TOBDRadioCodeBrand;
 begin
   FLock.Acquire;
@@ -172,6 +207,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// GET BRAND KEYS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeRegistry.GetBrandKeys(Keys: TStrings);
 var
   Brand: TOBDRadioCodeBrand;
@@ -186,6 +224,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeRegistry.Count: Integer;
 begin
   FLock.Acquire;

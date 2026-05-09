@@ -26,36 +26,56 @@ type
   /// Complete = the monitor has run and reported a result this drive
   /// cycle.</summary>
   TWWHOBDMonitorState = record
+    /// <summary>Supported.</summary>
     Supported: Boolean;
+    /// <summary>Complete.</summary>
     Complete: Boolean;
   end;
 
   /// <summary>Full readiness picture decoded from the FD05 payload.</summary>
   TWWHOBDReadinessSet = record
+    /// <summary>Mil active.</summary>
     MILActive: Boolean;
     DTCCount: Byte;             // 0..127
 
     // Continuous monitors (ISO 15031-5 §8.6.1 byte B)
+    /// <summary>Misfire.</summary>
     Misfire:        TWWHOBDMonitorState;
+    /// <summary>Fuel system.</summary>
     FuelSystem:     TWWHOBDMonitorState;
+    /// <summary>Comprehensive.</summary>
     Comprehensive:  TWWHOBDMonitorState;
 
     // Non-continuous monitors (ISO 27145-3 §6.4 + 15031-5 §8.6.1)
+    /// <summary>Catalyst.</summary>
     Catalyst:                TWWHOBDMonitorState;
+    /// <summary>Heated catalyst.</summary>
     HeatedCatalyst:          TWWHOBDMonitorState;
+    /// <summary>Evaporative system.</summary>
     EvaporativeSystem:       TWWHOBDMonitorState;
+    /// <summary>Secondary air system.</summary>
     SecondaryAirSystem:      TWWHOBDMonitorState;
+    /// <summary>Ac refrigerant.</summary>
     ACRefrigerant:           TWWHOBDMonitorState;
+    /// <summary>Oxygen sensor.</summary>
     OxygenSensor:            TWWHOBDMonitorState;
+    /// <summary>Oxygen sensor heater.</summary>
     OxygenSensorHeater:      TWWHOBDMonitorState;
+    /// <summary>Eg ror vvt system.</summary>
     EGRorVVTSystem:          TWWHOBDMonitorState;
 
     // ISO 27145-3 additions for diesel / Euro 6+
+    /// <summary>Nmhc catalyst.</summary>
     NMHCCatalyst:            TWWHOBDMonitorState;
+    /// <summary>N ox aftertreatment.</summary>
     NOxAftertreatment:       TWWHOBDMonitorState;
+    /// <summary>Boost pressure system.</summary>
     BoostPressureSystem:     TWWHOBDMonitorState;
+    /// <summary>Exhaust gas sensor.</summary>
     ExhaustGasSensor:        TWWHOBDMonitorState;
+    /// <summary>Pm filter.</summary>
     PMFilter:                TWWHOBDMonitorState;
+    /// <summary>Egr system.</summary>
     EGRSystem:               TWWHOBDMonitorState;
 
     /// <summary>True iff every supported monitor reports Complete.</summary>
@@ -100,6 +120,9 @@ const
   // monitors per the engine-type indicator. We expose them as
   // separate fields so the caller decides which to surface.
 
+//------------------------------------------------------------------------------
+// SET MONITOR
+//------------------------------------------------------------------------------
 procedure SetMonitor(var M: TWWHOBDMonitorState; SupportByte, StatusByte: Byte;
   Bit: Integer);
 begin
@@ -108,6 +131,9 @@ begin
   M.Complete := M.Supported and ((StatusByte and (1 shl Bit)) = 0);
 end;
 
+//------------------------------------------------------------------------------
+// PACK MONITOR
+//------------------------------------------------------------------------------
 function PackMonitor(const M: TWWHOBDMonitorState; Bit: Integer;
   var SupportByte, StatusByte: Byte): Boolean;
 begin
@@ -122,6 +148,9 @@ end;
 
 { TWWHOBDReadinessSet }
 
+//------------------------------------------------------------------------------
+// ALL READY
+//------------------------------------------------------------------------------
 function TWWHOBDReadinessSet.AllReady: Boolean;
 
   function MonitorReady(const M: TWWHOBDMonitorState): Boolean;
@@ -142,6 +171,9 @@ begin
     MonitorReady(EGRSystem);
 end;
 
+//------------------------------------------------------------------------------
+// PENDING MONITORS
+//------------------------------------------------------------------------------
 function TWWHOBDReadinessSet.PendingMonitors: TArray<string>;
 
   procedure AddIfPending(var Out_: TArray<string>;
@@ -171,6 +203,9 @@ begin
   AddIfPending(Result, EGRSystem, 'EGRSystem');
 end;
 
+//------------------------------------------------------------------------------
+// DECODE WWHOBDREADINESS
+//------------------------------------------------------------------------------
 function DecodeWWHOBDReadiness(const Bytes: TBytes): TWWHOBDReadinessSet;
 var
   ContByte, NCSupport, NCStatus: Byte;
@@ -221,6 +256,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE WWHOBDREADINESS
+//------------------------------------------------------------------------------
 function EncodeWWHOBDReadiness(const Set_: TWWHOBDReadinessSet): TBytes;
 var
   ContByte, NCSupport, NCStatus, NCSupport2, NCStatus2: Byte;
