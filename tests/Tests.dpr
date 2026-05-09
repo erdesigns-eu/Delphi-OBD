@@ -55,6 +55,7 @@ uses
   Tests.Service09.Calibration in 'Tests.Service09.Calibration.pas',
   Tests.DriveCycle.Advisor in 'Tests.DriveCycle.Advisor.pas',
   Tests.OEM.KeyAdaptation.BMW in 'Tests.OEM.KeyAdaptation.BMW.pas',
+  Tests.OEM.ComponentProtection.VAG in 'Tests.OEM.ComponentProtection.VAG.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

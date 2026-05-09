@@ -100,6 +100,19 @@ What's needed to close the gap:
   Linux / iOS / Android). For Windows we'd reuse the existing
   `OBD.ECU.Signature.OpenSSL` library-load path.
 
+### v3.82 / B4 — VAG Component Protection (SVM) solver
+
+`OBD.OEM.ComponentProtection.VAG` ships the publicly documented
+challenge / activation envelopes (ECUType + ComponentSerial + VIN +
+Nonce → Response + Signature). The host-portal `IVAGCPSolver` plug-in
+that turns a challenge into an activation is dealer-portal proprietary
+(SVM = Service Verification Manager). The default
+`TVAGCPSolverNotAvailable` raises `EOBDVAGCPNoSolver` so any code that
+calls `Solve` without wiring fails closed.
+
+A real solver would either (a) call the dealer-portal client the host
+already has, or (b) replay captured (challenge, response) pairs.
+
 ### v3.82 / B3 — BMW immobiliser ISN + EWS/CAS challenge-response
 
 `OBD.OEM.KeyAdaptation.BMW` ships the publicly documented data
