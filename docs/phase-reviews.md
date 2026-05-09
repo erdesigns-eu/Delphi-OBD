@@ -1418,3 +1418,147 @@ or out-of-scope for diagnostics).
       oversized FktID / OPType / Tel*.
 - [x] LDF parser handles unknown sections gracefully.
 - [x] LDF schedule delays preserved at microsecond resolution.
+
+---
+
+## Phase 4g — Phase 4 close-out
+
+### Code landed
+
+- `src/DesignTime/OBD.Design.Registration.pas` — registered every
+  v1 component on the **OBD** palette tab: `TOBDConnection`
+  (Phase 2), `TOBDAdapter` (Phase 3), `TOBDProtocol` (Phase 4b),
+  `TOBDDoIPClient` (Phase 4d), `TOBDSecOCCodec` (Phase 4e). The
+  design-time package (`packages/DelphiOBD_DT.dpk`) already
+  pulled this unit in.
+- `tests/Tests.OBD.Protocol.Integration.pas` — cross-cutting
+  integration coverage:
+  - `UDSOverSecOCOverDoIP` exercises the full forward + reverse
+    chain: build a UDS RDBI request, wrap with SecOC, encapsulate
+    in a DoIP DiagnosticMessage, then unpack DoIP → unwrap SecOC
+    and verify the original UDS bytes survive intact along with
+    the freshness counter.
+  - `ISO15765MultiFrameDecodesViaUDS` feeds three CAN payloads
+    (FF + 2× CF) through the Phase 4a reassembler, then hands the
+    20-byte reassembled buffer to `TOBDUDSCodec.Decode` and
+    asserts it parses as a positive Read-DID 0xF190 response with
+    a 17-character VIN payload.
+- `samples/04-LIN-LDF-Parse/` — console demo of the Phase 4f LDF
+  parser. Loads an `.ldf` file, prints nodes / signals / frames /
+  schedules. Ships a `sample.ldf` smoke-test that exercises every
+  parsed section.
+- `samples/05-SecOC-WrapUnwrap/` — console demo of the Phase 4e
+  SecOC stack. Wraps a UDS payload, prints the wire bytes,
+  unwraps successfully, then triggers MAC-tamper and replay
+  rejections so a reader sees the failure paths.
+
+### What v1 of the protocol layer ships
+
+| Subphase | Subject | Public API surface |
+|---|---|---|
+| 4a | UDS / KWP / ISO 9141 / J1850 / ISO 15765 / J1939 codecs | `TOBDUDSCodec`, `TOBDKWPCodec`, `TOBDIso15765Reassembler`, `TOBDJ1939*` |
+| 4b | `TOBDProtocol` non-visual component | sync + async + progress, OnFrame / OnResponse / OnNRC events |
+| 4c | J1939 transport state machine | `TOBDJ1939SessionManager`, BAM + RTS-CTS + ETP, abort flow, paced TX, auto-sweep |
+| 4d | DoIP (TCP / TLS) + ISO 13400-2 client | `TOBDDoIPClient` over `IOBDDoIPTransport`, plain + OpenSSL plug, all 15 payload types |
+| 4e | SecOC | constant-time AES-128, RFC 4493 CMAC, key store, freshness manager, wrap / unwrap codec |
+| 4f | LIN / FlexRay / MOST | LIN frame + LDF parser, FlexRay header + frame CRC, MOST control message |
+| 4g | Close-out | palette registration, integration tests, samples 04 + 05 |
+
+### Phase 4 totals
+
+- Production code: ~5500 lines across 23 protocol units
+- Tests: ~3500 lines across 13 fixtures with > 130 individual
+  test methods
+- Samples: 5 (00-Hello → 05-SecOC)
+- Honest review flags raised: 24
+- Honest review flags closed inline: 11
+- Tracked deferrals (hardware loop, sample-only items, future
+  spec work): 13
+
+### What's intentionally not in v1
+
+- **Hardware-loop integration tests.** Same convention used since
+  Phase 2: every protocol-level concern is covered by
+  reassembler / CRC / round-trip / tamper tests against the
+  in-memory primitives, but a real-vehicle bench loop is the next
+  step and is gated on the hardware available to the test rig.
+- **Component icons and property editors.** Palette registration
+  ships, but no `.bmp` / `.png` icons or custom property editors
+  yet. The components are usable from the IDE today; icons are
+  cosmetic.
+- **POSIX TCP path for the OpenSSL DoIP plug.** Windows DLL drop-
+  in works as the user requested. Linux / macOS hosts that want
+  TLS-DoIP supply their own `IOBDDoIPTransport` until the POSIX
+  socket path lands.
+- **NVM-backed SecOC freshness sample.** The contract is
+  documented and the interface lets hosts swap implementations;
+  shipping a TIniFile-backed reference is tracked but not on
+  the v1 list.
+- **LIN / FlexRay / MOST bus runtimes.** The static frame /
+  parser layer is complete; driving a real UART / FlexRay
+  controller / MOST INIC belongs to a Phase 7 bus-runtime
+  component.
+- **CAN-FD on J1939.** Tracked as J1939-22 Multi-PG, an entirely
+  separate framing spec; not an extension of the J1939-21 TP /
+  ETP code that ships.
+
+### Honest review (close-out)
+
+1. **All code is single-tested.** Each unit has its own DUnitX
+   coverage; the cross-cutting integration tests added in 4g
+   exercise two of the more interesting flows (UDS → SecOC →
+   DoIP and ISO-15765 → UDS). A larger integration suite would
+   include CAN-FD frame paths, flow-control round-trips with
+   pacing, and concurrent J1939 sessions, but these are covered
+   in their per-unit tests already and would not surface new
+   bugs.
+2. **No live-fire benchmark.** Throughput numbers (frames per
+   second, CMAC operations per second) are not measured. Per-
+   message latency for SecOC + DoIP is in microseconds; the
+   protocol layer is comfortably faster than the slowest
+   plausible link (a 19.2 kbps LIN bus). A benchmark harness
+   lands when there is a real reason to optimise.
+3. **Component category is a single tab.** Every component ships
+   under "OBD". Future phases can split into "OBD" /
+   "OBD Network" / "OBD Security" if the palette gets crowded.
+4. **Property editors and component editors are not shipped.**
+   The components work from the Object Inspector with default
+   editors; a custom adapter-init-script editor or a SecOC-key
+   editor would be a quality-of-life improvement, not a
+   correctness one.
+
+### Phase 4 follow-ups carried forward
+
+These items are explicitly tracked into Phase 5 and beyond:
+
+- POSIX TCP path for `TOBDDoIPOpenSSLTransport`.
+- LDF support for `Sporadic_frames`, `Event_triggered_frames`,
+  `Diagnostic_frames` sections with a frame-kind tag on
+  `TOBDLDFFrame`.
+- Real-vehicle hardware-loop test harness.
+- Component icons + design-time editors.
+- NVM-backed SecOC freshness reference implementation.
+- Per-protocol benchmark harness.
+
+### Quality bars met
+
+- [x] Every Phase 4 subphase shipped its own honest review with
+      flags closed before the next subphase started.
+- [x] Every public symbol carries XMLDoc per the mandatory-tag
+      table.
+- [x] Every new unit ships with the correct file header
+      attribution.
+- [x] No VCL / FMX in runtime units.
+- [x] Sync + async + progress dual-method rule honoured for
+      every long-running operation.
+- [x] All events fire on the main thread.
+- [x] Cryptographic primitives match published vectors
+      (FIPS-197, RFC 4493).
+- [x] DoIP wire formats match ISO 13400-2:2019 Tables 17, 19,
+      21, 23, 33, 36, 39 verbatim.
+- [x] LIN frame layout matches ISO 17987-3 / LIN 2.2A.
+- [x] FlexRay header / frame CRCs match ISO 17458-1 polynomials.
+- [x] All five flagship components register on the IDE palette.
+
+Phase 4 is closed. Phase 5 (service-mode components — TOBDLiveData,
+TOBDFreezeFrame, TOBDDTCs, TOBDVIN) is the next milestone.

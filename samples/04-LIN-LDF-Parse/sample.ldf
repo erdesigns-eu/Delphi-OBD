@@ -1,0 +1,48 @@
+/* Minimal LIN 2.2A description file for the ParseLDF sample. */
+
+LIN_description_file ;
+LIN_protocol_version = "2.2";
+LIN_language_version = "2.2";
+LIN_speed = 19.2 kbps;
+
+Nodes {
+  Master: gateway, 5 ms, 0.1 ms;
+  Slaves: door_module, mirror_module, climate_panel;
+}
+
+Signals {
+  door_lock_state    :  2,  0, door_module,    gateway;
+  door_window_pos    :  8,  0, door_module,    gateway;
+  mirror_fold_state  :  1,  0, mirror_module,  gateway;
+  climate_fan_speed  :  4,  0, climate_panel,  gateway;
+  climate_target_t   :  8,  0, gateway,        climate_panel;
+}
+
+Frames {
+  door_status   : 0x10, door_module,   2 {
+    door_lock_state, 0;
+    door_window_pos, 8;
+  }
+  mirror_status : 0x11, mirror_module, 1 {
+    mirror_fold_state, 0;
+  }
+  climate_cmd   : 0x20, gateway,       1 {
+    climate_target_t, 0;
+  }
+  climate_state : 0x21, climate_panel, 1 {
+    climate_fan_speed, 0;
+  }
+}
+
+Schedule_tables {
+  comfort_normal {
+    door_status   delay 10 ms;
+    mirror_status delay 10 ms;
+    climate_cmd   delay 20 ms;
+    climate_state delay 20 ms;
+  }
+  comfort_fast {
+    door_status   delay 5 ms;
+    climate_state delay 5 ms;
+  }
+}

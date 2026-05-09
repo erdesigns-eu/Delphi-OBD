@@ -107,7 +107,8 @@ uses
   Tests.OBD.Protocol.SecOC in 'Tests.OBD.Protocol.SecOC.pas',
   Tests.OBD.Protocol.LIN in 'Tests.OBD.Protocol.LIN.pas',
   Tests.OBD.Protocol.FlexRay in 'Tests.OBD.Protocol.FlexRay.pas',
-  Tests.OBD.Protocol.MOST in 'Tests.OBD.Protocol.MOST.pas';
+  Tests.OBD.Protocol.MOST in 'Tests.OBD.Protocol.MOST.pas',
+  Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas';
 
 {$IFDEF CI}
 var

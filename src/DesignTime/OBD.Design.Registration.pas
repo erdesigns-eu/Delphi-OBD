@@ -14,16 +14,18 @@
 //                     empty by design — v1 is headless)
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Initial empty registration, Phase 0 skeleton.
+//    2026-05-09  ERD  Phase 4g — register TOBDConnection, TOBDAdapter,
+//                     TOBDProtocol, TOBDDoIPClient, TOBDSecOCCodec.
 //
 //  Future work :
-//    - Component icons (16/24/32 px) under Phase 11.
-//    - Property editors and component editors under Phase 11.
-//    - Splash bitmap + About box under Phase 11.
+//    - Component icons (16 / 24 / 32 px) once design assets land.
+//    - Property editors for adapter init scripts and SecOC keys.
+//    - Splash bitmap + About box.
 //------------------------------------------------------------------------------
 
 unit OBD.Design.Registration;
@@ -31,20 +33,30 @@ unit OBD.Design.Registration;
 interface
 
 /// <summary>
-///   Called by the IDE when DelphiOBD_DT.bpl is installed. Registers all
-///   palette components, property editors, and component editors.
+///   Called by the IDE when DelphiOBD_DT.bpl is installed. Registers
+///   every palette component shipped by Delphi-OBD on the "OBD" tab.
 /// </summary>
-/// <remarks>
-///   Empty in Phase 0. Populated as components land in Phase 2 onwards.
-/// </remarks>
 procedure Register;
 
 implementation
 
+uses
+  System.Classes,
+  OBD.Connection,
+  OBD.Adapter,
+  OBD.Protocol,
+  OBD.Protocol.DoIP.Client,
+  OBD.Protocol.SecOC;
+
 procedure Register;
 begin
-  // Phase 0: no components yet. See PLAN.md Phase 11 for the registration
-  // build-out plan.
+  RegisterComponents('OBD', [
+    TOBDConnection,
+    TOBDAdapter,
+    TOBDProtocol,
+    TOBDDoIPClient,
+    TOBDSecOCCodec
+  ]);
 end;
 
 end.
