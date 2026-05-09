@@ -20,13 +20,21 @@ type
   [TestFixture]
   TMBSCNTests = class
   public
+    /// <summary>Version request round trip.</summary>
     [Test] procedure VersionRequestRoundTrip;
+    /// <summary>Version request bad length raises.</summary>
     [Test] procedure VersionRequestBadLengthRaises;
+    /// <summary>Coding request round trip.</summary>
     [Test] procedure CodingRequestRoundTrip;
+    /// <summary>Coding request rejects bad v i n.</summary>
     [Test] procedure CodingRequestRejectsBadVIN;
+    /// <summary>Coding response round trip.</summary>
     [Test] procedure CodingResponseRoundTrip;
+    /// <summary>Coding response truncated new s c n raises.</summary>
     [Test] procedure CodingResponseTruncatedNewSCNRaises;
+    /// <summary>Default solver fetch fails closed.</summary>
     [Test] procedure DefaultSolverFetchFailsClosed;
+    /// <summary>Default solver coding fails closed.</summary>
     [Test] procedure DefaultSolverCodingFailsClosed;
   end;
 

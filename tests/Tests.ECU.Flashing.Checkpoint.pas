@@ -26,11 +26,17 @@ type
     [Setup] procedure Setup;
     [TearDown] procedure TearDown;
 
+    /// <summary>Initialise persists and is resumable.</summary>
     [Test] procedure InitialisePersistsAndIsResumable;
+    /// <summary>Progress is recorded across blocks.</summary>
     [Test] procedure ProgressIsRecordedAcrossBlocks;
+    /// <summary>Firmware mismatch prevents resume.</summary>
     [Test] procedure FirmwareMismatchPreventsResume;
+    /// <summary>Completed flash is not resumable.</summary>
     [Test] procedure CompletedFlashIsNotResumable;
+    /// <summary>Clear deletes sidecar.</summary>
     [Test] procedure ClearDeletesSidecar;
+    /// <summary>Out of range block index raises.</summary>
     [Test] procedure OutOfRangeBlockIndexRaises;
   end;
 

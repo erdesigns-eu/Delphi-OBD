@@ -20,12 +20,19 @@ type
   [TestFixture]
   TTachographSignatureTests = class
   public
+    /// <summary>Parses empty file as zero blocks.</summary>
     [Test] procedure ParsesEmptyFileAsZeroBlocks;
+    /// <summary>Parses single t l v.</summary>
     [Test] procedure ParsesSingleTLV;
+    /// <summary>Truncated declared length raises.</summary>
     [Test] procedure TruncatedDeclaredLengthRaises;
+    /// <summary>Verify chain succeeds when verifiers pass.</summary>
     [Test] procedure VerifyChainSucceedsWhenVerifiersPass;
+    /// <summary>Verify chain fails when signature block missing.</summary>
     [Test] procedure VerifyChainFailsWhenSignatureBlockMissing;
+    /// <summary>Verify chain fails when verifier returns false.</summary>
     [Test] procedure VerifyChainFailsWhenVerifierReturnsFalse;
+    /// <summary>Verify chain fails when verifier not configured.</summary>
     [Test] procedure VerifyChainFailsWhenVerifierNotConfigured;
   end;
 

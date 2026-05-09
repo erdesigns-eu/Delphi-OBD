@@ -18,46 +18,72 @@ type
   [TestFixture]
   TServiceFunctionRegistryTests = class
   public
+    /// <summary>Name matches kind is case insensitive.</summary>
     [Test] procedure NameMatchesKindIsCaseInsensitive;
+    /// <summary>Name matches kind recognises substring.</summary>
     [Test] procedure NameMatchesKindRecognisesSubstring;
+    /// <summary>Name matches kind rejects unrelated.</summary>
     [Test] procedure NameMatchesKindRejectsUnrelated;
+    /// <summary>Classify oil reset tokens.</summary>
     [Test] procedure ClassifyOilResetTokens;
+    /// <summary>Classify epb tokens.</summary>
     [Test] procedure ClassifyEpbTokens;
+    /// <summary>Classify dpf tokens.</summary>
     [Test] procedure ClassifyDpfTokens;
+    /// <summary>Classify tpms tokens.</summary>
     [Test] procedure ClassifyTpmsTokens;
+    /// <summary>Classify battery registration tokens.</summary>
     [Test] procedure ClassifyBatteryRegistrationTokens;
+    /// <summary>Classify sas calibration tokens.</summary>
     [Test] procedure ClassifySasCalibrationTokens;
+    /// <summary>Classify immo relearn tokens.</summary>
     [Test] procedure ClassifyImmoRelearnTokens;
+    /// <summary>Classify unknown returns sf unknown.</summary>
     [Test] procedure ClassifyUnknownReturnsSfUnknown;
   end;
 
   [TestFixture]
   TServiceFunctionLookupTests = class
   public
+    /// <summary>Ferrari resolves oil reset.</summary>
     [Test] procedure FerrariResolvesOilReset;
+    /// <summary>Mahindra resolves dpf regen.</summary>
     [Test] procedure MahindraResolvesDpfRegen;
+    /// <summary>Tata resolves battery registration.</summary>
     [Test] procedure TataResolvesBatteryRegistration;
+    /// <summary>Mini resolves epb.</summary>
     [Test] procedure MiniResolvesEpb;
+    /// <summary>Mini resolves sas calibration.</summary>
     [Test] procedure MiniResolvesSasCalibration;
+    /// <summary>Mini resolves tpms relearn.</summary>
     [Test] procedure MiniResolvesTpmsRelearn;
+    /// <summary>Mini resolves immo relearn.</summary>
     [Test] procedure MiniResolvesImmoRelearn;
+    /// <summary>Unsupported kind returns false.</summary>
     [Test] procedure UnsupportedKindReturnsFalse;
+    /// <summary>Nil extension returns false.</summary>
     [Test] procedure NilExtensionReturnsFalse;
   end;
 
   [TestFixture]
   TServiceFunctionEnumerationTests = class
   public
+    /// <summary>Mini lists multiple service functions.</summary>
     [Test] procedure MiniListsMultipleServiceFunctions;
+    /// <summary>Mahindra lists at least oil and dpf.</summary>
     [Test] procedure MahindraListsAtLeastOilAndDpf;
+    /// <summary>List skips unknown names.</summary>
     [Test] procedure ListSkipsUnknownNames;
   end;
 
   [TestFixture]
   TServiceFunctionFrameTests = class
   public
+    /// <summary>Frame wraps routine id with sid and sub function.</summary>
     [Test] procedure FrameWrapsRoutineIdWithSidAndSubFunction;
+    /// <summary>Frame appends input data.</summary>
     [Test] procedure FrameAppendsInputData;
+    /// <summary>Kind name produces human label.</summary>
     [Test] procedure KindNameProducesHumanLabel;
   end;
 

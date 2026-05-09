@@ -17,17 +17,28 @@ type
   [TestFixture]
   TUdsClientTests = class
   public
+    /// <summary>Read d i d  resolves by name  returns decoded value.</summary>
     [Test] procedure ReadDID_ResolvesByName_ReturnsDecodedValue;
+    /// <summary>Read d i d  resolves by hex  returns decoded value.</summary>
     [Test] procedure ReadDID_ResolvesByHex_ReturnsDecodedValue;
+    /// <summary>Read d i d  applies scale and offset.</summary>
     [Test] procedure ReadDID_AppliesScaleAndOffset;
+    /// <summary>Read d i d  decodes enum.</summary>
     [Test] procedure ReadDID_DecodesEnum;
+    /// <summary>Read d i d  decodes ascii.</summary>
     [Test] procedure ReadDID_DecodesAscii;
+    /// <summary>Read d i d  raises when catalog miss.</summary>
     [Test] procedure ReadDID_RaisesWhenCatalogMiss;
+    /// <summary>Read d i d  raises when no session.</summary>
     [Test] procedure ReadDID_RaisesWhenNoSession;
 
+    /// <summary>Write adaptation  packs u int8.</summary>
     [Test] procedure WriteAdaptation_PacksUInt8;
+    /// <summary>Write adaptation  packs u int16 b e.</summary>
     [Test] procedure WriteAdaptation_PacksUInt16BE;
+    /// <summary>Write adaptation  rejects out of range.</summary>
     [Test] procedure WriteAdaptation_RejectsOutOfRange;
+    /// <summary>Write adaptation  raises on unknown channel.</summary>
     [Test] procedure WriteAdaptation_RaisesOnUnknownChannel;
     /// <summary>Regression for G6 — when a catalog declares
     /// min=0, max=0 explicitly (e.g. an enum pinned to a single
@@ -36,17 +47,26 @@ type
     /// bounds were zero and would have let any value through.</summary>
     [Test] procedure WriteAdaptation_FixedZeroEnforced;
 
+    /// <summary>Execute routine  starts and returns ok.</summary>
     [Test] procedure ExecuteRoutine_StartsAndReturnsOk;
+    /// <summary>Execute routine  reports unexpected response.</summary>
     [Test] procedure ExecuteRoutine_ReportsUnexpectedResponse;
 
+    /// <summary>Run actuator test  gates on safety warning.</summary>
     [Test] procedure RunActuatorTest_GatesOnSafetyWarning;
+    /// <summary>Run actuator test  acknowledged safety runs.</summary>
     [Test] procedure RunActuatorTest_AcknowledgedSafetyRuns;
+    /// <summary>Run actuator test  no safety runs freely.</summary>
     [Test] procedure RunActuatorTest_NoSafetyRunsFreely;
 
+    /// <summary>Read coding block  unpacks bit fields.</summary>
     [Test] procedure ReadCodingBlock_UnpacksBitFields;
+    /// <summary>Write coding block  preserves uncovered bits.</summary>
     [Test] procedure WriteCodingBlock_PreservesUncoveredBits;
 
+    /// <summary>Read dtcs  decodes p codes.</summary>
     [Test] procedure ReadDtcs_DecodesPCodes;
+    /// <summary>Read dtcs  decodes u codes.</summary>
     [Test] procedure ReadDtcs_DecodesUCodes;
   end;
 

@@ -26,11 +26,17 @@ type
     [Setup] procedure Setup;
     [TearDown] procedure TearDown;
 
+    /// <summary>Append creates verifiable single record.</summary>
     [Test] procedure AppendCreatesVerifiableSingleRecord;
+    /// <summary>Append chains across multiple records.</summary>
     [Test] procedure AppendChainsAcrossMultipleRecords;
+    /// <summary>Tampering byte flip flags correct line.</summary>
     [Test] procedure TamperingByteFlipFlagsCorrectLine;
+    /// <summary>Tampering delete flags the next line.</summary>
     [Test] procedure TamperingDeleteFlagsTheNextLine;
+    /// <summary>Restart from existing file continues chain.</summary>
     [Test] procedure RestartFromExistingFileContinuesChain;
+    /// <summary>Empty key at construction raises.</summary>
     [Test] procedure EmptyKeyAtConstructionRaises;
   end;
 

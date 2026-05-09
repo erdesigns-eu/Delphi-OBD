@@ -20,15 +20,25 @@ type
   [TestFixture]
   TWWHOBDReadinessTests = class
   public
+    /// <summary>Decode rejects too short.</summary>
     [Test] procedure DecodeRejectsTooShort;
+    /// <summary>M i l bit decodes.</summary>
     [Test] procedure MILBitDecodes;
+    /// <summary>D t c count from lower seven bits.</summary>
     [Test] procedure DTCCountFromLowerSevenBits;
+    /// <summary>Continuous misfire supported not complete.</summary>
     [Test] procedure ContinuousMisfireSupportedNotComplete;
+    /// <summary>Non continuous catalyst complete.</summary>
     [Test] procedure NonContinuousCatalystComplete;
+    /// <summary>Round trip four byte form.</summary>
     [Test] procedure RoundTripFourByteForm;
+    /// <summary>Round trip six byte form with diesel monitors.</summary>
     [Test] procedure RoundTripSixByteFormWithDieselMonitors;
+    /// <summary>All ready true when everything complete.</summary>
     [Test] procedure AllReadyTrueWhenEverythingComplete;
+    /// <summary>All ready true when unsupported.</summary>
     [Test] procedure AllReadyTrueWhenUnsupported;
+    /// <summary>Pending monitors lists incomplete.</summary>
     [Test] procedure PendingMonitorsListsIncomplete;
   end;
 

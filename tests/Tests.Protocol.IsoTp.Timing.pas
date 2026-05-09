@@ -20,18 +20,31 @@ type
   [TestFixture]
   TIsoTpTimingTests = class
   public
+    /// <summary>Stmin byte zero is zero micros.</summary>
     [Test] procedure StminByteZeroIsZeroMicros;
+    /// <summary>Stmin byte127 is127 milliseconds.</summary>
     [Test] procedure StminByte127Is127Milliseconds;
+    /// <summary>Stmin byte f1 is hundred micros.</summary>
     [Test] procedure StminByteF1IsHundredMicros;
+    /// <summary>Stmin byte f9 is nine hundred micros.</summary>
     [Test] procedure StminByteF9IsNineHundredMicros;
+    /// <summary>Stmin reserved range raises.</summary>
     [Test] procedure StminReservedRangeRaises;
+    /// <summary>Encode round trips milliseconds.</summary>
     [Test] procedure EncodeRoundTripsMilliseconds;
+    /// <summary>Encode round trips microseconds.</summary>
     [Test] procedure EncodeRoundTripsMicroseconds;
+    /// <summary>Encode rejects unrepresentable.</summary>
     [Test] procedure EncodeRejectsUnrepresentable;
+    /// <summary>Compliant stream passes.</summary>
     [Test] procedure CompliantStreamPasses;
+    /// <summary>Undershot gap flags violation.</summary>
     [Test] procedure UndershotGapFlagsViolation;
+    /// <summary>Block size overrun flags violation.</summary>
     [Test] procedure BlockSizeOverrunFlagsViolation;
+    /// <summary>Tolerance forgives small undershoot.</summary>
     [Test] procedure ToleranceForgivesSmallUndershoot;
+    /// <summary>Reset after flow control.</summary>
     [Test] procedure ResetAfterFlowControl;
   end;
 

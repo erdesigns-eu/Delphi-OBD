@@ -13,30 +13,50 @@ type
   [TestFixture]
   TDtcEncodingTests = class
   public
+    /// <summary>Format powertrain code.</summary>
     [Test] procedure FormatPowertrainCode;
+    /// <summary>Format chassis code.</summary>
     [Test] procedure FormatChassisCode;
+    /// <summary>Format body code.</summary>
     [Test] procedure FormatBodyCode;
+    /// <summary>Format network code.</summary>
     [Test] procedure FormatNetworkCode;
+    /// <summary>Format manufacturer code.</summary>
     [Test] procedure FormatManufacturerCode;
+    /// <summary>Encode round trips p0301.</summary>
     [Test] procedure EncodeRoundTripsP0301;
+    /// <summary>Encode round trips manufacturer.</summary>
     [Test] procedure EncodeRoundTripsManufacturer;
+    /// <summary>Encode rejects short input.</summary>
     [Test] procedure EncodeRejectsShortInput;
+    /// <summary>Encode rejects bad letter.</summary>
     [Test] procedure EncodeRejectsBadLetter;
+    /// <summary>Encode rejects bad group digit.</summary>
     [Test] procedure EncodeRejectsBadGroupDigit;
+    /// <summary>Is manufacturer dtc recognises p1 and p3.</summary>
     [Test] procedure IsManufacturerDtcRecognisesP1AndP3;
+    /// <summary>Is manufacturer dtc rejects s a e.</summary>
     [Test] procedure IsManufacturerDtcRejectsSAE;
+    /// <summary>Severity round trip.</summary>
     [Test] procedure SeverityRoundTrip;
   end;
 
   [TestFixture]
   TDtcCatalogTests = class
   public
+    /// <summary>Loads top level dtc array.</summary>
     [Test] procedure LoadsTopLevelDtcArray;
+    /// <summary>Loads bare j s o n array.</summary>
     [Test] procedure LoadsBareJSONArray;
+    /// <summary>Lookup is case insensitive.</summary>
     [Test] procedure LookupIsCaseInsensitive;
+    /// <summary>Replaces duplicate code.</summary>
     [Test] procedure ReplacesDuplicateCode;
+    /// <summary>Captures possible causes and hints.</summary>
     [Test] procedure CapturesPossibleCausesAndHints;
+    /// <summary>Default source propagates to entries.</summary>
     [Test] procedure DefaultSourcePropagatesToEntries;
+    /// <summary>Verified flag defaults to false.</summary>
     [Test] procedure VerifiedFlagDefaultsToFalse;
   end;
 

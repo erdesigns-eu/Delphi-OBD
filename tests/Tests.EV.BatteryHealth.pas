@@ -20,16 +20,27 @@ type
   [TestFixture]
   TBatteryHealthTests = class
   public
+    /// <summary>Imbalance flat pack has zero spread.</summary>
     [Test] procedure ImbalanceFlatPackHasZeroSpread;
+    /// <summary>Imbalance spread and std dev.</summary>
     [Test] procedure ImbalanceSpreadAndStdDev;
+    /// <summary>Imbalance outlier beyond three sigma.</summary>
     [Test] procedure ImbalanceOutlierBeyondThreeSigma;
+    /// <summary>Imbalance empty array raises.</summary>
     [Test] procedure ImbalanceEmptyArrayRaises;
+    /// <summary>So h at rated capacity is one.</summary>
     [Test] procedure SoHAtRatedCapacityIsOne;
+    /// <summary>So h at half capacity is half.</summary>
     [Test] procedure SoHAtHalfCapacityIsHalf;
+    /// <summary>So h rated zero raises.</summary>
     [Test] procedure SoHRatedZeroRaises;
+    /// <summary>So h temperature derating composite.</summary>
     [Test] procedure SoHTemperatureDeratingComposite;
+    /// <summary>Charging session round trips.</summary>
     [Test] procedure ChargingSessionRoundTrips;
+    /// <summary>Charging session end before start raises.</summary>
     [Test] procedure ChargingSessionEndBeforeStartRaises;
+    /// <summary>Charging session out of range so c raises.</summary>
     [Test] procedure ChargingSessionOutOfRangeSoCRaises;
   end;
 

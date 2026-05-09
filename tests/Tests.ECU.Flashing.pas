@@ -13,15 +13,25 @@ type
   [TestFixture]
   TFlashingTests = class
   public
+    /// <summary>Happy path  transitions through every stage and completes.</summary>
     [Test] procedure HappyPath_TransitionsThroughEveryStageAndCompletes;
+    /// <summary>Health check fail  stops at pre check.</summary>
     [Test] procedure HealthCheckFail_StopsAtPreCheck;
+    /// <summary>Signature fail  stops before writing.</summary>
     [Test] procedure SignatureFail_StopsBeforeWriting;
+    /// <summary>Snapshot fail  stops before writing.</summary>
     [Test] procedure SnapshotFail_StopsBeforeWriting;
+    /// <summary>Write fail  triggers rollback  to snapshot bytes.</summary>
     [Test] procedure WriteFail_TriggersRollback_ToSnapshotBytes;
+    /// <summary>Finalise fail  triggers rollback.</summary>
     [Test] procedure FinaliseFail_TriggersRollback;
+    /// <summary>Verify fail  triggers rollback.</summary>
     [Test] procedure VerifyFail_TriggersRollback;
+    /// <summary>Progress events fire through write phase.</summary>
     [Test] procedure ProgressEventsFireThroughWritePhase;
+    /// <summary>Cancel during write  aborts before all chunks.</summary>
     [Test] procedure CancelDuringWrite_AbortsBeforeAllChunks;
+    /// <summary>Block size  splits firmware correctly.</summary>
     [Test] procedure BlockSize_SplitsFirmwareCorrectly;
   end;
 

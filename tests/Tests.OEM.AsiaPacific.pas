@@ -17,34 +17,53 @@ type
   [TestFixture]
   TVINRoutingTests = class
   public
+    /// <summary>Toyota vin routes.</summary>
     [Test] procedure ToyotaVinRoutes;
+    /// <summary>Honda vin routes.</summary>
     [Test] procedure HondaVinRoutes;
+    /// <summary>Hyundai kia vin routes.</summary>
     [Test] procedure HyundaiKiaVinRoutes;
+    /// <summary>Nissan vin routes.</summary>
     [Test] procedure NissanVinRoutes;
+    /// <summary>Subaru vin routes.</summary>
     [Test] procedure SubaruVinRoutes;
+    /// <summary>Mazda vin routes.</summary>
     [Test] procedure MazdaVinRoutes;
+    /// <summary>Unknown vin returns nil.</summary>
     [Test] procedure UnknownVinReturnsNil;
   end;
 
   [TestFixture]
   TAsiaPacificCatalogTests = class
   public
+    /// <summary>Toyota catalog includes engine e c u.</summary>
     [Test] procedure ToyotaCatalogIncludesEngineECU;
+    /// <summary>Honda seed key has starter.</summary>
     [Test] procedure HondaSeedKeyHasStarter;
+    /// <summary>Hyundai kia heartbeat is1500ms.</summary>
     [Test] procedure HyundaiKiaHeartbeatIs1500ms;
+    /// <summary>Nissan catalog ships consult e c u map.</summary>
     [Test] procedure NissanCatalogShipsConsultECUMap;
+    /// <summary>Subaru catalog includes a w d controller.</summary>
     [Test] procedure SubaruCatalogIncludesAWDController;
+    /// <summary>Mazda catalog includes r b c m.</summary>
     [Test] procedure MazdaCatalogIncludesRBCM;
   end;
 
   [TestFixture]
   TAsiaPacificDecoderTests = class
   public
+    /// <summary>Toyota decodes vin.</summary>
     [Test] procedure ToyotaDecodesVin;
+    /// <summary>Honda decodes chassis code.</summary>
     [Test] procedure HondaDecodesChassisCode;
+    /// <summary>Hyundai kia decodes rom id.</summary>
     [Test] procedure HyundaiKiaDecodesRomId;
+    /// <summary>Nissan decodes chassis code.</summary>
     [Test] procedure NissanDecodesChassisCode;
+    /// <summary>Subaru decodes chassis code.</summary>
     [Test] procedure SubaruDecodesChassisCode;
+    /// <summary>Mazda decodes as built code.</summary>
     [Test] procedure MazdaDecodesAsBuiltCode;
   end;
 

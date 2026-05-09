@@ -20,12 +20,19 @@ type
   [TestFixture]
   TVinResolverTests = class
   public
+    /// <summary>V w  audi  mercedes  b m w  are registered as data available.</summary>
     [Test] procedure VW_Audi_Mercedes_BMW_AreRegisteredAsDataAvailable;
+    /// <summary>V w pre2007 european v i n resolves to early variant.</summary>
     [Test] procedure VWPre2007EuropeanVINResolvesToEarlyVariant;
+    /// <summary>V w post2013 european v i n resolves to later variant.</summary>
     [Test] procedure VWPost2013EuropeanVINResolvesToLaterVariant;
+    /// <summary>Unknown brand gives null calculator and note.</summary>
     [Test] procedure UnknownBrandGivesNullCalculatorAndNote;
+    /// <summary>Invalid v i n falls back to overrides and defaults.</summary>
     [Test] procedure InvalidVINFallsBackToOverridesAndDefaults;
+    /// <summary>Region override takes precedence over v i n region.</summary>
     [Test] procedure RegionOverrideTakesPrecedenceOverVINRegion;
+    /// <summary>Resolution note populated when falling back to default.</summary>
     [Test] procedure ResolutionNotePopulatedWhenFallingBackToDefault;
   end;
 

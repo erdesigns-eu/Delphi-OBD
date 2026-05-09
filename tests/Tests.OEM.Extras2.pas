@@ -16,40 +16,60 @@ type
   [TestFixture]
   TExtras2VINTests = class
   public
+    /// <summary>Renault claims v r1 not stellantis.</summary>
     [Test] procedure RenaultClaimsVR1NotStellantis;
+    /// <summary>Renault matches dacia and alpine.</summary>
     [Test] procedure RenaultMatchesDaciaAndAlpine;
+    /// <summary>Volvo matches y v1 and china built.</summary>
     [Test] procedure VolvoMatchesYV1AndChinaBuilt;
+    /// <summary>Tesla matches all factories.</summary>
     [Test] procedure TeslaMatchesAllFactories;
+    /// <summary>Suzuki matches maruti.</summary>
     [Test] procedure SuzukiMatchesMaruti;
+    /// <summary>Mitsubishi matches d s m historical.</summary>
     [Test] procedure MitsubishiMatchesDSMHistorical;
+    /// <summary>Stellantis no longer claims v r1.</summary>
     [Test] procedure StellantisNoLongerClaimsVR1;
   end;
 
   [TestFixture]
   TExtras2CatalogTests = class
   public
+    /// <summary>Renault e c u map has u c h.</summary>
     [Test] procedure RenaultECUMapHasUCH;
+    /// <summary>Volvo heartbeat is extended.</summary>
     [Test] procedure VolvoHeartbeatIsExtended;
+    /// <summary>Tesla e c u map includes autopilot.</summary>
     [Test] procedure TeslaECUMapIncludesAutopilot;
+    /// <summary>Suzuki has seed key starter.</summary>
     [Test] procedure SuzukiHasSeedKeyStarter;
+    /// <summary>Mitsubishi e c u map includes a w c.</summary>
     [Test] procedure MitsubishiECUMapIncludesAWC;
+    /// <summary>Renault exposes ev controller.</summary>
     [Test] procedure RenaultExposesEvController;
   end;
 
   [TestFixture]
   TExtras2DecoderTests = class
   public
+    /// <summary>Renault decodes calibration id.</summary>
     [Test] procedure RenaultDecodesCalibrationId;
+    /// <summary>Volvo decodes pno code.</summary>
     [Test] procedure VolvoDecodesPnoCode;
+    /// <summary>Tesla decodes firmware version.</summary>
     [Test] procedure TeslaDecodesFirmwareVersion;
+    /// <summary>Suzuki decodes chassis code.</summary>
     [Test] procedure SuzukiDecodesChassisCode;
+    /// <summary>Mitsubishi decodes chassis code.</summary>
     [Test] procedure MitsubishiDecodesChassisCode;
   end;
 
   [TestFixture]
   TUniversalCatalogGrowthTests = class
   public
+    /// <summary>Obd pid catalog includes new entries.</summary>
     [Test] procedure ObdPidCatalogIncludesNewEntries;
+    /// <summary>Dtc catalog includes p0017 and p2002.</summary>
     [Test] procedure DtcCatalogIncludesP0017AndP2002;
   end;
 

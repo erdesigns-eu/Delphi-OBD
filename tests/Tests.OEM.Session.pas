@@ -13,28 +13,46 @@ type
   [TestFixture]
   TStandardSessionTests = class
   public
+    /// <summary>Extended session emits header then10 03.</summary>
     [Test] procedure ExtendedSessionEmitsHeaderThen10_03;
+    /// <summary>Default session has no heartbeat.</summary>
     [Test] procedure DefaultSessionHasNoHeartbeat;
+    /// <summary>Non default session uses iso14229 heartbeat.</summary>
     [Test] procedure NonDefaultSessionUsesIso14229Heartbeat;
+    /// <summary>End session returns to10 01.</summary>
     [Test] procedure EndSessionReturnsTo10_01;
+    /// <summary>Programming requires security access.</summary>
     [Test] procedure ProgrammingRequiresSecurityAccess;
+    /// <summary>Extended does not require security access by default.</summary>
     [Test] procedure ExtendedDoesNotRequireSecurityAccessByDefault;
+    /// <summary>Zero ecu address omits header.</summary>
     [Test] procedure ZeroEcuAddressOmitsHeader;
   end;
 
   [TestFixture]
   TPerOEMSessionTests = class
   public
+    /// <summary>V w plan sets header and c r a.</summary>
     [Test] procedure VWPlanSetsHeaderAndCRA;
+    /// <summary>B m w requires security access for extended.</summary>
     [Test] procedure BMWRequiresSecurityAccessForExtended;
+    /// <summary>B m w heartbeat is1500ms.</summary>
     [Test] procedure BMWHeartbeatIs1500ms;
+    /// <summary>Mercedes appends f198 probe.</summary>
     [Test] procedure MercedesAppendsF198Probe;
+    /// <summary>Mercedes heartbeat is1500ms.</summary>
     [Test] procedure MercedesHeartbeatIs1500ms;
+    /// <summary>Ford prepends s t32 for programming.</summary>
     [Test] procedure FordPrependsST32ForProgramming;
+    /// <summary>Ford extended has no s t32.</summary>
     [Test] procedure FordExtendedHasNoST32;
+    /// <summary>G m prepends s p6.</summary>
     [Test] procedure GMPrependsSP6;
+    /// <summary>Stellantis appends f198 with empty expected.</summary>
     [Test] procedure StellantisAppendsF198WithEmptyExpected;
+    /// <summary>Extension resolves to o e m negotiator.</summary>
     [Test] procedure ExtensionResolvesToOEMNegotiator;
+    /// <summary>Session negotiator is cached across calls.</summary>
     [Test] procedure SessionNegotiatorIsCachedAcrossCalls;
   end;
 

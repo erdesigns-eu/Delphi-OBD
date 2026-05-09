@@ -20,14 +20,23 @@ type
   [TestFixture]
   TRadioCodeRegistryTests = class
   public
+    /// <summary>Registry has all eight pending brands.</summary>
     [Test] procedure RegistryHasAllEightPendingBrands;
+    /// <summary>Find is case insensitive.</summary>
     [Test] procedure FindIsCaseInsensitive;
+    /// <summary>Unknown brand returns nil.</summary>
     [Test] procedure UnknownBrandReturnsNil;
+    /// <summary>Each pending brand has false data available.</summary>
     [Test] procedure EachPendingBrandHasFalseDataAvailable;
+    /// <summary>Pending calculator raises on calculate.</summary>
     [Test] procedure PendingCalculatorRaisesOnCalculate;
+    /// <summary>Pending calculator rejects validate.</summary>
     [Test] procedure PendingCalculatorRejectsValidate;
+    /// <summary>Pending calculator description is not empty.</summary>
     [Test] procedure PendingCalculatorDescriptionIsNotEmpty;
+    /// <summary>Register does not duplicate on same key.</summary>
     [Test] procedure RegisterDoesNotDuplicateOnSameKey;
+    /// <summary>Data notes is not empty for pending.</summary>
     [Test] procedure DataNotesIsNotEmptyForPending;
   end;
 

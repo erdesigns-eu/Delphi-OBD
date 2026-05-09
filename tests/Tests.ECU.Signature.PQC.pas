@@ -20,15 +20,25 @@ type
   [TestFixture]
   TPQCSignatureTests = class
   public
+    /// <summary>Envelope round trips.</summary>
     [Test] procedure EnvelopeRoundTrips;
+    /// <summary>Envelope with empty key id round trips.</summary>
     [Test] procedure EnvelopeWithEmptyKeyIdRoundTrips;
+    /// <summary>Envelope truncated at sig len raises.</summary>
     [Test] procedure EnvelopeTruncatedAtSigLenRaises;
+    /// <summary>Envelope truncated at signature raises.</summary>
     [Test] procedure EnvelopeTruncatedAtSignatureRaises;
+    /// <summary>Envelope too short raises.</summary>
     [Test] procedure EnvelopeTooShortRaises;
+    /// <summary>Verify algorithm mismatch raises.</summary>
     [Test] procedure VerifyAlgorithmMismatchRaises;
+    /// <summary>Verify raises not available until binding ships.</summary>
     [Test] procedure VerifyRaisesNotAvailableUntilBindingShips;
+    /// <summary>Constructor rejects unknown algorithm.</summary>
     [Test] procedure ConstructorRejectsUnknownAlgorithm;
+    /// <summary>Constructor rejects empty public key.</summary>
     [Test] procedure ConstructorRejectsEmptyPublicKey;
+    /// <summary>Algorithm name matches enum.</summary>
     [Test] procedure AlgorithmNameMatchesEnum;
   end;
 

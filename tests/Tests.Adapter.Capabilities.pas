@@ -20,14 +20,23 @@ type
   [TestFixture]
   TAdapterCapabilitiesTests = class
   public
+    /// <summary>E l m327 does not claim c a n f d.</summary>
     [Test] procedure ELM327DoesNotClaimCANFD;
+    /// <summary>O b d link e x claims c a n f d.</summary>
     [Test] procedure OBDLinkEXClaimsCANFD;
+    /// <summary>Do i p gateway has no k line.</summary>
     [Test] procedure DoIPGatewayHasNoKLine;
+    /// <summary>Unknown adapter returns false.</summary>
     [Test] procedure UnknownAdapterReturnsFalse;
+    /// <summary>Resolve iso tp falls back to seven.</summary>
     [Test] procedure ResolveIsoTpFallsBackToSeven;
+    /// <summary>Resolve iso tp returns sixty two for c a n f d adapter.</summary>
     [Test] procedure ResolveIsoTpReturnsSixtyTwoForCANFDAdapter;
+    /// <summary>Register is case insensitive.</summary>
     [Test] procedure RegisterIsCaseInsensitive;
+    /// <summary>Set to string contains c a n.</summary>
     [Test] procedure SetToStringContainsCAN;
+    /// <summary>Register replaces existing.</summary>
     [Test] procedure RegisterReplacesExisting;
   end;
 

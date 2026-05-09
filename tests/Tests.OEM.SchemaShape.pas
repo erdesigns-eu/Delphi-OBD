@@ -29,12 +29,19 @@ type
   [TestFixture]
   TSchemaShapeTests = class
   public
+    /// <summary>W m i codes are three chars alphanumeric.</summary>
     [Test] procedure WMICodesAreThreeCharsAlphanumeric;
+    /// <summary>Decoder kinds use recognised tags.</summary>
     [Test] procedure DecoderKindsUseRecognisedTags;
+    /// <summary>Coding field kinds use recognised tags.</summary>
     [Test] procedure CodingFieldKindsUseRecognisedTags;
+    /// <summary>Adaptation kinds use recognised tags.</summary>
     [Test] procedure AdaptationKindsUseRecognisedTags;
+    /// <summary>D t c codes match s a eor j1939 or oem format.</summary>
     [Test] procedure DTCCodesMatchSAEorJ1939OrOemFormat;
+    /// <summary>Manufacturer keys are non empty.</summary>
     [Test] procedure ManufacturerKeysAreNonEmpty;
+    /// <summary>Version field is one or two.</summary>
     [Test] procedure VersionFieldIsOneOrTwo;
   end;
 

@@ -20,13 +20,21 @@ type
   [TestFixture]
   TCodingDiffTests = class
   public
+    /// <summary>No op when current equals target.</summary>
     [Test] procedure NoOpWhenCurrentEqualsTarget;
+    /// <summary>Byte level diff spots changed bytes.</summary>
     [Test] procedure ByteLevelDiffSpotsChangedBytes;
+    /// <summary>Field schema produces named diff.</summary>
     [Test] procedure FieldSchemaProducesNamedDiff;
+    /// <summary>Apply without confirm raises.</summary>
     [Test] procedure ApplyWithoutConfirmRaises;
+    /// <summary>Apply with confirm invokes writer.</summary>
     [Test] procedure ApplyWithConfirmInvokesWriter;
+    /// <summary>No op apply does not invoke writer.</summary>
     [Test] procedure NoOpApplyDoesNotInvokeWriter;
+    /// <summary>Mismatched length raises.</summary>
     [Test] procedure MismatchedLengthRaises;
+    /// <summary>U int16 field diffs correctly.</summary>
     [Test] procedure UInt16FieldDiffsCorrectly;
   end;
 

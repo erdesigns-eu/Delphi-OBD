@@ -13,19 +13,31 @@ type
   [TestFixture]
   TOEMRegistryTests = class
   public
+    /// <summary>Register and find by key.</summary>
     [Test] procedure RegisterAndFindByKey;
+    /// <summary>Find by v i n  v w  matches w v w.</summary>
     [Test] procedure FindByVIN_VW_MatchesWVW;
+    /// <summary>Find by v i n  b m w  matches w b a.</summary>
     [Test] procedure FindByVIN_BMW_MatchesWBA;
+    /// <summary>Find by v i n  non o e m returns nil.</summary>
     [Test] procedure FindByVIN_NonOEMReturnsNil;
+    /// <summary>Register is idempotent.</summary>
     [Test] procedure RegisterIsIdempotent;
+    /// <summary>Unregister removes extension.</summary>
     [Test] procedure UnregisterRemovesExtension;
 
+    /// <summary>V w  decode battery voltage.</summary>
     [Test] procedure VW_DecodeBatteryVoltage;
+    /// <summary>V w  decode vehicle speed.</summary>
     [Test] procedure VW_DecodeVehicleSpeed;
+    /// <summary>V w  decode unknown d i d falls back to hex.</summary>
     [Test] procedure VW_DecodeUnknownDIDFallsBackToHex;
+    /// <summary>B m w  decode mileage.</summary>
     [Test] procedure BMW_DecodeMileage;
 
+    /// <summary>Find d i d  looks up catalog entry.</summary>
     [Test] procedure FindDID_LooksUpCatalogEntry;
+    /// <summary>Find routine  looks up catalog entry.</summary>
     [Test] procedure FindRoutine_LooksUpCatalogEntry;
   end;
 

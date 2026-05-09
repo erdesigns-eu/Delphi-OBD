@@ -20,13 +20,21 @@ type
   [TestFixture]
   TNewOEMCodingTests = class
   public
+    /// <summary>Toyota  hex round trip.</summary>
     [Test] procedure Toyota_HexRoundTrip;
+    /// <summary>Toyota  bit flip persists.</summary>
     [Test] procedure Toyota_BitFlipPersists;
+    /// <summary>Honda  hex round trip.</summary>
     [Test] procedure Honda_HexRoundTrip;
+    /// <summary>H m g  out of range byte raises.</summary>
     [Test] procedure HMG_OutOfRangeByteRaises;
+    /// <summary>Stellantis  bit and byte access.</summary>
     [Test] procedure Stellantis_BitAndByteAccess;
+    /// <summary>Stellantis  compute checksum raises for gap.</summary>
     [Test] procedure Stellantis_ComputeChecksumRaisesForGap;
+    /// <summary>Stellantis  set checksum writes two bytes.</summary>
     [Test] procedure Stellantis_SetChecksumWritesTwoBytes;
+    /// <summary>Zero length construction raises.</summary>
     [Test] procedure ZeroLengthConstructionRaises;
   end;
 

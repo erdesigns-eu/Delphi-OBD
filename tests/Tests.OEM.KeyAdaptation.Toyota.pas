@@ -20,14 +20,23 @@ type
   [TestFixture]
   TToyotaKeyAdaptationTests = class
   public
+    /// <summary>Request round trip with master key.</summary>
     [Test] procedure RequestRoundTripWithMasterKey;
+    /// <summary>Request round trip with p i n.</summary>
     [Test] procedure RequestRoundTripWithPIN;
+    /// <summary>Request requires p i n when no master key.</summary>
     [Test] procedure RequestRequiresPINWhenNoMasterKey;
+    /// <summary>Request pin too long raises.</summary>
     [Test] procedure RequestPinTooLongRaises;
+    /// <summary>Response round trip.</summary>
     [Test] procedure ResponseRoundTrip;
+    /// <summary>Response bad added key id raises.</summary>
     [Test] procedure ResponseBadAddedKeyIdRaises;
+    /// <summary>Camry is master key.</summary>
     [Test] procedure CamryIsMasterKey;
+    /// <summary>N x300 is pin.</summary>
     [Test] procedure NX300IsPin;
+    /// <summary>Unknown is certificate locked.</summary>
     [Test] procedure UnknownIsCertificateLocked;
   end;
 

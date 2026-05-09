@@ -20,13 +20,21 @@ type
   [TestFixture]
   TSecOCTests = class
   public
+    /// <summary>Profile3 hmac round trip verifies.</summary>
     [Test] procedure Profile3HmacRoundTripVerifies;
+    /// <summary>Freshness value changes mac.</summary>
     [Test] procedure FreshnessValueChangesMac;
+    /// <summary>Payload flip fails verification.</summary>
     [Test] procedure PayloadFlipFailsVerification;
+    /// <summary>Wrong key fails verification.</summary>
     [Test] procedure WrongKeyFailsVerification;
+    /// <summary>Configurable truncation length.</summary>
     [Test] procedure ConfigurableTruncationLength;
+    /// <summary>Profile1 raises until cmac binding ships.</summary>
     [Test] procedure Profile1RaisesUntilCmacBindingShips;
+    /// <summary>Encode p d u layout matches spec.</summary>
     [Test] procedure EncodePDULayoutMatchesSpec;
+    /// <summary>Empty key raises.</summary>
     [Test] procedure EmptyKeyRaises;
   end;
 

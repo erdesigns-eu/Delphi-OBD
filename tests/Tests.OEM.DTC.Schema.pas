@@ -24,14 +24,23 @@ type
   [TestFixture]
   TDtcSchemaExtensionTests = class
   public
+    /// <summary>Loads new fields from inline j s o n.</summary>
     [Test] procedure LoadsNewFieldsFromInlineJSON;
+    /// <summary>Backward compatible with old format.</summary>
     [Test] procedure BackwardCompatibleWithOldFormat;
+    /// <summary>Parses monitor type strings.</summary>
     [Test] procedure ParsesMonitorTypeStrings;
+    /// <summary>Shipped i s o15031 has monitor type.</summary>
     [Test] procedure ShippedISO15031HasMonitorType;
+    /// <summary>Shipped i s o15031 has related d i ds.</summary>
     [Test] procedure ShippedISO15031HasRelatedDIDs;
+    /// <summary>Shipped i s o15031 freeze frame on misfires.</summary>
     [Test] procedure ShippedISO15031FreezeFrameOnMisfires;
+    /// <summary>Sample p codes found by lookup.</summary>
     [Test] procedure SamplePCodesFoundByLookup;
+    /// <summary>Sample u codes found by lookup.</summary>
     [Test] procedure SampleUCodesFoundByLookup;
+    /// <summary>Related routines point at catalog routines.</summary>
     [Test] procedure RelatedRoutinesPointAtCatalogRoutines;
   end;
 

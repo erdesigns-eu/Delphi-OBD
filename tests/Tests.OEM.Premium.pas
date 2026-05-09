@@ -15,34 +15,53 @@ type
   [TestFixture]
   TPremiumVINTests = class
   public
+    /// <summary>Porsche claims zuffenhausen and leipzig.</summary>
     [Test] procedure PorscheClaimsZuffenhausenAndLeipzig;
+    /// <summary>J l r claims jaguar and land rover plants.</summary>
     [Test] procedure JLRClaimsJaguarAndLandRoverPlants;
+    /// <summary>Iveco claims italy and spain.</summary>
     [Test] procedure IvecoClaimsItalyAndSpain;
+    /// <summary>Isuzu claims japan and u s a.</summary>
     [Test] procedure IsuzuClaimsJapanAndUSA;
+    /// <summary>Rivian claims normal i l.</summary>
     [Test] procedure RivianClaimsNormalIL;
+    /// <summary>Polestar claims non volvo cars w m is.</summary>
     [Test] procedure PolestarClaimsNonVolvoCarsWMIs;
+    /// <summary>Polestar does not collide with volvo cars.</summary>
     [Test] procedure PolestarDoesNotCollideWithVolvoCars;
   end;
 
   [TestFixture]
   TPremiumCatalogTests = class
   public
+    /// <summary>Porsche exposes p d k and p a s m.</summary>
     [Test] procedure PorscheExposesPDKAndPASM;
+    /// <summary>J l r exposes air suspension routine.</summary>
     [Test] procedure JLRExposesAirSuspensionRoutine;
+    /// <summary>Iveco exposes f p t engine.</summary>
     [Test] procedure IvecoExposesFPTEngine;
+    /// <summary>Isuzu exposes aftertreatment e c u.</summary>
     [Test] procedure IsuzuExposesAftertreatmentECU;
+    /// <summary>Rivian exposes quad motor.</summary>
     [Test] procedure RivianExposesQuadMotor;
+    /// <summary>Polestar exposes evcc and pilot assist.</summary>
     [Test] procedure PolestarExposesEvccAndPilotAssist;
   end;
 
   [TestFixture]
   TPremiumDecoderTests = class
   public
+    /// <summary>Porsche decodes paint code.</summary>
     [Test] procedure PorscheDecodesPaintCode;
+    /// <summary>J l r decodes model code.</summary>
     [Test] procedure JLRDecodesModelCode;
+    /// <summary>Iveco decodes model code.</summary>
     [Test] procedure IvecoDecodesModelCode;
+    /// <summary>Isuzu decodes engine code.</summary>
     [Test] procedure IsuzuDecodesEngineCode;
+    /// <summary>Rivian decodes drivetrain.</summary>
     [Test] procedure RivianDecodesDrivetrain;
+    /// <summary>Polestar decodes drivetrain.</summary>
     [Test] procedure PolestarDecodesDrivetrain;
   end;
 

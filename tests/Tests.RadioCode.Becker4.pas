@@ -30,6 +30,7 @@ type
     [TestCase('Index_19', '0019,0152')]
     procedure Calculate_ProducesExpectedCode(const Serial, Expected: string);
 
+    /// <summary>Calculate  is deterministic.</summary>
     [Test]
     procedure Calculate_IsDeterministic;
 
@@ -41,6 +42,7 @@ type
     [TestCase('Empty',     '')]
     procedure Calculate_RejectsInvalidInput(const Serial: string);
 
+    /// <summary>Calculate  trims whitespace.</summary>
     [Test]
     procedure Calculate_TrimsWhitespace;
   end;

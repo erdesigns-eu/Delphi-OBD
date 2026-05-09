@@ -17,38 +17,61 @@ type
   [TestFixture]
   TSchemaV2ParserTests = class
   public
+    /// <summary>Parses coding block.</summary>
     [Test] procedure ParsesCodingBlock;
+    /// <summary>Coding block exposes bit field.</summary>
     [Test] procedure CodingBlockExposesBitField;
+    /// <summary>Coding block exposes enum field.</summary>
     [Test] procedure CodingBlockExposesEnumField;
+    /// <summary>Coding block has payload size.</summary>
     [Test] procedure CodingBlockHasPayloadSize;
+    /// <summary>Parses adaptations.</summary>
     [Test] procedure ParsesAdaptations;
+    /// <summary>Adaptation carries min max default.</summary>
     [Test] procedure AdaptationCarriesMinMaxDefault;
+    /// <summary>Parses actuator test.</summary>
     [Test] procedure ParsesActuatorTest;
+    /// <summary>Actuator test carries safety warning.</summary>
     [Test] procedure ActuatorTestCarriesSafetyWarning;
+    /// <summary>Parses live pid.</summary>
     [Test] procedure ParsesLivePid;
+    /// <summary>Live pid carries decoder info.</summary>
     [Test] procedure LivePidCarriesDecoderInfo;
+    /// <summary>Parses dtc extended data.</summary>
     [Test] procedure ParsesDtcExtendedData;
+    /// <summary>Dtc extended data carries record number.</summary>
     [Test] procedure DtcExtendedDataCarriesRecordNumber;
+    /// <summary>Legacy catalog still parses.</summary>
     [Test] procedure LegacyCatalogStillParses;
   end;
 
   [TestFixture]
   TSchemaV2KindParserTests = class
   public
+    /// <summary>Parses coding field kind bit.</summary>
     [Test] procedure ParsesCodingFieldKindBit;
+    /// <summary>Parses coding field kind enum.</summary>
     [Test] procedure ParsesCodingFieldKindEnum;
+    /// <summary>Parses adaptation kind u int16.</summary>
     [Test] procedure ParsesAdaptationKindUInt16;
+    /// <summary>Parses actuator response kind boolean.</summary>
     [Test] procedure ParsesActuatorResponseKindBoolean;
+    /// <summary>Parses live pid mode service22.</summary>
     [Test] procedure ParsesLivePidModeService22;
+    /// <summary>Parses dtc extended kind occurrence counter.</summary>
     [Test] procedure ParsesDtcExtendedKindOccurrenceCounter;
+    /// <summary>Unknown string returns unknown kind.</summary>
     [Test] procedure UnknownStringReturnsUnknownKind;
   end;
 
   [TestFixture]
   TSchemaV2MergeTests = class
   public
+    /// <summary>Merge replaces coding block by shared d i d.</summary>
     [Test] procedure MergeReplacesCodingBlockBySharedDID;
+    /// <summary>Merge appends new adaptation.</summary>
     [Test] procedure MergeAppendsNewAdaptation;
+    /// <summary>Merge missing file is silent.</summary>
     [Test] procedure MergeMissingFileIsSilent;
   end;
 

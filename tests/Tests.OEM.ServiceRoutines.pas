@@ -20,16 +20,27 @@ type
   [TestFixture]
   TServiceRoutinesTests = class
   public
+    /// <summary>Registry has at least thirty.</summary>
     [Test] procedure RegistryHasAtLeastThirty;
+    /// <summary>Every entry has citation.</summary>
     [Test] procedure EveryEntryHasCitation;
+    /// <summary>Every entry has non empty key and name.</summary>
     [Test] procedure EveryEntryHasNonEmptyKeyAndName;
+    /// <summary>R i ds are non zero.</summary>
     [Test] procedure RIDsAreNonZero;
+    /// <summary>Sub function is valid u d s.</summary>
     [Test] procedure SubFunctionIsValidUDS;
+    /// <summary>Find is case insensitive.</summary>
     [Test] procedure FindIsCaseInsensitive;
+    /// <summary>Get by category returns maintenance.</summary>
     [Test] procedure GetByCategoryReturnsMaintenance;
+    /// <summary>Get by o e m returns b m w routines.</summary>
     [Test] procedure GetByOEMReturnsBMWRoutines;
+    /// <summary>Frame builder produces correct layout.</summary>
     [Test] procedure FrameBuilderProducesCorrectLayout;
+    /// <summary>Frame builder rejects bad sub function.</summary>
     [Test] procedure FrameBuilderRejectsBadSubFunction;
+    /// <summary>No duplicate keys.</summary>
     [Test] procedure NoDuplicateKeys;
   end;
 

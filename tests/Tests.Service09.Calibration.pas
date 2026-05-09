@@ -20,17 +20,29 @@ type
   [TestFixture]
   TCalibrationTests = class
   public
+    /// <summary>Cal i d request is two bytes.</summary>
     [Test] procedure CalIDRequestIsTwoBytes;
+    /// <summary>C v n request is two bytes.</summary>
     [Test] procedure CVNRequestIsTwoBytes;
+    /// <summary>Decode cal i d strips trailing nulls.</summary>
     [Test] procedure DecodeCalIDStripsTrailingNulls;
+    /// <summary>Decode multi block cal i ds.</summary>
     [Test] procedure DecodeMultiBlockCalIDs;
+    /// <summary>Decode cal i d rejects bad service id.</summary>
     [Test] procedure DecodeCalIDRejectsBadServiceId;
+    /// <summary>Decode cal i d rejects truncated.</summary>
     [Test] procedure DecodeCalIDRejectsTruncated;
+    /// <summary>Decode c v n big endian four bytes.</summary>
     [Test] procedure DecodeCVNBigEndianFourBytes;
+    /// <summary>Decode multi block c v ns.</summary>
     [Test] procedure DecodeMultiBlockCVNs;
+    /// <summary>Decode c v n rejects bad p i d.</summary>
     [Test] procedure DecodeCVNRejectsBadPID;
+    /// <summary>Format c v n upper hex.</summary>
     [Test] procedure FormatCVNUpperHex;
+    /// <summary>Pair matches positionally.</summary>
     [Test] procedure PairMatchesPositionally;
+    /// <summary>Pair mismatched lengths raises.</summary>
     [Test] procedure PairMismatchedLengthsRaises;
   end;
 

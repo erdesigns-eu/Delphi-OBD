@@ -17,12 +17,19 @@ type
   [TestFixture]
   TUdsClientAsyncTests = class
   public
+    /// <summary>Read d i d async  await returns decoded value.</summary>
     [Test] procedure ReadDIDAsync_AwaitReturnsDecodedValue;
+    /// <summary>Read d i d async  on complete fires.</summary>
     [Test] procedure ReadDIDAsync_OnCompleteFires;
+    /// <summary>Read d i d async  pre cancelled token settles cancelled.</summary>
     [Test] procedure ReadDIDAsync_PreCancelledTokenSettlesCancelled;
+    /// <summary>Close session  drains pending futures as cancelled.</summary>
     [Test] procedure CloseSession_DrainsPendingFuturesAsCancelled;
+    /// <summary>Read d i d async  propagates exception through await.</summary>
     [Test] procedure ReadDIDAsync_PropagatesExceptionThroughAwait;
+    /// <summary>Write adaptation async  await returns true.</summary>
     [Test] procedure WriteAdaptationAsync_AwaitReturnsTrue;
+    /// <summary>Serial ordering  two calls complete in queue order.</summary>
     [Test] procedure SerialOrdering_TwoCallsCompleteInQueueOrder;
   end;
 

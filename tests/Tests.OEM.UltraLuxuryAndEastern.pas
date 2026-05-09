@@ -18,37 +18,59 @@ type
   [TestFixture]
   TUltraLuxuryVINTests = class
   public
+    /// <summary>Aston martin claims scf.</summary>
     [Test] procedure AstonMartinClaimsScf;
+    /// <summary>Bentley claims scb.</summary>
     [Test] procedure BentleyClaimsScb;
+    /// <summary>Rolls royce claims sca.</summary>
     [Test] procedure RollsRoyceClaimsSca;
+    /// <summary>Mc laren claims sbm.</summary>
     [Test] procedure McLarenClaimsSbm;
+    /// <summary>Lada claims all plants.</summary>
     [Test] procedure LadaClaimsAllPlants;
+    /// <summary>Dacia claims romania and china.</summary>
     [Test] procedure DaciaClaimsRomaniaAndChina;
+    /// <summary>Paccar no longer claims scb.</summary>
     [Test] procedure PaccarNoLongerClaimsScb;
+    /// <summary>Renault no longer claims u u1.</summary>
     [Test] procedure RenaultNoLongerClaimsUU1;
+    /// <summary>Dacia does not claim renault v f1.</summary>
     [Test] procedure DaciaDoesNotClaimRenaultVF1;
   end;
 
   [TestFixture]
   TUltraLuxuryCatalogTests = class
   public
+    /// <summary>Aston martin exposes valhalla p h e v.</summary>
     [Test] procedure AstonMartinExposesValhallaPHEV;
+    /// <summary>Bentley exposes dynamic ride and rear steer.</summary>
     [Test] procedure BentleyExposesDynamicRideAndRearSteer;
+    /// <summary>Rolls royce session requires security access.</summary>
     [Test] procedure RollsRoyceSessionRequiresSecurityAccess;
+    /// <summary>Rolls royce exposes spectre e v.</summary>
     [Test] procedure RollsRoyceExposesSpectreEV;
+    /// <summary>Mc laren exposes artura p h e v.</summary>
     [Test] procedure McLarenExposesArturaPHEV;
+    /// <summary>Lada exposes niva transfer case.</summary>
     [Test] procedure LadaExposesNivaTransferCase;
+    /// <summary>Dacia exposes spring e v.</summary>
     [Test] procedure DaciaExposesSpringEV;
   end;
 
   [TestFixture]
   TUltraLuxuryDecoderTests = class
   public
+    /// <summary>Aston martin decodes paint code.</summary>
     [Test] procedure AstonMartinDecodesPaintCode;
+    /// <summary>Bentley decodes commission number.</summary>
     [Test] procedure BentleyDecodesCommissionNumber;
+    /// <summary>Rolls royce decodes starlight pattern.</summary>
     [Test] procedure RollsRoyceDecodesStarlightPattern;
+    /// <summary>Mc laren decodes chassis serial.</summary>
     [Test] procedure McLarenDecodesChassisSerial;
+    /// <summary>Lada decodes engine code.</summary>
     [Test] procedure LadaDecodesEngineCode;
+    /// <summary>Dacia decodes engine code.</summary>
     [Test] procedure DaciaDecodesEngineCode;
   end;
 

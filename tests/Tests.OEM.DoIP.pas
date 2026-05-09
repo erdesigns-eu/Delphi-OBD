@@ -13,40 +13,60 @@ type
   [TestFixture]
   TDoIPHeaderTests = class
   public
+    /// <summary>Build header emits version inversion.</summary>
     [Test] procedure BuildHeaderEmitsVersionInversion;
+    /// <summary>Build header encodes payload type and length big endian.</summary>
     [Test] procedure BuildHeaderEncodesPayloadTypeAndLengthBigEndian;
+    /// <summary>Parse header rejects bad inversion.</summary>
     [Test] procedure ParseHeaderRejectsBadInversion;
+    /// <summary>Parse header rejects short buffer.</summary>
     [Test] procedure ParseHeaderRejectsShortBuffer;
+    /// <summary>Parse header round trips all fields.</summary>
     [Test] procedure ParseHeaderRoundTripsAllFields;
   end;
 
   [TestFixture]
   TDoIPRoutingTests = class
   public
+    /// <summary>Build activation request emits19 bytes with default activation.</summary>
     [Test] procedure BuildActivationRequestEmits19BytesWithDefaultActivation;
+    /// <summary>Build activation request carries o e m specific.</summary>
     [Test] procedure BuildActivationRequestCarriesOEMSpecific;
+    /// <summary>Parse activation response v2010.</summary>
     [Test] procedure ParseActivationResponseV2010;
+    /// <summary>Parse activation response v2012 with o e m tail.</summary>
     [Test] procedure ParseActivationResponseV2012WithOEMTail;
+    /// <summary>Parse activation rejects truncated.</summary>
     [Test] procedure ParseActivationRejectsTruncated;
+    /// <summary>Parse activation returns false on wrong type.</summary>
     [Test] procedure ParseActivationReturnsFalseOnWrongType;
   end;
 
   [TestFixture]
   TDoIPVehicleTests = class
   public
+    /// <summary>Build vehicle ident empty payload.</summary>
     [Test] procedure BuildVehicleIdentEmptyPayload;
+    /// <summary>Build vehicle ident by v i n rejects bad length.</summary>
     [Test] procedure BuildVehicleIdentByVINRejectsBadLength;
+    /// <summary>Build vehicle ident by v i n round trips.</summary>
     [Test] procedure BuildVehicleIdentByVINRoundTrips;
+    /// <summary>Parse vehicle announcement extracts fields.</summary>
     [Test] procedure ParseVehicleAnnouncementExtractsFields;
   end;
 
   [TestFixture]
   TDoIPDiagMessageTests = class
   public
+    /// <summary>Build diag wraps u d s.</summary>
     [Test] procedure BuildDiagWrapsUDS;
+    /// <summary>Build diag rejects empty user data.</summary>
     [Test] procedure BuildDiagRejectsEmptyUserData;
+    /// <summary>Parse diag extracts addresses and user data.</summary>
     [Test] procedure ParseDiagExtractsAddressesAndUserData;
+    /// <summary>Round trips via build and parse.</summary>
     [Test] procedure RoundTripsViaBuildAndParse;
+    /// <summary>Alive check pair.</summary>
     [Test] procedure AliveCheckPair;
   end;
 

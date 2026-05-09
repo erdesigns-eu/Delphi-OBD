@@ -13,69 +13,108 @@ type
   [TestFixture]
   TCodingHexTests = class
   public
+    /// <summary>Hex string round trip.</summary>
     [Test] procedure HexStringRoundTrip;
+    /// <summary>Hex string strips whitespace and separators.</summary>
     [Test] procedure HexStringStripsWhitespaceAndSeparators;
+    /// <summary>Hex string rejects odd length.</summary>
     [Test] procedure HexStringRejectsOddLength;
+    /// <summary>Hex string rejects bad character.</summary>
     [Test] procedure HexStringRejectsBadCharacter;
+    /// <summary>Bytes to hex uses upper case.</summary>
     [Test] procedure BytesToHexUsesUpperCase;
+    /// <summary>Bytes to hex with separator.</summary>
     [Test] procedure BytesToHexWithSeparator;
+    /// <summary>Bit ops read and write.</summary>
     [Test] procedure BitOpsReadAndWrite;
+    /// <summary>Bit ops reject out of range.</summary>
     [Test] procedure BitOpsRejectOutOfRange;
   end;
 
   [TestFixture]
   TVWLongCodingTests = class
   public
+    /// <summary>Construct from hex preserves bytes.</summary>
     [Test] procedure ConstructFromHexPreservesBytes;
+    /// <summary>Set byte and read back.</summary>
     [Test] procedure SetByteAndReadBack;
+    /// <summary>Set bit flips the right position.</summary>
     [Test] procedure SetBitFlipsTheRightPosition;
+    /// <summary>Has non zero byte detects all zeros.</summary>
     [Test] procedure HasNonZeroByteDetectsAllZeros;
+    /// <summary>To hex round trips constructor.</summary>
     [Test] procedure ToHexRoundTripsConstructor;
+    /// <summary>To bytes is an independent copy.</summary>
     [Test] procedure ToBytesIsAnIndependentCopy;
+    /// <summary>Set byte out of range raises.</summary>
     [Test] procedure SetByteOutOfRangeRaises;
   end;
 
   [TestFixture]
   TBMWFATests = class
   public
+    /// <summary>Parses comma separated.</summary>
     [Test] procedure ParsesCommaSeparated;
+    /// <summary>Deduplicates on add.</summary>
     [Test] procedure DeduplicatesOnAdd;
+    /// <summary>Normalises to upper case.</summary>
     [Test] procedure NormalisesToUpperCase;
+    /// <summary>Remove option works.</summary>
     [Test] procedure RemoveOptionWorks;
+    /// <summary>To string sorts ascending.</summary>
     [Test] procedure ToStringSortsAscending;
+    /// <summary>Has option is case insensitive.</summary>
     [Test] procedure HasOptionIsCaseInsensitive;
+    /// <summary>Rejects empty code.</summary>
     [Test] procedure RejectsEmptyCode;
   end;
 
   [TestFixture]
   TBMWIStufeTests = class
   public
+    /// <summary>Parse round trip.</summary>
     [Test] procedure ParseRoundTrip;
+    /// <summary>Parse rejects wrong part count.</summary>
     [Test] procedure ParseRejectsWrongPartCount;
+    /// <summary>Parse rejects bad month.</summary>
     [Test] procedure ParseRejectsBadMonth;
+    /// <summary>Compare orders by year month build.</summary>
     [Test] procedure CompareOrdersByYearMonthBuild;
+    /// <summary>At least different project is false.</summary>
     [Test] procedure AtLeastDifferentProjectIsFalse;
+    /// <summary>To string pads zeros.</summary>
     [Test] procedure ToStringPadsZeros;
   end;
 
   [TestFixture]
   TMercedesSCNTests = class
   public
+    /// <summary>Parses three segments.</summary>
     [Test] procedure ParsesThreeSegments;
+    /// <summary>Rejects two segments.</summary>
     [Test] procedure RejectsTwoSegments;
+    /// <summary>Rejects illegal character.</summary>
     [Test] procedure RejectsIllegalCharacter;
+    /// <summary>Normalizes to upper.</summary>
     [Test] procedure NormalizesToUpper;
+    /// <summary>To string round trips.</summary>
     [Test] procedure ToStringRoundTrips;
   end;
 
   [TestFixture]
   TFordAsBuiltTests = class
   public
+    /// <summary>Checksum matches spec.</summary>
     [Test] procedure ChecksumMatchesSpec;
+    /// <summary>Parse line extracts fields.</summary>
     [Test] procedure ParseLineExtractsFields;
+    /// <summary>Parse rejects missing checksum.</summary>
     [Test] procedure ParseRejectsMissingChecksum;
+    /// <summary>Reseal recomputes checksum.</summary>
     [Test] procedure ResealRecomputesChecksum;
+    /// <summary>Parse text skips comments and blanks.</summary>
     [Test] procedure ParseTextSkipsCommentsAndBlanks;
+    /// <summary>To string round trips.</summary>
     [Test] procedure ToStringRoundTrips;
   end;
 

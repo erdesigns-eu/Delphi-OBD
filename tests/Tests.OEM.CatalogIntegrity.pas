@@ -34,8 +34,11 @@ type
   [TestFixture]
   TCatalogIntegrityTests = class
   public
+    /// <summary>Coding block bit fields fit within payload.</summary>
     [Test] procedure CodingBlockBitFieldsFitWithinPayload;
+    /// <summary>Cross section ecu references resolve.</summary>
     [Test] procedure CrossSectionEcuReferencesResolve;
+    /// <summary>No duplicate primary keys.</summary>
     [Test] procedure NoDuplicatePrimaryKeys;
   end;
 

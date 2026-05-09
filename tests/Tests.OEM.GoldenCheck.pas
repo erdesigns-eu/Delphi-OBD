@@ -13,9 +13,13 @@ type
   [TestFixture]
   TGoldenCheckHelperTests = class
   public
+    /// <summary>Reports empty list when all pass.</summary>
     [Test] procedure ReportsEmptyListWhenAllPass;
+    /// <summary>Reports failure on missing substring.</summary>
     [Test] procedure ReportsFailureOnMissingSubstring;
+    /// <summary>Reports failure on empty output.</summary>
     [Test] procedure ReportsFailureOnEmptyOutput;
+    /// <summary>Empty substring accepts any non empty.</summary>
     [Test] procedure EmptySubstringAcceptsAnyNonEmpty;
   end;
 
@@ -27,9 +31,13 @@ type
   [TestFixture]
   TPerOEMGoldenTests = class
   public
+    /// <summary>V w golden vectors.</summary>
     [Test] procedure VWGoldenVectors;
+    /// <summary>B m w golden vectors.</summary>
     [Test] procedure BMWGoldenVectors;
+    /// <summary>Mercedes golden vectors.</summary>
     [Test] procedure MercedesGoldenVectors;
+    /// <summary>Ford golden vectors.</summary>
     [Test] procedure FordGoldenVectors;
   end;
 

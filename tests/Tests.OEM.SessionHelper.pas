@@ -20,14 +20,23 @@ type
   [TestFixture]
   TOEMSessionHelperTests = class
   public
+    /// <summary>Success path  all callbacks invoked.</summary>
     [Test] procedure SuccessPath_AllCallbacksInvoked;
+    /// <summary>Session open failure  aborts before routine.</summary>
     [Test] procedure SessionOpenFailure_AbortsBeforeRoutine;
+    /// <summary>Routine start n r c  propagates into error message.</summary>
     [Test] procedure RoutineStartNRC_PropagatesIntoErrorMessage;
+    /// <summary>Result read n r c  propagates into error message.</summary>
     [Test] procedure ResultReadNRC_PropagatesIntoErrorMessage;
+    /// <summary>Voltage gate failure  fails before routine.</summary>
     [Test] procedure VoltageGateFailure_FailsBeforeRoutine;
+    /// <summary>Voltage gate  not consulted for non battery routine.</summary>
     [Test] procedure VoltageGate_NotConsultedForNonBatteryRoutine;
+    /// <summary>Voltage gate  required but reader missing  fails.</summary>
     [Test] procedure VoltageGate_RequiredButReaderMissing_Fails;
+    /// <summary>Session always closed on failure.</summary>
     [Test] procedure SessionAlwaysClosedOnFailure;
+    /// <summary>Callback contract violations  raise.</summary>
     [Test] procedure CallbackContractViolations_Raise;
   end;
 

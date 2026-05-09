@@ -20,15 +20,25 @@ type
   [TestFixture]
   TDriveCycleResolversTests = class
   public
+    /// <summary>V w catalyst uses s s p388.</summary>
     [Test] procedure VWCatalystUsesSSP388;
+    /// <summary>B m w catalyst uses t i s.</summary>
     [Test] procedure BMWCatalystUsesTIS;
+    /// <summary>Mercedes catalyst uses w i s.</summary>
     [Test] procedure MercedesCatalystUsesWIS;
+    /// <summary>Ford catalyst uses t s b.</summary>
     [Test] procedure FordCatalystUsesTSB;
+    /// <summary>Toyota catalyst uses repair manual.</summary>
     [Test] procedure ToyotaCatalystUsesRepairManual;
+    /// <summary>Unknown monitor falls through to generic.</summary>
     [Test] procedure UnknownMonitorFallsThroughToGeneric;
+    /// <summary>Unregistered o e m uses generic.</summary>
     [Test] procedure UnregisteredOEMUsesGeneric;
+    /// <summary>V w e v a p has fuel level guidance.</summary>
     [Test] procedure VWEVAPHasFuelLevelGuidance;
+    /// <summary>Ford e v a p requires cold start.</summary>
     [Test] procedure FordEVAPRequiresColdStart;
+    /// <summary>Toyota e v a p requires eight hour soak.</summary>
     [Test] procedure ToyotaEVAPRequiresEightHourSoak;
   end;
 

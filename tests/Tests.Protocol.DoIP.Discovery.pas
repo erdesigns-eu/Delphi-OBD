@@ -20,15 +20,25 @@ type
   [TestFixture]
   TDoIPDiscoveryTests = class
   public
+    /// <summary>Header has inverse protocol version.</summary>
     [Test] procedure HeaderHasInverseProtocolVersion;
+    /// <summary>Vehicle ident request is eight bytes.</summary>
     [Test] procedure VehicleIdentRequestIsEightBytes;
+    /// <summary>Vehicle ident request v i n payload is17 bytes.</summary>
     [Test] procedure VehicleIdentRequestVINPayloadIs17Bytes;
+    /// <summary>V i n length mismatch raises.</summary>
     [Test] procedure VINLengthMismatchRaises;
+    /// <summary>E i d length mismatch raises.</summary>
     [Test] procedure EIDLengthMismatchRaises;
+    /// <summary>Alive check response carries source address.</summary>
     [Test] procedure AliveCheckResponseCarriesSourceAddress;
+    /// <summary>Parse header rejects bad inverse.</summary>
     [Test] procedure ParseHeaderRejectsBadInverse;
+    /// <summary>Parse header rejects truncated frame.</summary>
     [Test] procedure ParseHeaderRejectsTruncatedFrame;
+    /// <summary>Vehicle announcement round trips.</summary>
     [Test] procedure VehicleAnnouncementRoundTrips;
+    /// <summary>Vehicle announcement2012 without sync is valid.</summary>
     [Test] procedure VehicleAnnouncement2012WithoutSyncIsValid;
   end;
 

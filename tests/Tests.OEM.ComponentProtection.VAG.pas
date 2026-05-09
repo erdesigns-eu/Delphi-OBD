@@ -20,12 +20,19 @@ type
   [TestFixture]
   TVAGCPTests = class
   public
+    /// <summary>Request round trip.</summary>
     [Test] procedure RequestRoundTrip;
+    /// <summary>Response round trip.</summary>
     [Test] procedure ResponseRoundTrip;
+    /// <summary>Request rejects bad v i n.</summary>
     [Test] procedure RequestRejectsBadVIN;
+    /// <summary>Request decode rejects truncated serial.</summary>
     [Test] procedure RequestDecodeRejectsTruncatedSerial;
+    /// <summary>Request decode rejects bad v i n length.</summary>
     [Test] procedure RequestDecodeRejectsBadVINLength;
+    /// <summary>Response decode rejects truncated response.</summary>
     [Test] procedure ResponseDecodeRejectsTruncatedResponse;
+    /// <summary>Default solver fails closed.</summary>
     [Test] procedure DefaultSolverFailsClosed;
   end;
 

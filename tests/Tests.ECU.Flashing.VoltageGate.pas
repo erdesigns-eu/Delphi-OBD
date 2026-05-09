@@ -20,15 +20,25 @@ type
   [TestFixture]
   TVoltageGateTests = class
   public
+    /// <summary>Default threshold is125 v.</summary>
     [Test] procedure DefaultThresholdIs125V;
+    /// <summary>Reading above threshold passes.</summary>
     [Test] procedure ReadingAboveThresholdPasses;
+    /// <summary>Reading below threshold fails.</summary>
     [Test] procedure ReadingBelowThresholdFails;
+    /// <summary>Per o e m override takes effect.</summary>
     [Test] procedure PerOEMOverrideTakesEffect;
+    /// <summary>Per o e m lookup is case insensitive.</summary>
     [Test] procedure PerOEMLookupIsCaseInsensitive;
+    /// <summary>Nil reader produces graceful failure.</summary>
     [Test] procedure NilReaderProducesGracefulFailure;
+    /// <summary>Reader that raises is caught.</summary>
     [Test] procedure ReaderThatRaisesIsCaught;
+    /// <summary>Require pass raises on low voltage.</summary>
     [Test] procedure RequirePassRaisesOnLowVoltage;
+    /// <summary>Require pass raises on reader unavailable.</summary>
     [Test] procedure RequirePassRaisesOnReaderUnavailable;
+    /// <summary>Non positive voltage rejected.</summary>
     [Test] procedure NonPositiveVoltageRejected;
   end;
 

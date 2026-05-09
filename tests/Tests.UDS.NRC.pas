@@ -20,14 +20,23 @@ type
   [TestFixture]
   TUDSNrcTests = class
   public
+    /// <summary>Describe known general reject by name.</summary>
     [Test] procedure DescribeKnownGeneralRejectByName;
+    /// <summary>Describe security access denied.</summary>
     [Test] procedure DescribeSecurityAccessDenied;
+    /// <summary>Describe request correctly received response pending.</summary>
     [Test] procedure DescribeRequestCorrectlyReceivedResponsePending;
+    /// <summary>Describe reserved falls back.</summary>
     [Test] procedure DescribeReservedFallsBack;
+    /// <summary>Format produces hex and short name.</summary>
     [Test] procedure FormatProducesHexAndShortName;
+    /// <summary>Transient n r c detected.</summary>
     [Test] procedure TransientNRCDetected;
+    /// <summary>Non transient not flagged.</summary>
     [Test] procedure NonTransientNotFlagged;
+    /// <summary>Security category classified correctly.</summary>
     [Test] procedure SecurityCategoryClassifiedCorrectly;
+    /// <summary>Condition category classified correctly.</summary>
     [Test] procedure ConditionCategoryClassifiedCorrectly;
   end;
 

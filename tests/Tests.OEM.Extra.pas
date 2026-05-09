@@ -26,11 +26,17 @@ type
     [TestCase('Stellantis_Peugeot','VF36DRHE9HS123456,STLA')]
     procedure FindByVIN_RoutesToCorrectOEM(const VIN, ExpectedKey: string);
 
+    /// <summary>Mercedes  decode mileage.</summary>
     [Test] procedure Mercedes_DecodeMileage;
+    /// <summary>Mercedes  decode programming status.</summary>
     [Test] procedure Mercedes_DecodeProgrammingStatus;
+    /// <summary>Ford  decode battery voltage.</summary>
     [Test] procedure Ford_DecodeBatteryVoltage;
+    /// <summary>Ford  decode fuel level.</summary>
     [Test] procedure Ford_DecodeFuelLevel;
+    /// <summary>G m  decode mileage.</summary>
     [Test] procedure GM_DecodeMileage;
+    /// <summary>Stellantis  decode programming date.</summary>
     [Test] procedure Stellantis_DecodeProgrammingDate;
   end;
 

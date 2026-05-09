@@ -13,10 +13,15 @@ type
   [TestFixture]
   TSignatureTests = class
   public
+    /// <summary>Sha256  accepts known gold hash.</summary>
     [Test] procedure Sha256_AcceptsKnownGoldHash;
+    /// <summary>Sha256  rejects tampered firmware.</summary>
     [Test] procedure Sha256_RejectsTamperedFirmware;
+    /// <summary>Sha256  length mismatch rejected.</summary>
     [Test] procedure Sha256_LengthMismatchRejected;
+    /// <summary>Permissive  accepts anything.</summary>
     [Test] procedure Permissive_AcceptsAnything;
+    /// <summary>Compute sha256  empty has known value.</summary>
     [Test] procedure ComputeSha256_EmptyHasKnownValue;
   end;
 

@@ -13,38 +13,61 @@ type
   [TestFixture]
   TJSONCatalogTests = class
   public
+    /// <summary>Parses minimal catalog.</summary>
     [Test] procedure ParsesMinimalCatalog;
+    /// <summary>Parses all decoder kinds.</summary>
     [Test] procedure ParsesAllDecoderKinds;
+    /// <summary>Decode u int8 with scale.</summary>
     [Test] procedure DecodeUInt8WithScale;
+    /// <summary>Decode u int16 b e reversed.</summary>
     [Test] procedure DecodeUInt16BEReversed;
+    /// <summary>Decode bcd date.</summary>
     [Test] procedure DecodeBcdDate;
+    /// <summary>Decode enum known value.</summary>
     [Test] procedure DecodeEnumKnownValue;
+    /// <summary>Decode enum unknown value falls back to hex.</summary>
     [Test] procedure DecodeEnumUnknownValueFallsBackToHex;
+    /// <summary>Decode bitmask.</summary>
     [Test] procedure DecodeBitmask;
+    /// <summary>Decode ascii.</summary>
     [Test] procedure DecodeAscii;
+    /// <summary>Find d i d returns false for unknown.</summary>
     [Test] procedure FindDIDReturnsFalseForUnknown;
+    /// <summary>Default source propagates to entries.</summary>
     [Test] procedure DefaultSourcePropagatesToEntries;
+    /// <summary>Verified flag defaults to false.</summary>
     [Test] procedure VerifiedFlagDefaultsToFalse;
   end;
 
   [TestFixture]
   TCSVImporterTests = class
   public
+    /// <summary>Round trips basic c s v.</summary>
     [Test] procedure RoundTripsBasicCSV;
+    /// <summary>Handles quoted decoder j s o n.</summary>
     [Test] procedure HandlesQuotedDecoderJSON;
+    /// <summary>Rejects missing mandatory column.</summary>
     [Test] procedure RejectsMissingMandatoryColumn;
+    /// <summary>Skips comment lines.</summary>
     [Test] procedure SkipsCommentLines;
   end;
 
   [TestFixture]
   TPerECUTests = class
   public
+    /// <summary>Loads e c u list.</summary>
     [Test] procedure LoadsECUList;
+    /// <summary>Parses per d i d ecu address.</summary>
     [Test] procedure ParsesPerDIDEcuAddress;
+    /// <summary>Default ecu address propagates.</summary>
     [Test] procedure DefaultEcuAddressPropagates;
+    /// <summary>Explicit address overrides default.</summary>
     [Test] procedure ExplicitAddressOverridesDefault;
+    /// <summary>Routine ecu address loaded.</summary>
     [Test] procedure RoutineEcuAddressLoaded;
+    /// <summary>Extension filters by e c u.</summary>
     [Test] procedure ExtensionFiltersByECU;
+    /// <summary>Extension globals flow to all e c us.</summary>
     [Test] procedure ExtensionGlobalsFlowToAllECUs;
   end;
 

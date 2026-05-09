@@ -20,7 +20,9 @@ type
   [TestFixture]
   TDiagSessionConstructionTests = class
   public
+    /// <summary>Rejects nil connection.</summary>
     [Test] procedure RejectsNilConnection;
+    /// <summary>Rejects nil extension.</summary>
     [Test] procedure RejectsNilExtension;
   end;
 

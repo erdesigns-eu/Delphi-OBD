@@ -16,43 +16,66 @@ type
   [TestFixture]
   THDSpnFmiHelperTests = class
   public
+    /// <summary>Format s p n f m i builds canonical form.</summary>
     [Test] procedure FormatSPNFMIBuildsCanonicalForm;
+    /// <summary>Parse d m1 d t c extracts s p n and f m i.</summary>
     [Test] procedure ParseDM1DTCExtractsSPNAndFMI;
+    /// <summary>Parse d m1 returns empty on truncated.</summary>
     [Test] procedure ParseDM1ReturnsEmptyOnTruncated;
   end;
 
   [TestFixture]
   THDVINRoutingTests = class
   public
+    /// <summary>Cummins has no v i n match.</summary>
     [Test] procedure CumminsHasNoVINMatch;
+    /// <summary>Detroit has no v i n match.</summary>
     [Test] procedure DetroitHasNoVINMatch;
+    /// <summary>P a c c a r matches peterbilt and kenworth.</summary>
     [Test] procedure PACCARMatchesPeterbiltAndKenworth;
+    /// <summary>P a c c a r matches d a f.</summary>
     [Test] procedure PACCARMatchesDAF;
+    /// <summary>Volvo trucks matches mack and renault trucks.</summary>
     [Test] procedure VolvoTrucksMatchesMackAndRenaultTrucks;
+    /// <summary>Volvo trucks does not claim volvo cars w m i.</summary>
     [Test] procedure VolvoTrucksDoesNotClaimVolvoCarsWMI;
+    /// <summary>Scania matches sweden and brazil.</summary>
     [Test] procedure ScaniaMatchesSwedenAndBrazil;
+    /// <summary>M a n matches w m a.</summary>
     [Test] procedure MANMatchesWMA;
   end;
 
   [TestFixture]
   THDCatalogTests = class
   public
+    /// <summary>Cummins exposes engine at j1939 address0.</summary>
     [Test] procedure CumminsExposesEngineAtJ1939Address0;
+    /// <summary>Detroit exposes aftertreatment e c us.</summary>
     [Test] procedure DetroitExposesAftertreatmentECUs;
+    /// <summary>P a c c a r session heartbeat is3000ms.</summary>
     [Test] procedure PACCARSessionHeartbeatIs3000ms;
+    /// <summary>Volvo trucks exposes i shift and m i d.</summary>
     [Test] procedure VolvoTrucksExposesIShiftAndMID;
+    /// <summary>Scania exposes opticruise.</summary>
     [Test] procedure ScaniaExposesOpticruise;
+    /// <summary>M a n exposes pri tarder retarder.</summary>
     [Test] procedure MANExposesPriTarderRetarder;
+    /// <summary>All h d extensions resolve by key.</summary>
     [Test] procedure AllHDExtensionsResolveByKey;
   end;
 
   [TestFixture]
   THDDecoderTests = class
   public
+    /// <summary>Cummins decodes engine serial.</summary>
     [Test] procedure CumminsDecodesEngineSerial;
+    /// <summary>P a c c a r decodes chassis code.</summary>
     [Test] procedure PACCARDecodesChassisCode;
+    /// <summary>Volvo trucks decodes chassis code.</summary>
     [Test] procedure VolvoTrucksDecodesChassisCode;
+    /// <summary>Scania decodes chassis number.</summary>
     [Test] procedure ScaniaDecodesChassisNumber;
+    /// <summary>M a n decodes chassis code.</summary>
     [Test] procedure MANDecodesChassisCode;
   end;
 

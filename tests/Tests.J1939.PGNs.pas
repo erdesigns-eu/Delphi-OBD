@@ -20,16 +20,27 @@ type
   [TestFixture]
   TJ1939PGNsTests = class
   public
+    /// <summary>Seed has at least forty entries.</summary>
     [Test] procedure SeedHasAtLeastFortyEntries;
+    /// <summary>No duplicate p g n ids.</summary>
     [Test] procedure NoDuplicatePGNIds;
+    /// <summary>Every entry has mnemonic and name.</summary>
     [Test] procedure EveryEntryHasMnemonicAndName;
+    /// <summary>Every entry has spec citation.</summary>
     [Test] procedure EveryEntryHasSpecCitation;
+    /// <summary>Find d m1 returns correct mnemonic.</summary>
     [Test] procedure FindDM1ReturnsCorrectMnemonic;
+    /// <summary>Find e e c1 has priority three.</summary>
     [Test] procedure FindEEC1HasPriorityThree;
+    /// <summary>Find unknown p g n returns zero record.</summary>
     [Test] procedure FindUnknownPGNReturnsZeroRecord;
+    /// <summary>Register replaces existing.</summary>
     [Test] procedure RegisterReplacesExisting;
+    /// <summary>Register adds new entry.</summary>
     [Test] procedure RegisterAddsNewEntry;
+    /// <summary>All returns sorted ascending.</summary>
     [Test] procedure AllReturnsSortedAscending;
+    /// <summary>Address claim and transport protocol distinct.</summary>
     [Test] procedure AddressClaimAndTransportProtocolDistinct;
   end;
 

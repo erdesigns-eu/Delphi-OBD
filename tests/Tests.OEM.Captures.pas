@@ -13,22 +13,34 @@ type
   [TestFixture]
   TCaptureExtractTests = class
   public
+    /// <summary>Normalize strips e l m framing.</summary>
     [Test] procedure NormalizeStripsELMFraming;
+    /// <summary>Normalize strips prompt and searching.</summary>
     [Test] procedure NormalizeStripsPromptAndSearching;
+    /// <summary>Extract pairs requests with responses.</summary>
     [Test] procedure ExtractPairsRequestsWithResponses;
+    /// <summary>Extract identifies read data by identifier.</summary>
     [Test] procedure ExtractIdentifiesReadDataByIdentifier;
+    /// <summary>Extract captures negative response.</summary>
     [Test] procedure ExtractCapturesNegativeResponse;
+    /// <summary>Extract strips response echo.</summary>
     [Test] procedure ExtractStripsResponseEcho;
+    /// <summary>Hanging request emits empty response.</summary>
     [Test] procedure HangingRequestEmitsEmptyResponse;
   end;
 
   [TestFixture]
   TCaptureValidatorTests = class
   public
+    /// <summary>V w capture produces decoded fields.</summary>
     [Test] procedure VWCaptureProducesDecodedFields;
+    /// <summary>B m w capture recognises i stufe and mileage.</summary>
     [Test] procedure BMWCaptureRecognisesIStufeAndMileage;
+    /// <summary>Mercedes capture decodes programming status.</summary>
     [Test] procedure MercedesCaptureDecodesProgrammingStatus;
+    /// <summary>Ford capture decodes calibration id.</summary>
     [Test] procedure FordCaptureDecodesCalibrationId;
+    /// <summary>Negative responses are reported.</summary>
     [Test] procedure NegativeResponsesAreReported;
   end;
 

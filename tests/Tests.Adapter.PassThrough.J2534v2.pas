@@ -20,11 +20,17 @@ type
   [TestFixture]
   TJ2534v2Tests = class
   public
+    /// <summary>Empty list serialises to four zero bytes.</summary>
     [Test] procedure EmptyListSerialisesToFourZeroBytes;
+    /// <summary>Single entry serialises little endian.</summary>
     [Test] procedure SingleEntrySerialisesLittleEndian;
+    /// <summary>Multiple entries preserve order.</summary>
     [Test] procedure MultipleEntriesPreserveOrder;
+    /// <summary>Count reports length.</summary>
     [Test] procedure CountReportsLength;
+    /// <summary>C a n f d data rate constant is0x8011.</summary>
     [Test] procedure CANFDDataRateConstantIs0x8011;
+    /// <summary>Mixed format constant is0x800 b.</summary>
     [Test] procedure MixedFormatConstantIs0x800B;
   end;
 

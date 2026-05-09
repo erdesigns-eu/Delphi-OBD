@@ -20,17 +20,29 @@ type
   [TestFixture]
   TWWHOBDTests = class
   public
+    /// <summary>Dtc round trips through pack unpack.</summary>
     [Test] procedure DtcRoundTripsThroughPackUnpack;
+    /// <summary>Dtc s p n top bits are preserved.</summary>
     [Test] procedure DtcSPNTopBitsArePreserved;
+    /// <summary>Dtc oversized s p n raises.</summary>
     [Test] procedure DtcOversizedSPNRaises;
+    /// <summary>Dtc oversized f m i raises.</summary>
     [Test] procedure DtcOversizedFMIRaises;
+    /// <summary>Dtc oversized o c raises.</summary>
     [Test] procedure DtcOversizedOCRaises;
+    /// <summary>Dtc conversion method only zero or one.</summary>
     [Test] procedure DtcConversionMethodOnlyZeroOrOne;
+    /// <summary>Unpack bad length raises.</summary>
     [Test] procedure UnpackBadLengthRaises;
+    /// <summary>Unpack stream multiple dtcs.</summary>
     [Test] procedure UnpackStreamMultipleDtcs;
+    /// <summary>Unpack stream ragged raises.</summary>
     [Test] procedure UnpackStreamRaggedRaises;
+    /// <summary>Dtc as string formats expected shape.</summary>
     [Test] procedure DtcAsStringFormatsExpectedShape;
+    /// <summary>Find d i d by v i n returns name.</summary>
     [Test] procedure FindDIDByVINReturnsName;
+    /// <summary>Find d i d unknown returns hex label.</summary>
     [Test] procedure FindDIDUnknownReturnsHexLabel;
   end;
 

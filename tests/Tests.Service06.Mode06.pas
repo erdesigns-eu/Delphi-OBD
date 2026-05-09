@@ -20,17 +20,29 @@ type
   [TestFixture]
   TMode06Tests = class
   public
+    /// <summary>Request is two bytes.</summary>
     [Test] procedure RequestIsTwoBytes;
+    /// <summary>Parse single record response.</summary>
     [Test] procedure ParseSingleRecordResponse;
+    /// <summary>Parse multi record response.</summary>
     [Test] procedure ParseMultiRecordResponse;
+    /// <summary>Parse rejects bad service id.</summary>
     [Test] procedure ParseRejectsBadServiceId;
+    /// <summary>Parse rejects ragged payload.</summary>
     [Test] procedure ParseRejectsRaggedPayload;
+    /// <summary>Parse rejects too short.</summary>
     [Test] procedure ParseRejectsTooShort;
+    /// <summary>Record passed test when within limits.</summary>
     [Test] procedure RecordPassedTestWhenWithinLimits;
+    /// <summary>Record failed test when above max.</summary>
     [Test] procedure RecordFailedTestWhenAboveMax;
+    /// <summary>Scale factor returns unit scale.</summary>
     [Test] procedure ScaleFactorReturnsUnitScale;
+    /// <summary>Find u c s i d returns unknown default.</summary>
     [Test] procedure FindUCSIDReturnsUnknownDefault;
+    /// <summary>Find o b d m i d returns catalyst name.</summary>
     [Test] procedure FindOBDMIDReturnsCatalystName;
+    /// <summary>Find test i d returns catalyst name.</summary>
     [Test] procedure FindTestIDReturnsCatalystName;
   end;
 

@@ -22,54 +22,103 @@ type
   [TestFixture]
   TCatalogLoadSmokeTests = class
   public
+    /// <summary>Universal u d s catalog loads.</summary>
     [Test] procedure UniversalUDSCatalogLoads;
+    /// <summary>Universal o b d pids catalog loads.</summary>
     [Test] procedure UniversalOBDPidsCatalogLoads;
+    /// <summary>V w catalog loads.</summary>
     [Test] procedure VWCatalogLoads;
+    /// <summary>B m w catalog loads.</summary>
     [Test] procedure BMWCatalogLoads;
+    /// <summary>Mercedes catalog loads.</summary>
     [Test] procedure MercedesCatalogLoads;
+    /// <summary>Ford catalog loads.</summary>
     [Test] procedure FordCatalogLoads;
+    /// <summary>G m catalog loads.</summary>
     [Test] procedure GMCatalogLoads;
+    /// <summary>Stellantis catalog loads.</summary>
     [Test] procedure StellantisCatalogLoads;
+    /// <summary>Toyota catalog loads.</summary>
     [Test] procedure ToyotaCatalogLoads;
+    /// <summary>Honda catalog loads.</summary>
     [Test] procedure HondaCatalogLoads;
+    /// <summary>H m g catalog loads.</summary>
     [Test] procedure HMGCatalogLoads;
+    /// <summary>Nissan catalog loads.</summary>
     [Test] procedure NissanCatalogLoads;
+    /// <summary>Subaru catalog loads.</summary>
     [Test] procedure SubaruCatalogLoads;
+    /// <summary>Mazda catalog loads.</summary>
     [Test] procedure MazdaCatalogLoads;
+    /// <summary>Renault catalog loads.</summary>
     [Test] procedure RenaultCatalogLoads;
+    /// <summary>Volvo catalog loads.</summary>
     [Test] procedure VolvoCatalogLoads;
+    /// <summary>Tesla catalog loads.</summary>
     [Test] procedure TeslaCatalogLoads;
+    /// <summary>Suzuki catalog loads.</summary>
     [Test] procedure SuzukiCatalogLoads;
+    /// <summary>Mitsubishi catalog loads.</summary>
     [Test] procedure MitsubishiCatalogLoads;
+    /// <summary>Cummins catalog loads.</summary>
     [Test] procedure CumminsCatalogLoads;
+    /// <summary>Detroit catalog loads.</summary>
     [Test] procedure DetroitCatalogLoads;
+    /// <summary>P a c c a r catalog loads.</summary>
     [Test] procedure PACCARCatalogLoads;
+    /// <summary>Volvo trucks catalog loads.</summary>
     [Test] procedure VolvoTrucksCatalogLoads;
+    /// <summary>Scania catalog loads.</summary>
     [Test] procedure ScaniaCatalogLoads;
+    /// <summary>M a n catalog loads.</summary>
     [Test] procedure MANCatalogLoads;
+    /// <summary>B y d catalog loads.</summary>
     [Test] procedure BYDCatalogLoads;
+    /// <summary>Geely catalog loads.</summary>
     [Test] procedure GeelyCatalogLoads;
+    /// <summary>N i o catalog loads.</summary>
     [Test] procedure NIOCatalogLoads;
+    /// <summary>Xpeng catalog loads.</summary>
     [Test] procedure XpengCatalogLoads;
+    /// <summary>G w m catalog loads.</summary>
     [Test] procedure GWMCatalogLoads;
+    /// <summary>J l r catalog loads.</summary>
     [Test] procedure JLRCatalogLoads;
+    /// <summary>Porsche catalog loads.</summary>
     [Test] procedure PorscheCatalogLoads;
+    /// <summary>Polestar catalog loads.</summary>
     [Test] procedure PolestarCatalogLoads;
+    /// <summary>M i n i catalog loads.</summary>
     [Test] procedure MINICatalogLoads;
+    /// <summary>Smart catalog loads.</summary>
     [Test] procedure SmartCatalogLoads;
+    /// <summary>Dacia catalog loads.</summary>
     [Test] procedure DaciaCatalogLoads;
+    /// <summary>Lada catalog loads.</summary>
     [Test] procedure LadaCatalogLoads;
+    /// <summary>Mahindra catalog loads.</summary>
     [Test] procedure MahindraCatalogLoads;
+    /// <summary>Tata catalog loads.</summary>
     [Test] procedure TataCatalogLoads;
+    /// <summary>Aston martin catalog loads.</summary>
     [Test] procedure AstonMartinCatalogLoads;
+    /// <summary>Bentley catalog loads.</summary>
     [Test] procedure BentleyCatalogLoads;
+    /// <summary>Rolls royce catalog loads.</summary>
     [Test] procedure RollsRoyceCatalogLoads;
+    /// <summary>Ferrari catalog loads.</summary>
     [Test] procedure FerrariCatalogLoads;
+    /// <summary>Mc laren catalog loads.</summary>
     [Test] procedure McLarenCatalogLoads;
+    /// <summary>Rivian catalog loads.</summary>
     [Test] procedure RivianCatalogLoads;
+    /// <summary>Lucid catalog loads.</summary>
     [Test] procedure LucidCatalogLoads;
+    /// <summary>Isuzu catalog loads.</summary>
     [Test] procedure IsuzuCatalogLoads;
+    /// <summary>Iveco catalog loads.</summary>
     [Test] procedure IvecoCatalogLoads;
+    /// <summary>D t c i s o15031 catalog loads.</summary>
     [Test] procedure DTCISO15031CatalogLoads;
     /// <summary>Data-driven sweep: every <c>catalogs/*.json</c> that
     /// isn't a DTC, ISO standard, or test fixture must load without
@@ -80,9 +129,13 @@ type
     /// declare at least one DTC entry.</summary>
     [Test] procedure AllDtcCatalogsLoadFromDirectory;
     // -------- Phase B vehicle-class subdirectories --------
+    /// <summary>All motorcycle catalogs load.</summary>
     [Test] procedure AllMotorcycleCatalogsLoad;
+    /// <summary>All agricultural catalogs load.</summary>
     [Test] procedure AllAgriculturalCatalogsLoad;
+    /// <summary>All marine catalogs load.</summary>
     [Test] procedure AllMarineCatalogsLoad;
+    /// <summary>All powersports catalogs load.</summary>
     [Test] procedure AllPowersportsCatalogsLoad;
   end;
 

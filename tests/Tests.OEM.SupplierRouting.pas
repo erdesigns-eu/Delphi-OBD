@@ -16,15 +16,25 @@ type
   [TestFixture]
   TSupplierRoutingTests = class
   public
+    /// <summary>Cummins claims cummins and cmi.</summary>
     [Test] procedure CumminsClaimsCumminsAndCmi;
+    /// <summary>Cummins rejects other suppliers.</summary>
     [Test] procedure CumminsRejectsOtherSuppliers;
+    /// <summary>Detroit claims detroit ddc detroit ddc.</summary>
     [Test] procedure DetroitClaimsDetroitDdcDetroitDdc;
+    /// <summary>Detroit rejects other suppliers.</summary>
     [Test] procedure DetroitRejectsOtherSuppliers;
+    /// <summary>Registry routes by cummins id.</summary>
     [Test] procedure RegistryRoutesByCumminsId;
+    /// <summary>Registry routes by detroit id.</summary>
     [Test] procedure RegistryRoutesByDetroitId;
+    /// <summary>Registry returns nil for unknown supplier.</summary>
     [Test] procedure RegistryReturnsNilForUnknownSupplier;
+    /// <summary>Registry handles empty string.</summary>
     [Test] procedure RegistryHandlesEmptyString;
+    /// <summary>Non engine o e ms return false by default.</summary>
     [Test] procedure NonEngineOEMsReturnFalseByDefault;
+    /// <summary>Supplier match is case insensitive.</summary>
     [Test] procedure SupplierMatchIsCaseInsensitive;
   end;
 

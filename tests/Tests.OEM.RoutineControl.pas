@@ -13,47 +13,74 @@ type
   [TestFixture]
   TRequestBuilderTests = class
   public
+    /// <summary>Uint8 and uint16 b e encode big endian.</summary>
     [Test] procedure Uint8AndUint16BEEncodeBigEndian;
+    /// <summary>Int32 b e encodes negative.</summary>
     [Test] procedure Int32BEEncodesNegative;
+    /// <summary>Ascii pads and rejects too long.</summary>
     [Test] procedure AsciiPadsAndRejectsTooLong;
+    /// <summary>Bcd date encodes year month day.</summary>
     [Test] procedure BcdDateEncodesYearMonthDay;
+    /// <summary>Bcd year rejects out of range.</summary>
     [Test] procedure BcdYearRejectsOutOfRange;
+    /// <summary>To frame wraps with sid and rid.</summary>
     [Test] procedure ToFrameWrapsWithSidAndRid;
+    /// <summary>Clear resets builder.</summary>
     [Test] procedure ClearResetsBuilder;
   end;
 
   [TestFixture]
   TResponseReaderTests = class
   public
+    /// <summary>Reads big endian multi byte.</summary>
     [Test] procedure ReadsBigEndianMultiByte;
+    /// <summary>Reads ascii and strips zero pad.</summary>
     [Test] procedure ReadsAsciiAndStripsZeroPad;
+    /// <summary>Reads bcd date.</summary>
     [Test] procedure ReadsBcdDate;
+    /// <summary>Reads hex slice.</summary>
     [Test] procedure ReadsHexSlice;
+    /// <summary>Under read raises.</summary>
     [Test] procedure UnderReadRaises;
+    /// <summary>Has more reflects cursor.</summary>
     [Test] procedure HasMoreReflectsCursor;
   end;
 
   [TestFixture]
   TWireFrameTests = class
   public
+    /// <summary>Build start routine without data.</summary>
     [Test] procedure BuildStartRoutineWithoutData;
+    /// <summary>Build start routine appends data.</summary>
     [Test] procedure BuildStartRoutineAppendsData;
+    /// <summary>Build stop and request results.</summary>
     [Test] procedure BuildStopAndRequestResults;
+    /// <summary>Parse accepts positive response.</summary>
     [Test] procedure ParseAcceptsPositiveResponse;
+    /// <summary>Parse rejects wrong s i d.</summary>
     [Test] procedure ParseRejectsWrongSID;
+    /// <summary>Parse rejects wrong sub function.</summary>
     [Test] procedure ParseRejectsWrongSubFunction;
+    /// <summary>Parse rejects wrong r i d.</summary>
     [Test] procedure ParseRejectsWrongRID;
+    /// <summary>Parse raises on negative response.</summary>
     [Test] procedure ParseRaisesOnNegativeResponse;
+    /// <summary>Parse handles empty status payload.</summary>
     [Test] procedure ParseHandlesEmptyStatusPayload;
   end;
 
   [TestFixture]
   TSchemaDecodeTests = class
   public
+    /// <summary>Decodes u int8 with scale and offset.</summary>
     [Test] procedure DecodesUInt8WithScaleAndOffset;
+    /// <summary>Decodes ascii and u int32.</summary>
     [Test] procedure DecodesAsciiAndUInt32;
+    /// <summary>Decodes bitmask with named bits.</summary>
     [Test] procedure DecodesBitmaskWithNamedBits;
+    /// <summary>Decodes enum with fallback.</summary>
     [Test] procedure DecodesEnumWithFallback;
+    /// <summary>Stops on truncated response.</summary>
     [Test] procedure StopsOnTruncatedResponse;
   end;
 

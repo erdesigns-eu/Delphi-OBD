@@ -19,11 +19,17 @@ type
   [TestFixture]
   TOpenSSLVerifierTests = class
   public
+    /// <summary>Not available  construct raises  when  libcrypto missing.</summary>
     [Test] procedure NotAvailable_ConstructRaises_When_LibcryptoMissing;
+    /// <summary>R s a  verifies known good signature.</summary>
     [Test] procedure RSA_VerifiesKnownGoodSignature;
+    /// <summary>R s a  rejects tampered firmware.</summary>
     [Test] procedure RSA_RejectsTamperedFirmware;
+    /// <summary>E c d s a  verifies known good signature.</summary>
     [Test] procedure ECDSA_VerifiesKnownGoodSignature;
+    /// <summary>E c d s a  rejects tampered firmware.</summary>
     [Test] procedure ECDSA_RejectsTamperedFirmware;
+    /// <summary>Construct  rejects garbage der.</summary>
     [Test] procedure Construct_RejectsGarbageDer;
   end;
 

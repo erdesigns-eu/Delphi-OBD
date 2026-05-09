@@ -21,8 +21,11 @@ type
   [TestFixture]
   TUdsClientReplayTests = class
   public
+    /// <summary>V w  v i n  decodes from captured f190.</summary>
     [Test] procedure VW_VIN_DecodesFromCapturedF190;
+    /// <summary>V w  hardware number  decodes from captured f187.</summary>
     [Test] procedure VW_HardwareNumber_DecodesFromCapturedF187;
+    /// <summary>V w  unknown d i d  raises catalog miss.</summary>
     [Test] procedure VW_UnknownDID_RaisesCatalogMiss;
   end;
 

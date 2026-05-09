@@ -21,18 +21,29 @@ type
   [TestFixture]
   TBCryptVerifierTests = class
   public
+    /// <summary>R s a  construct  recognises algorithm.</summary>
     [Test] procedure RSA_Construct_RecognisesAlgorithm;
+    /// <summary>R s a  verify  accepts known good signature.</summary>
     [Test] procedure RSA_Verify_AcceptsKnownGoodSignature;
+    /// <summary>R s a  verify  rejects tampered firmware.</summary>
     [Test] procedure RSA_Verify_RejectsTamperedFirmware;
+    /// <summary>R s a  verify  rejects tampered signature.</summary>
     [Test] procedure RSA_Verify_RejectsTamperedSignature;
+    /// <summary>R s a  verify  rejects empty firmware.</summary>
     [Test] procedure RSA_Verify_RejectsEmptyFirmware;
+    /// <summary>R s a  verify  rejects empty signature.</summary>
     [Test] procedure RSA_Verify_RejectsEmptySignature;
 
+    /// <summary>E c d s a  construct  recognises algorithm.</summary>
     [Test] procedure ECDSA_Construct_RecognisesAlgorithm;
+    /// <summary>E c d s a  verify  accepts known good signature.</summary>
     [Test] procedure ECDSA_Verify_AcceptsKnownGoodSignature;
+    /// <summary>E c d s a  verify  rejects tampered firmware.</summary>
     [Test] procedure ECDSA_Verify_RejectsTamperedFirmware;
 
+    /// <summary>Construct  rejects empty der.</summary>
     [Test] procedure Construct_RejectsEmptyDer;
+    /// <summary>Construct  rejects garbage der.</summary>
     [Test] procedure Construct_RejectsGarbageDer;
   end;
 

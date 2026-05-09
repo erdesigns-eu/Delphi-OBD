@@ -20,12 +20,19 @@ type
   [TestFixture]
   TDriveCycleAdvisorTests = class
   public
+    /// <summary>Empty readiness produces no steps.</summary>
     [Test] procedure EmptyReadinessProducesNoSteps;
+    /// <summary>Complete readiness produces no steps.</summary>
     [Test] procedure CompleteReadinessProducesNoSteps;
+    /// <summary>Pending catalyst produces generic step.</summary>
     [Test] procedure PendingCatalystProducesGenericStep;
+    /// <summary>Generic step has non empty description.</summary>
     [Test] procedure GenericStepHasNonEmptyDescription;
+    /// <summary>Custom resolver overrides generic.</summary>
     [Test] procedure CustomResolverOverridesGeneric;
+    /// <summary>Custom resolver empty description falls back to generic.</summary>
     [Test] procedure CustomResolverEmptyDescriptionFallsBackToGeneric;
+    /// <summary>Diesel monitors produce diesel steps.</summary>
     [Test] procedure DieselMonitorsProduceDieselSteps;
   end;
 

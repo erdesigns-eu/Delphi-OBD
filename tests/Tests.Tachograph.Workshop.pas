@@ -20,17 +20,29 @@ type
   [TestFixture]
   TTachographWorkshopTests = class
   public
+    /// <summary>U t c sync round trip.</summary>
     [Test] procedure UTCSyncRoundTrip;
+    /// <summary>U t c sync bad card id raises.</summary>
     [Test] procedure UTCSyncBadCardIdRaises;
+    /// <summary>K l w round trip.</summary>
     [Test] procedure KLWRoundTrip;
+    /// <summary>K out of range raises.</summary>
     [Test] procedure KOutOfRangeRaises;
+    /// <summary>Tyre size round trip.</summary>
     [Test] procedure TyreSizeRoundTrip;
+    /// <summary>Tyre out of range raises.</summary>
     [Test] procedure TyreOutOfRangeRaises;
+    /// <summary>V i n round trip.</summary>
     [Test] procedure VINRoundTrip;
+    /// <summary>V i n bad length raises.</summary>
     [Test] procedure VINBadLengthRaises;
+    /// <summary>V r plate round trip.</summary>
     [Test] procedure VRPlateRoundTrip;
+    /// <summary>V r plate too long raises.</summary>
     [Test] procedure VRPlateTooLongRaises;
+    /// <summary>Sealed activation layout.</summary>
     [Test] procedure SealedActivationLayout;
+    /// <summary>Date time to time real round trips.</summary>
     [Test] procedure DateTimeToTimeRealRoundTrips;
   end;
 

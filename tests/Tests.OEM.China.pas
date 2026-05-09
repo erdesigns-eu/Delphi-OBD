@@ -15,31 +15,47 @@ type
   [TestFixture]
   TChinaVINTests = class
   public
+    /// <summary>B y d matches all plants.</summary>
     [Test] procedure BYDMatchesAllPlants;
+    /// <summary>Geely matches lynk and zeekr.</summary>
     [Test] procedure GeelyMatchesLynkAndZeekr;
+    /// <summary>N i o matches hefei.</summary>
     [Test] procedure NIOMatchesHefei;
+    /// <summary>Xpeng matches guangzhou and zhaoqing.</summary>
     [Test] procedure XpengMatchesGuangzhouAndZhaoqing;
+    /// <summary>Great wall matches all sub brands.</summary>
     [Test] procedure GreatWallMatchesAllSubBrands;
+    /// <summary>Chinese o e ms do not collide with volvo cars.</summary>
     [Test] procedure ChineseOEMsDoNotCollideWithVolvoCars;
   end;
 
   [TestFixture]
   TChinaCatalogTests = class
   public
+    /// <summary>B y d exposes blade battery b m s.</summary>
     [Test] procedure BYDExposesBladeBatteryBMS;
+    /// <summary>N i o exposes aquila sensor suite.</summary>
     [Test] procedure NIOExposesAquilaSensorSuite;
+    /// <summary>Xpeng exposes x p i l o t computer.</summary>
     [Test] procedure XpengExposesXPILOTComputer;
+    /// <summary>Great wall exposes hi4 hybrid.</summary>
     [Test] procedure GreatWallExposesHi4Hybrid;
+    /// <summary>Geely exposes evcc for geometry zeekr.</summary>
     [Test] procedure GeelyExposesEvccForGeometryZeekr;
   end;
 
   [TestFixture]
   TChinaDecoderTests = class
   public
+    /// <summary>B y d decodes model code.</summary>
     [Test] procedure BYDDecodesModelCode;
+    /// <summary>Geely decodes platform code.</summary>
     [Test] procedure GeelyDecodesPlatformCode;
+    /// <summary>N i o decodes battery swap id.</summary>
     [Test] procedure NIODecodesBatterySwapId;
+    /// <summary>Xpeng decodes x p i l o t version.</summary>
     [Test] procedure XpengDecodesXPILOTVersion;
+    /// <summary>Great wall decodes brand code.</summary>
     [Test] procedure GreatWallDecodesBrandCode;
   end;
 

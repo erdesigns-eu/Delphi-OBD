@@ -25,48 +25,91 @@ type
   strict private
     procedure RunInvariants(const CalcClass: TClass);
   public
+    /// <summary>Acura.</summary>
     [Test] procedure Acura;
+    /// <summary>Alfa romeo.</summary>
     [Test] procedure AlfaRomeo;
+    /// <summary>Alpine.</summary>
     [Test] procedure Alpine;
+    /// <summary>Audi concert.</summary>
     [Test] procedure AudiConcert;
+    /// <summary>Becker.</summary>
     [Test] procedure Becker;
+    /// <summary>Becker4.</summary>
     [Test] procedure Becker4;
+    /// <summary>Becker5.</summary>
     [Test] procedure Becker5;
+    /// <summary>Blaupunkt.</summary>
     [Test] procedure Blaupunkt;
+    /// <summary>B m w.</summary>
     [Test] procedure BMW;
+    /// <summary>Chrysler.</summary>
     [Test] procedure Chrysler;
+    /// <summary>Citroen.</summary>
     [Test] procedure Citroen;
+    /// <summary>Clarion.</summary>
     [Test] procedure Clarion;
+    /// <summary>Fiat daiichi.</summary>
     [Test] procedure FiatDaiichi;
+    /// <summary>Fiat v p.</summary>
     [Test] procedure FiatVP;
+    /// <summary>Ford.</summary>
     [Test] procedure Ford;
+    /// <summary>Ford v.</summary>
     [Test] procedure FordV;
+    /// <summary>G m.</summary>
     [Test] procedure GM;
+    /// <summary>Honda.</summary>
     [Test] procedure Honda;
+    /// <summary>Hyundai.</summary>
     [Test] procedure Hyundai;
+    /// <summary>Infiniti.</summary>
     [Test] procedure Infiniti;
+    /// <summary>Jaguar.</summary>
     [Test] procedure Jaguar;
+    /// <summary>Land rover.</summary>
     [Test] procedure LandRover;
+    /// <summary>Lexus.</summary>
     [Test] procedure Lexus;
+    /// <summary>Maserati.</summary>
     [Test] procedure Maserati;
+    /// <summary>Mazda.</summary>
     [Test] procedure Mazda;
+    /// <summary>Mercedes.</summary>
     [Test] procedure Mercedes;
+    /// <summary>Mini.</summary>
     [Test] procedure Mini;
+    /// <summary>Mitsubishi.</summary>
     [Test] procedure Mitsubishi;
+    /// <summary>Nissan.</summary>
     [Test] procedure Nissan;
+    /// <summary>Opel.</summary>
     [Test] procedure Opel;
+    /// <summary>Peugeot.</summary>
     [Test] procedure Peugeot;
+    /// <summary>Porsche.</summary>
     [Test] procedure Porsche;
+    /// <summary>Renault.</summary>
     [Test] procedure Renault;
+    /// <summary>Saab.</summary>
     [Test] procedure Saab;
+    /// <summary>S e a t.</summary>
     [Test] procedure SEAT;
+    /// <summary>Skoda.</summary>
     [Test] procedure Skoda;
+    /// <summary>Smart.</summary>
     [Test] procedure Smart;
+    /// <summary>Subaru.</summary>
     [Test] procedure Subaru;
+    /// <summary>Suzuki.</summary>
     [Test] procedure Suzuki;
+    /// <summary>Toyota.</summary>
     [Test] procedure Toyota;
+    /// <summary>Visteon.</summary>
     [Test] procedure Visteon;
+    /// <summary>Volvo.</summary>
     [Test] procedure Volvo;
+    /// <summary>V w.</summary>
     [Test] procedure VW;
   end;
 

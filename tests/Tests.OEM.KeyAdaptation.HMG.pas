@@ -20,14 +20,23 @@ type
   [TestFixture]
   THMGKeyAdaptationTests = class
   public
+    /// <summary>Request round trip.</summary>
     [Test] procedure RequestRoundTrip;
+    /// <summary>Response round trip.</summary>
     [Test] procedure ResponseRoundTrip;
+    /// <summary>Request rejects bad v i n.</summary>
     [Test] procedure RequestRejectsBadVIN;
+    /// <summary>Request rejects bad p i n length.</summary>
     [Test] procedure RequestRejectsBadPINLength;
+    /// <summary>Request rejects bad key index.</summary>
     [Test] procedure RequestRejectsBadKeyIndex;
+    /// <summary>Response decode bad length raises.</summary>
     [Test] procedure ResponseDecodeBadLengthRaises;
+    /// <summary>Platform lookup returns known.</summary>
     [Test] procedure PlatformLookupReturnsKnown;
+    /// <summary>Platform lookup unknown is certificate required.</summary>
     [Test] procedure PlatformLookupUnknownIsCertificateRequired;
+    /// <summary>E g m p is gateway locked.</summary>
     [Test] procedure EGMPIsGatewayLocked;
   end;
 

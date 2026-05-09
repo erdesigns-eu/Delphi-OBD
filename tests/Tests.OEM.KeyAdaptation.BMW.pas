@@ -20,14 +20,23 @@ type
   [TestFixture]
   TBMWKeyAdaptationTests = class
   public
+    /// <summary>Slot validation per generation.</summary>
     [Test] procedure SlotValidationPerGeneration;
+    /// <summary>E w s round trip.</summary>
     [Test] procedure EWSRoundTrip;
+    /// <summary>C a s round trip.</summary>
     [Test] procedure CASRoundTrip;
+    /// <summary>F e m round trip.</summary>
     [Test] procedure FEMRoundTrip;
+    /// <summary>E w s bad slot raises.</summary>
     [Test] procedure EWSBadSlotRaises;
+    /// <summary>F e m bad slot raises.</summary>
     [Test] procedure FEMBadSlotRaises;
+    /// <summary>F e m bad settings bank raises.</summary>
     [Test] procedure FEMBadSettingsBankRaises;
+    /// <summary>Decode wrong length raises.</summary>
     [Test] procedure DecodeWrongLengthRaises;
+    /// <summary>Digital key serial must be seven bytes.</summary>
     [Test] procedure DigitalKeySerialMustBeSevenBytes;
   end;
 

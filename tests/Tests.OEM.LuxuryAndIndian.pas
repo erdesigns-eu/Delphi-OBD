@@ -15,34 +15,53 @@ type
   [TestFixture]
   TLuxuryVINTests = class
   public
+    /// <summary>Ferrari claims zff.</summary>
     [Test] procedure FerrariClaimsZff;
+    /// <summary>Lucid claims casa grande.</summary>
     [Test] procedure LucidClaimsCasaGrande;
+    /// <summary>Mahindra claims all plants.</summary>
     [Test] procedure MahindraClaimsAllPlants;
+    /// <summary>Tata claims passenger and commercial and daewoo.</summary>
     [Test] procedure TataClaimsPassengerAndCommercialAndDaewoo;
+    /// <summary>M i n i claims oxford and china.</summary>
     [Test] procedure MINIClaimsOxfordAndChina;
+    /// <summary>Smart claims hambach and china.</summary>
     [Test] procedure SmartClaimsHambachAndChina;
+    /// <summary>Mahindra does not claim j l r pune.</summary>
     [Test] procedure MahindraDoesNotClaimJLRPune;
   end;
 
   [TestFixture]
   TLuxuryCatalogTests = class
   public
+    /// <summary>Ferrari exposes manettino and lift axle.</summary>
     [Test] procedure FerrariExposesManettinoAndLiftAxle;
+    /// <summary>Lucid exposes wunderbox and dream drive.</summary>
     [Test] procedure LucidExposesWunderboxAndDreamDrive;
+    /// <summary>Mahindra exposes be ev controller.</summary>
     [Test] procedure MahindraExposesBeEvController;
+    /// <summary>Tata exposes icng and ziptron.</summary>
     [Test] procedure TataExposesIcngAndZiptron;
+    /// <summary>M i n i session requires security access.</summary>
     [Test] procedure MINISessionRequiresSecurityAccess;
+    /// <summary>Smart exposes geely s e a architecture.</summary>
     [Test] procedure SmartExposesGeelySEAArchitecture;
   end;
 
   [TestFixture]
   TLuxuryDecoderTests = class
   public
+    /// <summary>Ferrari decodes paint code.</summary>
     [Test] procedure FerrariDecodesPaintCode;
+    /// <summary>Lucid decodes drivetrain.</summary>
     [Test] procedure LucidDecodesDrivetrain;
+    /// <summary>Mahindra decodes engine code.</summary>
     [Test] procedure MahindraDecodesEngineCode;
+    /// <summary>Tata decodes variant code.</summary>
     [Test] procedure TataDecodesVariantCode;
+    /// <summary>M i n i decodes chassis code.</summary>
     [Test] procedure MINIDecodesChassisCode;
+    /// <summary>Smart decodes battery pack.</summary>
     [Test] procedure SmartDecodesBatteryPack;
   end;
 

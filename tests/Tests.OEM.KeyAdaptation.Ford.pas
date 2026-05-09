@@ -20,13 +20,21 @@ type
   [TestFixture]
   TFordPATSTests = class
   public
+    /// <summary>Request round trip.</summary>
     [Test] procedure RequestRoundTrip;
+    /// <summary>Request rejects bad v i n.</summary>
     [Test] procedure RequestRejectsBadVIN;
+    /// <summary>Request decode bad length raises.</summary>
     [Test] procedure RequestDecodeBadLengthRaises;
+    /// <summary>Status round trip.</summary>
     [Test] procedure StatusRoundTrip;
+    /// <summary>Status decode bad length raises.</summary>
     [Test] procedure StatusDecodeBadLengthRaises;
+    /// <summary>F150 is open.</summary>
     [Test] procedure F150IsOpen;
+    /// <summary>Mach e is gateway locked.</summary>
     [Test] procedure MachEIsGatewayLocked;
+    /// <summary>Unknown is gateway locked.</summary>
     [Test] procedure UnknownIsGatewayLocked;
   end;
 

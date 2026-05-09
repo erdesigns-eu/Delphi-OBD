@@ -13,50 +13,80 @@ type
   [TestFixture]
   TSeedKeyAlgorithmTests = class
   public
+    /// <summary>Twos complement matches textbook.</summary>
     [Test] procedure TwosComplementMatchesTextbook;
+    /// <summary>Twos complement carries across bytes.</summary>
     [Test] procedure TwosComplementCarriesAcrossBytes;
+    /// <summary>Twos complement rejects empty seed.</summary>
     [Test] procedure TwosComplementRejectsEmptySeed;
+    /// <summary>Xor mask tiles short mask.</summary>
     [Test] procedure XorMaskTilesShortMask;
+    /// <summary>Xor mask rejects empty mask.</summary>
     [Test] procedure XorMaskRejectsEmptyMask;
+    /// <summary>Byte rotate applies shift and rotation.</summary>
     [Test] procedure ByteRotateAppliesShiftAndRotation;
+    /// <summary>Byte rotate rejects invalid rotation.</summary>
     [Test] procedure ByteRotateRejectsInvalidRotation;
+    /// <summary>Constant key is seed independent.</summary>
     [Test] procedure ConstantKeyIsSeedIndependent;
   end;
 
   [TestFixture]
   TSeedKeyRegistryTests = class
   public
+    /// <summary>Register and find by level.</summary>
     [Test] procedure RegisterAndFindByLevel;
+    /// <summary>Newer registration wins over older.</summary>
     [Test] procedure NewerRegistrationWinsOverOlder;
+    /// <summary>Find all returns all insertions.</summary>
     [Test] procedure FindAllReturnsAllInsertions;
+    /// <summary>Unregister removes specific algorithm.</summary>
     [Test] procedure UnregisterRemovesSpecificAlgorithm;
+    /// <summary>Has algorithm reports levels.</summary>
     [Test] procedure HasAlgorithmReportsLevels;
+    /// <summary>Find returns nil for missing level.</summary>
     [Test] procedure FindReturnsNilForMissingLevel;
+    /// <summary>Clear wipes everything.</summary>
     [Test] procedure ClearWipesEverything;
   end;
 
   [TestFixture]
   TSeedKeyFrameTests = class
   public
+    /// <summary>Request seed frame rounds correctly.</summary>
     [Test] procedure RequestSeedFrameRoundsCorrectly;
+    /// <summary>Request seed rejects even level.</summary>
     [Test] procedure RequestSeedRejectsEvenLevel;
+    /// <summary>Send key frame adds level plus one.</summary>
     [Test] procedure SendKeyFrameAddsLevelPlusOne;
+    /// <summary>Send key rejects empty key.</summary>
     [Test] procedure SendKeyRejectsEmptyKey;
+    /// <summary>Extract seed returns payload.</summary>
     [Test] procedure ExtractSeedReturnsPayload;
+    /// <summary>Extract seed rejects wrong s i d.</summary>
     [Test] procedure ExtractSeedRejectsWrongSID;
+    /// <summary>Extract seed rejects level mismatch.</summary>
     [Test] procedure ExtractSeedRejectsLevelMismatch;
   end;
 
   [TestFixture]
   TPerOEMSeedKeyTests = class
   public
+    /// <summary>V w has starter algorithm for level1.</summary>
     [Test] procedure VWHasStarterAlgorithmForLevel1;
+    /// <summary>B m w has starter algorithm for level1.</summary>
     [Test] procedure BMWHasStarterAlgorithmForLevel1;
+    /// <summary>Mercedes has starter algorithm for level1.</summary>
     [Test] procedure MercedesHasStarterAlgorithmForLevel1;
+    /// <summary>Ford has starter algorithm for level1.</summary>
     [Test] procedure FordHasStarterAlgorithmForLevel1;
+    /// <summary>G m has starter algorithm for level1.</summary>
     [Test] procedure GMHasStarterAlgorithmForLevel1;
+    /// <summary>Stellantis has starter algorithm for level1.</summary>
     [Test] procedure StellantisHasStarterAlgorithmForLevel1;
+    /// <summary>Production override shadows starter.</summary>
     [Test] procedure ProductionOverrideShadowsStarter;
+    /// <summary>Starter algorithms are unverified.</summary>
     [Test] procedure StarterAlgorithmsAreUnverified;
   end;
 

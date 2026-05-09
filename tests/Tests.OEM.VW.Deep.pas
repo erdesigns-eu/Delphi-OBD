@@ -19,27 +19,44 @@ type
   [TestFixture]
   TVWDeepDIDTests = class
   public
+    /// <summary>Catalog exceeds baseline d i d count.</summary>
     [Test] procedure CatalogExceedsBaselineDIDCount;
+    /// <summary>Engine ecu has lambda per bank.</summary>
     [Test] procedure EngineEcuHasLambdaPerBank;
+    /// <summary>Engine ecu has misfire counters.</summary>
     [Test] procedure EngineEcuHasMisfireCounters;
+    /// <summary>Transmission ecu has dsg clutch pressures.</summary>
     [Test] procedure TransmissionEcuHasDsgClutchPressures;
+    /// <summary>Abs ecu has four wheel speeds.</summary>
     [Test] procedure AbsEcuHasFourWheelSpeeds;
+    /// <summary>Cluster has trip data and service counters.</summary>
     [Test] procedure ClusterHasTripDataAndServiceCounters;
+    /// <summary>Ev stack present.</summary>
     [Test] procedure EvStackPresent;
+    /// <summary>New ecus registered.</summary>
     [Test] procedure NewEcusRegistered;
   end;
 
   [TestFixture]
   TVWDeepExtendedTests = class
   public
+    /// <summary>Exposes coding blocks.</summary>
     [Test] procedure ExposesCodingBlocks;
+    /// <summary>Bcm coding block has drl field.</summary>
     [Test] procedure BcmCodingBlockHasDrlField;
+    /// <summary>Exposes adaptations.</summary>
     [Test] procedure ExposesAdaptations;
+    /// <summary>Service interval distance adaptation has bounds.</summary>
     [Test] procedure ServiceIntervalDistanceAdaptationHasBounds;
+    /// <summary>Exposes actuator tests.</summary>
     [Test] procedure ExposesActuatorTests;
+    /// <summary>Cooling fan test carries safety warning.</summary>
     [Test] procedure CoolingFanTestCarriesSafetyWarning;
+    /// <summary>Exposes live p i ds.</summary>
     [Test] procedure ExposesLivePIDs;
+    /// <summary>Exposes dtc extended data.</summary>
     [Test] procedure ExposesDtcExtendedData;
+    /// <summary>Implements extension v2 interface.</summary>
     [Test] procedure ImplementsExtensionV2Interface;
   end;
 
