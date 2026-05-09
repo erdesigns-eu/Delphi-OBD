@@ -26,6 +26,9 @@ implementation
 uses
   System.SysUtils, OBD.Security.AttemptCounter;
 
+//------------------------------------------------------------------------------
+// FREE ATTEMPTS ARE NOT LOCKED OUT
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.FreeAttemptsAreNotLockedOut;
 var
   C: TOBDAttemptCounter;
@@ -44,6 +47,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXTRA FAILURE LOCKS OUT
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.ExtraFailureLocksOut;
 var
   C: TOBDAttemptCounter;
@@ -62,6 +68,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SUCCESS RESETS THE COUNTER
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.SuccessResetsTheCounter;
 var
   C: TOBDAttemptCounter;
@@ -83,6 +92,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESET CLEARS STATE
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.ResetClearsState;
 var
   C: TOBDAttemptCounter;
@@ -102,6 +114,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOCKOUT CAPS AT MAX LOCKOUT SECONDS
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.LockoutCapsAtMaxLockoutSeconds;
 var
   C: TOBDAttemptCounter;
@@ -126,6 +141,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISTINCT IDENTITIES DO NOT INTERFERE
+//------------------------------------------------------------------------------
 procedure TAttemptCounterTests.DistinctIdentitiesDoNotInterfere;
 var
   C: TOBDAttemptCounter;

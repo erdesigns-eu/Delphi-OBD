@@ -23,9 +23,13 @@ type
     Color: TAlphaColor;
     Min: Single;
     Max: Single;
-    /// <summary>Samples in oldest-to-newest order.</summary>
+    /// <summary>
+    ///   Samples in oldest-to-newest order.
+    /// </summary>
     Samples: TArray<Single>;
-    /// <summary>Ring-buffer capacity (so right-edge alignment matches across series).</summary>
+    /// <summary>
+    ///   Ring-buffer capacity (so right-edge alignment matches across series).
+    /// </summary>
     Capacity: Integer;
   end;
 
@@ -52,6 +56,9 @@ procedure RenderTrendGraph(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// DRAW GRID
+//------------------------------------------------------------------------------
 procedure DrawGrid(const Canvas: ISkCanvas; const State: TOBDTrendGraphRenderState;
   const Plot: TRectF);
 const
@@ -83,6 +90,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DRAW SERIES
+//------------------------------------------------------------------------------
 procedure DrawSeries(const Canvas: ISkCanvas; const State: TOBDTrendGraphRenderState;
   const Plot: TRectF; const Series: TOBDTrendSeriesView);
 var
@@ -129,6 +139,9 @@ begin
   Canvas.DrawPath(Path.Detach, Paint);
 end;
 
+//------------------------------------------------------------------------------
+// DRAW LEGEND
+//------------------------------------------------------------------------------
 procedure DrawLegend(const Canvas: ISkCanvas; const State: TOBDTrendGraphRenderState;
   const Bounds: TRectF; const Font: ISkFont);
 var
@@ -161,6 +174,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RENDER TREND GRAPH
+//------------------------------------------------------------------------------
 procedure RenderTrendGraph(const Canvas: ISkCanvas;
   const State: TOBDTrendGraphRenderState);
 var

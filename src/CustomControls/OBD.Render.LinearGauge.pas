@@ -68,6 +68,9 @@ procedure RenderLinearGauge(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// LINEAR VALUE FRACTION
+//------------------------------------------------------------------------------
 function LinearValueFraction(const Min, Max, Value: Single): Single;
 var
   Span: Single;
@@ -79,6 +82,9 @@ begin
   if Result > 1 then Result := 1;
 end;
 
+//------------------------------------------------------------------------------
+// RENDER LINEAR GAUGE
+//------------------------------------------------------------------------------
 procedure RenderLinearGauge(const Canvas: ISkCanvas;
   const State: TOBDLinearGaugeRenderState);
 var

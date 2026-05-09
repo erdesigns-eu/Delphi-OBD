@@ -17,34 +17,91 @@ type
   [TestFixture]
   TVINRoutingTests = class
   public
+    /// <summary>
+    ///   Toyota vin routes.
+    /// </summary>
     [Test] procedure ToyotaVinRoutes;
+    /// <summary>
+    ///   Honda vin routes.
+    /// </summary>
     [Test] procedure HondaVinRoutes;
+    /// <summary>
+    ///   Hyundai kia vin routes.
+    /// </summary>
     [Test] procedure HyundaiKiaVinRoutes;
+    /// <summary>
+    ///   Nissan vin routes.
+    /// </summary>
     [Test] procedure NissanVinRoutes;
+    /// <summary>
+    ///   Subaru vin routes.
+    /// </summary>
     [Test] procedure SubaruVinRoutes;
+    /// <summary>
+    ///   Mazda vin routes.
+    /// </summary>
     [Test] procedure MazdaVinRoutes;
+    /// <summary>
+    ///   Unknown vin returns nil.
+    /// </summary>
     [Test] procedure UnknownVinReturnsNil;
   end;
 
   [TestFixture]
   TAsiaPacificCatalogTests = class
   public
+    /// <summary>
+    ///   Toyota catalog includes engine e c u.
+    /// </summary>
     [Test] procedure ToyotaCatalogIncludesEngineECU;
+    /// <summary>
+    ///   Honda seed key has starter.
+    /// </summary>
     [Test] procedure HondaSeedKeyHasStarter;
+    /// <summary>
+    ///   Hyundai kia heartbeat is1500ms.
+    /// </summary>
     [Test] procedure HyundaiKiaHeartbeatIs1500ms;
+    /// <summary>
+    ///   Nissan catalog ships consult e c u map.
+    /// </summary>
     [Test] procedure NissanCatalogShipsConsultECUMap;
+    /// <summary>
+    ///   Subaru catalog includes a w d controller.
+    /// </summary>
     [Test] procedure SubaruCatalogIncludesAWDController;
+    /// <summary>
+    ///   Mazda catalog includes r b c m.
+    /// </summary>
     [Test] procedure MazdaCatalogIncludesRBCM;
   end;
 
   [TestFixture]
   TAsiaPacificDecoderTests = class
   public
+    /// <summary>
+    ///   Toyota decodes vin.
+    /// </summary>
     [Test] procedure ToyotaDecodesVin;
+    /// <summary>
+    ///   Honda decodes chassis code.
+    /// </summary>
     [Test] procedure HondaDecodesChassisCode;
+    /// <summary>
+    ///   Hyundai kia decodes rom id.
+    /// </summary>
     [Test] procedure HyundaiKiaDecodesRomId;
+    /// <summary>
+    ///   Nissan decodes chassis code.
+    /// </summary>
     [Test] procedure NissanDecodesChassisCode;
+    /// <summary>
+    ///   Subaru decodes chassis code.
+    /// </summary>
     [Test] procedure SubaruDecodesChassisCode;
+    /// <summary>
+    ///   Mazda decodes as built code.
+    /// </summary>
     [Test] procedure MazdaDecodesAsBuiltCode;
   end;
 
@@ -56,6 +113,9 @@ uses
   OBD.OEM.Toyota, OBD.OEM.Honda, OBD.OEM.HyundaiKia,
   OBD.OEM.Nissan, OBD.OEM.Subaru, OBD.OEM.Mazda;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := Prefix + '00000000000000';   // 17-char total
@@ -65,6 +125,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// TOYOTA VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.ToyotaVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -76,6 +140,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JN1')));  // Nissan
 end;
 
+//------------------------------------------------------------------------------
+// HONDA VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.HondaVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -87,6 +154,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JTD')));  // Toyota
 end;
 
+//------------------------------------------------------------------------------
+// HYUNDAI KIA VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.HyundaiKiaVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -99,6 +169,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JN1')));
 end;
 
+//------------------------------------------------------------------------------
+// NISSAN VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.NissanVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -110,6 +183,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JF1')));  // Subaru
 end;
 
+//------------------------------------------------------------------------------
+// SUBARU VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.SubaruVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -120,6 +196,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JM1')));  // Mazda
 end;
 
+//------------------------------------------------------------------------------
+// MAZDA VIN ROUTES
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.MazdaVinRoutes;
 var
   Ext: IOBDOEMExtension;
@@ -131,6 +210,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JF1')));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN VIN RETURNS NIL
+//------------------------------------------------------------------------------
 procedure TVINRoutingTests.UnknownVinReturnsNil;
 var
   Ext: IOBDOEMExtension;
@@ -143,6 +225,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// TOYOTA CATALOG INCLUDES ENGINE ECU
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.ToyotaCatalogIncludesEngineECU;
 var
   Ext: IOBDOEMExtension;
@@ -156,6 +242,9 @@ begin
   Assert.IsTrue(Found, 'Toyota must expose engine ECU at 0x7E0');
 end;
 
+//------------------------------------------------------------------------------
+// HONDA SEED KEY HAS STARTER
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.HondaSeedKeyHasStarter;
 var
   Ext: IOBDOEMExtension;
@@ -164,6 +253,9 @@ begin
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// HYUNDAI KIA HEARTBEAT IS1500MS
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.HyundaiKiaHeartbeatIs1500ms;
 var
   Ext: IOBDOEMExtension;
@@ -173,6 +265,9 @@ begin
     Ext.SessionNegotiator.DefaultTesterPresentMs);
 end;
 
+//------------------------------------------------------------------------------
+// NISSAN CATALOG SHIPS CONSULT ECUMAP
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.NissanCatalogShipsConsultECUMap;
 var
   Ext: IOBDOEMExtension;
@@ -186,6 +281,9 @@ begin
   Assert.IsTrue(HasIPDM, 'Nissan must expose IPDM at 0x745');
 end;
 
+//------------------------------------------------------------------------------
+// SUBARU CATALOG INCLUDES AWDCONTROLLER
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.SubaruCatalogIncludesAWDController;
 var
   Ext: IOBDOEMExtension;
@@ -199,6 +297,9 @@ begin
   Assert.IsTrue(HasAWD, 'Subaru must expose the AWD/ATV controller');
 end;
 
+//------------------------------------------------------------------------------
+// MAZDA CATALOG INCLUDES RBCM
+//------------------------------------------------------------------------------
 procedure TAsiaPacificCatalogTests.MazdaCatalogIncludesRBCM;
 var
   Ext: IOBDOEMExtension;
@@ -215,6 +316,10 @@ end;
 //==============================================================================
 // Decoder spot-checks (golden vectors against the custom DecodeDID overrides)
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// TOYOTA DECODES VIN
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.ToyotaDecodesVin;
 var
   Ext: IOBDOEMExtension;
@@ -226,6 +331,9 @@ begin
   Assert.IsTrue(Pos('vin = JTDKARFU2L1234567', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// HONDA DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.HondaDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -237,6 +345,9 @@ begin
   Assert.IsTrue(Pos('FK7', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// HYUNDAI KIA DECODES ROM ID
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.HyundaiKiaDecodesRomId;
 var
   Ext: IOBDOEMExtension;
@@ -247,6 +358,9 @@ begin
   Assert.IsTrue(Pos('hmg_rom_id', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// NISSAN DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.NissanDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -257,6 +371,9 @@ begin
   Assert.IsTrue(Pos('nissan_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// SUBARU DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.SubaruDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -267,6 +384,9 @@ begin
   Assert.IsTrue(Pos('subaru_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MAZDA DECODES AS BUILT CODE
+//------------------------------------------------------------------------------
 procedure TAsiaPacificDecoderTests.MazdaDecodesAsBuiltCode;
 var
   Ext: IOBDOEMExtension;

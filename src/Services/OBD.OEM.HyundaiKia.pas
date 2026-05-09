@@ -19,9 +19,11 @@ uses
   System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey, OBD.OEM.DTC;
 
 type
-  /// <summary>HMG (Hyundai Motor Group) session negotiator. GDS uses
-  /// a 1500 ms tester-present interval which most pre-2018 ECUs
-  /// require to keep the extended session alive.</summary>
+  /// <summary>
+  ///   HMG (Hyundai Motor Group) session negotiator. GDS uses
+  ///   a 1500 ms tester-present interval which most pre-2018 ECUs
+  ///   require to keep the extended session alive.
+  /// </summary>
   TOBDHyundaiKiaSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     function DefaultTesterPresentMs: Cardinal; override;
@@ -31,13 +33,18 @@ type
   TOBDOEMExtensionHyundaiKia = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -55,27 +62,57 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDHyundaiKiaSessionNegotiator.DefaultTesterPresentMs: Cardinal;
-begin Result := 1500; end;
+begin
+  Result := 1500;
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDHyundaiKiaSessionNegotiator.DisplayName: string;
-begin Result := 'Hyundai/Kia GDS / KDS'; end;
+begin
+  Result := 'Hyundai/Kia GDS / KDS';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionHyundaiKia.ManufacturerKey: string;
-begin Result := 'HMG'; end;
+begin
+  Result := 'HMG';
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionHyundaiKia.DisplayName: string;
-begin Result := 'Hyundai Motor Group (Hyundai / Kia / Genesis)'; end;
+begin
+  Result := 'Hyundai Motor Group (Hyundai / Kia / Genesis)';
+end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionHyundaiKia.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in hmg.json.
   Result := VINMatchesCatalog('hmg.json', VIN);
 end;
+
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionHyundaiKia.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are hmg.json
   // + uds-standard.json. Hardcoded entries removed.
@@ -86,19 +123,36 @@ begin
 end;
 
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionHyundaiKia.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   MergeExtendedCatalogJSON('hmg.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
-function TOBDOEMExtensionHyundaiKia.CreateSessionNegotiator: IOBDSessionNegotiator;
-begin Result := TOBDHyundaiKiaSessionNegotiator.Create; end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
+function TOBDOEMExtensionHyundaiKia.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDHyundaiKiaSessionNegotiator.Create;
+end;
+
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionHyundaiKia.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 const
@@ -112,6 +166,9 @@ begin
     'HMG community XOR-mask placeholder', 'community-pr', False));
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionHyundaiKia.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -119,9 +176,17 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionHyundaiKia.DtcCatalogFileName: string;
-begin Result := 'dtc-hmg.json'; end;
+begin
+  Result := 'dtc-hmg.json';
+end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionHyundaiKia.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 begin

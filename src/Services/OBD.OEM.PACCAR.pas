@@ -25,13 +25,18 @@ type
   TOBDOEMExtensionPACCAR = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -49,21 +54,41 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionPACCAR.ManufacturerKey: string;
-begin Result := 'PACCAR'; end;
+begin
+  Result := 'PACCAR';
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionPACCAR.DisplayName: string;
-begin Result := 'PACCAR Inc. (Peterbilt / Kenworth / DAF / Leyland)'; end;
+begin
+  Result := 'PACCAR Inc. (Peterbilt / Kenworth / DAF / Leyland)';
+end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionPACCAR.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in paccar.json.
   Result := VINMatchesCatalog('paccar.json', VIN);
 end;
+
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionPACCAR.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are paccar.json
   // + uds-standard.json. Hardcoded entries removed.
@@ -74,25 +99,45 @@ begin
 end;
 
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionPACCAR.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   MergeExtendedCatalogJSON('paccar.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
-function TOBDOEMExtensionPACCAR.CreateSessionNegotiator: IOBDSessionNegotiator;
-begin Result := TOBDHDSessionNegotiator.Create; end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
+function TOBDOEMExtensionPACCAR.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDHDSessionNegotiator.Create;
+end;
+
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionPACCAR.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionPACCAR.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -100,9 +145,17 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionPACCAR.DtcCatalogFileName: string;
-begin Result := 'dtc-paccar.json'; end;
+begin
+  Result := 'dtc-paccar.json';
+end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionPACCAR.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 begin

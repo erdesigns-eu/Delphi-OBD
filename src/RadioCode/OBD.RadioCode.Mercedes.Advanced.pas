@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeMercedesAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeMercedesAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeMercedesAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -121,6 +130,9 @@ begin
   Variant.AlgorithmNotes := 'Asian market variant';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -157,6 +169,9 @@ begin
   Output := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -173,6 +188,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -189,11 +207,17 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Mercedes-Benz Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeMercedesAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -205,6 +229,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeMercedesAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -214,16 +241,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -255,6 +291,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeMercedesAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

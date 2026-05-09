@@ -26,24 +26,36 @@ uses
 type
   EOBDSessionRunnerError = class(Exception);
 
-  /// <summary>One row in the audit log produced by the runner.</summary>
+  /// <summary>
+  ///   One row in the audit log produced by the runner.
+  /// </summary>
   TOBDSessionStepResult = record
     Step: TOBDSessionStep;
-    /// <summary>Raw response text received from the adapter.</summary>
+    /// <summary>
+    ///   Raw response text received from the adapter.
+    /// </summary>
     Response: string;
-    /// <summary>True if the step matched its expected-response prefix
-    /// (or the prefix was empty and any reply was acceptable).</summary>
+    /// <summary>
+    ///   True if the step matched its expected-response prefix
+    ///   (or the prefix was empty and any reply was acceptable).
+    /// </summary>
     Success: Boolean;
-    /// <summary>Empty when <c>Success</c> is true.</summary>
+    /// <summary>
+    ///   Empty when <c>Success</c> is true.
+    /// </summary>
     ErrorMessage: string;
-    /// <summary>Wall-clock duration of the step (ms).</summary>
+    /// <summary>
+    ///   Wall-clock duration of the step (ms).
+    /// </summary>
     DurationMs: Cardinal;
   end;
 
   TOBDSessionRunResult = record
     Success: Boolean;
     Steps: TArray<TOBDSessionStepResult>;
-    /// <summary>Captured if any step raised; nil otherwise.</summary>
+    /// <summary>
+    ///   Captured if any step raised; nil otherwise.
+    /// </summary>
     Error: Exception;
   end;
 
@@ -84,8 +96,10 @@ type
       const Prefix: TBytes): Boolean;
   public
     constructor Create(AConnection: TOBDConnectionAsync);
-    /// <summary>Per-step default timeout when the step itself doesn't
-    /// specify one. Defaults to 5000 ms.</summary>
+    /// <summary>
+    ///   Per-step default timeout when the step itself doesn't
+    ///   specify one. Defaults to 5000 ms.
+    /// </summary>
     property DefaultTimeoutMs: Cardinal read FDefaultTimeoutMs write FDefaultTimeoutMs;
     /// <summary>
     ///   Run <c>Plan</c>'s steps in order. Stops on the first failed
@@ -111,6 +125,9 @@ uses
 const
   DEFAULT_STEP_TIMEOUT_MS = 5000;
 
+//------------------------------------------------------------------------------
+// BYTES EQUAL PREFIX
+//------------------------------------------------------------------------------
 function BytesEqualPrefix(const Bytes, Prefix: TBytes): Boolean;
 var
   I: Integer;
@@ -122,6 +139,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// HEX CHARS TO BYTES
+//------------------------------------------------------------------------------
 function HexCharsToBytes(const HexChars: string): TBytes;
 var
   Buf: string;
@@ -149,6 +169,10 @@ end;
 //==============================================================================
 // TOBDTesterPresentThread
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTesterPresentThread.Create(AConnection: TOBDConnectionAsync;
   const ARequest: TBytes; AIntervalMs: Cardinal);
 begin
@@ -161,12 +185,18 @@ begin
   FToken := NewCancellationToken;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDTesterPresentThread.Destroy;
 begin
   FStopEvent.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// STOP GRACEFULLY
+//------------------------------------------------------------------------------
 procedure TOBDTesterPresentThread.StopGracefully;
 begin
   Terminate;
@@ -177,14 +207,21 @@ begin
   WaitFor;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT HEX BYTES
+//------------------------------------------------------------------------------
 function TOBDTesterPresentThread.FormatHexBytes(const Bytes: TBytes): string;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := '';
   for I := 0 to High(Bytes) do
     Result := Result + IntToHex(Bytes[I], 2);
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE
+//------------------------------------------------------------------------------
 procedure TOBDTesterPresentThread.Execute;
 var
   HexCmd: string;
@@ -210,6 +247,10 @@ end;
 //==============================================================================
 // TOBDSessionRunner
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSessionRunner.Create(AConnection: TOBDConnectionAsync);
 begin
   inherited Create;
@@ -220,14 +261,21 @@ begin
   FDefaultTimeoutMs := DEFAULT_STEP_TIMEOUT_MS;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT HEX BYTES
+//------------------------------------------------------------------------------
 function TOBDSessionRunner.FormatHexBytes(const Bytes: TBytes): string;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := '';
   for I := 0 to High(Bytes) do
     Result := Result + IntToHex(Bytes[I], 2);
 end;
 
+//------------------------------------------------------------------------------
+// HEX RESPONSE STARTS WITH
+//------------------------------------------------------------------------------
 function TOBDSessionRunner.HexResponseStartsWith(const Response: string;
   const Prefix: TBytes): Boolean;
 begin
@@ -235,6 +283,9 @@ begin
   Result := BytesEqualPrefix(HexCharsToBytes(Response), Prefix);
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE STEP
+//------------------------------------------------------------------------------
 function TOBDSessionRunner.ExecuteStep(
   const Step: TOBDSessionStep): TOBDSessionStepResult;
 var
@@ -271,6 +322,9 @@ begin
   Result.DurationMs := Cardinal(Watch.ElapsedMilliseconds);
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE
+//------------------------------------------------------------------------------
 function TOBDSessionRunner.Execute(
   const Plan: TOBDSessionPlan): TOBDSessionRunResult;
 var
@@ -296,6 +350,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// START TESTER PRESENT
+//------------------------------------------------------------------------------
 function TOBDSessionRunner.StartTesterPresent(
   const Plan: TOBDSessionPlan): TOBDTesterPresentThread;
 begin

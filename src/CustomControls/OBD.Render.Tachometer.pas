@@ -50,8 +50,12 @@ procedure RenderTachometer(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// TACHOMETER VALUE FRACTION
+//------------------------------------------------------------------------------
 function TachometerValueFraction(const Min, Max, Value: Single): Single;
-var Span: Single;
+var
+  Span: Single;
 begin
   Span := Max - Min;
   if Span <= 0 then Exit(0);
@@ -60,11 +64,17 @@ begin
   if Result > 1 then Result := 1;
 end;
 
+//------------------------------------------------------------------------------
+// TACHOMETER SHIFT LIGHT ACTIVE
+//------------------------------------------------------------------------------
 function TachometerShiftLightActive(const State: TOBDTachometerRenderState): Boolean;
 begin
   Result := State.ShowShiftLight and (State.DisplayValue >= State.ShiftPoint);
 end;
 
+//------------------------------------------------------------------------------
+// RENDER TACHOMETER
+//------------------------------------------------------------------------------
 procedure RenderTachometer(const Canvas: ISkCanvas;
   const State: TOBDTachometerRenderState);
 var

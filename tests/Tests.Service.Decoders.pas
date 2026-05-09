@@ -94,6 +94,9 @@ const
 
 { TServiceResponseDispatchTests }
 
+//------------------------------------------------------------------------------
+// DISPATCH_POSITIVE SERVICE RESPONSE_EXTRACTS SERVICE AND PID
+//------------------------------------------------------------------------------
 procedure TServiceResponseDispatchTests.Dispatch_PositiveServiceResponse_ExtractsServiceAndPID;
 var
   Decoder: TOBDServiceResponseDecoder;
@@ -118,6 +121,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISPATCH_NEGATIVE RESPONSE_FLAGS ERROR
+//------------------------------------------------------------------------------
 procedure TServiceResponseDispatchTests.Dispatch_NegativeResponse_FlagsError;
 var
   Decoder: TOBDServiceResponseDecoder;
@@ -137,6 +143,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISPATCH_TOO SHORT RESPONSE_FAILS
+//------------------------------------------------------------------------------
 procedure TServiceResponseDispatchTests.Dispatch_TooShortResponse_Fails;
 var
   Decoder: TOBDServiceResponseDecoder;
@@ -153,6 +162,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISPATCH_SERVICE03_HAS NO PID_BUT CARRIES DATA
+//------------------------------------------------------------------------------
 procedure TServiceResponseDispatchTests.Dispatch_Service03_HasNoPID_ButCarriesData;
 var
   Decoder: TOBDServiceResponseDecoder;
@@ -178,6 +190,9 @@ end;
 
 { TPidDecoderTests }
 
+//------------------------------------------------------------------------------
+// PERCENTAGE_KNOWN INPUTS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.Percentage_KnownInputs(
   const Byte0: Integer; const ExpectedPercent: Double);
 var
@@ -193,6 +208,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PERCENTAGE_EMPTY DATA_FAILS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.Percentage_EmptyData_Fails;
 var
   D: TOBDPercentageDecoder;
@@ -208,6 +226,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TEMPERATURE_KNOWN INPUTS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.Temperature_KnownInputs(
   const Byte0, ExpectedC: Integer);
 var
@@ -223,6 +244,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FUEL TRIM_KNOWN INPUTS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.FuelTrim_KnownInputs(
   const Byte0: Integer; const ExpectedPercent: Double);
 var
@@ -238,6 +262,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FUEL PRESSURE_KNOWN INPUTS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.FuelPressure_KnownInputs(
   const Byte0, ExpectedKPa: Integer);
 var
@@ -253,6 +280,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENGINE RPM_DECODES KNOWN TWO BYTE VALUE
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.EngineRPM_DecodesKnownTwoByteValue;
 var
   D: TOBDEngineRPMDecoder;
@@ -268,6 +298,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENGINE RPM_TOO SHORT_FAILS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.EngineRPM_TooShort_Fails;
 var
   D: TOBDEngineRPMDecoder;
@@ -281,6 +314,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TIMING ADVANCE_KNOWN INPUTS
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.TimingAdvance_KnownInputs(
   const Byte0: Integer; const ExpectedDeg: Double);
 var
@@ -296,6 +332,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MASS AIR FLOW_DECODES KNOWN TWO BYTE VALUE
+//------------------------------------------------------------------------------
 procedure TPidDecoderTests.MassAirFlow_DecodesKnownTwoByteValue;
 var
   D: TOBDMassAirFlowRateDecoder;

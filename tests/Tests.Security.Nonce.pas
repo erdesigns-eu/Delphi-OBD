@@ -29,6 +29,9 @@ implementation
 uses
   System.SysUtils, System.Classes, OBD.Security.Nonce;
 
+//------------------------------------------------------------------------------
+// ISSUE PRODUCES UNIQUE VALUES
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.IssueProducesUniqueValues;
 var
   V: TOBDNonceVault;
@@ -48,6 +51,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS VALID TRUE IMMEDIATELY AFTER ISSUE
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.IsValidTrueImmediatelyAfterIssue;
 var V: TOBDNonceVault; N: string;
 begin
@@ -60,6 +66,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REDEEM SUCCEEDS THEN REJECTS REPLAY
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.RedeemSucceedsThenRejectsReplay;
 var V: TOBDNonceVault; N: string;
 begin
@@ -73,8 +82,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REDEEM UNKNOWN RAISES
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.RedeemUnknownRaises;
-var V: TOBDNonceVault;
+var
+  V: TOBDNonceVault;
 begin
   V := TOBDNonceVault.Create(30);
   try
@@ -85,6 +98,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REDEEM AFTER TTL RAISES EXPIRED
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.RedeemAfterTtlRaisesExpired;
 var V: TOBDNonceVault; N: string;
 begin
@@ -98,6 +114,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESET CLEARS ACTIVE AND USED
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.ResetClearsActiveAndUsed;
 var V: TOBDNonceVault; N: string;
 begin
@@ -115,6 +134,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NONCE LENGTH RESPECTED
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.NonceLengthRespected;
 var V: TOBDNonceVault; N: string;
 begin
@@ -127,6 +149,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCT REJECTS ZERO TTL
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.ConstructRejectsZeroTtl;
 begin
   Assert.WillRaise(
@@ -134,6 +159,9 @@ begin
     EArgumentException);
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCT REJECTS TINY NONCE
+//------------------------------------------------------------------------------
 procedure TNonceVaultTests.ConstructRejectsTinyNonce;
 begin
   Assert.WillRaise(

@@ -57,6 +57,9 @@ type
     property Error: string read FError;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TFakeTLSGateway.Create(const CertFile, KeyFile: string;
   const UdsResponse: TBytes);
 begin
@@ -81,6 +84,9 @@ begin
   FServer.Active := True;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TFakeTLSGateway.Destroy;
 begin
   try FServer.Active := False; except end;
@@ -90,6 +96,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// PORT
+//------------------------------------------------------------------------------
 function TFakeTLSGateway.Port: Word;
 begin
   if FServer.Bindings.Count > 0 then
@@ -98,17 +107,26 @@ begin
     Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// WAIT COMPLETION
+//------------------------------------------------------------------------------
 procedure TFakeTLSGateway.WaitCompletion(TimeoutMs: Cardinal);
 begin
   FCompleted.WaitFor(TimeoutMs);
 end;
 
+//------------------------------------------------------------------------------
+// SSLPWD
+//------------------------------------------------------------------------------
 procedure TFakeTLSGateway.SSLPwd(var Password: string;
   const IsWrite: Boolean);
 begin
   Password := '';
 end;
 
+//------------------------------------------------------------------------------
+// SERVER EXECUTE
+//------------------------------------------------------------------------------
 procedure TFakeTLSGateway.ServerExecute(AContext: TIdContext);
 var
   Header: TIdBytes;
@@ -195,6 +213,10 @@ end;
 //==============================================================================
 // Helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FIXTURE PATH
+//------------------------------------------------------------------------------
 function FixturePath(const Sub, FileName: string): string;
 var
   Candidate, CWD: string;
@@ -214,6 +236,10 @@ end;
 //==============================================================================
 // Test
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ROUTING ACTIVATION AND DIAGNOSTIC ROUND TRIP OVER TLS
+//------------------------------------------------------------------------------
 procedure TDoIPTLSTests.RoutingActivationAndDiagnosticRoundTripOverTLS;
 var
   CertPath, KeyPath: string;

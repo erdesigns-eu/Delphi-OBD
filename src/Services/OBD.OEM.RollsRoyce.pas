@@ -20,9 +20,11 @@ uses
   System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey, OBD.OEM.DTC;
 
 type
-  /// <summary>Rolls-Royce inherits the BMW Group session-negotiation
-  /// lineage: security access required for extended + programming;
-  /// 1500 ms heartbeat for older DMEs.</summary>
+  /// <summary>
+  ///   Rolls-Royce inherits the BMW Group session-negotiation
+  ///   lineage: security access required for extended + programming;
+  ///   1500 ms heartbeat for older DMEs.
+  /// </summary>
   TOBDRRSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     function RequiresSecurityAccess(SessionType: TOBDSessionType): Boolean; override;
@@ -33,13 +35,18 @@ type
   TOBDOEMExtensionRollsRoyce = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
@@ -56,6 +63,9 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 function TOBDRRSessionNegotiator.RequiresSecurityAccess(
   SessionType: TOBDSessionType): Boolean;
 begin
@@ -63,32 +73,65 @@ begin
                             sstOEMSpecific1, sstOEMSpecific2];
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDRRSessionNegotiator.DefaultTesterPresentMs: Cardinal;
-begin Result := 1500; end;
+begin
+  Result := 1500;
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDRRSessionNegotiator.DisplayName: string;
-begin Result := 'Rolls-Royce (BMW E-Sys / ISTA)'; end;
+begin
+  Result := 'Rolls-Royce (BMW E-Sys / ISTA)';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.ManufacturerKey: string;
-begin Result := 'ROLLS_ROYCE'; end;
+begin
+  Result := 'ROLLS_ROYCE';
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.DisplayName: string;
-begin Result := 'Rolls-Royce Motor Cars Ltd.'; end;
+begin
+  Result := 'Rolls-Royce Motor Cars Ltd.';
+end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in rolls-royce.json.
   Result := VINMatchesCatalog('rolls-royce.json', VIN);
 end;
+
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDRRSessionNegotiator.Create;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionRollsRoyce.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are rolls-royce.json
   // + uds-standard.json. Hardcoded entries removed.
@@ -99,16 +142,28 @@ begin
 end;
 
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionRollsRoyce.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   MergeExtendedCatalogJSON('rolls-royce.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
+
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionRollsRoyce.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -116,9 +171,17 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.DtcCatalogFileName: string;
-begin Result := 'dtc-rolls-royce.json'; end;
+begin
+  Result := 'dtc-rolls-royce.json';
+end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionRollsRoyce.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 begin

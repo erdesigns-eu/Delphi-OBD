@@ -140,7 +140,9 @@ type
     destructor Destroy; override;
     procedure Write(const Event: TOBDLogEvent);
     procedure Flush;
-    /// <summary>Snapshot the buffer (oldest first).</summary>
+    /// <summary>
+    ///   Snapshot the buffer (oldest first).
+    /// </summary>
     function Snapshot: TArray<TOBDLogEvent>;
     procedure ClearEvents;
     property Capacity: Integer read FCapacity;
@@ -158,6 +160,9 @@ function LogLevelName(L: TOBDLogLevel): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// LOG LEVEL NAME
+//------------------------------------------------------------------------------
 function LogLevelName(L: TOBDLogLevel): string;
 begin
   case L of
@@ -170,6 +175,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT LINE
+//------------------------------------------------------------------------------
 function FormatLine(const Event: TOBDLogEvent): string;
 begin
   if Event.Source <> '' then
@@ -182,6 +190,9 @@ begin
        LogLevelName(Event.Level), Event.Message]);
 end;
 
+//------------------------------------------------------------------------------
+// APPEND UTF8
+//------------------------------------------------------------------------------
 procedure AppendUtf8(const FilePath, Line: string);
 var
   Stream: TFileStream;
@@ -206,6 +217,10 @@ end;
 //==============================================================================
 // TFileRotationSink
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TFileRotationSink.Create(const AFilePath: string;
   AMaxBytes: Int64; AMaxBackups: Integer);
 begin
@@ -216,12 +231,18 @@ begin
   FMaxBackups := AMaxBackups;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TFileRotationSink.Destroy;
 begin
   FLock.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ROTATE IF NEEDED
+//------------------------------------------------------------------------------
 procedure TFileRotationSink.RotateIfNeeded;
 var
   I: Integer;
@@ -243,11 +264,17 @@ begin
   TFile.Move(FFilePath, FFilePath + '.1');
 end;
 
+//------------------------------------------------------------------------------
+// APPEND
+//------------------------------------------------------------------------------
 procedure TFileRotationSink.Append(const S: string);
 begin
   AppendUtf8(FFilePath, S);
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TFileRotationSink.Write(const Event: TOBDLogEvent);
 begin
   FLock.Enter;
@@ -259,6 +286,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TFileRotationSink.Flush;
 begin
   // Each Write closes the stream so no buffered data exists.
@@ -267,6 +297,10 @@ end;
 //==============================================================================
 // TDailyRotationSink
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TDailyRotationSink.Create(const ADirectory, ABaseName,
   AExtension: string);
 begin
@@ -278,18 +312,27 @@ begin
   ForceDirectories(FDirectory);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TDailyRotationSink.Destroy;
 begin
   FLock.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// FILE FOR
+//------------------------------------------------------------------------------
 function TDailyRotationSink.FileFor(const D: TDateTime): string;
 begin
   Result := TPath.Combine(FDirectory,
     FBaseName + '-' + FormatDateTime('yyyymmdd', D) + FExtension);
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TDailyRotationSink.Write(const Event: TOBDLogEvent);
 begin
   FLock.Enter;
@@ -300,6 +343,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TDailyRotationSink.Flush;
 begin
 end;
@@ -307,6 +353,10 @@ end;
 //==============================================================================
 // TJsonLineSink
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TJsonLineSink.Create(const AFilePath: string);
 begin
   inherited Create;
@@ -314,12 +364,18 @@ begin
   FFilePath := AFilePath;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TJsonLineSink.Destroy;
 begin
   FLock.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// EVENT TO JSON
+//------------------------------------------------------------------------------
 function TJsonLineSink.EventToJson(const Event: TOBDLogEvent): string;
 var
   Obj: TJSONObject;
@@ -337,6 +393,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TJsonLineSink.Write(const Event: TOBDLogEvent);
 begin
   FLock.Enter;
@@ -347,6 +406,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TJsonLineSink.Flush;
 begin
 end;
@@ -354,6 +416,10 @@ end;
 //==============================================================================
 // TConsoleSink
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TConsoleSink.Write(const Event: TOBDLogEvent);
 begin
   // IsConsole is set by the runtime when {APPTYPE CONSOLE} is on; guard
@@ -363,6 +429,9 @@ begin
     System.Writeln(FormatLine(Event));
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TConsoleSink.Flush;
 begin
 end;
@@ -370,6 +439,10 @@ end;
 //==============================================================================
 // TInMemorySink
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TInMemorySink.Create(ACapacity: Integer);
 begin
   inherited Create;
@@ -379,6 +452,9 @@ begin
   FEvents := TList<TOBDLogEvent>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TInMemorySink.Destroy;
 begin
   FEvents.Free;
@@ -386,6 +462,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TInMemorySink.Write(const Event: TOBDLogEvent);
 var
   Cb: TProc<TOBDLogEvent>;
@@ -402,16 +481,25 @@ begin
     try Cb(Event); except end;
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TInMemorySink.Flush;
 begin
 end;
 
+//------------------------------------------------------------------------------
+// SNAPSHOT
+//------------------------------------------------------------------------------
 function TInMemorySink.Snapshot: TArray<TOBDLogEvent>;
 begin
   FLock.Enter;
   try Result := FEvents.ToArray; finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR EVENTS
+//------------------------------------------------------------------------------
 procedure TInMemorySink.ClearEvents;
 begin
   FLock.Enter;

@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodePorscheAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodePorscheAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodePorscheAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -121,6 +130,9 @@ begin
   Variant.AlgorithmNotes := 'Asian market variant';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -159,6 +171,9 @@ begin
   Output := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -175,6 +190,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -191,11 +209,17 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Porsche Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodePorscheAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -207,6 +231,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodePorscheAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -216,16 +243,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -257,6 +293,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodePorscheAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

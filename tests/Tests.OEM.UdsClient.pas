@@ -17,36 +17,98 @@ type
   [TestFixture]
   TUdsClientTests = class
   public
+    /// <summary>
+    ///   Read d i d  resolves by name  returns decoded value.
+    /// </summary>
     [Test] procedure ReadDID_ResolvesByName_ReturnsDecodedValue;
+    /// <summary>
+    ///   Read d i d  resolves by hex  returns decoded value.
+    /// </summary>
     [Test] procedure ReadDID_ResolvesByHex_ReturnsDecodedValue;
+    /// <summary>
+    ///   Read d i d  applies scale and offset.
+    /// </summary>
     [Test] procedure ReadDID_AppliesScaleAndOffset;
+    /// <summary>
+    ///   Read d i d  decodes enum.
+    /// </summary>
     [Test] procedure ReadDID_DecodesEnum;
+    /// <summary>
+    ///   Read d i d  decodes ascii.
+    /// </summary>
     [Test] procedure ReadDID_DecodesAscii;
+    /// <summary>
+    ///   Read d i d  raises when catalog miss.
+    /// </summary>
     [Test] procedure ReadDID_RaisesWhenCatalogMiss;
+    /// <summary>
+    ///   Read d i d  raises when no session.
+    /// </summary>
     [Test] procedure ReadDID_RaisesWhenNoSession;
 
+    /// <summary>
+    ///   Write adaptation  packs u int8.
+    /// </summary>
     [Test] procedure WriteAdaptation_PacksUInt8;
+    /// <summary>
+    ///   Write adaptation  packs u int16 b e.
+    /// </summary>
     [Test] procedure WriteAdaptation_PacksUInt16BE;
+    /// <summary>
+    ///   Write adaptation  rejects out of range.
+    /// </summary>
     [Test] procedure WriteAdaptation_RejectsOutOfRange;
+    /// <summary>
+    ///   Write adaptation  raises on unknown channel.
+    /// </summary>
     [Test] procedure WriteAdaptation_RaisesOnUnknownChannel;
-    /// <summary>Regression for G6 — when a catalog declares
-    /// min=0, max=0 explicitly (e.g. an enum pinned to a single
-    /// legal value), only Value=0 must be accepted. The earlier
-    /// implementation skipped validation entirely when both
-    /// bounds were zero and would have let any value through.</summary>
+    /// <summary>
+    ///   Regression for G6 — when a catalog declares
+    ///   min=0, max=0 explicitly (e.g. an enum pinned to a single
+    ///   legal value), only Value=0 must be accepted. The earlier
+    ///   implementation skipped validation entirely when both
+    ///   bounds were zero and would have let any value through.
+    /// </summary>
     [Test] procedure WriteAdaptation_FixedZeroEnforced;
 
+    /// <summary>
+    ///   Execute routine  starts and returns ok.
+    /// </summary>
     [Test] procedure ExecuteRoutine_StartsAndReturnsOk;
+    /// <summary>
+    ///   Execute routine  reports unexpected response.
+    /// </summary>
     [Test] procedure ExecuteRoutine_ReportsUnexpectedResponse;
 
+    /// <summary>
+    ///   Run actuator test  gates on safety warning.
+    /// </summary>
     [Test] procedure RunActuatorTest_GatesOnSafetyWarning;
+    /// <summary>
+    ///   Run actuator test  acknowledged safety runs.
+    /// </summary>
     [Test] procedure RunActuatorTest_AcknowledgedSafetyRuns;
+    /// <summary>
+    ///   Run actuator test  no safety runs freely.
+    /// </summary>
     [Test] procedure RunActuatorTest_NoSafetyRunsFreely;
 
+    /// <summary>
+    ///   Read coding block  unpacks bit fields.
+    /// </summary>
     [Test] procedure ReadCodingBlock_UnpacksBitFields;
+    /// <summary>
+    ///   Write coding block  preserves uncovered bits.
+    /// </summary>
     [Test] procedure WriteCodingBlock_PreservesUncoveredBits;
 
+    /// <summary>
+    ///   Read dtcs  decodes p codes.
+    /// </summary>
     [Test] procedure ReadDtcs_DecodesPCodes;
+    /// <summary>
+    ///   Read dtcs  decodes u codes.
+    /// </summary>
     [Test] procedure ReadDtcs_DecodesUCodes;
   end;
 
@@ -78,6 +140,9 @@ type
     function  TargetECU: Word;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TMockTransport.Create;
 begin
   inherited Create;
@@ -85,6 +150,9 @@ begin
   FRequests := TList<TBytes>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TMockTransport.Destroy;
 begin
   FCannedResponses.Free;
@@ -92,21 +160,33 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ENQUEUE RESPONSE
+//------------------------------------------------------------------------------
 procedure TMockTransport.EnqueueResponse(const Bytes: TBytes);
 begin
   FCannedResponses.Add(Bytes);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST COUNT
+//------------------------------------------------------------------------------
 function TMockTransport.RequestCount: Integer;
 begin
   Result := FRequests.Count;
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST
+//------------------------------------------------------------------------------
 function TMockTransport.Request(Index: Integer): TBytes;
 begin
   Result := FRequests[Index];
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TMockTransport.SendReceive(const Request: TBytes;
   TimeoutMs: Cardinal): TBytes;
 begin
@@ -117,11 +197,17 @@ begin
   FCannedResponses.Delete(0);
 end;
 
+//------------------------------------------------------------------------------
+// SET TARGET ECU
+//------------------------------------------------------------------------------
 procedure TMockTransport.SetTargetECU(Address: Word);
 begin
   FECUAddress := Address;
 end;
 
+//------------------------------------------------------------------------------
+// TARGET ECU
+//------------------------------------------------------------------------------
 function TMockTransport.TargetECU: Word;
 begin
   Result := FECUAddress;
@@ -131,6 +217,9 @@ end;
 // Helpers
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// MAKE CATALOG
+//------------------------------------------------------------------------------
 function MakeCatalog(const Json: string): TOBDOEMJSONCatalog;
 begin
   Result := TOBDOEMJSONCatalog.CreateFromText(Json);
@@ -186,11 +275,17 @@ const
     '    ]}' +
     ' ]}';
 
+//------------------------------------------------------------------------------
+// CATALOG FROM JSON
+//------------------------------------------------------------------------------
 function CatalogFromJson: TOBDOEMJSONCatalog;
 begin
   Result := MakeCatalog(CATALOG_JSON);
 end;
 
+//------------------------------------------------------------------------------
+// OPEN WITH CATALOG
+//------------------------------------------------------------------------------
 procedure OpenWithCatalog(const Client: IOBDUdsClient;
                           const Catalog: TOBDOEMJSONCatalog;
                           const Transport: IOBDDiagnosticTransport);
@@ -198,11 +293,17 @@ begin
   Client.OpenSession(Catalog, Transport, $7E0);
 end;
 
-/// <summary>Convenience: build a mock transport and return both the
-/// concrete class ref (for EnqueueResponse / Request inspection) and
-/// the interface ref (for injection). Caller holds <c>ITransport</c>
-/// in a local var to keep the object alive; <c>Mock</c> is a borrowed
-/// alias — never call <c>Free</c> on it.</summary>
+/// <summary>
+///   Convenience: build a mock transport and return both the
+///   concrete class ref (for EnqueueResponse / Request inspection) and
+///   the interface ref (for injection). Caller holds <c>ITransport</c>
+///   in a local var to keep the object alive; <c>Mock</c> is a borrowed
+///   alias — never call <c>Free</c> on it.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// NEW MOCK
+//------------------------------------------------------------------------------
 procedure NewMock(out Mock: TMockTransport;
                   out ITransport: IOBDDiagnosticTransport);
 begin
@@ -214,6 +315,9 @@ end;
 // Tests
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// READ DID_RESOLVES BY NAME_RETURNS DECODED VALUE
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_ResolvesByName_ReturnsDecodedValue;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -239,6 +343,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_RESOLVES BY HEX_RETURNS DECODED VALUE
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_ResolvesByHex_ReturnsDecodedValue;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -261,6 +368,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_APPLIES SCALE AND OFFSET
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_AppliesScaleAndOffset;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -284,6 +394,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_DECODES ENUM
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_DecodesEnum;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -308,6 +421,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_DECODES ASCII
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_DecodesAscii;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -332,6 +448,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_RAISES WHEN CATALOG MISS
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_RaisesWhenCatalogMiss;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -354,6 +473,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID_RAISES WHEN NO SESSION
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDID_RaisesWhenNoSession;
 var
   Client: IOBDUdsClient;
@@ -365,6 +487,9 @@ begin
   end, EOBDUdsNoSession);
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION_PACKS UINT8
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteAdaptation_PacksUInt8;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -394,6 +519,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION_PACKS UINT16 BE
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteAdaptation_PacksUInt16BE;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -420,6 +548,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION_REJECTS OUT OF RANGE
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteAdaptation_RejectsOutOfRange;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -443,6 +574,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION_FIXED ZERO ENFORCED
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteAdaptation_FixedZeroEnforced;
 const
   PINNED_CATALOG =
@@ -480,6 +614,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION_RAISES ON UNKNOWN CHANNEL
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteAdaptation_RaisesOnUnknownChannel;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -502,6 +639,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE ROUTINE_STARTS AND RETURNS OK
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ExecuteRoutine_StartsAndReturnsOk;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -525,6 +665,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE ROUTINE_REPORTS UNEXPECTED RESPONSE
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ExecuteRoutine_ReportsUnexpectedResponse;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -548,6 +691,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RUN ACTUATOR TEST_GATES ON SAFETY WARNING
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.RunActuatorTest_GatesOnSafetyWarning;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -571,6 +717,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RUN ACTUATOR TEST_ACKNOWLEDGED SAFETY RUNS
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.RunActuatorTest_AcknowledgedSafetyRuns;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -594,6 +743,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RUN ACTUATOR TEST_NO SAFETY RUNS FREELY
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.RunActuatorTest_NoSafetyRunsFreely;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -617,6 +769,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ CODING BLOCK_UNPACKS BIT FIELDS
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadCodingBlock_UnpacksBitFields;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -648,6 +803,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE CODING BLOCK_PRESERVES UNCOVERED BITS
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.WriteCodingBlock_PreservesUncoveredBits;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -696,6 +854,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DTCS_DECODES PCODES
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDtcs_DecodesPCodes;
 var
   Catalog: TOBDOEMJSONCatalog;
@@ -727,6 +888,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DTCS_DECODES UCODES
+//------------------------------------------------------------------------------
 procedure TUdsClientTests.ReadDtcs_DecodesUCodes;
 var
   Catalog: TOBDOEMJSONCatalog;

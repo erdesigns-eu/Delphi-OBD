@@ -15,34 +15,91 @@ type
   [TestFixture]
   TLuxuryVINTests = class
   public
+    /// <summary>
+    ///   Ferrari claims zff.
+    /// </summary>
     [Test] procedure FerrariClaimsZff;
+    /// <summary>
+    ///   Lucid claims casa grande.
+    /// </summary>
     [Test] procedure LucidClaimsCasaGrande;
+    /// <summary>
+    ///   Mahindra claims all plants.
+    /// </summary>
     [Test] procedure MahindraClaimsAllPlants;
+    /// <summary>
+    ///   Tata claims passenger and commercial and daewoo.
+    /// </summary>
     [Test] procedure TataClaimsPassengerAndCommercialAndDaewoo;
+    /// <summary>
+    ///   M i n i claims oxford and china.
+    /// </summary>
     [Test] procedure MINIClaimsOxfordAndChina;
+    /// <summary>
+    ///   Smart claims hambach and china.
+    /// </summary>
     [Test] procedure SmartClaimsHambachAndChina;
+    /// <summary>
+    ///   Mahindra does not claim j l r pune.
+    /// </summary>
     [Test] procedure MahindraDoesNotClaimJLRPune;
   end;
 
   [TestFixture]
   TLuxuryCatalogTests = class
   public
+    /// <summary>
+    ///   Ferrari exposes manettino and lift axle.
+    /// </summary>
     [Test] procedure FerrariExposesManettinoAndLiftAxle;
+    /// <summary>
+    ///   Lucid exposes wunderbox and dream drive.
+    /// </summary>
     [Test] procedure LucidExposesWunderboxAndDreamDrive;
+    /// <summary>
+    ///   Mahindra exposes be ev controller.
+    /// </summary>
     [Test] procedure MahindraExposesBeEvController;
+    /// <summary>
+    ///   Tata exposes icng and ziptron.
+    /// </summary>
     [Test] procedure TataExposesIcngAndZiptron;
+    /// <summary>
+    ///   M i n i session requires security access.
+    /// </summary>
     [Test] procedure MINISessionRequiresSecurityAccess;
+    /// <summary>
+    ///   Smart exposes geely s e a architecture.
+    /// </summary>
     [Test] procedure SmartExposesGeelySEAArchitecture;
   end;
 
   [TestFixture]
   TLuxuryDecoderTests = class
   public
+    /// <summary>
+    ///   Ferrari decodes paint code.
+    /// </summary>
     [Test] procedure FerrariDecodesPaintCode;
+    /// <summary>
+    ///   Lucid decodes drivetrain.
+    /// </summary>
     [Test] procedure LucidDecodesDrivetrain;
+    /// <summary>
+    ///   Mahindra decodes engine code.
+    /// </summary>
     [Test] procedure MahindraDecodesEngineCode;
+    /// <summary>
+    ///   Tata decodes variant code.
+    /// </summary>
     [Test] procedure TataDecodesVariantCode;
+    /// <summary>
+    ///   M i n i decodes chassis code.
+    /// </summary>
     [Test] procedure MINIDecodesChassisCode;
+    /// <summary>
+    ///   Smart decodes battery pack.
+    /// </summary>
     [Test] procedure SmartDecodesBatteryPack;
   end;
 
@@ -55,6 +112,9 @@ uses
   OBD.OEM.Tata, OBD.OEM.MINI, OBD.OEM.Smart,
   OBD.OEM.JLR;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -64,6 +124,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FERRARI CLAIMS ZFF
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.FerrariClaimsZff;
 var
   Ext: IOBDOEMExtension;
@@ -73,6 +137,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('ZFA')), 'Fiat (Stellantis) ZFA');
 end;
 
+//------------------------------------------------------------------------------
+// LUCID CLAIMS CASA GRANDE
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.LucidClaimsCasaGrande;
 var
   Ext: IOBDOEMExtension;
@@ -81,6 +148,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('50A')), 'Lucid Casa Grande AMP-1');
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA CLAIMS ALL PLANTS
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.MahindraClaimsAllPlants;
 var
   Ext: IOBDOEMExtension;
@@ -91,6 +161,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('M3M')), 'BE EV Pune');
 end;
 
+//------------------------------------------------------------------------------
+// TATA CLAIMS PASSENGER AND COMMERCIAL AND DAEWOO
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.TataClaimsPassengerAndCommercialAndDaewoo;
 var
   Ext: IOBDOEMExtension;
@@ -101,6 +174,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('KMU')), 'Tata Daewoo Commercial');
 end;
 
+//------------------------------------------------------------------------------
+// MINICLAIMS OXFORD AND CHINA
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.MINIClaimsOxfordAndChina;
 var
   Ext: IOBDOEMExtension;
@@ -110,6 +186,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('SAW')), 'MINI Spotlight China JV');
 end;
 
+//------------------------------------------------------------------------------
+// SMART CLAIMS HAMBACH AND CHINA
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.SmartClaimsHambachAndChina;
 var
   Ext: IOBDOEMExtension;
@@ -119,6 +198,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('L7M')), 'smart China Xi''an (Geely-era)');
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA DOES NOT CLAIM JLRPUNE
+//------------------------------------------------------------------------------
 procedure TLuxuryVINTests.MahindraDoesNotClaimJLRPune;
 var
   Mahindra, JLR: IOBDOEMExtension;
@@ -134,6 +216,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FERRARI EXPOSES MANETTINO AND LIFT AXLE
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.FerrariExposesManettinoAndLiftAxle;
 var
   Ext: IOBDOEMExtension;
@@ -151,6 +237,9 @@ begin
   Assert.IsTrue(HasLift, 'Ferrari must expose the front lift system');
 end;
 
+//------------------------------------------------------------------------------
+// LUCID EXPOSES WUNDERBOX AND DREAM DRIVE
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.LucidExposesWunderboxAndDreamDrive;
 var
   Ext: IOBDOEMExtension;
@@ -168,6 +257,9 @@ begin
   Assert.IsTrue(HasDreamDrive, 'Lucid must expose DreamDrive ADAS');
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA EXPOSES BE EV CONTROLLER
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.MahindraExposesBeEvController;
 var
   Ext: IOBDOEMExtension;
@@ -182,6 +274,9 @@ begin
     'Mahindra must expose the BE EV / XUV400 EV charge controller');
 end;
 
+//------------------------------------------------------------------------------
+// TATA EXPOSES ICNG AND ZIPTRON
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.TataExposesIcngAndZiptron;
 var
   Ext: IOBDOEMExtension;
@@ -199,6 +294,9 @@ begin
   Assert.IsTrue(HasEvcc, 'Tata must expose the Ziptron EV charge controller');
 end;
 
+//------------------------------------------------------------------------------
+// MINISESSION REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.MINISessionRequiresSecurityAccess;
 var
   Ext: IOBDOEMExtension;
@@ -210,6 +308,9 @@ begin
   Assert.IsTrue(Ext.SessionNegotiator.RequiresSecurityAccess(sstProgramming));
 end;
 
+//------------------------------------------------------------------------------
+// SMART EXPOSES GEELY SEAARCHITECTURE
+//------------------------------------------------------------------------------
 procedure TLuxuryCatalogTests.SmartExposesGeelySEAArchitecture;
 var
   Ext: IOBDOEMExtension;
@@ -232,6 +333,10 @@ end;
 //==============================================================================
 // Decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FERRARI DECODES PAINT CODE
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.FerrariDecodesPaintCode;
 var
   Ext: IOBDOEMExtension;
@@ -243,6 +348,9 @@ begin
   Assert.IsTrue(Pos('322', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// LUCID DECODES DRIVETRAIN
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.LucidDecodesDrivetrain;
 var
   Ext: IOBDOEMExtension;
@@ -253,6 +361,9 @@ begin
   Assert.IsTrue(Pos('lucid_drivetrain', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA DECODES ENGINE CODE
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.MahindraDecodesEngineCode;
 var
   Ext: IOBDOEMExtension;
@@ -263,6 +374,9 @@ begin
   Assert.IsTrue(Pos('mahindra_engine_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// TATA DECODES VARIANT CODE
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.TataDecodesVariantCode;
 var
   Ext: IOBDOEMExtension;
@@ -273,6 +387,9 @@ begin
   Assert.IsTrue(Pos('tata_variant_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MINIDECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.MINIDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -283,6 +400,9 @@ begin
   Assert.IsTrue(Pos('mini_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// SMART DECODES BATTERY PACK
+//------------------------------------------------------------------------------
 procedure TLuxuryDecoderTests.SmartDecodesBatteryPack;
 var
   Ext: IOBDOEMExtension;

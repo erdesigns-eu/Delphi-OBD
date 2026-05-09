@@ -33,7 +33,9 @@ uses
   OBD.Protocol.DoIP, OBD.Protocol.Types;
 
 const
-  /// <summary>ISO 13400-3 §7 TLS port.</summary>
+  /// <summary>
+  ///   ISO 13400-3 §7 TLS port.
+  /// </summary>
   DOIP_TLS_DATA_PORT = 3496;
 
 type
@@ -43,37 +45,53 @@ type
   EOBDDoIPTLSTransport = class(EOBDDoIPTLSError);
   EOBDDoIPTLSTimeout = class(EOBDDoIPTLSError);
 
-  /// <summary>Credentials and policy for a TLS DoIP session. All
-  /// path fields are optional — leave empty to skip the
-  /// corresponding feature.</summary>
+  /// <summary>
+  ///   Credentials and policy for a TLS DoIP session. All
+  ///   path fields are optional — leave empty to skip the
+  ///   corresponding feature.
+  /// </summary>
   TDoIPTLSCredentials = record
-    /// <summary>PEM file containing the trusted-CA bundle. If
-    /// empty, the host's default trust store is used (verification
-    /// still happens unless <c>VerifyPeer</c> is False).</summary>
+    /// <summary>
+    ///   PEM file containing the trusted-CA bundle. If
+    ///   empty, the host's default trust store is used (verification
+    ///   still happens unless <c>VerifyPeer</c> is False).
+    /// </summary>
     RootCAFile: string;
-    /// <summary>Client certificate (PEM) presented during mTLS
-    /// handshake. Empty disables client-side authentication.</summary>
+    /// <summary>
+    ///   Client certificate (PEM) presented during mTLS
+    ///   handshake. Empty disables client-side authentication.
+    /// </summary>
     ClientCertFile: string;
-    /// <summary>Client private key (PEM). Required when
-    /// <c>ClientCertFile</c> is set.</summary>
+    /// <summary>
+    ///   Client private key (PEM). Required when
+    ///   <c>ClientCertFile</c> is set.
+    /// </summary>
     ClientKeyFile: string;
-    /// <summary>Passphrase for the encrypted private key. Empty if
-    /// the key is unencrypted.</summary>
+    /// <summary>
+    ///   Passphrase for the encrypted private key. Empty if
+    ///   the key is unencrypted.
+    /// </summary>
     ClientKeyPassword: string;
-    /// <summary>If True, the server's certificate must chain to a
-    /// trusted root and the hostname must match. Default True.
-    /// Set to False only for closed bench/lab setups.</summary>
+    /// <summary>
+    ///   If True, the server's certificate must chain to a
+    ///   trusted root and the hostname must match. Default True.
+    ///   Set to False only for closed bench/lab setups.
+    /// </summary>
     VerifyPeer: Boolean;
-    /// <summary>OpenSSL cipher-list string. Empty uses the Indy
-    /// default. ISO 13400-3 lists no required suites; OEMs publish
-    /// their own — override if you have a policy.</summary>
+    /// <summary>
+    ///   OpenSSL cipher-list string. Empty uses the Indy
+    ///   default. ISO 13400-3 lists no required suites; OEMs publish
+    ///   their own — override if you have a policy.
+    /// </summary>
     CipherList: string;
   end;
 
-  /// <summary>TLS-wrapped DoIP TCP session. One instance ↔ one
-  /// connected ECU/gateway. Methods are not thread-safe;
-  /// serialise externally if you share the session across
-  /// threads.</summary>
+  /// <summary>
+  ///   TLS-wrapped DoIP TCP session. One instance ↔ one
+  ///   connected ECU/gateway. Methods are not thread-safe;
+  ///   serialise externally if you share the session across
+  ///   threads.
+  /// </summary>
   TDoIPSessionTLS = class
   strict private
     FClient: TIdTCPClient;
@@ -100,8 +118,10 @@ type
     constructor Create;
     destructor  Destroy; override;
 
-    /// <summary>Configure TLS credentials. Call before
-    /// <c>Connect</c>.</summary>
+    /// <summary>
+    ///   Configure TLS credentials. Call before
+    ///   <c>Connect</c>.
+    /// </summary>
     procedure SetCredentials(const Creds: TDoIPTLSCredentials);
 
     procedure Connect(const Host: string; Port: Word = DOIP_TLS_DATA_PORT;
@@ -123,8 +143,10 @@ type
       read FReceiveTimeoutMs write FReceiveTimeoutMs;
   end;
 
-/// <summary>Build a credentials record with sensible defaults
-/// (verify on, no client cert, no custom cipher list).</summary>
+/// <summary>
+///   Build a credentials record with sensible defaults
+///   (verify on, no client cert, no custom cipher list).
+/// </summary>
 function DefaultTLSCredentials: TDoIPTLSCredentials;
 
 implementation
@@ -136,6 +158,9 @@ uses
 const
   MAX_FRAMES_PER_CALL = 16;
 
+//------------------------------------------------------------------------------
+// DEFAULT TLSCREDENTIALS
+//------------------------------------------------------------------------------
 function DefaultTLSCredentials: TDoIPTLSCredentials;
 begin
   Result.RootCAFile := '';
@@ -146,6 +171,9 @@ begin
   Result.CipherList := '';
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TDoIPSessionTLS.Create;
 var
   Lines: TStringList;
@@ -174,6 +202,9 @@ begin
   FClient.IOHandler := FSSLHandler;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TDoIPSessionTLS.Destroy;
 begin
   Disconnect;
@@ -183,6 +214,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SET CREDENTIALS
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.SetCredentials(const Creds: TDoIPTLSCredentials);
 begin
   if FConnected then
@@ -191,6 +225,9 @@ begin
   FCredentials := Creds;
 end;
 
+//------------------------------------------------------------------------------
+// DO VERIFY PEER
+//------------------------------------------------------------------------------
 function TDoIPSessionTLS.DoVerifyPeer(Certificate: TIdX509; AOk: Boolean;
                                       ADepth, AError: Integer): Boolean;
 begin
@@ -203,12 +240,18 @@ begin
     Result := AOk;
 end;
 
+//------------------------------------------------------------------------------
+// GET PASSWORD HANDLER
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.GetPasswordHandler(var Password: string;
                                              const IsWrite: Boolean);
 begin
   Password := FCredentials.ClientKeyPassword;
 end;
 
+//------------------------------------------------------------------------------
+// CONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.Connect(const Host: string; Port: Word;
                                   ConnectTimeoutMs: Cardinal);
 begin
@@ -256,6 +299,9 @@ begin
   FRemotePort := Port;
 end;
 
+//------------------------------------------------------------------------------
+// SEND BYTES
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.SendBytes(const Bytes: TBytes);
 var
   Buffer: TIdBytes;
@@ -274,6 +320,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE EXACT
+//------------------------------------------------------------------------------
 function TDoIPSessionTLS.ReceiveExact(Count: Integer;
   TimeoutMs: Cardinal): TBytes;
 var
@@ -311,6 +360,9 @@ begin
     Result[I] := Buffer[I];
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE DO IPMESSAGE
+//------------------------------------------------------------------------------
 function TDoIPSessionTLS.ReceiveDoIPMessage(TimeoutMs: Cardinal): TBytes;
 var
   HeaderBytes, PayloadBytes: TBytes;
@@ -333,6 +385,9 @@ begin
     Move(PayloadBytes[0], Result[8], Need);
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE ALIVE CHECK REQUEST
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.HandleAliveCheckRequest;
 var
   Resp: TBytes;
@@ -343,6 +398,9 @@ begin
     FOnAliveCheck(Self);
 end;
 
+//------------------------------------------------------------------------------
+// ACTIVATE ROUTING
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.ActivateRouting(SourceAddress: Word;
                                           TargetAddress: Word;
                                           ActivationType: Byte);
@@ -370,6 +428,9 @@ begin
   FProtocol.RoutingActivated := True;
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TDoIPSessionTLS.SendReceive(const UdsRequest: TBytes;
                                      TimeoutMs: Cardinal): TBytes;
 var
@@ -418,6 +479,9 @@ begin
     [MAX_FRAMES_PER_CALL]);
 end;
 
+//------------------------------------------------------------------------------
+// DISCONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSessionTLS.Disconnect;
 begin
   if FConnected then

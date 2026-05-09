@@ -70,6 +70,9 @@ uses
 
 { TFormatATCommandTests }
 
+//------------------------------------------------------------------------------
+// NO PARAM_COMMAND_FORMATS LITERALLY
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.NoParam_Command_FormatsLiterally;
 begin
   Assert.AreEqual('E0', FormatATCommand(ECHO_OFF, []));
@@ -78,6 +81,9 @@ begin
   Assert.AreEqual('Z',  FormatATCommand(RESET_ALL, []));
 end;
 
+//------------------------------------------------------------------------------
+// SINGLE STRING PARAM_FORMATS EXPECTED
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.SingleStringParam_FormatsExpected;
 var
   Cmd: string;
@@ -87,6 +93,9 @@ begin
   Assert.AreEqual('@3 MYTAG', Cmd);
 end;
 
+//------------------------------------------------------------------------------
+// SET HEADER_AT_SH_FORMATS HEX HEADER
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.SetHeader_AT_SH_FormatsHexHeader;
 var
   Cmd: string;
@@ -96,6 +105,9 @@ begin
   Assert.AreEqual('SH 7E0', Cmd);
 end;
 
+//------------------------------------------------------------------------------
+// SET PROTOCOL_AT_SP_FORMATS PROTOCOL DIGIT
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.SetProtocol_AT_SP_FormatsProtocolDigit;
 var
   Cmd: string;
@@ -105,6 +117,9 @@ begin
   Assert.AreEqual('SP 6', Cmd);
 end;
 
+//------------------------------------------------------------------------------
+// PARAM COUNT MISMATCH_TOO FEW_RAISES EXCEPTION
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.ParamCountMismatch_TooFew_RaisesException;
 begin
   Assert.WillRaise(
@@ -115,6 +130,9 @@ begin
     TATCommandException);
 end;
 
+//------------------------------------------------------------------------------
+// PARAM COUNT MISMATCH_TOO MANY_RAISES EXCEPTION
+//------------------------------------------------------------------------------
 procedure TFormatATCommandTests.ParamCountMismatch_TooMany_RaisesException;
 begin
   Assert.WillRaise(
@@ -127,6 +145,9 @@ end;
 
 { TElm327ChipTypeTests }
 
+//------------------------------------------------------------------------------
+// DESCRIPTION_CONTAINS EXPECTED SUBSTRING
+//------------------------------------------------------------------------------
 procedure TElm327ChipTypeTests.Description_ContainsExpectedSubstring(
   const ChipOrdinal: Integer; const ExpectedSubstring: string);
 var
@@ -139,6 +160,9 @@ begin
       [Description, ExpectedSubstring]));
 end;
 
+//------------------------------------------------------------------------------
+// DESCRIPTION_NEVER EMPTY_FOR KNOWN TYPES
+//------------------------------------------------------------------------------
 procedure TElm327ChipTypeTests.Description_NeverEmpty_ForKnownTypes;
 var
   ChipType: TELM327ChipType;

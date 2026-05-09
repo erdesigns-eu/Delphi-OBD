@@ -13,14 +13,19 @@ uses
   System.SysUtils,
   OBD.OEM.DTC, OBD.OEM.Catalog.Loader;
 
-/// <summary>Load <c>FileName</c> through the standard catalog search
-/// path and merge its entries into <c>Cat</c>. Silently no-ops when
-/// the file isn't found so deployments without the catalog folder
-/// still work.</summary>
+/// <summary>
+///   Load <c>FileName</c> through the standard catalog search
+///   path and merge its entries into <c>Cat</c>. Silently no-ops when
+///   the file isn't found so deployments without the catalog folder
+///   still work.
+/// </summary>
 procedure MergeDtcCatalog(const FileName: string; Cat: TOBDDtcCatalog);
 
 implementation
 
+//------------------------------------------------------------------------------
+// MERGE DTC CATALOG
+//------------------------------------------------------------------------------
 procedure MergeDtcCatalog(const FileName: string; Cat: TOBDDtcCatalog);
 var
   Path: string;

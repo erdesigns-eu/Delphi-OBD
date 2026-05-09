@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "description": "Toyota/Lexus chassis-code smart-key applicability table.",
+  "access_levels": [
+    "master_key",
+    "pin",
+    "certificate_required"
+  ],
+  "entries": [
+    {
+      "chassis_key": "zre182",
+      "display_name": "Toyota Auris ZRE182",
+      "access": "master_key",
+      "notes": "Master-key timing dance documented; smart key adds via OBD."
+    },
+    {
+      "chassis_key": "asv50",
+      "display_name": "Toyota Camry ASV50",
+      "access": "master_key",
+      "notes": "Master-key procedure; up to 6 keys."
+    },
+    {
+      "chassis_key": "agz10",
+      "display_name": "Lexus NX AGZ10",
+      "access": "pin",
+      "notes": "PIN-required smart-key registration via Techstream."
+    },
+    {
+      "chassis_key": "mxua70",
+      "display_name": "Toyota RAV4 MXUA70",
+      "access": "pin",
+      "notes": "PIN required from Toyota dealer portal."
+    },
+    {
+      "chassis_key": "mxpa10",
+      "display_name": "Toyota Yaris MXPA10",
+      "access": "certificate_required",
+      "notes": "Certificate-locked Techstream after MY2021."
+    }
+  ]
+}

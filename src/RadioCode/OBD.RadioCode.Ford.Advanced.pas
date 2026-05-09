@@ -279,6 +279,9 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE REGIONAL NA
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFordAdvanced.CalculateRegionalNA(const Serial: string): string;
 var
   Code: Integer;
@@ -308,6 +311,9 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE REGIONAL AU
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFordAdvanced.CalculateRegionalAU(const Serial: string): string;
 var
   Code: Integer;
@@ -351,6 +357,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFordAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;

@@ -31,6 +31,9 @@ procedure RenderSegmentedSwitch(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// RENDER SEGMENTED SWITCH
+//------------------------------------------------------------------------------
 procedure RenderSegmentedSwitch(const Canvas: ISkCanvas;
   const State: TOBDSegmentedSwitchRenderState);
 var

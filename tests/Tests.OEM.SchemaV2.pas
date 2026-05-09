@@ -17,38 +17,107 @@ type
   [TestFixture]
   TSchemaV2ParserTests = class
   public
+    /// <summary>
+    ///   Parses coding block.
+    /// </summary>
     [Test] procedure ParsesCodingBlock;
+    /// <summary>
+    ///   Coding block exposes bit field.
+    /// </summary>
     [Test] procedure CodingBlockExposesBitField;
+    /// <summary>
+    ///   Coding block exposes enum field.
+    /// </summary>
     [Test] procedure CodingBlockExposesEnumField;
+    /// <summary>
+    ///   Coding block has payload size.
+    /// </summary>
     [Test] procedure CodingBlockHasPayloadSize;
+    /// <summary>
+    ///   Parses adaptations.
+    /// </summary>
     [Test] procedure ParsesAdaptations;
+    /// <summary>
+    ///   Adaptation carries min max default.
+    /// </summary>
     [Test] procedure AdaptationCarriesMinMaxDefault;
+    /// <summary>
+    ///   Parses actuator test.
+    /// </summary>
     [Test] procedure ParsesActuatorTest;
+    /// <summary>
+    ///   Actuator test carries safety warning.
+    /// </summary>
     [Test] procedure ActuatorTestCarriesSafetyWarning;
+    /// <summary>
+    ///   Parses live pid.
+    /// </summary>
     [Test] procedure ParsesLivePid;
+    /// <summary>
+    ///   Live pid carries decoder info.
+    /// </summary>
     [Test] procedure LivePidCarriesDecoderInfo;
+    /// <summary>
+    ///   Parses dtc extended data.
+    /// </summary>
     [Test] procedure ParsesDtcExtendedData;
+    /// <summary>
+    ///   Dtc extended data carries record number.
+    /// </summary>
     [Test] procedure DtcExtendedDataCarriesRecordNumber;
+    /// <summary>
+    ///   Legacy catalog still parses.
+    /// </summary>
     [Test] procedure LegacyCatalogStillParses;
   end;
 
   [TestFixture]
   TSchemaV2KindParserTests = class
   public
+    /// <summary>
+    ///   Parses coding field kind bit.
+    /// </summary>
     [Test] procedure ParsesCodingFieldKindBit;
+    /// <summary>
+    ///   Parses coding field kind enum.
+    /// </summary>
     [Test] procedure ParsesCodingFieldKindEnum;
+    /// <summary>
+    ///   Parses adaptation kind u int16.
+    /// </summary>
     [Test] procedure ParsesAdaptationKindUInt16;
+    /// <summary>
+    ///   Parses actuator response kind boolean.
+    /// </summary>
     [Test] procedure ParsesActuatorResponseKindBoolean;
+    /// <summary>
+    ///   Parses live pid mode service22.
+    /// </summary>
     [Test] procedure ParsesLivePidModeService22;
+    /// <summary>
+    ///   Parses dtc extended kind occurrence counter.
+    /// </summary>
     [Test] procedure ParsesDtcExtendedKindOccurrenceCounter;
+    /// <summary>
+    ///   Unknown string returns unknown kind.
+    /// </summary>
     [Test] procedure UnknownStringReturnsUnknownKind;
   end;
 
   [TestFixture]
   TSchemaV2MergeTests = class
   public
+    /// <summary>
+    ///   Merge replaces coding block by shared d i d.
+    /// </summary>
     [Test] procedure MergeReplacesCodingBlockBySharedDID;
+    /// <summary>
+    ///   Merge appends new adaptation.
+    /// </summary>
     [Test] procedure MergeAppendsNewAdaptation;
+    /// <summary>
+    ///   Merge missing file is silent.
+    /// </summary>
     [Test] procedure MergeMissingFileIsSilent;
   end;
 
@@ -58,6 +127,9 @@ uses
   System.SysUtils, System.IOUtils,
   OBD.OEM, OBD.OEM.Catalog.JSON, OBD.OEM.Catalog.Loader;
 
+//------------------------------------------------------------------------------
+// FIXTURE PATH
+//------------------------------------------------------------------------------
 function FixturePath: string;
 begin
   // Tests run from .../tests, fixture lives in .../catalogs.
@@ -69,6 +141,9 @@ begin
     Result := TPath.Combine(GetCurrentDir, 'catalogs/test-schema-v2.json');
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FIXTURE
+//------------------------------------------------------------------------------
 function LoadFixture: TOBDOEMJSONCatalog;
 begin
   Result := TOBDOEMJSONCatalog.Create(FixturePath);
@@ -77,8 +152,13 @@ end;
 //==============================================================================
 // JSON parser
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSES CODING BLOCK
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ParsesCodingBlock;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -88,8 +168,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// CODING BLOCK EXPOSES BIT FIELD
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.CodingBlockExposesBitField;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -101,6 +185,9 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// CODING BLOCK EXPOSES ENUM FIELD
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.CodingBlockExposesEnumField;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -119,8 +206,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// CODING BLOCK HAS PAYLOAD SIZE
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.CodingBlockHasPayloadSize;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -128,8 +219,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES ADAPTATIONS
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ParsesAdaptations;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -139,8 +234,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// ADAPTATION CARRIES MIN MAX DEFAULT
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.AdaptationCarriesMinMaxDefault;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -151,8 +250,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES ACTUATOR TEST
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ParsesActuatorTest;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -163,8 +266,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// ACTUATOR TEST CARRIES SAFETY WARNING
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ActuatorTestCarriesSafetyWarning;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -173,8 +280,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES LIVE PID
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ParsesLivePid;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -185,8 +296,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// LIVE PID CARRIES DECODER INFO
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.LivePidCarriesDecoderInfo;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -196,8 +311,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES DTC EXTENDED DATA
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.ParsesDtcExtendedData;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -207,8 +326,12 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// DTC EXTENDED DATA CARRIES RECORD NUMBER
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.DtcExtendedDataCarriesRecordNumber;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := LoadFixture;
   try
@@ -217,6 +340,9 @@ begin
   finally Cat.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// LEGACY CATALOG STILL PARSES
+//------------------------------------------------------------------------------
 procedure TSchemaV2ParserTests.LegacyCatalogStillParses;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -241,36 +367,55 @@ end;
 //==============================================================================
 // Kind parsers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSES CODING FIELD KIND BIT
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesCodingFieldKindBit;
 begin
   Assert.AreEqual(Ord(cfkBit), Ord(ParseCodingFieldKind('bit')));
   Assert.AreEqual(Ord(cfkUInt8), Ord(ParseCodingFieldKind('uint8')));
 end;
 
+//------------------------------------------------------------------------------
+// PARSES CODING FIELD KIND ENUM
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesCodingFieldKindEnum;
 begin
   Assert.AreEqual(Ord(cfkEnum), Ord(ParseCodingFieldKind('enum')));
   Assert.AreEqual(Ord(cfkBitmask), Ord(ParseCodingFieldKind('bitmask')));
 end;
 
+//------------------------------------------------------------------------------
+// PARSES ADAPTATION KIND UINT16
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesAdaptationKindUInt16;
 begin
   Assert.AreEqual(Ord(adkUInt16BE), Ord(ParseAdaptationKind('uint16_be')));
   Assert.AreEqual(Ord(adkEnum), Ord(ParseAdaptationKind('enum')));
 end;
 
+//------------------------------------------------------------------------------
+// PARSES ACTUATOR RESPONSE KIND BOOLEAN
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesActuatorResponseKindBoolean;
 begin
   Assert.AreEqual(Ord(arkBoolean), Ord(ParseActuatorResponseKind('boolean')));
   Assert.AreEqual(Ord(arkAscii), Ord(ParseActuatorResponseKind('ascii')));
 end;
 
+//------------------------------------------------------------------------------
+// PARSES LIVE PID MODE SERVICE22
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesLivePidModeService22;
 begin
   Assert.AreEqual(Ord(lpmService22), Ord(ParseLivePIDMode('service22')));
   Assert.AreEqual(Ord(lpmService01), Ord(ParseLivePIDMode('service01')));
 end;
 
+//------------------------------------------------------------------------------
+// PARSES DTC EXTENDED KIND OCCURRENCE COUNTER
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.ParsesDtcExtendedKindOccurrenceCounter;
 begin
   Assert.AreEqual(Ord(xdkOccurrenceCounter),
@@ -279,6 +424,9 @@ begin
     Ord(ParseDtcExtendedKind('freeze_frame_template')));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN STRING RETURNS UNKNOWN KIND
+//------------------------------------------------------------------------------
 procedure TSchemaV2KindParserTests.UnknownStringReturnsUnknownKind;
 begin
   Assert.AreEqual(Ord(cfkUnknown), Ord(ParseCodingFieldKind('made_up_kind')));
@@ -290,6 +438,10 @@ end;
 //==============================================================================
 // Loader merge semantics
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// MERGE REPLACES CODING BLOCK BY SHARED DID
+//------------------------------------------------------------------------------
 procedure TSchemaV2MergeTests.MergeReplacesCodingBlockBySharedDID;
 var
   Existing, Loaded: TArray<TOBDOEMCodingBlock>;
@@ -313,6 +465,9 @@ begin
   Assert.AreEqual('bcm_long_coding', Existing[0].Name);
 end;
 
+//------------------------------------------------------------------------------
+// MERGE APPENDS NEW ADAPTATION
+//------------------------------------------------------------------------------
 procedure TSchemaV2MergeTests.MergeAppendsNewAdaptation;
 var
   CodingBlocks: TArray<TOBDOEMCodingBlock>;
@@ -329,6 +484,9 @@ begin
   Assert.AreEqual('idle_rpm_target', Adaptations[0].Name);
 end;
 
+//------------------------------------------------------------------------------
+// MERGE MISSING FILE IS SILENT
+//------------------------------------------------------------------------------
 procedure TSchemaV2MergeTests.MergeMissingFileIsSilent;
 var
   CodingBlocks: TArray<TOBDOEMCodingBlock>;

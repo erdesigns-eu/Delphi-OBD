@@ -13,47 +13,128 @@ type
   [TestFixture]
   TRequestBuilderTests = class
   public
+    /// <summary>
+    ///   Uint8 and uint16 b e encode big endian.
+    /// </summary>
     [Test] procedure Uint8AndUint16BEEncodeBigEndian;
+    /// <summary>
+    ///   Int32 b e encodes negative.
+    /// </summary>
     [Test] procedure Int32BEEncodesNegative;
+    /// <summary>
+    ///   Ascii pads and rejects too long.
+    /// </summary>
     [Test] procedure AsciiPadsAndRejectsTooLong;
+    /// <summary>
+    ///   Bcd date encodes year month day.
+    /// </summary>
     [Test] procedure BcdDateEncodesYearMonthDay;
+    /// <summary>
+    ///   Bcd year rejects out of range.
+    /// </summary>
     [Test] procedure BcdYearRejectsOutOfRange;
+    /// <summary>
+    ///   To frame wraps with sid and rid.
+    /// </summary>
     [Test] procedure ToFrameWrapsWithSidAndRid;
+    /// <summary>
+    ///   Clear resets builder.
+    /// </summary>
     [Test] procedure ClearResetsBuilder;
   end;
 
   [TestFixture]
   TResponseReaderTests = class
   public
+    /// <summary>
+    ///   Reads big endian multi byte.
+    /// </summary>
     [Test] procedure ReadsBigEndianMultiByte;
+    /// <summary>
+    ///   Reads ascii and strips zero pad.
+    /// </summary>
     [Test] procedure ReadsAsciiAndStripsZeroPad;
+    /// <summary>
+    ///   Reads bcd date.
+    /// </summary>
     [Test] procedure ReadsBcdDate;
+    /// <summary>
+    ///   Reads hex slice.
+    /// </summary>
     [Test] procedure ReadsHexSlice;
+    /// <summary>
+    ///   Under read raises.
+    /// </summary>
     [Test] procedure UnderReadRaises;
+    /// <summary>
+    ///   Has more reflects cursor.
+    /// </summary>
     [Test] procedure HasMoreReflectsCursor;
   end;
 
   [TestFixture]
   TWireFrameTests = class
   public
+    /// <summary>
+    ///   Build start routine without data.
+    /// </summary>
     [Test] procedure BuildStartRoutineWithoutData;
+    /// <summary>
+    ///   Build start routine appends data.
+    /// </summary>
     [Test] procedure BuildStartRoutineAppendsData;
+    /// <summary>
+    ///   Build stop and request results.
+    /// </summary>
     [Test] procedure BuildStopAndRequestResults;
+    /// <summary>
+    ///   Parse accepts positive response.
+    /// </summary>
     [Test] procedure ParseAcceptsPositiveResponse;
+    /// <summary>
+    ///   Parse rejects wrong s i d.
+    /// </summary>
     [Test] procedure ParseRejectsWrongSID;
+    /// <summary>
+    ///   Parse rejects wrong sub function.
+    /// </summary>
     [Test] procedure ParseRejectsWrongSubFunction;
+    /// <summary>
+    ///   Parse rejects wrong r i d.
+    /// </summary>
     [Test] procedure ParseRejectsWrongRID;
+    /// <summary>
+    ///   Parse raises on negative response.
+    /// </summary>
     [Test] procedure ParseRaisesOnNegativeResponse;
+    /// <summary>
+    ///   Parse handles empty status payload.
+    /// </summary>
     [Test] procedure ParseHandlesEmptyStatusPayload;
   end;
 
   [TestFixture]
   TSchemaDecodeTests = class
   public
+    /// <summary>
+    ///   Decodes u int8 with scale and offset.
+    /// </summary>
     [Test] procedure DecodesUInt8WithScaleAndOffset;
+    /// <summary>
+    ///   Decodes ascii and u int32.
+    /// </summary>
     [Test] procedure DecodesAsciiAndUInt32;
+    /// <summary>
+    ///   Decodes bitmask with named bits.
+    /// </summary>
     [Test] procedure DecodesBitmaskWithNamedBits;
+    /// <summary>
+    ///   Decodes enum with fallback.
+    /// </summary>
     [Test] procedure DecodesEnumWithFallback;
+    /// <summary>
+    ///   Stops on truncated response.
+    /// </summary>
     [Test] procedure StopsOnTruncatedResponse;
   end;
 
@@ -66,6 +147,10 @@ uses
 //==============================================================================
 // Builder
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// UINT8 AND UINT16 BEENCODE BIG ENDIAN
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.Uint8AndUint16BEEncodeBigEndian;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -80,6 +165,9 @@ begin
   Assert.AreEqual(Byte($34), Bytes[2]);
 end;
 
+//------------------------------------------------------------------------------
+// INT32 BEENCODES NEGATIVE
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.Int32BEEncodesNegative;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -92,6 +180,9 @@ begin
   Assert.AreEqual(Byte($FF), Bytes[3]);
 end;
 
+//------------------------------------------------------------------------------
+// ASCII PADS AND REJECTS TOO LONG
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.AsciiPadsAndRejectsTooLong;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -107,11 +198,15 @@ begin
 
   Assert.WillRaise(
     procedure
-    var B: TOBDRoutineRequestBuilder;
+    var
+      B: TOBDRoutineRequestBuilder;
     begin B.AddAscii('TOOLONG', 4); end,
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// BCD DATE ENCODES YEAR MONTH DAY
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.BcdDateEncodesYearMonthDay;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -124,15 +219,22 @@ begin
   Assert.AreEqual(Byte($07), Bytes[2]);
 end;
 
+//------------------------------------------------------------------------------
+// BCD YEAR REJECTS OUT OF RANGE
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.BcdYearRejectsOutOfRange;
 begin
   Assert.WillRaise(
     procedure
-    var B: TOBDRoutineRequestBuilder;
+    var
+      B: TOBDRoutineRequestBuilder;
     begin B.AddBcdYear(150); end,
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// TO FRAME WRAPS WITH SID AND RID
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.ToFrameWrapsWithSidAndRid;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -148,6 +250,9 @@ begin
   Assert.AreEqual(Byte($AA), Frame[4]);
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR RESETS BUILDER
+//------------------------------------------------------------------------------
 procedure TRequestBuilderTests.ClearResetsBuilder;
 var
   Builder: TOBDRoutineRequestBuilder;
@@ -160,6 +265,10 @@ end;
 //==============================================================================
 // Reader
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// READS BIG ENDIAN MULTI BYTE
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.ReadsBigEndianMultiByte;
 var
   R: TOBDRoutineResponseReader;
@@ -171,6 +280,9 @@ begin
   Assert.AreEqual(Word($5678), R.ReadUInt16BE);
 end;
 
+//------------------------------------------------------------------------------
+// READS ASCII AND STRIPS ZERO PAD
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.ReadsAsciiAndStripsZeroPad;
 var
   R: TOBDRoutineResponseReader;
@@ -180,6 +292,9 @@ begin
   Assert.AreEqual('VW', R.ReadAscii(4));
 end;
 
+//------------------------------------------------------------------------------
+// READS BCD DATE
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.ReadsBcdDate;
 var
   R: TOBDRoutineResponseReader;
@@ -188,6 +303,9 @@ begin
   Assert.AreEqual('2025-03-14', R.ReadBcdDate);
 end;
 
+//------------------------------------------------------------------------------
+// READS HEX SLICE
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.ReadsHexSlice;
 var
   R: TOBDRoutineResponseReader;
@@ -202,6 +320,9 @@ begin
   Assert.AreEqual(1, R.Remaining);
 end;
 
+//------------------------------------------------------------------------------
+// UNDER READ RAISES
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.UnderReadRaises;
 var
   R: TOBDRoutineResponseReader;
@@ -212,6 +333,9 @@ begin
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// HAS MORE REFLECTS CURSOR
+//------------------------------------------------------------------------------
 procedure TResponseReaderTests.HasMoreReflectsCursor;
 var
   R: TOBDRoutineResponseReader;
@@ -225,6 +349,10 @@ end;
 //==============================================================================
 // Wire frames
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD START ROUTINE WITHOUT DATA
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.BuildStartRoutineWithoutData;
 var
   F: TBytes;
@@ -237,6 +365,9 @@ begin
   Assert.AreEqual(Byte($03), F[3]);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD START ROUTINE APPENDS DATA
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.BuildStartRoutineAppendsData;
 var
   F: TBytes;
@@ -247,6 +378,9 @@ begin
   Assert.AreEqual(Byte($AD), F[5]);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD STOP AND REQUEST RESULTS
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.BuildStopAndRequestResults;
 var
   Stop, Req: TBytes;
@@ -257,6 +391,9 @@ begin
   Assert.AreEqual(Byte($03), Req[1]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACCEPTS POSITIVE RESPONSE
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseAcceptsPositiveResponse;
 var
   Status: TBytes;
@@ -269,6 +406,9 @@ begin
   Assert.AreEqual(Byte($22), Status[2]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG SID
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseRejectsWrongSID;
 begin
   Assert.WillRaise(
@@ -279,6 +419,9 @@ begin
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG SUB FUNCTION
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseRejectsWrongSubFunction;
 begin
   Assert.WillRaise(
@@ -289,6 +432,9 @@ begin
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG RID
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseRejectsWrongRID;
 begin
   Assert.WillRaise(
@@ -299,6 +445,9 @@ begin
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE RAISES ON NEGATIVE RESPONSE
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseRaisesOnNegativeResponse;
 begin
   Assert.WillRaise(
@@ -310,6 +459,9 @@ begin
     EOBDRoutineError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HANDLES EMPTY STATUS PAYLOAD
+//------------------------------------------------------------------------------
 procedure TWireFrameTests.ParseHandlesEmptyStatusPayload;
 var
   Status: TBytes;
@@ -322,6 +474,10 @@ end;
 //==============================================================================
 // Schema decode
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// MAKE FIELD
+//------------------------------------------------------------------------------
 function MakeField(const Name: string; const Kind: TOBDRoutineFieldKind;
   const Size: Integer = 0; const Scale: Double = 1.0;
   const Offset: Double = 0.0; const Unit_: string = ''): TOBDRoutineField;
@@ -335,6 +491,9 @@ begin
   Result.Unit_ := Unit_;
 end;
 
+//------------------------------------------------------------------------------
+// DECODES UINT8 WITH SCALE AND OFFSET
+//------------------------------------------------------------------------------
 procedure TSchemaDecodeTests.DecodesUInt8WithScaleAndOffset;
 var
   Schema: TOBDRoutineSchema;
@@ -347,6 +506,9 @@ begin
   Assert.AreEqual('temp = 10 C', Decoded[0].Display);
 end;
 
+//------------------------------------------------------------------------------
+// DECODES ASCII AND UINT32
+//------------------------------------------------------------------------------
 procedure TSchemaDecodeTests.DecodesAsciiAndUInt32;
 var
   Schema: TOBDRoutineSchema;
@@ -365,6 +527,9 @@ begin
   Assert.AreEqual('mileage = 100000 km', Decoded[1].Display);
 end;
 
+//------------------------------------------------------------------------------
+// DECODES BITMASK WITH NAMED BITS
+//------------------------------------------------------------------------------
 procedure TSchemaDecodeTests.DecodesBitmaskWithNamedBits;
 var
   Field: TOBDRoutineField;
@@ -386,6 +551,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODES ENUM WITH FALLBACK
+//------------------------------------------------------------------------------
 procedure TSchemaDecodeTests.DecodesEnumWithFallback;
 var
   Field: TOBDRoutineField;
@@ -408,6 +576,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STOPS ON TRUNCATED RESPONSE
+//------------------------------------------------------------------------------
 procedure TSchemaDecodeTests.StopsOnTruncatedResponse;
 var
   Schema: TOBDRoutineSchema;

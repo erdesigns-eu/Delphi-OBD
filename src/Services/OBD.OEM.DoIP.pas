@@ -29,14 +29,18 @@ uses
 type
   EOBDDoIPError = class(Exception);
 
-  /// <summary>ISO 13400-2 protocol versions used in the wild.</summary>
+  /// <summary>
+  ///   ISO 13400-2 protocol versions used in the wild.
+  /// </summary>
   TOBDDoIPVersion = (
     dpv2010 = $01,    // 2010 edition
     dpv2012 = $02,    // 2012 edition (most current vehicles)
     dpvDefault = $02
   );
 
-  /// <summary>Common DoIP payload type codes (ISO 13400-2 §5.4).</summary>
+  /// <summary>
+  ///   Common DoIP payload type codes (ISO 13400-2 §5.4).
+  /// </summary>
   TOBDDoIPPayloadType = (
     dptGenericNack          = $0000,
     dptVehicleIdentRequest  = $0001,
@@ -56,7 +60,9 @@ type
     dptDiagnosticMessageNack = $8003
   );
 
-  /// <summary>RoutingActivation request types (ISO 13400-2 §7.4.4.2).</summary>
+  /// <summary>
+  ///   RoutingActivation request types (ISO 13400-2 §7.4.4.2).
+  /// </summary>
   TOBDDoIPActivationType = (
     datDefault           = $00,
     datWWHOBD            = $01,
@@ -64,7 +70,9 @@ type
     datOEMSpecific       = $E0
   );
 
-  /// <summary>RoutingActivation response codes (ISO 13400-2 §7.4.5.4).</summary>
+  /// <summary>
+  ///   RoutingActivation response codes (ISO 13400-2 §7.4.5.4).
+  /// </summary>
   TOBDDoIPRoutingResponse = (
     drrUnknownSourceAddress  = $00,
     drrAllSocketsRegistered  = $01,
@@ -84,7 +92,9 @@ type
     PayloadLength: Cardinal;
   end;
 
-  /// <summary>Decoded RoutingActivationResponse.</summary>
+  /// <summary>
+  ///   Decoded RoutingActivationResponse.
+  /// </summary>
   TOBDDoIPRoutingActivation = record
     TesterLogicalAddress: Word;
     EntityLogicalAddress: Word;
@@ -93,7 +103,9 @@ type
     OEMSpecific: Cardinal;
   end;
 
-  /// <summary>Decoded VehicleAnnouncement / VehicleIdentResponse.</summary>
+  /// <summary>
+  ///   Decoded VehicleAnnouncement / VehicleIdentResponse.
+  /// </summary>
   TOBDDoIPVehicleAnnouncement = record
     VIN: string;                  // 17 ASCII
     LogicalAddress: Word;
@@ -103,8 +115,10 @@ type
     SyncStatus: Byte;             // optional in v2012
   end;
 
-  /// <summary>Decoded DiagnosticMessage payload (just the wrapper —
-  /// the inner UDS bytes go to the runner / DiagSession).</summary>
+  /// <summary>
+  ///   Decoded DiagnosticMessage payload (just the wrapper —
+  ///   the inner UDS bytes go to the runner / DiagSession).
+  /// </summary>
   TOBDDoIPDiagnosticMessage = record
     SourceAddress: Word;
     TargetAddress: Word;
@@ -118,8 +132,10 @@ function BuildDoIPHeader(const Version: TOBDDoIPVersion;
   const PayloadType: TOBDDoIPPayloadType;
   const PayloadLength: Cardinal): TBytes;
 
-/// <summary>Parse the 8-byte header. Throws on the protocol-version
-/// inversion check (Version XOR InvVersion must equal 0xFF).</summary>
+/// <summary>
+///   Parse the 8-byte header. Throws on the protocol-version
+///   inversion check (Version XOR InvVersion must equal 0xFF).
+/// </summary>
 function ParseDoIPHeader(const Bytes: TBytes; out Header: TOBDDoIPHeader): Integer;
 
 //==============================================================================
@@ -175,12 +191,19 @@ const
 //==============================================================================
 //  Endianness + header helpers (ISO 13400 is big-endian)
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// WRITE UINT16 BE
+//------------------------------------------------------------------------------
 procedure WriteUInt16BE(var Buf: TBytes; const Offset: Integer; const Value: Word);
 begin
   Buf[Offset]     := Byte(Value shr 8);
   Buf[Offset + 1] := Byte(Value and $FF);
 end;
 
+//------------------------------------------------------------------------------
+// WRITE UINT32 BE
+//------------------------------------------------------------------------------
 procedure WriteUInt32BE(var Buf: TBytes; const Offset: Integer; const Value: Cardinal);
 begin
   Buf[Offset]     := Byte(Value shr 24);
@@ -189,11 +212,17 @@ begin
   Buf[Offset + 3] := Byte(Value and $FF);
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT16 BE
+//------------------------------------------------------------------------------
 function ReadUInt16BE(const Buf: TBytes; const Offset: Integer): Word;
 begin
   Result := (Word(Buf[Offset]) shl 8) or Buf[Offset + 1];
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT32 BE
+//------------------------------------------------------------------------------
 function ReadUInt32BE(const Buf: TBytes; const Offset: Integer): Cardinal;
 begin
   Result := (Cardinal(Buf[Offset]) shl 24) or
@@ -202,6 +231,9 @@ begin
              Cardinal(Buf[Offset + 3]);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD DO IPHEADER
+//------------------------------------------------------------------------------
 function BuildDoIPHeader(const Version: TOBDDoIPVersion;
   const PayloadType: TOBDDoIPPayloadType;
   const PayloadLength: Cardinal): TBytes;
@@ -213,6 +245,9 @@ begin
   WriteUInt32BE(Result, 4, PayloadLength);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DO IPHEADER
+//------------------------------------------------------------------------------
 function ParseDoIPHeader(const Bytes: TBytes;
   out Header: TOBDDoIPHeader): Integer;
 begin
@@ -231,6 +266,9 @@ begin
   Result := DOIP_HEADER_SIZE;
 end;
 
+//------------------------------------------------------------------------------
+// BYTES APPEND
+//------------------------------------------------------------------------------
 function BytesAppend(const A, B: TBytes): TBytes;
 begin
   SetLength(Result, Length(A) + Length(B));
@@ -241,6 +279,10 @@ end;
 //==============================================================================
 //  Routing activation
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD ROUTING ACTIVATION REQUEST
+//------------------------------------------------------------------------------
 function BuildRoutingActivationRequest(
   const TesterAddress: Word;
   const ActivationType: TOBDDoIPActivationType;
@@ -260,6 +302,9 @@ begin
   Result := BytesAppend(Header, Payload);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ROUTING ACTIVATION RESPONSE
+//------------------------------------------------------------------------------
 function ParseRoutingActivationResponse(const Bytes: TBytes;
   out Activation: TOBDDoIPRoutingActivation): Boolean;
 var
@@ -289,12 +334,19 @@ end;
 //==============================================================================
 //  Vehicle announcement / ident
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT REQUEST
+//------------------------------------------------------------------------------
 function BuildVehicleIdentRequest(const Version: TOBDDoIPVersion): TBytes;
 begin
   // No payload — broadcast on UDP/13400.
   Result := BuildDoIPHeader(Version, dptVehicleIdentRequest, 0);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT REQUEST BY VIN
+//------------------------------------------------------------------------------
 function BuildVehicleIdentRequestByVIN(const VIN: string;
   const Version: TOBDDoIPVersion): TBytes;
 var
@@ -313,6 +365,9 @@ begin
   Result := BytesAppend(Header, Payload);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE VEHICLE ANNOUNCEMENT
+//------------------------------------------------------------------------------
 function ParseVehicleAnnouncement(const Bytes: TBytes;
   out Announcement: TOBDDoIPVehicleAnnouncement): Boolean;
 var
@@ -348,11 +403,18 @@ end;
 //==============================================================================
 //  Alive check
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD ALIVE CHECK REQUEST
+//------------------------------------------------------------------------------
 function BuildAliveCheckRequest(const Version: TOBDDoIPVersion): TBytes;
 begin
   Result := BuildDoIPHeader(Version, dptAliveCheckRequest, 0);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD ALIVE CHECK RESPONSE
+//------------------------------------------------------------------------------
 function BuildAliveCheckResponse(const TesterAddress: Word;
   const Version: TOBDDoIPVersion): TBytes;
 var
@@ -367,6 +429,10 @@ end;
 //==============================================================================
 //  Diagnostic message
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD DIAGNOSTIC MESSAGE
+//------------------------------------------------------------------------------
 function BuildDiagnosticMessage(const SourceAddress, TargetAddress: Word;
   const UserData: TBytes; const Version: TOBDDoIPVersion): TBytes;
 var
@@ -383,6 +449,9 @@ begin
   Result := BytesAppend(Header, Payload);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DIAGNOSTIC MESSAGE
+//------------------------------------------------------------------------------
 function ParseDiagnosticMessage(const Bytes: TBytes;
   out Msg: TOBDDoIPDiagnosticMessage): Boolean;
 var

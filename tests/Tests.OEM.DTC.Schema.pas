@@ -24,14 +24,41 @@ type
   [TestFixture]
   TDtcSchemaExtensionTests = class
   public
+    /// <summary>
+    ///   Loads new fields from inline j s o n.
+    /// </summary>
     [Test] procedure LoadsNewFieldsFromInlineJSON;
+    /// <summary>
+    ///   Backward compatible with old format.
+    /// </summary>
     [Test] procedure BackwardCompatibleWithOldFormat;
+    /// <summary>
+    ///   Parses monitor type strings.
+    /// </summary>
     [Test] procedure ParsesMonitorTypeStrings;
+    /// <summary>
+    ///   Shipped i s o15031 has monitor type.
+    /// </summary>
     [Test] procedure ShippedISO15031HasMonitorType;
+    /// <summary>
+    ///   Shipped i s o15031 has related d i ds.
+    /// </summary>
     [Test] procedure ShippedISO15031HasRelatedDIDs;
+    /// <summary>
+    ///   Shipped i s o15031 freeze frame on misfires.
+    /// </summary>
     [Test] procedure ShippedISO15031FreezeFrameOnMisfires;
+    /// <summary>
+    ///   Sample p codes found by lookup.
+    /// </summary>
     [Test] procedure SamplePCodesFoundByLookup;
+    /// <summary>
+    ///   Sample u codes found by lookup.
+    /// </summary>
     [Test] procedure SampleUCodesFoundByLookup;
+    /// <summary>
+    ///   Related routines point at catalog routines.
+    /// </summary>
     [Test] procedure RelatedRoutinesPointAtCatalogRoutines;
   end;
 
@@ -66,6 +93,9 @@ const
   DTC_OLD_FORMAT =
     '{"dtcs": [{"code": "P0420", "description": "Cat efficiency"}]}';
 
+//------------------------------------------------------------------------------
+// LOADS NEW FIELDS FROM INLINE JSON
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.LoadsNewFieldsFromInlineJSON;
 var
   Cat: TOBDDtcCatalog;
@@ -91,6 +121,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BACKWARD COMPATIBLE WITH OLD FORMAT
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.BackwardCompatibleWithOldFormat;
 var
   Cat: TOBDDtcCatalog;
@@ -114,6 +147,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES MONITOR TYPE STRINGS
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.ParsesMonitorTypeStrings;
 begin
   Assert.AreEqual<TOBDDtcMonitorType>(dmtContinuous,
@@ -137,6 +173,10 @@ end;
 // G9 (closed): use the loader's exported ResolveCatalogPath
 // rather than re-implementing the search-path logic here. Keeps
 // tests in lock-step with production.
+
+//------------------------------------------------------------------------------
+// LOAD SHIPPED DTC CATALOG
+//------------------------------------------------------------------------------
 procedure LoadShippedDtcCatalog(const FileName: string;
                                  Cat: TOBDDtcCatalog);
 var
@@ -148,6 +188,9 @@ begin
   Cat.LoadFromFile(Path);
 end;
 
+//------------------------------------------------------------------------------
+// SHIPPED ISO15031 HAS MONITOR TYPE
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.ShippedISO15031HasMonitorType;
 var
   Cat: TOBDDtcCatalog;
@@ -167,6 +210,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SHIPPED ISO15031 HAS RELATED DIDS
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.ShippedISO15031HasRelatedDIDs;
 var
   Cat: TOBDDtcCatalog;
@@ -188,6 +234,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SHIPPED ISO15031 FREEZE FRAME ON MISFIRES
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.ShippedISO15031FreezeFrameOnMisfires;
 var
   Cat: TOBDDtcCatalog;
@@ -205,6 +254,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SAMPLE PCODES FOUND BY LOOKUP
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.SamplePCodesFoundByLookup;
 var
   Cat: TOBDDtcCatalog;
@@ -224,6 +276,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SAMPLE UCODES FOUND BY LOOKUP
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.SampleUCodesFoundByLookup;
 var
   Cat: TOBDDtcCatalog;
@@ -240,6 +295,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RELATED ROUTINES POINT AT CATALOG ROUTINES
+//------------------------------------------------------------------------------
 procedure TDtcSchemaExtensionTests.RelatedRoutinesPointAtCatalogRoutines;
 var
   Cat: TOBDDtcCatalog;

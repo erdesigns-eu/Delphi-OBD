@@ -39,13 +39,18 @@ type
   TOBDOEMExtensionBMW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -63,6 +68,9 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 function TOBDBMWSessionNegotiator.RequiresSecurityAccess(
   SessionType: TOBDSessionType): Boolean;
 begin
@@ -72,21 +80,33 @@ begin
                             sstOEMSpecific1, sstOEMSpecific2];
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDBMWSessionNegotiator.DefaultTesterPresentMs: Cardinal;
 begin
   Result := 1500;  // E-series DMEs occasionally drop sessions at 2000 ms.
 end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDBMWSessionNegotiator.DisplayName: string;
 begin
   Result := 'BMW E-Sys / ISTA';
 end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDBMWSessionNegotiator.Create;
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionBMW.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 const
@@ -104,6 +124,9 @@ begin
     'BMW community XOR-mask placeholder', 'community-pr', False));
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionBMW.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -111,33 +134,61 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.DtcCatalogFileName: string;
-begin Result := 'dtc-bmw.json'; end;
+begin
+  Result := 'dtc-bmw.json';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.ManufacturerKey: string; begin Result := 'BMW'; end;
+
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.DisplayName: string; begin Result := 'Bayerische Motoren Werke'; end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in bmw.json.
   Result := VINMatchesCatalog('bmw.json', VIN);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionBMW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are bmw.json + uds-standard.json.
   MergeCatalogJSON('bmw.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionBMW.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   // Coding blocks, adaptations, actuator tests, live PIDs and DTC
   // extended-data records all live in bmw.json.
@@ -145,6 +196,9 @@ begin
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionBMW.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 var

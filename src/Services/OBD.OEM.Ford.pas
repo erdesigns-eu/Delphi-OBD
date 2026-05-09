@@ -32,13 +32,18 @@ type
   TOBDOEMExtensionFord = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -56,6 +61,9 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// BEGIN SESSION PLAN
+//------------------------------------------------------------------------------
 function TOBDFordSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
   const ECUAddress: Word): TOBDSessionPlan;
@@ -72,16 +80,25 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDFordSessionNegotiator.DisplayName: string;
 begin
   Result := 'Ford IDS / FDRS';
 end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionFord.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDFordSessionNegotiator.Create;
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionFord.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 const
@@ -99,6 +116,9 @@ begin
     'forscan-community', False));
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionFord.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -106,23 +126,49 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionFord.DtcCatalogFileName: string;
-begin Result := 'dtc-ford.json'; end;
+begin
+  Result := 'dtc-ford.json';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionFord.ManufacturerKey: string;
-begin Result := 'FORD'; end;
-function TOBDOEMExtensionFord.DisplayName: string;
-begin Result := 'Ford Motor Company'; end;
+begin
+  Result := 'FORD';
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
+function TOBDOEMExtensionFord.DisplayName: string;
+begin
+  Result := 'Ford Motor Company';
+end;
+
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionFord.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in ford.json.
   Result := VINMatchesCatalog('ford.json', VIN);
 end;
+
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionFord.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are ford.json
   // + uds-standard.json. Hardcoded entries removed.
@@ -133,16 +179,28 @@ begin
 end;
 
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionFord.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   MergeExtendedCatalogJSON('ford.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
+
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionFord.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 var

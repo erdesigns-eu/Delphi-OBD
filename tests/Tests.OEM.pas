@@ -13,19 +13,55 @@ type
   [TestFixture]
   TOEMRegistryTests = class
   public
+    /// <summary>
+    ///   Register and find by key.
+    /// </summary>
     [Test] procedure RegisterAndFindByKey;
+    /// <summary>
+    ///   Find by v i n  v w  matches w v w.
+    /// </summary>
     [Test] procedure FindByVIN_VW_MatchesWVW;
+    /// <summary>
+    ///   Find by v i n  b m w  matches w b a.
+    /// </summary>
     [Test] procedure FindByVIN_BMW_MatchesWBA;
+    /// <summary>
+    ///   Find by v i n  non o e m returns nil.
+    /// </summary>
     [Test] procedure FindByVIN_NonOEMReturnsNil;
+    /// <summary>
+    ///   Register is idempotent.
+    /// </summary>
     [Test] procedure RegisterIsIdempotent;
+    /// <summary>
+    ///   Unregister removes extension.
+    /// </summary>
     [Test] procedure UnregisterRemovesExtension;
 
+    /// <summary>
+    ///   V w  decode battery voltage.
+    /// </summary>
     [Test] procedure VW_DecodeBatteryVoltage;
+    /// <summary>
+    ///   V w  decode vehicle speed.
+    /// </summary>
     [Test] procedure VW_DecodeVehicleSpeed;
+    /// <summary>
+    ///   V w  decode unknown d i d falls back to hex.
+    /// </summary>
     [Test] procedure VW_DecodeUnknownDIDFallsBackToHex;
+    /// <summary>
+    ///   B m w  decode mileage.
+    /// </summary>
     [Test] procedure BMW_DecodeMileage;
 
+    /// <summary>
+    ///   Find d i d  looks up catalog entry.
+    /// </summary>
     [Test] procedure FindDID_LooksUpCatalogEntry;
+    /// <summary>
+    ///   Find routine  looks up catalog entry.
+    /// </summary>
     [Test] procedure FindRoutine_LooksUpCatalogEntry;
   end;
 
@@ -34,6 +70,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM, OBD.OEM.VW, OBD.OEM.BMW;
 
+//------------------------------------------------------------------------------
+// REGISTER AND FIND BY KEY
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.RegisterAndFindByKey;
 var
   Ext: IOBDOEMExtension;
@@ -44,6 +83,9 @@ begin
   Assert.AreEqual('VAG', Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// FIND BY VIN_VW_MATCHES WVW
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.FindByVIN_VW_MatchesWVW;
 var
   Ext: IOBDOEMExtension;
@@ -53,6 +95,9 @@ begin
   Assert.AreEqual('VAG', Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// FIND BY VIN_BMW_MATCHES WBA
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.FindByVIN_BMW_MatchesWBA;
 var
   Ext: IOBDOEMExtension;
@@ -62,6 +107,9 @@ begin
   Assert.AreEqual('BMW', Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// FIND BY VIN_NON OEMRETURNS NIL
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.FindByVIN_NonOEMReturnsNil;
 var
   Ext: IOBDOEMExtension;
@@ -71,6 +119,9 @@ begin
   Assert.IsNull(Pointer(Ext));
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER IS IDEMPOTENT
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.RegisterIsIdempotent;
 var
   Same: IOBDOEMExtension;
@@ -84,6 +135,9 @@ begin
     'Registering an already-registered extension must not duplicate it');
 end;
 
+//------------------------------------------------------------------------------
+// UNREGISTER REMOVES EXTENSION
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.UnregisterRemovesExtension;
 var
   Ext: IOBDOEMExtension;
@@ -96,6 +150,9 @@ begin
   Assert.AreEqual(Before - 1, TOBDOEMRegistry.Count);
 end;
 
+//------------------------------------------------------------------------------
+// VW_DECODE BATTERY VOLTAGE
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.VW_DecodeBatteryVoltage;
 var
   Ext: IOBDOEMExtension;
@@ -107,6 +164,9 @@ begin
   Assert.AreEqual('battery_voltage = 12.345 V', Ext.DecodeDID($F405, Payload));
 end;
 
+//------------------------------------------------------------------------------
+// VW_DECODE VEHICLE SPEED
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.VW_DecodeVehicleSpeed;
 var
   Ext: IOBDOEMExtension;
@@ -117,6 +177,9 @@ begin
   Assert.AreEqual('vehicle_speed = 123 km/h', Ext.DecodeDID($F40D, Payload));
 end;
 
+//------------------------------------------------------------------------------
+// VW_DECODE UNKNOWN DIDFALLS BACK TO HEX
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.VW_DecodeUnknownDIDFallsBackToHex;
 var
   Ext: IOBDOEMExtension;
@@ -127,6 +190,9 @@ begin
   Assert.AreEqual('DID 0x9999 = DE AD BE EF', Ext.DecodeDID($9999, Payload));
 end;
 
+//------------------------------------------------------------------------------
+// BMW_DECODE MILEAGE
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.BMW_DecodeMileage;
 var
   Ext: IOBDOEMExtension;
@@ -138,6 +204,9 @@ begin
   Assert.AreEqual('mileage = 123456 km', Ext.DecodeDID($D050, Payload));
 end;
 
+//------------------------------------------------------------------------------
+// FIND DID_LOOKS UP CATALOG ENTRY
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.FindDID_LooksUpCatalogEntry;
 var
   Ext: IOBDOEMExtension;
@@ -150,6 +219,9 @@ begin
     'unknown DID must return False');
 end;
 
+//------------------------------------------------------------------------------
+// FIND ROUTINE_LOOKS UP CATALOG ENTRY
+//------------------------------------------------------------------------------
 procedure TOEMRegistryTests.FindRoutine_LooksUpCatalogEntry;
 var
   Ext: IOBDOEMExtension;

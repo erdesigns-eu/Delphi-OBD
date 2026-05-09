@@ -13,10 +13,25 @@ type
   [TestFixture]
   TSignatureTests = class
   public
+    /// <summary>
+    ///   Sha256  accepts known gold hash.
+    /// </summary>
     [Test] procedure Sha256_AcceptsKnownGoldHash;
+    /// <summary>
+    ///   Sha256  rejects tampered firmware.
+    /// </summary>
     [Test] procedure Sha256_RejectsTamperedFirmware;
+    /// <summary>
+    ///   Sha256  length mismatch rejected.
+    /// </summary>
     [Test] procedure Sha256_LengthMismatchRejected;
+    /// <summary>
+    ///   Permissive  accepts anything.
+    /// </summary>
     [Test] procedure Permissive_AcceptsAnything;
+    /// <summary>
+    ///   Compute sha256  empty has known value.
+    /// </summary>
     [Test] procedure ComputeSha256_EmptyHasKnownValue;
   end;
 
@@ -25,14 +40,21 @@ implementation
 uses
   System.SysUtils, OBD.ECU.Signature;
 
+//------------------------------------------------------------------------------
+// HEX TO BYTES
+//------------------------------------------------------------------------------
 function HexToBytes(const Hex: string): TBytes;
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(Result, Length(Hex) div 2);
   for I := 0 to High(Result) do
     Result[I] := StrToInt('$' + Copy(Hex, I * 2 + 1, 2));
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE SHA256_EMPTY HAS KNOWN VALUE
+//------------------------------------------------------------------------------
 procedure TSignatureTests.ComputeSha256_EmptyHasKnownValue;
 var
   Empty: TBytes;
@@ -52,6 +74,9 @@ begin
     Hex);
 end;
 
+//------------------------------------------------------------------------------
+// SHA256_ACCEPTS KNOWN GOLD HASH
+//------------------------------------------------------------------------------
 procedure TSignatureTests.Sha256_AcceptsKnownGoldHash;
 var
   Verifier: IFirmwareSignatureVerifier;
@@ -66,6 +91,9 @@ begin
   Assert.IsTrue(Verifier.Verify(Firmware, Signature));
 end;
 
+//------------------------------------------------------------------------------
+// SHA256_REJECTS TAMPERED FIRMWARE
+//------------------------------------------------------------------------------
 procedure TSignatureTests.Sha256_RejectsTamperedFirmware;
 var
   Verifier: IFirmwareSignatureVerifier;
@@ -78,6 +106,9 @@ begin
   Assert.IsFalse(Verifier.Verify(Firmware, Signature));
 end;
 
+//------------------------------------------------------------------------------
+// SHA256_LENGTH MISMATCH REJECTED
+//------------------------------------------------------------------------------
 procedure TSignatureTests.Sha256_LengthMismatchRejected;
 var
   Verifier: IFirmwareSignatureVerifier;
@@ -89,6 +120,9 @@ begin
   Assert.IsFalse(Verifier.Verify(Firmware, Short));
 end;
 
+//------------------------------------------------------------------------------
+// PERMISSIVE_ACCEPTS ANYTHING
+//------------------------------------------------------------------------------
 procedure TSignatureTests.Permissive_AcceptsAnything;
 var
   Verifier: IFirmwareSignatureVerifier;

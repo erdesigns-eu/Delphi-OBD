@@ -48,6 +48,9 @@ procedure RenderTerminal(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// COLOR FOR DIRECTION
+//------------------------------------------------------------------------------
 function ColorForDirection(const State: TOBDTerminalRenderState;
   D: TOBDTerminalDirection): TAlphaColor;
 begin
@@ -60,6 +63,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PREFIX FOR DIRECTION
+//------------------------------------------------------------------------------
 function PrefixForDirection(D: TOBDTerminalDirection): string;
 begin
   case D of
@@ -71,6 +77,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RENDER TERMINAL
+//------------------------------------------------------------------------------
 procedure RenderTerminal(const Canvas: ISkCanvas;
   const State: TOBDTerminalRenderState);
 var

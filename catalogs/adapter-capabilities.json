@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "description": "Adapter capability registry. Add a new adapter row without recompiling.",
+  "capability_keys": [
+    "CAN",
+    "CANFD",
+    "ISO-TP",
+    "ISO-TP-LF",
+    "DoIP",
+    "J1939",
+    "K-Line",
+    "VoltageMonitor",
+    "SecureOnboard",
+    "J2534",
+    "J2534v2",
+    "BluetoothLE",
+    "WiFi",
+    "FTDI"
+  ],
+  "fields": {
+    "adapter_key": "stable lower-case identifier",
+    "display_name": "shown in UIs",
+    "capabilities": "list of capability_keys",
+    "max_iso_tp_frame_bytes": "0/7 = CAN-classic, 62 = CAN-FD, larger for DoIP"
+  },
+  "entries": [
+    {
+      "adapter_key": "elm327",
+      "display_name": "ELM327",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor"
+      ],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_mx",
+      "display_name": "OBDLink MX",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor",
+        "BluetoothLE"
+      ],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_ex",
+      "display_name": "OBDLink EX",
+      "capabilities": [
+        "CAN",
+        "CANFD",
+        "ISO-TP",
+        "ISO-TP-LF",
+        "K-Line",
+        "VoltageMonitor",
+        "FTDI"
+      ],
+      "max_iso_tp_frame_bytes": 62
+    },
+    {
+      "adapter_key": "doip_gateway",
+      "display_name": "DoIP Gateway",
+      "capabilities": [
+        "DoIP",
+        "ISO-TP",
+        "ISO-TP-LF",
+        "VoltageMonitor"
+      ],
+      "max_iso_tp_frame_bytes": 4095
+    },
+    {
+      "adapter_key": "j2534",
+      "display_name": "J2534 Pass-Through",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "J1939",
+        "J2534",
+        "VoltageMonitor"
+      ],
+      "max_iso_tp_frame_bytes": 7
+    }
+  ]
+}

@@ -13,40 +13,100 @@ type
   [TestFixture]
   TDoIPHeaderTests = class
   public
+    /// <summary>
+    ///   Build header emits version inversion.
+    /// </summary>
     [Test] procedure BuildHeaderEmitsVersionInversion;
+    /// <summary>
+    ///   Build header encodes payload type and length big endian.
+    /// </summary>
     [Test] procedure BuildHeaderEncodesPayloadTypeAndLengthBigEndian;
+    /// <summary>
+    ///   Parse header rejects bad inversion.
+    /// </summary>
     [Test] procedure ParseHeaderRejectsBadInversion;
+    /// <summary>
+    ///   Parse header rejects short buffer.
+    /// </summary>
     [Test] procedure ParseHeaderRejectsShortBuffer;
+    /// <summary>
+    ///   Parse header round trips all fields.
+    /// </summary>
     [Test] procedure ParseHeaderRoundTripsAllFields;
   end;
 
   [TestFixture]
   TDoIPRoutingTests = class
   public
+    /// <summary>
+    ///   Build activation request emits19 bytes with default activation.
+    /// </summary>
     [Test] procedure BuildActivationRequestEmits19BytesWithDefaultActivation;
+    /// <summary>
+    ///   Build activation request carries o e m specific.
+    /// </summary>
     [Test] procedure BuildActivationRequestCarriesOEMSpecific;
+    /// <summary>
+    ///   Parse activation response v2010.
+    /// </summary>
     [Test] procedure ParseActivationResponseV2010;
+    /// <summary>
+    ///   Parse activation response v2012 with o e m tail.
+    /// </summary>
     [Test] procedure ParseActivationResponseV2012WithOEMTail;
+    /// <summary>
+    ///   Parse activation rejects truncated.
+    /// </summary>
     [Test] procedure ParseActivationRejectsTruncated;
+    /// <summary>
+    ///   Parse activation returns false on wrong type.
+    /// </summary>
     [Test] procedure ParseActivationReturnsFalseOnWrongType;
   end;
 
   [TestFixture]
   TDoIPVehicleTests = class
   public
+    /// <summary>
+    ///   Build vehicle ident empty payload.
+    /// </summary>
     [Test] procedure BuildVehicleIdentEmptyPayload;
+    /// <summary>
+    ///   Build vehicle ident by v i n rejects bad length.
+    /// </summary>
     [Test] procedure BuildVehicleIdentByVINRejectsBadLength;
+    /// <summary>
+    ///   Build vehicle ident by v i n round trips.
+    /// </summary>
     [Test] procedure BuildVehicleIdentByVINRoundTrips;
+    /// <summary>
+    ///   Parse vehicle announcement extracts fields.
+    /// </summary>
     [Test] procedure ParseVehicleAnnouncementExtractsFields;
   end;
 
   [TestFixture]
   TDoIPDiagMessageTests = class
   public
+    /// <summary>
+    ///   Build diag wraps u d s.
+    /// </summary>
     [Test] procedure BuildDiagWrapsUDS;
+    /// <summary>
+    ///   Build diag rejects empty user data.
+    /// </summary>
     [Test] procedure BuildDiagRejectsEmptyUserData;
+    /// <summary>
+    ///   Parse diag extracts addresses and user data.
+    /// </summary>
     [Test] procedure ParseDiagExtractsAddressesAndUserData;
+    /// <summary>
+    ///   Round trips via build and parse.
+    /// </summary>
     [Test] procedure RoundTripsViaBuildAndParse;
+    /// <summary>
+    ///   Alive check pair.
+    /// </summary>
     [Test] procedure AliveCheckPair;
   end;
 
@@ -59,6 +119,10 @@ uses
 //==============================================================================
 // Header
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD HEADER EMITS VERSION INVERSION
+//------------------------------------------------------------------------------
 procedure TDoIPHeaderTests.BuildHeaderEmitsVersionInversion;
 var
   H: TBytes;
@@ -69,6 +133,9 @@ begin
   Assert.AreEqual(Byte($FD), H[1]);  // not $02 = $FD
 end;
 
+//------------------------------------------------------------------------------
+// BUILD HEADER ENCODES PAYLOAD TYPE AND LENGTH BIG ENDIAN
+//------------------------------------------------------------------------------
 procedure TDoIPHeaderTests.BuildHeaderEncodesPayloadTypeAndLengthBigEndian;
 var
   H: TBytes;
@@ -83,6 +150,9 @@ begin
   Assert.AreEqual(Byte($04), H[7]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEADER REJECTS BAD INVERSION
+//------------------------------------------------------------------------------
 procedure TDoIPHeaderTests.ParseHeaderRejectsBadInversion;
 var
   Header: TOBDDoIPHeader;
@@ -94,6 +164,9 @@ begin
     EOBDDoIPError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEADER REJECTS SHORT BUFFER
+//------------------------------------------------------------------------------
 procedure TDoIPHeaderTests.ParseHeaderRejectsShortBuffer;
 var
   Header: TOBDDoIPHeader;
@@ -103,6 +176,9 @@ begin
     EOBDDoIPError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEADER ROUND TRIPS ALL FIELDS
+//------------------------------------------------------------------------------
 procedure TDoIPHeaderTests.ParseHeaderRoundTripsAllFields;
 var
   Built: TBytes;
@@ -118,6 +194,10 @@ end;
 //==============================================================================
 // Routing activation
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD ACTIVATION REQUEST EMITS19 BYTES WITH DEFAULT ACTIVATION
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.BuildActivationRequestEmits19BytesWithDefaultActivation;
 var
   Bytes: TBytes;
@@ -132,6 +212,9 @@ begin
   Assert.AreEqual(Byte($00), Bytes[10]); // activation type = default
 end;
 
+//------------------------------------------------------------------------------
+// BUILD ACTIVATION REQUEST CARRIES OEMSPECIFIC
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.BuildActivationRequestCarriesOEMSpecific;
 var
   Bytes: TBytes;
@@ -143,6 +226,9 @@ begin
   Assert.AreEqual(Byte($EF), Bytes[18]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACTIVATION RESPONSE V2010
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.ParseActivationResponseV2010;
 var
   Activation: TOBDDoIPRoutingActivation;
@@ -160,6 +246,9 @@ begin
   Assert.AreEqual(Cardinal(0), Activation.OEMSpecific);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACTIVATION RESPONSE V2012 WITH OEMTAIL
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.ParseActivationResponseV2012WithOEMTail;
 var
   Activation: TOBDDoIPRoutingActivation;
@@ -173,6 +262,9 @@ begin
   Assert.AreEqual(Cardinal($CAFEBABE), Activation.OEMSpecific);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACTIVATION REJECTS TRUNCATED
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.ParseActivationRejectsTruncated;
 var
   Activation: TOBDDoIPRoutingActivation;
@@ -186,6 +278,9 @@ begin
     EOBDDoIPError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACTIVATION RETURNS FALSE ON WRONG TYPE
+//------------------------------------------------------------------------------
 procedure TDoIPRoutingTests.ParseActivationReturnsFalseOnWrongType;
 var
   Activation: TOBDDoIPRoutingActivation;
@@ -198,6 +293,10 @@ end;
 //==============================================================================
 // Vehicle ident
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT EMPTY PAYLOAD
+//------------------------------------------------------------------------------
 procedure TDoIPVehicleTests.BuildVehicleIdentEmptyPayload;
 var
   Bytes: TBytes;
@@ -207,6 +306,9 @@ begin
   Assert.AreEqual(Byte($01), Bytes[3]);   // payload type lo = 0x0001
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT BY VINREJECTS BAD LENGTH
+//------------------------------------------------------------------------------
 procedure TDoIPVehicleTests.BuildVehicleIdentByVINRejectsBadLength;
 begin
   Assert.WillRaise(
@@ -214,6 +316,9 @@ begin
     EOBDDoIPError);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT BY VINROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TDoIPVehicleTests.BuildVehicleIdentByVINRoundTrips;
 var
   Bytes: TBytes;
@@ -226,6 +331,9 @@ begin
   Assert.AreEqual(Byte(Ord('W')), Bytes[8]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE VEHICLE ANNOUNCEMENT EXTRACTS FIELDS
+//------------------------------------------------------------------------------
 procedure TDoIPVehicleTests.ParseVehicleAnnouncementExtractsFields;
 var
   Frame: TBytes;
@@ -257,6 +365,10 @@ end;
 //==============================================================================
 // Diagnostic message
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD DIAG WRAPS UDS
+//------------------------------------------------------------------------------
 procedure TDoIPDiagMessageTests.BuildDiagWrapsUDS;
 var
   UDS, Built: TBytes;
@@ -274,6 +386,9 @@ begin
   Assert.AreEqual(Byte($22), Built[12]);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD DIAG REJECTS EMPTY USER DATA
+//------------------------------------------------------------------------------
 procedure TDoIPDiagMessageTests.BuildDiagRejectsEmptyUserData;
 begin
   Assert.WillRaise(
@@ -281,6 +396,9 @@ begin
     EOBDDoIPError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DIAG EXTRACTS ADDRESSES AND USER DATA
+//------------------------------------------------------------------------------
 procedure TDoIPDiagMessageTests.ParseDiagExtractsAddressesAndUserData;
 var
   Frame: TBytes;
@@ -294,6 +412,9 @@ begin
   Assert.AreEqual(Byte($22), Msg.UserData[0]);
 end;
 
+//------------------------------------------------------------------------------
+// ROUND TRIPS VIA BUILD AND PARSE
+//------------------------------------------------------------------------------
 procedure TDoIPDiagMessageTests.RoundTripsViaBuildAndParse;
 var
   Original, Built: TBytes;
@@ -306,6 +427,9 @@ begin
   Assert.AreEqual(Byte($EF), Msg.UserData[High(Msg.UserData)]);
 end;
 
+//------------------------------------------------------------------------------
+// ALIVE CHECK PAIR
+//------------------------------------------------------------------------------
 procedure TDoIPDiagMessageTests.AliveCheckPair;
 var
   Req, Resp: TBytes;

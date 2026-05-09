@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "spec": "ISO 14229-1",
+  "description": "UDS Negative Response Code catalog. Add or correct entries here without recompiling.",
+  "categories": [
+    "general",
+    "security",
+    "request_data",
+    "condition",
+    "server",
+    "reserved"
+  ],
+  "entries": [
+    {
+      "code": "0x00",
+      "short": "PR",
+      "description": "positiveResponse",
+      "category": "general"
+    },
+    {
+      "code": "0x10",
+      "short": "GR",
+      "description": "generalReject",
+      "category": "general"
+    },
+    {
+      "code": "0x11",
+      "short": "SNS",
+      "description": "serviceNotSupported",
+      "category": "general"
+    },
+    {
+      "code": "0x12",
+      "short": "SFNS",
+      "description": "subFunctionNotSupported",
+      "category": "general"
+    },
+    {
+      "code": "0x13",
+      "short": "IMLOIF",
+      "description": "incorrectMessageLengthOrInvalidFormat",
+      "category": "general"
+    },
+    {
+      "code": "0x14",
+      "short": "RTL",
+      "description": "responseTooLong",
+      "category": "general"
+    },
+    {
+      "code": "0x21",
+      "short": "BRR",
+      "description": "busyRepeatRequest",
+      "category": "condition"
+    },
+    {
+      "code": "0x22",
+      "short": "CNC",
+      "description": "conditionsNotCorrect",
+      "category": "condition"
+    },
+    {
+      "code": "0x24",
+      "short": "RSE",
+      "description": "requestSequenceError",
+      "category": "condition"
+    },
+    {
+      "code": "0x25",
+      "short": "NRFSC",
+      "description": "noResponseFromSubnetComponent",
+      "category": "server"
+    },
+    {
+      "code": "0x26",
+      "short": "FPEORA",
+      "description": "failurePreventsExecutionOfRequestedAction",
+      "category": "server"
+    },
+    {
+      "code": "0x31",
+      "short": "ROOR",
+      "description": "requestOutOfRange",
+      "category": "request_data"
+    },
+    {
+      "code": "0x33",
+      "short": "SAD",
+      "description": "securityAccessDenied",
+      "category": "security"
+    },
+    {
+      "code": "0x34",
+      "short": "AR",
+      "description": "authenticationRequired",
+      "category": "security"
+    },
+    {
+      "code": "0x35",
+      "short": "IK",
+      "description": "invalidKey",
+      "category": "security"
+    },
+    {
+      "code": "0x36",
+      "short": "ENOA",
+      "description": "exceededNumberOfAttempts",
+      "category": "security"
+    },
+    {
+      "code": "0x37",
+      "short": "RTDNE",
+      "description": "requiredTimeDelayNotExpired",
+      "category": "security"
+    },
+    {
+      "code": "0x38",
+      "short": "SDTR",
+      "description": "secureDataTransmissionRequired",
+      "category": "security"
+    },
+    {
+      "code": "0x39",
+      "short": "SDTNA",
+      "description": "secureDataTransmissionNotAllowed",
+      "category": "security"
+    },
+    {
+      "code": "0x3A",
+      "short": "SDVF",
+      "description": "secureDataVerificationFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x50",
+      "short": "CVFITP",
+      "description": "certificateVerificationFailed_InvalidTimePeriod",
+      "category": "security"
+    },
+    {
+      "code": "0x51",
+      "short": "CVFIS",
+      "description": "certificateVerificationFailed_InvalidSignature",
+      "category": "security"
+    },
+    {
+      "code": "0x52",
+      "short": "CVFITC",
+      "description": "certificateVerificationFailed_InvalidChainOfTrust",
+      "category": "security"
+    },
+    {
+      "code": "0x53",
+      "short": "CVFIT",
+      "description": "certificateVerificationFailed_InvalidType",
+      "category": "security"
+    },
+    {
+      "code": "0x54",
+      "short": "CVFIF",
+      "description": "certificateVerificationFailed_InvalidFormat",
+      "category": "security"
+    },
+    {
+      "code": "0x55",
+      "short": "CVFIC",
+      "description": "certificateVerificationFailed_InvalidContent",
+      "category": "security"
+    },
+    {
+      "code": "0x56",
+      "short": "CVFIS2",
+      "description": "certificateVerificationFailed_InvalidScope",
+      "category": "security"
+    },
+    {
+      "code": "0x57",
+      "short": "CVFIC2",
+      "description": "certificateVerificationFailed_InvalidCertificate",
+      "category": "security"
+    },
+    {
+      "code": "0x58",
+      "short": "OVF",
+      "description": "ownershipVerificationFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x59",
+      "short": "CCF",
+      "description": "challengeCalculationFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x5A",
+      "short": "SARF",
+      "description": "settingAccessRightsFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x5B",
+      "short": "SKDF",
+      "description": "sessionKeyCreation/DerivationFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x5C",
+      "short": "CDUF",
+      "description": "configurationDataUsageFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x5D",
+      "short": "DVFAA",
+      "description": "deAuthenticationFailed",
+      "category": "security"
+    },
+    {
+      "code": "0x70",
+      "short": "UDNA",
+      "description": "uploadDownloadNotAccepted",
+      "category": "server"
+    },
+    {
+      "code": "0x71",
+      "short": "TDS",
+      "description": "transferDataSuspended",
+      "category": "server"
+    },
+    {
+      "code": "0x72",
+      "short": "GPF",
+      "description": "generalProgrammingFailure",
+      "category": "server"
+    },
+    {
+      "code": "0x73",
+      "short": "WBSC",
+      "description": "wrongBlockSequenceCounter",
+      "category": "server"
+    },
+    {
+      "code": "0x78",
+      "short": "RCRRP",
+      "description": "requestCorrectlyReceived-ResponsePending",
+      "category": "condition"
+    },
+    {
+      "code": "0x7E",
+      "short": "SFNSIAS",
+      "description": "subFunctionNotSupportedInActiveSession",
+      "category": "condition"
+    },
+    {
+      "code": "0x7F",
+      "short": "SNSIAS",
+      "description": "serviceNotSupportedInActiveSession",
+      "category": "condition"
+    },
+    {
+      "code": "0x81",
+      "short": "RPMTH",
+      "description": "rpmTooHigh",
+      "category": "condition"
+    },
+    {
+      "code": "0x82",
+      "short": "RPMTL",
+      "description": "rpmTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x83",
+      "short": "EIR",
+      "description": "engineIsRunning",
+      "category": "condition"
+    },
+    {
+      "code": "0x84",
+      "short": "EINR",
+      "description": "engineIsNotRunning",
+      "category": "condition"
+    },
+    {
+      "code": "0x85",
+      "short": "ERTTL",
+      "description": "engineRunTimeTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x86",
+      "short": "TEMPTH",
+      "description": "temperatureTooHigh",
+      "category": "condition"
+    },
+    {
+      "code": "0x87",
+      "short": "TEMPTL",
+      "description": "temperatureTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x88",
+      "short": "VSTH",
+      "description": "vehicleSpeedTooHigh",
+      "category": "condition"
+    },
+    {
+      "code": "0x89",
+      "short": "VSTL",
+      "description": "vehicleSpeedTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x8A",
+      "short": "TPTH",
+      "description": "throttle/PedalTooHigh",
+      "category": "condition"
+    },
+    {
+      "code": "0x8B",
+      "short": "TPTL",
+      "description": "throttle/PedalTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x8C",
+      "short": "TRNIN",
+      "description": "transmissionRangeNotInNeutral",
+      "category": "condition"
+    },
+    {
+      "code": "0x8D",
+      "short": "TRNIG",
+      "description": "transmissionRangeNotInGear",
+      "category": "condition"
+    },
+    {
+      "code": "0x8F",
+      "short": "BSNC",
+      "description": "brakeSwitch(es)NotClosed (Brake Pedal not pressed or not applied)",
+      "category": "condition"
+    },
+    {
+      "code": "0x90",
+      "short": "SLNIP",
+      "description": "shifterLeverNotInPark",
+      "category": "condition"
+    },
+    {
+      "code": "0x91",
+      "short": "TCCL",
+      "description": "torqueConverterClutchLocked",
+      "category": "condition"
+    },
+    {
+      "code": "0x92",
+      "short": "VTH",
+      "description": "voltageTooHigh",
+      "category": "condition"
+    },
+    {
+      "code": "0x93",
+      "short": "VTL",
+      "description": "voltageTooLow",
+      "category": "condition"
+    },
+    {
+      "code": "0x94",
+      "short": "RTNT",
+      "description": "resourceTemporarilyNotAvailable",
+      "category": "server"
+    }
+  ]
+}

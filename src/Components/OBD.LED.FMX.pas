@@ -81,6 +81,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDLedFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -102,31 +105,129 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// SET STATE
+//------------------------------------------------------------------------------
 procedure TOBDLedFMX.SetState(const AValue: TOBDLedState);
-begin if FState <> AValue then begin FState := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetGrayedFromColor(const AValue: TAlphaColor);
-begin if FGrayedFromColor <> AValue then begin FGrayedFromColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetGrayedToColor(const AValue: TAlphaColor);
-begin if FGrayedToColor <> AValue then begin FGrayedToColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetOffFromColor(const AValue: TAlphaColor);
-begin if FOffFromColor <> AValue then begin FOffFromColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetOffToColor(const AValue: TAlphaColor);
-begin if FOffToColor <> AValue then begin FOffToColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetOnFromColor(const AValue: TAlphaColor);
-begin if FOnFromColor <> AValue then begin FOnFromColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetOnToColor(const AValue: TAlphaColor);
-begin if FOnToColor <> AValue then begin FOnToColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetBorderFromColor(const AValue: TAlphaColor);
-begin if FBorderFromColor <> AValue then begin FBorderFromColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetBorderToColor(const AValue: TAlphaColor);
-begin if FBorderToColor <> AValue then begin FBorderToColor := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetBorderWidth(const AValue: Single);
-begin if (AValue >= 0) and (FBorderWidth <> AValue) then begin FBorderWidth := AValue; Redraw; end; end;
-procedure TOBDLedFMX.SetMarginFromBorder(const AValue: Single);
-begin if (AValue >= 0) and (FMarginFromBorder <> AValue) then begin FMarginFromBorder := AValue; Redraw; end; end;
+begin
+  if FState <> AValue then begin FState := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetBackgroundColor(const AValue: TAlphaColor);
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET GRAYED FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetGrayedFromColor(const AValue: TAlphaColor);
+begin
+  if FGrayedFromColor <> AValue then begin FGrayedFromColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET GRAYED TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetGrayedToColor(const AValue: TAlphaColor);
+begin
+  if FGrayedToColor <> AValue then begin FGrayedToColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET OFF FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetOffFromColor(const AValue: TAlphaColor);
+begin
+  if FOffFromColor <> AValue then begin FOffFromColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET OFF TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetOffToColor(const AValue: TAlphaColor);
+begin
+  if FOffToColor <> AValue then begin FOffToColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ON FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetOnFromColor(const AValue: TAlphaColor);
+begin
+  if FOnFromColor <> AValue then begin FOnFromColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ON TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetOnToColor(const AValue: TAlphaColor);
+begin
+  if FOnToColor <> AValue then begin FOnToColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER FROM COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetBorderFromColor(const AValue: TAlphaColor);
+begin
+  if FBorderFromColor <> AValue then begin FBorderFromColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER TO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetBorderToColor(const AValue: TAlphaColor);
+begin
+  if FBorderToColor <> AValue then begin FBorderToColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetBorderWidth(const AValue: Single);
+begin
+  if (AValue >= 0) and (FBorderWidth <> AValue) then begin FBorderWidth := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET MARGIN FROM BORDER
+//------------------------------------------------------------------------------
+procedure TOBDLedFMX.SetMarginFromBorder(const AValue: Single);
+begin
+  if (AValue >= 0) and (FMarginFromBorder <> AValue) then begin FMarginFromBorder := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDLedFMX.HandleDraw(ASender: TObject; const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
 var

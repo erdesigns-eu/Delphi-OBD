@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeFiatDaiichiAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeFiatDaiichiAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatDaiichiAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -121,6 +130,9 @@ begin
   Variant.AlgorithmNotes := 'Asian market variant';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -160,6 +172,9 @@ begin
   Output := Format('%d%d%d%d', [SNArr[0], SNArr[1], SNArr[2], SNArr[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -176,6 +191,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -192,11 +210,17 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Fiat Daiichi Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatDaiichiAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -208,6 +232,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatDaiichiAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -217,16 +244,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -248,6 +284,9 @@ begin
     Exit(False);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatDaiichiAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

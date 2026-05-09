@@ -4,14 +4,31 @@ The original roadmap (v2.1 Foundation → v3.0 FMX & OEM) is complete and
 tagged. This document is the menu for what comes next. Each proposal is
 sized to ship as a single milestone with a clear exit criterion — pick
 one, sequence two, or merge a few items across proposals into a custom
-v3.1.
+release.
 
 Effort key: **S** ≤1 day · **M** 2–5 days · **L** 1–2 weeks · **XL** >2 weeks.
 Priority key: 🔴 must-have for the proposal · 🟠 should-have · 🟢 nice-to-have.
 
+## Status overview
+
+| Proposal | Status | Shipped in |
+|---|---|---|
+| A — FMX Component Completion | ✅ Done | v3.1 |
+| B — Mobile Transports | 🟡 Partial — FMX dashboard runs cross-platform; native Bluetooth/USB transports not yet shipped | (open) |
+| C — Production-Grade Crypto + Manufacturer Coverage | ✅ Done | Crypto v3.2; OEM coverage v3.3–v3.69 (79 catalogs / 247k entries) |
+| D — Heavy-Duty / Commercial | ✅ Done | v3.16 (J1939 base + 6 HD OEMs), expanded through v3.69–v3.76 |
+| E — Performance, Testing & Profiling | 🟡 Partial — coverage harness shipped v3.79; broader perf-testing backlog open |
+| F — Localization, Theming & Accessibility | 🔴 Open |
+| G — DevEx & Community | 🟡 Partial — CI + changelog shipped; GetIt + community templates open |
+| H — Async Polish & Persistence | ✅ Done — async UDS shipped v3.79 (`OBD.OEM.UdsClient.Async`) |
+
+The detailed proposals below are kept verbatim for historical context
+and as a reference for the open items. Each section header is annotated
+with its current state.
+
 ---
 
-## Proposal A — FMX Component Completion
+## Proposal A — FMX Component Completion ✅ Shipped in v3.1
 
 > Ship the remaining six visual components on FMX so a single codebase
 > drives both desktop (VCL) and mobile/macOS (FMX).
@@ -43,7 +60,7 @@ event-loop details. FMX gesture handling differs from VCL `MouseDown`/
 
 ---
 
-## Proposal B — Mobile Transports
+## Proposal B — Mobile Transports 🟡 Partial
 
 > Light up the FMX components on real iOS / Android / macOS hardware.
 
@@ -69,7 +86,7 @@ BLE has historic stack quirks per OEM ROM. Budget extra QA time.
 
 ---
 
-## Proposal C — Production-Grade Crypto + Manufacturer Coverage
+## Proposal C — Production-Grade Crypto + Manufacturer Coverage ✅ Shipped (v3.2 + v3.3–v3.69)
 
 > Make `TOBDECUFlashing` actually trustworthy in production by adding
 > real RSA / ECDSA verifiers and three more OEM extensions (Mercedes,
@@ -99,7 +116,7 @@ will still need to plug in their own seed-key algorithms.
 
 ---
 
-## Proposal D — Heavy-Duty / Commercial
+## Proposal D — Heavy-Duty / Commercial ✅ Shipped (v3.16 + v3.69–v3.76)
 
 > Round out coverage for trucks, buses, agricultural equipment, and
 > EV-Ethernet diagnostics.
@@ -123,7 +140,7 @@ validate.
 
 ---
 
-## Proposal E — Performance, Testing & Profiling
+## Proposal E — Performance, Testing & Profiling 🟡 Partial (coverage harness shipped v3.79)
 
 > Bring testing rigor up to "I'd ship this in a hospital" levels and
 > publish numbers.
@@ -148,7 +165,7 @@ test fonts into the repo or render via a known-stable typeface.
 
 ---
 
-## Proposal F — Localization, Theming & Accessibility
+## Proposal F — Localization, Theming & Accessibility 🔴 Open
 
 > Make the framework usable internationally and by non-sighted users.
 
@@ -168,7 +185,7 @@ WCAG AA contrast tier.
 
 ---
 
-## Proposal G — DevEx & Community
+## Proposal G — DevEx & Community 🟡 Partial
 
 > Ship the polish that turns "good library" into "go-to library."
 
@@ -190,7 +207,7 @@ WCAG AA contrast tier.
 
 ---
 
-## Proposal H — Async Polish & Persistence
+## Proposal H — Async Polish & Persistence ✅ Async UDS shipped v3.79
 
 > Smaller, opportunistic — bundle as a v3.1 polish release if you don't
 > want a big themed milestone.

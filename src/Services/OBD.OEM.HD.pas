@@ -33,9 +33,11 @@ uses
   System.SysUtils, OBD.OEM.Session;
 
 const
-  /// <summary>SAE J1939-71 source-address allocations the framework
-  /// references. The full table lives in J1939-71 Annex F; these
-  /// are the most-queried for diagnostics.</summary>
+  /// <summary>
+  ///   SAE J1939-71 source-address allocations the framework
+  ///   references. The full table lives in J1939-71 Annex F; these
+  ///   are the most-queried for diagnostics.
+  /// </summary>
   J1939_ADDR_ENGINE_1            = $00;  // 0   — Engine #1 (primary)
   J1939_ADDR_ENGINE_2            = $01;  // 1   — Engine #2
   J1939_ADDR_TRANSMISSION_1      = $03;  // 3   — Transmission
@@ -72,30 +74,50 @@ type
     function DisplayName: string; override;
   end;
 
-/// <summary>Build an SPN-FMI DTC code in the canonical
-/// <c>"SPN0094-FMI4"</c> form used by the catalog. Used by per-OEM
-/// extensions to populate <c>TOBDDtcCatalogEntry.Code</c>.</summary>
+/// <summary>
+///   Build an SPN-FMI DTC code in the canonical
+///   <c>"SPN0094-FMI4"</c> form used by the catalog. Used by per-OEM
+///   extensions to populate <c>TOBDDtcCatalogEntry.Code</c>.
+/// </summary>
 function FormatSPNFMI(const SPN: Cardinal; const FMI: Byte): string;
 
-/// <summary>Decode a J1939-73 DM1 packed DTC payload (4 bytes per
-/// active DTC: SPN[16:0] + FMI[4:0] + occurrence count[6:0] +
-/// conversion-method bit) into the canonical string form. Returns
-/// an empty string on malformed input.</summary>
+/// <summary>
+///   Decode a J1939-73 DM1 packed DTC payload (4 bytes per
+///   active DTC: SPN[16:0] + FMI[4:0] + occurrence count[6:0] +
+///   conversion-method bit) into the canonical string form. Returns
+///   an empty string on malformed input.
+/// </summary>
 function ParseDM1DTC(const Bytes: TBytes; const Offset: Integer): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDHDSessionNegotiator.DefaultTesterPresentMs: Cardinal;
-begin Result := 3000; end;
+begin
+  Result := 3000;
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDHDSessionNegotiator.DisplayName: string;
-begin Result := 'J1939 / ISO 14229 over J1939-21'; end;
+begin
+  Result := 'J1939 / ISO 14229 over J1939-21';
+end;
 
+//------------------------------------------------------------------------------
+// FORMAT SPNFMI
+//------------------------------------------------------------------------------
 function FormatSPNFMI(const SPN: Cardinal; const FMI: Byte): string;
 begin
   Result := Format('SPN%.4d-FMI%d', [SPN, FMI]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DM1 DTC
+//------------------------------------------------------------------------------
 function ParseDM1DTC(const Bytes: TBytes; const Offset: Integer): string;
 var
   B0, B1, B2, B3: Byte;

@@ -96,6 +96,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDKnobFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -119,6 +122,9 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// NORMALIZE ANGLE
+//------------------------------------------------------------------------------
 function TOBDKnobFMX.NormalizeAngle(A: Single): Single;
 begin
   while A < 0 do A := A + 360;
@@ -126,12 +132,18 @@ begin
   Result := A;
 end;
 
+//------------------------------------------------------------------------------
+// SNAP TO STEP
+//------------------------------------------------------------------------------
 function TOBDKnobFMX.SnapToStep(const AValue: Single): Single;
 begin
   if FStep <= 0 then Exit(AValue);
   Result := Round((AValue - FMin) / FStep) * FStep + FMin;
 end;
 
+//------------------------------------------------------------------------------
+// POINT TO VALUE
+//------------------------------------------------------------------------------
 function TOBDKnobFMX.PointToValue(const X, Y: Single): Single;
 var
   Cx, Cy, Dx, Dy: Single;
@@ -150,6 +162,9 @@ begin
   Result := FMin + (RelAngle / FSweepAngle) * (FMax - FMin);
 end;
 
+//------------------------------------------------------------------------------
+// SET MIN
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.SetMin(const AValue: Single);
 begin
   if FMin <> AValue then
@@ -160,6 +175,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.SetMax(const AValue: Single);
 begin
   if FMax <> AValue then
@@ -170,8 +188,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.SetValue(const AValue: Single);
-var Clamped: Single;
+var
+  Clamped: Single;
 begin
   Clamped := SnapToStep(AValue);
   if Clamped < FMin then Clamped := FMin;
@@ -182,29 +204,119 @@ begin
   if Assigned(FOnChange) then FOnChange(Self, FValue);
 end;
 
+//------------------------------------------------------------------------------
+// SET STEP
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.SetStep(const AValue: Single);
-begin if (AValue > 0) and (FStep <> AValue) then begin FStep := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetStartAngle(const AValue: Single);
-begin if FStartAngle <> AValue then begin FStartAngle := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetSweepAngle(const AValue: Single);
-begin if FSweepAngle <> AValue then begin FSweepAngle := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetBodyColor(const AValue: TAlphaColor);
-begin if FBodyColor <> AValue then begin FBodyColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetRingColor(const AValue: TAlphaColor);
-begin if FRingColor <> AValue then begin FRingColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetActiveRingColor(const AValue: TAlphaColor);
-begin if FActiveRingColor <> AValue then begin FActiveRingColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetIndicatorColor(const AValue: TAlphaColor);
-begin if FIndicatorColor <> AValue then begin FIndicatorColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetCaption(const AValue: string);
-begin if FCaption <> AValue then begin FCaption := AValue; Redraw; end; end;
-procedure TOBDKnobFMX.SetShowValue(const AValue: Boolean);
-begin if FShowValue <> AValue then begin FShowValue := AValue; Redraw; end; end;
+begin
+  if (AValue > 0) and (FStep <> AValue) then begin FStep := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET START ANGLE
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetStartAngle(const AValue: Single);
+begin
+  if FStartAngle <> AValue then begin FStartAngle := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SWEEP ANGLE
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetSweepAngle(const AValue: Single);
+begin
+  if FSweepAngle <> AValue then begin FSweepAngle := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetBackgroundColor(const AValue: TAlphaColor);
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BODY COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetBodyColor(const AValue: TAlphaColor);
+begin
+  if FBodyColor <> AValue then begin FBodyColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET RING COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetRingColor(const AValue: TAlphaColor);
+begin
+  if FRingColor <> AValue then begin FRingColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ACTIVE RING COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetActiveRingColor(const AValue: TAlphaColor);
+begin
+  if FActiveRingColor <> AValue then begin FActiveRingColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET INDICATOR COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetIndicatorColor(const AValue: TAlphaColor);
+begin
+  if FIndicatorColor <> AValue then begin FIndicatorColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetTextColor(const AValue: TAlphaColor);
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetCaption(const AValue: string);
+begin
+  if FCaption <> AValue then begin FCaption := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW VALUE
+//------------------------------------------------------------------------------
+procedure TOBDKnobFMX.SetShowValue(const AValue: Boolean);
+begin
+  if FShowValue <> AValue then begin FShowValue := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// MOUSE DOWN
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Single);
 begin
@@ -218,12 +330,18 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE MOVE
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.MouseMove(Shift: TShiftState; X, Y: Single);
 begin
   inherited;
   if FDragging then SetValue(PointToValue(X, Y));
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE UP
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Single);
 begin
@@ -235,8 +353,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE WHEEL
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.MouseWheel(Shift: TShiftState; WheelDelta: Integer;
-  var Handled: Boolean);
+  var
+    Handled: Boolean);
 const
   WHEEL_LINE_DELTA = 120;
 begin
@@ -245,6 +367,9 @@ begin
   Handled := True;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDKnobFMX.HandleDraw(ASender: TObject; const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
 var

@@ -92,12 +92,18 @@ const
 
 { TVinDecoderTests }
 
+//------------------------------------------------------------------------------
+// CALCULATE CHECK DIGIT_PRODUCES EXPECTED DIGIT
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.CalculateCheckDigit_ProducesExpectedDigit(
   const VIN: string; const Expected: Char);
 begin
   Assert.AreEqual(Expected, TOBDVinDecoder.CalculateCheckDigit(VIN));
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE CHECK DIGIT_ACCEPTS KNOWN GOLDEN VINS
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.ValidateCheckDigit_AcceptsKnownGoldenVins(
   const VIN: string);
 begin
@@ -105,6 +111,9 @@ begin
     Format('ValidateCheckDigit rejected golden VIN %s', [VIN]));
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE CHECK DIGIT_REJECTS TAMPERED VIN
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.ValidateCheckDigit_RejectsTamperedVin;
 var
   Tampered: string;
@@ -116,6 +125,9 @@ begin
     'Tampered VIN was incorrectly accepted');
 end;
 
+//------------------------------------------------------------------------------
+// CHECK DIGIT_ROUND TRIP_ALWAYS VALIDATES
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.CheckDigit_RoundTrip_AlwaysValidates(
   const Source: string);
 var
@@ -133,6 +145,9 @@ begin
       [Source, CalculatedDigit]));
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE_ACCEPTS CANONICAL VIN
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Validate_AcceptsCanonicalVin;
 var
   Err: string;
@@ -142,6 +157,9 @@ begin
   Assert.AreEqual('', Err);
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE_REJECTS BAD LENGTH
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Validate_RejectsBadLength(const VIN: string);
 var
   Err: string;
@@ -150,6 +168,9 @@ begin
   Assert.IsTrue(Err.Contains('17'), 'Error should mention 17-character rule');
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE_REJECTS FORBIDDEN CHARACTERS
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Validate_RejectsForbiddenCharacters(
   const VIN: string);
 var
@@ -159,6 +180,9 @@ begin
   Assert.IsNotEmpty(Err);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE_EXTRACTS WMI_VDS_VIS
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Parse_ExtractsWMI_VDS_VIS;
 var
   Parsed: TVINParseResult;
@@ -170,6 +194,9 @@ begin
   Assert.AreEqual('KP042788', Parsed.VIS);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE_POPULATES CHECK DIGIT
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Parse_PopulatesCheckDigit;
 var
   Parsed: TVINParseResult;
@@ -179,6 +206,9 @@ begin
   Assert.IsTrue(Parsed.CheckDigitValid);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE_FLAGS INVALID VIN
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Parse_FlagsInvalidVin;
 var
   Parsed: TVINParseResult;
@@ -193,6 +223,9 @@ begin
   Assert.IsFalse(Parsed.CheckDigitValid);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE_PRODUCES EMPTY RESULT_FOR INVALID LENGTH
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.Parse_ProducesEmptyResult_ForInvalidLength;
 var
   Parsed: TVINParseResult;
@@ -205,6 +238,9 @@ begin
   Assert.AreEqual('', Parsed.VIS);
 end;
 
+//------------------------------------------------------------------------------
+// GET MODEL YEAR_DECODES KNOWN YEAR CODES
+//------------------------------------------------------------------------------
 procedure TVinDecoderTests.GetModelYear_DecodesKnownYearCodes(
   const YearCode: Char; const ExpectedMin: Integer);
 var

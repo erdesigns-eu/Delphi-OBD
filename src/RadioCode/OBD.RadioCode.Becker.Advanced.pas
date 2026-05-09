@@ -205,6 +205,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeBeckerAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;

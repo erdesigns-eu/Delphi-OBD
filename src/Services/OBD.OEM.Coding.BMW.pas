@@ -44,15 +44,21 @@ type
     procedure RemoveOption(const Code: string);
     procedure Clear;
 
-    /// <summary>Number of distinct options in the order.</summary>
+    /// <summary>
+    ///   Number of distinct options in the order.
+    /// </summary>
     function Count: Integer;
 
-    /// <summary>Snapshot the option list (sorted ascending).</summary>
+    /// <summary>
+    ///   Snapshot the option list (sorted ascending).
+    /// </summary>
     function Tokens: TArray<string>;
 
-    /// <summary>Render in the canonical comma-separated form. Tokens
-    /// are sorted ascending so equal orders always produce equal
-    /// strings — easy to diff in audit logs.</summary>
+    /// <summary>
+    ///   Render in the canonical comma-separated form. Tokens
+    ///   are sorted ascending so equal orders always produce equal
+    ///   strings — easy to diff in audit logs.
+    /// </summary>
     function ToString: string; reintroduce;
   end;
 
@@ -69,21 +75,29 @@ type
     Month: Byte;         // MM (1..12)
     Build: Word;         // 1..9999
 
-    /// <summary>Parse a wire-format I-Stufe; throws on malformed input.</summary>
+    /// <summary>
+    ///   Parse a wire-format I-Stufe; throws on malformed input.
+    /// </summary>
     class function Parse(const S: string): TOBDBMWIStufe; static;
 
-    /// <summary>Render in canonical form.</summary>
+    /// <summary>
+    ///   Render in canonical form.
+    /// </summary>
     function ToString: string;
 
-    /// <summary>Lexicographic comparison: returns -1 / 0 / 1 like
-    /// <c>CompareStr</c>. Project is the primary key; ties break on
-    /// Year, then Month, then Build.</summary>
+    /// <summary>
+    ///   Lexicographic comparison: returns -1 / 0 / 1 like
+    ///   <c>CompareStr</c>. Project is the primary key; ties break on
+    ///   Year, then Month, then Build.
+    /// </summary>
     function CompareTo(const Other: TOBDBMWIStufe): Integer;
 
-    /// <summary>True if this I-Stufe is at least as new as <c>Other</c>
-    /// for the same project. Cross-project comparison is undefined and
-    /// returns False (the caller should never compare an F-series to
-    /// a G-series I-Stufe).</summary>
+    /// <summary>
+    ///   True if this I-Stufe is at least as new as <c>Other</c>
+    ///   for the same project. Cross-project comparison is undefined and
+    ///   returns False (the caller should never compare an F-series to
+    ///   a G-series I-Stufe).
+    /// </summary>
     function AtLeast(const Other: TOBDBMWIStufe): Boolean;
   end;
 
@@ -95,12 +109,19 @@ uses
 //==============================================================================
 // TOBDBMWFA
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDBMWFA.Create;
 begin
   inherited Create;
   FOptions := TList<string>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDBMWFA.Create(const FAString: string);
 var
   Parts: TArray<string>;
@@ -115,12 +136,18 @@ begin
     AddOption(Token);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDBMWFA.Destroy;
 begin
   FOptions.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// NORMALIZE CODE
+//------------------------------------------------------------------------------
 function TOBDBMWFA.NormalizeCode(const Code: string): string;
 begin
   Result := UpperCase(Trim(Code));
@@ -128,6 +155,9 @@ begin
     raise EOBDCodingError.Create('FA option code cannot be empty');
 end;
 
+//------------------------------------------------------------------------------
+// HAS OPTION
+//------------------------------------------------------------------------------
 function TOBDBMWFA.HasOption(const Code: string): Boolean;
 var
   Norm, Existing: string;
@@ -138,6 +168,9 @@ begin
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// ADD OPTION
+//------------------------------------------------------------------------------
 procedure TOBDBMWFA.AddOption(const Code: string);
 var
   Norm: string;
@@ -146,23 +179,42 @@ begin
   if not FOptions.Contains(Norm) then FOptions.Add(Norm);
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE OPTION
+//------------------------------------------------------------------------------
 procedure TOBDBMWFA.RemoveOption(const Code: string);
 begin
   FOptions.Remove(NormalizeCode(Code));
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDBMWFA.Clear;
-begin FOptions.Clear; end;
+begin
+  FOptions.Clear;
+end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDBMWFA.Count: Integer;
-begin Result := FOptions.Count; end;
+begin
+  Result := FOptions.Count;
+end;
 
+//------------------------------------------------------------------------------
+// TOKENS
+//------------------------------------------------------------------------------
 function TOBDBMWFA.Tokens: TArray<string>;
 begin
   Result := FOptions.ToArray;
   TArray.Sort<string>(Result, TComparer<string>.Default);
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING
+//------------------------------------------------------------------------------
 function TOBDBMWFA.ToString: string;
 begin
   Result := string.Join(',', Tokens);
@@ -171,6 +223,10 @@ end;
 //==============================================================================
 // TOBDBMWIStufe
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSE
+//------------------------------------------------------------------------------
 class function TOBDBMWIStufe.Parse(const S: string): TOBDBMWIStufe;
 var
   Parts: TArray<string>;
@@ -200,11 +256,17 @@ begin
       'I-Stufe build must be a positive integer: "%s"', [Parts[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING
+//------------------------------------------------------------------------------
 function TOBDBMWIStufe.ToString: string;
 begin
   Result := Format('%s-%.2d-%.2d-%.3d', [Project, Year, Month, Build]);
 end;
 
+//------------------------------------------------------------------------------
+// COMPARE TO
+//------------------------------------------------------------------------------
 function TOBDBMWIStufe.CompareTo(const Other: TOBDBMWIStufe): Integer;
 begin
   Result := CompareStr(Project, Other.Project);
@@ -216,6 +278,9 @@ begin
   Result := Integer(Build) - Integer(Other.Build);
 end;
 
+//------------------------------------------------------------------------------
+// AT LEAST
+//------------------------------------------------------------------------------
 function TOBDBMWIStufe.AtLeast(const Other: TOBDBMWIStufe): Boolean;
 begin
   if not SameText(Project, Other.Project) then Exit(False);

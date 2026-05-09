@@ -13,38 +13,107 @@ type
   [TestFixture]
   TJSONCatalogTests = class
   public
+    /// <summary>
+    ///   Parses minimal catalog.
+    /// </summary>
     [Test] procedure ParsesMinimalCatalog;
+    /// <summary>
+    ///   Parses all decoder kinds.
+    /// </summary>
     [Test] procedure ParsesAllDecoderKinds;
+    /// <summary>
+    ///   Decode u int8 with scale.
+    /// </summary>
     [Test] procedure DecodeUInt8WithScale;
+    /// <summary>
+    ///   Decode u int16 b e reversed.
+    /// </summary>
     [Test] procedure DecodeUInt16BEReversed;
+    /// <summary>
+    ///   Decode bcd date.
+    /// </summary>
     [Test] procedure DecodeBcdDate;
+    /// <summary>
+    ///   Decode enum known value.
+    /// </summary>
     [Test] procedure DecodeEnumKnownValue;
+    /// <summary>
+    ///   Decode enum unknown value falls back to hex.
+    /// </summary>
     [Test] procedure DecodeEnumUnknownValueFallsBackToHex;
+    /// <summary>
+    ///   Decode bitmask.
+    /// </summary>
     [Test] procedure DecodeBitmask;
+    /// <summary>
+    ///   Decode ascii.
+    /// </summary>
     [Test] procedure DecodeAscii;
+    /// <summary>
+    ///   Find d i d returns false for unknown.
+    /// </summary>
     [Test] procedure FindDIDReturnsFalseForUnknown;
+    /// <summary>
+    ///   Default source propagates to entries.
+    /// </summary>
     [Test] procedure DefaultSourcePropagatesToEntries;
+    /// <summary>
+    ///   Verified flag defaults to false.
+    /// </summary>
     [Test] procedure VerifiedFlagDefaultsToFalse;
   end;
 
   [TestFixture]
   TCSVImporterTests = class
   public
+    /// <summary>
+    ///   Round trips basic c s v.
+    /// </summary>
     [Test] procedure RoundTripsBasicCSV;
+    /// <summary>
+    ///   Handles quoted decoder j s o n.
+    /// </summary>
     [Test] procedure HandlesQuotedDecoderJSON;
+    /// <summary>
+    ///   Rejects missing mandatory column.
+    /// </summary>
     [Test] procedure RejectsMissingMandatoryColumn;
+    /// <summary>
+    ///   Skips comment lines.
+    /// </summary>
     [Test] procedure SkipsCommentLines;
   end;
 
   [TestFixture]
   TPerECUTests = class
   public
+    /// <summary>
+    ///   Loads e c u list.
+    /// </summary>
     [Test] procedure LoadsECUList;
+    /// <summary>
+    ///   Parses per d i d ecu address.
+    /// </summary>
     [Test] procedure ParsesPerDIDEcuAddress;
+    /// <summary>
+    ///   Default ecu address propagates.
+    /// </summary>
     [Test] procedure DefaultEcuAddressPropagates;
+    /// <summary>
+    ///   Explicit address overrides default.
+    /// </summary>
     [Test] procedure ExplicitAddressOverridesDefault;
+    /// <summary>
+    ///   Routine ecu address loaded.
+    /// </summary>
     [Test] procedure RoutineEcuAddressLoaded;
+    /// <summary>
+    ///   Extension filters by e c u.
+    /// </summary>
     [Test] procedure ExtensionFiltersByECU;
+    /// <summary>
+    ///   Extension globals flow to all e c us.
+    /// </summary>
     [Test] procedure ExtensionGlobalsFlowToAllECUs;
   end;
 
@@ -71,8 +140,12 @@ const
     ']' +
     '}';
 
+//------------------------------------------------------------------------------
+// PARSES MINIMAL CATALOG
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.ParsesMinimalCatalog;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(MINIMAL_CATALOG);
   try
@@ -90,6 +163,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES ALL DECODER KINDS
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.ParsesAllDecoderKinds;
 const
   ALL_KINDS: string =
@@ -107,7 +183,8 @@ const
     '  {"did": "0x0A", "name": "j", "description": "enum",  "decoder": {"kind": "enum", "size": 1, "values": {"0x01": "ON", "0x02": "OFF"}}},' +
     '  {"did": "0x0B", "name": "k", "description": "bits",  "decoder": {"kind": "bitmask", "size": 1, "bits": {"0": "ready", "3": "fault"}}}' +
     ']}';
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(ALL_KINDS);
   try
@@ -117,6 +194,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE UINT8 WITH SCALE
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeUInt8WithScale;
 const
   Spec: string =
@@ -136,6 +216,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE UINT16 BEREVERSED
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeUInt16BEReversed;
 const
   Spec: string =
@@ -154,6 +237,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE BCD DATE
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeBcdDate;
 const
   Spec: string =
@@ -172,6 +258,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE ENUM KNOWN VALUE
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeEnumKnownValue;
 const
   Spec: string =
@@ -179,7 +268,8 @@ const
     ' "applicable_wmis": [], "dids": [{"did": "0x01", "name": "s", "description": "x",' +
     ' "decoder": {"kind": "enum", "size": 1,' +
     '  "values": {"0x01": "default", "0x03": "extended"}}}]}';
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(Spec);
   try
@@ -190,13 +280,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE ENUM UNKNOWN VALUE FALLS BACK TO HEX
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeEnumUnknownValueFallsBackToHex;
 const
   Spec: string =
     '{"version": 1, "manufacturer_key": "X", "display_name": "X",' +
     ' "applicable_wmis": [], "dids": [{"did": "0x01", "name": "s", "description": "x",' +
     ' "decoder": {"kind": "enum", "size": 1, "values": {"0x01": "default"}}}]}';
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(Spec);
   try
@@ -206,6 +300,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE BITMASK
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeBitmask;
 const
   Spec: string =
@@ -213,7 +310,8 @@ const
     ' "applicable_wmis": [], "dids": [{"did": "0x01", "name": "b", "description": "x",' +
     ' "decoder": {"kind": "bitmask", "size": 1,' +
     '  "bits": {"0": "ready", "1": "running", "3": "fault"}}}]}';
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(Spec);
   try
@@ -225,6 +323,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE ASCII
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DecodeAscii;
 const
   Spec: string =
@@ -243,6 +344,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND DIDRETURNS FALSE FOR UNKNOWN
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.FindDIDReturnsFalseForUnknown;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -256,6 +360,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SOURCE PROPAGATES TO ENTRIES
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.DefaultSourcePropagatesToEntries;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -270,6 +377,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFIED FLAG DEFAULTS TO FALSE
+//------------------------------------------------------------------------------
 procedure TJSONCatalogTests.VerifiedFlagDefaultsToFalse;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -289,6 +399,10 @@ end;
 //==============================================================================
 // CSV importer
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ROUND TRIPS BASIC CSV
+//------------------------------------------------------------------------------
 procedure TCSVImporterTests.RoundTripsBasicCSV;
 var
   Importer: TOBDCatalogCSVImporter;
@@ -321,6 +435,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLES QUOTED DECODER JSON
+//------------------------------------------------------------------------------
 procedure TCSVImporterTests.HandlesQuotedDecoderJSON;
 var
   Importer: TOBDCatalogCSVImporter;
@@ -351,6 +468,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS MISSING MANDATORY COLUMN
+//------------------------------------------------------------------------------
 procedure TCSVImporterTests.RejectsMissingMandatoryColumn;
 var
   Importer: TOBDCatalogCSVImporter;
@@ -368,6 +488,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SKIPS COMMENT LINES
+//------------------------------------------------------------------------------
 procedure TCSVImporterTests.SkipsCommentLines;
 var
   Importer: TOBDCatalogCSVImporter;
@@ -443,7 +566,8 @@ type
   TTestECUExtension = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
   public
     function ManufacturerKey: string; override;
@@ -451,10 +575,16 @@ type
     function ApplicableToVIN(const VIN: string): Boolean; override;
   end;
 
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TTestECUExtension.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 var
   Cat: TOBDOEMJSONCatalog;
 begin
@@ -468,13 +598,30 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TTestECUExtension.ManufacturerKey: string; begin Result := 'T'; end;
-function TTestECUExtension.DisplayName: string; begin Result := 'Test'; end;
-function TTestECUExtension.ApplicableToVIN(const VIN: string): Boolean;
-begin Result := False; end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
+function TTestECUExtension.DisplayName: string; begin Result := 'Test'; end;
+
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
+function TTestECUExtension.ApplicableToVIN(const VIN: string): Boolean;
+begin
+  Result := False;
+end;
+
+//------------------------------------------------------------------------------
+// LOADS ECULIST
+//------------------------------------------------------------------------------
 procedure TPerECUTests.LoadsECUList;
-var Cat: TOBDOEMJSONCatalog;
+var
+  Cat: TOBDOEMJSONCatalog;
 begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(ECU_CATALOG);
   try
@@ -487,6 +634,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES PER DIDECU ADDRESS
+//------------------------------------------------------------------------------
 procedure TPerECUTests.ParsesPerDIDEcuAddress;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -501,6 +651,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT ECU ADDRESS PROPAGATES
+//------------------------------------------------------------------------------
 procedure TPerECUTests.DefaultEcuAddressPropagates;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -516,6 +669,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXPLICIT ADDRESS OVERRIDES DEFAULT
+//------------------------------------------------------------------------------
 procedure TPerECUTests.ExplicitAddressOverridesDefault;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -530,6 +686,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ROUTINE ECU ADDRESS LOADED
+//------------------------------------------------------------------------------
 procedure TPerECUTests.RoutineEcuAddressLoaded;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -554,6 +713,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXTENSION FILTERS BY ECU
+//------------------------------------------------------------------------------
 procedure TPerECUTests.ExtensionFiltersByECU;
 var
   Ext: IOBDOEMExtension;
@@ -580,6 +742,9 @@ begin
   Assert.IsFalse(HasRPM, 'rpm (engine) should NOT be in 0x7E1 sub-catalog');
 end;
 
+//------------------------------------------------------------------------------
+// EXTENSION GLOBALS FLOW TO ALL ECUS
+//------------------------------------------------------------------------------
 procedure TPerECUTests.ExtensionGlobalsFlowToAllECUs;
 var
   Ext: IOBDOEMExtension;

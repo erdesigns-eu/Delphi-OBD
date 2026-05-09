@@ -486,11 +486,17 @@ begin
   Result := SendData(@Value, 1) = 1;
 end;
 
+//------------------------------------------------------------------------------
+// SEND CHAR
+//------------------------------------------------------------------------------
 function TBluetoothLE.SendChar(Value: AnsiChar): Boolean;
 begin
   Result := SendData(@Value, 1) = 1;
 end;
 
+//------------------------------------------------------------------------------
+// SEND STRING
+//------------------------------------------------------------------------------
 function TBluetoothLE.SendString(const S: AnsiString): Boolean;
 var
   L: DWORD;
@@ -542,12 +548,18 @@ begin
   InvokeDataReceived(DataPtr, DataSize);
 end;
 
+//------------------------------------------------------------------------------
+// ON SEND DATA
+//------------------------------------------------------------------------------
 procedure TBluetoothLEOBDConnection.OnSendData(Sender: TObject;
   DataPtr: Pointer; DataSize: DWORD);
 begin
   InvokeDataSend(DataPtr, DataSize);
 end;
 
+//------------------------------------------------------------------------------
+// ON CONNECTION ERROR
+//------------------------------------------------------------------------------
 procedure TBluetoothLEOBDConnection.OnConnectionError(Sender: TObject;
   ErrorCode: Integer; ErrorMessage: string);
 begin
@@ -618,6 +630,9 @@ begin
   Result := FBluetoothLE.SendString(AnsiString(S + #13));
 end;
 
+//------------------------------------------------------------------------------
+// WRITE STCOMMAND
+//------------------------------------------------------------------------------
 function TBluetoothLEOBDConnection.WriteSTCommand(
   const STCommand: string): Boolean;
 var
@@ -628,6 +643,9 @@ begin
   Result := FBluetoothLE.SendString(AnsiString(S + #13));
 end;
 
+//------------------------------------------------------------------------------
+// WRITE OBDCOMMAND
+//------------------------------------------------------------------------------
 function TBluetoothLEOBDConnection.WriteOBDCommand(
   const OBDCommand: string): Boolean;
 begin

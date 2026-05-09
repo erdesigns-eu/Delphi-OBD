@@ -26,11 +26,29 @@ type
     [TestCase('Stellantis_Peugeot','VF36DRHE9HS123456,STLA')]
     procedure FindByVIN_RoutesToCorrectOEM(const VIN, ExpectedKey: string);
 
+    /// <summary>
+    ///   Mercedes  decode mileage.
+    /// </summary>
     [Test] procedure Mercedes_DecodeMileage;
+    /// <summary>
+    ///   Mercedes  decode programming status.
+    /// </summary>
     [Test] procedure Mercedes_DecodeProgrammingStatus;
+    /// <summary>
+    ///   Ford  decode battery voltage.
+    /// </summary>
     [Test] procedure Ford_DecodeBatteryVoltage;
+    /// <summary>
+    ///   Ford  decode fuel level.
+    /// </summary>
     [Test] procedure Ford_DecodeFuelLevel;
+    /// <summary>
+    ///   G m  decode mileage.
+    /// </summary>
     [Test] procedure GM_DecodeMileage;
+    /// <summary>
+    ///   Stellantis  decode programming date.
+    /// </summary>
     [Test] procedure Stellantis_DecodeProgrammingDate;
   end;
 
@@ -40,6 +58,9 @@ uses
   System.SysUtils,
   OBD.OEM, OBD.OEM.Mercedes, OBD.OEM.Ford, OBD.OEM.GM, OBD.OEM.Stellantis;
 
+//------------------------------------------------------------------------------
+// FIND BY VIN_ROUTES TO CORRECT OEM
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.FindByVIN_RoutesToCorrectOEM(
   const VIN, ExpectedKey: string);
 var
@@ -51,6 +72,9 @@ begin
   Assert.AreEqual(ExpectedKey, Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES_DECODE MILEAGE
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.Mercedes_DecodeMileage;
 var
   Ext: IOBDOEMExtension;
@@ -62,6 +86,9 @@ begin
   Assert.AreEqual('mileage = 74565 km', Ext.DecodeDID($0202, Payload));
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES_DECODE PROGRAMMING STATUS
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.Mercedes_DecodeProgrammingStatus;
 var
   Ext: IOBDOEMExtension;
@@ -75,8 +102,12 @@ begin
     Ext.DecodeDID($F19E, TBytes.Create($02)));
 end;
 
+//------------------------------------------------------------------------------
+// FORD_DECODE BATTERY VOLTAGE
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.Ford_DecodeBatteryVoltage;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMRegistry.FindByKey('FORD');
   // 12345 mV
@@ -84,16 +115,24 @@ begin
     Ext.DecodeDID($DE02, TBytes.Create($30, $39)));
 end;
 
+//------------------------------------------------------------------------------
+// FORD_DECODE FUEL LEVEL
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.Ford_DecodeFuelLevel;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMRegistry.FindByKey('FORD');
   Assert.AreEqual('fuel_level = 75 %',
     Ext.DecodeDID($DE00, TBytes.Create($4B)));
 end;
 
+//------------------------------------------------------------------------------
+// GM_DECODE MILEAGE
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.GM_DecodeMileage;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMRegistry.FindByKey('GM');
   // 0x0001E240 = 123456 km, 4-byte big-endian
@@ -101,8 +140,12 @@ begin
     Ext.DecodeDID($1981, TBytes.Create($00, $01, $E2, $40)));
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS_DECODE PROGRAMMING DATE
+//------------------------------------------------------------------------------
 procedure TOEMExtraRegistryTests.Stellantis_DecodeProgrammingDate;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMRegistry.FindByKey('STLA');
   // BCD-encoded YY MM DD = 25 03 14 → 2025-03-14

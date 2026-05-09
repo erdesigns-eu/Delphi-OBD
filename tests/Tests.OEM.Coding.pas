@@ -13,69 +13,186 @@ type
   [TestFixture]
   TCodingHexTests = class
   public
+    /// <summary>
+    ///   Hex string round trip.
+    /// </summary>
     [Test] procedure HexStringRoundTrip;
+    /// <summary>
+    ///   Hex string strips whitespace and separators.
+    /// </summary>
     [Test] procedure HexStringStripsWhitespaceAndSeparators;
+    /// <summary>
+    ///   Hex string rejects odd length.
+    /// </summary>
     [Test] procedure HexStringRejectsOddLength;
+    /// <summary>
+    ///   Hex string rejects bad character.
+    /// </summary>
     [Test] procedure HexStringRejectsBadCharacter;
+    /// <summary>
+    ///   Bytes to hex uses upper case.
+    /// </summary>
     [Test] procedure BytesToHexUsesUpperCase;
+    /// <summary>
+    ///   Bytes to hex with separator.
+    /// </summary>
     [Test] procedure BytesToHexWithSeparator;
+    /// <summary>
+    ///   Bit ops read and write.
+    /// </summary>
     [Test] procedure BitOpsReadAndWrite;
+    /// <summary>
+    ///   Bit ops reject out of range.
+    /// </summary>
     [Test] procedure BitOpsRejectOutOfRange;
   end;
 
   [TestFixture]
   TVWLongCodingTests = class
   public
+    /// <summary>
+    ///   Construct from hex preserves bytes.
+    /// </summary>
     [Test] procedure ConstructFromHexPreservesBytes;
+    /// <summary>
+    ///   Set byte and read back.
+    /// </summary>
     [Test] procedure SetByteAndReadBack;
+    /// <summary>
+    ///   Set bit flips the right position.
+    /// </summary>
     [Test] procedure SetBitFlipsTheRightPosition;
+    /// <summary>
+    ///   Has non zero byte detects all zeros.
+    /// </summary>
     [Test] procedure HasNonZeroByteDetectsAllZeros;
+    /// <summary>
+    ///   To hex round trips constructor.
+    /// </summary>
     [Test] procedure ToHexRoundTripsConstructor;
+    /// <summary>
+    ///   To bytes is an independent copy.
+    /// </summary>
     [Test] procedure ToBytesIsAnIndependentCopy;
+    /// <summary>
+    ///   Set byte out of range raises.
+    /// </summary>
     [Test] procedure SetByteOutOfRangeRaises;
   end;
 
   [TestFixture]
   TBMWFATests = class
   public
+    /// <summary>
+    ///   Parses comma separated.
+    /// </summary>
     [Test] procedure ParsesCommaSeparated;
+    /// <summary>
+    ///   Deduplicates on add.
+    /// </summary>
     [Test] procedure DeduplicatesOnAdd;
+    /// <summary>
+    ///   Normalises to upper case.
+    /// </summary>
     [Test] procedure NormalisesToUpperCase;
+    /// <summary>
+    ///   Remove option works.
+    /// </summary>
     [Test] procedure RemoveOptionWorks;
+    /// <summary>
+    ///   To string sorts ascending.
+    /// </summary>
     [Test] procedure ToStringSortsAscending;
+    /// <summary>
+    ///   Has option is case insensitive.
+    /// </summary>
     [Test] procedure HasOptionIsCaseInsensitive;
+    /// <summary>
+    ///   Rejects empty code.
+    /// </summary>
     [Test] procedure RejectsEmptyCode;
   end;
 
   [TestFixture]
   TBMWIStufeTests = class
   public
+    /// <summary>
+    ///   Parse round trip.
+    /// </summary>
     [Test] procedure ParseRoundTrip;
+    /// <summary>
+    ///   Parse rejects wrong part count.
+    /// </summary>
     [Test] procedure ParseRejectsWrongPartCount;
+    /// <summary>
+    ///   Parse rejects bad month.
+    /// </summary>
     [Test] procedure ParseRejectsBadMonth;
+    /// <summary>
+    ///   Compare orders by year month build.
+    /// </summary>
     [Test] procedure CompareOrdersByYearMonthBuild;
+    /// <summary>
+    ///   At least different project is false.
+    /// </summary>
     [Test] procedure AtLeastDifferentProjectIsFalse;
+    /// <summary>
+    ///   To string pads zeros.
+    /// </summary>
     [Test] procedure ToStringPadsZeros;
   end;
 
   [TestFixture]
   TMercedesSCNTests = class
   public
+    /// <summary>
+    ///   Parses three segments.
+    /// </summary>
     [Test] procedure ParsesThreeSegments;
+    /// <summary>
+    ///   Rejects two segments.
+    /// </summary>
     [Test] procedure RejectsTwoSegments;
+    /// <summary>
+    ///   Rejects illegal character.
+    /// </summary>
     [Test] procedure RejectsIllegalCharacter;
+    /// <summary>
+    ///   Normalizes to upper.
+    /// </summary>
     [Test] procedure NormalizesToUpper;
+    /// <summary>
+    ///   To string round trips.
+    /// </summary>
     [Test] procedure ToStringRoundTrips;
   end;
 
   [TestFixture]
   TFordAsBuiltTests = class
   public
+    /// <summary>
+    ///   Checksum matches spec.
+    /// </summary>
     [Test] procedure ChecksumMatchesSpec;
+    /// <summary>
+    ///   Parse line extracts fields.
+    /// </summary>
     [Test] procedure ParseLineExtractsFields;
+    /// <summary>
+    ///   Parse rejects missing checksum.
+    /// </summary>
     [Test] procedure ParseRejectsMissingChecksum;
+    /// <summary>
+    ///   Reseal recomputes checksum.
+    /// </summary>
     [Test] procedure ResealRecomputesChecksum;
+    /// <summary>
+    ///   Parse text skips comments and blanks.
+    /// </summary>
     [Test] procedure ParseTextSkipsCommentsAndBlanks;
+    /// <summary>
+    ///   To string round trips.
+    /// </summary>
     [Test] procedure ToStringRoundTrips;
   end;
 
@@ -89,6 +206,10 @@ uses
 //==============================================================================
 // Hex + bit helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// HEX STRING ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.HexStringRoundTrip;
 var
   B: TBytes;
@@ -99,6 +220,9 @@ begin
   Assert.AreEqual(Byte($00), B[3]);
 end;
 
+//------------------------------------------------------------------------------
+// HEX STRING STRIPS WHITESPACE AND SEPARATORS
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.HexStringStripsWhitespaceAndSeparators;
 var
   B: TBytes;
@@ -108,6 +232,9 @@ begin
   Assert.AreEqual(Byte($30), B[4]);
 end;
 
+//------------------------------------------------------------------------------
+// HEX STRING REJECTS ODD LENGTH
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.HexStringRejectsOddLength;
 begin
   Assert.WillRaise(
@@ -115,6 +242,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// HEX STRING REJECTS BAD CHARACTER
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.HexStringRejectsBadCharacter;
 begin
   Assert.WillRaise(
@@ -122,17 +252,26 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// BYTES TO HEX USES UPPER CASE
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.BytesToHexUsesUpperCase;
 begin
   Assert.AreEqual('AB12', BytesToHexString(TBytes.Create($AB, $12)));
 end;
 
+//------------------------------------------------------------------------------
+// BYTES TO HEX WITH SEPARATOR
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.BytesToHexWithSeparator;
 begin
   Assert.AreEqual('AB 12 CD',
     BytesToHexString(TBytes.Create($AB, $12, $CD), ' '));
 end;
 
+//------------------------------------------------------------------------------
+// BIT OPS READ AND WRITE
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.BitOpsReadAndWrite;
 var
   B: TBytes;
@@ -146,6 +285,9 @@ begin
   Assert.AreEqual(Byte($00), B[0]);
 end;
 
+//------------------------------------------------------------------------------
+// BIT OPS REJECT OUT OF RANGE
+//------------------------------------------------------------------------------
 procedure TCodingHexTests.BitOpsRejectOutOfRange;
 var
   B: TBytes;
@@ -160,6 +302,10 @@ end;
 //==============================================================================
 // VW Long Coding
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CONSTRUCT FROM HEX PRESERVES BYTES
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.ConstructFromHexPreservesBytes;
 var
   LC: TOBDVWLongCoding;
@@ -174,6 +320,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BYTE AND READ BACK
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.SetByteAndReadBack;
 var
   LC: TOBDVWLongCoding;
@@ -187,6 +336,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BIT FLIPS THE RIGHT POSITION
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.SetBitFlipsTheRightPosition;
 var
   LC: TOBDVWLongCoding;
@@ -202,6 +354,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HAS NON ZERO BYTE DETECTS ALL ZEROS
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.HasNonZeroByteDetectsAllZeros;
 var
   LC: TOBDVWLongCoding;
@@ -216,6 +371,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TO HEX ROUND TRIPS CONSTRUCTOR
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.ToHexRoundTripsConstructor;
 var
   LC: TOBDVWLongCoding;
@@ -228,6 +386,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TO BYTES IS AN INDEPENDENT COPY
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.ToBytesIsAnIndependentCopy;
 var
   LC: TOBDVWLongCoding;
@@ -244,6 +405,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BYTE OUT OF RANGE RAISES
+//------------------------------------------------------------------------------
 procedure TVWLongCodingTests.SetByteOutOfRangeRaises;
 var
   LC: TOBDVWLongCoding;
@@ -261,6 +425,10 @@ end;
 //==============================================================================
 // BMW FA
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSES COMMA SEPARATED
+//------------------------------------------------------------------------------
 procedure TBMWFATests.ParsesCommaSeparated;
 var
   FA: TOBDBMWFA;
@@ -275,6 +443,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DEDUPLICATES ON ADD
+//------------------------------------------------------------------------------
 procedure TBMWFATests.DeduplicatesOnAdd;
 var
   FA: TOBDBMWFA;
@@ -289,6 +460,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NORMALISES TO UPPER CASE
+//------------------------------------------------------------------------------
 procedure TBMWFATests.NormalisesToUpperCase;
 var
   FA: TOBDBMWFA;
@@ -302,6 +476,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE OPTION WORKS
+//------------------------------------------------------------------------------
 procedure TBMWFATests.RemoveOptionWorks;
 var
   FA: TOBDBMWFA;
@@ -316,6 +493,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING SORTS ASCENDING
+//------------------------------------------------------------------------------
 procedure TBMWFATests.ToStringSortsAscending;
 var
   FA: TOBDBMWFA;
@@ -328,6 +508,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HAS OPTION IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TBMWFATests.HasOptionIsCaseInsensitive;
 var
   FA: TOBDBMWFA;
@@ -340,6 +523,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS EMPTY CODE
+//------------------------------------------------------------------------------
 procedure TBMWFATests.RejectsEmptyCode;
 var
   FA: TOBDBMWFA;
@@ -357,6 +543,10 @@ end;
 //==============================================================================
 // BMW I-Stufe
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.ParseRoundTrip;
 var
   S: TOBDBMWIStufe;
@@ -369,6 +559,9 @@ begin
   Assert.AreEqual('F020-21-03-630', S.ToString);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG PART COUNT
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.ParseRejectsWrongPartCount;
 begin
   Assert.WillRaise(
@@ -376,6 +569,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS BAD MONTH
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.ParseRejectsBadMonth;
 begin
   Assert.WillRaise(
@@ -383,6 +579,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// COMPARE ORDERS BY YEAR MONTH BUILD
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.CompareOrdersByYearMonthBuild;
 var
   A, B, C: TOBDBMWIStufe;
@@ -395,6 +594,9 @@ begin
   Assert.AreEqual(0, A.CompareTo(A));
 end;
 
+//------------------------------------------------------------------------------
+// AT LEAST DIFFERENT PROJECT IS FALSE
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.AtLeastDifferentProjectIsFalse;
 var
   A, B: TOBDBMWIStufe;
@@ -405,6 +607,9 @@ begin
   Assert.IsFalse(B.AtLeast(A));
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING PADS ZEROS
+//------------------------------------------------------------------------------
 procedure TBMWIStufeTests.ToStringPadsZeros;
 var
   S: TOBDBMWIStufe;
@@ -416,6 +621,10 @@ end;
 //==============================================================================
 // Mercedes SCN
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSES THREE SEGMENTS
+//------------------------------------------------------------------------------
 procedure TMercedesSCNTests.ParsesThreeSegments;
 var
   SCN: TOBDMercedesSCN;
@@ -426,6 +635,9 @@ begin
   Assert.AreEqual('A1B2C3',      SCN.BuildSegment);
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS TWO SEGMENTS
+//------------------------------------------------------------------------------
 procedure TMercedesSCNTests.RejectsTwoSegments;
 begin
   Assert.WillRaise(
@@ -433,6 +645,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS ILLEGAL CHARACTER
+//------------------------------------------------------------------------------
 procedure TMercedesSCNTests.RejectsIllegalCharacter;
 begin
   Assert.WillRaise(
@@ -440,6 +655,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// NORMALIZES TO UPPER
+//------------------------------------------------------------------------------
 procedure TMercedesSCNTests.NormalizesToUpper;
 var
   SCN: TOBDMercedesSCN;
@@ -448,6 +666,9 @@ begin
   Assert.AreEqual('A1B2C3', SCN.BuildSegment);
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TMercedesSCNTests.ToStringRoundTrips;
 var
   SCN: TOBDMercedesSCN;
@@ -459,6 +680,10 @@ end;
 //==============================================================================
 // Ford AsBuilt
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CHECKSUM MATCHES SPEC
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ChecksumMatchesSpec;
 var
   Block: TOBDFordAsBuiltBlock;
@@ -471,6 +696,9 @@ begin
   Assert.AreEqual(Byte($77), Block.ComputeChecksum);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE LINE EXTRACTS FIELDS
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ParseLineExtractsFields;
 var
   Block: TOBDFordAsBuiltBlock;
@@ -481,6 +709,9 @@ begin
   Assert.IsTrue(Block.IsValid);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS MISSING CHECKSUM
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ParseRejectsMissingChecksum;
 begin
   Assert.WillRaise(
@@ -488,6 +719,9 @@ begin
     EOBDCodingError);
 end;
 
+//------------------------------------------------------------------------------
+// RESEAL RECOMPUTES CHECKSUM
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ResealRecomputesChecksum;
 var
   Block: TOBDFordAsBuiltBlock;
@@ -500,6 +734,9 @@ begin
   Assert.IsTrue(Block.IsValid);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE TEXT SKIPS COMMENTS AND BLANKS
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ParseTextSkipsCommentsAndBlanks;
 var
   Blocks: TArray<TOBDFordAsBuiltBlock>;
@@ -515,6 +752,9 @@ begin
   Assert.AreEqual(2, Length(Blocks));
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TFordAsBuiltTests.ToStringRoundTrips;
 var
   Block: TOBDFordAsBuiltBlock;

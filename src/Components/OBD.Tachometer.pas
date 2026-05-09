@@ -138,9 +138,13 @@ type
     property Min: Single read FMin write SetMin;
     property Max: Single read FMax write SetMax;
     property Value: Single read FValue write SetValue;
-    /// <summary>RPM at which the redline arc starts.</summary>
+    /// <summary>
+    ///   RPM at which the redline arc starts.
+    /// </summary>
     property RedlineFrom: Single read FRedlineFrom write SetRedlineFrom;
-    /// <summary>RPM at which the shift light fires.</summary>
+    /// <summary>
+    ///   RPM at which the shift light fires.
+    /// </summary>
     property ShiftPoint: Single read FShiftPoint write SetShiftPoint;
 
     property StartAngle: Single read FStartAngle write SetStartAngle;
@@ -148,7 +152,9 @@ type
 
     property MajorTickInterval: Single read FMajorTickInterval write SetMajorTickInterval;
     property MinorTickInterval: Single read FMinorTickInterval write SetMinorTickInterval;
-    /// <summary>Numeric divisor applied to tick labels (1000 → "0..8" instead of "0..8000").</summary>
+    /// <summary>
+    ///   Numeric divisor applied to tick labels (1000 → "0..8" instead of "0..8000").
+    /// </summary>
     property TickLabelDivisor: Single read FTickLabelDivisor write SetTickLabelDivisor;
 
     property BackgroundColor: TColor read FBackgroundColor write SetBackgroundColor default TC_DEFAULT_BACKGROUND_COLOR;
@@ -223,6 +229,9 @@ begin
   Result := 1 - (T * T * T);
 end;
 
+//------------------------------------------------------------------------------
+// VALUE TO FRACTION
+//------------------------------------------------------------------------------
 function TOBDTachometer.ValueToFraction(const AValue: Single): Single;
 var
   Span: Single;
@@ -286,6 +295,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetMax(const AValue: Single);
 begin
   if FMax <> AValue then
@@ -297,6 +309,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetValue(const AValue: Single);
 var
   Clamped: Single;
@@ -319,63 +334,199 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// SET REDLINE FROM
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetRedlineFrom(const AValue: Single);
-begin if FRedlineFrom <> AValue then begin FRedlineFrom := AValue; Invalidate; end; end;
+begin
+  if FRedlineFrom <> AValue then begin FRedlineFrom := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHIFT POINT
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetShiftPoint(const AValue: Single);
-begin if FShiftPoint <> AValue then begin FShiftPoint := AValue; Invalidate; end; end;
+begin
+  if FShiftPoint <> AValue then begin FShiftPoint := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET START ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetStartAngle(const AValue: Single);
-begin if FStartAngle <> AValue then begin FStartAngle := AValue; Invalidate; end; end;
+begin
+  if FStartAngle <> AValue then begin FStartAngle := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SWEEP ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetSweepAngle(const AValue: Single);
-begin if FSweepAngle <> AValue then begin FSweepAngle := AValue; Invalidate; end; end;
+begin
+  if FSweepAngle <> AValue then begin FSweepAngle := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET MAJOR TICK INTERVAL
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetMajorTickInterval(const AValue: Single);
-begin if (FMajorTickInterval <> AValue) and (AValue > 0) then begin FMajorTickInterval := AValue; Invalidate; end; end;
+begin
+  if (FMajorTickInterval <> AValue) and (AValue > 0) then begin FMajorTickInterval := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET MINOR TICK INTERVAL
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetMinorTickInterval(const AValue: Single);
-begin if (FMinorTickInterval <> AValue) and (AValue > 0) then begin FMinorTickInterval := AValue; Invalidate; end; end;
+begin
+  if (FMinorTickInterval <> AValue) and (AValue > 0) then begin FMinorTickInterval := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TICK LABEL DIVISOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetTickLabelDivisor(const AValue: Single);
-begin if (FTickLabelDivisor <> AValue) and (AValue > 0) then begin FTickLabelDivisor := AValue; Invalidate; end; end;
+begin
+  if (FTickLabelDivisor <> AValue) and (AValue > 0) then begin FTickLabelDivisor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET RING COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetRingColor(const AValue: TColor);
-begin if FRingColor <> AValue then begin FRingColor := AValue; Invalidate; end; end;
+begin
+  if FRingColor <> AValue then begin FRingColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetBorderColor(const AValue: TColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TICK COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetTickColor(const AValue: TColor);
-begin if FTickColor <> AValue then begin FTickColor := AValue; Invalidate; end; end;
+begin
+  if FTickColor <> AValue then begin FTickColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET REDLINE COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetRedlineColor(const AValue: TColor);
-begin if FRedlineColor <> AValue then begin FRedlineColor := AValue; Invalidate; end; end;
+begin
+  if FRedlineColor <> AValue then begin FRedlineColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET NEEDLE COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetNeedleColor(const AValue: TColor);
-begin if FNeedleColor <> AValue then begin FNeedleColor := AValue; Invalidate; end; end;
+begin
+  if FNeedleColor <> AValue then begin FNeedleColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetTextColor(const AValue: TColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Invalidate; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHIFT LIGHT COLOR OFF
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetShiftLightColorOff(const AValue: TColor);
-begin if FShiftLightColorOff <> AValue then begin FShiftLightColorOff := AValue; Invalidate; end; end;
+begin
+  if FShiftLightColorOff <> AValue then begin FShiftLightColorOff := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHIFT LIGHT COLOR ON
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetShiftLightColorOn(const AValue: TColor);
-begin if FShiftLightColorOn <> AValue then begin FShiftLightColorOn := AValue; Invalidate; end; end;
+begin
+  if FShiftLightColorOn <> AValue then begin FShiftLightColorOn := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetCaption(const AValue: string);
-begin if FCaption <> AValue then begin FCaption := AValue; Invalidate; end; end;
+begin
+  if FCaption <> AValue then begin FCaption := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET UNITS
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetUnits(const AValue: string);
-begin if FUnits <> AValue then begin FUnits := AValue; Invalidate; end; end;
+begin
+  if FUnits <> AValue then begin FUnits := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW SHIFT LIGHT
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetShowShiftLight(const AValue: Boolean);
-begin if FShowShiftLight <> AValue then begin FShowShiftLight := AValue; Invalidate; end; end;
+begin
+  if FShowShiftLight <> AValue then begin FShowShiftLight := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ANIMATION ENABLED
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetAnimationEnabled(const AValue: Boolean);
 begin
   if FAnimationEnabled <> AValue then
@@ -386,8 +537,15 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET ANIMATION DURATION MS
+//------------------------------------------------------------------------------
 procedure TOBDTachometer.SetAnimationDurationMs(const AValue: Integer);
-begin if (FAnimationDurationMs <> AValue) and (AValue >= 0) then begin FAnimationDurationMs := AValue; Invalidate; end; end;
+begin
+  if (FAnimationDurationMs <> AValue) and (AValue >= 0) then begin FAnimationDurationMs := AValue;
+  Invalidate;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // PAINT SKIA

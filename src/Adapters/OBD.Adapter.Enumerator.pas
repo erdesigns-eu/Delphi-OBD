@@ -340,8 +340,20 @@ uses System.Math;
 // SERIAL
 //------------------------------------------------------------------------------
 function SetupDiGetClassDevs(const ClassGuid: PGUID; Enumerator: PChar; hwndParent: HWND; Flags: DWORD): HDEVINFO; stdcall; external SETUP_API_DLL name 'SetupDiGetClassDevsA';
+
+//------------------------------------------------------------------------------
+// SETUP DI ENUM DEVICE INFO
+//------------------------------------------------------------------------------
 function SetupDiEnumDeviceInfo(DeviceInfoSet: HDEVINFO; MemberIndex: DWORD; var DeviceInfoData: SP_DEVINFO_DATA): BOOL; stdcall; external SETUP_API_DLL name 'SetupDiEnumDeviceInfo';
+
+//------------------------------------------------------------------------------
+// SETUP DI GET DEVICE REGISTRY PROPERTY
+//------------------------------------------------------------------------------
 function SetupDiGetDeviceRegistryProperty(DeviceInfoSet: HDEVINFO; const DeviceInfoData: SP_DEVINFO_DATA; PropertyReg: DWORD; PropertyRegDataType: PDWORD; PropertyBuffer: PBYTE; PropertyBufferSize: DWORD; RequiredSize: PDWORD): BOOL; stdcall; external SETUP_API_DLL name 'SetupDiGetDeviceRegistryPropertyA';
+
+//------------------------------------------------------------------------------
+// SETUP DI DESTROY DEVICE INFO LIST
+//------------------------------------------------------------------------------
 function SetupDiDestroyDeviceInfoList(DeviceInfoSet: HDEVINFO): BOOL; stdcall; external SETUP_API_DLL name 'SetupDiDestroyDeviceInfoList';
 
 //------------------------------------------------------------------------------
@@ -878,12 +890,18 @@ begin
   Result := GetSerialAdapters;
 end;
 
+//------------------------------------------------------------------------------
+// SNAPSHOT FTDIADAPTERS
+//------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.SnapshotFTDIAdapters: TArray<TFTDIOBDAdapterEnum>;
 begin
   // Provide a copy of the cached FTDI adapters
   Result := GetFTDIAdapters;
 end;
 
+//------------------------------------------------------------------------------
+// SNAPSHOT BLUETOOTH ADAPTERS
+//------------------------------------------------------------------------------
 function TOBDAdapterEnumerator.SnapshotBluetoothAdapters: TArray<TBluetoothOBDAdapterEnum>;
 begin
   // Provide a copy of the cached Bluetooth adapters

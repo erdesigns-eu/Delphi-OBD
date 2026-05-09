@@ -45,7 +45,9 @@ type
     constructor Create(const APromise: IOBDPromise<string>;
       const ATerminator: string; ATimeoutMs: Cardinal;
       const AToken: IOBDCancellationToken);
-    /// <summary>Append received bytes; returns True when terminator seen.</summary>
+    /// <summary>
+    ///   Append received bytes; returns True when terminator seen.
+    /// </summary>
     function Feed(const Bytes: TBytes): Boolean;
     function ExpiredAt(Tick: UInt64): Boolean;
     procedure ResolveTimeout;
@@ -115,7 +117,9 @@ type
     /// </summary>
     function PendingCount: Integer;
 
-    /// <summary>The wrapped connection — owned by the caller.</summary>
+    /// <summary>
+    ///   The wrapped connection — owned by the caller.
+    /// </summary>
     property Connection: IOBDConnection read FConnection;
   end;
 
@@ -127,6 +131,10 @@ uses
 //==============================================================================
 // TOBDAsyncRequest
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDAsyncRequest.Create(const APromise: IOBDPromise<string>;
   const ATerminator: string; ATimeoutMs: Cardinal;
   const AToken: IOBDCancellationToken);
@@ -141,6 +149,9 @@ begin
     FDeadlineTick := GetTickCount64 + ATimeoutMs;
 end;
 
+//------------------------------------------------------------------------------
+// FEED
+//------------------------------------------------------------------------------
 function TOBDAsyncRequest.Feed(const Bytes: TBytes): Boolean;
 var
   Chunk: string;
@@ -170,16 +181,25 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXPIRED AT
+//------------------------------------------------------------------------------
 function TOBDAsyncRequest.ExpiredAt(Tick: UInt64): Boolean;
 begin
   Result := (FDeadlineTick <> High(UInt64)) and (Tick >= FDeadlineTick);
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE TIMEOUT
+//------------------------------------------------------------------------------
 procedure TOBDAsyncRequest.ResolveTimeout;
 begin
   FPromise.SetError(EOBDFutureTimeout.Create('Adapter response timed out'));
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE CANCELLED
+//------------------------------------------------------------------------------
 procedure TOBDAsyncRequest.ResolveCancelled;
 begin
   FPromise.SignalCancelled;
@@ -188,6 +208,10 @@ end;
 //==============================================================================
 // TOBDConnectionAsync
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDConnectionAsync.Create(const AConnection: IOBDConnection);
 begin
   inherited Create;
@@ -199,6 +223,9 @@ begin
   InstallReceiver;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDConnectionAsync.Destroy;
 begin
   CancelAll;
@@ -208,6 +235,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// INSTALL RECEIVER
+//------------------------------------------------------------------------------
 procedure TOBDConnectionAsync.InstallReceiver;
 begin
   // Preserve any handler the caller already attached so this wrapper can
@@ -217,6 +247,9 @@ begin
   FInstalledOnReceive := True;
 end;
 
+//------------------------------------------------------------------------------
+// UNINSTALL RECEIVER
+//------------------------------------------------------------------------------
 procedure TOBDConnectionAsync.UninstallReceiver;
 begin
   if not FInstalledOnReceive then Exit;
@@ -225,6 +258,9 @@ begin
   FInstalledOnReceive := False;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE RECEIVE
+//------------------------------------------------------------------------------
 procedure TOBDConnectionAsync.HandleReceive(Sender: TObject; DataPtr: Pointer;
   DataSize: DWORD);
 var
@@ -272,6 +308,9 @@ begin
   SweepDeadlines;
 end;
 
+//------------------------------------------------------------------------------
+// SWEEP DEADLINES
+//------------------------------------------------------------------------------
 procedure TOBDConnectionAsync.SweepDeadlines;
 var
   Now: UInt64;
@@ -304,6 +343,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENQUEUE REQUEST
+//------------------------------------------------------------------------------
 function TOBDConnectionAsync.EnqueueRequest(const Terminator: string;
   TimeoutMs: Cardinal; const Token: IOBDCancellationToken): IOBDFuture<string>;
 var
@@ -322,6 +364,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// SEND ASYNC
+//------------------------------------------------------------------------------
 function TOBDConnectionAsync.SendAsync(const Cmd: string;
   TimeoutMs: Cardinal; const Terminator: string;
   const Token: IOBDCancellationToken): IOBDFuture<string>;
@@ -358,6 +403,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ATASYNC
+//------------------------------------------------------------------------------
 function TOBDConnectionAsync.ATAsync(const AT: string;
   TimeoutMs: Cardinal; const Token: IOBDCancellationToken): IOBDFuture<string>;
 var
@@ -370,12 +418,18 @@ begin
   Result := SendAsync(Cmd, TimeoutMs, ELM_PROMPT, Token);
 end;
 
+//------------------------------------------------------------------------------
+// OBDASYNC
+//------------------------------------------------------------------------------
 function TOBDConnectionAsync.OBDAsync(const HexCommand: string;
   TimeoutMs: Cardinal; const Token: IOBDCancellationToken): IOBDFuture<string>;
 begin
   Result := SendAsync(HexCommand, TimeoutMs, ELM_PROMPT, Token);
 end;
 
+//------------------------------------------------------------------------------
+// CANCEL ALL
+//------------------------------------------------------------------------------
 procedure TOBDConnectionAsync.CancelAll;
 var
   Req: TOBDAsyncRequest;
@@ -392,6 +446,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PENDING COUNT
+//------------------------------------------------------------------------------
 function TOBDConnectionAsync.PendingCount: Integer;
 begin
   FQueueLock.Enter;

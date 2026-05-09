@@ -13,15 +13,45 @@ type
   [TestFixture]
   TFlashingTests = class
   public
+    /// <summary>
+    ///   Happy path  transitions through every stage and completes.
+    /// </summary>
     [Test] procedure HappyPath_TransitionsThroughEveryStageAndCompletes;
+    /// <summary>
+    ///   Health check fail  stops at pre check.
+    /// </summary>
     [Test] procedure HealthCheckFail_StopsAtPreCheck;
+    /// <summary>
+    ///   Signature fail  stops before writing.
+    /// </summary>
     [Test] procedure SignatureFail_StopsBeforeWriting;
+    /// <summary>
+    ///   Snapshot fail  stops before writing.
+    /// </summary>
     [Test] procedure SnapshotFail_StopsBeforeWriting;
+    /// <summary>
+    ///   Write fail  triggers rollback  to snapshot bytes.
+    /// </summary>
     [Test] procedure WriteFail_TriggersRollback_ToSnapshotBytes;
+    /// <summary>
+    ///   Finalise fail  triggers rollback.
+    /// </summary>
     [Test] procedure FinaliseFail_TriggersRollback;
+    /// <summary>
+    ///   Verify fail  triggers rollback.
+    /// </summary>
     [Test] procedure VerifyFail_TriggersRollback;
+    /// <summary>
+    ///   Progress events fire through write phase.
+    /// </summary>
     [Test] procedure ProgressEventsFireThroughWritePhase;
+    /// <summary>
+    ///   Cancel during write  aborts before all chunks.
+    /// </summary>
     [Test] procedure CancelDuringWrite_AbortsBeforeAllChunks;
+    /// <summary>
+    ///   Block size  splits firmware correctly.
+    /// </summary>
     [Test] procedure BlockSize_SplitsFirmwareCorrectly;
   end;
 
@@ -31,19 +61,29 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections,
   OBD.ECU.Flashing, OBD.ECU.Signature;
 
+//------------------------------------------------------------------------------
+// MAKE FIRMWARE
+//------------------------------------------------------------------------------
 function MakeFirmware(const Bytes: array of Byte): TBytes;
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(Result, Length(Bytes));
   for I := 0 to High(Bytes) do Result[I] := Bytes[I];
 end;
 
+//------------------------------------------------------------------------------
+// FIRMWARE MATCHING SNAPSHOT
+//------------------------------------------------------------------------------
 function FirmwareMatchingSnapshot(const Snapshot: TBytes; out Sig: TBytes): TBytes;
 begin
   Result := Copy(Snapshot, 0, Length(Snapshot));
   Sig := ComputeSha256(Result);
 end;
 
+//------------------------------------------------------------------------------
+// HAPPY PATH_TRANSITIONS THROUGH EVERY STAGE AND COMPLETES
+//------------------------------------------------------------------------------
 procedure TFlashingTests.HappyPath_TransitionsThroughEveryStageAndCompletes;
 var
   Flasher: TOBDECUFlashing;
@@ -62,19 +102,38 @@ begin
     Flasher.BlockSize := 4;
     Flasher.OnHealthCheck :=
       function(out Reason: string): Boolean
-      begin HealthCalled := True; Reason := ''; Result := True; end;
+      begin
+        HealthCalled := True;
+        Reason := '';
+        Result := True;
+      end;
     Flasher.OnSnapshot :=
       function(const Progress: TProc<Single>): TBytes
-      begin Progress(50); Progress(100); Result := Snapshot; end;
+      begin
+        Progress(50);
+        Progress(100);
+        Result := Snapshot;
+      end;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin WrittenBlocks.Add(Data); Result := True; end;
+      begin
+        WrittenBlocks.Add(Data);
+        Result := True;
+      end;
     Flasher.OnFinalise :=
       function(out Reason: string): Boolean
-      begin FinaliseCalled := True; Reason := ''; Result := True; end;
+      begin
+        FinaliseCalled := True;
+        Reason := '';
+        Result := True;
+      end;
     Flasher.OnVerifyEcu :=
       function(out Reason: string): Boolean
-      begin VerifyCalled := True; Reason := ''; Result := True; end;
+      begin
+        VerifyCalled := True;
+        Reason := '';
+        Result := True;
+      end;
 
     Assert.IsTrue(Flasher.StartFlash(Firmware, Signature));
     Assert.AreEqual(Ord(fsCompleted), Ord(Flasher.Stage));
@@ -89,6 +148,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HEALTH CHECK FAIL_STOPS AT PRE CHECK
+//------------------------------------------------------------------------------
 procedure TFlashingTests.HealthCheckFail_StopsAtPreCheck;
 var
   Flasher: TOBDECUFlashing;
@@ -105,12 +167,20 @@ begin
   try
     Flasher.OnHealthCheck :=
       function(out Reason: string): Boolean
-      begin Reason := 'battery low'; Result := False; end;
+      begin
+        Reason := 'battery low';
+        Result := False;
+      end;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin WriteCalled := True; Result := True; end;
+      begin
+        WriteCalled := True;
+        Result := True;
+      end;
     Flasher.OnFailed := procedure(Sender: TObject; Stage: TOBDFlashStage)
-      begin FailedAt := Stage; end;
+      begin
+        FailedAt := Stage;
+      end;
 
     Assert.IsFalse(Flasher.StartFlash(Firmware, Sig));
     Assert.AreEqual(Ord(fsFailed), Ord(Flasher.Stage));
@@ -121,6 +191,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SIGNATURE FAIL_STOPS BEFORE WRITING
+//------------------------------------------------------------------------------
 procedure TFlashingTests.SignatureFail_StopsBeforeWriting;
 var
   Flasher: TOBDECUFlashing;
@@ -137,9 +210,14 @@ begin
   try
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin WriteCalled := True; Result := True; end;
+      begin
+        WriteCalled := True;
+        Result := True;
+      end;
     Flasher.OnFailed := procedure(Sender: TObject; Stage: TOBDFlashStage)
-      begin FailedAt := Stage; end;
+      begin
+        FailedAt := Stage;
+      end;
 
     Assert.IsFalse(Flasher.StartFlash(Firmware, BadSig));
     Assert.AreEqual(Ord(fsVerifySignature), Ord(FailedAt));
@@ -149,6 +227,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SNAPSHOT FAIL_STOPS BEFORE WRITING
+//------------------------------------------------------------------------------
 procedure TFlashingTests.SnapshotFail_StopsBeforeWriting;
 var
   Flasher: TOBDECUFlashing;
@@ -168,9 +249,14 @@ begin
       begin Result := nil; end;     // empty buffer ⇒ fail
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin WriteCalled := True; Result := True; end;
+      begin
+        WriteCalled := True;
+        Result := True;
+      end;
     Flasher.OnFailed := procedure(Sender: TObject; Stage: TOBDFlashStage)
-      begin FailedAt := Stage; end;
+      begin
+        FailedAt := Stage;
+      end;
 
     Assert.IsFalse(Flasher.StartFlash(Firmware, Sig));
     Assert.AreEqual(Ord(fsSnapshot), Ord(FailedAt));
@@ -180,6 +266,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE FAIL_TRIGGERS ROLLBACK_TO SNAPSHOT BYTES
+//------------------------------------------------------------------------------
 procedure TFlashingTests.WriteFail_TriggersRollback_ToSnapshotBytes;
 var
   Flasher: TOBDECUFlashing;
@@ -200,7 +289,9 @@ begin
     Flasher.BlockSize := 2;
     Flasher.OnSnapshot :=
       function(const Progress: TProc<Single>): TBytes
-      begin Result := Snapshot; end;
+      begin
+        Result := Snapshot;
+      end;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
       begin
@@ -240,6 +331,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FINALISE FAIL_TRIGGERS ROLLBACK
+//------------------------------------------------------------------------------
 procedure TFlashingTests.FinaliseFail_TriggersRollback;
 var
   Flasher: TOBDECUFlashing;
@@ -256,13 +350,21 @@ begin
     Flasher.BlockSize := 4;
     Flasher.OnSnapshot :=
       function(const Progress: TProc<Single>): TBytes
-      begin Result := Snapshot; end;
+      begin
+        Result := Snapshot;
+      end;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin Inc(WriteCount); Result := True; end;
+      begin
+        Inc(WriteCount);
+        Result := True;
+      end;
     Flasher.OnFinalise :=
       function(out Reason: string): Boolean
-      begin Reason := 'checksum mismatch'; Result := False; end;
+      begin
+        Reason := 'checksum mismatch';
+        Result := False;
+      end;
 
     Assert.IsFalse(Flasher.StartFlash(Firmware, Sig));
     Assert.AreEqual(Ord(fsFailed), Ord(Flasher.Stage));
@@ -273,6 +375,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY FAIL_TRIGGERS ROLLBACK
+//------------------------------------------------------------------------------
 procedure TFlashingTests.VerifyFail_TriggersRollback;
 var
   Flasher: TOBDECUFlashing;
@@ -289,13 +394,21 @@ begin
     Flasher.BlockSize := 4;
     Flasher.OnSnapshot :=
       function(const Progress: TProc<Single>): TBytes
-      begin Result := Snapshot; end;
+      begin
+        Result := Snapshot;
+      end;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin Inc(WriteCount); Result := True; end;
+      begin
+        Inc(WriteCount);
+        Result := True;
+      end;
     Flasher.OnVerifyEcu :=
       function(out Reason: string): Boolean
-      begin Reason := 'verify failed'; Result := False; end;
+      begin
+        Reason := 'verify failed';
+        Result := False;
+      end;
 
     Assert.IsFalse(Flasher.StartFlash(Firmware, Sig));
     Assert.AreEqual(Ord(fsFailed), Ord(Flasher.Stage));
@@ -305,6 +418,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PROGRESS EVENTS FIRE THROUGH WRITE PHASE
+//------------------------------------------------------------------------------
 procedure TFlashingTests.ProgressEventsFireThroughWritePhase;
 var
   Flasher: TOBDECUFlashing;
@@ -320,7 +436,9 @@ begin
     Flasher.BlockSize := 2;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin Result := True; end;
+      begin
+        Result := True;
+      end;
     Flasher.OnProgress := procedure(Sender: TObject;
       Stage: TOBDFlashStage; PercentComplete: Single; const StageMessage: string)
     begin
@@ -339,6 +457,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CANCEL DURING WRITE_ABORTS BEFORE ALL CHUNKS
+//------------------------------------------------------------------------------
 procedure TFlashingTests.CancelDuringWrite_AbortsBeforeAllChunks;
 var
   Flasher: TOBDECUFlashing;
@@ -371,6 +492,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BLOCK SIZE_SPLITS FIRMWARE CORRECTLY
+//------------------------------------------------------------------------------
 procedure TFlashingTests.BlockSize_SplitsFirmwareCorrectly;
 var
   Flasher: TOBDECUFlashing;
@@ -386,7 +510,10 @@ begin
     Flasher.BlockSize := 3;
     Flasher.OnWriteChunk :=
       function(BlockIndex: Integer; const Data: TBytes): Boolean
-      begin Sizes.Add(Length(Data)); Result := True; end;
+      begin
+        Sizes.Add(Length(Data));
+        Result := True;
+      end;
 
     Assert.IsTrue(Flasher.StartFlash(Firmware, Sig));
     // 7 bytes / 3 → 3, 3, 1

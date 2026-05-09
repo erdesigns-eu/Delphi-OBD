@@ -66,6 +66,9 @@ implementation
 uses
   System.StrUtils;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDProtocolAsync.Create(const AProtocol: IOBDProtocol;
   const AConnection: TOBDConnectionAsync);
 begin
@@ -78,6 +81,9 @@ begin
   FConnection := AConnection;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE RESPONSE
+//------------------------------------------------------------------------------
 function TOBDProtocolAsync.ParseResponse(const RawText: string): TArray<IOBDDataMessage>;
 var
   Lines: TStringList;
@@ -96,6 +102,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST ASYNC
+//------------------------------------------------------------------------------
 function TOBDProtocolAsync.RequestAsync(Service, PID: Byte;
   TimeoutMs: Cardinal; const Token: IOBDCancellationToken
   ): IOBDFuture<TArray<IOBDDataMessage>>;
@@ -103,6 +112,9 @@ begin
   Result := RequestRawAsync(Format('%.2X %.2X', [Service, PID]), TimeoutMs, Token);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST RAW ASYNC
+//------------------------------------------------------------------------------
 function TOBDProtocolAsync.RequestRawAsync(const HexCommand: string;
   TimeoutMs: Cardinal; const Token: IOBDCancellationToken
   ): IOBDFuture<TArray<IOBDDataMessage>>;
@@ -141,6 +153,9 @@ begin
     end);
 end;
 
+//------------------------------------------------------------------------------
+// POLL ASYNC
+//------------------------------------------------------------------------------
 function TOBDProtocolAsync.PollAsync(const PIDs: TArray<Byte>;
   TimeoutMsPerCall: Cardinal; const Token: IOBDCancellationToken
   ): IOBDFuture<TArray<TArray<IOBDDataMessage>>>;

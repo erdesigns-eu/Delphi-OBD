@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "description": "Hyundai/Kia/Genesis smart-key platform applicability table.",
+  "access_levels": [
+    "open_with_pin",
+    "gateway_locked_post_my2020",
+    "certificate_required"
+  ],
+  "entries": [
+    {
+      "platform_key": "rb",
+      "display_name": "Hyundai i20 RB (pre-MY2018)",
+      "access": "open_with_pin",
+      "notes": "Open with 4-digit PIN from dealer label."
+    },
+    {
+      "platform_key": "ld",
+      "display_name": "Hyundai Elantra LD",
+      "access": "open_with_pin",
+      "notes": "4-digit PIN procedure documented in GDS."
+    },
+    {
+      "platform_key": "jf",
+      "display_name": "Hyundai Sonata JF",
+      "access": "open_with_pin",
+      "notes": "6-digit PIN; SMK module accepts up to 4 keys."
+    },
+    {
+      "platform_key": "qs",
+      "display_name": "Kia Stonic QS",
+      "access": "open_with_pin",
+      "notes": "KDS PIN procedure; up to 4 smart keys."
+    },
+    {
+      "platform_key": "ev_e_gmp",
+      "display_name": "HMG E-GMP (post-MY2021)",
+      "access": "gateway_locked_post_my2020",
+      "notes": "Gateway-protected; smart-key registration locked behind dealer SST tool."
+    },
+    {
+      "platform_key": "genesis_g80",
+      "display_name": "Genesis G80 (RG3)",
+      "access": "certificate_required",
+      "notes": "Requires Genesis-only certificate; out of scope for OBD."
+    }
+  ]
+}

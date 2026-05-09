@@ -129,19 +129,29 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    /// <summary>Append a DTC and repaint. Returns the new index.</summary>
+    /// <summary>
+    ///   Append a DTC and repaint. Returns the new index.
+    /// </summary>
     function AddItem(const Code, Description: string;
       Severity: TOBDDtcSeverity = dsWarning;
       Status: TOBDDtcStatus = dsActive;
       Tag: NativeInt = 0): Integer;
-    /// <summary>Replace the row at <c>Index</c>.</summary>
+    /// <summary>
+    ///   Replace the row at <c>Index</c>.
+    /// </summary>
     procedure UpdateItem(Index: Integer; const Item: TOBDDtcItem);
-    /// <summary>Remove a row, shifting later rows up.</summary>
+    /// <summary>
+    ///   Remove a row, shifting later rows up.
+    /// </summary>
     procedure RemoveItem(Index: Integer);
-    /// <summary>Drop every row.</summary>
+    /// <summary>
+    ///   Drop every row.
+    /// </summary>
     procedure ClearItems;
 
-    /// <summary>Scroll the given index into view.</summary>
+    /// <summary>
+    ///   Scroll the given index into view.
+    /// </summary>
     procedure EnsureVisible(Index: Integer);
 
     property ItemCount: Integer read GetItemCount;
@@ -196,6 +206,9 @@ begin
   Height := 240;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDDtcList.Destroy;
 begin
   FItems.Free;
@@ -219,6 +232,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// UPDATE ITEM
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.UpdateItem(Index: Integer; const Item: TOBDDtcItem);
 begin
   if (Index < 0) or (Index >= FItems.Count) then Exit;
@@ -226,6 +242,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE ITEM
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.RemoveItem(Index: Integer);
 begin
   if (Index < 0) or (Index >= FItems.Count) then Exit;
@@ -235,6 +254,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR ITEMS
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.ClearItems;
 begin
   FItems.Clear;
@@ -251,11 +273,17 @@ begin
   Result := FItems[Index];
 end;
 
+//------------------------------------------------------------------------------
+// GET ITEM COUNT
+//------------------------------------------------------------------------------
 function TOBDDtcList.GetItemCount: Integer;
 begin
   Result := FItems.Count;
 end;
 
+//------------------------------------------------------------------------------
+// LIST AREA TOP
+//------------------------------------------------------------------------------
 function TOBDDtcList.ListAreaTop: Integer;
 begin
   if FShowHeader then
@@ -264,29 +292,44 @@ begin
     Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// LIST AREA HEIGHT
+//------------------------------------------------------------------------------
 function TOBDDtcList.ListAreaHeight: Integer;
 begin
   Result := Height - ListAreaTop;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CONTENT HEIGHT
+//------------------------------------------------------------------------------
 function TOBDDtcList.ContentHeight: Integer;
 begin
   Result := FItems.Count * FRowHeight;
 end;
 
+//------------------------------------------------------------------------------
+// MAX SCROLL
+//------------------------------------------------------------------------------
 function TOBDDtcList.MaxScroll: Integer;
 begin
   Result := ContentHeight - ListAreaHeight;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CLAMP SCROLL
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.ClampScroll;
 begin
   if FScrollY < 0 then FScrollY := 0;
   if FScrollY > MaxScroll then FScrollY := MaxScroll;
 end;
 
+//------------------------------------------------------------------------------
+// INDEX AT Y
+//------------------------------------------------------------------------------
 function TOBDDtcList.IndexAtY(Y: Integer): Integer;
 var
   RelY, Idx: Integer;
@@ -299,6 +342,9 @@ begin
     Result := Idx;
 end;
 
+//------------------------------------------------------------------------------
+// ENSURE VISIBLE
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.EnsureVisible(Index: Integer);
 var
   RowTop, RowBottom: Integer;
@@ -327,6 +373,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET HEADER HEIGHT
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetHeaderHeight(const AValue: Integer);
 begin
   if (AValue >= 0) and (FHeaderHeight <> AValue) then
@@ -337,6 +386,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SELECTED INDEX
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetSelectedIndex(const AValue: Integer);
 begin
   if FSelectedIndex <> AValue then
@@ -346,38 +398,116 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET HEADER BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetHeaderBackgroundColor(const AValue: TColor);
-begin if FHeaderBackgroundColor <> AValue then begin FHeaderBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FHeaderBackgroundColor <> AValue then begin FHeaderBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ROW ALT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetRowAltColor(const AValue: TColor);
-begin if FRowAltColor <> AValue then begin FRowAltColor := AValue; Invalidate; end; end;
+begin
+  if FRowAltColor <> AValue then begin FRowAltColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetBorderColor(const AValue: TColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetTextColor(const AValue: TColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Invalidate; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SELECTION COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetSelectionColor(const AValue: TColor);
-begin if FSelectionColor <> AValue then begin FSelectionColor := AValue; Invalidate; end; end;
+begin
+  if FSelectionColor <> AValue then begin FSelectionColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SEVERITY INFO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetSeverityInfoColor(const AValue: TColor);
-begin if FSeverityInfoColor <> AValue then begin FSeverityInfoColor := AValue; Invalidate; end; end;
+begin
+  if FSeverityInfoColor <> AValue then begin FSeverityInfoColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SEVERITY WARNING COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetSeverityWarningColor(const AValue: TColor);
-begin if FSeverityWarningColor <> AValue then begin FSeverityWarningColor := AValue; Invalidate; end; end;
+begin
+  if FSeverityWarningColor <> AValue then begin FSeverityWarningColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SEVERITY CRITICAL COLOR
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetSeverityCriticalColor(const AValue: TColor);
-begin if FSeverityCriticalColor <> AValue then begin FSeverityCriticalColor := AValue; Invalidate; end; end;
+begin
+  if FSeverityCriticalColor <> AValue then begin FSeverityCriticalColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW HEADER
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetShowHeader(const AValue: Boolean);
-begin if FShowHeader <> AValue then begin FShowHeader := AValue; ClampScroll; Invalidate; end; end;
+begin
+  if FShowHeader <> AValue then begin FShowHeader := AValue;
+  ClampScroll;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW ALTERNATE ROWS
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.SetShowAlternateRows(const AValue: Boolean);
-begin if FShowAlternateRows <> AValue then begin FShowAlternateRows := AValue; Invalidate; end; end;
+begin
+  if FShowAlternateRows <> AValue then begin FShowAlternateRows := AValue;
+  Invalidate;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // MOUSE
@@ -399,6 +529,9 @@ begin
   if (Idx >= 0) and Assigned(FOnDtcClick) then FOnDtcClick(Self, Idx);
 end;
 
+//------------------------------------------------------------------------------
+// DBL CLICK
+//------------------------------------------------------------------------------
 procedure TOBDDtcList.DblClick;
 begin
   inherited;
@@ -406,6 +539,9 @@ begin
     FOnDtcDoubleClick(Self, FSelectedIndex);
 end;
 
+//------------------------------------------------------------------------------
+// DO MOUSE WHEEL
+//------------------------------------------------------------------------------
 function TOBDDtcList.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
   MousePos: TPoint): Boolean;
 const

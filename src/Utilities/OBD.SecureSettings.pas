@@ -22,7 +22,9 @@ uses
   WinApi.Windows;
 
 type
-  /// <summary>Raised when DPAPI returns an error.</summary>
+  /// <summary>
+  ///   Raised when DPAPI returns an error.
+  /// </summary>
   EOBDDpapiError = class(Exception);
 
   /// <summary>
@@ -41,23 +43,37 @@ type
     constructor Create(const AFilePath: string);
     destructor Destroy; override;
 
-    /// <summary>Read an encrypted value. Returns Default if missing or undecryptable.</summary>
+    /// <summary>
+    ///   Read an encrypted value. Returns Default if missing or undecryptable.
+    /// </summary>
     function ReadString(const Section, Key, Default: string): string;
-    /// <summary>Write a value, DPAPI-encrypting first.</summary>
+    /// <summary>
+    ///   Write a value, DPAPI-encrypting first.
+    /// </summary>
     procedure WriteString(const Section, Key, Value: string);
-    /// <summary>Remove a key (no-op if absent).</summary>
+    /// <summary>
+    ///   Remove a key (no-op if absent).
+    /// </summary>
     procedure DeleteKey(const Section, Key: string);
-    /// <summary>Persist to disk.</summary>
+    /// <summary>
+    ///   Persist to disk.
+    /// </summary>
     procedure Save;
-    /// <summary>List of section names (in the clear).</summary>
+    /// <summary>
+    ///   List of section names (in the clear).
+    /// </summary>
     procedure ReadSections(Out: TStrings);
 
     property FilePath: string read FFilePath;
   end;
 
-/// <summary>Encrypt arbitrary bytes with DPAPI (current user scope).</summary>
+/// <summary>
+///   Encrypt arbitrary bytes with DPAPI (current user scope).
+/// </summary>
 function DPAPIEncrypt(const Plain: TBytes): TBytes;
-/// <summary>Decrypt previously-encrypted bytes.</summary>
+/// <summary>
+///   Decrypt previously-encrypted bytes.
+/// </summary>
 function DPAPIDecrypt(const Cipher: TBytes): TBytes;
 
 implementation
@@ -75,12 +91,18 @@ type
   end;
   PDATA_BLOB = ^DATA_BLOB;
 
+//------------------------------------------------------------------------------
+// CRYPT PROTECT DATA
+//------------------------------------------------------------------------------
 function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: PWideChar;
   pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
   pPromptStruct: Pointer; dwFlags: DWORD;
   pDataOut: PDATA_BLOB): BOOL; stdcall;
   external 'crypt32.dll' name 'CryptProtectData';
 
+//------------------------------------------------------------------------------
+// CRYPT UNPROTECT DATA
+//------------------------------------------------------------------------------
 function CryptUnprotectData(pDataIn: PDATA_BLOB;
   ppszDataDescr: PPWideChar;
   pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
@@ -88,6 +110,9 @@ function CryptUnprotectData(pDataIn: PDATA_BLOB;
   pDataOut: PDATA_BLOB): BOOL; stdcall;
   external 'crypt32.dll' name 'CryptUnprotectData';
 
+//------------------------------------------------------------------------------
+// DPAPIENCRYPT
+//------------------------------------------------------------------------------
 function DPAPIEncrypt(const Plain: TBytes): TBytes;
 var
   In_, Out_: DATA_BLOB;
@@ -109,6 +134,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DPAPIDECRYPT
+//------------------------------------------------------------------------------
 function DPAPIDecrypt(const Cipher: TBytes): TBytes;
 var
   In_, Out_: DATA_BLOB;
@@ -133,6 +161,10 @@ end;
 //==============================================================================
 // TOBDSecureSettings
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSecureSettings.Create(const AFilePath: string);
 begin
   inherited Create;
@@ -141,12 +173,18 @@ begin
   FIni := TMemIniFile.Create(FFilePath);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDSecureSettings.Destroy;
 begin
   FIni.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// PROTECT STRING
+//------------------------------------------------------------------------------
 function TOBDSecureSettings.ProtectString(const Plain: string): string;
 var
   Bytes, Encrypted: TBytes;
@@ -156,6 +194,9 @@ begin
   Result := TNetEncoding.Base64.EncodeBytesToString(Encrypted);
 end;
 
+//------------------------------------------------------------------------------
+// UNPROTECT STRING
+//------------------------------------------------------------------------------
 function TOBDSecureSettings.UnprotectString(const Cipher: string): string;
 var
   Encrypted, Decrypted: TBytes;
@@ -166,6 +207,9 @@ begin
   Result := TEncoding.UTF8.GetString(Decrypted);
 end;
 
+//------------------------------------------------------------------------------
+// READ STRING
+//------------------------------------------------------------------------------
 function TOBDSecureSettings.ReadString(const Section, Key, Default: string): string;
 var
   Cipher: string;
@@ -182,21 +226,33 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE STRING
+//------------------------------------------------------------------------------
 procedure TOBDSecureSettings.WriteString(const Section, Key, Value: string);
 begin
   FIni.WriteString(Section, Key, ProtectString(Value));
 end;
 
+//------------------------------------------------------------------------------
+// DELETE KEY
+//------------------------------------------------------------------------------
 procedure TOBDSecureSettings.DeleteKey(const Section, Key: string);
 begin
   FIni.DeleteKey(Section, Key);
 end;
 
+//------------------------------------------------------------------------------
+// SAVE
+//------------------------------------------------------------------------------
 procedure TOBDSecureSettings.Save;
 begin
   FIni.UpdateFile;
 end;
 
+//------------------------------------------------------------------------------
+// READ SECTIONS
+//------------------------------------------------------------------------------
 procedure TOBDSecureSettings.ReadSections(Out: TStrings);
 begin
   FIni.ReadSections(Out);

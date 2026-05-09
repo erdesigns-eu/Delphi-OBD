@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeAudiConcertAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeAudiConcertAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeAudiConcertAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -121,6 +130,9 @@ begin
   Variant.AlgorithmNotes := 'Asian market variant';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -176,6 +188,9 @@ begin
   Output := Format('%d%d%d%d', [Code1, Code2, Code3, Code4]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -192,6 +207,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -208,11 +226,17 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Audi Concert Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeAudiConcertAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -224,6 +248,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeAudiConcertAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -233,16 +260,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -294,6 +330,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeAudiConcertAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

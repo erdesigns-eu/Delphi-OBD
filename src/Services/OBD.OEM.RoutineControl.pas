@@ -32,9 +32,11 @@ type
     rcRequestResults  = $03
   );
 
-  /// <summary>One field in a routine's argument or response schema.
-  /// The wire format mirrors the DID decoder spec (v3.3) so callers
-  /// can reuse decoder kinds across both interfaces.</summary>
+  /// <summary>
+  ///   One field in a routine's argument or response schema.
+  ///   The wire format mirrors the DID decoder spec (v3.3) so callers
+  ///   can reuse decoder kinds across both interfaces.
+  /// </summary>
   TOBDRoutineFieldKind = (
     rfkUInt8,
     rfkUInt16BE,
@@ -61,10 +63,12 @@ type
     BitNames: TDictionary<Integer, string>;
   end;
 
-  /// <summary>Schema for one routine. <c>InputFields</c> is the
-  /// expected ordered argument list for a StartRoutine request;
-  /// <c>OutputFields</c> is what the response encodes after the SF
-  /// + RID echo. Either may be empty.</summary>
+  /// <summary>
+  ///   Schema for one routine. <c>InputFields</c> is the
+  ///   expected ordered argument list for a StartRoutine request;
+  ///   <c>OutputFields</c> is what the response encodes after the SF
+  ///   + RID echo. Either may be empty.
+  /// </summary>
   TOBDRoutineSchema = record
     Identifier: Word;
     Name: string;
@@ -93,25 +97,35 @@ type
     procedure AddUInt32BE(const Value: Cardinal);
     procedure AddInt16BE(const Value: SmallInt);
     procedure AddInt32BE(const Value: Integer);
-    /// <summary>ASCII bytes; pads with 0x00 to <c>FixedLength</c> when
-    /// > 0, truncates with an exception when the input is too long.</summary>
+    /// <summary>
+    ///   ASCII bytes; pads with 0x00 to <c>FixedLength</c> when
+    ///   > 0, truncates with an exception when the input is too long.
+    /// </summary>
     procedure AddAscii(const S: string; const FixedLength: Integer = 0);
     procedure AddRawBytes(const Bytes: TBytes);
     procedure AddBcdDate(const Year, Month, Day: Byte);
-    /// <summary>Encode the year as 2 BCD nibbles (00..99) — a common
-    /// layout in OEM "set ECU date" routines.</summary>
+    /// <summary>
+    ///   Encode the year as 2 BCD nibbles (00..99) — a common
+    ///   layout in OEM "set ECU date" routines.
+    /// </summary>
     procedure AddBcdYear(const Year: Byte);
 
-    /// <summary>The accumulated payload (no SID / SF / RID prefix).</summary>
+    /// <summary>
+    ///   The accumulated payload (no SID / SF / RID prefix).
+    /// </summary>
     function PayloadBytes: TBytes;
 
-    /// <summary>Wrap the payload as a complete UDS frame:
-    /// <c>31 SF HiRID LoRID PAYLOAD</c>. <c>SubFunction</c> is one of
-    /// <c>rcStart / rcStop / rcRequestResults</c>.</summary>
+    /// <summary>
+    ///   Wrap the payload as a complete UDS frame:
+    ///   <c>31 SF HiRID LoRID PAYLOAD</c>. <c>SubFunction</c> is one of
+    ///   <c>rcStart / rcStop / rcRequestResults</c>.
+    /// </summary>
     function ToFrame(const SubFunction: TOBDRoutineSubFunction;
       const RID: Word): TBytes;
 
-    /// <summary>Reset the builder so a new request can be assembled.</summary>
+    /// <summary>
+    ///   Reset the builder so a new request can be assembled.
+    /// </summary>
     procedure Clear;
   end;
 
@@ -142,21 +156,29 @@ type
 //  Top-level wire helpers
 //==============================================================================
 
-/// <summary>Build a 31 01 RID [DATA] StartRoutine frame.</summary>
+/// <summary>
+///   Build a 31 01 RID [DATA] StartRoutine frame.
+/// </summary>
 function BuildStartRoutine(const RID: Word;
   const InputData: TBytes = nil): TBytes;
 
-/// <summary>Build a 31 02 RID StopRoutine frame.</summary>
+/// <summary>
+///   Build a 31 02 RID StopRoutine frame.
+/// </summary>
 function BuildStopRoutine(const RID: Word): TBytes;
 
-/// <summary>Build a 31 03 RID RequestRoutineResults frame.</summary>
+/// <summary>
+///   Build a 31 03 RID RequestRoutineResults frame.
+/// </summary>
 function BuildRequestRoutineResults(const RID: Word): TBytes;
 
-/// <summary>Parse a positive 71 SF RID [STATUS] response. Returns the
-/// status payload (everything after the RID); throws when the
-/// response doesn't match <c>ExpectedSF</c> / <c>ExpectedRID</c> or
-/// when the SID isn't 0x71. Negative responses (7F 31 NRC) raise
-/// <c>EOBDRoutineError</c> with the NRC in the message.</summary>
+/// <summary>
+///   Parse a positive 71 SF RID [STATUS] response. Returns the
+///   status payload (everything after the RID); throws when the
+///   response doesn't match <c>ExpectedSF</c> / <c>ExpectedRID</c> or
+///   when the SID isn't 0x71. Negative responses (7F 31 NRC) raise
+///   <c>EOBDRoutineError</c> with the NRC in the message.
+/// </summary>
 function ParseRoutineResponse(const Response: TBytes;
   const ExpectedSF: TOBDRoutineSubFunction;
   const ExpectedRID: Word): TBytes;
@@ -165,11 +187,13 @@ function ParseRoutineResponse(const Response: TBytes;
 //  Schema-driven decoding
 //==============================================================================
 
-/// <summary>Decode <c>Bytes</c> against <c>Schema.OutputFields</c>.
-/// Returns one <c>TOBDDecodedField</c> per output field with a
-/// human-readable <c>Display</c> string. Stops with no error if
-/// the payload is shorter than the schema (the trailing fields are
-/// simply absent — useful when an OEM truncates the optional tail).</summary>
+/// <summary>
+///   Decode <c>Bytes</c> against <c>Schema.OutputFields</c>.
+///   Returns one <c>TOBDDecodedField</c> per output field with a
+///   human-readable <c>Display</c> string. Stops with no error if
+///   the payload is shorter than the schema (the trailing fields are
+///   simply absent — useful when an OEM truncates the optional tail).
+/// </summary>
 function DecodeRoutineOutput(const Schema: TOBDRoutineSchema;
   const Bytes: TBytes): TArray<TOBDDecodedField>;
 
@@ -181,6 +205,10 @@ uses
 //==============================================================================
 //  Helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BYTES APPEND
+//------------------------------------------------------------------------------
 function BytesAppend(const A, B: TBytes): TBytes;
 begin
   SetLength(Result, Length(A) + Length(B));
@@ -188,6 +216,9 @@ begin
   if Length(B) > 0 then Move(B[0], Result[Length(A)], Length(B));
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT NUMERIC
+//------------------------------------------------------------------------------
 function FormatNumeric(const Value: Double; const Field: TOBDRoutineField): string;
 var
   Combined: Double;
@@ -202,6 +233,10 @@ end;
 //==============================================================================
 //  TOBDRoutineRequestBuilder
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// APPEND BYTE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AppendByte(B: Byte);
 var
   N: Integer;
@@ -211,20 +246,34 @@ begin
   FBytes[N] := B;
 end;
 
+//------------------------------------------------------------------------------
+// APPEND BYTES
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AppendBytes(const Source: TBytes);
 begin
   FBytes := BytesAppend(FBytes, Source);
 end;
 
+//------------------------------------------------------------------------------
+// ADD UINT8
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddUInt8(const Value: Byte);
-begin AppendByte(Value); end;
+begin
+  AppendByte(Value);
+end;
 
+//------------------------------------------------------------------------------
+// ADD UINT16 BE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddUInt16BE(const Value: Word);
 begin
   AppendByte(Byte(Value shr 8));
   AppendByte(Byte(Value and $FF));
 end;
 
+//------------------------------------------------------------------------------
+// ADD UINT32 BE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddUInt32BE(const Value: Cardinal);
 begin
   AppendByte(Byte(Value shr 24));
@@ -233,12 +282,25 @@ begin
   AppendByte(Byte(Value and $FF));
 end;
 
+//------------------------------------------------------------------------------
+// ADD INT16 BE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddInt16BE(const Value: SmallInt);
-begin AddUInt16BE(Word(Value)); end;
+begin
+  AddUInt16BE(Word(Value));
+end;
 
+//------------------------------------------------------------------------------
+// ADD INT32 BE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddInt32BE(const Value: Integer);
-begin AddUInt32BE(Cardinal(Value)); end;
+begin
+  AddUInt32BE(Cardinal(Value));
+end;
 
+//------------------------------------------------------------------------------
+// ADD ASCII
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddAscii(const S: string;
   const FixedLength: Integer);
 var
@@ -260,9 +322,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ADD RAW BYTES
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddRawBytes(const Bytes: TBytes);
-begin AppendBytes(Bytes); end;
+begin
+  AppendBytes(Bytes);
+end;
 
+//------------------------------------------------------------------------------
+// BYTE TO BCD
+//------------------------------------------------------------------------------
 function ByteToBcd(const B: Byte): Byte;
 begin
   if B > 99 then
@@ -270,6 +340,9 @@ begin
   Result := ((B div 10) shl 4) or (B mod 10);
 end;
 
+//------------------------------------------------------------------------------
+// ADD BCD DATE
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddBcdDate(
   const Year, Month, Day: Byte);
 begin
@@ -278,14 +351,25 @@ begin
   AppendByte(ByteToBcd(Day));
 end;
 
+//------------------------------------------------------------------------------
+// ADD BCD YEAR
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.AddBcdYear(const Year: Byte);
-begin AppendByte(ByteToBcd(Year)); end;
+begin
+  AppendByte(ByteToBcd(Year));
+end;
 
+//------------------------------------------------------------------------------
+// PAYLOAD BYTES
+//------------------------------------------------------------------------------
 function TOBDRoutineRequestBuilder.PayloadBytes: TBytes;
 begin
   Result := Copy(FBytes, 0, Length(FBytes));
 end;
 
+//------------------------------------------------------------------------------
+// TO FRAME
+//------------------------------------------------------------------------------
 function TOBDRoutineRequestBuilder.ToFrame(
   const SubFunction: TOBDRoutineSubFunction; const RID: Word): TBytes;
 var
@@ -296,12 +380,21 @@ begin
   Result := BytesAppend(Header, FBytes);
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDRoutineRequestBuilder.Clear;
-begin SetLength(FBytes, 0); end;
+begin
+  SetLength(FBytes, 0);
+end;
 
 //==============================================================================
 //  TOBDRoutineResponseReader
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// WRAP
+//------------------------------------------------------------------------------
 class function TOBDRoutineResponseReader.Wrap(
   const Bytes: TBytes): TOBDRoutineResponseReader;
 begin
@@ -309,6 +402,9 @@ begin
   Result.FCursor := 0;
 end;
 
+//------------------------------------------------------------------------------
+// REQUIRE BYTES
+//------------------------------------------------------------------------------
 procedure TOBDRoutineResponseReader.RequireBytes(const Count: Integer);
 begin
   if FCursor + Count > Length(FBytes) then
@@ -317,6 +413,9 @@ begin
       [FCursor, Count, Length(FBytes) - FCursor]);
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT8
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadUInt8: Byte;
 begin
   RequireBytes(1);
@@ -324,6 +423,9 @@ begin
   Inc(FCursor);
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT16 BE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadUInt16BE: Word;
 begin
   RequireBytes(2);
@@ -331,6 +433,9 @@ begin
   Inc(FCursor, 2);
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT32 BE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadUInt32BE: Cardinal;
 begin
   RequireBytes(4);
@@ -341,12 +446,25 @@ begin
   Inc(FCursor, 4);
 end;
 
+//------------------------------------------------------------------------------
+// READ INT16 BE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadInt16BE: SmallInt;
-begin Result := SmallInt(ReadUInt16BE); end;
+begin
+  Result := SmallInt(ReadUInt16BE);
+end;
 
+//------------------------------------------------------------------------------
+// READ INT32 BE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadInt32BE: Integer;
-begin Result := Integer(ReadUInt32BE); end;
+begin
+  Result := Integer(ReadUInt32BE);
+end;
 
+//------------------------------------------------------------------------------
+// READ ASCII
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadAscii(const ByteCount: Integer): string;
 var
   Slice: TBytes;
@@ -360,6 +478,9 @@ begin
   Result := Result.TrimRight([#0]);
 end;
 
+//------------------------------------------------------------------------------
+// READ HEX BYTES
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadHexBytes(const ByteCount: Integer): TBytes;
 begin
   RequireBytes(ByteCount);
@@ -368,6 +489,9 @@ begin
   Inc(FCursor, ByteCount);
 end;
 
+//------------------------------------------------------------------------------
+// READ BCD DATE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.ReadBcdDate: string;
 begin
   RequireBytes(3);
@@ -376,15 +500,29 @@ begin
   Inc(FCursor, 3);
 end;
 
+//------------------------------------------------------------------------------
+// HAS MORE
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.HasMore: Boolean;
-begin Result := FCursor < Length(FBytes); end;
+begin
+  Result := FCursor < Length(FBytes);
+end;
 
+//------------------------------------------------------------------------------
+// REMAINING
+//------------------------------------------------------------------------------
 function TOBDRoutineResponseReader.Remaining: Integer;
-begin Result := Length(FBytes) - FCursor; end;
+begin
+  Result := Length(FBytes) - FCursor;
+end;
 
 //==============================================================================
 //  Wire helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD START ROUTINE
+//------------------------------------------------------------------------------
 function BuildStartRoutine(const RID: Word; const InputData: TBytes): TBytes;
 var
   Header: TBytes;
@@ -393,16 +531,25 @@ begin
   Result := BytesAppend(Header, InputData);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD STOP ROUTINE
+//------------------------------------------------------------------------------
 function BuildStopRoutine(const RID: Word): TBytes;
 begin
   Result := TBytes.Create($31, $02, Byte(RID shr 8), Byte(RID and $FF));
 end;
 
+//------------------------------------------------------------------------------
+// BUILD REQUEST ROUTINE RESULTS
+//------------------------------------------------------------------------------
 function BuildRequestRoutineResults(const RID: Word): TBytes;
 begin
   Result := TBytes.Create($31, $03, Byte(RID shr 8), Byte(RID and $FF));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ROUTINE RESPONSE
+//------------------------------------------------------------------------------
 function ParseRoutineResponse(const Response: TBytes;
   const ExpectedSF: TOBDRoutineSubFunction;
   const ExpectedRID: Word): TBytes;
@@ -446,8 +593,13 @@ end;
 //==============================================================================
 //  Schema-driven output decoding
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// DECODE FIELD
+//------------------------------------------------------------------------------
 function DecodeField(const Field: TOBDRoutineField;
-  var Reader: TOBDRoutineResponseReader): TOBDDecodedField;
+  var
+    Reader: TOBDRoutineResponseReader): TOBDDecodedField;
 var
   StartCursor, BitCount, Bit: Integer;
   N: UInt64;
@@ -533,6 +685,9 @@ begin
   Result.Raw := Copy(Reader.FBytes, StartCursor, Reader.Cursor - StartCursor);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE ROUTINE OUTPUT
+//------------------------------------------------------------------------------
 function DecodeRoutineOutput(const Schema: TOBDRoutineSchema;
   const Bytes: TBytes): TArray<TOBDDecodedField>;
 var

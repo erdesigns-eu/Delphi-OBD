@@ -16,43 +16,112 @@ type
   [TestFixture]
   THDSpnFmiHelperTests = class
   public
+    /// <summary>
+    ///   Format s p n f m i builds canonical form.
+    /// </summary>
     [Test] procedure FormatSPNFMIBuildsCanonicalForm;
+    /// <summary>
+    ///   Parse d m1 d t c extracts s p n and f m i.
+    /// </summary>
     [Test] procedure ParseDM1DTCExtractsSPNAndFMI;
+    /// <summary>
+    ///   Parse d m1 returns empty on truncated.
+    /// </summary>
     [Test] procedure ParseDM1ReturnsEmptyOnTruncated;
   end;
 
   [TestFixture]
   THDVINRoutingTests = class
   public
+    /// <summary>
+    ///   Cummins has no v i n match.
+    /// </summary>
     [Test] procedure CumminsHasNoVINMatch;
+    /// <summary>
+    ///   Detroit has no v i n match.
+    /// </summary>
     [Test] procedure DetroitHasNoVINMatch;
+    /// <summary>
+    ///   P a c c a r matches peterbilt and kenworth.
+    /// </summary>
     [Test] procedure PACCARMatchesPeterbiltAndKenworth;
+    /// <summary>
+    ///   P a c c a r matches d a f.
+    /// </summary>
     [Test] procedure PACCARMatchesDAF;
+    /// <summary>
+    ///   Volvo trucks matches mack and renault trucks.
+    /// </summary>
     [Test] procedure VolvoTrucksMatchesMackAndRenaultTrucks;
+    /// <summary>
+    ///   Volvo trucks does not claim volvo cars w m i.
+    /// </summary>
     [Test] procedure VolvoTrucksDoesNotClaimVolvoCarsWMI;
+    /// <summary>
+    ///   Scania matches sweden and brazil.
+    /// </summary>
     [Test] procedure ScaniaMatchesSwedenAndBrazil;
+    /// <summary>
+    ///   M a n matches w m a.
+    /// </summary>
     [Test] procedure MANMatchesWMA;
   end;
 
   [TestFixture]
   THDCatalogTests = class
   public
+    /// <summary>
+    ///   Cummins exposes engine at j1939 address0.
+    /// </summary>
     [Test] procedure CumminsExposesEngineAtJ1939Address0;
+    /// <summary>
+    ///   Detroit exposes aftertreatment e c us.
+    /// </summary>
     [Test] procedure DetroitExposesAftertreatmentECUs;
+    /// <summary>
+    ///   P a c c a r session heartbeat is3000ms.
+    /// </summary>
     [Test] procedure PACCARSessionHeartbeatIs3000ms;
+    /// <summary>
+    ///   Volvo trucks exposes i shift and m i d.
+    /// </summary>
     [Test] procedure VolvoTrucksExposesIShiftAndMID;
+    /// <summary>
+    ///   Scania exposes opticruise.
+    /// </summary>
     [Test] procedure ScaniaExposesOpticruise;
+    /// <summary>
+    ///   M a n exposes pri tarder retarder.
+    /// </summary>
     [Test] procedure MANExposesPriTarderRetarder;
+    /// <summary>
+    ///   All h d extensions resolve by key.
+    /// </summary>
     [Test] procedure AllHDExtensionsResolveByKey;
   end;
 
   [TestFixture]
   THDDecoderTests = class
   public
+    /// <summary>
+    ///   Cummins decodes engine serial.
+    /// </summary>
     [Test] procedure CumminsDecodesEngineSerial;
+    /// <summary>
+    ///   P a c c a r decodes chassis code.
+    /// </summary>
     [Test] procedure PACCARDecodesChassisCode;
+    /// <summary>
+    ///   Volvo trucks decodes chassis code.
+    /// </summary>
     [Test] procedure VolvoTrucksDecodesChassisCode;
+    /// <summary>
+    ///   Scania decodes chassis number.
+    /// </summary>
     [Test] procedure ScaniaDecodesChassisNumber;
+    /// <summary>
+    ///   M a n decodes chassis code.
+    /// </summary>
     [Test] procedure MANDecodesChassisCode;
   end;
 
@@ -64,6 +133,9 @@ uses
   OBD.OEM.Cummins, OBD.OEM.DetroitDiesel, OBD.OEM.PACCAR,
   OBD.OEM.VolvoTrucks, OBD.OEM.Scania, OBD.OEM.MAN, OBD.OEM.Volvo;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -73,12 +145,19 @@ end;
 //==============================================================================
 // SPN-FMI helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FORMAT SPNFMIBUILDS CANONICAL FORM
+//------------------------------------------------------------------------------
 procedure THDSpnFmiHelperTests.FormatSPNFMIBuildsCanonicalForm;
 begin
   Assert.AreEqual('SPN0094-FMI4', FormatSPNFMI(94, 4));
   Assert.AreEqual('SPN3251-FMI16', FormatSPNFMI(3251, 16));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DM1 DTCEXTRACTS SPNAND FMI
+//------------------------------------------------------------------------------
 procedure THDSpnFmiHelperTests.ParseDM1DTCExtractsSPNAndFMI;
 var
   Bytes: TBytes;
@@ -92,6 +171,9 @@ begin
   Assert.AreEqual('SPN0148-FMI4', ParseDM1DTC(Bytes, 0));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DM1 RETURNS EMPTY ON TRUNCATED
+//------------------------------------------------------------------------------
 procedure THDSpnFmiHelperTests.ParseDM1ReturnsEmptyOnTruncated;
 begin
   Assert.AreEqual('', ParseDM1DTC(TBytes.Create($94, $00), 0));
@@ -100,6 +182,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CUMMINS HAS NO VINMATCH
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.CumminsHasNoVINMatch;
 var
   Ext: IOBDOEMExtension;
@@ -110,6 +196,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JTD')));
 end;
 
+//------------------------------------------------------------------------------
+// DETROIT HAS NO VINMATCH
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.DetroitHasNoVINMatch;
 var
   Ext: IOBDOEMExtension;
@@ -118,6 +207,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('4V4')));
 end;
 
+//------------------------------------------------------------------------------
+// PACCARMATCHES PETERBILT AND KENWORTH
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.PACCARMatchesPeterbiltAndKenworth;
 var
   Ext: IOBDOEMExtension;
@@ -128,6 +220,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('5KJ')), 'Peterbilt Mexico');
 end;
 
+//------------------------------------------------------------------------------
+// PACCARMATCHES DAF
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.PACCARMatchesDAF;
 var
   Ext: IOBDOEMExtension;
@@ -136,6 +231,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('XLR')), 'DAF Eindhoven');
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO TRUCKS MATCHES MACK AND RENAULT TRUCKS
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.VolvoTrucksMatchesMackAndRenaultTrucks;
 var
   Ext: IOBDOEMExtension;
@@ -147,6 +245,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('VG6')), 'Renault Trucks Lyon');
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO TRUCKS DOES NOT CLAIM VOLVO CARS WMI
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.VolvoTrucksDoesNotClaimVolvoCarsWMI;
 var
   Trucks, Cars: IOBDOEMExtension;
@@ -159,6 +260,9 @@ begin
     'YV1 is Volvo Cars');
 end;
 
+//------------------------------------------------------------------------------
+// SCANIA MATCHES SWEDEN AND BRAZIL
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.ScaniaMatchesSwedenAndBrazil;
 var
   Ext: IOBDOEMExtension;
@@ -169,6 +273,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('9BS')), 'Scania São Bernardo do Campo');
 end;
 
+//------------------------------------------------------------------------------
+// MANMATCHES WMA
+//------------------------------------------------------------------------------
 procedure THDVINRoutingTests.MANMatchesWMA;
 var
   Ext: IOBDOEMExtension;
@@ -181,6 +288,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CUMMINS EXPOSES ENGINE AT J1939 ADDRESS0
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.CumminsExposesEngineAtJ1939Address0;
 var
   Ext: IOBDOEMExtension;
@@ -195,6 +306,9 @@ begin
     'Cummins must expose engine ECM at J1939 source address 0');
 end;
 
+//------------------------------------------------------------------------------
+// DETROIT EXPOSES AFTERTREATMENT ECUS
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.DetroitExposesAftertreatmentECUs;
 var
   Ext: IOBDOEMExtension;
@@ -212,6 +326,9 @@ begin
     'Detroit must expose both DPF + SCR aftertreatment ECUs');
 end;
 
+//------------------------------------------------------------------------------
+// PACCARSESSION HEARTBEAT IS3000MS
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.PACCARSessionHeartbeatIs3000ms;
 var
   Ext: IOBDOEMExtension;
@@ -222,6 +339,9 @@ begin
     'HD negotiator runs 3000 ms heartbeat to coexist with J1939 broadcast');
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO TRUCKS EXPOSES ISHIFT AND MID
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.VolvoTrucksExposesIShiftAndMID;
 var
   Ext: IOBDOEMExtension;
@@ -239,6 +359,9 @@ begin
   Assert.IsTrue(HasMID140, 'Volvo Trucks must expose MID 140');
 end;
 
+//------------------------------------------------------------------------------
+// SCANIA EXPOSES OPTICRUISE
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.ScaniaExposesOpticruise;
 var
   Ext: IOBDOEMExtension;
@@ -252,6 +375,9 @@ begin
   Assert.IsTrue(HasOPC, 'Scania must expose OPC (Opticruise)');
 end;
 
+//------------------------------------------------------------------------------
+// MANEXPOSES PRI TARDER RETARDER
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.MANExposesPriTarderRetarder;
 var
   Ext: IOBDOEMExtension;
@@ -265,6 +391,9 @@ begin
   Assert.IsTrue(HasRetarder, 'MAN must expose the PriTarder retarder');
 end;
 
+//------------------------------------------------------------------------------
+// ALL HDEXTENSIONS RESOLVE BY KEY
+//------------------------------------------------------------------------------
 procedure THDCatalogTests.AllHDExtensionsResolveByKey;
 begin
   Assert.IsNotNull(TOBDOEMRegistry.FindByKey('CUMMINS'));
@@ -278,6 +407,10 @@ end;
 //==============================================================================
 // Decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CUMMINS DECODES ENGINE SERIAL
+//------------------------------------------------------------------------------
 procedure THDDecoderTests.CumminsDecodesEngineSerial;
 var
   Ext: IOBDOEMExtension;
@@ -288,6 +421,9 @@ begin
   Assert.IsTrue(Pos('cummins_engine_serial', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// PACCARDECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure THDDecoderTests.PACCARDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -298,6 +434,9 @@ begin
   Assert.IsTrue(Pos('paccar_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO TRUCKS DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure THDDecoderTests.VolvoTrucksDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -308,6 +447,9 @@ begin
   Assert.IsTrue(Pos('volvo_truck_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// SCANIA DECODES CHASSIS NUMBER
+//------------------------------------------------------------------------------
 procedure THDDecoderTests.ScaniaDecodesChassisNumber;
 var
   Ext: IOBDOEMExtension;
@@ -318,6 +460,9 @@ begin
   Assert.IsTrue(Pos('scania_chassis_number', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MANDECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure THDDecoderTests.MANDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;

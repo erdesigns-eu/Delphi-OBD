@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeFiatVPAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeFiatVPAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatVPAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -121,7 +130,14 @@ begin
   Variant.AlgorithmNotes := 'Asian market variant';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.CalculateV1(const Serial: string): string;
+
+//------------------------------------------------------------------------------
+// GET FOURTH BYTE
+//------------------------------------------------------------------------------
 function GetFourthByte(Input: Integer): Integer;
   begin
     if (Input > 10) then Result := 0 else
@@ -212,6 +228,9 @@ begin
   Output := Format('%.*d', [4, OutputCode]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -228,6 +247,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -244,11 +266,17 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Fiat VP Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatVPAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -260,6 +288,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeFiatVPAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -269,16 +300,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -300,6 +340,9 @@ begin
     Exit(False);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeFiatVPAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

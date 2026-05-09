@@ -258,6 +258,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// INVOKE
+//------------------------------------------------------------------------------
 function TOBDProtocol.Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
 
 var

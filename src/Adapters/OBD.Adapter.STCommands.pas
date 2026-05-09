@@ -845,6 +845,9 @@ function FormatSTCommand(Command: STCommand; Params: Array of const): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// FORMAT STCOMMAND
+//------------------------------------------------------------------------------
 function FormatSTCommand(Command: STCommand; Params: Array of const): string;
 var
   ExpectedParamCount, I, C: Integer;

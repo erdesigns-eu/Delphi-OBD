@@ -92,7 +92,9 @@ type
     property Min: Single read FMin write SetMin;
     property Max: Single read FMax write SetMax;
     property Value: Single read FValue write SetValue;
-    /// <summary>Increment / decrement step for the wheel and snapping.</summary>
+    /// <summary>
+    ///   Increment / decrement step for the wheel and snapping.
+    /// </summary>
     property Step: Single read FStep write SetStep;
     property StartAngle: Single read FStartAngle write SetStartAngle;
     property SweepAngle: Single read FSweepAngle write SetSweepAngle;
@@ -110,6 +112,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDKnob.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -146,6 +151,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetMax(const AValue: Single);
 begin
   if FMax <> AValue then
@@ -156,8 +164,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetValue(const AValue: Single);
-var Clamped: Single;
+var
+  Clamped: Single;
 begin
   Clamped := SnapToStep(AValue);
   if Clamped < FMin then Clamped := FMin;
@@ -168,44 +180,122 @@ begin
   if Assigned(FOnChange) then FOnChange(Self, FValue);
 end;
 
+//------------------------------------------------------------------------------
+// SET STEP
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetStep(const AValue: Single);
-begin if (AValue > 0) and (FStep <> AValue) then begin FStep := AValue; Invalidate; end; end;
+begin
+  if (AValue > 0) and (FStep <> AValue) then begin FStep := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET START ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetStartAngle(const AValue: Single);
-begin if FStartAngle <> AValue then begin FStartAngle := AValue; Invalidate; end; end;
+begin
+  if FStartAngle <> AValue then begin FStartAngle := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SWEEP ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetSweepAngle(const AValue: Single);
-begin if FSweepAngle <> AValue then begin FSweepAngle := AValue; Invalidate; end; end;
+begin
+  if FSweepAngle <> AValue then begin FSweepAngle := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BODY COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetBodyColor(const AValue: TColor);
-begin if FBodyColor <> AValue then begin FBodyColor := AValue; Invalidate; end; end;
+begin
+  if FBodyColor <> AValue then begin FBodyColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET RING COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetRingColor(const AValue: TColor);
-begin if FRingColor <> AValue then begin FRingColor := AValue; Invalidate; end; end;
+begin
+  if FRingColor <> AValue then begin FRingColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ACTIVE RING COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetActiveRingColor(const AValue: TColor);
-begin if FActiveRingColor <> AValue then begin FActiveRingColor := AValue; Invalidate; end; end;
+begin
+  if FActiveRingColor <> AValue then begin FActiveRingColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET INDICATOR COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetIndicatorColor(const AValue: TColor);
-begin if FIndicatorColor <> AValue then begin FIndicatorColor := AValue; Invalidate; end; end;
+begin
+  if FIndicatorColor <> AValue then begin FIndicatorColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetTextColor(const AValue: TColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Invalidate; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetCaption(const AValue: string);
-begin if FCaption <> AValue then begin FCaption := AValue; Invalidate; end; end;
+begin
+  if FCaption <> AValue then begin FCaption := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW VALUE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.SetShowValue(const AValue: Boolean);
-begin if FShowValue <> AValue then begin FShowValue := AValue; Invalidate; end; end;
+begin
+  if FShowValue <> AValue then begin FShowValue := AValue;
+  Invalidate;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // MATH
 //------------------------------------------------------------------------------
 function TOBDKnob.ValueToFraction(const AValue: Single): Single;
-var Span: Single;
+var
+  Span: Single;
 begin
   Span := FMax - FMin;
   if Span <= 0 then Exit(0);
@@ -214,6 +304,9 @@ begin
   if Result > 1 then Result := 1;
 end;
 
+//------------------------------------------------------------------------------
+// NORMALIZE ANGLE
+//------------------------------------------------------------------------------
 function TOBDKnob.NormalizeAngle(A: Single): Single;
 begin
   // Wrap into [0, 360).
@@ -222,12 +315,18 @@ begin
   Result := A;
 end;
 
+//------------------------------------------------------------------------------
+// SNAP TO STEP
+//------------------------------------------------------------------------------
 function TOBDKnob.SnapToStep(const AValue: Single): Single;
 begin
   if FStep <= 0 then Exit(AValue);
   Result := Round((AValue - FMin) / FStep) * FStep + FMin;
 end;
 
+//------------------------------------------------------------------------------
+// POINT TO VALUE
+//------------------------------------------------------------------------------
 function TOBDKnob.PointToValue(const X, Y: Integer): Single;
 var
   Cx, Cy, Dx, Dy: Single;
@@ -251,6 +350,9 @@ begin
   Result := FMin + (RelAngle / FSweepAngle) * (FMax - FMin);
 end;
 
+//------------------------------------------------------------------------------
+// APPLY VALUE FROM MOUSE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.ApplyValueFromMouse(X, Y: Integer);
 begin
   SetValue(PointToValue(X, Y));
@@ -271,12 +373,18 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE MOVE
+//------------------------------------------------------------------------------
 procedure TOBDKnob.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   if FDragging then ApplyValueFromMouse(X, Y);
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE UP
+//------------------------------------------------------------------------------
 procedure TOBDKnob.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
@@ -287,6 +395,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DO MOUSE WHEEL
+//------------------------------------------------------------------------------
 function TOBDKnob.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
   MousePos: TPoint): Boolean;
 const

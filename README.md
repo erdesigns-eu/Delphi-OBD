@@ -3,7 +3,7 @@
 [![CI](https://github.com/erdesigns-eu/Delphi-OBD/actions/workflows/ci.yml/badge.svg)](https://github.com/erdesigns-eu/Delphi-OBD/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 [![Delphi](https://img.shields.io/badge/Delphi-11%20%7C%2012-red.svg)](https://www.embarcadero.com/products/delphi)
-[![Roadmap](https://img.shields.io/badge/Roadmap-v3.76%20Isuzu%20%7E18%25%20ODIS-brightgreen.svg)](docs/ROADMAP.md)
+[![Roadmap](https://img.shields.io/badge/Roadmap-v3.79%20Async%20UDS%20%2B%20DoIP%20TLS-brightgreen.svg)](docs/ROADMAP.md)
 [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-yellow.svg)](CHANGELOG.md)
 
 Comprehensive Delphi library for OBD-II diagnostics, vehicle protocols, and automotive utilities.
@@ -25,10 +25,15 @@ The repository is organized into logical folders for better maintainability:
 │   ├── Utilities/         # Logger, string helpers, settings, data modules
 │   ├── VIN/               # VIN decoder and utilities
 │   └── Wizards/           # IDE wizards for project creation
-├── docs/                   # Documentation
+├── docs/                   # Documentation (see docs/index.md)
 │   ├── README.md          # Main documentation
-│   ├── TASKS.md           # Development tasks and roadmap
-│   └── RADIO_CALCULATORS.md  # Radio code calculator guide
+│   ├── ARCHITECTURE.md    # Module map and rendering pipeline
+│   ├── PROTOCOLS.md       # Wire-level protocol reference (CAN, DoIP, J1939, Legacy)
+│   ├── COMPONENT_AUTHORING.md # How to add a new visual component
+│   ├── CATALOG_FORMAT.md  # OEM catalog JSON schema (v2)
+│   ├── RADIO_CALCULATORS.md  # Radio code calculator guide
+│   ├── ROADMAP.md         # Releases shipped + future backlog
+│   └── TROUBLESHOOTING.md # Common installation and runtime issues
 ├── examples/               # Example applications
 │   ├── minimal/           # Minimal OBD connection example
 │   ├── simple/            # Simple diagnostic example
@@ -100,7 +105,8 @@ See the `examples` folder for complete working examples.
 
 ### Protocols
 - **CAN** (ISO 15765-4)
-- **DoIP** (ISO 13400)
+- **DoIP** (ISO 13400) — Windows (WinSock), cross-platform (`System.Net.Socket`), and TLS-secured (ISO 13400-3 §7) variants
+- **UDS** (ISO 14229) with async client (`OBD.OEM.UdsClient.Async`) — future-returning facade with cooperative cancellation
 - **J1939** (SAE J1939 for heavy-duty vehicles)
 - **Legacy** (ISO 9141-2, ISO 14230 KWP2000)
 
@@ -109,9 +115,15 @@ See the `examples` folder for complete working examples.
 - **OBDLink** (ST command support: SX, MX, EX models)
 - Voltage monitoring
 - Connection retry with exponential backoff
+- Capture/replay transport (`.obdlog` round-trip) for deterministic testing
+
+### OEM Coverage
+- **79 OEM catalogs** / 247,279 entries / 5 vehicle classes (passenger, motorcycles, agricultural, marine, powersports)
+- JSON Schema v2 (`catalogs/_schema/oem-catalog-v2.json`) with DTC formats for SAE J2012, J1939 SPN-FMI, and 22 OEM prefixes
+- See [docs/CATALOG_FORMAT.md](docs/CATALOG_FORMAT.md) and [catalogs/INDEX.md](catalogs/INDEX.md)
 
 ### Radio Code Calculators
-32 brand-specific radio code calculators:
+32+ brand-specific radio code calculators:
 - **Japanese**: Nissan, Toyota, Honda, Mazda, Mitsubishi, Subaru, Suzuki, Hyundai/Kia
 - **European**: Mercedes, BMW, Opel, Volvo, VW, Audi, SEAT, Skoda, Renault, Peugeot, Citroen, Fiat
 - **American**: Ford, Chrysler/Jeep/Dodge, GM (Chevrolet, Cadillac, GMC, Buick)
@@ -141,9 +153,14 @@ See `docs/RADIO_CALCULATORS.md` for details.
 
 ## Documentation
 
-- **[Main Documentation](docs/README.md)** - Comprehensive guide
-- **[Radio Calculator Guide](docs/RADIO_CALCULATORS.md)** - Radio code algorithms and usage
-- **[Development Tasks](docs/TASKS.md)** - Roadmap and task tracking
+- **[Documentation Index](docs/index.md)** - Map of every doc by topic
+- **[Architecture](docs/ARCHITECTURE.md)** - Module map and rendering pipeline
+- **[Protocols](docs/PROTOCOLS.md)** - Wire-level protocol reference
+- **[Component Authoring](docs/COMPONENT_AUTHORING.md)** - How to add a new visual component
+- **[Catalog Format](docs/CATALOG_FORMAT.md)** - OEM catalog JSON schema
+- **[Radio Calculators](docs/RADIO_CALCULATORS.md)** - Radio code algorithms and usage
+- **[Roadmap](docs/ROADMAP.md)** - Releases shipped + future backlog
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common installation and runtime issues
 
 ## Examples
 
@@ -157,8 +174,10 @@ Browse the `examples` folder for working demonstrations:
 ## Requirements
 
 - Embarcadero Delphi 11 or higher
-- Windows 7, 8/8.1, 10, 11
+- **VCL components**: Windows 7, 8/8.1, 10, 11
+- **FMX components and cross-platform DoIP**: Windows, macOS, Linux, iOS, Android
 - Skia4Delphi (for visual components)
+- OpenSSL + Indy 10 (for DoIP TLS only)
 
 ## License
 
@@ -170,7 +189,7 @@ Ernst Reidinga (ERDesigns)
 
 ## Contributing
 
-Contributions are welcome! Please see `docs/TASKS.md` for current development priorities.
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/ROADMAP.md](docs/ROADMAP.md) for current development priorities.
 
 ## Support
 

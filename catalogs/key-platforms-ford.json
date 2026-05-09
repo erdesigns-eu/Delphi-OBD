@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "description": "Ford PATS chassis-code applicability table.",
+  "access_levels": [
+    "open",
+    "pin_required",
+    "gateway_locked"
+  ],
+  "entries": [
+    {
+      "chassis_key": "p552",
+      "display_name": "Ford F-150 P552",
+      "access": "open",
+      "notes": "Open via OBD; well-documented 2-key timing dance."
+    },
+    {
+      "chassis_key": "cd391",
+      "display_name": "Ford Fusion CD391",
+      "access": "open",
+      "notes": "Open via OBD; up to 8 keys."
+    },
+    {
+      "chassis_key": "c520",
+      "display_name": "Ford Focus C520",
+      "access": "open",
+      "notes": "Open via OBD; PATS reset documented in FORScan."
+    },
+    {
+      "chassis_key": "p702",
+      "display_name": "Ford Ranger P702",
+      "access": "pin_required",
+      "notes": "Outgoing-key PIN required to add new key."
+    },
+    {
+      "chassis_key": "cd542",
+      "display_name": "Ford Mustang Mach-E CD542",
+      "access": "gateway_locked",
+      "notes": "Gateway-protected; requires Ford IDS or licensed FDRS access."
+    },
+    {
+      "chassis_key": "p708",
+      "display_name": "Ford F-150 Lightning P708",
+      "access": "gateway_locked",
+      "notes": "Gateway-protected; requires FDRS."
+    }
+  ]
+}

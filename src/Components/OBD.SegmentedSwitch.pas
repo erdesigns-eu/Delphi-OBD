@@ -86,6 +86,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSegmentedSwitch.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -104,12 +107,18 @@ begin
   Height := 32;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDSegmentedSwitch.Destroy;
 begin
   FSegments.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SEGMENTS CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SegmentsChanged(Sender: TObject);
 begin
   if FSelectedIndex >= FSegments.Count then
@@ -118,11 +127,17 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// SET SEGMENTS
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetSegments(const AValue: TStringList);
 begin
   FSegments.Assign(AValue);
 end;
 
+//------------------------------------------------------------------------------
+// SET SELECTED INDEX
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetSelectedIndex(const AValue: Integer);
 var
   Clamped: Integer;
@@ -138,30 +153,78 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetBorderColor(const AValue: TColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ACTIVE COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetActiveColor(const AValue: TColor);
-begin if FActiveColor <> AValue then begin FActiveColor := AValue; Invalidate; end; end;
+begin
+  if FActiveColor <> AValue then begin FActiveColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ACTIVE TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetActiveTextColor(const AValue: TColor);
-begin if FActiveTextColor <> AValue then begin FActiveTextColor := AValue; Invalidate; end; end;
+begin
+  if FActiveTextColor <> AValue then begin FActiveTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET INACTIVE TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetInactiveTextColor(const AValue: TColor);
-begin if FInactiveTextColor <> AValue then begin FInactiveTextColor := AValue; Invalidate; end; end;
+begin
+  if FInactiveTextColor <> AValue then begin FInactiveTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET CORNER RADIUS
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.SetCornerRadius(const AValue: Integer);
-begin if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue; Invalidate; end; end;
+begin
+  if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SEGMENT WIDTH
+//------------------------------------------------------------------------------
 function TOBDSegmentedSwitch.SegmentWidth: Single;
 begin
   if FSegments.Count = 0 then Exit(0);
   Result := Width / FSegments.Count;
 end;
 
+//------------------------------------------------------------------------------
+// INDEX AT
+//------------------------------------------------------------------------------
 function TOBDSegmentedSwitch.IndexAt(X: Integer): Integer;
 var
   W: Single;
@@ -174,9 +237,13 @@ begin
   if Result >= FSegments.Count then Result := FSegments.Count - 1;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE DOWN
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitch.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   inherited;
   if not Focused then SetFocus;

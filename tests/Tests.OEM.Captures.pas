@@ -13,22 +13,58 @@ type
   [TestFixture]
   TCaptureExtractTests = class
   public
+    /// <summary>
+    ///   Normalize strips e l m framing.
+    /// </summary>
     [Test] procedure NormalizeStripsELMFraming;
+    /// <summary>
+    ///   Normalize strips prompt and searching.
+    /// </summary>
     [Test] procedure NormalizeStripsPromptAndSearching;
+    /// <summary>
+    ///   Extract pairs requests with responses.
+    /// </summary>
     [Test] procedure ExtractPairsRequestsWithResponses;
+    /// <summary>
+    ///   Extract identifies read data by identifier.
+    /// </summary>
     [Test] procedure ExtractIdentifiesReadDataByIdentifier;
+    /// <summary>
+    ///   Extract captures negative response.
+    /// </summary>
     [Test] procedure ExtractCapturesNegativeResponse;
+    /// <summary>
+    ///   Extract strips response echo.
+    /// </summary>
     [Test] procedure ExtractStripsResponseEcho;
+    /// <summary>
+    ///   Hanging request emits empty response.
+    /// </summary>
     [Test] procedure HangingRequestEmitsEmptyResponse;
   end;
 
   [TestFixture]
   TCaptureValidatorTests = class
   public
+    /// <summary>
+    ///   V w capture produces decoded fields.
+    /// </summary>
     [Test] procedure VWCaptureProducesDecodedFields;
+    /// <summary>
+    ///   B m w capture recognises i stufe and mileage.
+    /// </summary>
     [Test] procedure BMWCaptureRecognisesIStufeAndMileage;
+    /// <summary>
+    ///   Mercedes capture decodes programming status.
+    /// </summary>
     [Test] procedure MercedesCaptureDecodesProgrammingStatus;
+    /// <summary>
+    ///   Ford capture decodes calibration id.
+    /// </summary>
     [Test] procedure FordCaptureDecodesCalibrationId;
+    /// <summary>
+    ///   Negative responses are reported.
+    /// </summary>
     [Test] procedure NegativeResponsesAreReported;
   end;
 
@@ -39,6 +75,9 @@ uses
   OBD.OEM, OBD.OEM.Captures, OBD.Service.Recorder,
   OBD.OEM.VW, OBD.OEM.BMW, OBD.OEM.Mercedes, OBD.OEM.Ford;
 
+//------------------------------------------------------------------------------
+// FIXTURE PATH
+//------------------------------------------------------------------------------
 function FixturePath(const FileName: string): string;
 var
   Candidate: string;
@@ -60,6 +99,9 @@ begin
   Result := TPath.GetFullPath(Candidate);
 end;
 
+//------------------------------------------------------------------------------
+// MAKE ENTRY
+//------------------------------------------------------------------------------
 function MakeEntry(const D: TOBDRecorderDirection;
   const Text: string): TOBDRecordedEntry;
 begin
@@ -71,6 +113,10 @@ end;
 //==============================================================================
 // Extract / normalize
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// NORMALIZE STRIPS ELMFRAMING
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.NormalizeStripsELMFraming;
 begin
   Assert.AreEqual(
@@ -80,6 +126,9 @@ begin
       '1: 38 5A 31 32 33 34 35 36 37'));
 end;
 
+//------------------------------------------------------------------------------
+// NORMALIZE STRIPS PROMPT AND SEARCHING
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.NormalizeStripsPromptAndSearching;
 begin
   Assert.AreEqual('62 F1 86 03',
@@ -89,6 +138,9 @@ begin
       '>'));
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT PAIRS REQUESTS WITH RESPONSES
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.ExtractPairsRequestsWithResponses;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -103,6 +155,9 @@ begin
   Assert.AreEqual('22 F1 90', Pairs[0].RequestText);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT IDENTIFIES READ DATA BY IDENTIFIER
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.ExtractIdentifiesReadDataByIdentifier;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -117,6 +172,9 @@ begin
   Assert.AreEqual(Byte($31), Pairs[0].PayloadBytes[0]);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT CAPTURES NEGATIVE RESPONSE
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.ExtractCapturesNegativeResponse;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -129,6 +187,9 @@ begin
   Assert.AreEqual(Byte($31), Pairs[0].NegativeResponseCode);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT STRIPS RESPONSE ECHO
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.ExtractStripsResponseEcho;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -143,6 +204,9 @@ begin
   Assert.AreEqual(Byte($03), Pairs[0].PayloadBytes[0]);
 end;
 
+//------------------------------------------------------------------------------
+// HANGING REQUEST EMITS EMPTY RESPONSE
+//------------------------------------------------------------------------------
 procedure TCaptureExtractTests.HangingRequestEmitsEmptyResponse;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -159,6 +223,10 @@ end;
 //==============================================================================
 // Validator against real OEM extensions
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// VWCAPTURE PRODUCES DECODED FIELDS
+//------------------------------------------------------------------------------
 procedure TCaptureValidatorTests.VWCaptureProducesDecodedFields;
 var
   Decoded: TArray<TOBDCaptureDecoded>;
@@ -186,6 +254,9 @@ begin
   Assert.IsTrue(HasNegative, 'VW capture should include a negative reply');
 end;
 
+//------------------------------------------------------------------------------
+// BMWCAPTURE RECOGNISES ISTUFE AND MILEAGE
+//------------------------------------------------------------------------------
 procedure TCaptureValidatorTests.BMWCaptureRecognisesIStufeAndMileage;
 var
   Decoded: TArray<TOBDCaptureDecoded>;
@@ -210,6 +281,9 @@ begin
   Assert.IsTrue(HasMileage);
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES CAPTURE DECODES PROGRAMMING STATUS
+//------------------------------------------------------------------------------
 procedure TCaptureValidatorTests.MercedesCaptureDecodesProgrammingStatus;
 var
   Decoded: TArray<TOBDCaptureDecoded>;
@@ -228,6 +302,9 @@ begin
   Assert.IsTrue(Found, 'Mercedes capture should include F19E');
 end;
 
+//------------------------------------------------------------------------------
+// FORD CAPTURE DECODES CALIBRATION ID
+//------------------------------------------------------------------------------
 procedure TCaptureValidatorTests.FordCaptureDecodesCalibrationId;
 var
   Decoded: TArray<TOBDCaptureDecoded>;
@@ -246,6 +323,9 @@ begin
   Assert.IsTrue(HasCal);
 end;
 
+//------------------------------------------------------------------------------
+// NEGATIVE RESPONSES ARE REPORTED
+//------------------------------------------------------------------------------
 procedure TCaptureValidatorTests.NegativeResponsesAreReported;
 var
   Decoded: TArray<TOBDCaptureDecoded>;

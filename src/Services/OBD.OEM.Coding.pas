@@ -22,19 +22,25 @@ uses
 type
   EOBDCodingError = class(Exception);
 
-/// <summary>Strip whitespace + non-hex separators and decode the
-/// remaining hex pairs into bytes. Throws on a malformed input
-/// (odd character count, non-hex characters).</summary>
+/// <summary>
+///   Strip whitespace + non-hex separators and decode the
+///   remaining hex pairs into bytes. Throws on a malformed input
+///   (odd character count, non-hex characters).
+/// </summary>
 function HexStringToBytes(const Hex: string): TBytes;
 
-/// <summary>Format <c>Bytes</c> as upper-case hex. <c>Separator</c>
-/// inserts after every byte except the last (default empty for the
-/// continuous form VAG / BMW use; pass <c>' '</c> for human-readable).</summary>
+/// <summary>
+///   Format <c>Bytes</c> as upper-case hex. <c>Separator</c>
+///   inserts after every byte except the last (default empty for the
+///   continuous form VAG / BMW use; pass <c>' '</c> for human-readable).
+/// </summary>
 function BytesToHexString(const Bytes: TBytes;
   const Separator: string = ''): string;
 
-/// <summary>Helpers for bit-fields inside a TBytes — used by VW long
-/// coding and BMW FA-byte mode.</summary>
+/// <summary>
+///   Helpers for bit-fields inside a TBytes — used by VW long
+///   coding and BMW FA-byte mode.
+/// </summary>
 function GetBit(const Bytes: TBytes;
   const ByteIndex, BitIndex: Integer): Boolean;
 procedure SetBit(var Bytes: TBytes;
@@ -42,11 +48,17 @@ procedure SetBit(var Bytes: TBytes;
 
 implementation
 
+//------------------------------------------------------------------------------
+// IS HEX CHAR
+//------------------------------------------------------------------------------
 function IsHexChar(C: Char): Boolean;
 begin
   Result := CharInSet(C, ['0'..'9', 'a'..'f', 'A'..'F']);
 end;
 
+//------------------------------------------------------------------------------
+// HEX CHAR TO NIBBLE
+//------------------------------------------------------------------------------
 function HexCharToNibble(C: Char): Byte;
 begin
   case UpCase(C) of
@@ -58,6 +70,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HEX STRING TO BYTES
+//------------------------------------------------------------------------------
 function HexStringToBytes(const Hex: string): TBytes;
 var
   Filtered: string;
@@ -89,6 +104,9 @@ begin
                  HexCharToNibble(Filtered[I * 2 + 2]);
 end;
 
+//------------------------------------------------------------------------------
+// BYTES TO HEX STRING
+//------------------------------------------------------------------------------
 function BytesToHexString(const Bytes: TBytes;
   const Separator: string): string;
 var
@@ -108,6 +126,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// GET BIT
+//------------------------------------------------------------------------------
 function GetBit(const Bytes: TBytes;
   const ByteIndex, BitIndex: Integer): Boolean;
 begin
@@ -120,6 +141,9 @@ begin
   Result := (Bytes[ByteIndex] and (Byte(1) shl BitIndex)) <> 0;
 end;
 
+//------------------------------------------------------------------------------
+// SET BIT
+//------------------------------------------------------------------------------
 procedure SetBit(var Bytes: TBytes;
   const ByteIndex, BitIndex: Integer; const Value: Boolean);
 var

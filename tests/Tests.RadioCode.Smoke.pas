@@ -25,48 +25,177 @@ type
   strict private
     procedure RunInvariants(const CalcClass: TClass);
   public
+    /// <summary>
+    ///   Acura.
+    /// </summary>
     [Test] procedure Acura;
+    /// <summary>
+    ///   Alfa romeo.
+    /// </summary>
     [Test] procedure AlfaRomeo;
+    /// <summary>
+    ///   Alpine.
+    /// </summary>
     [Test] procedure Alpine;
+    /// <summary>
+    ///   Audi concert.
+    /// </summary>
     [Test] procedure AudiConcert;
+    /// <summary>
+    ///   Becker.
+    /// </summary>
     [Test] procedure Becker;
+    /// <summary>
+    ///   Becker4.
+    /// </summary>
     [Test] procedure Becker4;
+    /// <summary>
+    ///   Becker5.
+    /// </summary>
     [Test] procedure Becker5;
+    /// <summary>
+    ///   Blaupunkt.
+    /// </summary>
     [Test] procedure Blaupunkt;
+    /// <summary>
+    ///   B m w.
+    /// </summary>
     [Test] procedure BMW;
+    /// <summary>
+    ///   Chrysler.
+    /// </summary>
     [Test] procedure Chrysler;
+    /// <summary>
+    ///   Citroen.
+    /// </summary>
     [Test] procedure Citroen;
+    /// <summary>
+    ///   Clarion.
+    /// </summary>
     [Test] procedure Clarion;
+    /// <summary>
+    ///   Fiat daiichi.
+    /// </summary>
     [Test] procedure FiatDaiichi;
+    /// <summary>
+    ///   Fiat v p.
+    /// </summary>
     [Test] procedure FiatVP;
+    /// <summary>
+    ///   Ford.
+    /// </summary>
     [Test] procedure Ford;
+    /// <summary>
+    ///   Ford v.
+    /// </summary>
     [Test] procedure FordV;
+    /// <summary>
+    ///   G m.
+    /// </summary>
     [Test] procedure GM;
+    /// <summary>
+    ///   Honda.
+    /// </summary>
     [Test] procedure Honda;
+    /// <summary>
+    ///   Hyundai.
+    /// </summary>
     [Test] procedure Hyundai;
+    /// <summary>
+    ///   Infiniti.
+    /// </summary>
     [Test] procedure Infiniti;
+    /// <summary>
+    ///   Jaguar.
+    /// </summary>
     [Test] procedure Jaguar;
+    /// <summary>
+    ///   Land rover.
+    /// </summary>
     [Test] procedure LandRover;
+    /// <summary>
+    ///   Lexus.
+    /// </summary>
     [Test] procedure Lexus;
+    /// <summary>
+    ///   Maserati.
+    /// </summary>
     [Test] procedure Maserati;
+    /// <summary>
+    ///   Mazda.
+    /// </summary>
     [Test] procedure Mazda;
+    /// <summary>
+    ///   Mercedes.
+    /// </summary>
     [Test] procedure Mercedes;
+    /// <summary>
+    ///   Mini.
+    /// </summary>
     [Test] procedure Mini;
+    /// <summary>
+    ///   Mitsubishi.
+    /// </summary>
     [Test] procedure Mitsubishi;
+    /// <summary>
+    ///   Nissan.
+    /// </summary>
     [Test] procedure Nissan;
+    /// <summary>
+    ///   Opel.
+    /// </summary>
     [Test] procedure Opel;
+    /// <summary>
+    ///   Peugeot.
+    /// </summary>
     [Test] procedure Peugeot;
+    /// <summary>
+    ///   Porsche.
+    /// </summary>
     [Test] procedure Porsche;
+    /// <summary>
+    ///   Renault.
+    /// </summary>
     [Test] procedure Renault;
+    /// <summary>
+    ///   Saab.
+    /// </summary>
     [Test] procedure Saab;
+    /// <summary>
+    ///   S e a t.
+    /// </summary>
     [Test] procedure SEAT;
+    /// <summary>
+    ///   Skoda.
+    /// </summary>
     [Test] procedure Skoda;
+    /// <summary>
+    ///   Smart.
+    /// </summary>
     [Test] procedure Smart;
+    /// <summary>
+    ///   Subaru.
+    /// </summary>
     [Test] procedure Subaru;
+    /// <summary>
+    ///   Suzuki.
+    /// </summary>
     [Test] procedure Suzuki;
+    /// <summary>
+    ///   Toyota.
+    /// </summary>
     [Test] procedure Toyota;
+    /// <summary>
+    ///   Visteon.
+    /// </summary>
     [Test] procedure Visteon;
+    /// <summary>
+    ///   Volvo.
+    /// </summary>
     [Test] procedure Volvo;
+    /// <summary>
+    ///   V w.
+    /// </summary>
     [Test] procedure VW;
   end;
 
@@ -123,6 +252,9 @@ type
 
 { TRadioCodeSmokeTests }
 
+//------------------------------------------------------------------------------
+// RUN INVARIANTS
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.RunInvariants(const CalcClass: TClass);
 var
   Calc: TOBDRadioCode;
@@ -157,48 +289,219 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ACURA
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Acura;       begin RunInvariants(TOBDRadioCodeAcuraAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// ALFA ROMEO
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.AlfaRomeo;   begin RunInvariants(TOBDRadioCodeAlfaRomeoAdvanced);   end;
+
+//------------------------------------------------------------------------------
+// ALPINE
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Alpine;      begin RunInvariants(TOBDRadioCodeAlpineAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// AUDI CONCERT
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.AudiConcert; begin RunInvariants(TOBDRadioCodeAudiConcertAdvanced); end;
+
+//------------------------------------------------------------------------------
+// BECKER
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Becker;      begin RunInvariants(TOBDRadioCodeBeckerAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// BECKER4
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Becker4;     begin RunInvariants(TOBDRadioCodeBecker4);             end;
+
+//------------------------------------------------------------------------------
+// BECKER5
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Becker5;     begin RunInvariants(TOBDRadioCodeBecker5);             end;
+
+//------------------------------------------------------------------------------
+// BLAUPUNKT
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Blaupunkt;   begin RunInvariants(TOBDRadioCodeBlaupunktAdvanced);   end;
+
+//------------------------------------------------------------------------------
+// BMW
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.BMW;         begin RunInvariants(TOBDRadioCodeBMWAdvanced);         end;
+
+//------------------------------------------------------------------------------
+// CHRYSLER
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Chrysler;    begin RunInvariants(TOBDRadioCodeChryslerAdvanced);    end;
+
+//------------------------------------------------------------------------------
+// CITROEN
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Citroen;     begin RunInvariants(TOBDRadioCodeCitroenAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// CLARION
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Clarion;     begin RunInvariants(TOBDRadioCodeClarionAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// FIAT DAIICHI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.FiatDaiichi; begin RunInvariants(TOBDRadioCodeFiatDaiichiAdvanced); end;
+
+//------------------------------------------------------------------------------
+// FIAT VP
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.FiatVP;      begin RunInvariants(TOBDRadioCodeFiatVPAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// FORD
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Ford;        begin RunInvariants(TOBDRadioCodeFordAdvanced);        end;
+
+//------------------------------------------------------------------------------
+// FORD V
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.FordV;       begin RunInvariants(TOBDRadioCodeFordV);               end;
+
+//------------------------------------------------------------------------------
+// GM
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.GM;          begin RunInvariants(TOBDRadioCodeGMAdvanced);          end;
+
+//------------------------------------------------------------------------------
+// HONDA
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Honda;       begin RunInvariants(TOBDRadioCodeHondaAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// HYUNDAI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Hyundai;     begin RunInvariants(TOBDRadioCodeHyundaiAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// INFINITI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Infiniti;    begin RunInvariants(TOBDRadioCodeInfinitiAdvanced);    end;
+
+//------------------------------------------------------------------------------
+// JAGUAR
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Jaguar;      begin RunInvariants(TOBDRadioCodeJaguarAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// LAND ROVER
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.LandRover;   begin RunInvariants(TOBDRadioCodeLandRoverAdvanced);   end;
+
+//------------------------------------------------------------------------------
+// LEXUS
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Lexus;       begin RunInvariants(TOBDRadioCodeLexusAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// MASERATI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Maserati;    begin RunInvariants(TOBDRadioCodeMaseratiAdvanced);    end;
+
+//------------------------------------------------------------------------------
+// MAZDA
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Mazda;       begin RunInvariants(TOBDRadioCodeMazdaAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// MERCEDES
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Mercedes;    begin RunInvariants(TOBDRadioCodeMercedesAdvanced);    end;
+
+//------------------------------------------------------------------------------
+// MINI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Mini;        begin RunInvariants(TOBDRadioCodeMiniAdvanced);        end;
+
+//------------------------------------------------------------------------------
+// MITSUBISHI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Mitsubishi;  begin RunInvariants(TOBDRadioCodeMitsubishiAdvanced);  end;
+
+//------------------------------------------------------------------------------
+// NISSAN
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Nissan;      begin RunInvariants(TOBDRadioCodeNissanAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// OPEL
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Opel;        begin RunInvariants(TOBDRadioCodeOpelAdvanced);        end;
+
+//------------------------------------------------------------------------------
+// PEUGEOT
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Peugeot;     begin RunInvariants(TOBDRadioCodePeugeotAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// PORSCHE
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Porsche;     begin RunInvariants(TOBDRadioCodePorscheAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// RENAULT
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Renault;     begin RunInvariants(TOBDRadioCodeRenaultAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// SAAB
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Saab;        begin RunInvariants(TOBDRadioCodeSaabAdvanced);        end;
+
+//------------------------------------------------------------------------------
+// SEAT
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.SEAT;        begin RunInvariants(TOBDRadioCodeSEATAdvanced);        end;
+
+//------------------------------------------------------------------------------
+// SKODA
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Skoda;       begin RunInvariants(TOBDRadioCodeSkodaAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// SMART
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Smart;       begin RunInvariants(TOBDRadioCodeSmartAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// SUBARU
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Subaru;      begin RunInvariants(TOBDRadioCodeSubaruAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// SUZUKI
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Suzuki;      begin RunInvariants(TOBDRadioCodeSuzukiAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// TOYOTA
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Toyota;      begin RunInvariants(TOBDRadioCodeToyotaAdvanced);      end;
+
+//------------------------------------------------------------------------------
+// VISTEON
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Visteon;     begin RunInvariants(TOBDRadioCodeVisteonAdvanced);     end;
+
+//------------------------------------------------------------------------------
+// VOLVO
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.Volvo;       begin RunInvariants(TOBDRadioCodeVolvoAdvanced);       end;
+
+//------------------------------------------------------------------------------
+// VW
+//------------------------------------------------------------------------------
 procedure TRadioCodeSmokeTests.VW;          begin RunInvariants(TOBDRadioCodeVWAdvanced);          end;
 
 initialization

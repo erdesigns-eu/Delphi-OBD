@@ -44,6 +44,9 @@ procedure RenderLED(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// RENDER LED
+//------------------------------------------------------------------------------
 procedure RenderLED(const Canvas: ISkCanvas;
   const State: TOBDLedRenderState);
 var

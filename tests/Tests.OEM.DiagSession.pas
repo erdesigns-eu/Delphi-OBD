@@ -20,7 +20,13 @@ type
   [TestFixture]
   TDiagSessionConstructionTests = class
   public
+    /// <summary>
+    ///   Rejects nil connection.
+    /// </summary>
     [Test] procedure RejectsNilConnection;
+    /// <summary>
+    ///   Rejects nil extension.
+    /// </summary>
     [Test] procedure RejectsNilExtension;
   end;
 
@@ -30,11 +36,15 @@ uses
   System.SysUtils,
   OBD.OEM, OBD.OEM.DiagSession, OBD.OEM.VW;
 
+//------------------------------------------------------------------------------
+// REJECTS NIL CONNECTION
+//------------------------------------------------------------------------------
 procedure TDiagSessionConstructionTests.RejectsNilConnection;
 begin
   Assert.WillRaise(
     procedure
-    var Session: TOBDDiagSession;
+    var
+      Session: TOBDDiagSession;
     begin
       Session := TOBDDiagSession.Create(nil, TOBDOEMExtensionVW.Create);
       Session.Free;
@@ -42,11 +52,15 @@ begin
     EOBDDiagSessionError);
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS NIL EXTENSION
+//------------------------------------------------------------------------------
 procedure TDiagSessionConstructionTests.RejectsNilExtension;
 begin
   Assert.WillRaise(
     procedure
-    var Session: TOBDDiagSession;
+    var
+      Session: TOBDDiagSession;
     begin
       // We can't easily build a real TOBDConnectionAsync without a
       // backing IOBDConnection, but the nil-check on the OEM is the

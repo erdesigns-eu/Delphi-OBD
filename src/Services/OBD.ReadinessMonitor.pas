@@ -29,10 +29,12 @@ uses
 type
   EOBDReadinessError = class(Exception);
 
-  /// <summary>SAE J1979 / ISO 15031-5 monitor types. The
-  /// continuous three are common to all engines; the
-  /// non-continuous set diverges between spark-ignition (gasoline /
-  /// flex / hybrid) and compression-ignition (diesel).</summary>
+  /// <summary>
+  ///   SAE J1979 / ISO 15031-5 monitor types. The
+  ///   continuous three are common to all engines; the
+  ///   non-continuous set diverges between spark-ignition (gasoline /
+  ///   flex / hybrid) and compression-ignition (diesel).
+  /// </summary>
   TOBDMonitorKind = (
     monMisfire,
     monFuelSystem,
@@ -62,35 +64,53 @@ type
     State: TOBDMonitorState;
   end;
 
-  /// <summary>Decoded result of PID 0x01.</summary>
+  /// <summary>
+  ///   Decoded result of PID 0x01.
+  /// </summary>
   TOBDReadinessReport = record
-    /// <summary>True if the malfunction indicator lamp is illuminated.</summary>
+    /// <summary>
+    ///   True if the malfunction indicator lamp is illuminated.
+    /// </summary>
     MILOn: Boolean;
-    /// <summary>Number of confirmed DTCs the ECU is currently holding.</summary>
+    /// <summary>
+    ///   Number of confirmed DTCs the ECU is currently holding.
+    /// </summary>
     DtcCount: Byte;
-    /// <summary>True for compression-ignition (diesel) layout; false
-    /// for spark-ignition. Determined from byte B bit 3.</summary>
+    /// <summary>
+    ///   True for compression-ignition (diesel) layout; false
+    ///   for spark-ignition. Determined from byte B bit 3.
+    /// </summary>
     IsDiesel: Boolean;
-    /// <summary>Per-monitor readiness state. Always 11 entries for
-    /// SI engines (3 continuous + 8 non-continuous) and 11 entries
-    /// for CI engines (3 continuous + 8 non-continuous diesel set).
-    /// Monitors that the ECU doesn't support report
-    /// <c>msNotSupported</c>.</summary>
+    /// <summary>
+    ///   Per-monitor readiness state. Always 11 entries for
+    ///   SI engines (3 continuous + 8 non-continuous) and 11 entries
+    ///   for CI engines (3 continuous + 8 non-continuous diesel set).
+    ///   Monitors that the ECU doesn't support report
+    ///   <c>msNotSupported</c>.
+    /// </summary>
     Monitors: TArray<TOBDMonitorStatus>;
   end;
 
-/// <summary>Decode the 4-byte PID 0x01 payload. Throws
-/// <c>EOBDReadinessError</c> on a payload shorter than 4 bytes.</summary>
+/// <summary>
+///   Decode the 4-byte PID 0x01 payload. Throws
+///   <c>EOBDReadinessError</c> on a payload shorter than 4 bytes.
+/// </summary>
 function DecodeReadinessReport(const Bytes: TBytes): TOBDReadinessReport;
 
-/// <summary>Render a one-line summary suitable for logs / status
-/// bars: <c>"MIL off, 0 DTCs, 5/8 readiness monitors complete"</c>.</summary>
+/// <summary>
+///   Render a one-line summary suitable for logs / status
+///   bars: <c>"MIL off, 0 DTCs, 5/8 readiness monitors complete"</c>.
+/// </summary>
 function FormatReadinessSummary(const Report: TOBDReadinessReport): string;
 
-/// <summary>Human-readable name for a monitor kind.</summary>
+/// <summary>
+///   Human-readable name for a monitor kind.
+/// </summary>
 function MonitorKindName(const Kind: TOBDMonitorKind): string;
 
-/// <summary>Human-readable name for a monitor state.</summary>
+/// <summary>
+///   Human-readable name for a monitor state.
+/// </summary>
 function MonitorStateName(const State: TOBDMonitorState): string;
 
 implementation
@@ -119,6 +139,9 @@ const
   BIT_PM_FILTER           = 6;
   BIT_EGR_VVT_DIESEL      = 7;
 
+//------------------------------------------------------------------------------
+// MONITOR KIND NAME
+//------------------------------------------------------------------------------
 function MonitorKindName(const Kind: TOBDMonitorKind): string;
 begin
   case Kind of
@@ -144,6 +167,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MONITOR STATE NAME
+//------------------------------------------------------------------------------
 function MonitorStateName(const State: TOBDMonitorState): string;
 begin
   case State of
@@ -155,6 +181,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STATE FROM BITS
+//------------------------------------------------------------------------------
 function StateFromBits(const SupportSet, NotCompleteSet: Boolean): TOBDMonitorState;
 begin
   if not SupportSet then Exit(msNotSupported);
@@ -163,6 +192,9 @@ begin
   if NotCompleteSet then Result := msNotReady else Result := msReady;
 end;
 
+//------------------------------------------------------------------------------
+// ADD MONITOR
+//------------------------------------------------------------------------------
 procedure AddMonitor(var Arr: TArray<TOBDMonitorStatus>;
   const Kind: TOBDMonitorKind; const State: TOBDMonitorState);
 var
@@ -174,6 +206,9 @@ begin
   Arr[N].State := State;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE READINESS REPORT
+//------------------------------------------------------------------------------
 function DecodeReadinessReport(const Bytes: TBytes): TOBDReadinessReport;
 var
   A, B, C, D: Byte;
@@ -258,6 +293,9 @@ begin
   i := 0; if i = 0 then ; // suppress unused-var warning
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT READINESS SUMMARY
+//------------------------------------------------------------------------------
 function FormatReadinessSummary(const Report: TOBDReadinessReport): string;
 var
   M: TOBDMonitorStatus;

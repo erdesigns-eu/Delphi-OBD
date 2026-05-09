@@ -44,22 +44,33 @@ type
   public
     constructor Create(ALogger: TOBDLogger);
 
-    /// <summary>Record an audit event at the appropriate log level.</summary>
+    /// <summary>
+    ///   Record an audit event at the appropriate log level.
+    /// </summary>
     procedure RecordEvent(const Event: TOBDAuditEvent);
 
-    /// <summary>Convenience: record a success.</summary>
+    /// <summary>
+    ///   Convenience: record a success.
+    /// </summary>
     procedure Success(const Actor, Action, Resource: string;
       const Detail: string = '');
-    /// <summary>Convenience: record a failure.</summary>
+    /// <summary>
+    ///   Convenience: record a failure.
+    /// </summary>
     procedure Failure(const Actor, Action, Resource: string;
       const Detail: string = '');
-    /// <summary>Convenience: record a denied (policy violation).</summary>
+    /// <summary>
+    ///   Convenience: record a denied (policy violation).
+    /// </summary>
     procedure Denied(const Actor, Action, Resource: string;
       const Detail: string = '');
   end;
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDAuditRecorder.Create(ALogger: TOBDLogger);
 begin
   inherited Create;
@@ -68,6 +79,9 @@ begin
   FLogger := ALogger;
 end;
 
+//------------------------------------------------------------------------------
+// OUTCOME NAME
+//------------------------------------------------------------------------------
 function TOBDAuditRecorder.OutcomeName(O: TOBDAuditOutcome): string;
 begin
   case O of
@@ -78,6 +92,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SERIALIZE
+//------------------------------------------------------------------------------
 function TOBDAuditRecorder.Serialize(const Event: TOBDAuditEvent): string;
 var
   Obj: TJSONObject;
@@ -97,6 +114,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RECORD EVENT
+//------------------------------------------------------------------------------
 procedure TOBDAuditRecorder.RecordEvent(const Event: TOBDAuditEvent);
 var
   PreviousTag: string;
@@ -119,24 +139,36 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SUCCESS
+//------------------------------------------------------------------------------
 procedure TOBDAuditRecorder.Success(const Actor, Action, Resource, Detail: string);
-var E: TOBDAuditEvent;
+var
+  E: TOBDAuditEvent;
 begin
   E.Actor := Actor; E.Action := Action; E.Resource := Resource;
   E.Outcome := aoSuccess; E.Detail := Detail;
   RecordEvent(E);
 end;
 
+//------------------------------------------------------------------------------
+// FAILURE
+//------------------------------------------------------------------------------
 procedure TOBDAuditRecorder.Failure(const Actor, Action, Resource, Detail: string);
-var E: TOBDAuditEvent;
+var
+  E: TOBDAuditEvent;
 begin
   E.Actor := Actor; E.Action := Action; E.Resource := Resource;
   E.Outcome := aoFailure; E.Detail := Detail;
   RecordEvent(E);
 end;
 
+//------------------------------------------------------------------------------
+// DENIED
+//------------------------------------------------------------------------------
 procedure TOBDAuditRecorder.Denied(const Actor, Action, Resource, Detail: string);
-var E: TOBDAuditEvent;
+var
+  E: TOBDAuditEvent;
 begin
   E.Actor := Actor; E.Action := Action; E.Resource := Resource;
   E.Outcome := aoDenied; E.Detail := Detail;

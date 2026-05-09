@@ -30,23 +30,17 @@ This quick start shows how to scaffold a Skia-enabled OBD UI with the updated pa
 
 ---
 
-## What's New in v2.0
+## What's New in v3.79
 
-### Performance Improvements
-- **Zero-Copy Rendering**: All visual components now use direct Skia rendering via `TSkSurface.MakeFromHDC()`, eliminating TBitmap buffering
-- **Shared Animation Manager**: Centralized timer management with TStopwatch for high-resolution timing (microsecond precision)
-- **Optimized Memory Usage**: Background images cached as ISkImage snapshots, reducing allocations
-- **Frame-Independent Animation**: Smooth animations regardless of frame rate
+- **Async UDS client** (`OBD.OEM.UdsClient.Async`) — future-returning facade over `IOBDUdsClient` so UI threads can fire-and-await every diagnostic call without blocking. Cooperative cancellation via `IOBDCancellationToken`.
+- **Cross-platform DoIP** (`OBD.Protocol.DoIP.Session.Cross`) — TCP-side ISO 13400-2 §8 implementation on `System.Net.Socket` (Windows, macOS, Linux, iOS, Android), no Indy or Synapse dependency.
+- **DoIP TLS** (`OBD.Protocol.DoIP.Session.TLS`) — ISO 13400-3 §7, TCP/3496, mutual TLS via Indy + OpenSSL. TLS 1.2 minimum.
+- **Capture/replay transport** — `TCaptureReplayTransport` parses recorded `.obdlog` pairs for deterministic UDS testing.
+- **Catalog Browser** (`examples/catalogbrowser`) — VCL app that walks every shipped OEM catalog (ECUs / DIDs / Routines / Coding Blocks / Adaptations / Actuator Tests / Live PIDs / DTC Extended Data).
+- **Coverage harness** (`tools/coverage/`) — `delphi-code-coverage` against the DUnitX runner, emits HTML + Cobertura + LCOV.
+- **79 OEM catalogs** / 247,279 entries / 5 vehicle classes (33 new motorcycles, agricultural, marine, powersports catalogs in v3.78).
 
-### Architecture Changes
-- **Direct Skia Integration**: Components inherit from `TOBDCustomControl` (based on `TSkCustomControl`)
-- **Eliminated ~500 Lines**: Removed duplicate TBitmap buffering code across all components
-- **Improved Error Handling**: All Paint methods protected with try-except blocks and validation checks
-
-### Bug Fixes
-- Fixed ToBitmap compilation errors
-- Fixed duplicate Canvas variable shadowing
-- Fixed division by zero issues in gauge rendering
+See [CHANGELOG.md](CHANGELOG.md) for the full history.
 
 ---
 
@@ -66,18 +60,16 @@ This quick start shows how to scaffold a Skia-enabled OBD UI with the updated pa
 **Problem**: "Cannot find specified module" error when installing DesignTime package  
 **Solution**: 
 1. Ensure Skia4Delphi is properly installed via GetIt Package Manager
-2. The packages are now configured to output to the standard Delphi BPL directory (`$(BDSCOMMONDIR)\Bpl`)
-3. This ensures the Skia DLL (libskia.dll) is accessible when the package loads
-4. First install RunTime.dpk, then DesignTime.dpk
-5. If the issue persists, verify that Skia4Delphi packages are installed in the same BPL directory
+2. The packages output BPLs to `$(BDSCOMMONDIR)\Bpl` so the Skia DLL is on the IDE's search path
+3. First install RunTime.dpk, then DesignTime.dpk
 
 ### Rendering Issues
 
 **Problem**: Blank or black components  
 **Solution**:
-1. Ensure parent form has `DoubleBuffered := True`
-2. Check that Skia4Delphi is properly installed
-3. Verify component `Visible := True` and proper `Align` settings
+1. Check that Skia4Delphi is properly installed
+2. Verify component `Visible := True` and proper `Align` settings
+3. Do **not** set `DoubleBuffered := True` on the parent form — `TSkCustomControl` already buffers and form-level double buffering interferes with it (see `docs/COMPONENT_AUTHORING.md` §10).
 
 **Problem**: Jerky or stuttering animations  
 **Solution**:
@@ -111,17 +103,13 @@ This quick start shows how to scaffold a Skia-enabled OBD UI with the updated pa
 
 **Problem**: Memory usage grows over time  
 **Solution**:
-1. Ensure you're on v2.0+ with optimized memory management
-2. Check for memory leaks using FastMM4
-3. Limit number of simultaneously visible components
+1. Check for memory leaks using FastMM4
+2. Limit number of simultaneously visible components
 
 ### Common Errors
 
 **Error**: "Access violation at address..."  
-**Solution**: Update to v2.0+ which includes comprehensive error handling in Paint methods
-
-**Error**: "Division by zero"  
-**Solution**: Update to v2.0+ which includes validation in all property setters
+**Solution**: Make sure you're on a recent v3.x release; all `PaintSkia` paths are now guarded.
 
 ---
 

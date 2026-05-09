@@ -13,50 +13,140 @@ type
   [TestFixture]
   TSeedKeyAlgorithmTests = class
   public
+    /// <summary>
+    ///   Twos complement matches textbook.
+    /// </summary>
     [Test] procedure TwosComplementMatchesTextbook;
+    /// <summary>
+    ///   Twos complement carries across bytes.
+    /// </summary>
     [Test] procedure TwosComplementCarriesAcrossBytes;
+    /// <summary>
+    ///   Twos complement rejects empty seed.
+    /// </summary>
     [Test] procedure TwosComplementRejectsEmptySeed;
+    /// <summary>
+    ///   Xor mask tiles short mask.
+    /// </summary>
     [Test] procedure XorMaskTilesShortMask;
+    /// <summary>
+    ///   Xor mask rejects empty mask.
+    /// </summary>
     [Test] procedure XorMaskRejectsEmptyMask;
+    /// <summary>
+    ///   Byte rotate applies shift and rotation.
+    /// </summary>
     [Test] procedure ByteRotateAppliesShiftAndRotation;
+    /// <summary>
+    ///   Byte rotate rejects invalid rotation.
+    /// </summary>
     [Test] procedure ByteRotateRejectsInvalidRotation;
+    /// <summary>
+    ///   Constant key is seed independent.
+    /// </summary>
     [Test] procedure ConstantKeyIsSeedIndependent;
   end;
 
   [TestFixture]
   TSeedKeyRegistryTests = class
   public
+    /// <summary>
+    ///   Register and find by level.
+    /// </summary>
     [Test] procedure RegisterAndFindByLevel;
+    /// <summary>
+    ///   Newer registration wins over older.
+    /// </summary>
     [Test] procedure NewerRegistrationWinsOverOlder;
+    /// <summary>
+    ///   Find all returns all insertions.
+    /// </summary>
     [Test] procedure FindAllReturnsAllInsertions;
+    /// <summary>
+    ///   Unregister removes specific algorithm.
+    /// </summary>
     [Test] procedure UnregisterRemovesSpecificAlgorithm;
+    /// <summary>
+    ///   Has algorithm reports levels.
+    /// </summary>
     [Test] procedure HasAlgorithmReportsLevels;
+    /// <summary>
+    ///   Find returns nil for missing level.
+    /// </summary>
     [Test] procedure FindReturnsNilForMissingLevel;
+    /// <summary>
+    ///   Clear wipes everything.
+    /// </summary>
     [Test] procedure ClearWipesEverything;
   end;
 
   [TestFixture]
   TSeedKeyFrameTests = class
   public
+    /// <summary>
+    ///   Request seed frame rounds correctly.
+    /// </summary>
     [Test] procedure RequestSeedFrameRoundsCorrectly;
+    /// <summary>
+    ///   Request seed rejects even level.
+    /// </summary>
     [Test] procedure RequestSeedRejectsEvenLevel;
+    /// <summary>
+    ///   Send key frame adds level plus one.
+    /// </summary>
     [Test] procedure SendKeyFrameAddsLevelPlusOne;
+    /// <summary>
+    ///   Send key rejects empty key.
+    /// </summary>
     [Test] procedure SendKeyRejectsEmptyKey;
+    /// <summary>
+    ///   Extract seed returns payload.
+    /// </summary>
     [Test] procedure ExtractSeedReturnsPayload;
+    /// <summary>
+    ///   Extract seed rejects wrong s i d.
+    /// </summary>
     [Test] procedure ExtractSeedRejectsWrongSID;
+    /// <summary>
+    ///   Extract seed rejects level mismatch.
+    /// </summary>
     [Test] procedure ExtractSeedRejectsLevelMismatch;
   end;
 
   [TestFixture]
   TPerOEMSeedKeyTests = class
   public
+    /// <summary>
+    ///   V w has starter algorithm for level1.
+    /// </summary>
     [Test] procedure VWHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   B m w has starter algorithm for level1.
+    /// </summary>
     [Test] procedure BMWHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   Mercedes has starter algorithm for level1.
+    /// </summary>
     [Test] procedure MercedesHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   Ford has starter algorithm for level1.
+    /// </summary>
     [Test] procedure FordHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   G m has starter algorithm for level1.
+    /// </summary>
     [Test] procedure GMHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   Stellantis has starter algorithm for level1.
+    /// </summary>
     [Test] procedure StellantisHasStarterAlgorithmForLevel1;
+    /// <summary>
+    ///   Production override shadows starter.
+    /// </summary>
     [Test] procedure ProductionOverrideShadowsStarter;
+    /// <summary>
+    ///   Starter algorithms are unverified.
+    /// </summary>
     [Test] procedure StarterAlgorithmsAreUnverified;
   end;
 
@@ -71,6 +161,10 @@ uses
 //==============================================================================
 // Algorithms
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// TWOS COMPLEMENT MATCHES TEXTBOOK
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.TwosComplementMatchesTextbook;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -86,6 +180,9 @@ begin
   Assert.AreEqual(Byte($FF), Key[3]);
 end;
 
+//------------------------------------------------------------------------------
+// TWOS COMPLEMENT CARRIES ACROSS BYTES
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.TwosComplementCarriesAcrossBytes;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -100,6 +197,9 @@ begin
   Assert.AreEqual(Byte($88), Key[3]);
 end;
 
+//------------------------------------------------------------------------------
+// TWOS COMPLEMENT REJECTS EMPTY SEED
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.TwosComplementRejectsEmptySeed;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -110,6 +210,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// XOR MASK TILES SHORT MASK
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.XorMaskTilesShortMask;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -123,6 +226,9 @@ begin
   Assert.AreEqual(Byte($AA), Key[3]);
 end;
 
+//------------------------------------------------------------------------------
+// XOR MASK REJECTS EMPTY MASK
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.XorMaskRejectsEmptyMask;
 begin
   Assert.WillRaise(
@@ -130,6 +236,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// BYTE ROTATE APPLIES SHIFT AND ROTATION
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.ByteRotateAppliesShiftAndRotation;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -144,6 +253,9 @@ begin
   Assert.AreEqual(Byte($11), Key[3]);
 end;
 
+//------------------------------------------------------------------------------
+// BYTE ROTATE REJECTS INVALID ROTATION
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.ByteRotateRejectsInvalidRotation;
 begin
   Assert.WillRaise(
@@ -153,6 +265,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// CONSTANT KEY IS SEED INDEPENDENT
+//------------------------------------------------------------------------------
 procedure TSeedKeyAlgorithmTests.ConstantKeyIsSeedIndependent;
 var
   Algo: IOBDSeedKeyAlgorithm;
@@ -171,6 +286,10 @@ end;
 //==============================================================================
 // Registry
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// REGISTER AND FIND BY LEVEL
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.RegisterAndFindByLevel;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -187,6 +306,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NEWER REGISTRATION WINS OVER OLDER
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.NewerRegistrationWinsOverOlder;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -205,6 +327,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND ALL RETURNS ALL INSERTIONS
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.FindAllReturnsAllInsertions;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -221,6 +346,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// UNREGISTER REMOVES SPECIFIC ALGORITHM
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.UnregisterRemovesSpecificAlgorithm;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -240,6 +368,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HAS ALGORITHM REPORTS LEVELS
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.HasAlgorithmReportsLevels;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -254,6 +385,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND RETURNS NIL FOR MISSING LEVEL
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.FindReturnsNilForMissingLevel;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -266,6 +400,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR WIPES EVERYTHING
+//------------------------------------------------------------------------------
 procedure TSeedKeyRegistryTests.ClearWipesEverything;
 var
   Reg: TOBDSeedKeyRegistry;
@@ -283,6 +420,10 @@ end;
 //==============================================================================
 // Frame helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// REQUEST SEED FRAME ROUNDS CORRECTLY
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.RequestSeedFrameRoundsCorrectly;
 var
   F: TBytes;
@@ -293,6 +434,9 @@ begin
   Assert.AreEqual(Byte($05), F[1]);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST SEED REJECTS EVEN LEVEL
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.RequestSeedRejectsEvenLevel;
 begin
   Assert.WillRaise(
@@ -300,6 +444,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// SEND KEY FRAME ADDS LEVEL PLUS ONE
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.SendKeyFrameAddsLevelPlusOne;
 var
   F: TBytes;
@@ -312,6 +459,9 @@ begin
   Assert.AreEqual(Byte($AD), F[3]);
 end;
 
+//------------------------------------------------------------------------------
+// SEND KEY REJECTS EMPTY KEY
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.SendKeyRejectsEmptyKey;
 begin
   Assert.WillRaise(
@@ -319,6 +469,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT SEED RETURNS PAYLOAD
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.ExtractSeedReturnsPayload;
 var
   Seed: TBytes;
@@ -329,6 +482,9 @@ begin
   Assert.AreEqual(Byte($44), Seed[3]);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT SEED REJECTS WRONG SID
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.ExtractSeedRejectsWrongSID;
 begin
   Assert.WillRaise(
@@ -338,6 +494,9 @@ begin
     EOBDSeedKeyError);
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT SEED REJECTS LEVEL MISMATCH
+//------------------------------------------------------------------------------
 procedure TSeedKeyFrameTests.ExtractSeedRejectsLevelMismatch;
 begin
   Assert.WillRaise(
@@ -350,48 +509,76 @@ end;
 //==============================================================================
 // Per-OEM extensions
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// VWHAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.VWHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionVW.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// BMWHAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.BMWHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionBMW.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES HAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.MercedesHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionMercedes.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// FORD HAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.FordHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionFord.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// GMHAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.GMHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionGM.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS HAS STARTER ALGORITHM FOR LEVEL1
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.StellantisHasStarterAlgorithmForLevel1;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionStellantis.Create;
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// PRODUCTION OVERRIDE SHADOWS STARTER
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.ProductionOverrideShadowsStarter;
 var
   Ext: IOBDOEMExtension;
@@ -412,8 +599,12 @@ begin
     'production override should report verified=true');
 end;
 
+//------------------------------------------------------------------------------
+// STARTER ALGORITHMS ARE UNVERIFIED
+//------------------------------------------------------------------------------
 procedure TPerOEMSeedKeyTests.StarterAlgorithmsAreUnverified;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionVW.Create;
   Assert.IsFalse(Ext.SeedKeyRegistry.Find($01).Verified,

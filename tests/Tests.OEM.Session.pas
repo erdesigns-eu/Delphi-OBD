@@ -13,28 +13,82 @@ type
   [TestFixture]
   TStandardSessionTests = class
   public
+    /// <summary>
+    ///   Extended session emits header then10 03.
+    /// </summary>
     [Test] procedure ExtendedSessionEmitsHeaderThen10_03;
+    /// <summary>
+    ///   Default session has no heartbeat.
+    /// </summary>
     [Test] procedure DefaultSessionHasNoHeartbeat;
+    /// <summary>
+    ///   Non default session uses iso14229 heartbeat.
+    /// </summary>
     [Test] procedure NonDefaultSessionUsesIso14229Heartbeat;
+    /// <summary>
+    ///   End session returns to10 01.
+    /// </summary>
     [Test] procedure EndSessionReturnsTo10_01;
+    /// <summary>
+    ///   Programming requires security access.
+    /// </summary>
     [Test] procedure ProgrammingRequiresSecurityAccess;
+    /// <summary>
+    ///   Extended does not require security access by default.
+    /// </summary>
     [Test] procedure ExtendedDoesNotRequireSecurityAccessByDefault;
+    /// <summary>
+    ///   Zero ecu address omits header.
+    /// </summary>
     [Test] procedure ZeroEcuAddressOmitsHeader;
   end;
 
   [TestFixture]
   TPerOEMSessionTests = class
   public
+    /// <summary>
+    ///   V w plan sets header and c r a.
+    /// </summary>
     [Test] procedure VWPlanSetsHeaderAndCRA;
+    /// <summary>
+    ///   B m w requires security access for extended.
+    /// </summary>
     [Test] procedure BMWRequiresSecurityAccessForExtended;
+    /// <summary>
+    ///   B m w heartbeat is1500ms.
+    /// </summary>
     [Test] procedure BMWHeartbeatIs1500ms;
+    /// <summary>
+    ///   Mercedes appends f198 probe.
+    /// </summary>
     [Test] procedure MercedesAppendsF198Probe;
+    /// <summary>
+    ///   Mercedes heartbeat is1500ms.
+    /// </summary>
     [Test] procedure MercedesHeartbeatIs1500ms;
+    /// <summary>
+    ///   Ford prepends s t32 for programming.
+    /// </summary>
     [Test] procedure FordPrependsST32ForProgramming;
+    /// <summary>
+    ///   Ford extended has no s t32.
+    /// </summary>
     [Test] procedure FordExtendedHasNoST32;
+    /// <summary>
+    ///   G m prepends s p6.
+    /// </summary>
     [Test] procedure GMPrependsSP6;
+    /// <summary>
+    ///   Stellantis appends f198 with empty expected.
+    /// </summary>
     [Test] procedure StellantisAppendsF198WithEmptyExpected;
+    /// <summary>
+    ///   Extension resolves to o e m negotiator.
+    /// </summary>
     [Test] procedure ExtensionResolvesToOEMNegotiator;
+    /// <summary>
+    ///   Session negotiator is cached across calls.
+    /// </summary>
     [Test] procedure SessionNegotiatorIsCachedAcrossCalls;
   end;
 
@@ -46,6 +100,9 @@ uses
   OBD.OEM.VW, OBD.OEM.BMW, OBD.OEM.Mercedes,
   OBD.OEM.Ford, OBD.OEM.GM, OBD.OEM.Stellantis;
 
+//------------------------------------------------------------------------------
+// FIND UDSSTEP
+//------------------------------------------------------------------------------
 function FindUDSStep(const Plan: TOBDSessionPlan;
   const Prefix: TBytes): Boolean;
 var
@@ -65,6 +122,9 @@ begin
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// FIND ATSTEP
+//------------------------------------------------------------------------------
 function FindATStep(const Plan: TOBDSessionPlan;
   const Cmd: string): Integer;
 var
@@ -80,6 +140,10 @@ end;
 //==============================================================================
 // TStandardSessionTests
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// EXTENDED SESSION EMITS HEADER THEN10_03
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.ExtendedSessionEmitsHeaderThen10_03;
 var
   N: IOBDSessionNegotiator;
@@ -96,6 +160,9 @@ begin
   Assert.AreEqual(Byte($50), Plan.Steps[1].ExpectedResponse[0]);
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SESSION HAS NO HEARTBEAT
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.DefaultSessionHasNoHeartbeat;
 var
   N: IOBDSessionNegotiator;
@@ -106,6 +173,9 @@ begin
   Assert.AreEqual(Cardinal(0), Plan.TesterPresentMs);
 end;
 
+//------------------------------------------------------------------------------
+// NON DEFAULT SESSION USES ISO14229 HEARTBEAT
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.NonDefaultSessionUsesIso14229Heartbeat;
 var
   N: IOBDSessionNegotiator;
@@ -119,6 +189,9 @@ begin
   Assert.AreEqual(Byte($80), Plan.TesterPresentRequest[1]);
 end;
 
+//------------------------------------------------------------------------------
+// END SESSION RETURNS TO10_01
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.EndSessionReturnsTo10_01;
 var
   N: IOBDSessionNegotiator;
@@ -131,6 +204,9 @@ begin
   Assert.AreEqual(Cardinal(0), Plan.TesterPresentMs);
 end;
 
+//------------------------------------------------------------------------------
+// PROGRAMMING REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.ProgrammingRequiresSecurityAccess;
 var
   N: IOBDSessionNegotiator;
@@ -139,6 +215,9 @@ begin
   Assert.IsTrue(N.RequiresSecurityAccess(sstProgramming));
 end;
 
+//------------------------------------------------------------------------------
+// EXTENDED DOES NOT REQUIRE SECURITY ACCESS BY DEFAULT
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.ExtendedDoesNotRequireSecurityAccessByDefault;
 var
   N: IOBDSessionNegotiator;
@@ -147,6 +226,9 @@ begin
   Assert.IsFalse(N.RequiresSecurityAccess(sstExtendedDiagnostic));
 end;
 
+//------------------------------------------------------------------------------
+// ZERO ECU ADDRESS OMITS HEADER
+//------------------------------------------------------------------------------
 procedure TStandardSessionTests.ZeroEcuAddressOmitsHeader;
 var
   N: IOBDSessionNegotiator;
@@ -161,6 +243,10 @@ end;
 //==============================================================================
 // TPerOEMSessionTests
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// VWPLAN SETS HEADER AND CRA
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.VWPlanSetsHeaderAndCRA;
 var
   N: IOBDSessionNegotiator;
@@ -173,6 +259,9 @@ begin
   Assert.IsTrue(FindUDSStep(Plan, TBytes.Create($10, $03)));
 end;
 
+//------------------------------------------------------------------------------
+// BMWREQUIRES SECURITY ACCESS FOR EXTENDED
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.BMWRequiresSecurityAccessForExtended;
 var
   N: IOBDSessionNegotiator;
@@ -182,6 +271,9 @@ begin
   Assert.IsTrue(N.RequiresSecurityAccess(sstProgramming));
 end;
 
+//------------------------------------------------------------------------------
+// BMWHEARTBEAT IS1500MS
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.BMWHeartbeatIs1500ms;
 var
   N: IOBDSessionNegotiator;
@@ -190,6 +282,9 @@ begin
   Assert.AreEqual(Cardinal(1500), N.DefaultTesterPresentMs);
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES APPENDS F198 PROBE
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.MercedesAppendsF198Probe;
 var
   N: IOBDSessionNegotiator;
@@ -201,6 +296,9 @@ begin
     'Mercedes plan must include a 22 F1 98 probe');
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES HEARTBEAT IS1500MS
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.MercedesHeartbeatIs1500ms;
 var
   N: IOBDSessionNegotiator;
@@ -209,6 +307,9 @@ begin
   Assert.AreEqual(Cardinal(1500), N.DefaultTesterPresentMs);
 end;
 
+//------------------------------------------------------------------------------
+// FORD PREPENDS ST32 FOR PROGRAMMING
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.FordPrependsST32ForProgramming;
 var
   N: IOBDSessionNegotiator;
@@ -220,6 +321,9 @@ begin
     'Ford programming plan must prepend ST 32');
 end;
 
+//------------------------------------------------------------------------------
+// FORD EXTENDED HAS NO ST32
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.FordExtendedHasNoST32;
 var
   N: IOBDSessionNegotiator;
@@ -231,6 +335,9 @@ begin
     'Ford extended-diagnostic should NOT carry the programming-only ST 32');
 end;
 
+//------------------------------------------------------------------------------
+// GMPREPENDS SP6
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.GMPrependsSP6;
 var
   N: IOBDSessionNegotiator;
@@ -242,6 +349,9 @@ begin
     'GM plan must lock to GMLAN protocol via SP 6');
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS APPENDS F198 WITH EMPTY EXPECTED
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.StellantisAppendsF198WithEmptyExpected;
 var
   N: IOBDSessionNegotiator;
@@ -263,6 +373,9 @@ begin
   Assert.IsTrue(Found, 'Stellantis plan must include the F198 probe');
 end;
 
+//------------------------------------------------------------------------------
+// EXTENSION RESOLVES TO OEMNEGOTIATOR
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.ExtensionResolvesToOEMNegotiator;
 var
   Ext: IOBDOEMExtension;
@@ -287,6 +400,9 @@ begin
   Assert.IsTrue(Pos('Stellantis', Ext.SessionNegotiator.DisplayName) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// SESSION NEGOTIATOR IS CACHED ACROSS CALLS
+//------------------------------------------------------------------------------
 procedure TPerOEMSessionTests.SessionNegotiatorIsCachedAcrossCalls;
 var
   Ext: IOBDOEMExtension;

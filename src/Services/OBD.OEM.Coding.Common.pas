@@ -23,12 +23,16 @@ uses
   OBD.OEM;
 
 const
-  /// <summary>UDS SID 0x2E — WriteDataByIdentifier.</summary>
+  /// <summary>
+  ///   UDS SID 0x2E — WriteDataByIdentifier.
+  /// </summary>
   UDS_SID_WRITE_DATA_BY_IDENTIFIER = $2E;
 
 type
-  /// <summary>Canonical coding-function kinds. The set of writeable
-  /// DIDs a coding tool typically exposes as one-tap actions.</summary>
+  /// <summary>
+  ///   Canonical coding-function kinds. The set of writeable
+  ///   DIDs a coding tool typically exposes as one-tap actions.
+  /// </summary>
   TOBDCodingFunctionKind = (
     cfUnknown,
     cfVehicleOrder,         // BMW FA / Bentley commission / SALAPA option codes
@@ -52,8 +56,10 @@ type
     cfSofttopAuto           // Convertible / soft-top automatic operation
   );
 
-  /// <summary>Resolved coding function — one writeable DID the OEM
-  /// extension exposes that matches a canonical kind.</summary>
+  /// <summary>
+  ///   Resolved coding function — one writeable DID the OEM
+  ///   extension exposes that matches a canonical kind.
+  /// </summary>
   TOBDCodingFunction = record
     Kind: TOBDCodingFunctionKind;
     DataIdentifier: Word;
@@ -62,7 +68,9 @@ type
     EcuAddress: Word;
   end;
 
-  /// <summary>Registry of canonical kind → DID-name-token mappings.</summary>
+  /// <summary>
+  ///   Registry of canonical kind → DID-name-token mappings.
+  /// </summary>
   TOBDCodingFunctionRegistry = class
   strict private class var
     FTokens: TObjectDictionary<TOBDCodingFunctionKind, TList<string>>;
@@ -70,50 +78,69 @@ type
     class procedure RegisterTokens(const Kind: TOBDCodingFunctionKind;
       const Names: array of string);
   public
-    /// <summary>True if <c>Name</c> matches a known token for <c>Kind</c>
-    /// (case-insensitive substring match).</summary>
+    /// <summary>
+    ///   True if <c>Name</c> matches a known token for <c>Kind</c>
+    ///   (case-insensitive substring match).
+    /// </summary>
     class function NameMatchesKind(const Name: string;
       const Kind: TOBDCodingFunctionKind): Boolean;
-    /// <summary>Best-guess canonical kind for an arbitrary DID
-    /// name. Returns cfUnknown when no token matches.</summary>
+    /// <summary>
+    ///   Best-guess canonical kind for an arbitrary DID
+    ///   name. Returns cfUnknown when no token matches.
+    /// </summary>
     class function ClassifyName(const Name: string): TOBDCodingFunctionKind;
   end;
 
-/// <summary>Find the first DID in the OEM extension's catalog that
-/// maps to <c>Kind</c>. Returns <c>True</c> + populates <c>Func</c>;
-/// returns <c>False</c> when no matching DID exists.</summary>
+/// <summary>
+///   Find the first DID in the OEM extension's catalog that
+///   maps to <c>Kind</c>. Returns <c>True</c> + populates <c>Func</c>;
+///   returns <c>False</c> when no matching DID exists.
+/// </summary>
 function FindCodingFunction(const Ext: IOBDOEMExtension;
   const Kind: TOBDCodingFunctionKind;
   out Func: TOBDCodingFunction): Boolean;
 
-/// <summary>Discover every coding-classifiable DID on the OEM
-/// extension. Useful for populating a "Coding" menu without
-/// hard-coding which OEMs support what.</summary>
+/// <summary>
+///   Discover every coding-classifiable DID on the OEM
+///   extension. Useful for populating a "Coding" menu without
+///   hard-coding which OEMs support what.
+/// </summary>
 function ListCodingFunctions(
   const Ext: IOBDOEMExtension): TArray<TOBDCodingFunction>;
 
-/// <summary>Build the WriteDataByIdentifier UDS frame
-/// (<c>2E DID-hi DID-lo data...</c>).</summary>
+/// <summary>
+///   Build the WriteDataByIdentifier UDS frame
+///   (<c>2E DID-hi DID-lo data...</c>).
+/// </summary>
 function BuildWriteDataByIdentifier(const DID: Word;
   const Data: TBytes): TBytes;
 
-/// <summary>Build a coding-write UDS frame for a resolved coding
-/// function.</summary>
+/// <summary>
+///   Build a coding-write UDS frame for a resolved coding
+///   function.
+/// </summary>
 function BuildCodingFrame(const Func: TOBDCodingFunction;
   const Data: TBytes): TBytes;
 
-/// <summary>Parse a positive WriteDataByIdentifier response
-/// (<c>6E DID-hi DID-lo</c>). Returns <c>True</c> when the response
-/// confirms the requested DID, <c>False</c> on negative response or
-/// SID/DID mismatch.</summary>
+/// <summary>
+///   Parse a positive WriteDataByIdentifier response
+///   (<c>6E DID-hi DID-lo</c>). Returns <c>True</c> when the response
+///   confirms the requested DID, <c>False</c> on negative response or
+///   SID/DID mismatch.
+/// </summary>
 function ParseCodingResponse(const Response: TBytes;
   const ExpectedDID: Word): Boolean;
 
-/// <summary>Display label for a coding-function kind (used by UI).</summary>
+/// <summary>
+///   Display label for a coding-function kind (used by UI).
+/// </summary>
 function CodingFunctionKindName(const Kind: TOBDCodingFunctionKind): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// ENSURE INITIALIZED
+//------------------------------------------------------------------------------
 class procedure TOBDCodingFunctionRegistry.EnsureInitialized;
 begin
   if FTokens = nil then
@@ -163,6 +190,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER TOKENS
+//------------------------------------------------------------------------------
 class procedure TOBDCodingFunctionRegistry.RegisterTokens(
   const Kind: TOBDCodingFunctionKind; const Names: array of string);
 var
@@ -174,6 +204,9 @@ begin
   FTokens.AddOrSetValue(Kind, L);
 end;
 
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND
+//------------------------------------------------------------------------------
 class function TOBDCodingFunctionRegistry.NameMatchesKind(
   const Name: string; const Kind: TOBDCodingFunctionKind): Boolean;
 var
@@ -188,6 +221,9 @@ begin
     if Pos(Token, Lower) > 0 then Exit(True);
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY NAME
+//------------------------------------------------------------------------------
 class function TOBDCodingFunctionRegistry.ClassifyName(
   const Name: string): TOBDCodingFunctionKind;
 var
@@ -199,6 +235,9 @@ begin
   Result := cfUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// CODING FUNCTION KIND NAME
+//------------------------------------------------------------------------------
 function CodingFunctionKindName(const Kind: TOBDCodingFunctionKind): string;
 begin
   case Kind of
@@ -226,6 +265,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND CODING FUNCTION
+//------------------------------------------------------------------------------
 function FindCodingFunction(const Ext: IOBDOEMExtension;
   const Kind: TOBDCodingFunctionKind;
   out Func: TOBDCodingFunction): Boolean;
@@ -247,6 +289,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// LIST CODING FUNCTIONS
+//------------------------------------------------------------------------------
 function ListCodingFunctions(
   const Ext: IOBDOEMExtension): TArray<TOBDCodingFunction>;
 var
@@ -276,6 +321,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD WRITE DATA BY IDENTIFIER
+//------------------------------------------------------------------------------
 function BuildWriteDataByIdentifier(const DID: Word;
   const Data: TBytes): TBytes;
 var
@@ -290,12 +338,18 @@ begin
     Result[HeaderLen + I] := Data[I];
 end;
 
+//------------------------------------------------------------------------------
+// BUILD CODING FRAME
+//------------------------------------------------------------------------------
 function BuildCodingFrame(const Func: TOBDCodingFunction;
   const Data: TBytes): TBytes;
 begin
   Result := BuildWriteDataByIdentifier(Func.DataIdentifier, Data);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE CODING RESPONSE
+//------------------------------------------------------------------------------
 function ParseCodingResponse(const Response: TBytes;
   const ExpectedDID: Word): Boolean;
 begin

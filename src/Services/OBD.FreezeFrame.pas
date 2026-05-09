@@ -26,47 +26,67 @@ uses
 type
   EOBDFreezeFrameError = class(Exception);
 
-  /// <summary>One PID/data pair from a freeze-frame snapshot.</summary>
+  /// <summary>
+  ///   One PID/data pair from a freeze-frame snapshot.
+  /// </summary>
   TOBDFreezeFrameEntry = record
-    /// <summary>Frame number (almost always 0; ECUs that store
-    /// multiple frames keep them numbered sequentially).</summary>
+    /// <summary>
+    ///   Frame number (almost always 0; ECUs that store
+    ///   multiple frames keep them numbered sequentially).
+    /// </summary>
     FrameNumber: Byte;
-    /// <summary>The Service 01 PID this entry mirrors.</summary>
+    /// <summary>
+    ///   The Service 01 PID this entry mirrors.
+    /// </summary>
     PID: Byte;
-    /// <summary>Raw payload bytes (everything past the SID + PID
-    /// + frame echo). Decode through your usual OBD-II decoder
-    /// (`OBD.OEM.Catalog.JSON.DecodePayload` against
-    /// `obd2-pids.json`).</summary>
+    /// <summary>
+    ///   Raw payload bytes (everything past the SID + PID
+    ///   + frame echo). Decode through your usual OBD-II decoder
+    ///   (`OBD.OEM.Catalog.JSON.DecodePayload` against
+    ///   `obd2-pids.json`).
+    /// </summary>
     Payload: TBytes;
   end;
 
-  /// <summary>One full freeze-frame snapshot — typically the DTC
-  /// that triggered the snapshot plus a handful of correlated
-  /// PIDs (engine load, coolant temp, RPM, vehicle speed, …).</summary>
+  /// <summary>
+  ///   One full freeze-frame snapshot — typically the DTC
+  ///   that triggered the snapshot plus a handful of correlated
+  ///   PIDs (engine load, coolant temp, RPM, vehicle speed, …).
+  /// </summary>
   TOBDFreezeFrameSnapshot = record
     FrameNumber: Byte;
-    /// <summary>The DTC that was being set when the freeze frame
-    /// was captured. Decoded from PID 0x02 (DTC that caused freeze
-    /// frame). Empty when PID 0x02 wasn't queried.</summary>
+    /// <summary>
+    ///   The DTC that was being set when the freeze frame
+    ///   was captured. Decoded from PID 0x02 (DTC that caused freeze
+    ///   frame). Empty when PID 0x02 wasn't queried.
+    /// </summary>
     TriggerDTC: string;
-    /// <summary>Per-PID payload entries collected for this frame.</summary>
+    /// <summary>
+    ///   Per-PID payload entries collected for this frame.
+    /// </summary>
     Entries: TArray<TOBDFreezeFrameEntry>;
   end;
 
-/// <summary>Build the request frame for Service 02.</summary>
+/// <summary>
+///   Build the request frame for Service 02.
+/// </summary>
 function BuildFreezeFrameRequest(const PID: Byte;
   const FrameNum: Byte = 0): TBytes;
 
-/// <summary>Parse a positive Service 02 reply (<c>42 PID FrameNum
-/// DATA…</c>). Throws on a negative response (<c>7F 02 NRC</c>) or
-/// a malformed frame.</summary>
+/// <summary>
+///   Parse a positive Service 02 reply (<c>42 PID FrameNum
+///   DATA…</c>). Throws on a negative response (<c>7F 02 NRC</c>) or
+///   a malformed frame.
+/// </summary>
 function ParseFreezeFrameResponse(const Response: TBytes;
   const ExpectedPID: Byte): TOBDFreezeFrameEntry;
 
-/// <summary>Format the trigger-DTC bytes from PID 0x02 into the
-/// canonical 5-character string (e.g. <c>"P0301"</c>). Mirrors
-/// OBD.OEM.DTC.FormatDtc but specialised for the 2-byte PID 0x02
-/// payload.</summary>
+/// <summary>
+///   Format the trigger-DTC bytes from PID 0x02 into the
+///   canonical 5-character string (e.g. <c>"P0301"</c>). Mirrors
+///   OBD.OEM.DTC.FormatDtc but specialised for the 2-byte PID 0x02
+///   payload.
+/// </summary>
 function FormatFreezeFrameTriggerDTC(const Bytes: TBytes): string;
 
 implementation
@@ -74,12 +94,18 @@ implementation
 uses
   OBD.OEM.DTC;
 
+//------------------------------------------------------------------------------
+// BUILD FREEZE FRAME REQUEST
+//------------------------------------------------------------------------------
 function BuildFreezeFrameRequest(const PID: Byte;
   const FrameNum: Byte): TBytes;
 begin
   Result := TBytes.Create($02, PID, FrameNum);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE FREEZE FRAME RESPONSE
+//------------------------------------------------------------------------------
 function ParseFreezeFrameResponse(const Response: TBytes;
   const ExpectedPID: Byte): TOBDFreezeFrameEntry;
 begin
@@ -115,6 +141,9 @@ begin
   Result.Payload := Copy(Response, 3, Length(Response) - 3);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT FREEZE FRAME TRIGGER DTC
+//------------------------------------------------------------------------------
 function FormatFreezeFrameTriggerDTC(const Bytes: TBytes): string;
 begin
   // PID 0x02 returns 2 bytes (encoded per ISO 15031-5 / SAE J2012).

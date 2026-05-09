@@ -16,40 +16,100 @@ type
   [TestFixture]
   TExtras2VINTests = class
   public
+    /// <summary>
+    ///   Renault claims v r1 not stellantis.
+    /// </summary>
     [Test] procedure RenaultClaimsVR1NotStellantis;
+    /// <summary>
+    ///   Renault matches dacia and alpine.
+    /// </summary>
     [Test] procedure RenaultMatchesDaciaAndAlpine;
+    /// <summary>
+    ///   Volvo matches y v1 and china built.
+    /// </summary>
     [Test] procedure VolvoMatchesYV1AndChinaBuilt;
+    /// <summary>
+    ///   Tesla matches all factories.
+    /// </summary>
     [Test] procedure TeslaMatchesAllFactories;
+    /// <summary>
+    ///   Suzuki matches maruti.
+    /// </summary>
     [Test] procedure SuzukiMatchesMaruti;
+    /// <summary>
+    ///   Mitsubishi matches d s m historical.
+    /// </summary>
     [Test] procedure MitsubishiMatchesDSMHistorical;
+    /// <summary>
+    ///   Stellantis no longer claims v r1.
+    /// </summary>
     [Test] procedure StellantisNoLongerClaimsVR1;
   end;
 
   [TestFixture]
   TExtras2CatalogTests = class
   public
+    /// <summary>
+    ///   Renault e c u map has u c h.
+    /// </summary>
     [Test] procedure RenaultECUMapHasUCH;
+    /// <summary>
+    ///   Volvo heartbeat is extended.
+    /// </summary>
     [Test] procedure VolvoHeartbeatIsExtended;
+    /// <summary>
+    ///   Tesla e c u map includes autopilot.
+    /// </summary>
     [Test] procedure TeslaECUMapIncludesAutopilot;
+    /// <summary>
+    ///   Suzuki has seed key starter.
+    /// </summary>
     [Test] procedure SuzukiHasSeedKeyStarter;
+    /// <summary>
+    ///   Mitsubishi e c u map includes a w c.
+    /// </summary>
     [Test] procedure MitsubishiECUMapIncludesAWC;
+    /// <summary>
+    ///   Renault exposes ev controller.
+    /// </summary>
     [Test] procedure RenaultExposesEvController;
   end;
 
   [TestFixture]
   TExtras2DecoderTests = class
   public
+    /// <summary>
+    ///   Renault decodes calibration id.
+    /// </summary>
     [Test] procedure RenaultDecodesCalibrationId;
+    /// <summary>
+    ///   Volvo decodes pno code.
+    /// </summary>
     [Test] procedure VolvoDecodesPnoCode;
+    /// <summary>
+    ///   Tesla decodes firmware version.
+    /// </summary>
     [Test] procedure TeslaDecodesFirmwareVersion;
+    /// <summary>
+    ///   Suzuki decodes chassis code.
+    /// </summary>
     [Test] procedure SuzukiDecodesChassisCode;
+    /// <summary>
+    ///   Mitsubishi decodes chassis code.
+    /// </summary>
     [Test] procedure MitsubishiDecodesChassisCode;
   end;
 
   [TestFixture]
   TUniversalCatalogGrowthTests = class
   public
+    /// <summary>
+    ///   Obd pid catalog includes new entries.
+    /// </summary>
     [Test] procedure ObdPidCatalogIncludesNewEntries;
+    /// <summary>
+    ///   Dtc catalog includes p0017 and p2002.
+    /// </summary>
     [Test] procedure DtcCatalogIncludesP0017AndP2002;
   end;
 
@@ -62,6 +122,9 @@ uses
   OBD.OEM.Suzuki, OBD.OEM.Mitsubishi, OBD.OEM.Stellantis,
   OBD.OEM.Catalog.JSON, OBD.OEM.DTC;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -71,6 +134,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// RENAULT CLAIMS VR1 NOT STELLANTIS
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.RenaultClaimsVR1NotStellantis;
 var
   Renault, Stellantis: IOBDOEMExtension;
@@ -83,6 +150,9 @@ begin
     'Stellantis must no longer claim VR1');
 end;
 
+//------------------------------------------------------------------------------
+// RENAULT MATCHES DACIA AND ALPINE
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.RenaultMatchesDaciaAndAlpine;
 var
   Ext: IOBDOEMExtension;
@@ -93,6 +163,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('KNM')), 'Renault Korea');
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO MATCHES YV1 AND CHINA BUILT
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.VolvoMatchesYV1AndChinaBuilt;
 var
   Ext: IOBDOEMExtension;
@@ -104,6 +177,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('JF1')), 'should not claim Subaru');
 end;
 
+//------------------------------------------------------------------------------
+// TESLA MATCHES ALL FACTORIES
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.TeslaMatchesAllFactories;
 var
   Ext: IOBDOEMExtension;
@@ -115,6 +191,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('7SA')), 'Austin');
 end;
 
+//------------------------------------------------------------------------------
+// SUZUKI MATCHES MARUTI
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.SuzukiMatchesMaruti;
 var
   Ext: IOBDOEMExtension;
@@ -125,6 +204,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('TSM')), 'Suzuki Esztergom');
 end;
 
+//------------------------------------------------------------------------------
+// MITSUBISHI MATCHES DSMHISTORICAL
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.MitsubishiMatchesDSMHistorical;
 var
   Ext: IOBDOEMExtension;
@@ -135,6 +217,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('MMB')), 'Laem Chabang Thailand');
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS NO LONGER CLAIMS VR1
+//------------------------------------------------------------------------------
 procedure TExtras2VINTests.StellantisNoLongerClaimsVR1;
 var
   Stellantis: IOBDOEMExtension;
@@ -150,6 +235,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// RENAULT ECUMAP HAS UCH
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.RenaultECUMapHasUCH;
 var
   Ext: IOBDOEMExtension;
@@ -163,6 +252,9 @@ begin
   Assert.IsTrue(Found, 'Renault must expose UCH at 0x760');
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO HEARTBEAT IS EXTENDED
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.VolvoHeartbeatIsExtended;
 var
   Ext: IOBDOEMExtension;
@@ -173,6 +265,9 @@ begin
     'Volvo VIDA uses a 5-second heartbeat');
 end;
 
+//------------------------------------------------------------------------------
+// TESLA ECUMAP INCLUDES AUTOPILOT
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.TeslaECUMapIncludesAutopilot;
 var
   Ext: IOBDOEMExtension;
@@ -186,6 +281,9 @@ begin
   Assert.IsTrue(HasAP, 'Tesla must expose the Autopilot ECU');
 end;
 
+//------------------------------------------------------------------------------
+// SUZUKI HAS SEED KEY STARTER
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.SuzukiHasSeedKeyStarter;
 var
   Ext: IOBDOEMExtension;
@@ -194,6 +292,9 @@ begin
   Assert.IsNotNull(Ext.SeedKeyRegistry.Find($01));
 end;
 
+//------------------------------------------------------------------------------
+// MITSUBISHI ECUMAP INCLUDES AWC
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.MitsubishiECUMapIncludesAWC;
 var
   Ext: IOBDOEMExtension;
@@ -208,6 +309,9 @@ begin
     'Mitsubishi must expose the AWC for Outlander PHEV diagnostics');
 end;
 
+//------------------------------------------------------------------------------
+// RENAULT EXPOSES EV CONTROLLER
+//------------------------------------------------------------------------------
 procedure TExtras2CatalogTests.RenaultExposesEvController;
 var
   Ext: IOBDOEMExtension;
@@ -224,6 +328,10 @@ end;
 //==============================================================================
 // Decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// RENAULT DECODES CALIBRATION ID
+//------------------------------------------------------------------------------
 procedure TExtras2DecoderTests.RenaultDecodesCalibrationId;
 var
   Ext: IOBDOEMExtension;
@@ -234,6 +342,9 @@ begin
   Assert.IsTrue(Pos('renault_calibration_id', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// VOLVO DECODES PNO CODE
+//------------------------------------------------------------------------------
 procedure TExtras2DecoderTests.VolvoDecodesPnoCode;
 var
   Ext: IOBDOEMExtension;
@@ -244,6 +355,9 @@ begin
   Assert.IsTrue(Pos('volvo_pno_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// TESLA DECODES FIRMWARE VERSION
+//------------------------------------------------------------------------------
 procedure TExtras2DecoderTests.TeslaDecodesFirmwareVersion;
 var
   Ext: IOBDOEMExtension;
@@ -255,6 +369,9 @@ begin
   Assert.IsTrue(Pos('2024.32.5', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// SUZUKI DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TExtras2DecoderTests.SuzukiDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -265,6 +382,9 @@ begin
   Assert.IsTrue(Pos('suzuki_chassis_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MITSUBISHI DECODES CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TExtras2DecoderTests.MitsubishiDecodesChassisCode;
 var
   Ext: IOBDOEMExtension;
@@ -278,6 +398,10 @@ end;
 //==============================================================================
 // Universal catalog growth
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// RESOLVE CATALOG
+//------------------------------------------------------------------------------
 function ResolveCatalog(const FileName: string): string;
 var
   Candidate: string;
@@ -289,6 +413,9 @@ begin
   Result := TPath.GetFullPath(Candidate);
 end;
 
+//------------------------------------------------------------------------------
+// OBD PID CATALOG INCLUDES NEW ENTRIES
+//------------------------------------------------------------------------------
 procedure TUniversalCatalogGrowthTests.ObdPidCatalogIncludesNewEntries;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -307,6 +434,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG INCLUDES P0017 AND P2002
+//------------------------------------------------------------------------------
 procedure TUniversalCatalogGrowthTests.DtcCatalogIncludesP0017AndP2002;
 var
   Cat: TOBDDtcCatalog;

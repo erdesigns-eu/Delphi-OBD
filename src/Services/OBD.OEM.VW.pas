@@ -20,12 +20,14 @@ uses
   OBD.OEM.DTC;
 
 type
-  /// <summary>VAG-specific session negotiator. Adds the
-  /// <c>AT SH &lt;ECU&gt;</c> + <c>AT CRA &lt;ECU+8&gt;</c> handshake
-  /// before the UDS request because VCDS and ODIS have always set
-  /// both, and some MQB-platform ECUs reject the session-control
-  /// request if CRA is wrong. Tester-present interval is 2000 ms
-  /// (matches ODIS service mode 2).</summary>
+  /// <summary>
+  ///   VAG-specific session negotiator. Adds the
+  ///   <c>AT SH &lt;ECU&gt;</c> + <c>AT CRA &lt;ECU+8&gt;</c> handshake
+  ///   before the UDS request because VCDS and ODIS have always set
+  ///   both, and some MQB-platform ECUs reject the session-control
+  ///   request if CRA is wrong. Tester-present interval is 2000 ms
+  ///   (matches ODIS service mode 2).
+  /// </summary>
   TOBDVWSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     function BeginSessionPlan(SessionType: TOBDSessionType;
@@ -36,13 +38,18 @@ type
   TOBDOEMExtensionVW = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -60,6 +67,9 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// BEGIN SESSION PLAN
+//------------------------------------------------------------------------------
 function TOBDVWSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
   const ECUAddress: Word): TOBDSessionPlan;
@@ -96,16 +106,25 @@ begin
   Result.TesterPresentRequest := TBytes.Create($3E, $80);
 end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDVWSessionNegotiator.DisplayName: string;
 begin
   Result := 'VAG (ODIS / VCDS)';
 end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDVWSessionNegotiator.Create;
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionVW.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin
@@ -116,6 +135,9 @@ begin
   Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionVW.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -123,12 +145,27 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.DtcCatalogFileName: string;
-begin Result := 'dtc-vw.json'; end;
+begin
+  Result := 'dtc-vw.json';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.ManufacturerKey: string; begin Result := 'VAG'; end;
+
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.DisplayName: string; begin Result := 'Volkswagen Audi Group'; end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // v3.31 — JSON-only. The applicable_wmis list lives in vw.json,
@@ -136,9 +173,14 @@ begin
   Result := VINMatchesCatalog('vw.json', VIN);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionVW.BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // v3.31 — JSON-only. No hardcoded ECU / DID / Routine arrays in
   // Pascal. The vw.json catalog is the sole source of truth so
@@ -148,12 +190,20 @@ begin
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionVW.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   // v3.31 — coding blocks, adaptations, actuator tests, live PIDs
   // and DTC extended-data records all live in vw.json.
@@ -161,6 +211,9 @@ begin
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionVW.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 var

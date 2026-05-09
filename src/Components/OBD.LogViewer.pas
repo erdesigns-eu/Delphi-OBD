@@ -37,43 +37,65 @@ type
   public
     constructor Create(AOwner: TComponent); override;
 
-    /// <summary>Render a single log event.</summary>
+    /// <summary>
+    ///   Render a single log event.
+    /// </summary>
     procedure Write(const Event: TOBDLogEvent);
     procedure Flush;
   published
-    /// <summary>Prefix every line with [LEVEL] when true (default).</summary>
+    /// <summary>
+    ///   Prefix every line with [LEVEL] when true (default).
+    /// </summary>
     property ShowLevelTag: Boolean read FShowLevelTag write SetShowLevelTag default True;
   end;
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDLogViewer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FShowLevelTag := True;
 end;
 
+//------------------------------------------------------------------------------
+// SET SHOW LEVEL TAG
+//------------------------------------------------------------------------------
 procedure TOBDLogViewer.SetShowLevelTag(const AValue: Boolean);
 begin
   if FShowLevelTag <> AValue then FShowLevelTag := AValue;
 end;
 
+//------------------------------------------------------------------------------
+// QUERY INTERFACE
+//------------------------------------------------------------------------------
 function TOBDLogViewer.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
   if GetInterface(IID, Obj) then Result := 0 else Result := E_NOINTERFACE;
 end;
 
+//------------------------------------------------------------------------------
+// _ADD REF
+//------------------------------------------------------------------------------
 function TOBDLogViewer._AddRef: Integer;
 begin
   // VCL controls own themselves — never reference count.
   Result := -1;
 end;
 
+//------------------------------------------------------------------------------
+// _RELEASE
+//------------------------------------------------------------------------------
 function TOBDLogViewer._Release: Integer;
 begin
   Result := -1;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TOBDLogViewer.Write(const Event: TOBDLogEvent);
 var
   Tag, Source, Body: string;
@@ -97,6 +119,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TOBDLogViewer.Flush;
 begin
   // Nothing to flush — terminal renders synchronously.

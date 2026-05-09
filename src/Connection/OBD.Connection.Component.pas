@@ -258,6 +258,9 @@ uses
 
 { TOBDConnectionComponent }
 
+//------------------------------------------------------------------------------
+// APPLY EVENT HANDLERS
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.ApplyEventHandlers;
 begin
   TMonitor.Enter(FEventLock);
@@ -273,6 +276,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD CONNECTION
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.BuildConnection: IOBDConnection;
 begin
   case FConnectionType of
@@ -291,6 +297,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD PARAMS
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.BuildParams: TOBDConnectionParams;
 begin
   FillChar(Result, SizeOf(Result), 0);
@@ -327,6 +336,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NOTIFY CONNECTION STATE CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.NotifyConnectionStateChanged(const AConnected: Boolean);
 var
   Handler: TConnectionStateChangedEvent;
@@ -342,6 +354,9 @@ begin
     Handler(Self, AConnected, FConnectionType);
 end;
 
+//------------------------------------------------------------------------------
+// GET CONNECTION INSTANCE
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.GetConnectionInstance: IOBDConnection;
 begin
   TMonitor.Enter(FEventLock);
@@ -352,6 +367,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONNECT
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.Connect: Boolean;
 var
   Params: TOBDConnectionParams;
@@ -381,6 +399,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONNECTED
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.Connected: Boolean;
 begin
   if Assigned(FConnection) then
@@ -389,6 +410,9 @@ begin
     Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDConnectionComponent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -399,6 +423,9 @@ begin
   FPort := 35000;
 end;
 
+//------------------------------------------------------------------------------
+// DISCONNECT
+//------------------------------------------------------------------------------
 function TOBDConnectionComponent.Disconnect: Boolean;
 begin
   Result := False;
@@ -409,6 +436,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDConnectionComponent.Destroy;
 begin
   Disconnect;
@@ -422,6 +452,9 @@ begin
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// SET CONNECTION TYPE
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.SetConnectionType(const Value: TOBDConnectionType);
 begin
   if FConnectionType <> Value then
@@ -436,6 +469,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET ON DATA RECEIVED
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.SetOnDataReceived(const Value: TDataReceivedEvent);
 begin
   TMonitor.Enter(FEventLock);
@@ -447,6 +483,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET ON DATA SEND
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.SetOnDataSend(const Value: TDataSendEvent);
 begin
   TMonitor.Enter(FEventLock);
@@ -458,6 +497,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET ON ERROR
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponent.SetOnError(const Value: TErrorEvent);
 begin
   TMonitor.Enter(FEventLock);

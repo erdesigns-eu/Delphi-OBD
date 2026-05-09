@@ -13,9 +13,21 @@ type
   [TestFixture]
   TGoldenCheckHelperTests = class
   public
+    /// <summary>
+    ///   Reports empty list when all pass.
+    /// </summary>
     [Test] procedure ReportsEmptyListWhenAllPass;
+    /// <summary>
+    ///   Reports failure on missing substring.
+    /// </summary>
     [Test] procedure ReportsFailureOnMissingSubstring;
+    /// <summary>
+    ///   Reports failure on empty output.
+    /// </summary>
     [Test] procedure ReportsFailureOnEmptyOutput;
+    /// <summary>
+    ///   Empty substring accepts any non empty.
+    /// </summary>
     [Test] procedure EmptySubstringAcceptsAnyNonEmpty;
   end;
 
@@ -27,9 +39,21 @@ type
   [TestFixture]
   TPerOEMGoldenTests = class
   public
+    /// <summary>
+    ///   V w golden vectors.
+    /// </summary>
     [Test] procedure VWGoldenVectors;
+    /// <summary>
+    ///   B m w golden vectors.
+    /// </summary>
     [Test] procedure BMWGoldenVectors;
+    /// <summary>
+    ///   Mercedes golden vectors.
+    /// </summary>
     [Test] procedure MercedesGoldenVectors;
+    /// <summary>
+    ///   Ford golden vectors.
+    /// </summary>
     [Test] procedure FordGoldenVectors;
   end;
 
@@ -40,6 +64,9 @@ uses
   OBD.OEM, OBD.OEM.GoldenCheck,
   OBD.OEM.VW, OBD.OEM.BMW, OBD.OEM.Mercedes, OBD.OEM.Ford;
 
+//------------------------------------------------------------------------------
+// REPORT FAILURES
+//------------------------------------------------------------------------------
 procedure ReportFailures(const Failures: TArray<TOBDGoldenFailure>);
 var
   F: TOBDGoldenFailure;
@@ -55,6 +82,10 @@ end;
 //==============================================================================
 // Helper unit tests
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// REPORTS EMPTY LIST WHEN ALL PASS
+//------------------------------------------------------------------------------
 procedure TGoldenCheckHelperTests.ReportsEmptyListWhenAllPass;
 var
   Failures: TArray<TOBDGoldenFailure>;
@@ -66,6 +97,9 @@ begin
   Assert.AreEqual(0, Length(Failures));
 end;
 
+//------------------------------------------------------------------------------
+// REPORTS FAILURE ON MISSING SUBSTRING
+//------------------------------------------------------------------------------
 procedure TGoldenCheckHelperTests.ReportsFailureOnMissingSubstring;
 var
   Failures: TArray<TOBDGoldenFailure>;
@@ -78,6 +112,9 @@ begin
   Assert.IsTrue(Pos('failing on purpose', Failures[0].Reason) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// REPORTS FAILURE ON EMPTY OUTPUT
+//------------------------------------------------------------------------------
 procedure TGoldenCheckHelperTests.ReportsFailureOnEmptyOutput;
 var
   Failures: TArray<TOBDGoldenFailure>;
@@ -98,6 +135,9 @@ begin
   Assert.AreEqual(0, Length(Failures));
 end;
 
+//------------------------------------------------------------------------------
+// EMPTY SUBSTRING ACCEPTS ANY NON EMPTY
+//------------------------------------------------------------------------------
 procedure TGoldenCheckHelperTests.EmptySubstringAcceptsAnyNonEmpty;
 var
   Failures: TArray<TOBDGoldenFailure>;
@@ -111,6 +151,10 @@ end;
 //==============================================================================
 // Per-OEM golden vectors
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// VWGOLDEN VECTORS
+//------------------------------------------------------------------------------
 procedure TPerOEMGoldenTests.VWGoldenVectors;
 begin
   ReportFailures(CheckGoldenVectors(TOBDOEMExtensionVW.Create, [
@@ -123,6 +167,9 @@ begin
   ]));
 end;
 
+//------------------------------------------------------------------------------
+// BMWGOLDEN VECTORS
+//------------------------------------------------------------------------------
 procedure TPerOEMGoldenTests.BMWGoldenVectors;
 begin
   ReportFailures(CheckGoldenVectors(TOBDOEMExtensionBMW.Create, [
@@ -135,6 +182,9 @@ begin
   ]));
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES GOLDEN VECTORS
+//------------------------------------------------------------------------------
 procedure TPerOEMGoldenTests.MercedesGoldenVectors;
 begin
   ReportFailures(CheckGoldenVectors(TOBDOEMExtensionMercedes.Create, [
@@ -147,6 +197,9 @@ begin
   ]));
 end;
 
+//------------------------------------------------------------------------------
+// FORD GOLDEN VECTORS
+//------------------------------------------------------------------------------
 procedure TPerOEMGoldenTests.FordGoldenVectors;
 begin
   ReportFailures(CheckGoldenVectors(TOBDOEMExtensionFord.Create, [

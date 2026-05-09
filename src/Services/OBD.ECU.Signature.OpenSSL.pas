@@ -50,7 +50,9 @@ type
     function Verify(const Firmware, Signature: TBytes): Boolean;
   end;
 
-/// <summary>True after libcrypto has been successfully loaded once.</summary>
+/// <summary>
+///   True after libcrypto has been successfully loaded once.
+/// </summary>
 function OpenSSLAvailable: Boolean;
 
 implementation
@@ -86,6 +88,9 @@ var
   EVP_PKEY_free: TEVP_PKEY_free;
   EVP_PKEY_id: TEVP_PKEY_id;
 
+//------------------------------------------------------------------------------
+// RESOLVE SYMBOL
+//------------------------------------------------------------------------------
 function ResolveSymbol(const Name: AnsiString): Pointer;
 begin
   Result := GetProcAddress(GLib, PAnsiChar(Name));
@@ -93,6 +98,9 @@ begin
     raise EOBDOpenSSLError.CreateFmt('libcrypto symbol %s missing', [Name]);
 end;
 
+//------------------------------------------------------------------------------
+// TRY LOAD LIB CRYPTO
+//------------------------------------------------------------------------------
 function TryLoadLibCrypto: Boolean;
 const
   Candidates: array[0..3] of string = (
@@ -131,6 +139,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// OPEN SSLAVAILABLE
+//------------------------------------------------------------------------------
 function OpenSSLAvailable: Boolean;
 begin
   Result := TryLoadLibCrypto;
@@ -139,6 +150,10 @@ end;
 //==============================================================================
 // TOBDOpenSSLVerifier
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDOpenSSLVerifier.Create(const PublicKeyDer: TBytes);
 var
   Key: Pointer;
@@ -172,11 +187,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDOpenSSLVerifier.AlgorithmName: string;
 begin
   Result := FAlgorithmName;
 end;
 
+//------------------------------------------------------------------------------
+// IMPORT KEY
+//------------------------------------------------------------------------------
 function TOBDOpenSSLVerifier.ImportKey: Pointer;
 var
   Cursor: Pointer;
@@ -186,11 +207,17 @@ begin
   Result := d2i_PUBKEY(nil, @Cursor, Length(FPublicKeyDer));
 end;
 
+//------------------------------------------------------------------------------
+// FREE KEY
+//------------------------------------------------------------------------------
 procedure TOBDOpenSSLVerifier.FreeKey(KeyPtr: Pointer);
 begin
   if KeyPtr <> nil then EVP_PKEY_free(KeyPtr);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDOpenSSLVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 var
   Ctx: Pointer;

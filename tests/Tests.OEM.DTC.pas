@@ -13,30 +13,90 @@ type
   [TestFixture]
   TDtcEncodingTests = class
   public
+    /// <summary>
+    ///   Format powertrain code.
+    /// </summary>
     [Test] procedure FormatPowertrainCode;
+    /// <summary>
+    ///   Format chassis code.
+    /// </summary>
     [Test] procedure FormatChassisCode;
+    /// <summary>
+    ///   Format body code.
+    /// </summary>
     [Test] procedure FormatBodyCode;
+    /// <summary>
+    ///   Format network code.
+    /// </summary>
     [Test] procedure FormatNetworkCode;
+    /// <summary>
+    ///   Format manufacturer code.
+    /// </summary>
     [Test] procedure FormatManufacturerCode;
+    /// <summary>
+    ///   Encode round trips p0301.
+    /// </summary>
     [Test] procedure EncodeRoundTripsP0301;
+    /// <summary>
+    ///   Encode round trips manufacturer.
+    /// </summary>
     [Test] procedure EncodeRoundTripsManufacturer;
+    /// <summary>
+    ///   Encode rejects short input.
+    /// </summary>
     [Test] procedure EncodeRejectsShortInput;
+    /// <summary>
+    ///   Encode rejects bad letter.
+    /// </summary>
     [Test] procedure EncodeRejectsBadLetter;
+    /// <summary>
+    ///   Encode rejects bad group digit.
+    /// </summary>
     [Test] procedure EncodeRejectsBadGroupDigit;
+    /// <summary>
+    ///   Is manufacturer dtc recognises p1 and p3.
+    /// </summary>
     [Test] procedure IsManufacturerDtcRecognisesP1AndP3;
+    /// <summary>
+    ///   Is manufacturer dtc rejects s a e.
+    /// </summary>
     [Test] procedure IsManufacturerDtcRejectsSAE;
+    /// <summary>
+    ///   Severity round trip.
+    /// </summary>
     [Test] procedure SeverityRoundTrip;
   end;
 
   [TestFixture]
   TDtcCatalogTests = class
   public
+    /// <summary>
+    ///   Loads top level dtc array.
+    /// </summary>
     [Test] procedure LoadsTopLevelDtcArray;
+    /// <summary>
+    ///   Loads bare j s o n array.
+    /// </summary>
     [Test] procedure LoadsBareJSONArray;
+    /// <summary>
+    ///   Lookup is case insensitive.
+    /// </summary>
     [Test] procedure LookupIsCaseInsensitive;
+    /// <summary>
+    ///   Replaces duplicate code.
+    /// </summary>
     [Test] procedure ReplacesDuplicateCode;
+    /// <summary>
+    ///   Captures possible causes and hints.
+    /// </summary>
     [Test] procedure CapturesPossibleCausesAndHints;
+    /// <summary>
+    ///   Default source propagates to entries.
+    /// </summary>
     [Test] procedure DefaultSourcePropagatesToEntries;
+    /// <summary>
+    ///   Verified flag defaults to false.
+    /// </summary>
     [Test] procedure VerifiedFlagDefaultsToFalse;
   end;
 
@@ -49,27 +109,43 @@ uses
 //==============================================================================
 // Encoding
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FORMAT POWERTRAIN CODE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.FormatPowertrainCode;
 begin
   // 0x03 0x01 → P0301 (cylinder 1 misfire).
   Assert.AreEqual('P0301', FormatDtc($03, $01));
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT CHASSIS CODE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.FormatChassisCode;
 begin
   Assert.AreEqual('C0561', FormatDtc($45, $61));
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT BODY CODE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.FormatBodyCode;
 begin
   Assert.AreEqual('B1318', FormatDtc($93, $18));
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT NETWORK CODE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.FormatNetworkCode;
 begin
   Assert.AreEqual('U0100', FormatDtc($C1, $00));
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT MANUFACTURER CODE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.FormatManufacturerCode;
 begin
   // P1296 — first digit 1 (manufacturer): bit5=0, bit4=1 → high byte 0x12.
@@ -78,6 +154,9 @@ begin
   Assert.AreEqual('P3000', FormatDtc($30, $00));
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE ROUND TRIPS P0301
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.EncodeRoundTripsP0301;
 var
   B: TBytes;
@@ -87,6 +166,9 @@ begin
   Assert.AreEqual(Byte($01), B[1]);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE ROUND TRIPS MANUFACTURER
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.EncodeRoundTripsManufacturer;
 var
   B: TBytes;
@@ -95,36 +177,54 @@ begin
   Assert.AreEqual('P1296', FormatDtc(B));
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE REJECTS SHORT INPUT
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.EncodeRejectsShortInput;
 begin
   Assert.WillRaise(
     procedure begin EncodeDtc('P030'); end, EOBDDtcError);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE REJECTS BAD LETTER
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.EncodeRejectsBadLetter;
 begin
   Assert.WillRaise(
     procedure begin EncodeDtc('Z0301'); end, EOBDDtcError);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE REJECTS BAD GROUP DIGIT
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.EncodeRejectsBadGroupDigit;
 begin
   Assert.WillRaise(
     procedure begin EncodeDtc('P9999'); end, EOBDDtcError);
 end;
 
+//------------------------------------------------------------------------------
+// IS MANUFACTURER DTC RECOGNISES P1 AND P3
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.IsManufacturerDtcRecognisesP1AndP3;
 begin
   Assert.IsTrue(IsManufacturerDtc('P1296'));
   Assert.IsTrue(IsManufacturerDtc('B3000'));
 end;
 
+//------------------------------------------------------------------------------
+// IS MANUFACTURER DTC REJECTS SAE
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.IsManufacturerDtcRejectsSAE;
 begin
   Assert.IsFalse(IsManufacturerDtc('P0301'));
   Assert.IsFalse(IsManufacturerDtc('P2173'));
 end;
 
+//------------------------------------------------------------------------------
+// SEVERITY ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TDtcEncodingTests.SeverityRoundTrip;
 begin
   Assert.AreEqual(Ord(dtcSeverityCritical), Ord(ParseSeverity('critical')));
@@ -152,6 +252,9 @@ const
     '{"code": "U0100", "description": "Lost comm with ECM"}' +
     ']';
 
+//------------------------------------------------------------------------------
+// LOADS TOP LEVEL DTC ARRAY
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.LoadsTopLevelDtcArray;
 var
   Cat: TOBDDtcCatalog;
@@ -170,6 +273,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOADS BARE JSONARRAY
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.LoadsBareJSONArray;
 var
   Cat: TOBDDtcCatalog;
@@ -183,6 +289,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOOKUP IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.LookupIsCaseInsensitive;
 var
   Cat: TOBDDtcCatalog;
@@ -198,6 +307,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REPLACES DUPLICATE CODE
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.ReplacesDuplicateCode;
 var
   Cat: TOBDDtcCatalog;
@@ -215,6 +327,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CAPTURES POSSIBLE CAUSES AND HINTS
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.CapturesPossibleCausesAndHints;
 var
   Cat: TOBDDtcCatalog;
@@ -232,6 +347,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SOURCE PROPAGATES TO ENTRIES
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.DefaultSourcePropagatesToEntries;
 var
   Cat: TOBDDtcCatalog;
@@ -247,6 +365,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFIED FLAG DEFAULTS TO FALSE
+//------------------------------------------------------------------------------
 procedure TDtcCatalogTests.VerifiedFlagDefaultsToFalse;
 var
   Cat: TOBDDtcCatalog;

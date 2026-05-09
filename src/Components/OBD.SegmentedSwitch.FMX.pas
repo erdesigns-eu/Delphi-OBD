@@ -73,6 +73,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSegmentedSwitchFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -92,9 +95,18 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDSegmentedSwitchFMX.Destroy;
-begin FSegments.Free; inherited; end;
+begin
+  FSegments.Free;
+  inherited;
+end;
 
+//------------------------------------------------------------------------------
+// SEGMENTS CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.SegmentsChanged(Sender: TObject);
 begin
   if FSelectedIndex >= FSegments.Count then FSelectedIndex := FSegments.Count - 1;
@@ -102,11 +114,20 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// SET SEGMENTS
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.SetSegments(const AValue: TStringList);
-begin FSegments.Assign(AValue); end;
+begin
+  FSegments.Assign(AValue);
+end;
 
+//------------------------------------------------------------------------------
+// SET SELECTED INDEX
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.SetSelectedIndex(const AValue: Integer);
-var Clamped: Integer;
+var
+  Clamped: Integer;
 begin
   Clamped := AValue;
   if Clamped < 0 then Clamped := 0;
@@ -119,27 +140,81 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDSegmentedSwitchFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
-procedure TOBDSegmentedSwitchFMX.SetActiveColor(const AValue: TAlphaColor);
-begin if FActiveColor <> AValue then begin FActiveColor := AValue; Redraw; end; end;
-procedure TOBDSegmentedSwitchFMX.SetActiveTextColor(const AValue: TAlphaColor);
-begin if FActiveTextColor <> AValue then begin FActiveTextColor := AValue; Redraw; end; end;
-procedure TOBDSegmentedSwitchFMX.SetInactiveTextColor(const AValue: TAlphaColor);
-begin if FInactiveTextColor <> AValue then begin FInactiveTextColor := AValue; Redraw; end; end;
-procedure TOBDSegmentedSwitchFMX.SetCornerRadius(const AValue: Integer);
-begin if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue; Redraw; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDSegmentedSwitchFMX.SetBorderColor(const AValue: TAlphaColor);
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ACTIVE COLOR
+//------------------------------------------------------------------------------
+procedure TOBDSegmentedSwitchFMX.SetActiveColor(const AValue: TAlphaColor);
+begin
+  if FActiveColor <> AValue then begin FActiveColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ACTIVE TEXT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDSegmentedSwitchFMX.SetActiveTextColor(const AValue: TAlphaColor);
+begin
+  if FActiveTextColor <> AValue then begin FActiveTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET INACTIVE TEXT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDSegmentedSwitchFMX.SetInactiveTextColor(const AValue: TAlphaColor);
+begin
+  if FInactiveTextColor <> AValue then begin FInactiveTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CORNER RADIUS
+//------------------------------------------------------------------------------
+procedure TOBDSegmentedSwitchFMX.SetCornerRadius(const AValue: Integer);
+begin
+  if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SEGMENT WIDTH
+//------------------------------------------------------------------------------
 function TOBDSegmentedSwitchFMX.SegmentWidth: Single;
 begin
   if FSegments.Count = 0 then Exit(0);
   Result := Width / FSegments.Count;
 end;
 
+//------------------------------------------------------------------------------
+// INDEX AT
+//------------------------------------------------------------------------------
 function TOBDSegmentedSwitchFMX.IndexAt(X: Single): Integer;
-var W: Single;
+var
+  W: Single;
 begin
   Result := -1;
   W := SegmentWidth;
@@ -149,9 +224,13 @@ begin
   if Result >= FSegments.Count then Result := FSegments.Count - 1;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE DOWN
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Single);
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   inherited;
   if not IsFocused then SetFocus;
@@ -160,6 +239,9 @@ begin
   if Idx >= 0 then SetSelectedIndex(Idx);
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDSegmentedSwitchFMX.HandleDraw(ASender: TObject;
   const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 var

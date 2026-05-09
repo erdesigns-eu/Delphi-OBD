@@ -22,7 +22,9 @@ type
   TOBDDtcSeverity = (dsInfo, dsWarning, dsCritical);
   TOBDDtcStatus = (dsActive, dsPending, dsPermanent, dsHistory);
 
-  /// <summary>Flat row passed to the renderer; bindings copy from their own item types.</summary>
+  /// <summary>
+  ///   Flat row passed to the renderer; bindings copy from their own item types.
+  /// </summary>
   TOBDDtcRowView = record
     Code: string;
     Description: string;
@@ -60,22 +62,34 @@ procedure RenderDtcList(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// LIST AREA TOP
+//------------------------------------------------------------------------------
 function ListAreaTop(const State: TOBDDtcListRenderState): Single;
 begin
   if State.ShowHeader then Result := State.HeaderHeight else Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CONTENT HEIGHT
+//------------------------------------------------------------------------------
 function ContentHeight(const State: TOBDDtcListRenderState): Single;
 begin
   Result := Length(State.Rows) * State.RowHeight;
 end;
 
+//------------------------------------------------------------------------------
+// LIST AREA HEIGHT
+//------------------------------------------------------------------------------
 function ListAreaHeight(const State: TOBDDtcListRenderState): Single;
 begin
   Result := State.Height - ListAreaTop(State);
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// COLOR FOR SEVERITY
+//------------------------------------------------------------------------------
 function ColorForSeverity(const State: TOBDDtcListRenderState;
   S: TOBDDtcSeverity): TAlphaColor;
 begin
@@ -87,6 +101,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STATUS LABEL
+//------------------------------------------------------------------------------
 function StatusLabel(S: TOBDDtcStatus): string;
 begin
   case S of
@@ -98,6 +115,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DRAW ROW
+//------------------------------------------------------------------------------
 procedure DrawRow(const Canvas: ISkCanvas; const State: TOBDDtcListRenderState;
   const Row: TOBDDtcRowView; const RowRect: TRectF;
   const Selected, Alternate: Boolean; const Font, MonoFont: ISkFont);
@@ -167,6 +187,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RENDER DTC LIST
+//------------------------------------------------------------------------------
 procedure RenderDtcList(const Canvas: ISkCanvas;
   const State: TOBDDtcListRenderState);
 var

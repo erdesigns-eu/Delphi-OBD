@@ -110,6 +110,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTerminalFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -132,27 +135,52 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDTerminalFMX.Destroy;
-begin FLines.Free; inherited; end;
+begin
+  FLines.Free;
+  inherited;
+end;
 
+//------------------------------------------------------------------------------
+// LINE HEIGHT
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.LineHeight: Integer;
-begin Result := FFontSize + 4; end;
+begin
+  Result := FFontSize + 4;
+end;
 
+//------------------------------------------------------------------------------
+// VISIBLE LINE COUNT
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.VisibleLineCount: Integer;
 begin
   Result := Trunc((Height - 2 * TERMFMX_DEFAULT_PADDING) / LineHeight);
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CONTENT HEIGHT
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.ContentHeight: Integer;
-begin Result := FLines.Count * LineHeight; end;
+begin
+  Result := FLines.Count * LineHeight;
+end;
 
+//------------------------------------------------------------------------------
+// MAX SCROLL
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.MaxScroll: Integer;
 begin
   Result := ContentHeight - VisibleLineCount * LineHeight;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CLAMP SCROLL
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.ClampScroll;
 begin
   if FScrollY < 0 then FScrollY := 0;
@@ -160,6 +188,9 @@ begin
   FFollowTail := FScrollY >= MaxScroll;
 end;
 
+//------------------------------------------------------------------------------
+// APPEND LINE
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.AppendLine(const ALine: TOBDTerminalLineFMX);
 begin
   while FLines.Count >= FMaxLines do FLines.Delete(0);
@@ -168,35 +199,85 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// LOG SENT
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.LogSent(const AText: string);
-var L: TOBDTerminalLineFMX;
-begin L.Direction := tdSent; L.Text := AText; L.Timestamp := Now; AppendLine(L); end;
+var
+  L: TOBDTerminalLineFMX;
+begin
+  L.Direction := tdSent;
+  L.Text := AText;
+  L.Timestamp := Now;
+  AppendLine(L);
+end;
 
+//------------------------------------------------------------------------------
+// LOG RECEIVED
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.LogReceived(const AText: string);
-var L: TOBDTerminalLineFMX;
-begin L.Direction := tdReceived; L.Text := AText; L.Timestamp := Now; AppendLine(L); end;
+var
+  L: TOBDTerminalLineFMX;
+begin
+  L.Direction := tdReceived;
+  L.Text := AText;
+  L.Timestamp := Now;
+  AppendLine(L);
+end;
 
+//------------------------------------------------------------------------------
+// LOG INFO
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.LogInfo(const AText: string);
-var L: TOBDTerminalLineFMX;
-begin L.Direction := tdInfo; L.Text := AText; L.Timestamp := Now; AppendLine(L); end;
+var
+  L: TOBDTerminalLineFMX;
+begin
+  L.Direction := tdInfo;
+  L.Text := AText;
+  L.Timestamp := Now;
+  AppendLine(L);
+end;
 
+//------------------------------------------------------------------------------
+// LOG ERROR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.LogError(const AText: string);
-var L: TOBDTerminalLineFMX;
-begin L.Direction := tdError; L.Text := AText; L.Timestamp := Now; AppendLine(L); end;
+var
+  L: TOBDTerminalLineFMX;
+begin
+  L.Direction := tdError;
+  L.Text := AText;
+  L.Timestamp := Now;
+  AppendLine(L);
+end;
 
+//------------------------------------------------------------------------------
+// CLEAR LINES
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.ClearLines;
 begin
   FLines.Clear; FScrollY := 0; FFollowTail := True; Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// SCROLL TO TAIL
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.ScrollToTail;
 begin
   FScrollY := MaxScroll; FFollowTail := True; Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// LINE COUNT
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.LineCount: Integer;
-begin Result := FLines.Count; end;
+begin
+  Result := FLines.Count;
+end;
 
+//------------------------------------------------------------------------------
+// GET LINE
+//------------------------------------------------------------------------------
 function TOBDTerminalFMX.GetLine(Index: Integer): TOBDTerminalLineFMX;
 begin
   if (Index < 0) or (Index >= FLines.Count) then
@@ -207,6 +288,9 @@ begin
   Result := FLines[Index];
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX LINES
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetMaxLines(const AValue: Integer);
 begin
   if (AValue >= 1) and (FMaxLines <> AValue) then
@@ -217,32 +301,116 @@ begin
     Redraw;
   end;
 end;
+
+//------------------------------------------------------------------------------
+// SET SHOW TIMESTAMPS
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetShowTimestamps(const AValue: Boolean);
-begin if FShowTimestamps <> AValue then begin FShowTimestamps := AValue; Redraw; end; end;
+begin
+  if FShowTimestamps <> AValue then begin FShowTimestamps := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TIMESTAMP COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetTimestampColor(const AValue: TAlphaColor);
-begin if FTimestampColor <> AValue then begin FTimestampColor := AValue; Redraw; end; end;
+begin
+  if FTimestampColor <> AValue then begin FTimestampColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SENT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetSentColor(const AValue: TAlphaColor);
-begin if FSentColor <> AValue then begin FSentColor := AValue; Redraw; end; end;
+begin
+  if FSentColor <> AValue then begin FSentColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET RECEIVED COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetReceivedColor(const AValue: TAlphaColor);
-begin if FReceivedColor <> AValue then begin FReceivedColor := AValue; Redraw; end; end;
+begin
+  if FReceivedColor <> AValue then begin FReceivedColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET INFO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetInfoColor(const AValue: TAlphaColor);
-begin if FInfoColor <> AValue then begin FInfoColor := AValue; Redraw; end; end;
+begin
+  if FInfoColor <> AValue then begin FInfoColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ERROR COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetErrorColor(const AValue: TAlphaColor);
-begin if FErrorColor <> AValue then begin FErrorColor := AValue; Redraw; end; end;
+begin
+  if FErrorColor <> AValue then begin FErrorColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET FONT SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.SetFontSize(const AValue: Integer);
 begin
   if (AValue >= 6) and (FFontSize <> AValue) then
-  begin FFontSize := AValue; ClampScroll; Redraw; end;
+  begin
+    FFontSize := AValue;
+    ClampScroll;
+    Redraw;
+  end;
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE WHEEL
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.MouseWheel(Shift: TShiftState; WheelDelta: Integer;
-  var Handled: Boolean);
+  var
+    Handled: Boolean);
 const
   WHEEL_LINE_DELTA = 120;
 begin
@@ -253,6 +421,9 @@ begin
   Handled := True;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDTerminalFMX.HandleDraw(ASender: TObject;
   const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 var

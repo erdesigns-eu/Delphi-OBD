@@ -38,12 +38,18 @@ uses
   OBD.Protocol.DoIP, OBD.Protocol.Types;
 
 const
-  /// <summary>Standard DoIP UDP discovery port (ISO 13400-2 §7).</summary>
+  /// <summary>
+  ///   Standard DoIP UDP discovery port (ISO 13400-2 §7).
+  /// </summary>
   DOIP_UDP_DISCOVERY_PORT = 13400;
-  /// <summary>Standard DoIP TCP diagnostic-data port.</summary>
+  /// <summary>
+  ///   Standard DoIP TCP diagnostic-data port.
+  /// </summary>
   DOIP_TCP_DATA_PORT = 13400;
-  /// <summary>Reserved DoIP TLS port (ISO 13400-3 §7) — not yet
-  /// implemented by this unit.</summary>
+  /// <summary>
+  ///   Reserved DoIP TLS port (ISO 13400-3 §7) — not yet
+  ///   implemented by this unit.
+  /// </summary>
   DOIP_TLS_DATA_PORT = 3496;
 
 type
@@ -53,39 +59,65 @@ type
   EOBDDoIPTransportError = class(EOBDDoIPSessionError);
   EOBDDoIPTimeoutError = class(EOBDDoIPSessionError);
 
-  /// <summary>One announcement received during UDP discovery.</summary>
+  /// <summary>
+  ///   One announcement received during UDP discovery.
+  /// </summary>
   TDoIPVehicle = record
-    /// <summary>Sender IP in dotted-quad form ("192.168.0.10").</summary>
+    /// <summary>
+    ///   Sender IP in dotted-quad form ("192.168.0.10").
+    /// </summary>
     Address: string;
-    /// <summary>17-character VIN.</summary>
+    /// <summary>
+    ///   17-character VIN.
+    /// </summary>
     VIN: string;
-    /// <summary>6-byte Entity ID (typically MAC address).</summary>
+    /// <summary>
+    ///   6-byte Entity ID (typically MAC address).
+    /// </summary>
     EID: TBytes;
-    /// <summary>6-byte Group ID (vehicle group identifier).</summary>
+    /// <summary>
+    ///   6-byte Group ID (vehicle group identifier).
+    /// </summary>
     GID: TBytes;
-    /// <summary>Logical address of the announcing entity.</summary>
+    /// <summary>
+    ///   Logical address of the announcing entity.
+    /// </summary>
     LogicalAddress: Word;
-    /// <summary>Further-action flag (0 = no further action).</summary>
+    /// <summary>
+    ///   Further-action flag (0 = no further action).
+    /// </summary>
     FurtherAction: Byte;
-    /// <summary>Sync status (only valid for VIN/GID sync).</summary>
+    /// <summary>
+    ///   Sync status (only valid for VIN/GID sync).
+    /// </summary>
     SyncStatus: Byte;
   end;
 
-  /// <summary>UDP discovery options.</summary>
+  /// <summary>
+  ///   UDP discovery options.
+  /// </summary>
   TDoIPDiscoveryOptions = record
-    /// <summary>Local interface to bind on, or empty to use any.</summary>
+    /// <summary>
+    ///   Local interface to bind on, or empty to use any.
+    /// </summary>
     LocalAddress: string;
-    /// <summary>Total wait window in milliseconds. The function
-    /// collects announcements until this elapses.</summary>
+    /// <summary>
+    ///   Total wait window in milliseconds. The function
+    ///   collects announcements until this elapses.
+    /// </summary>
     TimeoutMs: Cardinal;
-    /// <summary>Broadcast destination — usually 255.255.255.255 or
-    /// the local subnet's broadcast address.</summary>
+    /// <summary>
+    ///   Broadcast destination — usually 255.255.255.255 or
+    ///   the local subnet's broadcast address.
+    /// </summary>
     BroadcastAddress: string;
   end;
 
-  /// <summary>Active DoIP TCP session. One instance ↔ one
-  /// connected ECU/gateway. Methods are not thread-safe; callers
-  /// who need concurrency should serialize access externally.</summary>
+  /// <summary>
+  ///   Active DoIP TCP session. One instance ↔ one
+  ///   connected ECU/gateway. Methods are not thread-safe; callers
+  ///   who need concurrency should serialize access externally.
+  /// </summary>
   TDoIPSession = class
   strict private
     FSocket: TSocket;
@@ -109,24 +141,32 @@ type
     constructor Create;
     destructor  Destroy; override;
 
-    /// <summary>Connect TCP to <c>Host</c> on <c>Port</c>. Doesn't
-    /// activate routing yet; call <c>ActivateRouting</c> next.</summary>
+    /// <summary>
+    ///   Connect TCP to <c>Host</c> on <c>Port</c>. Doesn't
+    ///   activate routing yet; call <c>ActivateRouting</c> next.
+    /// </summary>
     procedure Connect(const Host: string; Port: Word = DOIP_TCP_DATA_PORT;
                       ConnectTimeoutMs: Cardinal = 3000);
 
-    /// <summary>Send a routing-activation request and wait for
-    /// the response. Raises <c>EOBDDoIPRoutingError</c> on
-    /// non-success codes.</summary>
+    /// <summary>
+    ///   Send a routing-activation request and wait for
+    ///   the response. Raises <c>EOBDDoIPRoutingError</c> on
+    ///   non-success codes.
+    /// </summary>
     procedure ActivateRouting(SourceAddress: Word;
                               TargetAddress: Word;
                               ActivationType: Byte = DOIP_ROUTING_ACTIVATION_TYPE_DEFAULT);
 
-    /// <summary>Send one UDS request, return the UDS response.
-    /// Handles inline alive-check requests transparently.</summary>
+    /// <summary>
+    ///   Send one UDS request, return the UDS response.
+    ///   Handles inline alive-check requests transparently.
+    /// </summary>
     function SendReceive(const UdsRequest: TBytes;
                          TimeoutMs: Cardinal = 1500): TBytes;
 
-    /// <summary>Disconnect cleanly. Idempotent.</summary>
+    /// <summary>
+    ///   Disconnect cleanly. Idempotent.
+    /// </summary>
     procedure Disconnect;
 
     property Connected: Boolean read FConnected;
@@ -135,21 +175,27 @@ type
     property RemotePort: Word read FRemotePort;
     property SourceAddress: Word read FSourceAddress;
     property TargetAddress: Word read FTargetAddress;
-    /// <summary>Idle interval after which the session sends an
-    /// alive-check (ISO 13400-2 §8.2) — 0 disables.</summary>
+    /// <summary>
+    ///   Idle interval after which the session sends an
+    ///   alive-check (ISO 13400-2 §8.2) — 0 disables.
+    /// </summary>
     property AliveCheckIntervalMs: Cardinal
       read FAliveCheckIntervalMs write FAliveCheckIntervalMs;
     property OnAliveCheck: TNotifyEvent read FOnAliveCheck write FOnAliveCheck;
   end;
 
-/// <summary>Default discovery options (broadcast 255.255.255.255,
-/// 1500 ms window).</summary>
+/// <summary>
+///   Default discovery options (broadcast 255.255.255.255,
+///   1500 ms window).
+/// </summary>
 function DefaultDiscoveryOptions: TDoIPDiscoveryOptions;
 
-/// <summary>Broadcast a Vehicle Identification Request and collect
-/// announcements within the supplied time window. Returns one entry
-/// per responding ECU/gateway. Uses winsock2 directly. Raises
-/// <c>EOBDDoIPDiscoveryError</c> on socket setup failure.</summary>
+/// <summary>
+///   Broadcast a Vehicle Identification Request and collect
+///   announcements within the supplied time window. Returns one entry
+///   per responding ECU/gateway. Uses winsock2 directly. Raises
+///   <c>EOBDDoIPDiscoveryError</c> on socket setup failure.
+/// </summary>
 function DiscoverVehicles(const Options: TDoIPDiscoveryOptions
   ): TArray<TDoIPVehicle>;
 
@@ -166,6 +212,9 @@ uses
 // Helpers
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// INIT WIN SOCK IF NEEDED
+//------------------------------------------------------------------------------
 procedure InitWinSockIfNeeded;
 var
   WSAData: TWSAData;
@@ -175,11 +224,17 @@ begin
       'WSAStartup failed: %d', [WSAGetLastError]);
 end;
 
+//------------------------------------------------------------------------------
+// CLEANUP WIN SOCK
+//------------------------------------------------------------------------------
 procedure CleanupWinSock;
 begin
   WSACleanup;
 end;
 
+//------------------------------------------------------------------------------
+// SOCK ADDR FROM HOST
+//------------------------------------------------------------------------------
 function SockAddrFromHost(const Host: string; Port: Word): TSockAddrIn;
 begin
   FillChar(Result, SizeOf(Result), 0);
@@ -191,6 +246,9 @@ begin
       'invalid IPv4 address: %s', [Host]);
 end;
 
+//------------------------------------------------------------------------------
+// VINFROM BYTES
+//------------------------------------------------------------------------------
 function VINFromBytes(const B: TBytes; Offset: Integer): string;
 var
   AnsiVin: AnsiString;
@@ -209,6 +267,9 @@ end;
 // UDP discovery
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// DEFAULT DISCOVERY OPTIONS
+//------------------------------------------------------------------------------
 function DefaultDiscoveryOptions: TDoIPDiscoveryOptions;
 begin
   Result.LocalAddress := '';
@@ -216,6 +277,9 @@ begin
   Result.BroadcastAddress := '255.255.255.255';
 end;
 
+//------------------------------------------------------------------------------
+// DISCOVER VEHICLES
+//------------------------------------------------------------------------------
 function DiscoverVehicles(const Options: TDoIPDiscoveryOptions
   ): TArray<TDoIPVehicle>;
 var
@@ -360,6 +424,9 @@ end;
 // TDoIPSession
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TDoIPSession.Create;
 var
   Lines: TStringList;
@@ -380,6 +447,9 @@ begin
   FAliveCheckIntervalMs := 0; // disabled by default
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TDoIPSession.Destroy;
 begin
   Disconnect;
@@ -387,12 +457,18 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// RAISE LAST SOCKET ERROR
+//------------------------------------------------------------------------------
 procedure TDoIPSession.RaiseLastSocketError(const Action: string);
 begin
   raise EOBDDoIPTransportError.CreateFmt(
     '%s failed: WinSock %d', [Action, WSAGetLastError]);
 end;
 
+//------------------------------------------------------------------------------
+// SEND BYTES
+//------------------------------------------------------------------------------
 procedure TDoIPSession.SendBytes(const Bytes: TBytes);
 var
   Sent: Integer;
@@ -405,6 +481,9 @@ begin
   FLastSendTime := Now;
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE BYTES
+//------------------------------------------------------------------------------
 function TDoIPSession.ReceiveBytes(MaxBytes: Integer): TBytes;
 var
   Buf: array[0..16383] of Byte;
@@ -429,6 +508,9 @@ begin
   Move(Buf[0], Result[0], Got);
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE DO IPMESSAGE
+//------------------------------------------------------------------------------
 function TDoIPSession.ReceiveDoIPMessage: TBytes;
 var
   HeaderBytes, PayloadBytes: TBytes;
@@ -459,6 +541,9 @@ begin
     Move(PayloadBytes[0], Result[8], Need);
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE ALIVE CHECK REQUEST
+//------------------------------------------------------------------------------
 procedure TDoIPSession.HandleAliveCheckRequest;
 var
   Response: TBytes;
@@ -469,6 +554,9 @@ begin
     FOnAliveCheck(Self);
 end;
 
+//------------------------------------------------------------------------------
+// CONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSession.Connect(const Host: string; Port: Word;
                                ConnectTimeoutMs: Cardinal);
 var
@@ -505,6 +593,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ACTIVATE ROUTING
+//------------------------------------------------------------------------------
 procedure TDoIPSession.ActivateRouting(SourceAddress: Word;
                                        TargetAddress: Word;
                                        ActivationType: Byte);
@@ -532,6 +623,9 @@ begin
   FProtocol.RoutingActivated := True;
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TDoIPSession.SendReceive(const UdsRequest: TBytes;
                                   TimeoutMs: Cardinal): TBytes;
 const
@@ -592,6 +686,9 @@ begin
     [MAX_FRAMES_PER_CALL]);
 end;
 
+//------------------------------------------------------------------------------
+// DISCONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSession.Disconnect;
 begin
   if FSocket <> INVALID_SOCKET then
