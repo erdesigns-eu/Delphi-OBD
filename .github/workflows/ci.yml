@@ -44,12 +44,14 @@ jobs:
           done < <(find src tests examples -name '*.pas' 2>/dev/null)
           exit $fail
 
-      - name: No "Redraw;" calls outside the cleanup history
+      - name: No "Redraw;" calls outside the cleanup history (VCL only)
         shell: bash
         run: |
           set -euo pipefail
           # NeedRedraw locals are legitimate; everything else was the spiral.
-          if grep -rnE '(^|[^A-Za-z])Redraw;' src/ | grep -v 'NeedRedraw'; then
+          # FMX components legitimately call TSkPaintBox.Redraw — exclude *.FMX.pas.
+          if grep -rnE --include='*.pas' --exclude='*.FMX.pas' \
+               '(^|[^A-Za-z])Redraw;' src/ | grep -v 'NeedRedraw'; then
             echo "::error::Stray Redraw; calls — use Invalidate instead."
             exit 1
           fi
