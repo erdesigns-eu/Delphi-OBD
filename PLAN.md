@@ -37,7 +37,7 @@ parser is unit-tested against captured frames. CI is green on every PR.
 
 | # | Topic | Decision |
 |---|---|---|
-| 1 | v1 scope | Full diagnostics stack: OBD-II + UDS/KWP + J1939 + DoIP + secure-access. OEM coding/flashing land post-1.0. |
+| 1 | v1 scope | **Complete diagnostics**: all OBD-II modes 01–0A; full UDS diagnostic surface (0x10/11/14/19/22/23-read/24/27/28/29/2A/2C/2F/31/3E/83/85/86/87); full KWP2000 diagnostic surface (0x10/14/18/19/1A/21/22/27/2F/30/31/32/33/3E); J1939 DM1–DM32; DoIP incl. TLS + discovery; OEM extension registry so vendor packages can plug in. **Coding/flashing services intentionally deferred** post-1.0: UDS 0x2E (WriteDID), 0x34/35/36/37 (transfer), 0x3D (WriteMemory); J1939 DM14-DM18 memory access. |
 | 2 | Delphi versions | 10.3 Rio → 12 Athens. No inline vars, no custom managed records; conditional compilation for newer features. Generics + anonymous methods + parallel library available. |
 | 3 | UI framework | Headless — zero `Vcl.*` / `FMX.*` references in any runtime unit. Demos ship as separate sample projects. Design-time package may use VCL because the IDE is VCL. |
 | 4 | Component granularity | One component per role, enum-driven. `TOBDConnection` (Transport), `TOBDAdapter` (Family), `TOBDProtocol` (Mode + Manual). Sub-settings shown conditionally in the inspector. |
@@ -81,10 +81,30 @@ the same form.
 | `TOBDMonitorResults` | Mode 06 — on-board monitoring test results (CAN). MID/TID/UASID structured; ranges per test (min/max/value). | `Protocol`, `MonitorIDs: TOBDMonitorIDList` | `OnMonitorResult(Sender; const Result: TOBDMonitorTestResult)`, `OnAvailabilityChanged` |
 | `TOBDSystemControl` | Mode 08 — bidirectional control / actuator tests. Action component. | `Protocol`, `TestID: Byte`, `RequireConfirmation: Boolean` | `OnControlResponse`, `OnError` |
 | `TOBDVehicleInfo` | Mode 09 — vehicle information (VIN, CalIDs, CVNs, ECU Name, IPT, ESN). Includes calibration helpers (verify CVN against CalID, range checks). | `Protocol`, `Calibration: TOBDCalibrationHelper` (sub-object) | `OnVIN`, `OnCalibrationIDs`, `OnCVNs`, `OnInUsePerformanceSpark`, `OnInUsePerformanceCompression`, `OnECUName`, `OnECUNameExtended`, `OnEngineSerialNumber`, `OnAuxInputStatus` |
-| `TOBDUDS` | UDS (ISO 14229) client. | `Protocol`, `Session`, `SecurityLevel`, `Tester` | `OnDIDValue`, `OnRoutineFinished`, `OnNRC`, `OnError` |
-| `TOBDKWP` | KWP2000 client. | `Protocol`, `EcuAddress` | `OnFrame`, `OnError` |
-| `TOBDJ1939` | J1939 client. | `Connection`, `SourceAddress`, `Subscriptions: TOBDPGNList` | `OnPGN(Sender; const PGN: TOBDPGNValue)` |
-| `TOBDDoIP` | DoIP client. | `Host`, `Port`, `LogicalAddress`, `TLS`, `Tester` | `OnRoutingActivated`, `OnFrame`, `OnError` |
+| **UDS (ISO 14229)** — full diagnostic surface. Coding-only services (0x2E WriteDID, 0x34/0x35/0x36/0x37 transfer, 0x3D WriteMemory) deferred post-1.0. | | | |
+| `TOBDUDS` | Session/transport hub. Handles 0x10 Session Control, 0x11 ECU Reset, 0x27 Security Access, 0x28 Communication Control, 0x29 Authentication, 0x3E Tester Present, 0x83 Access Timing, 0x85 Control DTC Setting, 0x86 Response On Event, 0x87 Link Control. Other UDS components bind here. | `Protocol`, `Session: TOBDUDSSession`, `Tester: TOBDUDSTester` (timing, addresses), `Security: TOBDUDSSecurity` (level + seed/key callback) | `OnSessionChanged`, `OnSecurityGranted`, `OnNRC`, `OnError` |
+| `TOBDUDSReadDID` | Service 0x22 / 0x24 — Read Data By Identifier (with optional scaling info via 0x24). Collection-driven. | `UDS`, `DIDs: TOBDDIDList` (collection), `Interval: Cardinal`, `Active: Boolean` | `OnDIDValue(Sender; DID; const Value: TOBDValue)` |
+| `TOBDUDSReadDTC` | Service 0x19 — Read DTC Information. Supports all subfunctions (01 number-by-status, 02 by-status, 03 snapshot ID, 04 snapshot record, 06 extended record, 0A all, 14 fault detection counter, 15 mirror memory, 17 mirror counts, 18 user-def memory, 42 WWH-OBD, 55/56 WWH-OBD permanent). | `UDS`, `Subfunction: TOBDUDSReadDTCSubfunction`, `StatusMask`, `MemorySelection` | `OnDTCList`, `OnDTCSnapshot`, `OnDTCExtendedData` |
+| `TOBDUDSClearDTC` | Service 0x14 — Clear Diagnostic Information. Action component. | `UDS`, `GroupOfDTC: Cardinal`, `MemorySelection`, `RequireConfirmation` | `OnCleared`, `OnError` |
+| `TOBDUDSReset` | Service 0x11 — ECU Reset (hard/key-off-on/soft/enableRapidPowerShutDown/disableRapidPowerShutDown). Action component. | `UDS`, `ResetType: TOBDUDSResetType`, `RequireConfirmation` | `OnReset`, `OnPowerDownTime`, `OnError` |
+| `TOBDUDSIOControl` | Service 0x2F — Input/Output Control By Identifier (actuator tests, freeze, return-to-ECU). | `UDS`, `DID`, `ControlOption: TOBDUDSIOControlOption`, `EnableMask` | `OnControlResponse`, `OnError` |
+| `TOBDUDSRoutine` | Service 0x31 — Routine Control (start/stop/request results). For diagnostic routines (e.g. injector tests, leak detection, calibration verify). | `UDS`, `RoutineID`, `RoutineParams: TBytes` | `OnStarted`, `OnStopped`, `OnResults`, `OnError` |
+| `TOBDUDSReadByPeriodic` | Service 0x2A — Read Data By Periodic Identifier (slow/medium/fast rate). | `UDS`, `Items: TOBDPeriodicList`, `TransmissionMode` | `OnPeriodicValue` |
+| `TOBDUDSDynamicDID` | Service 0x2C — Dynamically Define Data Identifier. | `UDS`, `DefinedDID`, `Sources: TOBDDynamicSourceList` | `OnDefined`, `OnCleared` |
+| `TOBDUDSReadMemory` | Service 0x23 — Read Memory By Address. Diagnostic snapshots; **read-only**, write counterpart deferred post-1.0. | `UDS`, `Address`, `Size`, `AddressFormat`, `SizeFormat` | `OnMemory`, `OnError` |
+| **KWP2000 (ISO 14230)** — pre-UDS but still common on European cars. Mirrors UDS surface where services overlap. | | | |
+| `TOBDKWP` | Session/transport hub. 0x10 Session, 0x27 Security, 0x3E Tester Present. | `Protocol`, `EcuAddress`, `Session`, `Security` | `OnSessionChanged`, `OnSecurityGranted`, `OnNRC`, `OnError` |
+| `TOBDKWPReadID` | Services 0x1A (ECU ID), 0x21 (read by Local ID), 0x22 (read by Common ID). | `KWP`, `Identifiers: TOBDKWPIDList` | `OnIDValue` |
+| `TOBDKWPReadDTC` | Services 0x18 (Read DTC by status), 0x19 (Read DTC). | `KWP`, `StatusMask`, `Group` | `OnDTCList` |
+| `TOBDKWPIOControl` | Services 0x2F / 0x30 (IO control by Local/Common ID). | `KWP`, `Identifier`, `ControlOption` | `OnControlResponse` |
+| `TOBDKWPRoutine` | Services 0x31 (start), 0x32 (stop), 0x33 (request results). | `KWP`, `RoutineID`, `Params` | `OnStarted`, `OnStopped`, `OnResults` |
+| `TOBDKWPClearDTC` | Service 0x14 — Clear Diagnostic Information. | `KWP`, `Group`, `RequireConfirmation` | `OnCleared` |
+| **J1939 (heavy duty)** — full DM diagnostic message family for v1. | | | |
+| `TOBDJ1939` | Bus client / address claim / transport (TP.CM, TP.DT, ETP). | `Connection`, `SourceAddress`, `PreferredAddress`, `Subscriptions: TOBDPGNList`, `AddressClaim: TOBDJ1939AddressClaim` | `OnAddressClaimed`, `OnAddressLost`, `OnPGN`, `OnError` |
+| `TOBDJ1939DM` | All diagnostic messages bundled. Subscribed via `Messages` set. Covers DM1 (active DTCs, PGN 65226), DM2 (previously active), DM3 (clear previously active), DM4/DM25 (freeze frame / expanded), DM5/DM21/DM26 (readiness), DM6 (pending), DM11 (clear active), DM12 (emission DTCs), DM19 (calibration info), DM20 (IUMPR), DM22 (individual clear), DM23 (emission previously active), DM24 (SPN support), DM27 (all pending), DM28 (permanent), DM29 (DTC counts), DM30 (scaled test results), DM31 (DTC→lamp), DM32 (DTC extended). | `J1939`, `Messages: TOBDJ1939DMSet`, `RequestInterval` | `OnDM1ActiveDTCs`, `OnDM2PreviousDTCs`, `OnDM4FreezeFrame`, `OnDM5Readiness`, `OnDM6PendingDTCs`, `OnDM11Cleared`, `OnDM19CalibrationInfo`, `OnDM20IUMPR`, `OnDM24SPNSupport`, `OnDM25ExpandedFreezeFrame`, `OnDM27AllPending`, `OnDM28Permanent`, `OnDM29Counts`, `OnDM30ScaledResults`, `OnDM31LampStatus`, `OnDM32ExtendedData` |
+| **DoIP (ISO 13400)** — diagnostics over IP. | | | |
+| `TOBDDoIP` | Vehicle ID, routing activation, alive-check, diagnostic message exchange, power-mode, entity status. Supports plain TCP and TLS. | `Host`, `Port`, `LogicalAddress`, `TLS: TOBDDoIPTLS`, `Tester` | `OnVehicleIdentified`, `OnRoutingActivated`, `OnPowerModeInfo`, `OnEntityStatus`, `OnDiagnosticAck`, `OnError` |
+| `TOBDDoIPDiscovery` | UDP vehicle-announcement / vehicle-identification discovery on the local network. | `Port`, `Active` | `OnVehicleFound(Sender; const Info: TOBDDoIPVehicleInfo)` |
 | `TOBDRecorder` | Records frames to `.obdlog`. | `Source: TOBDProtocol`, `FileName`, `Recording` | `OnEntry` |
 | `TOBDReplayer` | Replays `.obdlog` into bound consumers. | `FileName`, `Speed`, `Loop`, `Active` | `OnFrame`, `OnEnd` |
 | `TOBDDataSource` | Bridge analogous to `TDataSource` for any future visual layer. | `LiveData`, `DTC`, `VehicleInfo` | `OnDataChange`, `OnStateChange` |
@@ -124,7 +144,35 @@ EOBDError                       (base)
 Transient issues (timeouts, NRC, NO-DATA, bus glitches) **never** raise; they
 fire `OnError`.
 
-### 3.4 Component design rules
+### 3.4 OEM extension hooks
+
+Coding and flashing land post-1.0, but **OEM-specific diagnostic data** (vendor
+DIDs, vendor PIDs, manufacturer-specific DTCs, custom NRCs, custom J1939 PGNs)
+must be pluggable in v1 — otherwise users can't read VAG measuring blocks,
+BMW INPA-style values, Ford Mode 22 PIDs, etc.
+
+Mechanism:
+
+- `OBD.OEM.Registry.pas` — process-wide registry mapping `(OEM, Identifier)` to
+  decoder callbacks. OEM enum: `oemGeneric`, `oemVAG`, `oemBMW`, `oemFord`,
+  `oemGM`, `oemStellantis`, `oemHMG`, `oemHonda`, `oemMercedes`, `oemToyota`,
+  …, `oemCustom`.
+- `TOBDOEMCatalog` (component, optional) — load JSON catalog overlays at
+  runtime: `catalogs/oem/<vendor>/dids.json`, `pids.json`, `dtcs.json`. Loader
+  registers them with the registry.
+- Components that resolve identifiers (`TOBDUDSReadDID`, `TOBDLiveData`,
+  `TOBDDTC`, `TOBDJ1939DM`) consult the registry after the standard catalog;
+  OEM entries override or augment built-ins.
+- Decoder hook signature: `function(const Raw: TBytes): TOBDValue;` registered
+  per identifier; if absent, raw bytes are surfaced.
+- `OnUnknownIdentifier(Sender; const ID; const Raw; var Value)` event on the
+  consuming component — last-chance hook for app-level decoders.
+
+This keeps the v1 surface diagnostic-only while leaving the door open for
+OEM packages (`OBD.OEM.VAG`, `OBD.OEM.BMW`, …) to ship as add-ons later
+without modifying the core.
+
+### 3.5 Component design rules
 
 - Every component is a `TComponent`. Sub-objects are `TPersistent` (or
   `TOwnedCollection`/`TCollectionItem` for lists).
@@ -173,8 +221,25 @@ fire `OnError`.
 │   │   ├── monitors.json       ← MID/TID/UASID definitions for Mode 06
 │   │   ├── dtcs.json
 │   │   └── nrc.json
-│   ├── j1939/pgns.json
-│   └── uds/dids-generic.json
+│   ├── uds/
+│   │   ├── dids-generic.json   ← F186, F18C, F190 (VIN), F191, F195, …
+│   │   ├── nrc.json            ← UDS negative-response codes
+│   │   └── routines-generic.json
+│   ├── kwp/common-ids.json
+│   ├── j1939/
+│   │   ├── pgns.json           ← incl. DM1..DM32 PGNs
+│   │   ├── spns.json           ← Suspect Parameter Numbers
+│   │   └── fmis.json           ← Failure Mode Identifiers
+│   └── oem/                    ← OEM overlay catalogs (empty in v1; populated post-1.0)
+│       ├── vag/
+│       ├── bmw/
+│       ├── ford/
+│       ├── gm/
+│       ├── stellantis/
+│       ├── hmg/
+│       ├── honda/
+│       ├── mercedes/
+│       └── toyota/
 ├── tests/
 │   ├── DelphiOBD_Tests.dproj   ← DUnitX runner
 │   └── (one Tests.<unit>.pas per source unit)
@@ -192,7 +257,13 @@ fire `OnError`.
 │   ├── 11-MonitorResults/      ← Mode 06
 │   ├── 12-VehicleInfo/         ← Mode 09 (VIN, CalIDs, CVNs, IPT, ESN)
 │   ├── 13-OxygenMonitor/       ← Mode 05
-│   └── 14-SystemControl/       ← Mode 08
+│   ├── 14-SystemControl/       ← Mode 08
+│   ├── 15-UDSReadDTC/          ← UDS 0x19 all subfunctions
+│   ├── 16-UDSRoutine/          ← UDS 0x31
+│   ├── 17-UDSIOControl/        ← UDS 0x2F actuator tests
+│   ├── 18-KWPReadID/           ← KWP 0x1A/0x21/0x22
+│   ├── 19-J1939DM/             ← DM1..DM32
+│   └── 20-DoIPDiscovery/       ← DoIP UDP discovery
 └── docs/
     ├── architecture.md
     ├── components/             ← one .md per component
@@ -291,14 +362,54 @@ All ten OBD-II service modes (01–0A) covered by dedicated components.
 - [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement
 - [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`, `11-MonitorResults`, `12-VehicleInfo`
 
-### Phase 6 — Advanced protocols as components (~3 weeks)
-- [ ] `OBD.UDS.pas` — `TOBDUDS` component (high-level API over `OBD.Protocol.UDS`)
-- [ ] `OBD.KWP.pas` — `TOBDKWP`
-- [ ] `OBD.J1939.pas` — `TOBDJ1939`
-- [ ] `OBD.DoIP.pas` — `TOBDDoIP`
-- [ ] DID/PGN catalogs in JSON
-- [ ] Tests
-- [ ] Samples `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`
+### Phase 6 — Advanced diagnostics as components (~5 weeks)
+
+Complete diagnostic surface; coding/flashing services intentionally deferred.
+
+**UDS (ISO 14229)**
+- [ ] `OBD.UDS.pas` — `TOBDUDS` session/transport hub (0x10, 0x11, 0x27, 0x28, 0x29, 0x3E, 0x83, 0x85, 0x86, 0x87)
+- [ ] `OBD.UDS.ReadDID.pas` — `TOBDUDSReadDID` (0x22, 0x24)
+- [ ] `OBD.UDS.ReadDTC.pas` — `TOBDUDSReadDTC` (0x19 with all subfunctions)
+- [ ] `OBD.UDS.ClearDTC.pas` — `TOBDUDSClearDTC` (0x14)
+- [ ] `OBD.UDS.Reset.pas` — `TOBDUDSReset` (0x11)
+- [ ] `OBD.UDS.IOControl.pas` — `TOBDUDSIOControl` (0x2F)
+- [ ] `OBD.UDS.Routine.pas` — `TOBDUDSRoutine` (0x31)
+- [ ] `OBD.UDS.Periodic.pas` — `TOBDUDSReadByPeriodic` (0x2A)
+- [ ] `OBD.UDS.DynamicDID.pas` — `TOBDUDSDynamicDID` (0x2C)
+- [ ] `OBD.UDS.ReadMemory.pas` — `TOBDUDSReadMemory` (0x23, read-only)
+- [ ] **NOT v1:** 0x2E WriteDID, 0x34/0x35/0x36/0x37 transfer, 0x3D WriteMemory (coding/flashing)
+
+**KWP2000 (ISO 14230)**
+- [ ] `OBD.KWP.pas` — `TOBDKWP` session hub
+- [ ] `OBD.KWP.ReadID.pas` — `TOBDKWPReadID` (0x1A, 0x21, 0x22)
+- [ ] `OBD.KWP.ReadDTC.pas` — `TOBDKWPReadDTC` (0x18, 0x19)
+- [ ] `OBD.KWP.IOControl.pas` — `TOBDKWPIOControl` (0x2F, 0x30)
+- [ ] `OBD.KWP.Routine.pas` — `TOBDKWPRoutine` (0x31, 0x32, 0x33)
+- [ ] `OBD.KWP.ClearDTC.pas` — `TOBDKWPClearDTC` (0x14)
+
+**J1939**
+- [ ] `OBD.J1939.pas` — `TOBDJ1939` bus client (address claim, TP.CM/TP.DT, ETP)
+- [ ] `OBD.J1939.DM.pas` — `TOBDJ1939DM` covering DM1, DM2, DM3, DM4, DM5, DM6, DM11, DM12, DM19, DM20, DM21, DM22, DM23, DM24, DM25, DM26, DM27, DM28, DM29, DM30, DM31, DM32
+
+**DoIP (ISO 13400)**
+- [ ] `OBD.DoIP.pas` — `TOBDDoIP` (vehicle ID, routing activation, alive check, diagnostic exchange, power mode, entity status, TCP + TLS 1.2/1.3)
+- [ ] `OBD.DoIP.Discovery.pas` — `TOBDDoIPDiscovery` (UDP vehicle announcement / identification)
+
+**Catalogues & OEM extension**
+- [ ] `catalogs/uds/dids-generic.json` — common UDS DIDs (FA10 active session, F186 active diag session, F187 spare-part number, F188 ECU SW number, F189 ECU SW version, F18A system supplier, F18B ECU manufacturing date, F18C serial number, F190 VIN, F191 VehManECUHW number, F192 SW version, F195 diagnostic spec, F197 system name, F198 repair shop code, F199 programming date, F19D programming repair shop, F19E programming session, F1A0 alf-protected, …)
+- [ ] `catalogs/uds/nrc.json` — full NRC code → message map
+- [ ] `catalogs/uds/routines-generic.json` — common routine IDs
+- [ ] `catalogs/kwp/common-ids.json`
+- [ ] `catalogs/j1939/pgns.json` — PGNs incl. DM message PGNs
+- [ ] `catalogs/j1939/spns.json` — SPN definitions for DM1/DM2/DM12 decoding
+- [ ] `catalogs/j1939/fmis.json` — Failure Mode Identifiers
+- [ ] `OBD.OEM.Registry.pas` — extension registry (DID/PID/DTC overlay hooks)
+- [ ] `OBD.OEM.Catalog.pas` — `TOBDOEMCatalog` component for runtime overlay loading
+- [ ] OEM catalog skeletons (empty JSON files): `catalogs/oem/{vag,bmw,ford,gm,stellantis,hmg,honda,mercedes,toyota}/{dids,pids,dtcs}.json`
+
+**Tests & samples**
+- [ ] DUnitX coverage per service: capture-driven encode/decode, NRC handling, multi-frame ISO-TP for long DIDs, UDS session timing
+- [ ] Samples: `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`, `15-UDSReadDTC`, `16-UDSRoutine`, `17-UDSIOControl`, `18-KWPReadID`, `19-J1939DM`, `20-DoIPDiscovery`
 
 ### Phase 7 — Recorder/Replayer (~1 week)
 - [ ] `OBD.Recorder.pas`
