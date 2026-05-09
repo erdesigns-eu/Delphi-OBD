@@ -191,6 +191,7 @@ contains
   OBD.Protocol.DoIP.Discovery in '..\src\Protocol\OBD.Protocol.DoIP.Discovery.pas',
   OBD.Adapter.Capabilities in '..\src\Adapters\OBD.Adapter.Capabilities.pas',
   OBD.Protocol.SecOC in '..\src\Protocol\OBD.Protocol.SecOC.pas',
+  OBD.Protocol.IsoTp.Timing in '..\src\Protocol\OBD.Protocol.IsoTp.Timing.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',

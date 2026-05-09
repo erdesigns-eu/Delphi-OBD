@@ -41,6 +41,7 @@ uses
   Tests.Protocol.DoIP.Discovery in 'Tests.Protocol.DoIP.Discovery.pas',
   Tests.Adapter.Capabilities in 'Tests.Adapter.Capabilities.pas',
   Tests.Protocol.SecOC in 'Tests.Protocol.SecOC.pas',
+  Tests.Protocol.IsoTp.Timing in 'Tests.Protocol.IsoTp.Timing.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
