@@ -72,7 +72,9 @@ uses
   OBD.OEM.ComponentProtection.Stellantis,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
-  OBD.Flash.Pipeline;
+  OBD.Flash.Pipeline,
+  OBD.Recorder,
+  OBD.Replayer;
 
 procedure Register;
 begin
@@ -138,6 +140,14 @@ begin
     TOBDUDSTransfer,
     TOBDVoltageGate,
     TOBDFlashPipeline
+  ]);
+
+  // Phase 10: recorder / replayer pair. Drop on a form, point at
+  // a TOBDProtocol, capture the entire session for forensic /
+  // offline analysis or replay for tests.
+  RegisterComponents('OBD', [
+    TOBDRecorder,
+    TOBDReplayer
   ]);
 end;
 

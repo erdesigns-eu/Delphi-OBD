@@ -145,6 +145,8 @@ contains
   OBD.Speciality.IsoBus.FS in '..\src\Speciality\OBD.Speciality.IsoBus.FS.pas',
   OBD.Speciality.IsoBus.GNSS in '..\src\Speciality\OBD.Speciality.IsoBus.GNSS.pas',
   OBD.Speciality.Tachograph in '..\src\Speciality\OBD.Speciality.Tachograph.pas',
-  OBD.Speciality.Tachograph.PCSC in '..\src\Speciality\OBD.Speciality.Tachograph.PCSC.pas';
+  OBD.Speciality.Tachograph.PCSC in '..\src\Speciality\OBD.Speciality.Tachograph.PCSC.pas',
+  OBD.Recorder in '..\src\Recorder\OBD.Recorder.pas',
+  OBD.Replayer in '..\src\Recorder\OBD.Replayer.pas';
 
 end.

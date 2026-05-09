@@ -145,6 +145,9 @@ uses
   OBD.Speciality.IsoBus.FS in '..\src\Speciality\OBD.Speciality.IsoBus.FS.pas',
   OBD.Speciality.IsoBus.GNSS in '..\src\Speciality\OBD.Speciality.IsoBus.GNSS.pas',
   OBD.Speciality.Tachograph in '..\src\Speciality\OBD.Speciality.Tachograph.pas',
+  OBD.Speciality.Tachograph.PCSC in '..\src\Speciality\OBD.Speciality.Tachograph.PCSC.pas',
+  OBD.Recorder in '..\src\Recorder\OBD.Recorder.pas',
+  OBD.Replayer in '..\src\Recorder\OBD.Replayer.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -187,7 +190,8 @@ uses
   Tests.OBD.Flashing.Phase9c in 'Tests.OBD.Flashing.Phase9c.pas',
   Tests.OBD.Flashing.Phase9d in 'Tests.OBD.Flashing.Phase9d.pas',
   Tests.OBD.Flashing.Phase9e in 'Tests.OBD.Flashing.Phase9e.pas',
-  Tests.OBD.Flashing.Followups in 'Tests.OBD.Flashing.Followups.pas';
+  Tests.OBD.Flashing.Followups in 'Tests.OBD.Flashing.Followups.pas',
+  Tests.OBD.Recorder in 'Tests.OBD.Recorder.pas';
 
 {$IFDEF CI}
 var

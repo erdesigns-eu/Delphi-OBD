@@ -2582,3 +2582,115 @@ defaults.
 Phase 9 is closed. The standing deferral list for Phase 9
 contains exactly one item: real-vehicle hardware-loop
 verification, per existing convention.
+
+---
+
+## Phase 10 — Recorder / Replayer
+
+### Code landed
+
+- `src/Recorder/OBD.Recorder.pas` — `TOBDRecorder`. Append-only
+  JSONL capture of every protocol-level event. Subscribes to a
+  bound `TOBDProtocol`'s `OnFrame` / `OnResponse` / `OnNRC` /
+  `OnError` hooks; one entry per event. Hosts can also `Append`
+  application-level info entries (test step start, VIN,
+  operator name, …) that share the file format. File schema is
+  intentionally close to v1's `.obdlog` so existing tooling
+  works on either generation.
+- `src/Recorder/OBD.Replayer.pas` — `TOBDReplayer`. Reads the
+  same `.obdlog` and streams every entry back through
+  `OnEntry`. Two playback modes: `rmAsFastAsPossible` for
+  offline reprocessing / unit tests, `rmRealTime` to honour
+  the original timestamp gaps for UI demos. Sync + async + a
+  cooperative `Stop`. `LoadAll` returns the full entry array
+  for analysis without going through the event interface.
+- `tests/Tests.OBD.Recorder.pas` — two fixtures: recorder
+  three-entry round-trip + raw-byte preservation + idempotent
+  `Close`; replayer plays-every-entry, cancel-stops-replay,
+  missing-file-raises, default mode.
+- `samples/07-RecordReplay/` — bus-free demo. Records three
+  synthetic entries to a temp `.obdlog`, then replays the file
+  through the replayer's `OnEntry`. Prints the recovered
+  fields side-by-side.
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added the two new units and the test fixture.
+- `src/DesignTime/OBD.Design.Registration.pas` — registers
+  `TOBDRecorder` and `TOBDReplayer` on the **OBD** palette tab.
+
+### Architecture highlights
+
+- **One file format.** Recorder writes JSONL, replayer reads
+  JSONL, `LoadAll` returns the same record. Hosts pipe the
+  same buffer through `tee` / `head` / `jq` if they want.
+- **Subscribe-on-set.** Setting `Recorder.Protocol` while
+  `Active = True` immediately hooks the protocol's events.
+  Closing the recorder unsubscribes only the handlers it owns
+  (function pointer identity check) so a host's pre-existing
+  handlers survive.
+- **Replay timing capped.** `rmRealTime` honours timestamp
+  gaps but caps any single gap at one minute — a captured
+  session with a long pause doesn't make a unit test sit
+  there for an hour.
+- **Both components are stateless w.r.t. the recorded data.**
+  Once the file is written, recorder/replayer instances can
+  be freed; the file is the source of truth.
+
+### What's intentionally not in v1
+
+- **Recorder doesn't filter / mask sensitive fields.** A flash
+  capture writes the full firmware bytes; a coding capture
+  writes the full DID payloads. Hosts that need redaction
+  wrap the recorder or post-process the file. Tracked.
+- **Replayer doesn't drive a protocol mock.** It surfaces
+  entries through `OnEntry`; the host wires what to do with
+  them. A `TOBDProtocolMock` that consumes a recording and
+  exposes the same surface as a live `TOBDProtocol` would
+  let host integration tests run against captures end-to-end
+  — useful follow-up.
+- **No compression.** JSONL with base64-encoded bytes is
+  ~2x larger than raw. For typical diagnostic captures this
+  is fine; for multi-megabyte flash captures hosts gzip the
+  file post-session. Tracked.
+
+### Honest review
+
+1. **Recorder unsubscribe uses function-pointer identity.**
+   `if @FProtocol.OnFrame = @HandleFrame then …`. A host that
+   wrapped the recorder's handler with their own would defeat
+   the unsubscribe. Documented; the public contract is that
+   the host either lets the recorder own the events or wires
+   their own and calls `Recorder.Append` directly.
+2. **`OnError` is set as the recorder's handler with
+   `var AHandled` set to `False` so the protocol surfaces the
+   error to other handlers too.** A host that *already* set
+   their own `OnError` before assigning `Protocol` to the
+   recorder will lose that handler. Same documented contract
+   as flag 1.
+3. **Real-time playback gap cap is fixed at 60 s.** Hard-
+   coded; not a property. The cap exists so a captured pause
+   doesn't make a UI replay sit silent for an hour. A future
+   revision could expose it as a property.
+4. **No test-coverage of `rmRealTime`.** The mode works (it's
+   a `Sleep` between entries), but DUnitX tests should not
+   sleep-wait. Tracked as a host-driven manual smoke test.
+5. **No real-vehicle integration.** Same hardware-loop
+   deferral as every prior phase.
+
+### Phase 10 follow-ups (small)
+
+- `TOBDProtocolMock` that consumes a recording and exposes
+  the live-protocol surface for end-to-end integration tests
+  against captures.
+- Optional gzip compression on `Recorder.Open(filename + '.gz')`.
+- Property exposing the real-time gap cap.
+- Sensitive-field redaction helper (host-side filter wrapper).
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] Recorder + replayer round-trip pinned to a vector.
+- [x] Cancel honoured at the next entry boundary.
+- [x] Both components register on the **OBD** palette tab.
+- [x] Sample 07-RecordReplay shipped.
