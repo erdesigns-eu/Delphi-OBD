@@ -56,6 +56,43 @@ manages algorithm selection across:
 A single brand unit can register multiple variants; `Variants` resolves
 the right one from VIN or model-year metadata.
 
+## Brand registry
+
+`OBD.RadioCode.Registry` (`src/RadioCode/OBD.RadioCode.Registry.pas`)
+keeps a process-wide map of brand key → factory. Every brand entry
+exposes:
+
+- `BrandKey` — lower-case identifier, e.g. `'vw'`, `'pioneer'`.
+- `DisplayName` — human-readable name for UIs.
+- `DataAvailable` — `True` when a real algorithm/database backs the
+  calculator; `False` for **data-pending stubs** (see
+  [DATA_GAPS.md](DATA_GAPS.md)).
+- `DataNotes` — for data-pending entries, describes precisely what
+  reference material would unblock the calculator.
+- `Variants: TRadioCodeVariantManager` — region/year/security-version
+  dispatch (see "Regional and security variants" above).
+- `CreateCalculator` — instantiates an `IOBDRadioCode` for the brand.
+
+```pascal
+uses OBD.RadioCode, OBD.RadioCode.Registry;
+
+var
+  Brand: TOBDRadioCodeBrand;
+  Calc: IOBDRadioCode;
+  Code, Err: string;
+begin
+  Brand := TOBDRadioCodeRegistry.Instance.Find('vw');
+  if (Brand = nil) or not Brand.DataAvailable then
+    raise Exception.Create('Brand unsupported in this build');
+  Calc := Brand.CreateCalculator;
+  if Calc.Calculate('1234567', Code, Err) then
+    ShowMessage('Code: ' + Code);
+end;
+```
+
+Calling `Calculate` on a `DataAvailable = False` stub raises
+`EOBDRadioCodeDataMissing`, never silently returning a wrong answer.
+
 ## Brand coverage
 
 Each brand has a dedicated unit `OBD.RadioCode.<Brand>.Advanced.pas`
@@ -89,6 +126,17 @@ Cadillac, GMC, Buick).
 ### Universal head-unit OEMs
 Becker (Becker4, Becker5, Advanced), Blaupunkt, Alpine, Clarion,
 Visteon.
+
+### Data-pending brands (registered as stubs)
+
+The following brands are registered through `OBD.RadioCode.Pending`
+so they appear in the registry but raise `EOBDRadioCodeDataMissing` on
+`Calculate`. They become live the moment a verified algorithm or
+licensed database lands in the unit. See
+[DATA_GAPS.md](DATA_GAPS.md) for the precise data each brand needs.
+
+Pioneer · Kenwood · JVC · Sony · Philips · Grundig · Panasonic
+(Matsushita) · Continental / VDO.
 
 ## Adding a new calculator
 

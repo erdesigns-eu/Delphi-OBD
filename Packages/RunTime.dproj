@@ -221,6 +221,10 @@
         <DCCReference Include="..\src\Services\OBD.OEM.Agricultural.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.Marine.pas"/>
         <DCCReference Include="..\src\Services\OBD.OEM.Powersports.pas"/>
+        <DCCReference Include="..\src\RadioCode\OBD.RadioCode.pas"/>
+        <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Variants.pas"/>
+        <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Registry.pas"/>
+        <DCCReference Include="..\src\RadioCode\OBD.RadioCode.Pending.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

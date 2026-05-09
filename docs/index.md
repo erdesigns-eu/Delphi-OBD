@@ -39,6 +39,7 @@ Navigation hub for every doc in the repository, grouped by topic.
 - [EXTENSION_PLAN_v3.80.md](EXTENSION_PLAN_v3.80.md) — active milestone plan.
 - [PROPOSALS.md](PROPOSALS.md) — RFCs awaiting acceptance (with status table).
 - [../GAPS.md](../GAPS.md) — current blockers and recently-resolved gaps.
+- [DATA_GAPS.md](DATA_GAPS.md) — features shipped as framework + stubs because reference data is not publicly available.
 - [TASKS.md](TASKS.md) — retired; redirects to ROADMAP / GAPS / PROPOSALS.
 - [../CONTRIBUTING.md](../CONTRIBUTING.md) — contribution workflow.
 

@@ -30,6 +30,7 @@ uses
   Tests.VIN.Decoder in 'Tests.VIN.Decoder.pas',
   Tests.RadioCode.Smoke in 'Tests.RadioCode.Smoke.pas',
   Tests.RadioCode.Becker4 in 'Tests.RadioCode.Becker4.pas',
+  Tests.RadioCode.Registry in 'Tests.RadioCode.Registry.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
