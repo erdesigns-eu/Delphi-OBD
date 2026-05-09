@@ -104,15 +104,18 @@ var
   C: TOBDAdapterCapability;
   Buf: TStringList;
 begin
+  // Create Buf
   Buf := TStringList.Create;
   try
     Buf.Delimiter := ',';
     Buf.StrictDelimiter := True;
+    // Loop over TOBDAdapterCapability
     for C := Low(TOBDAdapterCapability) to High(TOBDAdapterCapability) do
       if C in S then
         Buf.Add(CapNames[C]);
     Result := Buf.DelimitedText;
   finally
+    // Free Buf
     Buf.Free;
   end;
 end;
@@ -186,11 +189,13 @@ end;
 function CapabilityFromString(const S: string; out C: TOBDAdapterCapability): Boolean;
 var I: TOBDAdapterCapability;
 begin
+  // Loop over TOBDAdapterCapability
   for I := Low(TOBDAdapterCapability) to High(TOBDAdapterCapability) do
     if SameText(S, CapNames[I]) or SameText(S, GetEnumName(TypeInfo(TOBDAdapterCapability), Ord(I))) then
     begin
       C := I; Exit(True);
     end;
+  // Initialize result
   Result := False;
 end;
 
@@ -208,20 +213,28 @@ var
   Cap: TOBDAdapterCapability;
   Stream: TStringStream;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('adapter-capabilities.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -233,12 +246,14 @@ begin
       R.MaxIsoTpFrameBytes := Obj.GetValue<Integer>('max_iso_tp_frame_bytes', 7);
       CapArr := Obj.GetValue<TJSONArray>('capabilities');
       if CapArr <> nil then
+        // Loop over CapArr
         for CapItem in CapArr do
           if (CapItem is TJSONString) and CapabilityFromString(CapItem.Value, Cap) then
             Include(R.CapSet, Cap);
       RegisterAdapterCapabilities(R);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;

@@ -145,6 +145,7 @@ var
   N: Cardinal;
 begin
   N := Cardinal(Length(FEntries));
+  // Allocate Buf
   SetLength(Buf, 4 + Length(FEntries) * 8);
   // Little-endian everywhere — matches Windows DLL layout the
   // J2534 vendor binaries use.

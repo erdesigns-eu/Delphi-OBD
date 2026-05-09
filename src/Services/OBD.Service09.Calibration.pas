@@ -78,6 +78,7 @@ const
 
 function EncodeCalIDRequest: TBytes;
 begin
+  // Allocate Result
   SetLength(Result, 2);
   Result[0] := $09;
   Result[1] := $04;
@@ -88,6 +89,7 @@ end;
 //------------------------------------------------------------------------------
 function EncodeCVNRequest: TBytes;
 begin
+  // Allocate Result
   SetLength(Result, 2);
   Result[0] := $09;
   Result[1] := $06;
@@ -127,10 +129,12 @@ begin
     raise EOBDCalibration.CreateFmt(
       'CalID response truncated: declared %d blocks of %d bytes',
       [Count, CALID_BLOCK_BYTES]);
+  // Allocate Result
   SetLength(Result, Count);
   Cursor := 3;
   for I := 0 to Count - 1 do
   begin
+    // Allocate S
     SetLength(S, CALID_BLOCK_BYTES);
     for J := 0 to CALID_BLOCK_BYTES - 1 do
       S[J + 1] := Char(Bytes[Cursor + J]);
@@ -159,6 +163,7 @@ begin
     raise EOBDCalibration.CreateFmt(
       'CVN response truncated: declared %d blocks of %d bytes',
       [Count, CVN_BLOCK_BYTES]);
+  // Allocate Result
   SetLength(Result, Count);
   Cursor := 3;
   for I := 0 to Count - 1 do
@@ -188,6 +193,7 @@ begin
     raise EOBDCalibration.CreateFmt(
       'CalID count %d != CVN count %d (ISO 15031-5 requires positional pairing)',
       [Length(IDs), Length(VNs)]);
+  // Allocate Result
   SetLength(Result, Length(IDs));
   for I := 0 to High(IDs) do
   begin

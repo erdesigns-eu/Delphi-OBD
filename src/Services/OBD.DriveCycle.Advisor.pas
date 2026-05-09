@@ -79,20 +79,28 @@ var
   Obj: TJSONObject;
   Step: TDriveCycleStep;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('drive-cycle-generic.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -104,6 +112,7 @@ begin
       GGeneric.AddOrSetValue(Step.Monitor, Step);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -133,6 +142,7 @@ var
 begin
   Pending := Readiness.PendingMonitors;
   HasResolver := (OEMKey <> '') and GResolvers.TryGetValue(LowerCase(OEMKey), Resolver);
+  // Loop over Pending
   for M in Pending do
   begin
     if HasResolver then

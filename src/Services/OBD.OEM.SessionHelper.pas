@@ -130,9 +130,11 @@ implementation
 //------------------------------------------------------------------------------
 constructor TOBDOEMSessionHelper.Create(VoltageGate: TOBDProgrammingVoltageGate);
 begin
+  // Initialize the inherited class
   inherited Create;
   if VoltageGate = nil then
   begin
+    // Create FVoltageGate
     FVoltageGate := TOBDProgrammingVoltageGate.Create;
     FOwnsGate := True;
   end
@@ -149,6 +151,7 @@ end;
 destructor TOBDOEMSessionHelper.Destroy;
 begin
   if FOwnsGate then FVoltageGate.Free;
+  // Call the inherited handler
   inherited;
 end;
 
@@ -194,6 +197,7 @@ begin
       'voltage gate failed: ' + GateResult.Reason);
     Exit(False);
   end;
+  // Initialize result
   Result := True;
 end;
 

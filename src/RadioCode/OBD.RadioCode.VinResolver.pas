@@ -141,6 +141,7 @@ function MakeFactoryVW: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
     begin
+      // Create Result
       Result := TOBDRadioCodeVWAdvanced.Create;
     end;
 end;
@@ -152,6 +153,7 @@ function MakeFactoryAudiConcert: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
     begin
+      // Create Result
       Result := TOBDRadioCodeAudiConcertAdvanced.Create;
     end;
 end;
@@ -163,6 +165,7 @@ function MakeFactoryMercedes: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
     begin
+      // Create Result
       Result := TOBDRadioCodeMercedesAdvanced.Create;
     end;
 end;
@@ -174,6 +177,7 @@ function MakeFactoryBMW: TOBDRadioCodeFactory;
 begin
   Result := function: IOBDRadioCode
     begin
+      // Create Result
       Result := TOBDRadioCodeBMWAdvanced.Create;
     end;
 end;
@@ -262,18 +266,22 @@ procedure RegisterDataAvailableBrands;
 var
   VW, Audi, MB, BMW: TOBDRadioCodeBrand;
 begin
+  // Create VW
   VW := TOBDRadioCodeBrand.Create('vw', 'Volkswagen', True, '', MakeFactoryVW);
   SeedVWVariants(VW);
   TOBDRadioCodeRegistry.Instance.Register(VW);
 
+  // Create Audi
   Audi := TOBDRadioCodeBrand.Create('audi', 'Audi', True, '', MakeFactoryAudiConcert);
   SeedAudiVariants(Audi);
   TOBDRadioCodeRegistry.Instance.Register(Audi);
 
+  // Create MB
   MB := TOBDRadioCodeBrand.Create('mercedes', 'Mercedes-Benz', True, '', MakeFactoryMercedes);
   SeedMercedesVariants(MB);
   TOBDRadioCodeRegistry.Instance.Register(MB);
 
+  // Create BMW
   BMW := TOBDRadioCodeBrand.Create('bmw', 'BMW', True, '', MakeFactoryBMW);
   SeedBMWVariants(BMW);
   TOBDRadioCodeRegistry.Instance.Register(BMW);

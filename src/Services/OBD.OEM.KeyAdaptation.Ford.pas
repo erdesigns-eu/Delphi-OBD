@@ -100,20 +100,28 @@ var
   Obj: TJSONObject;
   Info: TFordPlatformInfo;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('key-platforms-ford.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -126,6 +134,7 @@ begin
       GFordPlatforms.AddOrSetValue(Info.Key, Info);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -154,6 +163,7 @@ begin
   if Length(Bytes) <> 19 then
     raise EOBDFordPATS.CreateFmt('Ford PATS request must be 19 bytes (got %d)',
       [Length(Bytes)]);
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
   Result.Operation := TFordPATSOperation(Bytes[17]);
@@ -165,6 +175,7 @@ end;
 //------------------------------------------------------------------------------
 function EncodeFordPATSStatus(const Status: TFordPATSStatus): TBytes;
 begin
+  // Allocate Result
   SetLength(Result, 5);
   Result[0] := Status.KeyCount;
   if Status.LockoutActive then Result[1] := $01 else Result[1] := $00;

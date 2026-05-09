@@ -158,6 +158,7 @@ var
   TagWord: Word;
   Len: Integer;
 begin
+  // Create List
   List := TList<TDDDBlock>.Create;
   try
     Cursor := 0;
@@ -174,6 +175,7 @@ begin
       Block.Kind := ClassifyTag(TagWord);
       Block.Length := Len;
       Block.Offset := Cursor;
+      // Allocate Block.Data
       SetLength(Block.Data, Len);
       if Len > 0 then
         Move(Bytes[Cursor + 4], Block.Data[0], Len);
@@ -182,6 +184,7 @@ begin
     end;
     Result := List.ToArray;
   finally
+    // Free List
     List.Free;
   end;
 end;

@@ -118,6 +118,7 @@ begin
   if Length(Bytes) <> 19 then
     raise EOBDMBSCN.CreateFmt(
       'SCN version request must be 19 bytes (got %d)', [Length(Bytes)]);
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
   Result.ECUId := GetWord(Bytes, 17);
@@ -166,6 +167,7 @@ var
 begin
   if Length(Bytes) < 17 + 2 + 2 + 2 then
     raise EOBDMBSCN.Create('SCN coding request too short');
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
   Cursor := 17;
@@ -173,6 +175,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDMBSCN.Create('Variant payload truncated');
+  // Allocate Result.Variant
   SetLength(Result.Variant, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.Variant[0], Len);
   Inc(Cursor, Len);
@@ -181,6 +184,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDMBSCN.Create('AccessoryList truncated');
+  // Allocate Result.AccessoryList
   SetLength(Result.AccessoryList, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.AccessoryList[0], Len);
 end;
@@ -221,6 +225,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDMBSCN.Create('NewSCN truncated');
+  // Allocate Result.NewSCN
   SetLength(Result.NewSCN, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.NewSCN[0], Len);
   Inc(Cursor, Len);
@@ -229,6 +234,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDMBSCN.Create('ServerSignature truncated');
+  // Allocate Result.ServerSignature
   SetLength(Result.ServerSignature, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.ServerSignature[0], Len);
 end;

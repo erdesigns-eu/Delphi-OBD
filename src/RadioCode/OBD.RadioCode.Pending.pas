@@ -56,6 +56,7 @@ implementation
 constructor TOBDRadioCodePending.Create(const BrandKey, DisplayName,
   DataNotes: string);
 begin
+  // Initialize the inherited class
   inherited Create;
   FBrandKey := BrandKey;
   FDisplayName := DisplayName;
@@ -78,6 +79,7 @@ end;
 function TOBDRadioCodePending.Validate(const Input: string;
   var ErrorMessage: string): Boolean;
 begin
+  // Initialize result
   Result := False;
   ErrorMessage := Format(
     '%s calculator is not yet operational. %s',
@@ -90,6 +92,7 @@ end;
 function TOBDRadioCodePending.Calculate(const Input: string;
   var Output: string; var ErrorMessage: string): Boolean;
 begin
+  // Clear the output
   Output := '';
   ErrorMessage := Format(
     '%s calculator is data-pending: %s',
@@ -104,6 +107,7 @@ function MakePendingFactory(const Key, Name, Notes: string): TOBDRadioCodeFactor
 begin
   Result := function: IOBDRadioCode
     begin
+      // Create Result
       Result := TOBDRadioCodePending.Create(Key, Name, Notes);
     end;
 end;
@@ -120,20 +124,28 @@ var
   Item: TJSONValue;
   Obj: TJSONObject;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('radiocode-pending-brands.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -147,6 +159,7 @@ begin
           MakePendingFactory(K, N, Notes)));
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;

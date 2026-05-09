@@ -102,6 +102,7 @@ var
   Width, I: Integer;
 begin
   Width := FvWidthBytes(P);
+  // Allocate Result
   SetLength(Result, Width);
   for I := 0 to Width - 1 do
     Result[Width - 1 - I] := Byte((FV shr (I * 8)) and $FF);
@@ -114,6 +115,7 @@ function ConcatBytes(const A, B, C: TBytes): TBytes;
 var
   Off: Integer;
 begin
+  // Allocate Result
   SetLength(Result, Length(A) + Length(B) + Length(C));
   Off := 0;
   if Length(A) > 0 then begin Move(A[0], Result[Off], Length(A)); Inc(Off, Length(A)); end;
@@ -138,6 +140,7 @@ begin
   if Length(Hex) <> SHA256_DIGEST_BYTES * 2 then
     raise EOBDSecOC.CreateFmt(
       'HMAC-SHA-256 unexpected length %d hex chars', [Length(Hex)]);
+  // Allocate Result
   SetLength(Result, SHA256_DIGEST_BYTES);
   for I := 0 to SHA256_DIGEST_BYTES - 1 do
     Result[I] := StrToInt('$' + Copy(Hex, I * 2 + 1, 2));
@@ -155,6 +158,7 @@ begin
   if Length(Ctx.Key) = 0 then
     raise EOBDSecOC.Create('SecOC context requires a non-empty Key');
   Want := AuthLenBytes(Ctx);
+  // Allocate KeyIdBytes
   SetLength(KeyIdBytes, 2);
   KeyIdBytes[0] := Byte(Ctx.KeyId shr 8);
   KeyIdBytes[1] := Byte(Ctx.KeyId and $FF);
@@ -209,6 +213,7 @@ function SecOCEncodePDU(const Ctx: TSecOCContext;
 var
   KeyIdBytes, FvBytes: TBytes;
 begin
+  // Allocate KeyIdBytes
   SetLength(KeyIdBytes, 2);
   KeyIdBytes[0] := Byte(Ctx.KeyId shr 8);
   KeyIdBytes[1] := Byte(Ctx.KeyId and $FF);

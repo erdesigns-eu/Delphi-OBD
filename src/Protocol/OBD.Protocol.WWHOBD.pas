@@ -131,19 +131,26 @@ var
   Stream: TStringStream;
 begin
   Path := ResolveCatalogPath(CatalogFileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -154,6 +161,7 @@ begin
       GDIDs.AddOrSetValue(D.DID, D);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -184,6 +192,7 @@ begin
   if Dtc.ConversionMethod > 1 then
     raise EOBDWWHOBD.CreateFmt('CM %d not in {0,1}',
       [Dtc.ConversionMethod]);
+  // Allocate Result
   SetLength(Result, 4);
   Result[0] := Byte(Dtc.SPN and $FF);
   Result[1] := Byte((Dtc.SPN shr 8) and $FF);
@@ -222,9 +231,11 @@ begin
     raise EOBDWWHOBD.CreateFmt(
       'DTC stream must be multiple of 4 bytes (got %d)', [Length(Bytes)]);
   Count := Length(Bytes) div 4;
+  // Allocate Result
   SetLength(Result, Count);
   for I := 0 to Count - 1 do
   begin
+    // Allocate Slice
     SetLength(Slice, 4);
     Move(Bytes[I * 4], Slice[0], 4);
     Result[I] := UnpackWWHDtc(Slice);

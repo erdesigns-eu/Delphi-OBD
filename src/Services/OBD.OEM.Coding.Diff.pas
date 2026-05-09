@@ -140,6 +140,7 @@ end;
 constructor TOBDCodingPlan.Create(const Current, Target: TBytes;
   const Schema: TOBDCodingSchema);
 begin
+  // Initialize the inherited class
   inherited Create;
   if Length(Current) <> Length(Target) then
     raise EOBDCodingDiffError.CreateFmt(
@@ -156,6 +157,7 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDCodingPlan.Destroy;
 begin
+  // Call the inherited handler
   inherited;
 end;
 
@@ -167,6 +169,7 @@ var
   EntryList: TList<TOBDCodingDiffEntry>;
   BeforeBit, AfterBit: Boolean;
 begin
+  // Create EntryList
   EntryList := TList<TOBDCodingDiffEntry>.Create;
   try
     if Length(FSchema) > 0 then
@@ -229,6 +232,7 @@ begin
     end;
     FDiff := EntryList.ToArray;
   finally
+    // Free EntryList
     EntryList.Free;
   end;
 end;
@@ -247,14 +251,17 @@ var
   Buf: TStringBuilder;
 begin
   if IsNoOp then Exit('Coding plan is a no-op (no fields differ).');
+  // Create Buf
   Buf := TStringBuilder.Create;
   try
     Buf.AppendLine(Format('Coding plan: %d field(s) change',
       [Length(FDiff)]));
+    // Loop over FDiff
     for Entry in FDiff do
       Buf.AppendLine('  ' + Entry.AsText);
     Result := Buf.ToString;
   finally
+    // Free Buf
     Buf.Free;
   end;
 end;

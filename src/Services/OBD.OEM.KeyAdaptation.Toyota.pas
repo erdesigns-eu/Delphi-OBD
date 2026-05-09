@@ -101,20 +101,28 @@ var
   Obj: TJSONObject;
   Info: TToyotaPlatformInfo;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('key-platforms-toyota.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -127,6 +135,7 @@ begin
       GToyotaPlatforms.AddOrSetValue(Info.Key, Info);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -167,6 +176,7 @@ var
 begin
   if Length(Bytes) < 17 + 3 then
     raise EOBDToyotaKey.Create('Toyota key register request too short');
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
   Cursor := 17;
@@ -177,6 +187,7 @@ begin
     raise EOBDToyotaKey.Create('Toyota key request truncated at PIN');
   if PINLen > 0 then
   begin
+    // Allocate Result.PIN
     SetLength(Result.PIN, PINLen);
     for I := 0 to PINLen - 1 do
       Result.PIN[I + 1] := Char(Bytes[Cursor + I]);
@@ -191,6 +202,7 @@ var Cursor: Integer;
 begin
   if Length(Resp.AddedKeyId) <> 4 then
     raise EOBDToyotaKey.Create('AddedKeyId must be 4 bytes');
+  // Allocate Result
   SetLength(Result, 3 + 4);
   Result[0] := Byte(Resp.Mode);
   if Resp.Success then Result[1] := $01 else Result[1] := $00;
@@ -210,6 +222,7 @@ begin
   Result.Mode := TToyotaKeyMode(Bytes[0]);
   Result.Success := Bytes[1] <> 0;
   Result.KeyCount := Bytes[2];
+  // Allocate Result.AddedKeyId
   SetLength(Result.AddedKeyId, 4);
   Move(Bytes[3], Result.AddedKeyId[0], 4);
 end;

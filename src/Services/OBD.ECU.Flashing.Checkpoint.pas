@@ -99,7 +99,9 @@ var
   N: Integer;
 begin
   Hash := THashSHA2.Create(SHA256);
+  // Allocate Buf
   SetLength(Buf, 64 * 1024);
+  // Create Stream
   Stream := TFileStream.Create(FirmwarePath, fmOpenRead or fmShareDenyWrite);
   try
     repeat
@@ -107,6 +109,7 @@ begin
       if N > 0 then Hash.Update(Buf, N);
     until N = 0;
   finally
+    // Free the stream
     Stream.Free;
   end;
   Result := Hash.HashAsString;
@@ -127,6 +130,7 @@ begin
     raise EOBDFlashCheckpoint.CreateFmt(
       'Firmware not found: %s', [AFirmwarePath]);
 
+  // Create Result
   Result := TOBDFlashCheckpoint.Create;
   Result.FSidecarPath := ASidecarPath;
   Result.FState.Sha256 := Sha256OfFile(AFirmwarePath);
@@ -179,6 +183,7 @@ begin
     if TS <> '' then
       Result.State.UpdatedAtUtc := ISO8601ToDate(TS, True);
   finally
+    // Free Json
     Json.Free;
   end;
 
@@ -232,6 +237,7 @@ var
   Json: TJSONObject;
   Body: string;
 begin
+  // Create Json
   Json := TJSONObject.Create;
   try
     Json.AddPair('sha256', FState.Sha256);
@@ -242,6 +248,7 @@ begin
     Json.AddPair('updated_at_utc', DateToISO8601(FState.UpdatedAtUtc, True));
     Body := Json.ToJSON;
   finally
+    // Free Json
     Json.Free;
   end;
   TFile.WriteAllText(FSidecarPath, Body, TEncoding.UTF8);

@@ -149,6 +149,7 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDIsoTpTimingChecker.Create;
 begin
+  // Call the inherited handler
   inherited;
   FStminMicros := 0;
   FBlockSize := 0;

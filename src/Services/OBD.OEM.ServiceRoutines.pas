@@ -132,6 +132,7 @@ begin
       'Invalid sub-function 0x%.2x; expected 0x01/0x02/0x03',
       [Routine.SubFunction]);
   OptLen := Length(Routine.OptionRecord);
+  // Allocate Out_
   SetLength(Out_, 4 + OptLen);
   Out_[0] := $31;
   Out_[1] := Routine.SubFunction;
@@ -195,6 +196,7 @@ begin
   Clean := S.Replace(' ', '').Replace(':', '');
   if Clean.StartsWith('0x', True) then Clean := Clean.Substring(2);
   if Odd(Length(Clean)) then Clean := '0' + Clean;
+  // Allocate Result
   SetLength(Result, Length(Clean) div 2);
   for I := 0 to High(Result) do
     if TryStrToInt('$' + Clean.Substring(I * 2, 2), B) then
@@ -208,8 +210,11 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDServiceRoutineRegistry.Create;
 begin
+  // Call the inherited handler
   inherited;
+  // Create FRoutines
   FRoutines := TList<TOBDServiceRoutine>.Create;
+  // Create FByKey
   FByKey := TDictionary<string, Integer>.Create;
   LoadFromCatalog;
 end;
@@ -219,8 +224,11 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDServiceRoutineRegistry.Destroy;
 begin
+  // Free FByKey
   FByKey.Free;
+  // Free FRoutines
   FRoutines.Free;
+  // Call the inherited handler
   inherited;
 end;
 
@@ -230,6 +238,7 @@ end;
 class function TOBDServiceRoutineRegistry.Instance: TOBDServiceRoutineRegistry;
 begin
   if FInstance = nil then
+    // Create FInstance
     FInstance := TOBDServiceRoutineRegistry.Create;
   Result := FInstance;
 end;
@@ -239,6 +248,7 @@ end;
 //------------------------------------------------------------------------------
 class procedure TOBDServiceRoutineRegistry.FreeInstance;
 begin
+  // Free FInstance
   FreeAndNil(FInstance);
 end;
 
@@ -269,12 +279,15 @@ var
   R: TOBDServiceRoutine;
   Out_: TList<TOBDServiceRoutine>;
 begin
+  // Create Out_
   Out_ := TList<TOBDServiceRoutine>.Create;
   try
+    // Loop over FRoutines
     for R in FRoutines do
       if R.Category = Category then Out_.Add(R);
     Routines := Out_.ToArray;
   finally
+    // Free Out_
     Out_.Free;
   end;
 end;
@@ -290,13 +303,16 @@ var
   Out_: TList<TOBDServiceRoutine>;
 begin
   Needle := ',' + LowerCase(OEMKey) + ',';
+  // Create Out_
   Out_ := TList<TOBDServiceRoutine>.Create;
   try
+    // Loop over FRoutines
     for R in FRoutines do
       if Pos(Needle, ',' + LowerCase(R.Applicability) + ',') > 0 then
         Out_.Add(R);
     Routines := Out_.ToArray;
   finally
+    // Free Out_
     Out_.Free;
   end;
 end;
@@ -315,19 +331,26 @@ var
   Stream: TStringStream;
 begin
   Path := ResolveCatalogPath(CatalogFileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -350,6 +373,7 @@ begin
       FRoutines.Add(R);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;

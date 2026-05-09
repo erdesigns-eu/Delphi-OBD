@@ -113,6 +113,7 @@ begin
     raise EOBDPQCSignature.Create('Key-id must not exceed 32 bytes');
   SigLen := UInt32(Length(Env.Signature));
 
+  // Allocate Out_
   SetLength(Out_, 2 + KeyLen + 4 + Length(Env.Signature));
   Cursor := 0;
   Out_[Cursor] := Byte(Env.Algorithm); Inc(Cursor);
@@ -149,6 +150,7 @@ begin
     raise EOBDPQCSignature.Create('Key-id length > 32');
   if Cursor + KeyLen + 4 > Length(Bytes) then
     raise EOBDPQCSignature.Create('Envelope truncated at key-id/sig-len header');
+  // Allocate Result.KeyId
   SetLength(Result.KeyId, KeyLen);
   if KeyLen > 0 then
   begin
@@ -164,6 +166,7 @@ begin
     raise EOBDPQCSignature.CreateFmt(
       'Envelope truncated: declared %d signature bytes, %d remaining',
       [SigLen, Length(Bytes) - Cursor]);
+  // Allocate Result.Signature
   SetLength(Result.Signature, SigLen);
   if SigLen > 0 then
     Move(Bytes[Cursor], Result.Signature[0], SigLen);
@@ -177,6 +180,7 @@ end;
 constructor TOBDPQCSignatureVerifier.Create(const AAlgorithm: TOBDPQCAlgorithm;
   const APublicKey: TBytes);
 begin
+  // Initialize the inherited class
   inherited Create;
   if AAlgorithm = pqcUnknown then
     raise EOBDPQCSignature.Create('Algorithm must be specified');

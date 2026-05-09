@@ -98,6 +98,7 @@ implementation
 //------------------------------------------------------------------------------
 constructor TOBDProgrammingVoltageGate.Create;
 begin
+  // Call the inherited handler
   inherited;
   FConfig.MinimumVolts := DEFAULT_PROGRAMMING_VOLTAGE_MIN;
   FConfig.PerOEM := TDictionary<string, Single>.Create;
@@ -109,6 +110,7 @@ end;
 destructor TOBDProgrammingVoltageGate.Destroy;
 begin
   FConfig.PerOEM.Free;
+  // Call the inherited handler
   inherited;
 end;
 

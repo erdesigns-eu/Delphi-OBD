@@ -96,6 +96,7 @@ implementation
 //------------------------------------------------------------------------------
 constructor TOBDCodingAuditLog.Create(const APath: string; const AKey: TBytes);
 begin
+  // Initialize the inherited class
   inherited Create;
   if Length(AKey) = 0 then
     raise EOBDCodingAuditLog.Create('Audit log requires a non-empty HMAC key');
@@ -108,6 +109,7 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDCodingAuditLog.Destroy;
 begin
+  // Call the inherited handler
   inherited;
 end;
 
@@ -118,6 +120,7 @@ begin
     FPrevHmac := LoadLastHmac
   else
   begin
+    // Allocate FPrevHmac
     SetLength(FPrevHmac, 32);
     FillChar(FPrevHmac[0], 32, 0);
   end;
@@ -138,6 +141,7 @@ const
 var
   I: Integer;
 begin
+  // Allocate Result
   SetLength(Result, Length(Bytes) * 2);
   for I := 0 to High(Bytes) do
   begin
@@ -166,6 +170,7 @@ var
 begin
   if Odd(Length(S)) then
     raise EOBDCodingAuditLog.Create('Hex string has odd length');
+  // Allocate Result
   SetLength(Result, Length(S) div 2);
   for I := 0 to High(Result) do
     Result[I] := (NibbleOf(S[I * 2 + 1]) shl 4) or NibbleOf(S[I * 2 + 2]);
@@ -193,6 +198,7 @@ begin
     Json.AddPair('reason', Rec.Reason);
     Result := Json.ToJSON;
   finally
+    // Free Json
     Json.Free;
   end;
 end;
@@ -207,6 +213,7 @@ var
   Hex: string;
 begin
   BodyBytes := TEncoding.UTF8.GetBytes(Body);
+  // Allocate Input
   SetLength(Input, Length(Prev) + Length(BodyBytes));
   if Length(Prev) > 0 then
     Move(Prev[0], Input[0], Length(Prev));
@@ -228,9 +235,11 @@ var
   Json: TJSONObject;
   HmacStr: string;
 begin
+  // Allocate Result
   SetLength(Result, 32);
   FillChar(Result[0], 32, 0);
   Last := '';
+  // Create Reader
   Reader := TStreamReader.Create(FPath, TEncoding.UTF8);
   try
     while not Reader.EndOfStream do
@@ -239,6 +248,7 @@ begin
       if Trim(Line) <> '' then Last := Line;
     end;
   finally
+    // Free Reader
     Reader.Free;
   end;
   if Last = '' then Exit;
@@ -248,6 +258,7 @@ begin
     if Json.TryGetValue<string>('hmac', HmacStr) then
       Result := HexDecode(HmacStr);
   finally
+    // Free Json
     Json.Free;
   end;
 end;
@@ -264,6 +275,7 @@ begin
   EnsureInitialised;
   Body := CanonicalBody(Rec);
   Hmac := ComputeHmac(FPrevHmac, Body);
+  // Create Json
   Json := TJSONObject.Create;
   try
     // Embed the body inline so the file is one canonical document per
@@ -279,6 +291,7 @@ begin
     Json.AddPair('hmac', HexEncode(Hmac));
     Line := Json.ToJSON;
   finally
+    // Free Json
     Json.Free;
   end;
   TFile.AppendAllText(FPath, Line + sLineBreak, TEncoding.UTF8);
@@ -311,9 +324,11 @@ begin
     Exit;
   end;
 
+  // Allocate Prev
   SetLength(Prev, 32);
   FillChar(Prev[0], 32, 0);
   LineNum := 0;
+  // Create Reader
   Reader := TStreamReader.Create(FPath, TEncoding.UTF8);
   try
     while not Reader.EndOfStream do
@@ -360,10 +375,12 @@ begin
         Prev := Computed;
         Inc(Result.TotalRecords);
       finally
+        // Free Json
         Json.Free;
       end;
     end;
   finally
+    // Free Reader
     Reader.Free;
   end;
 end;

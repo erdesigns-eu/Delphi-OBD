@@ -125,6 +125,7 @@ var
   PayloadLen: UInt32;
 begin
   PayloadLen := UInt32(Length(Payload));
+  // Allocate Out_
   SetLength(Out_, 8 + Length(Payload));
   Out_[0] := ProtocolVersion;
   Out_[1] := Byte(not ProtocolVersion);
@@ -156,6 +157,7 @@ begin
   if Length(VIN) <> 17 then
     raise EOBDDoIPDiscovery.CreateFmt(
       'VIN must be exactly 17 characters, got %d', [Length(VIN)]);
+  // Allocate Payload
   SetLength(Payload, 17);
   for I := 0 to 16 do
     Payload[I] := Byte(Ord(VIN[I + 1]));
@@ -189,6 +191,7 @@ function BuildAliveCheckResponse(SourceAddress: Word;
 var
   Payload: TBytes;
 begin
+  // Allocate Payload
   SetLength(Payload, 2);
   Payload[0] := Byte(SourceAddress shr 8);
   Payload[1] := Byte(SourceAddress and $FF);
@@ -219,6 +222,7 @@ begin
     raise EOBDDoIPDiscovery.CreateFmt(
       'DoIP payload truncated: declared %d, actual %d',
       [PayloadLen, Length(Bytes) - 8]);
+  // Allocate Result.Payload
   SetLength(Result.Payload, PayloadLen);
   if PayloadLen > 0 then
     Move(Bytes[8], Result.Payload[0], PayloadLen);

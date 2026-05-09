@@ -84,6 +84,7 @@ begin
     else Hi := Mid - 1;
   end;
   Idx := -1;
+  // Initialize result
   Result := False;
 end;
 
@@ -129,19 +130,26 @@ var
   Stream: TStringStream;
 begin
   Path := ResolveCatalogPath(CatalogFileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -157,6 +165,7 @@ begin
       GPGNs.Add(D);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -195,11 +204,13 @@ function J1939PGNAll: TArray<TJ1939PGNDescriptor>;
 begin Result := GPGNs.ToArray; end;
 
 initialization
+  // Create GPGNs
   GPGNs := TList<TJ1939PGNDescriptor>.Create;
   LoadCatalog;
   SortByPGN;
 
 finalization
+  // Free GPGNs
   GPGNs.Free;
 
 end.

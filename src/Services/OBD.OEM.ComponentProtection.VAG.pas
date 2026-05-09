@@ -99,6 +99,7 @@ begin
          + 2 + Length(Request.ComponentSerial)  // serial-len + serial
          + 1 + 17                               // VIN length + VIN
          + 2 + Length(Request.Nonce);           // nonce-len + nonce
+  // Allocate Result
   SetLength(Result, Total);
 
   Cursor := 0;
@@ -134,6 +135,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDVAGCP.Create('ComponentSerial truncated');
+  // Allocate Result.ComponentSerial
   SetLength(Result.ComponentSerial, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.ComponentSerial[0], Len);
   Inc(Cursor, Len);
@@ -145,6 +147,7 @@ begin
   Inc(Cursor);
   if Cursor + 17 > Length(Bytes) then
     raise EOBDVAGCP.Create('VIN bytes truncated');
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[Cursor + I]);
   Inc(Cursor, 17);
@@ -153,6 +156,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDVAGCP.Create('Nonce truncated');
+  // Allocate Result.Nonce
   SetLength(Result.Nonce, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.Nonce[0], Len);
 end;
@@ -196,6 +200,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDVAGCP.Create('Response payload truncated');
+  // Allocate Result.Response
   SetLength(Result.Response, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.Response[0], Len);
   Inc(Cursor, Len);
@@ -204,6 +209,7 @@ begin
   Len := GetWord(Bytes, Cursor); Inc(Cursor, 2);
   if Cursor + Len > Length(Bytes) then
     raise EOBDVAGCP.Create('Signature payload truncated');
+  // Allocate Result.Signature
   SetLength(Result.Signature, Len);
   if Len > 0 then Move(Bytes[Cursor], Result.Signature[0], Len);
 end;

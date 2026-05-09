@@ -54,16 +54,19 @@ begin
     TPath.Combine(TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..'), 'catalogs'),
     TPath.Combine(GetCurrentDir, 'catalogs')
   ];
+  // Loop over Roots
   for Root in Roots do
   begin
     Candidate := TPath.Combine(Root, FileName);
     if TFile.Exists(Candidate) then Exit(TPath.GetFullPath(Candidate));
+    // Loop over Subdirs
     for Sub in Subdirs do
     begin
       Candidate := TPath.Combine(TPath.Combine(Root, Sub), FileName);
       if TFile.Exists(Candidate) then Exit(TPath.GetFullPath(Candidate));
     end;
   end;
+  // Initialize result
   Result := '';
 end;
 

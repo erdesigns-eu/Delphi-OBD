@@ -104,6 +104,7 @@ begin
     bmwgEWS, bmwgCAS: Result := Slot <= 9;
     bmwgFEMBDC:       Result := Slot <= 7;
   else
+    // Initialize result
     Result := False;
   end;
 end;
@@ -135,6 +136,7 @@ begin
     raise EOBDBMWKey.CreateFmt('EWS slot %d out of range', [Key.SlotIndex]);
   if Length(Key.KeyCutCode) <> 4 then
     raise EOBDBMWKey.Create('KeyCutCode must be 4 bytes');
+  // Allocate Result
   SetLength(Result, EWS_SLOT_BYTES);
   Result[0] := Key.SlotIndex;
   Status := 0;
@@ -158,9 +160,11 @@ begin
   Result := Default(TBMWKeyDataE);
   Result.SlotIndex := Bytes[0];
   Result.KeyEnabled := (Bytes[1] and $01) <> 0;
+  // Allocate Result.KeyCutCode
   SetLength(Result.KeyCutCode, 4);
   Move(Bytes[2], Result.KeyCutCode[0], 4);
   Result.UsageCounter := (UInt16(Bytes[6]) shl 8) or Bytes[7];
+  // Allocate Result.Reserved
   SetLength(Result.Reserved, EWS_SLOT_BYTES - 8);
   Move(Bytes[8], Result.Reserved[0], EWS_SLOT_BYTES - 8);
 end;
@@ -176,6 +180,7 @@ begin
     raise EOBDBMWKey.CreateFmt('CAS slot %d out of range', [Key.SlotIndex]);
   if Length(Key.KeyCutCode) <> 4 then
     raise EOBDBMWKey.Create('KeyCutCode must be 4 bytes');
+  // Allocate Result
   SetLength(Result, CAS_SLOT_BYTES);
   Result[0] := Key.SlotIndex;
   Status := 0;
@@ -203,11 +208,13 @@ begin
   Result := Default(TBMWKeyDataCas);
   Result.SlotIndex := Bytes[0];
   Result.KeyEnabled := (Bytes[1] and $01) <> 0;
+  // Allocate Result.KeyCutCode
   SetLength(Result.KeyCutCode, 4);
   Move(Bytes[2], Result.KeyCutCode[0], 4);
   Result.RemoteId := (UInt32(Bytes[6]) shl 24) or (UInt32(Bytes[7]) shl 16)
                   or (UInt32(Bytes[8]) shl 8)  or UInt32(Bytes[9]);
   Result.KMReadingThousands := (UInt16(Bytes[10]) shl 8) or Bytes[11];
+  // Allocate Result.Reserved
   SetLength(Result.Reserved, CAS_SLOT_BYTES - 12);
   Move(Bytes[12], Result.Reserved[0], CAS_SLOT_BYTES - 12);
 end;
@@ -228,6 +235,7 @@ begin
     raise EOBDBMWKey.Create('KeyCutCode must be 4 bytes');
   if Length(Key.DigitalKeySerial) <> 7 then
     raise EOBDBMWKey.Create('DigitalKeySerial must be 7 bytes (zero if none)');
+  // Allocate Result
   SetLength(Result, FEM_SLOT_BYTES);
   Result[0] := Key.SlotIndex;
   Status := 0;
@@ -260,14 +268,17 @@ begin
   Result.SlotIndex := Bytes[0];
   Result.KeyEnabled := (Bytes[1] and $01) <> 0;
   Result.PersonalSettingsBank := Bytes[2];
+  // Allocate Result.KeyCutCode
   SetLength(Result.KeyCutCode, 4);
   Move(Bytes[3], Result.KeyCutCode[0], 4);
+  // Allocate Result.DigitalKeySerial
   SetLength(Result.DigitalKeySerial, 7);
   Move(Bytes[7], Result.DigitalKeySerial[0], 7);
   Result.UsageCounter := (UInt32(Bytes[14]) shl 24) or (UInt32(Bytes[15]) shl 16)
                       or (UInt32(Bytes[16]) shl 8)  or UInt32(Bytes[17]);
   Result.LastKMReading := (UInt32(Bytes[18]) shl 24) or (UInt32(Bytes[19]) shl 16)
                        or (UInt32(Bytes[20]) shl 8)  or UInt32(Bytes[21]);
+  // Allocate Result.Reserved
   SetLength(Result.Reserved, FEM_SLOT_BYTES - 22);
   Move(Bytes[22], Result.Reserved[0], FEM_SLOT_BYTES - 22);
 end;

@@ -162,6 +162,7 @@ begin
   if Length(Op.WorkshopCardId) <> 16 then
     raise EOBDTachoWorkshop.CreateFmt(
       'WorkshopCardId must be 16 bytes (got %d)', [Length(Op.WorkshopCardId)]);
+  // Allocate Result
   SetLength(Result, 4 + 16);
   WriteUInt32BE(Result, 0, Op.UTCTimestamp);
   Move(Op.WorkshopCardId[0], Result[4], 16);
@@ -175,6 +176,7 @@ begin
   if Length(Bytes) <> 20 then
     raise EOBDTachoWorkshop.Create('UTCSync expects 20 bytes');
   Result.UTCTimestamp := ReadUInt32BE(Bytes, 0);
+  // Allocate Result.WorkshopCardId
   SetLength(Result.WorkshopCardId, 16);
   Move(Bytes[4], Result.WorkshopCardId[0], 16);
 end;
@@ -187,6 +189,7 @@ begin
   if (Op.K < 4000) or (Op.K > 25000) then
     raise EOBDTachoWorkshop.CreateFmt(
       'K must be 4000..25000 pulses/km (got %d)', [Op.K]);
+  // Allocate Result
   SetLength(Result, 6);
   WriteUInt16BE(Result, 0, Op.K);
   WriteUInt16BE(Result, 2, Op.L);
@@ -214,6 +217,7 @@ begin
     raise EOBDTachoWorkshop.CreateFmt(
       'Tyre circumference must be 1500..4500 mm (got %d)',
       [Op.CircumferenceMm]);
+  // Allocate Result
   SetLength(Result, 2);
   WriteUInt16BE(Result, 0, Op.CircumferenceMm);
 end;
@@ -237,6 +241,7 @@ begin
   if Length(Op.VIN) <> 17 then
     raise EOBDTachoWorkshop.CreateFmt(
       'VIN must be 17 chars (got %d)', [Length(Op.VIN)]);
+  // Allocate Result
   SetLength(Result, 17);
   for I := 0 to 16 do Result[I] := Byte(Ord(Op.VIN[I + 1]));
 end;
@@ -249,6 +254,7 @@ var I: Integer;
 begin
   if Length(Bytes) <> 17 then
     raise EOBDTachoWorkshop.Create('VIN expects 17 bytes');
+  // Allocate Result.VIN
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do Result.VIN[I + 1] := Char(Bytes[I]);
 end;
@@ -263,8 +269,10 @@ var
 begin
   if Length(Op.PlateText) > 13 then
     raise EOBDTachoWorkshop.Create('VRPlate text exceeds 13 ASCII chars');
+  // Allocate Plate
   SetLength(Plate, Length(Op.PlateText));
   for I := 0 to High(Plate) do Plate[I] := Byte(Ord(Op.PlateText[I + 1]));
+  // Allocate Result
   SetLength(Result, 1 + Length(Plate) + 1);
   Result[0] := Byte(Length(Plate));
   if Length(Plate) > 0 then Move(Plate[0], Result[1], Length(Plate));
@@ -283,6 +291,7 @@ begin
   N := Bytes[0];
   if 1 + N + 1 <> Length(Bytes) then
     raise EOBDTachoWorkshop.Create('VRPlate length mismatch');
+  // Allocate Result.PlateText
   SetLength(Result.PlateText, N);
   for I := 0 to N - 1 do Result.PlateText[I + 1] := Char(Bytes[1 + I]);
   Result.NationalSymbol := Bytes[1 + N];
@@ -295,6 +304,7 @@ function EncodeSpeedSource(const Op: TTachoSpeedSource): TBytes;
 begin
   if Op.PulsesPerRevolution = 0 then
     raise EOBDTachoWorkshop.Create('PulsesPerRevolution must be > 0');
+  // Allocate Result
   SetLength(Result, 2);
   WriteUInt16BE(Result, 0, Op.PulsesPerRevolution);
 end;
@@ -312,6 +322,7 @@ begin
   Note := TEncoding.UTF8.GetBytes(Op.PostSealNote);
   if Length(Note) > 255 then
     raise EOBDTachoWorkshop.Create('PostSealNote exceeds 255 bytes');
+  // Allocate Result
   SetLength(Result, 4 + 16 + 1 + Length(Note));
   Cursor := 0;
   Cursor := WriteUInt32BE(Result, Cursor, Op.UTCTimestamp);

@@ -143,6 +143,7 @@ begin
     if not M.Complete then
       StatusByte := StatusByte or Byte(1 shl Bit);
   end;
+  // Initialize result
   Result := True;
 end;
 
@@ -302,11 +303,13 @@ begin
     PackMonitor(Set_.ExhaustGasSensor,    3, NCSupport2, NCStatus2);
     PackMonitor(Set_.PMFilter,            4, NCSupport2, NCStatus2);
     PackMonitor(Set_.EGRSystem,           5, NCSupport2, NCStatus2);
+    // Allocate Result
     SetLength(Result, 6);
     Result[4] := NCSupport2;
     Result[5] := NCStatus2;
   end
   else
+    // Allocate Result
     SetLength(Result, 4);
 
   Result[0] := (Set_.DTCCount and $7F);

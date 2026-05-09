@@ -56,10 +56,12 @@ implementation
 //------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.Create(const Length: Integer);
 begin
+  // Initialize the inherited class
   inherited Create;
   if Length < 1 then
     raise EOBDCodingError.CreateFmt(
       'HMG variant-coding length must be >= 1, got %d', [Length]);
+  // Allocate FBytes
   SetLength(FBytes, Length);
 end;
 
@@ -68,6 +70,7 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.Create(const Bytes: TBytes);
 begin
+  // Initialize the inherited class
   inherited Create;
   FBytes := Copy(Bytes);
 end;
@@ -77,6 +80,7 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDHMGVariantCoding.CreateFromHex(const HexString: string);
 begin
+  // Initialize the inherited class
   inherited Create;
   FBytes := HexStringToBytes(HexString);
 end;

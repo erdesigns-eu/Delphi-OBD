@@ -61,14 +61,19 @@ var
   I: Integer;
 begin
   Path := ResolveCatalogPath(CatalogFileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
@@ -78,6 +83,7 @@ begin
       GDatabase[I] := Arr.Items[I].Value;
     GLoaded := True;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -96,8 +102,11 @@ end;
 function TOBDRadioCodeBecker5.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var Sanitized: string;
 begin
+  // Initialize result
   Result := True;
+  // Clear the error message
   ErrorMessage := '';
+  // Sanitize the input
   Sanitized := SanitizeInput(Input);
   if not ValidateLength(Sanitized, 4, ErrorMessage) then Exit(False);
   if not ValidateDigits(Sanitized, ErrorMessage) then Exit(False);
@@ -111,9 +120,13 @@ var
   Sanitized: string;
   I: Integer;
 begin
+  // Initialize result
   Result := True;
+  // Clear the output
   Output := '';
+  // Clear the error message
   ErrorMessage := '';
+  // Sanitize the input
   Sanitized := SanitizeInput(Input);
   if not Self.Validate(Sanitized, ErrorMessage) then Exit(False);
   if not GLoaded then

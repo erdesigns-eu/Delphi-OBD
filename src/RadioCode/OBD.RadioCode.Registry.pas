@@ -105,12 +105,14 @@ constructor TOBDRadioCodeBrand.Create(const BrandKey, DisplayName: string;
   DataAvailable: Boolean; const DataNotes: string;
   const Factory: TOBDRadioCodeFactory);
 begin
+  // Initialize the inherited class
   inherited Create;
   FBrandKey := LowerCase(BrandKey);
   FDisplayName := DisplayName;
   FDataAvailable := DataAvailable;
   FDataNotes := DataNotes;
   FFactory := Factory;
+  // Create FVariants
   FVariants := TRadioCodeVariantManager.Create(DisplayName);
 end;
 
@@ -119,7 +121,9 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDRadioCodeBrand.Destroy;
 begin
+  // Free FVariants
   FVariants.Free;
+  // Call the inherited handler
   inherited;
 end;
 
@@ -141,9 +145,13 @@ end;
 //------------------------------------------------------------------------------
 constructor TOBDRadioCodeRegistry.Create;
 begin
+  // Call the inherited handler
   inherited;
+  // Create FLock
   FLock := TCriticalSection.Create;
+  // Create FBrands
   FBrands := TObjectList<TOBDRadioCodeBrand>.Create(True);
+  // Create FByKey
   FByKey := TDictionary<string, TOBDRadioCodeBrand>.Create;
 end;
 
@@ -152,9 +160,13 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDRadioCodeRegistry.Destroy;
 begin
+  // Free FByKey
   FByKey.Free;
+  // Free FBrands
   FBrands.Free;
+  // Free FLock
   FLock.Free;
+  // Call the inherited handler
   inherited;
 end;
 
@@ -164,6 +176,7 @@ end;
 class function TOBDRadioCodeRegistry.Instance: TOBDRadioCodeRegistry;
 begin
   if FInstance = nil then
+    // Create FInstance
     FInstance := TOBDRadioCodeRegistry.Create;
   Result := FInstance;
 end;
@@ -173,22 +186,26 @@ end;
 //------------------------------------------------------------------------------
 class procedure TOBDRadioCodeRegistry.FreeInstance;
 begin
+  // Free FInstance
   FreeAndNil(FInstance);
 end;
 
 procedure TOBDRadioCodeRegistry.Register(Brand: TOBDRadioCodeBrand);
 begin
   if Brand = nil then Exit;
+  // Acquire the lock
   FLock.Acquire;
   try
     if FByKey.ContainsKey(Brand.BrandKey) then
     begin
+      // Free Brand
       Brand.Free;
       Exit;
     end;
     FBrands.Add(Brand);
     FByKey.Add(Brand.BrandKey, Brand);
   finally
+    // Release the lock
     FLock.Release;
   end;
 end;
@@ -198,11 +215,14 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodeRegistry.Find(const BrandKey: string): TOBDRadioCodeBrand;
 begin
+  // Acquire the lock
   FLock.Acquire;
   try
     if not FByKey.TryGetValue(LowerCase(BrandKey), Result) then
+      // Initialize result
       Result := nil;
   finally
+    // Release the lock
     FLock.Release;
   end;
 end;
@@ -215,11 +235,14 @@ var
   Brand: TOBDRadioCodeBrand;
 begin
   Keys.Clear;
+  // Acquire the lock
   FLock.Acquire;
   try
+    // Loop over FBrands
     for Brand in FBrands do
       Keys.Add(Brand.BrandKey);
   finally
+    // Release the lock
     FLock.Release;
   end;
 end;
@@ -229,10 +252,12 @@ end;
 //------------------------------------------------------------------------------
 function TOBDRadioCodeRegistry.Count: Integer;
 begin
+  // Acquire the lock
   FLock.Acquire;
   try
     Result := FBrands.Count;
   finally
+    // Release the lock
     FLock.Release;
   end;
 end;

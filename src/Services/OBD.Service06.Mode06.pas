@@ -127,19 +127,26 @@ var
   V: Integer;
 begin
   Path := ResolveCatalogPath(FileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -149,6 +156,7 @@ begin
       Map.AddOrSetValue(Byte(V), Obj.GetValue<string>('name', ''));
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -167,20 +175,28 @@ var
   Info: TOBDMode06UnitInfo;
   V: Integer;
 begin
+  // Resolve catalog path
   Path := ResolveCatalogPath('mode06-units.json');
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -194,6 +210,7 @@ begin
       GUCSIDs.AddOrSetValue(Info.UCSID, Info);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -253,6 +270,7 @@ end;
 
 function BuildMode06Request(OBDMID: Byte): TBytes;
 begin
+  // Allocate Result
   SetLength(Result, 2);
   Result[0] := $46;        // Service identifier per ISO 15031-5
   Result[1] := OBDMID;
@@ -279,6 +297,7 @@ begin
     raise EOBDMode06.CreateFmt(
       'Mode 06 response payload not a multiple of %d bytes',
       [TEST_RECORD_BYTES]);
+  // Allocate RecordList
   SetLength(RecordList, RecordsRoom);
   while Cursor + TEST_RECORD_BYTES <= Length(Bytes) do
   begin

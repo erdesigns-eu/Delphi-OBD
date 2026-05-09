@@ -74,20 +74,27 @@ var
   Stream: TStringStream;
   Doc: TJSONValue;
 begin
+  // Initialize result
   Result := nil;
   Path := ResolveCatalogPath(FileName);
+  // Bail if catalog path is missing
   if Path = '' then Exit;
+  // Create stream
   Stream := TStringStream.Create('', TEncoding.UTF8);
   try
+    // Load file into stream
     Stream.LoadFromFile(Path);
     Raw := Stream.DataString;
   finally
+    // Free the stream
     Stream.Free;
   end;
+  // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
   if Doc is TJSONObject then
     Result := Doc as TJSONObject
   else
+    // Free the document
     Doc.Free;
 end;
 
@@ -104,10 +111,14 @@ var
   S: string;
 begin
   Doc := LoadJsonObject('vin-regions.json');
+  // Bail if document is nil
   if Doc = nil then Exit;
   try
+    // Pull the entries array
     Arr := Doc.GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -122,6 +133,7 @@ begin
       VINRegions := VINRegions + [R];
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -138,10 +150,14 @@ var
   C: TVINCountry;
 begin
   Doc := LoadJsonObject('vin-countries.json');
+  // Bail if document is nil
   if Doc = nil then Exit;
   try
+    // Pull the entries array
     Arr := Doc.GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -154,6 +170,7 @@ begin
       VINCountries := VINCountries + [C];
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -170,10 +187,14 @@ var
   M: TVINManufacturer;
 begin
   Doc := LoadJsonObject('vin-wmi-manufacturers.json');
+  // Bail if document is nil
   if Doc = nil then Exit;
   try
+    // Pull the entries array
     Arr := Doc.GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -184,6 +205,7 @@ begin
       VINManufacturers := VINManufacturers + [M];
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -201,10 +223,14 @@ var
   Key: string;
 begin
   Doc := LoadJsonObject('vin-plants.json');
+  // Bail if document is nil
   if Doc = nil then Exit;
   try
+    // Pull the entries array
     Arr := Doc.GetValue<TJSONArray>('entries');
+    // Bail if array is missing
     if Arr = nil then Exit;
+    // Loop over Arr
     for Item in Arr do
     begin
       if not (Item is TJSONObject) then Continue;
@@ -218,6 +244,7 @@ begin
       VINPlantLocationMap.AddOrSetValue(Key, P);
     end;
   finally
+    // Free the document
     Doc.Free;
   end;
 end;
@@ -231,11 +258,14 @@ var
   StartIndex, EndIndex, I, J, K: Integer;
   Key: string;
 begin
+  // Create VINCountryMap
   VINCountryMap := TDictionary<string, TVINCountry>.Create;
+  // Loop over VINCountries
   for Country in VINCountries do
   begin
     StartIndex := -1;
     EndIndex   := -1;
+    // Loop over ALPHABET_CHARS
     for I := Low(ALPHABET_CHARS) to High(ALPHABET_CHARS) do
     begin
       if ALPHABET_CHARS[I] = Country.RangeStart[1] then StartIndex := I;
@@ -244,6 +274,7 @@ begin
     end;
     if (StartIndex = -1) or (EndIndex = -1) then Continue;
     for I := StartIndex to EndIndex do
+    // Loop over ALPHABET_CHARS
     for J := Low(ALPHABET_CHARS) to High(ALPHABET_CHARS) do
     begin
       if ALPHABET_CHARS[J] = Country.RangeStart[2] then StartIndex := J;
@@ -267,13 +298,16 @@ var
   ManufacturerCode: string;
   Character: Char;
 begin
+  // Create VINManufacturerMap
   VINManufacturerMap := TDictionary<string, TVINManufacturer>.Create;
+  // Loop over VINManufacturers
   for Manufacturer in VINManufacturers do
   begin
     ManufacturerCode := Manufacturer.Code;
     if Length(ManufacturerCode) = 3 then
       VINManufacturerMap.AddOrSetValue(ManufacturerCode, Manufacturer)
     else if Length(ManufacturerCode) < 3 then
+      // Loop over ALPHABET_CHARS
       for Character in ALPHABET_CHARS do
         if not VINManufacturerMap.ContainsKey(Manufacturer.Code + Character) then
           VINManufacturerMap.Add(Manufacturer.Code + Character, Manufacturer);
@@ -288,7 +322,9 @@ const
   StartYear: Integer = 1980;
 var I: Integer;
 begin
+  // Allocate VINYearMap
   SetLength(VINYearMap, Length(YEAR_CHARS));
+  // Loop over YEAR_CHARS
   for I := Low(YEAR_CHARS) to High(YEAR_CHARS) do
   begin
     VINYearMap[I].Code := YEAR_CHARS[I];
