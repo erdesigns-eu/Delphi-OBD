@@ -36,7 +36,8 @@ Navigation hub for every doc in the repository, grouped by topic.
 ## Planning & process
 
 - [ROADMAP.md](ROADMAP.md) — shipped milestones + future backlog (canonical).
-- [EXTENSION_PLAN_v3.80.md](EXTENSION_PLAN_v3.80.md) — active milestone plan.
+- [EXTENSION_PLAN_v3.80.md](EXTENSION_PLAN_v3.80.md) — v3.80 milestone (shipped).
+- [EXTENSION_PLAN_v3.81.md](EXTENSION_PLAN_v3.81.md) — v3.81 milestone (active).
 - [PROPOSALS.md](PROPOSALS.md) — RFCs awaiting acceptance (with status table).
 - [../GAPS.md](../GAPS.md) — current blockers and recently-resolved gaps.
 - [DATA_GAPS.md](DATA_GAPS.md) — features shipped as framework + stubs because reference data is not publicly available.
