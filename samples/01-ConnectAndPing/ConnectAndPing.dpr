@@ -7,6 +7,10 @@
 //  every ELM327 understands), and prints what comes back until the
 //  ELM '>' prompt or a 5-second timeout.
 //
+//  Demonstrates the dual-method rule (PLAN §3.7): pass --async to use
+//  the non-blocking OpenAsync variant; without the flag the sample
+//  uses the blocking Open form.
+//
 //  Override host / port via the first two command-line arguments.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -15,6 +19,7 @@
 //
 //  History     :
 //    2026-05-09  ERD  Phase 2 initial.
+//    2026-05-09  ERD  Phase 2 follow-up: --async flag for OpenAsync demo.
 //------------------------------------------------------------------------------
 
 program ConnectAndPing;
@@ -60,41 +65,85 @@ begin
 end;
 
 var
+  ConnectDone: TEvent;
+  ConnectError: string;
+
+procedure HandleConnect(Sender: TObject);
+begin
+  ConnectDone.SetEvent;
+end;
+
+procedure HandleAsyncError(Sender: TObject; ACode: TOBDErrorCode;
+  const AMessage: string; var AHandled: Boolean);
+begin
+  ConnectError := AMessage;
+  ConnectDone.SetEvent;
+end;
+
+var
   Host: string;
   PortStr: string;
   Port: Integer;
+  UseAsync: Boolean;
+  I: Integer;
 
 begin
   Host := '192.168.0.10';
   Port := 35000;
-  if ParamCount >= 1 then Host := ParamStr(1);
-  if ParamCount >= 2 then
+  UseAsync := False;
+  for I := 1 to ParamCount do
   begin
-    PortStr := ParamStr(2);
-    if not TryStrToInt(PortStr, Port) then
+    if (ParamStr(I) = '--async') or (ParamStr(I) = '-a') then
+      UseAsync := True
+    else if Host = '192.168.0.10' then
+      Host := ParamStr(I)
+    else
     begin
-      Writeln(ErrOutput, 'Invalid port: ', PortStr);
-      Halt(2);
+      PortStr := ParamStr(I);
+      if not TryStrToInt(PortStr, Port) then
+      begin
+        Writeln(ErrOutput, 'Invalid port: ', PortStr);
+        Halt(2);
+      end;
     end;
   end;
 
   Connection := TOBDConnection.Create(nil);
   ResponseDone := TEvent.Create(nil, True, False, '');
+  ConnectDone := TEvent.Create(nil, True, False, '');
   try
     Connection.Transport := otWiFi;
     Connection.WiFiSettings.Host := Host;
     Connection.WiFiSettings.Port := Port;
     Connection.OnDataReceived := HandleData;
-    Connection.OnError := HandleError;
 
-    Writeln(Format('Connecting to %s:%d…', [Host, Port]));
-    try
-      Connection.Open;
-    except
-      on E: Exception do
+    if UseAsync then
+    begin
+      Connection.OnConnect := HandleConnect;
+      Connection.OnError := HandleAsyncError;
+      Writeln(Format('Connecting to %s:%d (async)…', [Host, Port]));
+      Connection.OpenAsync;
+      // Returned immediately. Pump messages while waiting.
+      while ConnectDone.WaitFor(50) <> wrSignaled do
+        CheckSynchronize(50);
+      if ConnectError <> '' then
       begin
-        Writeln(ErrOutput, 'Open failed: ', E.Message);
+        Writeln(ErrOutput, 'Open failed: ', ConnectError);
         Halt(3);
+      end;
+    end
+    else
+    begin
+      Connection.OnError := HandleError;
+      Writeln(Format('Connecting to %s:%d…', [Host, Port]));
+      try
+        Connection.Open;
+      except
+        on E: Exception do
+        begin
+          Writeln(ErrOutput, 'Open failed: ', E.Message);
+          Halt(3);
+        end;
       end;
     end;
 
@@ -109,6 +158,7 @@ begin
 
     Connection.Close;
   finally
+    ConnectDone.Free;
     ResponseDone.Free;
     Connection.Free;
   end;

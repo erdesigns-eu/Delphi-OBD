@@ -15,7 +15,14 @@ dcc32 -B ConnectAndPing.dpr
 ConnectAndPing.exe                          REM defaults: 192.168.0.10:35000
 ConnectAndPing.exe 192.168.4.1 35000        REM common ESP-Link host
 ConnectAndPing.exe elm327.local 35000       REM mDNS host
+ConnectAndPing.exe --async 192.168.0.10 35000  REM use OpenAsync (non-blocking)
 ```
+
+The `--async` (or `-a`) flag switches the sample from `Open` (blocking)
+to `OpenAsync` (non-blocking). In a console sample the visible
+behaviour is similar; in a GUI app `OpenAsync` keeps the message loop
+running so the form stays responsive while the connect attempt is in
+flight.
 
 ## Expected output
 

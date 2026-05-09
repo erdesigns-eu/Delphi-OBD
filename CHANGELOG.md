@@ -29,6 +29,24 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 2 follow-up (Sync + Async dual-method rule)
+- `TOBDConnection.OpenAsync` / `CloseAsync` — non-blocking
+  counterparts to `Open` / `Close`, fire `OnConnect` / `OnDisconnect` /
+  `OnError` on the main thread.
+- `Tests.OBD.Connection.Async` — coverage for return-immediately,
+  main-thread event marshalling, in-flight rejection, cancellation
+  via Close, destructor cleanup with in-flight worker.
+- Sample 01-ConnectAndPing — `--async` / `-a` flag to demo the
+  non-blocking form.
+
+### Changed — design rules
+- **PLAN §3.7 added: Sync + Async dual-method rule.** Every
+  potentially-blocking public method on every component ships in two
+  forms (`Foo` blocking, `FooAsync` non-blocking). Foundational for
+  the whole package; reviewers should reject incomplete PRs that
+  violate it. STYLE.md §6 updated to mirror the rule. PLAN.md row 5
+  (locked decisions) now points at §3.7 for the full contract.
+
 ### Changed — process & attribution
 - Author attribution corrected to **Ernst Reidinga (ERDesigns)** in
   every file header. ERDesigns is the practice; Ernst is the author.

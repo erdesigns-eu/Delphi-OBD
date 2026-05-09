@@ -41,7 +41,7 @@ parser is unit-tested against captured frames. CI is green on every PR.
 | 2 | Delphi versions | 10.3 Rio → 12 Athens. No inline vars, no custom managed records; conditional compilation for newer features. Generics + anonymous methods + parallel library available. |
 | 3 | UI framework | Headless — zero `Vcl.*` / `FMX.*` references in any runtime unit. Demos ship as separate sample projects. Design-time package may use VCL because the IDE is VCL. |
 | 4 | Component granularity | One component per role, enum-driven. `TOBDConnection` (Transport), `TOBDAdapter` (Family), `TOBDProtocol` (Mode + Manual). Sub-settings shown conditionally in the inspector. |
-| 5 | Async model | Sync public API + events. Threading is internal; events marshalled to the main thread via `TThread.Queue`. Long operations expose `OnProgress`/`OnCompleted` where useful. |
+| 5 | Async model | **Dual-method rule.** Every potentially-blocking operation ships in **two forms**: a synchronous method (`Foo`) that blocks until done — for CLI tools, scripts, simple form code where blocking is fine — and a non-blocking `FooAsync` method that returns immediately and reports results via the component's existing events (`OnXxx` for success, `OnError` for failure). Both forms exist on every relevant method; choose per call-site. Threading is internal; all event callbacks fire on the main thread via `TThread.Queue`. Only one async op of the same kind may be in flight per component instance — calling `FooAsync` while another is in progress raises `EOBDConfig`. Calling the destructor or the lifecycle-cancelling method (e.g. `Close`) cancels and joins any in-flight async op. See §3.7. |
 | 6 | Error model | Typed exceptions for fatal/programmer errors (`EOBDConfig`, `EOBDProtocol`, `EOBDNotConnected`, …). `OnError(Sender; ErrorCode; Message; var Handled)` event for transient I/O issues, NRCs, timeouts, NO-DATA. |
 | 7 | Package layout | Single runtime + single design-time: `DelphiOBD_RT.bpl` + `DelphiOBD_DT.bpl`. |
 | 8 | Naming | Unit prefix `OBD.*`. Component prefix `TOBD`. Packages `DelphiOBD_RT`/`_DT`. |
@@ -254,6 +254,79 @@ without modifying the core.
 - All components implement `TComponent.Notification` to break references when
   bound components are freed.
 - Streaming (DFM) round-trips losslessly for every published property.
+
+### 3.7 Sync + Async dual-method rule
+
+Every public method that can block for more than a few milliseconds —
+network connect, Bluetooth handshake, BLE GATT discovery, AT-command
+exchange, ECU read, DTC clear, UDS request, flash transfer — ships in
+**two forms**:
+
+| Form | Signature | When to use |
+|---|---|---|
+| Synchronous | `procedure Foo;` / `function Foo: TResult;` | CLI tools, scripts, headless services, unit tests, sequential automation. Blocks the calling thread until the operation completes; raises on programmer / configuration errors. |
+| Asynchronous | `procedure FooAsync;` | GUI applications. Returns immediately; results are delivered via the component's existing events (`OnXxx` on success, `OnError` on transient failure, both on the main thread via `TThread.Queue`). |
+
+#### Implementation contract
+
+The async form **must**:
+
+- **Return immediately.** Allocating the worker and starting it costs
+  microseconds; never do work synchronously before the worker starts.
+- **Run the work on a TThread worker.** Use the standard
+  `TThread.CreateAnonymousThread(...)` pattern with
+  `FreeOnTerminate := False`.
+- **Marshal every event to the main thread.** Use `TThread.Queue` (not
+  `Synchronize`) so the worker doesn't block waiting for the main loop.
+- **Be cancellable.** The component holds a `CancelFlag: Boolean` per
+  in-flight op; the worker checks it at every loop boundary (between
+  retries, between transferred blocks, etc.) and exits early.
+- **Allow only one in-flight op of the same kind per instance.** A
+  second `FooAsync` while one is in progress raises `EOBDConfig`. If
+  multiple independent ops can naturally overlap (e.g. parallel UDS
+  reads to different ECUs) they get distinct method names rather than
+  shared queue.
+- **Self-reap.** When the worker finishes, it queues a cleanup to the
+  main thread that frees the worker and clears the in-flight pointer.
+- **Cooperate with destructive lifecycle.** The owning component's
+  destructor and any `Close` / `Disconnect` method cancels and joins
+  every in-flight async op before tearing down state.
+
+The sync form **must** have identical observable semantics — same
+inputs produce the same outputs, same exceptions, same events. The only
+difference is "who blocks": sync blocks the caller; async blocks the
+worker.
+
+#### Destructive components
+
+Components with the `AutoExecute` / `OnConfirmExecute` pattern (§3.4)
+honour both forms identically. The async variant fires
+`OnConfirmExecute` on the main thread, **waits** for the handler to
+set `Allow`, then proceeds (or aborts) on the worker. The sync variant
+behaves the same way but blocks the caller while waiting.
+
+#### Where the rule applies
+
+| Component | Sync method | Async counterpart |
+|---|---|---|
+| `TOBDConnection` | `Open`, `Close` | `OpenAsync`, `CloseAsync` |
+| `TOBDAdapter` (Phase 3) | `Detect`, `Init`, `WriteATCommand`, `WriteSTCommand` | `DetectAsync`, `InitAsync`, `WriteATCommandAsync`, `WriteSTCommandAsync` |
+| `TOBDProtocol` (Phase 4) | `Send`, `Request` | `SendAsync`, `RequestAsync` |
+| `TOBDLiveData` (Phase 5) | `ReadOnce` | `ReadOnceAsync` (note: continuous polling is already async by setting `Active := True`) |
+| `TOBDDTC` (Phase 5) | `Read` | `ReadAsync` |
+| `TOBDClearDTC` (Phase 5) | `Execute` | `ExecuteAsync` (honours `AutoExecute` / `OnConfirmExecute`) |
+| `TOBDFreezeFrame` / `TOBDVehicleInfo` (Phase 5) | `Read` | `ReadAsync` |
+| `TOBDUDS` family (Phase 6) | every service method | matching `MethodAsync` |
+| `TOBDKWP` family (Phase 6) | every service method | matching `MethodAsync` |
+| `TOBDJ1939DM` (Phase 6) | `Request` | `RequestAsync` |
+| `TOBDDoIP` (Phase 6) | every method | matching `MethodAsync` |
+| `TOBDXCP` (Phase 7) | every method | matching `MethodAsync` |
+| `TOBDFlasher` (Phase 9) | `Flash` | `FlashAsync` (the long one — recommended for almost all real use) |
+
+Methods that complete in microseconds (property setters, simple
+getters, in-memory lookups) do **not** need an async form. Use
+judgement: anything that touches the wire or waits on an event needs
+the dual form.
 
 ---
 

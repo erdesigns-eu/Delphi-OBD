@@ -73,6 +73,11 @@ type
     FTransportImpl: IOBDConnectionTransport;
     FState: TOBDConnectionState;
 
+    // async open
+    FAsyncOpenLock: TCriticalSection;
+    FAsyncOpenThread: TThread;
+    FAsyncOpenCancelled: Boolean;
+
     // events
     FOnConnect: TNotifyEvent;
     FOnDisconnect: TNotifyEvent;
@@ -92,6 +97,11 @@ type
 
     procedure DoOpen;
     procedure DoClose;
+
+    procedure FireOnConnect;
+    procedure FireOnDisconnect;
+    procedure FireOnError(ACode: TOBDErrorCode; const AMessage: string);
+    procedure WaitForAsyncOpen;
 
     procedure HandleTransportBytes(Sender: TObject; const ABytes: TBytes);
     procedure HandleTransportState(Sender: TObject;
@@ -125,13 +135,54 @@ type
     procedure Open;
 
     /// <summary>
+    ///   Non-blocking open. Returns immediately; the actual transport
+    ///   open runs on a background worker.
+    /// </summary>
+    /// <remarks>
+    ///   On success, fires <c>OnConnect</c> on the main thread. On
+    ///   failure, fires <c>OnError</c> on the main thread with a coded
+    ///   error and a human-readable message. Honours
+    ///   <c>RetryPolicy</c> the same way <see cref="Open"/> does.
+    ///
+    ///   Use this when you do not want to block the UI thread on a
+    ///   slow transport (Wi-Fi DNS, Bluetooth handshake, BLE GATT
+    ///   discovery). The synchronous <see cref="Open"/> method remains
+    ///   available for code-driven use where blocking is acceptable.
+    ///
+    ///   Only one async open may be in flight at a time. Calling
+    ///   <c>OpenAsync</c> while another is in progress raises. Calling
+    ///   <c>Close</c> during an in-flight async open marks it
+    ///   cancelled, waits for the worker to exit, then closes
+    ///   normally.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">Already active or another async
+    /// open is already in progress.</exception>
+    procedure OpenAsync;
+
+    /// <summary>
     ///   Synchronous close. Equivalent to <c>Active := False</c>.
     /// </summary>
     /// <remarks>
     ///   No-op when not active. Joins the transport's worker thread
-    ///   before returning.
+    ///   before returning. If an async open is in flight it is
+    ///   cancelled and joined first.
     /// </remarks>
     procedure Close;
+
+    /// <summary>
+    ///   Non-blocking close. Returns immediately; the actual transport
+    ///   shutdown runs on a background worker.
+    /// </summary>
+    /// <remarks>
+    ///   Fires <c>OnDisconnect</c> on the main thread once the
+    ///   transport has fully closed. Use this when a transport's
+    ///   close path can take noticeable time (Bluetooth in particular)
+    ///   and you do not want to block the UI thread.
+    ///
+    ///   Calling <c>CloseAsync</c> when the connection is already
+    ///   closed is a no-op (no event fires).
+    /// </remarks>
+    procedure CloseAsync;
 
     /// <summary>Sends raw bytes through the active transport.</summary>
     /// <param name="ABytes">Bytes to send. Empty returns 0.</param>
@@ -216,6 +267,7 @@ uses
 constructor TOBDConnection.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FAsyncOpenLock := TCriticalSection.Create;
   FSerialSettings := TOBDSerialSettings.Create;
   FBluetoothSettings := TOBDBluetoothSettings.Create;
   FBLESettings := TOBDBLESettings.Create;
@@ -229,6 +281,8 @@ end;
 
 destructor TOBDConnection.Destroy;
 begin
+  // Cancel and wait for any in-flight OpenAsync before tearing down.
+  WaitForAsyncOpen;
   if FActive then
   try
     DoClose;
@@ -242,6 +296,7 @@ begin
   FUDPSettings.Free;
   FFTDISettings.Free;
   FRetryPolicy.Free;
+  FAsyncOpenLock.Free;
   inherited;
 end;
 
@@ -361,8 +416,7 @@ begin
 
       // Success
       FActive := True;
-      if Assigned(FOnConnect) then
-        FOnConnect(Self);
+      FireOnConnect;
       Exit;
 
     except
@@ -375,7 +429,9 @@ begin
     end;
 
     // Retry?
-    if (not FRetryPolicy.Enabled) or (Attempt >= FRetryPolicy.MaxAttempts) then
+    if FAsyncOpenCancelled or
+       (not FRetryPolicy.Enabled) or
+       (Attempt >= FRetryPolicy.MaxAttempts) then
       Break;
     Delay := FRetryPolicy.DelayForAttempt(Attempt);
     if Delay > 0 then
@@ -387,17 +443,207 @@ begin
   raise EOBDError.Create('Connection open failed (no specific error captured)');
 end;
 
+procedure TOBDConnection.FireOnConnect;
+begin
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnConnect) then
+      FOnConnect(Self);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnConnect) then
+          FOnConnect(Self);
+      end);
+end;
+
+procedure TOBDConnection.FireOnDisconnect;
+begin
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnDisconnect) then
+      FOnDisconnect(Self);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnDisconnect) then
+          FOnDisconnect(Self);
+      end);
+end;
+
+procedure TOBDConnection.FireOnError(ACode: TOBDErrorCode;
+  const AMessage: string);
+var
+  CodeCopy: TOBDErrorCode;
+  MsgCopy: string;
+begin
+  CodeCopy := ACode;
+  MsgCopy := AMessage;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    var Handled: Boolean;
+    Handled := False;
+    if Assigned(FOnError) then
+      FOnError(Self, CodeCopy, MsgCopy, Handled);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      var
+        Handled: Boolean;
+      begin
+        Handled := False;
+        if Assigned(FOnError) then
+          FOnError(Self, CodeCopy, MsgCopy, Handled);
+      end);
+end;
+
+procedure TOBDConnection.WaitForAsyncOpen;
+var
+  Worker: TThread;
+begin
+  // Atomically claim the worker pointer. Either we got the live worker
+  // (must wait + free) or the cleanup queued from Execute already
+  // ran (Worker = nil, no-op).
+  FAsyncOpenLock.Enter;
+  try
+    Worker := FAsyncOpenThread;
+    FAsyncOpenThread := nil;
+    if Worker <> nil then
+      FAsyncOpenCancelled := True;
+  finally
+    FAsyncOpenLock.Leave;
+  end;
+  if Worker = nil then
+    Exit;
+  // Worker may close the transport on its way out; that's fine.
+  Worker.WaitFor;
+  Worker.Free;
+  FAsyncOpenLock.Enter;
+  try
+    FAsyncOpenCancelled := False;
+  finally
+    FAsyncOpenLock.Leave;
+  end;
+end;
+
 procedure TOBDConnection.DoClose;
 var
   Local: IOBDConnectionTransport;
 begin
+  // Cancel any in-flight async open before tearing down the transport.
+  WaitForAsyncOpen;
   Local := FTransportImpl;
   FTransportImpl := nil;
   if Assigned(Local) then
     Local.Close;
   FActive := False;
-  if Assigned(FOnDisconnect) then
-    FOnDisconnect(Self);
+  FireOnDisconnect;
+end;
+
+procedure TOBDConnection.CloseAsync;
+var
+  Self_: TOBDConnection;
+begin
+  if not FActive and (FTransportImpl = nil) then
+    Exit;
+  Self_ := Self;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      try
+        Self_.DoClose;
+      except
+        // Close errors are surfaced via OnError on the worker; never
+        // propagate out of an anonymous-thread closure.
+        on E: Exception do
+          Self_.FireOnError(oeIO, E.Message);
+      end;
+    end).Start;
+end;
+
+procedure TOBDConnection.OpenAsync;
+var
+  Worker: TThread;
+begin
+  if FActive then
+    raise EOBDConfig.Create('Connection is already active');
+
+  FAsyncOpenLock.Enter;
+  try
+    if FAsyncOpenThread <> nil then
+      raise EOBDConfig.Create('OpenAsync is already in progress');
+    FAsyncOpenCancelled := False;
+  finally
+    FAsyncOpenLock.Leave;
+  end;
+
+  Worker := TThread.CreateAnonymousThread(
+    procedure
+    var
+      OpenError: string;
+      OpenCode: TOBDErrorCode;
+      Self_: TOBDConnection;
+    begin
+      Self_ := Self;
+      OpenError := '';
+      OpenCode := oeNone;
+      try
+        try
+          DoOpen;
+          // DoOpen has fired OnConnect via FireOnConnect (main thread).
+        except
+          on E: Exception do
+          begin
+            OpenError := E.Message;
+            if E is EOBDConfig then
+              OpenCode := oeAdapterFault
+            else if E is EOBDNotConnected then
+              OpenCode := oeAdapterFault
+            else
+              OpenCode := oeIO;
+          end;
+        end;
+      finally
+        if OpenError <> '' then
+          FireOnError(OpenCode, OpenError);
+        // Schedule self-reaping on the main thread. WaitForAsyncOpen
+        // claims FAsyncOpenThread atomically: either we get to free it
+        // here (live worker, no concurrent Wait), or Wait already
+        // claimed it (Worker = nil) and we do nothing.
+        TThread.Queue(nil,
+          procedure
+          var
+            ToFree: TThread;
+          begin
+            Self_.FAsyncOpenLock.Enter;
+            try
+              ToFree := Self_.FAsyncOpenThread;
+              Self_.FAsyncOpenThread := nil;
+            finally
+              Self_.FAsyncOpenLock.Leave;
+            end;
+            if ToFree <> nil then
+            begin
+              ToFree.WaitFor;
+              ToFree.Free;
+            end;
+          end);
+      end;
+    end);
+  Worker.FreeOnTerminate := False;
+
+  FAsyncOpenLock.Enter;
+  try
+    FAsyncOpenThread := Worker;
+  finally
+    FAsyncOpenLock.Leave;
+  end;
+  Worker.Start;
 end;
 
 procedure TOBDConnection.Open;

@@ -269,16 +269,44 @@ Do not pepper the codebase with these. The default code path must work on
 
 ---
 
-## 6. Threading
+## 6. Threading and the sync + async dual-method rule
 
-- **All public methods are sync.** Threading is internal to the component.
-- **All events fire on the main thread.** Use `TThread.Queue` from worker
-  threads. There is no opt-out.
+- **Every public method that can take more than a few milliseconds
+  ships in two forms.** A synchronous `Foo` that blocks until done, and
+  a non-blocking `FooAsync` that returns immediately and reports via
+  events. See [`PLAN.md` §3.7](PLAN.md) for the full contract,
+  cancellation rules, in-flight policy, and the table of methods this
+  applies to.
+- **All events fire on the main thread.** Use `TThread.Queue` (not
+  `Synchronize`) from worker threads. There is no opt-out.
 - **No `Application.ProcessMessages`.** Ever.
-- **No busy-wait `Sleep` loops.** Use `TEvent.SetEvent` from the producer
-  thread and `TEvent.WaitFor(timeout)` on the consumer.
-- **Document threading** in `<remarks>` for any non-trivial method:
-  whether it blocks, how long, what cancels it.
+- **No busy-wait `Sleep` loops.** Use `TEvent.SetEvent` from the
+  producer thread and `TEvent.WaitFor(timeout)` on the consumer.
+- **Document threading** in `<remarks>` for every non-trivial method:
+  whether it blocks, how long, what cancels it. For paired
+  sync/async methods the documentation pattern is:
+
+```pascal
+/// <summary>Reads the VIN. Blocks until the response arrives or the
+/// protocol times out.</summary>
+/// <remarks>Use <see cref="ReadVINAsync"/> from GUI code.</remarks>
+function ReadVIN: string;
+
+/// <summary>Reads the VIN without blocking. The result is delivered
+/// via <c>OnVIN</c> on the main thread; failures via <c>OnError</c>.
+/// </summary>
+/// <remarks>Only one ReadVINAsync may be in flight at a time. Calling
+/// again raises EOBDConfig until the previous one settles.</remarks>
+procedure ReadVINAsync;
+```
+
+- **One in-flight async op of the same kind per component.** Calling
+  `FooAsync` while another is running raises `EOBDConfig`. The sync
+  form is always callable (it just blocks).
+- **Self-reaping workers.** Async workers must queue their own cleanup
+  to the main thread on completion; the host component must cancel +
+  join any in-flight worker in its destructor and in any
+  lifecycle-cancelling method (`Close`, `Disconnect`, etc.).
 
 ---
 

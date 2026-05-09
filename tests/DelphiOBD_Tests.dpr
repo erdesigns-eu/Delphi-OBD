@@ -56,7 +56,8 @@ uses
   Tests.OBD.Catalog.Inventory in 'Tests.OBD.Catalog.Inventory.pas',
   Tests.OBD.Connection.Mock in 'Tests.OBD.Connection.Mock.pas',
   Tests.OBD.Connection.Retry in 'Tests.OBD.Connection.Retry.pas',
-  Tests.OBD.Connection in 'Tests.OBD.Connection.pas';
+  Tests.OBD.Connection in 'Tests.OBD.Connection.pas',
+  Tests.OBD.Connection.Async in 'Tests.OBD.Connection.Async.pas';
 
 {$IFDEF CI}
 var

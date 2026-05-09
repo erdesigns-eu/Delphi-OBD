@@ -282,3 +282,46 @@ Both addressed in this commit:
    `<param>` for each parameter, so future PRs cannot regress the
    doc-quality bar quietly.
 
+### Phase 2 follow-up — Sync + Async dual-method rule
+
+Mid-phase the user asked: "Does the current sync `Open` block?
+And how hard would it be to add async?"
+
+It does block (TCP DNS+connect, BT pairing, BLE GATT discovery — all
+on the calling thread). For a RAD-productivity package, that's a
+problem the moment a user wires `Active := True` to `OnFormCreate`.
+
+Resolution: **adopted as a foundational design rule for the entire
+package** (PLAN §3.7, STYLE.md §6 updated). Every public method that
+can take more than a few milliseconds ships in two forms — `Foo`
+(synchronous, blocks) and `FooAsync` (non-blocking, fires events).
+Both with identical observable semantics.
+
+Phase 2 implements the first pair under the new rule:
+
+- `TOBDConnection.Open` / `OpenAsync`
+- `TOBDConnection.Close` / `CloseAsync`
+
+Implementation contract (encoded in PLAN §3.7):
+
+- Async returns immediately.
+- Worker is a `TThread.CreateAnonymousThread` with `FreeOnTerminate := False`.
+- All event callbacks fire on the main thread via `TThread.Queue`.
+- Cancellable via the parent's `Close` / destructor.
+- Only one in-flight async op of the same kind per instance; second
+  raises `EOBDConfig`.
+- Worker self-reaps via a queued cleanup on the main thread.
+
+New tests: `Tests.OBD.Connection.Async` (5 assertions) covering
+return-immediately, OnError-on-main-thread, in-flight rejection, Close
+cancellation, destructor cleanup with in-flight worker.
+
+Sample 01-ConnectAndPing extended with a `--async` flag that switches
+between the two forms.
+
+Going forward, every component in Phases 3–9 must follow the dual-
+method rule. The PLAN §3.7 table lists the pairs each phase owes
+(Detect/DetectAsync, Read/ReadAsync, Execute/ExecuteAsync, Flash/
+FlashAsync, etc.). Reviewers should treat a public method without an
+async counterpart (when the rule applies) as an incomplete PR.
+
