@@ -29,6 +29,34 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4c (J1939 transport state machine)
+- `OBD.Protocol.J1939.TP` — full TP / ETP transport per
+  SAE J1939-21:2024 §5.10:
+  - All TP.CM control-byte constants (RTS / CTS / EOMA / BAM /
+    Abort) and ETP.CM control-byte constants (RTS / CTS / DPO /
+    EOMA / Abort).
+  - Encoders for every TP.CM, TP.DT, ETP.CM, ETP.DT frame.
+  - PGN extractor (last 3 bytes, little-endian).
+  - `TJ1939AbortReason` enum covering 13 standard reasons +
+    a synthetic host-timeout.
+  - `TJ1939Session` record + `TJ1939SessionState` enum.
+  - `TOBDJ1939SessionManager` — thread-safe, concurrent
+    multi-session manager keyed by `(SA, DA, PGN)`. RX BAM,
+    RX RTS-CTS, TX BAM (broadcast), TX RTS-CTS, ETP RX + TX,
+    abort flow (host-initiated and peer-initiated), timeout
+    sweep. Pluggable bus driver via `OnFrameSend` callback so
+    the same manager works behind ELM327 / J2534 / DoIP.
+  - `TOBDJ1939Transmitter` — convenience wrapper for
+    transmit-only callers.
+- `Tests.OBD.Protocol.J1939.TP` — 18 assertions covering
+  encoder layouts (RTS / BAM / CTS / EOMA / Abort / DT / ETP
+  RTS / ETP CTS / ETP DPO / ExtractPGN), BAM round-trip,
+  RTS-CTS round-trip with manager-emitted CTS + EOMA,
+  bad-sequence abort, concurrent independent sessions,
+  peer-abort handling, transmitter BAM emission, transmitter
+  RTS / CTS / EOMA cycle, payload-too-small raise, ETP-
+  broadcast raise.
+
 ### Added — Phase 4b follow-ups (closed before 4c)
 - `OBD.Protocol.VIN` — ISO 3779 VIN validator with full alphabet
   check (excludes I, O, Q), transliteration table, check-digit at

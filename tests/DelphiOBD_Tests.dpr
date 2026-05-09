@@ -62,6 +62,7 @@ uses
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
+  OBD.Protocol.J1939.TP in '..\src\Protocol\OBD.Protocol.J1939.TP.pas',
   OBD.Protocol.VIN in '..\src\Protocol\OBD.Protocol.VIN.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
@@ -86,7 +87,8 @@ uses
   Tests.OBD.Protocol.J1939 in 'Tests.OBD.Protocol.J1939.pas',
   Tests.OBD.Protocol.Legacy in 'Tests.OBD.Protocol.Legacy.pas',
   Tests.OBD.Protocol in 'Tests.OBD.Protocol.pas',
-  Tests.OBD.Protocol.VIN in 'Tests.OBD.Protocol.VIN.pas';
+  Tests.OBD.Protocol.VIN in 'Tests.OBD.Protocol.VIN.pas',
+  Tests.OBD.Protocol.J1939.TP in 'Tests.OBD.Protocol.J1939.TP.pas';
 
 {$IFDEF CI}
 var

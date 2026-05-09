@@ -722,6 +722,102 @@ the message when they differ (and the response wasn't negative).
 
 ---
 
+## Phase 4c — J1939 transport state machine
+
+**Status:** Complete on `claude/v2-phase-1`.
+
+### Code landed
+
+| Unit | Lines | Purpose |
+|---|---:|---|
+| `OBD.Protocol.J1939.TP.pas` | ~720 | Full TP / ETP transport: control-byte constants for TP.CM (RTS / CTS / EOMA / BAM / Abort) and ETP.CM (RTS / CTS / DPO / EOMA / Abort), all encoders and the embedded-PGN extractor; `TJ1939AbortReason` enum (13 standard reasons + synthetic host-timeout), `TJ1939SessionState`, `TJ1939Session` record; `TOBDJ1939SessionManager` (concurrent multi-session, RX BAM + RTS-CTS, TX BAM + RTS-CTS, ETP RX + TX, abort flow, timeout sweep) and `TOBDJ1939Transmitter` convenience wrapper. Outbound frames go through a host-supplied `OnFrameSend` callback so the same manager works behind ELM327, J2534 and DoIP transports. |
+| `Tests.OBD.Protocol.J1939.TP.pas` | ~440 | 18 assertions across encoder layouts, BAM round-trip, RTS-CTS round-trip, bad-sequence abort, concurrent independent sessions, peer-abort handling, transmitter BAM emission, transmitter RTS / CTS / EOMA cycle, payload-too-small raise, ETP-broadcast raise. |
+
+### Architecture highlights
+
+- **Single state machine for both directions.** `TJ1939Session`
+  carries a `Direction` tag (`sdReceive` / `sdTransmit`); the
+  manager dispatches on `(SA, DA, PGN)` and picks the right state
+  transitions.
+- **ETP support on the same code path.** ETP.CM and ETP.DT are
+  parsed by the same manager methods that handle TP.CM / TP.DT;
+  the `IsETP` field on the session controls offset bookkeeping
+  (`ETPOffset`) and which CM PGN the manager addresses (TP_CM
+  `0xEC00` vs ETP_CM `0xC800`).
+- **Pluggable bus driver.** The manager never touches a real CAN
+  driver. It calls `OnFrameSend` with a fully assembled
+  `TOBDFrame` (29-bit ID, 8-byte payload). Behind ELM327, the
+  host wires this to `TOBDAdapter.WriteOBDCommand` (formatting
+  the frame as hex). Behind J2534 / DoIP, the host wires it to
+  the raw-CAN sink directly.
+- **Concurrent sessions.** Multiple BAM and RTS-CTS sessions
+  coexist as long as their `(SA, DA, PGN)` keys differ — the
+  test suite verifies two independent BAM sessions complete
+  cleanly without cross-talk.
+- **Abort flow is bidirectional.** The manager sends an Abort CM
+  on bad-sequence DT, on timeout sweep, and on explicit
+  `AbortSession` calls; it also honours peer-initiated Aborts
+  by dropping the session and firing `OnAbort` with the peer's
+  reason byte mapped to the typed enum.
+- **Inline DT bursting on TX-side CTS.** When a peer's CTS lands,
+  the manager immediately emits the granted packet count via
+  `SendOutbound`. A host that needs strict J1939-21 inter-frame
+  timing (typically 50–200 ms between BAM DTs) can pace inside
+  its `OnFrameSend` callback.
+
+### What's deferred to later subphases
+
+- Real-CAN integration is independent of the manager — it lands
+  with the transport-aware DoIP TCP work in 4d for the
+  IP-side, and with the side-bus units in 4f for native CAN.
+- The Phase 6 `TOBDJ1939DM` component will own DM1..DM32 framing
+  on top of this transport.
+
+### Honest review
+
+1. **Inline DT burst on CTS.** The current implementation emits
+   all granted packets in one tight loop. J1939-21 §5.10.4 allows
+   inter-frame gaps (Tr ≈ 50 ms is conventional). Hosts that need
+   that pacing must add it inside their `OnFrameSend`. The
+   manager itself never blocks. Documented; revisit in 4d if a
+   real DoIP / J2534 path needs the manager to wait between
+   frames.
+2. **Timeout sweep granularity.** `SweepTimeouts` checks
+   `MilliSecondsBetween(Now, S.LastActivity)` against the J1939
+   constants. The host calls it on whatever timer it likes
+   (typical: 250 ms). Below that the worst-case false-timeout
+   detection drift is one tick; above it sessions can survive
+   slightly past the spec deadline.
+3. **ETP TX with > 16 packets per CTS.** The manager honours the
+   peer's CTS packet count up to 255 (per spec). For very large
+   transfers the peer can grant smaller windows; we then emit a
+   DPO + the granted DT chunks per CTS. The state machine
+   handles multiple CTSes correctly per the 4c test suite, but
+   real-world bench tests against a heavy-duty ECU should
+   confirm the DPO offset is interpreted the same way the
+   ECU expects.
+4. **No CAN-FD long-frame support.** J1939-21:2024 has provisions
+   for CAN-FD frames but the wire format is identical for TP /
+   ETP control bytes; only the DT chunk size changes (from 7 to
+   up to 62). A `MaxFrameBytes` parameter on the manager is the
+   right shape; deferred until we have a CAN-FD-capable test
+   bench.
+5. **No real-bus integration test.** Same as Phase 2 / 3.
+   Hardware loop is Phase 0 deferred.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution.
+- [x] No VCL / FMX in runtime units.
+- [x] No `Sleep` busy-loops, no `Application.ProcessMessages`.
+- [x] All control-byte constants match J1939-21 §5.10 verbatim.
+- [x] Manager is thread-safe (TCriticalSection around session list).
+- [x] Concurrent sessions verified by tests.
+- [x] Abort flow verified bidirectionally.
+
+---
+
 ### Phase 3 follow-ups closed
 
 The five honest-review flags from the Phase 3 review have been

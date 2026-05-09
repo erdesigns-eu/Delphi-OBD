@@ -62,6 +62,7 @@ contains
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
+  OBD.Protocol.J1939.TP in '..\src\Protocol\OBD.Protocol.J1939.TP.pas',
   OBD.Protocol.VIN in '..\src\Protocol\OBD.Protocol.VIN.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas';
 
