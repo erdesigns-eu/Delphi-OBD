@@ -33,6 +33,7 @@ uses
   Tests.RadioCode.Registry in 'Tests.RadioCode.Registry.pas',
   Tests.RadioCode.VinResolver in 'Tests.RadioCode.VinResolver.pas',
   Tests.OEM.Coding.Diff in 'Tests.OEM.Coding.Diff.pas',
+  Tests.OEM.Coding.AuditLog in 'Tests.OEM.Coding.AuditLog.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

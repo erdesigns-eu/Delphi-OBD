@@ -180,6 +180,7 @@ contains
   OBD.OEM.ServiceFunction in '..\src\Services\OBD.OEM.ServiceFunction.pas',
   OBD.OEM.Coding.Common in '..\src\Services\OBD.OEM.Coding.Common.pas',
   OBD.OEM.Coding.Diff in '..\src\Services\OBD.OEM.Coding.Diff.pas',
+  OBD.OEM.Coding.AuditLog in '..\src\Services\OBD.OEM.Coding.AuditLog.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
