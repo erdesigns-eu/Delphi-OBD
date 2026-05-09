@@ -37,12 +37,13 @@ responsible for verifying:
 
 ## Confirmation pattern
 
-Every destructive component (`TOBDFlasher`, `TOBDUDSWriteDID`,
-`TOBDClearDTC`, `TOBDUDSReset`, `TOBDSystemControl`, …) publishes:
+Every destructive component (`TOBDFlashPipeline`, `TOBDUDSTransfer`,
+`TOBDFlasher`, `TOBDUDSWriteMemory`, `TOBDDataIdentifierIO`,
+`TOBDRoutineControl`, the per-OEM `TOBDFlashHandshake*`, …) publishes:
 
 - `AutoExecute: Boolean` — defaults `False`.
-- `OnConfirmExecute(Sender; const Description: string; var Allow: Boolean)` —
-  fired before the destructive action.
+- `OnConfirmExecute(Sender; AAddress; ASize; var AAllow: Boolean)`
+  on `TOBDFlashPipeline` (similar shapes on the other components).
 
 The developer must either:
 
@@ -53,6 +54,51 @@ The developer must either:
 
 If neither is done, the operation aborts with `EOBDConfig`.
 
+## Pipeline shape
+
+`TOBDFlashPipeline` is the recommended entry point — it composes
+the lower-level components into one safe-by-default end-to-end run:
+
+```
+Pipeline
+  ├─ Protocol         := <TOBDProtocol bound to the bus>
+  ├─ AuditLog         := <TOBDCodingAuditLog with HMAC key>
+  ├─ VoltageGate      := <TOBDVoltageGate with SourceFunc wired>
+  ├─ CheckpointFile   := 'C:\Logs\flash-<vin>-<ts>.json'
+  ├─ AddressFormatBytes := 4
+  ├─ LengthFormatBytes  := 4
+  ├─ ResetAfterFlash    := True
+  ├─ AutoExecute        := False             // <-- DO NOT FLIP UNLESS YOU MEAN IT
+  ├─ OnConfirmExecute   := <UI confirmation>
+  ├─ OnEnterProgramming := <vendor handshake — 9e units>
+  ├─ OnVerifyRoutine    := <verify checksum>
+  ├─ Checks
+  │    ├─ Engine off       (csError, fpPreflight)
+  │    ├─ Voltage floor    (csError, fpPreflight)
+  │    ├─ Image signature  (csError, fpVerifyImage)
+  │    └─ ...
+  └─ Flash(address, image)
+```
+
+A pipeline with NO `VoltageGate` assigned logs a WARN audit-log
+entry at start-of-flash but proceeds — developer choice per
+PLAN.md §785.
+
+## Signature verification
+
+The package ships four verifier backends behind one registry:
+
+- `TOBDSignatureBCrypt` — Windows CNG (RSA-PSS / RSA-PKCS#1 /
+  ECDSA P256 / P384)
+- `TOBDSignatureOpenSSL` — OpenSSL 3.x (same set + Ed25519)
+- `TOBDSignatureHSM` — PKCS#11 (vendor driver shim)
+- `TOBDSignaturePQC` — liboqs (Dilithium / Falcon / SPHINCS+)
+
+Hosts register backends at startup and feed a `csError` check
+into `Pipeline.Checks` for `fpVerifyImage` that calls
+`TOBDSignatureRegistry.Default.Verify` on the image bytes. The
+pipeline aborts before any wire access if the signature fails.
+
 ## Recovery procedures
 
 ### Soft recovery (most common)
@@ -62,9 +108,18 @@ A flash interrupted mid-transfer often leaves the ECU in
 (e.g. engine does not start, instrument cluster shows fault), but the
 ECU still answers to UDS in session 0x02 (programmingSession).
 
-`TOBDFlashCheckpoint` records the last good block; resuming the flash
-from the checkpoint will usually complete the transfer and restore the
-ECU. Re-run the flash from the same checkpoint file.
+`TOBDFlashCheckpoint` records the last accepted chunk + a SHA-256 of
+the firmware image. To resume:
+
+```
+var Info := TOBDFlashCheckpoint.Load(CheckpointFile);
+if not TOBDFlashCheckpoint.MatchesImage(Info, Image) then
+  raise Exception.Create('image mismatches checkpoint — refusing to resume');
+Transfer.Resume(Info.Cursor, Image);
+```
+
+The image-hash check refuses to resume against a different image —
+that mismatch is one of the known brick paths.
 
 ### Hard recovery (vendor-specific)
 

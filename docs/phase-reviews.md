@@ -2329,3 +2329,256 @@ Three new component-protection units register on the
       tamper-detection vector.
 - [x] Every OEM primitive covered by a hand-derived test.
 - [x] Five new components register on the OBD Coding palette.
+
+---
+
+## Phase 9 — Flashing (subphases 9a..9f)
+
+Phase 9 was split into six production-ready subphases per the
+user's instruction. Each subphase landed as a standalone
+commit with its own tests and design-time registration.
+This entry summarises all six.
+
+### Subphase landings
+
+| Sub | Commit | Subject |
+|---|---|---|
+| 9a | `37a7903` | `TOBDUDSTransfer` + `TOBDJ1939MemoryAccess` |
+| 9b | `5aa547b` | `TOBDVoltageGate` + `TOBDFlashCheckpoint` + `TOBDFlashPhases` |
+| 9c | `2552b08` | `TOBDFlashPipeline` + safety surface |
+| 9d | `49a5260` | Signature verification (BCrypt / OpenSSL / HSM / PQC) |
+| 9e | `c549ece` | OEM bootloader handshakes (7 vendors) |
+| 9f | (this commit) | Safety doc + samples 27/28/29 + close-out |
+
+### Code shape
+
+**Transfer & memory (9a)**
+- `OBD.UDS.Transfer` — `TOBDUDSTransfer`. Idle / RequestingDownload /
+  Transferring / RequestingExit / Completed / Aborted state machine.
+  Chunked TransferData with BSC; NRC 0x78 retransmit budget; per-chunk
+  retry budget; cooperative `Cancel`; resumable via `Resume(Cursor)`.
+- `OBD.J1939.MemoryAccess` — DM14 / DM15 / DM16 / DM17 / DM18 PGN
+  catalogue + framing helpers.
+
+**Pipeline scaffolding (9b)**
+- `OBD.Flash.VoltageGate` — `TOBDVoltageGate`. Background-thread
+  voltage monitor; `MinimumVoltage` / `PollIntervalMs` /
+  `HoldTimeMs` defaults 12.0 V / 200 ms / 1000 ms; latches
+  `OnAbort` only after the dip persists for the full hold-time.
+  Transient dips do not abort.
+- `OBD.Flash.Checkpoint` — `TOBDFlashCheckpoint`. File-backed JSON
+  checkpoint with image SHA-256 integrity tag; atomic write
+  (write-temp + rename). `MatchesImage` refuses to resume against
+  a different image.
+- `OBD.Flash.Phases` — `TOBDFlashPhase` enum (preflight / verify-image /
+  enter-programming / transfer / verify / reset / finalise);
+  `TOBDFlashCheckList` orders checks by phase; `TOBDFlashChecks`
+  ships built-in helpers (EngineOff, VoltageFloor,
+  AmbientTemperature, IgnitionOn).
+
+**Pipeline orchestrator (9c)**
+- `OBD.Flash.Pipeline` — `TOBDFlashPipeline`. Composes every Phase
+  9 building block. AutoExecute defaults False;
+  `OnConfirmExecute(var Allow)` fires under `TThread.Synchronize`;
+  voltage-gate abort triggers `TOBDUDSTransfer.Cancel`;
+  checkpoint persisted after every accepted chunk; audit log
+  captures every phase, every check, every error. Pipeline with
+  no `VoltageGate` logs WARN at start-of-flash but proceeds
+  per PLAN §785.
+
+**Signature verification (9d)**
+- `OBD.Signature` — `IOBDSignatureVerifier` contract +
+  `TOBDSignatureRegistry` (first-supporting wins).
+- `OBD.Signature.BCrypt` — Windows CNG. RSA-PSS / RSA-PKCS#1 /
+  ECDSA P256 / P384.
+- `OBD.Signature.OpenSSL` — same set + Ed25519. PEM / DER public
+  keys auto-detected.
+- `OBD.Signature.HSM` — PKCS#11 scaffolding for vendor drivers.
+- `OBD.Signature.PQC` — Open Quantum Safe (liboqs) — Dilithium
+  2/3/5 (ML-DSA), Falcon-512/1024, SPHINCS+ SHA2-128f/192f
+  (SLH-DSA).
+
+**OEM handshakes (9e)**
+- `OBD.Flash.OEM.Common` — `IOBDFlashHandshake` + abstract base
+  with `SwitchSession` / `ResetECU` / `TesterPresent` helpers and
+  the FreeNotification-aware `SetUp(...)`.
+- `OBD.Flash.OEM.VAG` / `BMW` / `Ford` / `HMG` / `Mercedes` /
+  `Stellantis` / `Toyota` — vendor-specific session sub-functions,
+  security levels, erase RIDs. BMW's `ExtendedFirst` toggles the
+  F-series ZGW two-step session switch; Mercedes does extended +
+  programming pair; Stellantis documents the SGW unlock as a
+  prerequisite.
+
+**Safety, samples, close-out (9f)**
+- `docs/flashing-safety.md` — updated to reference the actually-
+  shipped components (TOBDFlashPipeline / TOBDFlashCheckpoint /
+  TOBDSignatureRegistry); ship-shape checklist; recovery
+  procedure with the new `MatchesImage`-gated resume call.
+- `samples/27-FlashDryRun` — runs the full pipeline with
+  `OnConfirmExecute(Allow := False)`. Audit trail captures
+  every step that would have happened; no wire access.
+- `samples/28-FlashSignedFirmware` — production-shape template:
+  loads image + signature + public key, registers BCrypt +
+  OpenSSL backends, prints a **YES** safety banner, runs the
+  pipeline once the operator confirms.
+- `samples/29-J1939Flash` — heavy-duty DM14 / DM16 / DM14
+  framing template. Prints the encoded frames so the host can
+  route them through their CAN driver.
+
+### Test coverage
+
+| Fixture | Tests |
+|---|---|
+| `TUDSTransferTests` (9a) | 6 |
+| `TJ1939MemoryAccessTests` (9a) | 5 |
+| `TVoltageGateTests` (9b) | 4 |
+| `TCheckpointTests` (9b) | 4 |
+| `TFlashPhasesTests` (9b) | 5 |
+| `TFlashPipelineTests` (9c) | 6 |
+| `TSignatureRegistryTests` (9d) | 5 |
+| `TSignatureBackendsTests` (9d) | 6 |
+| `TOEMHandshakeTests` (9e) | 9 |
+
+50 new tests across 9 fixtures pinning safety gates, retry
+defaults, voltage-gate latch behaviour, checkpoint hash
+integrity, phase runner ordering, signature-registry routing,
+per-backend Supports surface, and every vendor's published
+defaults.
+
+### Architecture highlights
+
+- **Single safety contract reused everywhere.** Every write-side
+  Phase 9 component defaults `AutoExecute = False`. The pipeline
+  treats a missing `OnConfirmExecute` handler as "not allowed"
+  per PLAN §785.
+- **The pipeline never directly touches the wire — it composes.**
+  `TOBDFlashPipeline.DoFlash` only orchestrates: it walks the
+  phases, runs the host-supplied `OnEnterProgramming` /
+  `OnVerifyRoutine` closures, and drives a `TOBDUDSTransfer`
+  child for the actual `0x34/0x36/0x37` traffic. Each layer is
+  separately testable.
+- **Voltage gate cancels at chunk boundaries, not mid-write.**
+  The transfer engine checks `FCancel` between chunks; a
+  voltage-gate abort sets the flag, the in-flight chunk
+  finishes, the next chunk raises. No partial-chunk writes.
+- **Checkpoint hash gates resume.** A checkpoint refuses to
+  apply against a different image — the SHA-256 mismatch is
+  detected before the resume call hits the wire.
+- **OEM handshakes share the abstract base.** Adding an eighth
+  vendor is one new file overriding `DoRun`. The pipeline
+  glue stays the same.
+- **Signature backends compose.** Hosts register multiple
+  backends; the registry routes per-algorithm. A host with
+  liboqs installed gets PQC verification; without it,
+  classical algorithms still work through BCrypt / OpenSSL.
+
+### What's intentionally not in v1
+
+- **Full PKCS#11 verify path.** The HSM unit ships the
+  property surface and Supports / IsAvailable hooks. Vendor
+  drivers expose proprietary fast-paths via their own SDKs;
+  hosts plug a thin shim. Hosts using OpenSSL with their HSM's
+  PKCS#11 engine get verification through the OpenSSL backend
+  today.
+- **Live-fire bench-vehicle integration tests.** Same hardware-
+  loop deferral as every prior phase. The DUnitX coverage
+  pins the safety gates and configuration surfaces; a real
+  flash is the next bench step and is gated on the rig.
+- **OEM signing public-key catalogues.** Public keys are OEM
+  property; the package does not redistribute them. Hosts
+  ship their own `data/oem-keys/<vendor>.pem` set.
+- **Bootloader recovery via JTAG / BDM.** Out-of-package
+  hardware operation; documented in `flashing-safety.md`.
+- **Live OEM-specific exit / cleanup sequences.** The base
+  `DoLeave` does a default-session switch; vendors with custom
+  exits override.
+
+### Honest review
+
+1. **Pipeline is single-flash.** Concurrent flashes from one
+   pipeline instance raise `EOBDConfig` per the GuardSingleAsync
+   pattern. Multi-ECU flashing requires multiple pipelines. By
+   design — a single control thread is much safer, and every
+   real-world tool I've seen drives ECUs sequentially anyway.
+2. **Voltage source is host-side.** The package does not measure
+   battery voltage directly; the host wires
+   `TOBDVoltageGate.SourceFunc` to an OBD-II PID 0x42 reader,
+   an OEM-specific voltage DID, or a dedicated bench probe.
+   Keeping the source pluggable lets a host pick the most
+   reliable measurement for their setup. The downside: a host
+   that wires the wrong source defeats the safety gate. The
+   audit log captures every reading, so a post-mortem catches
+   it.
+3. **OEM handshake defaults are conservative.** Each vendor
+   unit ships a single set of (sub-function, security-level,
+   RID) defaults that work on the most common platform per
+   vendor. Older / niche platforms (E60 BMW, MED9 VAG, EDC15
+   Bosch on PSA) need property overrides. The properties are
+   exposed; documentation on per-platform values is the host's
+   responsibility (ISTA / VCDS / FORScan databases are the
+   ground truth, none of which I have permission to redistribute).
+4. **Checkpoint atomicity assumes filesystem rename is atomic.**
+   On Windows, `TFile.Move` after `TFile.Delete` is not
+   strictly atomic — there's a small window where the
+   destination file is gone but the source hasn't been renamed.
+   Practical impact: in the worst case a crash during checkpoint
+   write loses the *new* checkpoint; the previous good one is
+   already deleted, so there's a tiny window of unrecoverable
+   state. POSIX `rename(2)` is atomic and handled correctly. A
+   future revision could use ReplaceFile on Windows for true
+   atomicity. **Tracked.**
+5. **No image-sanity check beyond signature.** A signed image
+   with the wrong target ECU type still passes signature
+   verification and proceeds to flash. Real OEM tools cross-
+   check the image header against an "applicable ECU" list
+   before sending it. The package leaves this to the host's
+   `fpVerifyImage` checks. Tracked as a documented host
+   responsibility.
+6. **PQC backend is a thin liboqs wrapper.** liboqs ships
+   reference implementations of PQC algorithms; production
+   ECU signing typically uses hardened implementations
+   (constant-time SLH-DSA in Bosch's MCAL stack, e.g.). The
+   package's PQC backend is fine for verification (the
+   verifier doesn't see secrets), but a host with strict
+   side-channel requirements wires a different backend.
+7. **No real-vehicle integration test.** Same convention as
+   every prior phase. The samples 27 and 28 are templates;
+   the bench-test playbook in `flashing-safety.md` is the
+   manual procedure.
+
+### Phase 9 follow-ups
+
+- Atomic checkpoint write on Windows via `ReplaceFile`.
+- Image-applicability cross-check helper (vendor + ECU type +
+  hardware revision).
+- PKCS#11 vendor-shim sample (Vector / Thales / SoftHSM).
+- Bench-loop integration tests once a hardware rig is
+  available.
+- OEM-handshake per-platform overrides catalogue (host-supplied;
+  the package ships the schema, hosts populate, same pattern
+  as Phase 8 OEM coding-option catalogue).
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] Brick-risk warning in the file header of every flashing
+      unit.
+- [x] `docs/flashing-safety.md` updated to match the shipped
+      surface.
+- [x] No VCL / FMX in runtime units.
+- [x] `AutoExecute = False` default on every write-side
+      component (transfer, pipeline, every OEM handshake).
+- [x] Sync + async + progress dual-method rule on the pipeline.
+- [x] All events on the main thread.
+- [x] Checkpoint integrity gated by SHA-256 image hash.
+- [x] Signature registry routes per-algorithm; multiple backends
+      coexist.
+- [x] Three samples shipped (27 dry-run / 28 production
+      template / 29 J1939).
+- [x] 50 tests across 9 fixtures.
+- [x] All Phase 9 runtime components register on the **OBD
+      Flashing** palette tab.
+
+Phase 9 is closed. The standing deferral list for Phase 9
+contains exactly one item: real-vehicle hardware-loop
+verification, per existing convention.
