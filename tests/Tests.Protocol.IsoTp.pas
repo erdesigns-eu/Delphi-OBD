@@ -83,6 +83,9 @@ const
   FRAME_TYPE_FF = $10;
   FRAME_TYPE_CF = $20;
 
+//------------------------------------------------------------------------------
+// MAKE PROTOCOL
+//------------------------------------------------------------------------------
 function MakeProtocol: TISO_15765_4_11BIT_500K_OBDProtocol;
 var
   EmptyLines: TStringList;
@@ -99,6 +102,9 @@ end;
 
 { TIsoTpFrameTests }
 
+//------------------------------------------------------------------------------
+// SINGLE FRAME_PID0 C_RPM_PARSES AS SF
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.SingleFrame_PID0C_Rpm_ParsesAsSf;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -116,6 +122,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SINGLE FRAME_DATA LENGTH_MATCHES PCI NIBBLE
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.SingleFrame_DataLength_MatchesPciNibble;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -133,6 +142,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SINGLE FRAME_TX ID_EXTRACTED
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.SingleFrame_TxId_Extracted;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -149,6 +161,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIRST FRAME_PCI10_RECOGNISED AS FF
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.FirstFrame_Pci10_RecognisedAsFf;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -168,6 +183,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONSECUTIVE FRAME_PCI21_RECOGNISED AS CF_WITH SEQ INDEX1
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.ConsecutiveFrame_Pci21_RecognisedAsCf_WithSeqIndex1;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -186,6 +204,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FLOW CONTROL FRAME_PCI30_REJECTED AS UNKNOWN
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.FlowControlFrame_Pci30_RejectedAsUnknown;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -204,6 +225,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ODD LENGTH RAW LINE_REJECTED
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.OddLengthRawLine_Rejected;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -220,6 +244,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TOO SHORT RAW LINE_REJECTED
+//------------------------------------------------------------------------------
 procedure TIsoTpFrameTests.TooShortRawLine_Rejected;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -238,6 +265,9 @@ end;
 
 { TIsoTpInvokeTests }
 
+//------------------------------------------------------------------------------
+// INVOKE_SINGLE SF LINE_PRODUCES ONE MESSAGE WITH EXPECTED DATA
+//------------------------------------------------------------------------------
 procedure TIsoTpInvokeTests.Invoke_SingleSfLine_ProducesOneMessageWithExpectedData;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -266,6 +296,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// INVOKE_NON HEX LINE_BUCKETED AS NON OBD
+//------------------------------------------------------------------------------
 procedure TIsoTpInvokeTests.Invoke_NonHexLine_BucketedAsNonObd;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -290,6 +323,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// INVOKE_VIN RESPONSE_ASSEMBLES ACROSS FF PLUS TWO CFS
+//------------------------------------------------------------------------------
 procedure TIsoTpInvokeTests.Invoke_VinResponse_AssemblesAcrossFfPlusTwoCfs;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;
@@ -324,6 +360,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// INVOKE_VIN RESPONSE_OUT OF ORDER CFS_ARE SORTED
+//------------------------------------------------------------------------------
 procedure TIsoTpInvokeTests.Invoke_VinResponse_OutOfOrderCfs_AreSorted;
 var
   Proto: TISO_15765_4_11BIT_500K_OBDProtocol;

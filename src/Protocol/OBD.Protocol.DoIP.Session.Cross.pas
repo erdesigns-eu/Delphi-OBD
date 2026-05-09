@@ -41,9 +41,11 @@ type
   EOBDDoIPCrossTransportError = class(EOBDDoIPCrossError);
   EOBDDoIPCrossTimeoutError  = class(EOBDDoIPCrossError);
 
-  /// <summary>Cross-platform DoIP TCP session. One instance ↔ one
-  /// connected ECU/gateway. Methods are not thread-safe; serialise
-  /// access externally if you share the session.</summary>
+  /// <summary>
+  ///   Cross-platform DoIP TCP session. One instance ↔ one
+  ///   connected ECU/gateway. Methods are not thread-safe; serialise
+  ///   access externally if you share the session.
+  /// </summary>
   TDoIPSessionCross = class
   strict private
     FSocket: TSocket;
@@ -89,6 +91,9 @@ uses
 const
   MAX_FRAMES_PER_CALL = 16;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TDoIPSessionCross.Create;
 var
   Lines: TStringList;
@@ -104,6 +109,9 @@ begin
   FReceiveTimeoutMs := 1500;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TDoIPSessionCross.Destroy;
 begin
   Disconnect;
@@ -111,6 +119,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// CONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSessionCross.Connect(const Host: string; Port: Word;
                                     ConnectTimeoutMs: Cardinal);
 var
@@ -132,6 +143,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEND BYTES
+//------------------------------------------------------------------------------
 procedure TDoIPSessionCross.SendBytes(const Bytes: TBytes);
 begin
   if not FConnected then
@@ -139,6 +153,9 @@ begin
   FSocket.Send(Bytes);
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE EXACT
+//------------------------------------------------------------------------------
 function TDoIPSessionCross.ReceiveExact(Count: Integer;
   TimeoutMs: Cardinal): TBytes;
 var
@@ -173,6 +190,9 @@ begin
   Result := Acc;
 end;
 
+//------------------------------------------------------------------------------
+// RECEIVE DO IPMESSAGE
+//------------------------------------------------------------------------------
 function TDoIPSessionCross.ReceiveDoIPMessage(TimeoutMs: Cardinal): TBytes;
 var
   HeaderBytes, PayloadBytes: TBytes;
@@ -195,6 +215,9 @@ begin
     Move(PayloadBytes[0], Result[8], Need);
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE ALIVE CHECK REQUEST
+//------------------------------------------------------------------------------
 procedure TDoIPSessionCross.HandleAliveCheckRequest;
 var
   Resp: TBytes;
@@ -205,6 +228,9 @@ begin
     FOnAliveCheck(Self);
 end;
 
+//------------------------------------------------------------------------------
+// ACTIVATE ROUTING
+//------------------------------------------------------------------------------
 procedure TDoIPSessionCross.ActivateRouting(SourceAddress: Word;
                                             TargetAddress: Word;
                                             ActivationType: Byte);
@@ -232,6 +258,9 @@ begin
   FProtocol.RoutingActivated := True;
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TDoIPSessionCross.SendReceive(const UdsRequest: TBytes;
                                        TimeoutMs: Cardinal): TBytes;
 var
@@ -280,6 +309,9 @@ begin
     [MAX_FRAMES_PER_CALL]);
 end;
 
+//------------------------------------------------------------------------------
+// DISCONNECT
+//------------------------------------------------------------------------------
 procedure TDoIPSessionCross.Disconnect;
 begin
   if Assigned(FSocket) then

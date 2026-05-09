@@ -25,27 +25,39 @@ type
     Data: array[0..2] of Byte;
     Checksum: Byte;
 
-    /// <summary>Compute the expected checksum for the current DID
-    /// + data bytes (sum of all 5 bytes mod 256). Use to validate
-    /// a parsed block (compare against <c>Checksum</c>) or to
-    /// generate the trailing checksum byte after editing.</summary>
+    /// <summary>
+    ///   Compute the expected checksum for the current DID
+    ///   + data bytes (sum of all 5 bytes mod 256). Use to validate
+    ///   a parsed block (compare against <c>Checksum</c>) or to
+    ///   generate the trailing checksum byte after editing.
+    /// </summary>
     function ComputeChecksum: Byte;
 
-    /// <summary>True if <c>Checksum</c> matches the computed value.</summary>
+    /// <summary>
+    ///   True if <c>Checksum</c> matches the computed value.
+    /// </summary>
     function IsValid: Boolean;
 
-    /// <summary>Recompute and store the checksum.</summary>
+    /// <summary>
+    ///   Recompute and store the checksum.
+    /// </summary>
     procedure Reseal;
 
-    /// <summary>Render in FORScan's <c>DDDD-XX XX XX CC</c> form.</summary>
+    /// <summary>
+    ///   Render in FORScan's <c>DDDD-XX XX XX CC</c> form.
+    /// </summary>
     function ToString: string;
   end;
 
-  /// <summary>Parse one AsBuilt line. Throws on malformed input.</summary>
+  /// <summary>
+  ///   Parse one AsBuilt line. Throws on malformed input.
+  /// </summary>
 function ParseFordAsBuiltLine(const Line: string): TOBDFordAsBuiltBlock;
 
-  /// <summary>Parse a multi-line AsBuilt export. Blank lines and
-  /// lines starting with <c>;</c> or <c>#</c> are skipped.</summary>
+  /// <summary>
+  ///   Parse a multi-line AsBuilt export. Blank lines and
+  ///   lines starting with <c>;</c> or <c>#</c> are skipped.
+  /// </summary>
 function ParseFordAsBuiltText(const Text: string): TArray<TOBDFordAsBuiltBlock>;
 
 implementation
@@ -53,6 +65,9 @@ implementation
 uses
   System.Classes;
 
+//------------------------------------------------------------------------------
+// COMPUTE CHECKSUM
+//------------------------------------------------------------------------------
 function TOBDFordAsBuiltBlock.ComputeChecksum: Byte;
 var
   Sum: Cardinal;
@@ -61,22 +76,34 @@ begin
   Result := Byte(Sum and $FF);
 end;
 
+//------------------------------------------------------------------------------
+// IS VALID
+//------------------------------------------------------------------------------
 function TOBDFordAsBuiltBlock.IsValid: Boolean;
 begin
   Result := Checksum = ComputeChecksum;
 end;
 
+//------------------------------------------------------------------------------
+// RESEAL
+//------------------------------------------------------------------------------
 procedure TOBDFordAsBuiltBlock.Reseal;
 begin
   Checksum := ComputeChecksum;
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING
+//------------------------------------------------------------------------------
 function TOBDFordAsBuiltBlock.ToString: string;
 begin
   Result := Format('%.4X-%.2X %.2X %.2X %.2X',
     [DID, Data[0], Data[1], Data[2], Checksum]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE FORD AS BUILT LINE
+//------------------------------------------------------------------------------
 function ParseFordAsBuiltLine(const Line: string): TOBDFordAsBuiltBlock;
 var
   Cleaned: string;
@@ -115,6 +142,9 @@ begin
   Result.Checksum := Bytes[3];
 end;
 
+//------------------------------------------------------------------------------
+// PARSE FORD AS BUILT TEXT
+//------------------------------------------------------------------------------
 function ParseFordAsBuiltText(const Text: string): TArray<TOBDFordAsBuiltBlock>;
 var
   Lines: TStringList;

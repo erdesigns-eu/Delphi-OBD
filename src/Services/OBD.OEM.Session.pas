@@ -36,23 +36,35 @@ type
     sstOEMSpecific2            // second vendor-specific slot
   );
 
-  /// <summary>One step in a session plan: an adapter command (AT/ST)
-  /// or a raw UDS frame.</summary>
+  /// <summary>
+  ///   One step in a session plan: an adapter command (AT/ST)
+  ///   or a raw UDS frame.
+  /// </summary>
   TOBDSessionStepKind = (sskATCommand, sskUDSRequest);
 
   TOBDSessionStep = record
     Kind: TOBDSessionStepKind;
-    /// <summary>Adapter command text, no leading "AT" prefix
-    /// (e.g. "SH 7E0", "CRA 7E8"). Only used when <c>Kind</c> = sskATCommand.</summary>
+    /// <summary>
+    ///   Adapter command text, no leading "AT" prefix
+    ///   (e.g. "SH 7E0", "CRA 7E8"). Only used when <c>Kind</c> = sskATCommand.
+    /// </summary>
     AdapterCmd: string;
-    /// <summary>Raw UDS request bytes. Only used when <c>Kind</c> = sskUDSRequest.</summary>
+    /// <summary>
+    ///   Raw UDS request bytes. Only used when <c>Kind</c> = sskUDSRequest.
+    /// </summary>
     UDS: TBytes;
-    /// <summary>Optional expected response prefix; an empty array
-    /// means "any positive response is acceptable".</summary>
+    /// <summary>
+    ///   Optional expected response prefix; an empty array
+    ///   means "any positive response is acceptable".
+    /// </summary>
     ExpectedResponse: TBytes;
-    /// <summary>Per-step timeout (ms); 0 = use the runner's default.</summary>
+    /// <summary>
+    ///   Per-step timeout (ms); 0 = use the runner's default.
+    /// </summary>
     TimeoutMs: Cardinal;
-    /// <summary>Free-text label for logging / audit trails.</summary>
+    /// <summary>
+    ///   Free-text label for logging / audit trails.
+    /// </summary>
     Description: string;
   end;
 
@@ -63,12 +75,16 @@ type
   /// </summary>
   TOBDSessionPlan = record
     Steps: TArray<TOBDSessionStep>;
-    /// <summary>Heartbeat interval after the plan completes;
-    /// 0 = no heartbeat (default session).</summary>
+    /// <summary>
+    ///   Heartbeat interval after the plan completes;
+    ///   0 = no heartbeat (default session).
+    /// </summary>
     TesterPresentMs: Cardinal;
-    /// <summary>Bytes sent for tester-present (default ISO 14229: $3E $80
-    /// — sub-function "suppressPosRespMsgIndicationBit" set so the ECU
-    /// doesn't ACK every keep-alive).</summary>
+    /// <summary>
+    ///   Bytes sent for tester-present (default ISO 14229: $3E $80
+    ///   — sub-function "suppressPosRespMsgIndicationBit" set so the ECU
+    ///   doesn't ACK every keep-alive).
+    /// </summary>
     TesterPresentRequest: TBytes;
   end;
 
@@ -80,29 +96,39 @@ type
   /// </summary>
   IOBDSessionNegotiator = interface
     ['{F4D5C8A1-3E7B-4D9F-8C2A-7B1E9F4D6C8A}']
-    /// <summary>Plan to enter <c>SessionType</c> on <c>ECUAddress</c>
-    /// (0 = use the connection's currently-active header).</summary>
+    /// <summary>
+    ///   Plan to enter <c>SessionType</c> on <c>ECUAddress</c>
+    ///   (0 = use the connection's currently-active header).
+    /// </summary>
     function BeginSessionPlan(SessionType: TOBDSessionType;
       const ECUAddress: Word): TOBDSessionPlan;
 
-    /// <summary>Plan to leave the active session and return to default.
-    /// Always sends 10 01; OEMs that wrap that with extra teardown
-    /// (BMW, Mercedes) layer it on top.</summary>
+    /// <summary>
+    ///   Plan to leave the active session and return to default.
+    ///   Always sends 10 01; OEMs that wrap that with extra teardown
+    ///   (BMW, Mercedes) layer it on top.
+    /// </summary>
     function EndSessionPlan(const ECUAddress: Word): TOBDSessionPlan;
 
-    /// <summary>True if this OEM expects a SecurityAccess (27 xx)
-    /// exchange immediately after entering the given session — flashing
-    /// programming sessions almost always do; extended diagnostic
-    /// sessions may or may not.</summary>
+    /// <summary>
+    ///   True if this OEM expects a SecurityAccess (27 xx)
+    ///   exchange immediately after entering the given session — flashing
+    ///   programming sessions almost always do; extended diagnostic
+    ///   sessions may or may not.
+    /// </summary>
     function RequiresSecurityAccess(SessionType: TOBDSessionType): Boolean;
 
-    /// <summary>Tester-present interval (ms) the OEM expects for
-    /// non-default sessions. ISO 14229 default is 2000 ms; some OEMs
-    /// (Mercedes XENTRY, BMW E-Sys) recommend 1500 ms for older ECUs.</summary>
+    /// <summary>
+    ///   Tester-present interval (ms) the OEM expects for
+    ///   non-default sessions. ISO 14229 default is 2000 ms; some OEMs
+    ///   (Mercedes XENTRY, BMW E-Sys) recommend 1500 ms for older ECUs.
+    /// </summary>
     function DefaultTesterPresentMs: Cardinal;
 
-    /// <summary>Display label for logs — e.g. "ISO 14229 standard",
-    /// "VAG TP 2.0", "BMW E-Sys".</summary>
+    /// <summary>
+    ///   Display label for logs — e.g. "ISO 14229 standard",
+    ///   "VAG TP 2.0", "BMW E-Sys".
+    /// </summary>
     function DisplayName: string;
   end;
 
@@ -114,8 +140,10 @@ type
   /// </summary>
   TOBDStandardSessionNegotiator = class(TInterfacedObject, IOBDSessionNegotiator)
   protected
-    /// <summary>Helper for subclasses: prepend an "AT SH <hex>" step
-    /// when <c>ECUAddress &lt;&gt; 0</c>.</summary>
+    /// <summary>
+    ///   Helper for subclasses: prepend an "AT SH <hex>" step
+    ///   when <c>ECUAddress &lt;&gt; 0</c>.
+    /// </summary>
     function PrependHeaderStep(const Steps: TArray<TOBDSessionStep>;
       const ECUAddress: Word): TArray<TOBDSessionStep>;
   public
@@ -127,24 +155,35 @@ type
     function DisplayName: string; virtual;
   end;
 
-/// <summary>Build an adapter (AT/ST) step.</summary>
+/// <summary>
+///   Build an adapter (AT/ST) step.
+/// </summary>
 function ATStep(const Cmd, Description: string): TOBDSessionStep; overload;
 function ATStep(const Cmd, Description: string;
   TimeoutMs: Cardinal): TOBDSessionStep; overload;
 
-/// <summary>Build a UDS step from raw bytes.</summary>
+/// <summary>
+///   Build a UDS step from raw bytes.
+/// </summary>
 function UDSStep(const Bytes: TBytes; const Description: string): TOBDSessionStep; overload;
 function UDSStep(const Bytes: TBytes; const ExpectedResponse: TBytes;
   const Description: string): TOBDSessionStep; overload;
 
-/// <summary>Encode <c>SessionType</c> as the byte that follows SID 0x10.</summary>
+/// <summary>
+///   Encode <c>SessionType</c> as the byte that follows SID 0x10.
+/// </summary>
 function SessionTypeByte(SessionType: TOBDSessionType): Byte;
 
-/// <summary>Format a CAN-ID as the 3-hex-digit value AT SH expects.</summary>
+/// <summary>
+///   Format a CAN-ID as the 3-hex-digit value AT SH expects.
+/// </summary>
 function FormatHeader(const ECUAddress: Word): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// FORMAT HEADER
+//------------------------------------------------------------------------------
 function FormatHeader(const ECUAddress: Word): string;
 begin
   // 11-bit IDs (the OBD-II range 0x000-0x7FF) need 3 hex chars; 29-bit
@@ -156,6 +195,9 @@ begin
     Result := Format('%.8X', [ECUAddress]);
 end;
 
+//------------------------------------------------------------------------------
+// SESSION TYPE BYTE
+//------------------------------------------------------------------------------
 function SessionTypeByte(SessionType: TOBDSessionType): Byte;
 begin
   case SessionType of
@@ -170,6 +212,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ATSTEP
+//------------------------------------------------------------------------------
 function ATStep(const Cmd, Description: string): TOBDSessionStep;
 begin
   Result := Default(TOBDSessionStep);
@@ -178,6 +223,9 @@ begin
   Result.Description := Description;
 end;
 
+//------------------------------------------------------------------------------
+// ATSTEP
+//------------------------------------------------------------------------------
 function ATStep(const Cmd, Description: string;
   TimeoutMs: Cardinal): TOBDSessionStep;
 begin
@@ -185,6 +233,9 @@ begin
   Result.TimeoutMs := TimeoutMs;
 end;
 
+//------------------------------------------------------------------------------
+// UDSSTEP
+//------------------------------------------------------------------------------
 function UDSStep(const Bytes: TBytes; const Description: string): TOBDSessionStep;
 begin
   Result := Default(TOBDSessionStep);
@@ -193,6 +244,9 @@ begin
   Result.Description := Description;
 end;
 
+//------------------------------------------------------------------------------
+// UDSSTEP
+//------------------------------------------------------------------------------
 function UDSStep(const Bytes: TBytes; const ExpectedResponse: TBytes;
   const Description: string): TOBDSessionStep;
 begin
@@ -203,6 +257,10 @@ end;
 //==============================================================================
 // TOBDStandardSessionNegotiator
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PREPEND HEADER STEP
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.PrependHeaderStep(
   const Steps: TArray<TOBDSessionStep>;
   const ECUAddress: Word): TArray<TOBDSessionStep>;
@@ -214,6 +272,9 @@ begin
   ] + Steps;
 end;
 
+//------------------------------------------------------------------------------
+// BEGIN SESSION PLAN
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.BeginSessionPlan(
   SessionType: TOBDSessionType;
   const ECUAddress: Word): TOBDSessionPlan;
@@ -237,6 +298,9 @@ begin
   Result.TesterPresentRequest := TBytes.Create($3E, $80);
 end;
 
+//------------------------------------------------------------------------------
+// END SESSION PLAN
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.EndSessionPlan(
   const ECUAddress: Word): TOBDSessionPlan;
 begin
@@ -249,6 +313,9 @@ begin
   Result.TesterPresentRequest := TBytes.Create($3E, $80);
 end;
 
+//------------------------------------------------------------------------------
+// REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.RequiresSecurityAccess(
   SessionType: TOBDSessionType): Boolean;
 begin
@@ -258,11 +325,17 @@ begin
   Result := SessionType = sstProgramming;
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.DefaultTesterPresentMs: Cardinal;
 begin
   Result := 2000;
 end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDStandardSessionNegotiator.DisplayName: string;
 begin
   Result := 'ISO 14229 standard';

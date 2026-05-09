@@ -20,23 +20,41 @@ type
   [TestFixture]
   TBMWKeyAdaptationTests = class
   public
-    /// <summary>Slot validation per generation.</summary>
+    /// <summary>
+    ///   Slot validation per generation.
+    /// </summary>
     [Test] procedure SlotValidationPerGeneration;
-    /// <summary>E w s round trip.</summary>
+    /// <summary>
+    ///   E w s round trip.
+    /// </summary>
     [Test] procedure EWSRoundTrip;
-    /// <summary>C a s round trip.</summary>
+    /// <summary>
+    ///   C a s round trip.
+    /// </summary>
     [Test] procedure CASRoundTrip;
-    /// <summary>F e m round trip.</summary>
+    /// <summary>
+    ///   F e m round trip.
+    /// </summary>
     [Test] procedure FEMRoundTrip;
-    /// <summary>E w s bad slot raises.</summary>
+    /// <summary>
+    ///   E w s bad slot raises.
+    /// </summary>
     [Test] procedure EWSBadSlotRaises;
-    /// <summary>F e m bad slot raises.</summary>
+    /// <summary>
+    ///   F e m bad slot raises.
+    /// </summary>
     [Test] procedure FEMBadSlotRaises;
-    /// <summary>F e m bad settings bank raises.</summary>
+    /// <summary>
+    ///   F e m bad settings bank raises.
+    /// </summary>
     [Test] procedure FEMBadSettingsBankRaises;
-    /// <summary>Decode wrong length raises.</summary>
+    /// <summary>
+    ///   Decode wrong length raises.
+    /// </summary>
     [Test] procedure DecodeWrongLengthRaises;
-    /// <summary>Digital key serial must be seven bytes.</summary>
+    /// <summary>
+    ///   Digital key serial must be seven bytes.
+    /// </summary>
     [Test] procedure DigitalKeySerialMustBeSevenBytes;
   end;
 
@@ -45,6 +63,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.KeyAdaptation.BMW;
 
+//------------------------------------------------------------------------------
+// SLOT VALIDATION PER GENERATION
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.SlotValidationPerGeneration;
 begin
   Assert.IsTrue(ValidateSlotIndex(bmwgEWS, 9));
@@ -54,6 +75,9 @@ begin
   Assert.IsFalse(ValidateSlotIndex(bmwgFEMBDC, 8));
 end;
 
+//------------------------------------------------------------------------------
+// EWSROUND TRIP
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.EWSRoundTrip;
 var
   In_, Out_: TBMWKeyDataE;
@@ -74,6 +98,9 @@ begin
   Assert.AreEqual(Word(1234), Out_.UsageCounter);
 end;
 
+//------------------------------------------------------------------------------
+// CASROUND TRIP
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.CASRoundTrip;
 var
   In_, Out_: TBMWKeyDataCas;
@@ -92,6 +119,9 @@ begin
   Assert.AreEqual(Integer($11), Integer(Out_.KeyCutCode[0]));
 end;
 
+//------------------------------------------------------------------------------
+// FEMROUND TRIP
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.FEMRoundTrip;
 var
   In_, Out_: TBMWKeyDataFem;
@@ -115,16 +145,24 @@ begin
   Assert.AreEqual(Integer($11), Integer(Out_.DigitalKeySerial[6]));
 end;
 
+//------------------------------------------------------------------------------
+// EWSBAD SLOT RAISES
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.EWSBadSlotRaises;
-var Key: TBMWKeyDataE;
+var
+  Key: TBMWKeyDataE;
 begin
   Key.SlotIndex := 10;
   Key.KeyCutCode := TBytes.Create($00, $00, $00, $00);
   Assert.WillRaise(procedure begin EncodeKeyDataE(Key); end, EOBDBMWKey);
 end;
 
+//------------------------------------------------------------------------------
+// FEMBAD SLOT RAISES
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.FEMBadSlotRaises;
-var Key: TBMWKeyDataFem;
+var
+  Key: TBMWKeyDataFem;
 begin
   Key.SlotIndex := 8;
   Key.PersonalSettingsBank := 1;
@@ -133,8 +171,12 @@ begin
   Assert.WillRaise(procedure begin EncodeKeyDataFem(Key); end, EOBDBMWKey);
 end;
 
+//------------------------------------------------------------------------------
+// FEMBAD SETTINGS BANK RAISES
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.FEMBadSettingsBankRaises;
-var Key: TBMWKeyDataFem;
+var
+  Key: TBMWKeyDataFem;
 begin
   Key.SlotIndex := 0;
   Key.PersonalSettingsBank := 5;
@@ -143,6 +185,9 @@ begin
   Assert.WillRaise(procedure begin EncodeKeyDataFem(Key); end, EOBDBMWKey);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE WRONG LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.DecodeWrongLengthRaises;
 begin
   Assert.WillRaise(
@@ -150,8 +195,12 @@ begin
     EOBDBMWKey);
 end;
 
+//------------------------------------------------------------------------------
+// DIGITAL KEY SERIAL MUST BE SEVEN BYTES
+//------------------------------------------------------------------------------
 procedure TBMWKeyAdaptationTests.DigitalKeySerialMustBeSevenBytes;
-var Key: TBMWKeyDataFem;
+var
+  Key: TBMWKeyDataFem;
 begin
   Key.SlotIndex := 0;
   Key.PersonalSettingsBank := 1;

@@ -110,6 +110,9 @@ begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE MBSCNVERSION REQUEST
+//------------------------------------------------------------------------------
 function EncodeMBSCNVersionRequest(const Req: TMBSCNVersionRequest): TBytes;
 var
   I: Integer;

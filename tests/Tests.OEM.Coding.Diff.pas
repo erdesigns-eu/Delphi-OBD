@@ -20,21 +20,37 @@ type
   [TestFixture]
   TCodingDiffTests = class
   public
-    /// <summary>No op when current equals target.</summary>
+    /// <summary>
+    ///   No op when current equals target.
+    /// </summary>
     [Test] procedure NoOpWhenCurrentEqualsTarget;
-    /// <summary>Byte level diff spots changed bytes.</summary>
+    /// <summary>
+    ///   Byte level diff spots changed bytes.
+    /// </summary>
     [Test] procedure ByteLevelDiffSpotsChangedBytes;
-    /// <summary>Field schema produces named diff.</summary>
+    /// <summary>
+    ///   Field schema produces named diff.
+    /// </summary>
     [Test] procedure FieldSchemaProducesNamedDiff;
-    /// <summary>Apply without confirm raises.</summary>
+    /// <summary>
+    ///   Apply without confirm raises.
+    /// </summary>
     [Test] procedure ApplyWithoutConfirmRaises;
-    /// <summary>Apply with confirm invokes writer.</summary>
+    /// <summary>
+    ///   Apply with confirm invokes writer.
+    /// </summary>
     [Test] procedure ApplyWithConfirmInvokesWriter;
-    /// <summary>No op apply does not invoke writer.</summary>
+    /// <summary>
+    ///   No op apply does not invoke writer.
+    /// </summary>
     [Test] procedure NoOpApplyDoesNotInvokeWriter;
-    /// <summary>Mismatched length raises.</summary>
+    /// <summary>
+    ///   Mismatched length raises.
+    /// </summary>
     [Test] procedure MismatchedLengthRaises;
-    /// <summary>U int16 field diffs correctly.</summary>
+    /// <summary>
+    ///   U int16 field diffs correctly.
+    /// </summary>
     [Test] procedure UInt16FieldDiffsCorrectly;
   end;
 
@@ -43,6 +59,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.Coding, OBD.OEM.Coding.Diff;
 
+//------------------------------------------------------------------------------
+// NO OP WHEN CURRENT EQUALS TARGET
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.NoOpWhenCurrentEqualsTarget;
 var
   Bytes: TBytes;
@@ -58,6 +77,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BYTE LEVEL DIFF SPOTS CHANGED BYTES
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.ByteLevelDiffSpotsChangedBytes;
 var
   A, B: TBytes;
@@ -77,6 +99,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIELD SCHEMA PRODUCES NAMED DIFF
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.FieldSchemaProducesNamedDiff;
 var
   A, B: TBytes;
@@ -103,6 +128,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// APPLY WITHOUT CONFIRM RAISES
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.ApplyWithoutConfirmRaises;
 var
   Plan: TOBDCodingPlan;
@@ -119,6 +147,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// APPLY WITH CONFIRM INVOKES WRITER
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.ApplyWithConfirmInvokesWriter;
 var
   Plan: TOBDCodingPlan;
@@ -144,6 +175,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NO OP APPLY DOES NOT INVOKE WRITER
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.NoOpApplyDoesNotInvokeWriter;
 var
   Plan: TOBDCodingPlan;
@@ -161,11 +195,15 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MISMATCHED LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.MismatchedLengthRaises;
 begin
   Assert.WillRaise(
     procedure
-    var P: TOBDCodingPlan;
+    var
+      P: TOBDCodingPlan;
     begin
       P := TOBDCodingPlan.Create(TBytes.Create($00),
                                  TBytes.Create($00, $00));
@@ -174,6 +212,9 @@ begin
     EOBDCodingDiffError);
 end;
 
+//------------------------------------------------------------------------------
+// UINT16 FIELD DIFFS CORRECTLY
+//------------------------------------------------------------------------------
 procedure TCodingDiffTests.UInt16FieldDiffsCorrectly;
 var
   A, B: TBytes;

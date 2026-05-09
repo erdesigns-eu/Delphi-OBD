@@ -64,9 +64,13 @@ type
     // ---- Selection / hover ----
     Selection: TColor;
 
-    /// <summary>Built-in dark theme.</summary>
+    /// <summary>
+    ///   Built-in dark theme.
+    /// </summary>
     class function Dark: TOBDTheme;
-    /// <summary>Built-in light theme.</summary>
+    /// <summary>
+    ///   Built-in light theme.
+    /// </summary>
     class function Light: TOBDTheme;
 
     procedure Apply(C: TOBDLinearGauge); overload;

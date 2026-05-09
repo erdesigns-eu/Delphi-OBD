@@ -176,6 +176,9 @@ begin
   Result := BuildDoIPFrame(DOIP_PT_VEHICLE_IDENT_REQ, nil, ProtocolVersion);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD VEHICLE IDENT REQUEST VIN
+//------------------------------------------------------------------------------
 function BuildVehicleIdentRequestVIN(const VIN: string;
   ProtocolVersion: Byte): TBytes;
 var
@@ -214,6 +217,9 @@ begin
   Result := BuildDoIPFrame(DOIP_PT_ALIVE_CHECK_REQUEST, nil, ProtocolVersion);
 end;
 
+//------------------------------------------------------------------------------
+// BUILD ALIVE CHECK RESPONSE
+//------------------------------------------------------------------------------
 function BuildAliveCheckResponse(SourceAddress: Word;
   ProtocolVersion: Byte): TBytes;
 var

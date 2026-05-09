@@ -88,6 +88,9 @@ type
 const
   BCRYPT_SHA256_ALGORITHM: PWideChar = 'SHA256';
 
+//------------------------------------------------------------------------------
+// CRYPT IMPORT PUBLIC KEY INFO EX2
+//------------------------------------------------------------------------------
 function CryptImportPublicKeyInfoEx2(
   dwCertEncodingType: DWORD;
   pInfo: Pointer;                       // PCERT_PUBLIC_KEY_INFO
@@ -96,6 +99,9 @@ function CryptImportPublicKeyInfoEx2(
   out phKey: NativeUInt): BOOL; stdcall;
   external 'crypt32.dll' name 'CryptImportPublicKeyInfoEx2';
 
+//------------------------------------------------------------------------------
+// CRYPT DECODE OBJECT EX
+//------------------------------------------------------------------------------
 function CryptDecodeObjectEx(
   dwCertEncodingType: DWORD;
   lpszStructType: PAnsiChar;
@@ -107,6 +113,9 @@ function CryptDecodeObjectEx(
   var pcbStructInfo: DWORD): BOOL; stdcall;
   external 'crypt32.dll' name 'CryptDecodeObjectEx';
 
+//------------------------------------------------------------------------------
+// BCRYPT VERIFY SIGNATURE
+//------------------------------------------------------------------------------
 function BCryptVerifySignature(
   hKey: NativeUInt;
   pPaddingInfo: Pointer;
@@ -117,9 +126,15 @@ function BCryptVerifySignature(
   dwFlags: ULONG): NativeInt; stdcall;
   external 'bcrypt.dll' name 'BCryptVerifySignature';
 
+//------------------------------------------------------------------------------
+// BCRYPT DESTROY KEY
+//------------------------------------------------------------------------------
 function BCryptDestroyKey(hKey: NativeUInt): NativeInt; stdcall;
   external 'bcrypt.dll' name 'BCryptDestroyKey';
 
+//------------------------------------------------------------------------------
+// LOCAL FREE2
+//------------------------------------------------------------------------------
 function LocalFree2(hMem: HLOCAL): HLOCAL; stdcall;
   external kernel32 name 'LocalFree';
 
@@ -156,6 +171,10 @@ end;
 //==============================================================================
 // TOBDBCryptVerifier
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDBCryptVerifier.Create(const PublicKeyDer: TBytes);
 var
   Key: NativeUInt;
@@ -179,16 +198,25 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.AlgorithmName: string;
 begin
   Result := FAlgorithmName;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY KEY
+//------------------------------------------------------------------------------
 procedure TOBDBCryptVerifier.DestroyKey(KeyHandle: NativeUInt);
 begin
   if KeyHandle <> 0 then BCryptDestroyKey(KeyHandle);
 end;
 
+//------------------------------------------------------------------------------
+// IMPORT KEY
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.ImportKey(out KeyHandle: NativeUInt;
   out IsRSA, IsECDSA: Boolean): Boolean;
 type
@@ -250,6 +278,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY RSA
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.VerifyRSA(KeyHandle: NativeUInt;
   const Hash, Signature: TBytes): Boolean;
 var
@@ -264,6 +295,9 @@ begin
   Result := Status = 0;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DERSIGNATURE RS
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.ParseDERSignatureRS(const DerSig: TBytes): TBytes;
 // Convert ASN.1 DER ECDSA-Sig-Value (SEQUENCE { INTEGER r, INTEGER s }) into
 // the fixed-size R||S form BCrypt expects. P-256 means R and S are 32 bytes
@@ -319,6 +353,9 @@ begin
   if SLen > 0 then Move(S[0], Result[FixedLen + (FixedLen - SLen)], SLen);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY ECDSA
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.VerifyECDSA(KeyHandle: NativeUInt;
   const Hash, Signature: TBytes): Boolean;
 var
@@ -338,6 +375,9 @@ begin
   Result := Status = 0;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDBCryptVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 var
   Key: NativeUInt;

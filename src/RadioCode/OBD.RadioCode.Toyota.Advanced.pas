@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeToyotaAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeToyotaAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeToyotaAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -176,6 +185,9 @@ begin
   Variant.AlgorithmNotes := 'Australian market using Japanese algorithm base';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -200,6 +212,9 @@ begin
   Output := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -216,6 +231,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -232,6 +250,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE FUJITSU TEN
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaRegional.CalculateFujitsuTen(const Serial: string): string;
 var
   Code: Integer;
@@ -252,6 +273,9 @@ begin
   Result := Format('%.5d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE PANASONIC
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaRegional.CalculatePanasonic(const Serial: string): string;
 var
   Code: Integer;
@@ -276,6 +300,9 @@ begin
   Result := Format('%.5d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE DENSO
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaRegional.CalculateDenso(const Serial: string): string;
 var
   Code: Integer;
@@ -300,6 +327,9 @@ begin
   Result := Format('%.5d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE JBL
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaRegional.CalculateJBL(const Serial: string): string;
 var
   Code: Integer;
@@ -321,11 +351,17 @@ begin
   Result := Format('%.5d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Toyota Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeToyotaAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -337,6 +373,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeToyotaAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -346,16 +385,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -373,6 +421,9 @@ begin
     Exit(False);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeToyotaAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

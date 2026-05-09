@@ -56,54 +56,76 @@ type
       const Ext: IOBDOEMExtension);
     destructor Destroy; override;
 
-    /// <summary>Run the OEM negotiator's begin-session plan. Starts
-    /// the tester-present heartbeat on success. Idempotent for the
-    /// same session type — calling twice with the same args is a
-    /// no-op.</summary>
+    /// <summary>
+    ///   Run the OEM negotiator's begin-session plan. Starts
+    ///   the tester-present heartbeat on success. Idempotent for the
+    ///   same session type — calling twice with the same args is a
+    ///   no-op.
+    /// </summary>
     function BeginSession(const SessionType: TOBDSessionType;
       const ECUAddress: Word = 0): Boolean;
 
-    /// <summary>Run the OEM negotiator's end-session plan. Stops the
-    /// heartbeat, returns to <c>dssIdle</c>. Safe to call from any
-    /// state.</summary>
+    /// <summary>
+    ///   Run the OEM negotiator's end-session plan. Stops the
+    ///   heartbeat, returns to <c>dssIdle</c>. Safe to call from any
+    ///   state.
+    /// </summary>
     function EndSession: Boolean;
 
-    /// <summary>UDS SecurityAccess: 27 LL → 67 LL SEED → 27 LL+1 KEY.
-    /// Uses the OEM extension's seed-key registry by default; the
-    /// optional <c>Algorithm</c> parameter overrides it (production
-    /// users plug their NDA-protected algorithm in here).</summary>
+    /// <summary>
+    ///   UDS SecurityAccess: 27 LL → 67 LL SEED → 27 LL+1 KEY.
+    ///   Uses the OEM extension's seed-key registry by default; the
+    ///   optional <c>Algorithm</c> parameter overrides it (production
+    ///   users plug their NDA-protected algorithm in here).
+    /// </summary>
     function UnlockSecurityAccess(const Level: Byte;
       const Algorithm: IOBDSeedKeyAlgorithm = nil): Boolean;
 
-    /// <summary>UDS ReadDataByIdentifier (22 HiDID LoDID). Returns
-    /// the raw payload (everything past <c>62 HiDID LoDID</c>).
-    /// Negative replies set <c>LastError</c> and return False.</summary>
+    /// <summary>
+    ///   UDS ReadDataByIdentifier (22 HiDID LoDID). Returns
+    ///   the raw payload (everything past <c>62 HiDID LoDID</c>).
+    ///   Negative replies set <c>LastError</c> and return False.
+    /// </summary>
     function ReadDID(const DID: Word; out Payload: TBytes): Boolean; overload;
 
-    /// <summary>Read + decode a DID via the OEM's <c>DecodeDID</c>.
-    /// Useful for tool UIs that just want the human-readable string.</summary>
+    /// <summary>
+    ///   Read + decode a DID via the OEM's <c>DecodeDID</c>.
+    ///   Useful for tool UIs that just want the human-readable string.
+    /// </summary>
     function ReadDID(const DID: Word; out Decoded: string): Boolean; overload;
 
-    /// <summary>Run RoutineControl 31 01 with optional input data.
-    /// Returns the status payload (everything past <c>71 01 RID</c>).</summary>
+    /// <summary>
+    ///   Run RoutineControl 31 01 with optional input data.
+    ///   Returns the status payload (everything past <c>71 01 RID</c>).
+    /// </summary>
     function StartRoutine(const RID: Word;
       const InputData: TBytes; out Status: TBytes): Boolean;
 
-    /// <summary>RoutineControl 31 02 — stop the named routine.</summary>
+    /// <summary>
+    ///   RoutineControl 31 02 — stop the named routine.
+    /// </summary>
     function StopRoutine(const RID: Word): Boolean;
 
-    /// <summary>RoutineControl 31 03 — request the routine's results.</summary>
+    /// <summary>
+    ///   RoutineControl 31 03 — request the routine's results.
+    /// </summary>
     function RequestRoutineResults(const RID: Word;
       out Status: TBytes): Boolean;
 
-    /// <summary>State accessor.</summary>
+    /// <summary>
+    ///   State accessor.
+    /// </summary>
     function State: TOBDDiagSessionState;
 
-    /// <summary>Most recent failure detail; cleared on each successful
-    /// high-level call.</summary>
+    /// <summary>
+    ///   Most recent failure detail; cleared on each successful
+    ///   high-level call.
+    /// </summary>
     property LastError: string read FLastError;
 
-    /// <summary>The OEM extension this session was bound to.</summary>
+    /// <summary>
+    ///   The OEM extension this session was bound to.
+    /// </summary>
     property OEM: IOBDOEMExtension read FOEM;
   end;
 
@@ -112,6 +134,9 @@ implementation
 uses
   OBD.OEM.Coding, OBD.Async;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDDiagSession.Create(const Conn: TOBDConnectionAsync;
   const Ext: IOBDOEMExtension);
 begin
@@ -128,6 +153,9 @@ begin
   FLock := TCriticalSection.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDDiagSession.Destroy;
 begin
   StopHeartbeat;
@@ -141,6 +169,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// STOP HEARTBEAT
+//------------------------------------------------------------------------------
 procedure TOBDDiagSession.StopHeartbeat;
 begin
   if FHeartbeat = nil then Exit;
@@ -151,6 +182,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE SEED KEY
+//------------------------------------------------------------------------------
 function TOBDDiagSession.ResolveSeedKey(const Level: Byte;
   const Override_: IOBDSeedKeyAlgorithm): IOBDSeedKeyAlgorithm;
 begin
@@ -158,6 +192,9 @@ begin
   Result := FOEM.SeedKeyRegistry.Find(Level);
 end;
 
+//------------------------------------------------------------------------------
+// AWAIT OBD
+//------------------------------------------------------------------------------
 function TOBDDiagSession.AwaitOBD(const HexCommand: string;
   const TimeoutMs: Cardinal): TBytes;
 var
@@ -169,6 +206,9 @@ begin
   Result := HexStringToBytes(Reply);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT BYTES
+//------------------------------------------------------------------------------
 function FormatBytes(const Bytes: TBytes): string;
 var
   I: Integer;
@@ -184,6 +224,10 @@ end;
 //==============================================================================
 //  BeginSession / EndSession
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BEGIN SESSION
+//------------------------------------------------------------------------------
 function TOBDDiagSession.BeginSession(const SessionType: TOBDSessionType;
   const ECUAddress: Word): Boolean;
 var
@@ -223,6 +267,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// END SESSION
+//------------------------------------------------------------------------------
 function TOBDDiagSession.EndSession: Boolean;
 var
   Plan: TOBDSessionPlan;
@@ -254,6 +301,10 @@ end;
 //==============================================================================
 //  SecurityAccess
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// UNLOCK SECURITY ACCESS
+//------------------------------------------------------------------------------
 function TOBDDiagSession.UnlockSecurityAccess(const Level: Byte;
   const Algorithm: IOBDSeedKeyAlgorithm): Boolean;
 var
@@ -317,6 +368,10 @@ end;
 //==============================================================================
 //  ReadDataByIdentifier
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// READ DID
+//------------------------------------------------------------------------------
 function TOBDDiagSession.ReadDID(const DID: Word; out Payload: TBytes): Boolean;
 var
   Reply: TBytes;
@@ -349,6 +404,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DID
+//------------------------------------------------------------------------------
 function TOBDDiagSession.ReadDID(const DID: Word;
   out Decoded: string): Boolean;
 var
@@ -363,6 +421,10 @@ end;
 //==============================================================================
 //  RoutineControl
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// START ROUTINE
+//------------------------------------------------------------------------------
 function TOBDDiagSession.StartRoutine(const RID: Word;
   const InputData: TBytes; out Status: TBytes): Boolean;
 var
@@ -389,6 +451,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STOP ROUTINE
+//------------------------------------------------------------------------------
 function TOBDDiagSession.StopRoutine(const RID: Word): Boolean;
 var
   Request, Reply, Discard: TBytes;
@@ -414,6 +479,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUTINE RESULTS
+//------------------------------------------------------------------------------
 function TOBDDiagSession.RequestRoutineResults(const RID: Word;
   out Status: TBytes): Boolean;
 var
@@ -440,6 +508,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STATE
+//------------------------------------------------------------------------------
 function TOBDDiagSession.State: TOBDDiagSessionState;
 begin
   FLock.Enter;

@@ -153,13 +153,15 @@ type
     ///   Get list of all variants for a specific region
     /// </summary>
     procedure GetVariantsByRegion(const Region: TRadioCodeRegion;
-      var Variants: TList<TRadioCodeVariant>);
+      var
+        Variants: TList<TRadioCodeVariant>);
 
     /// <summary>
     ///   Get list of all variants for a specific year
     /// </summary>
     procedure GetVariantsByYear(const ModelYear: Integer;
-      var Variants: TList<TRadioCodeVariant>);
+      var
+        Variants: TList<TRadioCodeVariant>);
 
     /// <summary>
     ///   Brand name this manager handles
@@ -400,7 +402,8 @@ end;
 // TRADIOCODEVARIANTMANAGER - GET VARIANTS BY YEAR
 //------------------------------------------------------------------------------
 procedure TRadioCodeVariantManager.GetVariantsByYear(const ModelYear: Integer;
-  var Variants: TList<TRadioCodeVariant>);
+  var
+    Variants: TList<TRadioCodeVariant>);
 var
   I: Integer;
 begin

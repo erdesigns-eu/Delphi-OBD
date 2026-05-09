@@ -34,11 +34,17 @@ type
   [TestFixture]
   TCatalogIntegrityTests = class
   public
-    /// <summary>Coding block bit fields fit within payload.</summary>
+    /// <summary>
+    ///   Coding block bit fields fit within payload.
+    /// </summary>
     [Test] procedure CodingBlockBitFieldsFitWithinPayload;
-    /// <summary>Cross section ecu references resolve.</summary>
+    /// <summary>
+    ///   Cross section ecu references resolve.
+    /// </summary>
     [Test] procedure CrossSectionEcuReferencesResolve;
-    /// <summary>No duplicate primary keys.</summary>
+    /// <summary>
+    ///   No duplicate primary keys.
+    /// </summary>
     [Test] procedure NoDuplicatePrimaryKeys;
   end;
 
@@ -64,12 +70,18 @@ begin
   Result := '';
 end;
 
-/// <summary>Collect every OEM catalog JSON path under <c>catalogs/</c>,
-/// recursing into vehicle-class subdirectories. Excludes
-/// <c>dtc-*.json</c> (different schema), <c>iso-*</c> /
-/// <c>uds-*</c> / <c>obd2-*</c> universal catalogs, the
-/// <c>_schema/</c> directory, and any <c>test-*.json</c>
-/// fixture.</summary>
+/// <summary>
+///   Collect every OEM catalog JSON path under <c>catalogs/</c>,
+///   recursing into vehicle-class subdirectories. Excludes
+///   <c>dtc-*.json</c> (different schema), <c>iso-*</c> /
+///   <c>uds-*</c> / <c>obd2-*</c> universal catalogs, the
+///   <c>_schema/</c> directory, and any <c>test-*.json</c>
+///   fixture.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// COLLECT OEM CATALOGS
+//------------------------------------------------------------------------------
 function CollectOemCatalogs(const Root: string): TArray<string>;
 var
   All: TArray<string>;
@@ -99,6 +111,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ADDRESS
+//------------------------------------------------------------------------------
 function ParseAddress(const S: string): Integer;
 var
   Tmp: string;
@@ -116,8 +131,14 @@ begin
     Result := -1;
 end;
 
-/// <summary>Decode a JSON address-shaped value (int or "0xHHHH") to
-/// an integer, or -1 if absent / malformed.</summary>
+/// <summary>
+///   Decode a JSON address-shaped value (int or "0xHHHH") to
+///   an integer, or -1 if absent / malformed.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// JSON ADDR FROM OBJECT
+//------------------------------------------------------------------------------
 function JsonAddrFromObject(Obj: TJSONObject;
                              const Field: string): Integer;
 var
@@ -137,9 +158,15 @@ begin
   end;
 end;
 
-/// <summary>Conservative bit width per coding-field kind. Mirrors
-/// the JSON loader's <c>ParseCodingFieldKind</c> mapping but expressed
-/// here so this test doesn't depend on the loader for sizing.</summary>
+/// <summary>
+///   Conservative bit width per coding-field kind. Mirrors
+///   the JSON loader's <c>ParseCodingFieldKind</c> mapping but expressed
+///   here so this test doesn't depend on the loader for sizing.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// FIELD BIT WIDTH
+//------------------------------------------------------------------------------
 function FieldBitWidth(const KindStr: string;
                        BitWidthOverride: Integer): Integer;
 begin
@@ -315,6 +342,9 @@ end;
 type
   TIntSet = TList<Integer>;
 
+//------------------------------------------------------------------------------
+// CHECK NO DUPLICATE ADDR FIELD
+//------------------------------------------------------------------------------
 procedure CheckNoDuplicateAddrField(
   RootObj: TJSONObject; const Name, SectionName, KeyField: string);
 var
@@ -343,6 +373,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// NO DUPLICATE PRIMARY KEYS
+//------------------------------------------------------------------------------
 procedure TCatalogIntegrityTests.NoDuplicatePrimaryKeys;
 var
   Root, Path, Name: string;

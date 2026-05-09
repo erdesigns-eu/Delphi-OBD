@@ -36,24 +36,34 @@ type
   /// </summary>
   IOBDSeedKeyAlgorithm = interface
     ['{C7F9D2A4-1B5E-4F8C-9D3A-6E7B2F4D8C1A}']
-    /// <summary>Compute the response key for <c>Seed</c> at <c>Level</c>.
-    /// Throws <c>EOBDSeedKeyError</c> on invalid seed length.</summary>
+    /// <summary>
+    ///   Compute the response key for <c>Seed</c> at <c>Level</c>.
+    ///   Throws <c>EOBDSeedKeyError</c> on invalid seed length.
+    /// </summary>
     function ComputeKey(const Seed: TBytes; const Level: Byte): TBytes;
-    /// <summary>Display label for logs / audit trails.</summary>
+    /// <summary>
+    ///   Display label for logs / audit trails.
+    /// </summary>
     function Description: string;
-    /// <summary>Provenance: <c>"public-domain"</c>, <c>"iso-14229-1"</c>,
-    /// <c>"oem-spec"</c>, <c>"community-pr"</c>, …</summary>
+    /// <summary>
+    ///   Provenance: <c>"public-domain"</c>, <c>"iso-14229-1"</c>,
+    ///   <c>"oem-spec"</c>, <c>"community-pr"</c>, …
+    /// </summary>
     function Source: string;
-    /// <summary>True only when matched against an OEM spec or
-    /// reproducible capture fixture. Production callers filter
-    /// unverified algorithms out of flashing paths.</summary>
+    /// <summary>
+    ///   True only when matched against an OEM spec or
+    ///   reproducible capture fixture. Production callers filter
+    ///   unverified algorithms out of flashing paths.
+    /// </summary>
     function Verified: Boolean;
   end;
 
-  /// <summary>Per-OEM, per-level registry. Each level can have multiple
-  /// candidate algorithms — useful when an OEM rolled the algorithm
-  /// across model years and the caller hasn't yet picked the right
-  /// variant.</summary>
+  /// <summary>
+  ///   Per-OEM, per-level registry. Each level can have multiple
+  ///   candidate algorithms — useful when an OEM rolled the algorithm
+  ///   across model years and the caller hasn't yet picked the right
+  ///   variant.
+  /// </summary>
   TOBDSeedKeyRegistry = class
   strict private
     FLock: TCriticalSection;
@@ -64,38 +74,54 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    /// <summary>Register <c>Algo</c> for <c>Level</c>. Newer registrations
-    /// take precedence (LIFO) — production users register their NDA-
-    /// algorithm last so it shadows the public starter.</summary>
+    /// <summary>
+    ///   Register <c>Algo</c> for <c>Level</c>. Newer registrations
+    ///   take precedence (LIFO) — production users register their NDA-
+    ///   algorithm last so it shadows the public starter.
+    /// </summary>
     procedure RegisterAlgorithm(const Level: Byte;
       const Algo: IOBDSeedKeyAlgorithm);
     procedure UnregisterAlgorithm(const Level: Byte;
       const Algo: IOBDSeedKeyAlgorithm);
 
-    /// <summary>The primary algorithm for the level (most-recently
-    /// registered). Returns nil when none is registered.</summary>
+    /// <summary>
+    ///   The primary algorithm for the level (most-recently
+    ///   registered). Returns nil when none is registered.
+    /// </summary>
     function Find(const Level: Byte): IOBDSeedKeyAlgorithm;
-    /// <summary>All algorithms registered for the level, newest first.</summary>
+    /// <summary>
+    ///   All algorithms registered for the level, newest first.
+    /// </summary>
     function FindAll(const Level: Byte): TArray<IOBDSeedKeyAlgorithm>;
-    /// <summary>True if at least one algorithm is registered.</summary>
+    /// <summary>
+    ///   True if at least one algorithm is registered.
+    /// </summary>
     function HasAlgorithm(const Level: Byte): Boolean;
-    /// <summary>Levels that have at least one algorithm registered.</summary>
+    /// <summary>
+    ///   Levels that have at least one algorithm registered.
+    /// </summary>
     function Levels: TArray<Byte>;
-    /// <summary>Drop every registration. Test-only helper; production
-    /// callers replace specific levels via Unregister.</summary>
+    /// <summary>
+    ///   Drop every registration. Test-only helper; production
+    ///   callers replace specific levels via Unregister.
+    /// </summary>
     procedure Clear;
   end;
 
-  /// <summary>Convenience base for algorithm implementations.</summary>
+  /// <summary>
+  ///   Convenience base for algorithm implementations.
+  /// </summary>
   TOBDSeedKeyAlgorithmBase = class(TInterfacedObject, IOBDSeedKeyAlgorithm)
   strict private
     FDescription: string;
     FSource: string;
     FVerified: Boolean;
   protected
-    /// <summary>Validate the seed length expected by this algorithm.
-    /// Default: any non-empty length is acceptable. Subclasses
-    /// override for fixed-width seeds.</summary>
+    /// <summary>
+    ///   Validate the seed length expected by this algorithm.
+    ///   Default: any non-empty length is acceptable. Subclasses
+    ///   override for fixed-width seeds.
+    /// </summary>
     procedure CheckSeed(const Seed: TBytes); virtual;
   public
     constructor Create(const ADescription, ASource: string;
@@ -181,16 +207,22 @@ type
   //  Helpers used by SecurityAccess flow code.
   //----------------------------------------------------------------------------
 
-  /// <summary>Build the UDS request frame for a seed read at the given
-  /// level — returns SID 0x27 followed by the level byte.</summary>
+  /// <summary>
+  ///   Build the UDS request frame for a seed read at the given
+  ///   level — returns SID 0x27 followed by the level byte.
+  /// </summary>
 function RequestSeedFrame(const Level: Byte): TBytes;
 
-  /// <summary>Build the UDS request frame for a key send — SID 0x27 +
-  /// (Level + 1) + key bytes (ISO 14229 §10.5).</summary>
+  /// <summary>
+  ///   Build the UDS request frame for a key send — SID 0x27 +
+  ///   (Level + 1) + key bytes (ISO 14229 §10.5).
+  /// </summary>
 function SendKeyFrame(const Level: Byte; const Key: TBytes): TBytes;
 
-  /// <summary>Extract the seed bytes from a positive 0x67 0xLL response
-  /// payload. Throws <c>EOBDSeedKeyError</c> on a malformed reply.</summary>
+  /// <summary>
+  ///   Extract the seed bytes from a positive 0x67 0xLL response
+  ///   payload. Throws <c>EOBDSeedKeyError</c> on a malformed reply.
+  /// </summary>
 function ExtractSeed(const Response: TBytes; const Level: Byte): TBytes;
 
 implementation
@@ -198,6 +230,10 @@ implementation
 //==============================================================================
 //  TOBDSeedKeyRegistry
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyRegistry.Create;
 begin
   inherited Create;
@@ -205,6 +241,9 @@ begin
   FByLevel := TObjectDictionary<Byte, TList<IOBDSeedKeyAlgorithm>>.Create([doOwnsValues]);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDSeedKeyRegistry.Destroy;
 begin
   FByLevel.Free;
@@ -212,6 +251,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// LIST FOR
+//------------------------------------------------------------------------------
 function TOBDSeedKeyRegistry.ListFor(const Level: Byte;
   CreateIfMissing: Boolean): TList<IOBDSeedKeyAlgorithm>;
 begin
@@ -223,6 +265,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER ALGORITHM
+//------------------------------------------------------------------------------
 procedure TOBDSeedKeyRegistry.RegisterAlgorithm(const Level: Byte;
   const Algo: IOBDSeedKeyAlgorithm);
 var
@@ -239,6 +284,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// UNREGISTER ALGORITHM
+//------------------------------------------------------------------------------
 procedure TOBDSeedKeyRegistry.UnregisterAlgorithm(const Level: Byte;
   const Algo: IOBDSeedKeyAlgorithm);
 var
@@ -254,6 +302,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND
+//------------------------------------------------------------------------------
 function TOBDSeedKeyRegistry.Find(
   const Level: Byte): IOBDSeedKeyAlgorithm;
 var
@@ -269,6 +320,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND ALL
+//------------------------------------------------------------------------------
 function TOBDSeedKeyRegistry.FindAll(
   const Level: Byte): TArray<IOBDSeedKeyAlgorithm>;
 var
@@ -284,6 +338,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// HAS ALGORITHM
+//------------------------------------------------------------------------------
 function TOBDSeedKeyRegistry.HasAlgorithm(const Level: Byte): Boolean;
 var
   L: TList<IOBDSeedKeyAlgorithm>;
@@ -297,6 +354,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LEVELS
+//------------------------------------------------------------------------------
 function TOBDSeedKeyRegistry.Levels: TArray<Byte>;
 var
   Pair: TPair<Byte, TList<IOBDSeedKeyAlgorithm>>;
@@ -317,6 +377,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDSeedKeyRegistry.Clear;
 begin
   FLock.Enter;
@@ -330,6 +393,10 @@ end;
 //==============================================================================
 //  TOBDSeedKeyAlgorithmBase
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyAlgorithmBase.Create(
   const ADescription, ASource: string; const AVerified: Boolean);
 begin
@@ -339,28 +406,55 @@ begin
   FVerified := AVerified;
 end;
 
+//------------------------------------------------------------------------------
+// CHECK SEED
+//------------------------------------------------------------------------------
 procedure TOBDSeedKeyAlgorithmBase.CheckSeed(const Seed: TBytes);
 begin
   if Length(Seed) = 0 then
     raise EOBDSeedKeyError.Create('Seed must not be empty');
 end;
 
+//------------------------------------------------------------------------------
+// DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDSeedKeyAlgorithmBase.Description: string;
-begin Result := FDescription; end;
+begin
+  Result := FDescription;
+end;
+
+//------------------------------------------------------------------------------
+// SOURCE
+//------------------------------------------------------------------------------
 function TOBDSeedKeyAlgorithmBase.Source: string;
-begin Result := FSource; end;
+begin
+  Result := FSource;
+end;
+
+//------------------------------------------------------------------------------
+// VERIFIED
+//------------------------------------------------------------------------------
 function TOBDSeedKeyAlgorithmBase.Verified: Boolean;
-begin Result := FVerified; end;
+begin
+  Result := FVerified;
+end;
 
 //==============================================================================
 //  TOBDSeedKeyKWP2000TwosComplement
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyKWP2000TwosComplement.Create;
 begin
   inherited Create('KWP2000 two''s-complement (NOT seed + 1)',
                    'iso-14229-1-example', False);
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE KEY
+//------------------------------------------------------------------------------
 function TOBDSeedKeyKWP2000TwosComplement.ComputeKey(const Seed: TBytes;
   const Level: Byte): TBytes;
 var
@@ -388,6 +482,10 @@ end;
 //==============================================================================
 //  TOBDSeedKeyXorMask
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyXorMask.Create(const Mask: TBytes;
   const Description, Source: string; const Verified: Boolean);
 begin
@@ -397,6 +495,9 @@ begin
   FMask := Copy(Mask, 0, Length(Mask));
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE KEY
+//------------------------------------------------------------------------------
 function TOBDSeedKeyXorMask.ComputeKey(const Seed: TBytes;
   const Level: Byte): TBytes;
 var
@@ -411,6 +512,10 @@ end;
 //==============================================================================
 //  TOBDSeedKeyByteRotate
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyByteRotate.Create(const Shift: Integer;
   const Rotate: Byte; const Mask: TBytes;
   const Description, Source: string; const Verified: Boolean);
@@ -425,6 +530,9 @@ begin
   FMask := Copy(Mask, 0, Length(Mask));
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE KEY
+//------------------------------------------------------------------------------
 function TOBDSeedKeyByteRotate.ComputeKey(const Seed: TBytes;
   const Level: Byte): TBytes;
 var
@@ -447,6 +555,10 @@ end;
 //==============================================================================
 //  TOBDSeedKeyConstant
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDSeedKeyConstant.Create(const Key: TBytes;
   const Description, Source: string; const Verified: Boolean);
 begin
@@ -456,6 +568,9 @@ begin
   FKey := Copy(Key, 0, Length(Key));
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE KEY
+//------------------------------------------------------------------------------
 function TOBDSeedKeyConstant.ComputeKey(const Seed: TBytes;
   const Level: Byte): TBytes;
 begin
@@ -466,6 +581,10 @@ end;
 //==============================================================================
 //  Frame helpers
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// REQUEST SEED FRAME
+//------------------------------------------------------------------------------
 function RequestSeedFrame(const Level: Byte): TBytes;
 begin
   if (Level and 1) = 0 then
@@ -474,6 +593,9 @@ begin
   Result := TBytes.Create($27, Level);
 end;
 
+//------------------------------------------------------------------------------
+// SEND KEY FRAME
+//------------------------------------------------------------------------------
 function SendKeyFrame(const Level: Byte; const Key: TBytes): TBytes;
 var
   I: Integer;
@@ -490,6 +612,9 @@ begin
   for I := 0 to High(Key) do Result[2 + I] := Key[I];
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT SEED
+//------------------------------------------------------------------------------
 function ExtractSeed(const Response: TBytes; const Level: Byte): TBytes;
 begin
   if Length(Response) < 2 then

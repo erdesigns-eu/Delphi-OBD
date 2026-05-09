@@ -35,15 +35,23 @@ implementation
 uses
   System.SysUtils, OBD.Async;
 
+//------------------------------------------------------------------------------
+// CANCELLATION TOKEN_STARTS UNCANCELLED
+//------------------------------------------------------------------------------
 procedure TAsyncTests.CancellationToken_StartsUncancelled;
-var T: IOBDCancellationToken;
+var
+  T: IOBDCancellationToken;
 begin
   T := NewCancellationToken;
   Assert.IsFalse(T.IsCancelled);
 end;
 
+//------------------------------------------------------------------------------
+// CANCELLATION TOKEN_CANCEL IS IDEMPOTENT
+//------------------------------------------------------------------------------
 procedure TAsyncTests.CancellationToken_CancelIsIdempotent;
-var T: IOBDCancellationToken;
+var
+  T: IOBDCancellationToken;
 begin
   T := NewCancellationToken;
   T.Cancel;
@@ -51,16 +59,24 @@ begin
   Assert.IsTrue(T.IsCancelled);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_STARTS PENDING
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_StartsPending;
-var P: IOBDPromise<Integer>;
+var
+  P: IOBDPromise<Integer>;
 begin
   P := NewPromise<Integer>;
   Assert.AreEqual(Ord(fsPending), Ord(P.State));
   Assert.IsFalse(P.IsCompleted);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_SET RESULT SETTLES AND AWAIT RETURNS
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_SetResultSettlesAndAwaitReturns;
-var P: IOBDPromise<Integer>;
+var
+  P: IOBDPromise<Integer>;
 begin
   P := NewPromise<Integer>;
   P.SetResult(42);
@@ -68,8 +84,12 @@ begin
   Assert.AreEqual(42, P.Await(0));
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_SET ERROR RAISES ON AWAIT
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_SetErrorRaisesOnAwait;
-var P: IOBDPromise<Integer>;
+var
+  P: IOBDPromise<Integer>;
 begin
   P := NewPromise<Integer>;
   P.SetError(Exception.Create('boom'));
@@ -77,8 +97,12 @@ begin
   Assert.WillRaise(procedure begin P.Await(0); end, Exception);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_SIGNAL CANCELLED RAISES ON AWAIT
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_SignalCancelledRaisesOnAwait;
-var P: IOBDPromise<Integer>;
+var
+  P: IOBDPromise<Integer>;
 begin
   P := NewPromise<Integer>;
   P.SignalCancelled;
@@ -86,13 +110,20 @@ begin
   Assert.WillRaise(procedure begin P.Await(0); end, EOBDOperationCancelled);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_AWAIT TIMEOUT THROWS
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_AwaitTimeoutThrows;
-var P: IOBDPromise<Integer>;
+var
+  P: IOBDPromise<Integer>;
 begin
   P := NewPromise<Integer>;
   Assert.WillRaise(procedure begin P.Await(50); end, EOBDFutureTimeout);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_ON COMPLETE FIRES ONCE WHEN ALREADY SETTLED
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_OnCompleteFiresOnceWhenAlreadySettled;
 var
   P: IOBDPromise<Integer>;
@@ -105,6 +136,9 @@ begin
   Assert.AreEqual(1, Fired);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_ON COMPLETE FIRES AFTER SETTLE
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_OnCompleteFiresAfterSettle;
 var
   P: IOBDPromise<Integer>;
@@ -117,6 +151,9 @@ begin
   Assert.AreEqual(1, Fired);
 end;
 
+//------------------------------------------------------------------------------
+// PROMISE_DOUBLE SETTLE IS IGNORED
+//------------------------------------------------------------------------------
 procedure TAsyncTests.Promise_DoubleSettleIsIgnored;
 var
   P: IOBDPromise<Integer>;
@@ -128,15 +165,23 @@ begin
   Assert.AreEqual(1, P.Await(0));
 end;
 
+//------------------------------------------------------------------------------
+// FROM RESULT_AWAITS IMMEDIATELY
+//------------------------------------------------------------------------------
 procedure TAsyncTests.FromResult_AwaitsImmediately;
-var F: IOBDFuture<string>;
+var
+  F: IOBDFuture<string>;
 begin
   F := FromResult<string>('hi');
   Assert.AreEqual('hi', F.Await(0));
 end;
 
+//------------------------------------------------------------------------------
+// FROM ERROR_RAISES ON AWAIT
+//------------------------------------------------------------------------------
 procedure TAsyncTests.FromError_RaisesOnAwait;
-var F: IOBDFuture<string>;
+var
+  F: IOBDFuture<string>;
 begin
   F := FromError<string>(Exception.Create('explode'));
   Assert.WillRaise(procedure begin F.Await(0); end, Exception);

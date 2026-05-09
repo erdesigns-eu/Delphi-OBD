@@ -45,26 +45,41 @@ type
     /// </summary>
     function IsAllowed(const Identity: string; out WaitSeconds: Integer): Boolean;
 
-    /// <summary>Record a failed attempt — applies exponential back-off.</summary>
+    /// <summary>
+    ///   Record a failed attempt — applies exponential back-off.
+    /// </summary>
     procedure RegisterFailure(const Identity: string);
-    /// <summary>Record a success — resets the counter.</summary>
+    /// <summary>
+    ///   Record a success — resets the counter.
+    /// </summary>
     procedure RegisterSuccess(const Identity: string);
-    /// <summary>Reset the counter without recording a success.</summary>
+    /// <summary>
+    ///   Reset the counter without recording a success.
+    /// </summary>
     procedure Reset(const Identity: string);
 
     function State(const Identity: string): TOBDAttemptState;
 
   published
-    /// <summary>Number of failed attempts allowed before the back-off kicks in.</summary>
+    /// <summary>
+    ///   Number of failed attempts allowed before the back-off kicks in.
+    /// </summary>
     property FreeAttempts: Integer read FFreeAttempts write FFreeAttempts;
-    /// <summary>Initial lockout in seconds (doubles per subsequent failure).</summary>
+    /// <summary>
+    ///   Initial lockout in seconds (doubles per subsequent failure).
+    /// </summary>
     property BaseLockoutSeconds: Integer read FBaseLockoutSeconds write FBaseLockoutSeconds;
-    /// <summary>Cap on the lockout (default 1 day).</summary>
+    /// <summary>
+    ///   Cap on the lockout (default 1 day).
+    /// </summary>
     property MaxLockoutSeconds: Integer read FMaxLockoutSeconds write FMaxLockoutSeconds;
   end;
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDAttemptCounter.Create;
 begin
   inherited Create;
@@ -75,6 +90,9 @@ begin
   FMaxLockoutSeconds := 86400;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDAttemptCounter.Destroy;
 begin
   FStates.Free;
@@ -82,6 +100,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE LOCKOUT
+//------------------------------------------------------------------------------
 function TOBDAttemptCounter.ComputeLockout(Failures: Integer): Integer;
 var
   Steps, Lockout: Int64;
@@ -96,6 +117,9 @@ begin
   Result := Lockout;
 end;
 
+//------------------------------------------------------------------------------
+// IS ALLOWED
+//------------------------------------------------------------------------------
 function TOBDAttemptCounter.IsAllowed(const Identity: string;
   out WaitSeconds: Integer): Boolean;
 var
@@ -115,6 +139,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER FAILURE
+//------------------------------------------------------------------------------
 procedure TOBDAttemptCounter.RegisterFailure(const Identity: string);
 var
   S: TOBDAttemptState;
@@ -139,17 +166,26 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER SUCCESS
+//------------------------------------------------------------------------------
 procedure TOBDAttemptCounter.RegisterSuccess(const Identity: string);
 begin
   Reset(Identity);
 end;
 
+//------------------------------------------------------------------------------
+// RESET
+//------------------------------------------------------------------------------
 procedure TOBDAttemptCounter.Reset(const Identity: string);
 begin
   FLock.Enter;
   try FStates.Remove(Identity); finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// STATE
+//------------------------------------------------------------------------------
 function TOBDAttemptCounter.State(const Identity: string): TOBDAttemptState;
 begin
   FLock.Enter;

@@ -83,7 +83,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('codes');
     if (Arr = nil) or (Arr.Count <> TableSize) then Exit;

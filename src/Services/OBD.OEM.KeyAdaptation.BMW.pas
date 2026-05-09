@@ -124,6 +124,9 @@ const
   CAS_SLOT_BYTES  = 16;
   FEM_SLOT_BYTES  = 32;
 
+//------------------------------------------------------------------------------
+// VALIDATE SLOT INDEX
+//------------------------------------------------------------------------------
 function ValidateSlotIndex(Gen: TBMWImmoGeneration; Slot: Byte): Boolean;
 begin
   case Gen of

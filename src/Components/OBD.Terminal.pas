@@ -108,25 +108,43 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    /// <summary>Append a line tagged as outbound (tester → adapter).</summary>
+    /// <summary>
+    ///   Append a line tagged as outbound (tester → adapter).
+    /// </summary>
     procedure LogSent(const AText: string);
-    /// <summary>Append a line tagged as inbound (adapter → tester).</summary>
+    /// <summary>
+    ///   Append a line tagged as inbound (adapter → tester).
+    /// </summary>
     procedure LogReceived(const AText: string);
-    /// <summary>Append an informational line (status, mode change).</summary>
+    /// <summary>
+    ///   Append an informational line (status, mode change).
+    /// </summary>
     procedure LogInfo(const AText: string);
-    /// <summary>Append an error line.</summary>
+    /// <summary>
+    ///   Append an error line.
+    /// </summary>
     procedure LogError(const AText: string);
 
-    /// <summary>Drop every line.</summary>
+    /// <summary>
+    ///   Drop every line.
+    /// </summary>
     procedure ClearLines;
-    /// <summary>Force the view to the bottom of the buffer.</summary>
+    /// <summary>
+    ///   Force the view to the bottom of the buffer.
+    /// </summary>
     procedure ScrollToTail;
 
-    /// <summary>True while the view is following the latest line.</summary>
+    /// <summary>
+    ///   True while the view is following the latest line.
+    /// </summary>
     property FollowTail: Boolean read FFollowTail;
-    /// <summary>Current number of buffered lines (≤ MaxLines).</summary>
+    /// <summary>
+    ///   Current number of buffered lines (≤ MaxLines).
+    /// </summary>
     function LineCount: Integer;
-    /// <summary>Read a buffered line. Bounds-checked.</summary>
+    /// <summary>
+    ///   Read a buffered line. Bounds-checked.
+    /// </summary>
     function GetLine(Index: Integer): TOBDTerminalLine;
   published
     property MaxLines: Integer read FMaxLines write SetMaxLines default TERM_DEFAULT_MAX_LINES;
@@ -170,6 +188,9 @@ begin
   Height := 240;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDTerminal.Destroy;
 begin
   FLines.Free;
@@ -191,8 +212,12 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// LOG SENT
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.LogSent(const AText: string);
-var L: TOBDTerminalLine;
+var
+  L: TOBDTerminalLine;
 begin
   L.Direction := tdSent;
   L.Text := AText;
@@ -200,8 +225,12 @@ begin
   AppendLine(L);
 end;
 
+//------------------------------------------------------------------------------
+// LOG RECEIVED
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.LogReceived(const AText: string);
-var L: TOBDTerminalLine;
+var
+  L: TOBDTerminalLine;
 begin
   L.Direction := tdReceived;
   L.Text := AText;
@@ -209,8 +238,12 @@ begin
   AppendLine(L);
 end;
 
+//------------------------------------------------------------------------------
+// LOG INFO
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.LogInfo(const AText: string);
-var L: TOBDTerminalLine;
+var
+  L: TOBDTerminalLine;
 begin
   L.Direction := tdInfo;
   L.Text := AText;
@@ -218,8 +251,12 @@ begin
   AppendLine(L);
 end;
 
+//------------------------------------------------------------------------------
+// LOG ERROR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.LogError(const AText: string);
-var L: TOBDTerminalLine;
+var
+  L: TOBDTerminalLine;
 begin
   L.Direction := tdError;
   L.Text := AText;
@@ -227,11 +264,17 @@ begin
   AppendLine(L);
 end;
 
+//------------------------------------------------------------------------------
+// LINE COUNT
+//------------------------------------------------------------------------------
 function TOBDTerminal.LineCount: Integer;
 begin
   Result := FLines.Count;
 end;
 
+//------------------------------------------------------------------------------
+// GET LINE
+//------------------------------------------------------------------------------
 function TOBDTerminal.GetLine(Index: Integer): TOBDTerminalLine;
 begin
   if (Index < 0) or (Index >= FLines.Count) then
@@ -242,6 +285,9 @@ begin
   Result := FLines[Index];
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR LINES
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.ClearLines;
 begin
   FLines.Clear;
@@ -250,6 +296,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// SCROLL TO TAIL
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.ScrollToTail;
 begin
   FScrollY := MaxScroll;
@@ -265,23 +314,35 @@ begin
   Result := FFontSize + 4;
 end;
 
+//------------------------------------------------------------------------------
+// VISIBLE LINE COUNT
+//------------------------------------------------------------------------------
 function TOBDTerminal.VisibleLineCount: Integer;
 begin
   Result := (Height - 2 * TERM_DEFAULT_PADDING) div LineHeight;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CONTENT HEIGHT
+//------------------------------------------------------------------------------
 function TOBDTerminal.ContentHeight: Integer;
 begin
   Result := FLines.Count * LineHeight;
 end;
 
+//------------------------------------------------------------------------------
+// MAX SCROLL
+//------------------------------------------------------------------------------
 function TOBDTerminal.MaxScroll: Integer;
 begin
   Result := ContentHeight - VisibleLineCount * LineHeight;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CLAMP SCROLL
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.ClampScroll;
 begin
   if FScrollY < 0 then FScrollY := 0;
@@ -305,33 +366,99 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SHOW TIMESTAMPS
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetShowTimestamps(const AValue: Boolean);
-begin if FShowTimestamps <> AValue then begin FShowTimestamps := AValue; Invalidate; end; end;
+begin
+  if FShowTimestamps <> AValue then begin FShowTimestamps := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetBorderColor(const AValue: TColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetTextColor(const AValue: TColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Invalidate; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TIMESTAMP COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetTimestampColor(const AValue: TColor);
-begin if FTimestampColor <> AValue then begin FTimestampColor := AValue; Invalidate; end; end;
+begin
+  if FTimestampColor <> AValue then begin FTimestampColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SENT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetSentColor(const AValue: TColor);
-begin if FSentColor <> AValue then begin FSentColor := AValue; Invalidate; end; end;
+begin
+  if FSentColor <> AValue then begin FSentColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET RECEIVED COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetReceivedColor(const AValue: TColor);
-begin if FReceivedColor <> AValue then begin FReceivedColor := AValue; Invalidate; end; end;
+begin
+  if FReceivedColor <> AValue then begin FReceivedColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET INFO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetInfoColor(const AValue: TColor);
-begin if FInfoColor <> AValue then begin FInfoColor := AValue; Invalidate; end; end;
+begin
+  if FInfoColor <> AValue then begin FInfoColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ERROR COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetErrorColor(const AValue: TColor);
-begin if FErrorColor <> AValue then begin FErrorColor := AValue; Invalidate; end; end;
+begin
+  if FErrorColor <> AValue then begin FErrorColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET FONT SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTerminal.SetFontSize(const AValue: Integer);
 begin
   if (AValue >= 6) and (FFontSize <> AValue) then

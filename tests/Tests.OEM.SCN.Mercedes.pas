@@ -20,21 +20,37 @@ type
   [TestFixture]
   TMBSCNTests = class
   public
-    /// <summary>Version request round trip.</summary>
+    /// <summary>
+    ///   Version request round trip.
+    /// </summary>
     [Test] procedure VersionRequestRoundTrip;
-    /// <summary>Version request bad length raises.</summary>
+    /// <summary>
+    ///   Version request bad length raises.
+    /// </summary>
     [Test] procedure VersionRequestBadLengthRaises;
-    /// <summary>Coding request round trip.</summary>
+    /// <summary>
+    ///   Coding request round trip.
+    /// </summary>
     [Test] procedure CodingRequestRoundTrip;
-    /// <summary>Coding request rejects bad v i n.</summary>
+    /// <summary>
+    ///   Coding request rejects bad v i n.
+    /// </summary>
     [Test] procedure CodingRequestRejectsBadVIN;
-    /// <summary>Coding response round trip.</summary>
+    /// <summary>
+    ///   Coding response round trip.
+    /// </summary>
     [Test] procedure CodingResponseRoundTrip;
-    /// <summary>Coding response truncated new s c n raises.</summary>
+    /// <summary>
+    ///   Coding response truncated new s c n raises.
+    /// </summary>
     [Test] procedure CodingResponseTruncatedNewSCNRaises;
-    /// <summary>Default solver fetch fails closed.</summary>
+    /// <summary>
+    ///   Default solver fetch fails closed.
+    /// </summary>
     [Test] procedure DefaultSolverFetchFailsClosed;
-    /// <summary>Default solver coding fails closed.</summary>
+    /// <summary>
+    ///   Default solver coding fails closed.
+    /// </summary>
     [Test] procedure DefaultSolverCodingFailsClosed;
   end;
 
@@ -43,6 +59,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.SCN.Mercedes;
 
+//------------------------------------------------------------------------------
+// VERSION REQUEST ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.VersionRequestRoundTrip;
 var
   In_, Out_: TMBSCNVersionRequest;
@@ -57,6 +76,9 @@ begin
   Assert.AreEqual(Word($00CA), Out_.ECUId);
 end;
 
+//------------------------------------------------------------------------------
+// VERSION REQUEST BAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.VersionRequestBadLengthRaises;
 begin
   Assert.WillRaise(
@@ -64,6 +86,9 @@ begin
     EOBDMBSCN);
 end;
 
+//------------------------------------------------------------------------------
+// CODING REQUEST ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.CodingRequestRoundTrip;
 var
   In_, Out_: TMBSCNCodingRequest;
@@ -82,14 +107,21 @@ begin
   Assert.AreEqual(Integer($02), Integer(Out_.AccessoryList[1]));
 end;
 
+//------------------------------------------------------------------------------
+// CODING REQUEST REJECTS BAD VIN
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.CodingRequestRejectsBadVIN;
-var Req: TMBSCNCodingRequest;
+var
+  Req: TMBSCNCodingRequest;
 begin
   Req.VIN := 'TOO-SHORT';
   Assert.WillRaise(
     procedure begin EncodeMBSCNCodingRequest(Req); end, EOBDMBSCN);
 end;
 
+//------------------------------------------------------------------------------
+// CODING RESPONSE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.CodingResponseRoundTrip;
 var
   In_, Out_: TMBSCNCodingResponse;
@@ -105,8 +137,12 @@ begin
   Assert.AreEqual(Integer($CA), Integer(Out_.ServerSignature[0]));
 end;
 
+//------------------------------------------------------------------------------
+// CODING RESPONSE TRUNCATED NEW SCNRAISES
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.CodingResponseTruncatedNewSCNRaises;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   // Declares 4 NewSCN bytes but only 2 follow
   Bytes := TBytes.Create($00, $04, $AA, $BB);
@@ -114,6 +150,9 @@ begin
     procedure begin DecodeMBSCNCodingResponse(Bytes); end, EOBDMBSCN);
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SOLVER FETCH FAILS CLOSED
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.DefaultSolverFetchFailsClosed;
 var
   Solver: IMBSCNSolver;
@@ -126,6 +165,9 @@ begin
     procedure begin Solver.FetchCurrentVersion(Req); end, EOBDMBSCNNoSolver);
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SOLVER CODING FAILS CLOSED
+//------------------------------------------------------------------------------
 procedure TMBSCNTests.DefaultSolverCodingFailsClosed;
 var
   Solver: IMBSCNSolver;

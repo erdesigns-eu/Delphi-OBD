@@ -30,6 +30,9 @@ function ECU(const AAddress: Word;
 
 implementation
 
+//------------------------------------------------------------------------------
+// DID
+//------------------------------------------------------------------------------
 function DID(const ADID: Word;
   const AName, ADescription: string): TOBDOEMDataIdentifier;
 begin
@@ -39,6 +42,9 @@ begin
   Result.Description := ADescription;
 end;
 
+//------------------------------------------------------------------------------
+// DID
+//------------------------------------------------------------------------------
 function DID(const ADID: Word;
   const AName, ADescription: string;
   const AEcuAddress: Word): TOBDOEMDataIdentifier;
@@ -47,6 +53,9 @@ begin
   Result.EcuAddress := AEcuAddress;
 end;
 
+//------------------------------------------------------------------------------
+// ROUTINE
+//------------------------------------------------------------------------------
 function Routine(const AIdentifier: Word;
   const AName, ADescription: string): TOBDOEMRoutine;
 begin
@@ -56,6 +65,9 @@ begin
   Result.Description := ADescription;
 end;
 
+//------------------------------------------------------------------------------
+// ROUTINE
+//------------------------------------------------------------------------------
 function Routine(const AIdentifier: Word;
   const AName, ADescription: string;
   const AEcuAddress: Word): TOBDOEMRoutine;
@@ -64,6 +76,9 @@ begin
   Result.EcuAddress := AEcuAddress;
 end;
 
+//------------------------------------------------------------------------------
+// ECU
+//------------------------------------------------------------------------------
 function ECU(const AAddress: Word;
   const AName, ACommonName: string): TOBDOEMECU;
 begin

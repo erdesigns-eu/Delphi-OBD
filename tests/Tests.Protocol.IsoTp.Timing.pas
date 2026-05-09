@@ -20,31 +20,57 @@ type
   [TestFixture]
   TIsoTpTimingTests = class
   public
-    /// <summary>Stmin byte zero is zero micros.</summary>
+    /// <summary>
+    ///   Stmin byte zero is zero micros.
+    /// </summary>
     [Test] procedure StminByteZeroIsZeroMicros;
-    /// <summary>Stmin byte127 is127 milliseconds.</summary>
+    /// <summary>
+    ///   Stmin byte127 is127 milliseconds.
+    /// </summary>
     [Test] procedure StminByte127Is127Milliseconds;
-    /// <summary>Stmin byte f1 is hundred micros.</summary>
+    /// <summary>
+    ///   Stmin byte f1 is hundred micros.
+    /// </summary>
     [Test] procedure StminByteF1IsHundredMicros;
-    /// <summary>Stmin byte f9 is nine hundred micros.</summary>
+    /// <summary>
+    ///   Stmin byte f9 is nine hundred micros.
+    /// </summary>
     [Test] procedure StminByteF9IsNineHundredMicros;
-    /// <summary>Stmin reserved range raises.</summary>
+    /// <summary>
+    ///   Stmin reserved range raises.
+    /// </summary>
     [Test] procedure StminReservedRangeRaises;
-    /// <summary>Encode round trips milliseconds.</summary>
+    /// <summary>
+    ///   Encode round trips milliseconds.
+    /// </summary>
     [Test] procedure EncodeRoundTripsMilliseconds;
-    /// <summary>Encode round trips microseconds.</summary>
+    /// <summary>
+    ///   Encode round trips microseconds.
+    /// </summary>
     [Test] procedure EncodeRoundTripsMicroseconds;
-    /// <summary>Encode rejects unrepresentable.</summary>
+    /// <summary>
+    ///   Encode rejects unrepresentable.
+    /// </summary>
     [Test] procedure EncodeRejectsUnrepresentable;
-    /// <summary>Compliant stream passes.</summary>
+    /// <summary>
+    ///   Compliant stream passes.
+    /// </summary>
     [Test] procedure CompliantStreamPasses;
-    /// <summary>Undershot gap flags violation.</summary>
+    /// <summary>
+    ///   Undershot gap flags violation.
+    /// </summary>
     [Test] procedure UndershotGapFlagsViolation;
-    /// <summary>Block size overrun flags violation.</summary>
+    /// <summary>
+    ///   Block size overrun flags violation.
+    /// </summary>
     [Test] procedure BlockSizeOverrunFlagsViolation;
-    /// <summary>Tolerance forgives small undershoot.</summary>
+    /// <summary>
+    ///   Tolerance forgives small undershoot.
+    /// </summary>
     [Test] procedure ToleranceForgivesSmallUndershoot;
-    /// <summary>Reset after flow control.</summary>
+    /// <summary>
+    ///   Reset after flow control.
+    /// </summary>
     [Test] procedure ResetAfterFlowControl;
   end;
 
@@ -53,18 +79,41 @@ implementation
 uses
   System.SysUtils, OBD.Protocol.IsoTp.Timing;
 
+//------------------------------------------------------------------------------
+// STMIN BYTE ZERO IS ZERO MICROS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.StminByteZeroIsZeroMicros;
-begin Assert.AreEqual(0, DecodeStminMicros($00)); end;
+begin
+  Assert.AreEqual(0, DecodeStminMicros($00));
+end;
 
+//------------------------------------------------------------------------------
+// STMIN BYTE127 IS127 MILLISECONDS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.StminByte127Is127Milliseconds;
-begin Assert.AreEqual(127000, DecodeStminMicros($7F)); end;
+begin
+  Assert.AreEqual(127000, DecodeStminMicros($7F));
+end;
 
+//------------------------------------------------------------------------------
+// STMIN BYTE F1 IS HUNDRED MICROS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.StminByteF1IsHundredMicros;
-begin Assert.AreEqual(100, DecodeStminMicros($F1)); end;
+begin
+  Assert.AreEqual(100, DecodeStminMicros($F1));
+end;
 
+//------------------------------------------------------------------------------
+// STMIN BYTE F9 IS NINE HUNDRED MICROS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.StminByteF9IsNineHundredMicros;
-begin Assert.AreEqual(900, DecodeStminMicros($F9)); end;
+begin
+  Assert.AreEqual(900, DecodeStminMicros($F9));
+end;
 
+//------------------------------------------------------------------------------
+// STMIN RESERVED RANGE RAISES
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.StminReservedRangeRaises;
 begin
   Assert.WillRaise(procedure begin DecodeStminMicros($80); end, EOBDIsoTpTiming);
@@ -72,18 +121,27 @@ begin
   Assert.WillRaise(procedure begin DecodeStminMicros($FA); end, EOBDIsoTpTiming);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE ROUND TRIPS MILLISECONDS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.EncodeRoundTripsMilliseconds;
 begin
   Assert.AreEqual($05, Integer(EncodeStminMicros(5000)));   // 5 ms
   Assert.AreEqual($7F, Integer(EncodeStminMicros(127000))); // 127 ms
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE ROUND TRIPS MICROSECONDS
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.EncodeRoundTripsMicroseconds;
 begin
   Assert.AreEqual($F1, Integer(EncodeStminMicros(100)));
   Assert.AreEqual($F9, Integer(EncodeStminMicros(900)));
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE REJECTS UNREPRESENTABLE
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.EncodeRejectsUnrepresentable;
 begin
   Assert.WillRaise(procedure begin EncodeStminMicros(150); end, EOBDIsoTpTiming);
@@ -91,6 +149,9 @@ begin
   Assert.WillRaise(procedure begin EncodeStminMicros(200000); end, EOBDIsoTpTiming);
 end;
 
+//------------------------------------------------------------------------------
+// MK OBS
+//------------------------------------------------------------------------------
 function MkObs(Kind: TIsoTpFrameKind; T: Int64;
   IsTester: Boolean = True): TIsoTpFrameObservation;
 begin
@@ -99,6 +160,9 @@ begin
   Result.SenderIsTester := IsTester;
 end;
 
+//------------------------------------------------------------------------------
+// COMPLIANT STREAM PASSES
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.CompliantStreamPasses;
 var
   Checker: TOBDIsoTpTimingChecker;
@@ -122,6 +186,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// UNDERSHOT GAP FLAGS VIOLATION
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.UndershotGapFlagsViolation;
 var
   Checker: TOBDIsoTpTimingChecker;
@@ -145,6 +212,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BLOCK SIZE OVERRUN FLAGS VIOLATION
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.BlockSizeOverrunFlagsViolation;
 var
   Checker: TOBDIsoTpTimingChecker;
@@ -167,6 +237,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TOLERANCE FORGIVES SMALL UNDERSHOOT
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.ToleranceForgivesSmallUndershoot;
 var
   Checker: TOBDIsoTpTimingChecker;
@@ -188,6 +261,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESET AFTER FLOW CONTROL
+//------------------------------------------------------------------------------
 procedure TIsoTpTimingTests.ResetAfterFlowControl;
 var
   Checker: TOBDIsoTpTimingChecker;

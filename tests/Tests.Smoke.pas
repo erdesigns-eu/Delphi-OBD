@@ -33,11 +33,17 @@ implementation
 
 { TSmokeTests }
 
+//------------------------------------------------------------------------------
+// HARNESS IS ALIVE
+//------------------------------------------------------------------------------
 procedure TSmokeTests.HarnessIsAlive;
 begin
   Assert.Pass;
 end;
 
+//------------------------------------------------------------------------------
+// INTEGER ADDITION WORKS
+//------------------------------------------------------------------------------
 procedure TSmokeTests.IntegerAdditionWorks(const A, B, Expected: Integer);
 begin
   Assert.AreEqual(Expected, A + B);

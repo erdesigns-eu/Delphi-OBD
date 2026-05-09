@@ -178,11 +178,17 @@ type
     /// </summary>
     property SourceTag: string read FSourceTag write FSourceTag;
 
-    /// <summary>Add an extra sink that receives every event.</summary>
+    /// <summary>
+    ///   Add an extra sink that receives every event.
+    /// </summary>
     procedure RegisterSink(const Sink: IOBDLogSink);
-    /// <summary>Remove a previously-registered sink.</summary>
+    /// <summary>
+    ///   Remove a previously-registered sink.
+    /// </summary>
     procedure UnregisterSink(const Sink: IOBDLogSink);
-    /// <summary>Number of registered sinks.</summary>
+    /// <summary>
+    ///   Number of registered sinks.
+    /// </summary>
     function SinkCount: Integer;
   end;
 
@@ -243,18 +249,27 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// UNREGISTER SINK
+//------------------------------------------------------------------------------
 procedure TOBDLogger.UnregisterSink(const Sink: IOBDLogSink);
 begin
   FCriticalSection.Enter;
   try FSinks.Remove(Sink); finally FCriticalSection.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// SINK COUNT
+//------------------------------------------------------------------------------
 function TOBDLogger.SinkCount: Integer;
 begin
   FCriticalSection.Enter;
   try Result := FSinks.Count; finally FCriticalSection.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// MAP LEVEL
+//------------------------------------------------------------------------------
 function TOBDLogger.MapLevel(const Level: TLogLevel): TOBDLogLevel;
 begin
   // The legacy enum order matches TOBDLogLevel one-to-one, but explicit
@@ -269,6 +284,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DISPATCH TO SINKS
+//------------------------------------------------------------------------------
 procedure TOBDLogger.DispatchToSinks(const Level: TLogLevel; const Message: string);
 var
   Snapshot: TArray<IOBDLogSink>;
@@ -441,6 +459,9 @@ begin
   Log(llDebug, Message);
 end;
 
+//------------------------------------------------------------------------------
+// DEBUG
+//------------------------------------------------------------------------------
 procedure TOBDLogger.Debug(const Format: string; const Args: array of const);
 begin
   Log(llDebug, Format, Args);
@@ -454,6 +475,9 @@ begin
   Log(llInfo, Message);
 end;
 
+//------------------------------------------------------------------------------
+// INFO
+//------------------------------------------------------------------------------
 procedure TOBDLogger.Info(const Format: string; const Args: array of const);
 begin
   Log(llInfo, Format, Args);
@@ -467,6 +491,9 @@ begin
   Log(llWarning, Message);
 end;
 
+//------------------------------------------------------------------------------
+// WARNING
+//------------------------------------------------------------------------------
 procedure TOBDLogger.Warning(const Format: string; const Args: array of const);
 begin
   Log(llWarning, Format, Args);
@@ -480,6 +507,9 @@ begin
   Log(llError, Message);
 end;
 
+//------------------------------------------------------------------------------
+// ERROR
+//------------------------------------------------------------------------------
 procedure TOBDLogger.Error(const Format: string; const Args: array of const);
 begin
   Log(llError, Format, Args);
@@ -493,6 +523,9 @@ begin
   Log(llCritical, Message);
 end;
 
+//------------------------------------------------------------------------------
+// CRITICAL
+//------------------------------------------------------------------------------
 procedure TOBDLogger.Critical(const Format: string; const Args: array of const);
 begin
   Log(llCritical, Format, Args);

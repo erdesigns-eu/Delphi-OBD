@@ -923,6 +923,9 @@ function FormatATCommand(Command: ATCommand; Params: Array of const): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// FORMAT ATCOMMAND
+//------------------------------------------------------------------------------
 function FormatATCommand(Command: ATCommand; Params: Array of const): string;
 var
   ExpectedParamCount, I, C: Integer;

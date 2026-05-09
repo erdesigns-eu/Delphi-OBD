@@ -134,6 +134,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTachometerFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -176,17 +179,31 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// EASE OUT CUBIC
+//------------------------------------------------------------------------------
 function TOBDTachometerFMX.EaseOutCubic(T: Single): Single;
 begin
   T := 1 - T;
   Result := 1 - (T * T * T);
 end;
 
+//------------------------------------------------------------------------------
+// UPDATE ANIMATION VALUE
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.UpdateAnimationValue;
 var Elapsed: Int64; Progress: Single;
 begin
-  if not FAnimationEnabled then begin FDisplayValue := FValue; Exit; end;
-  if FAnimationDurationMs <= 0 then begin FDisplayValue := FValue; Exit; end;
+  if not FAnimationEnabled then
+  begin
+    FDisplayValue := FValue;
+    Exit;
+  end;
+  if FAnimationDurationMs <= 0 then
+  begin
+    FDisplayValue := FValue;
+    Exit;
+  end;
   Elapsed := FStopwatch.ElapsedMilliseconds - FAnimationStartMs;
   if Elapsed >= FAnimationDurationMs then
     FDisplayValue := FValue
@@ -198,11 +215,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SHIFT LIGHT ACTIVE
+//------------------------------------------------------------------------------
 function TOBDTachometerFMX.ShiftLightActive: Boolean;
 begin
   Result := FShowShiftLight and (FDisplayValue >= FShiftPoint);
 end;
 
+//------------------------------------------------------------------------------
+// SET MIN
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetMin(const AValue: Single);
 begin
   if FMin <> AValue then
@@ -214,6 +237,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetMax(const AValue: Single);
 begin
   if FMax <> AValue then
@@ -225,8 +251,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetValue(const AValue: Single);
-var Clamped: Single;
+var
+  Clamped: Single;
 begin
   Clamped := AValue;
   if Clamped < FMin then Clamped := FMin;
@@ -246,44 +276,199 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// SET REDLINE FROM
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetRedlineFrom(const AValue: Single);
-begin if FRedlineFrom <> AValue then begin FRedlineFrom := AValue; Redraw; end; end;
+begin
+  if FRedlineFrom <> AValue then begin FRedlineFrom := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHIFT POINT
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetShiftPoint(const AValue: Single);
-begin if FShiftPoint <> AValue then begin FShiftPoint := AValue; Redraw; end; end;
+begin
+  if FShiftPoint <> AValue then begin FShiftPoint := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET START ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetStartAngle(const AValue: Single);
-begin if FStartAngle <> AValue then begin FStartAngle := AValue; Redraw; end; end;
+begin
+  if FStartAngle <> AValue then begin FStartAngle := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SWEEP ANGLE
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetSweepAngle(const AValue: Single);
-begin if FSweepAngle <> AValue then begin FSweepAngle := AValue; Redraw; end; end;
+begin
+  if FSweepAngle <> AValue then begin FSweepAngle := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET MAJOR TICK INTERVAL
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetMajorTickInterval(const AValue: Single);
-begin if (AValue > 0) and (FMajorTickInterval <> AValue) then begin FMajorTickInterval := AValue; Redraw; end; end;
+begin
+  if (AValue > 0) and (FMajorTickInterval <> AValue) then begin FMajorTickInterval := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET MINOR TICK INTERVAL
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetMinorTickInterval(const AValue: Single);
-begin if (AValue > 0) and (FMinorTickInterval <> AValue) then begin FMinorTickInterval := AValue; Redraw; end; end;
+begin
+  if (AValue > 0) and (FMinorTickInterval <> AValue) then begin FMinorTickInterval := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TICK LABEL DIVISOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetTickLabelDivisor(const AValue: Single);
-begin if (AValue > 0) and (FTickLabelDivisor <> AValue) then begin FTickLabelDivisor := AValue; Redraw; end; end;
+begin
+  if (AValue > 0) and (FTickLabelDivisor <> AValue) then begin FTickLabelDivisor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET RING COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetRingColor(const AValue: TAlphaColor);
-begin if FRingColor <> AValue then begin FRingColor := AValue; Redraw; end; end;
+begin
+  if FRingColor <> AValue then begin FRingColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TICK COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetTickColor(const AValue: TAlphaColor);
-begin if FTickColor <> AValue then begin FTickColor := AValue; Redraw; end; end;
+begin
+  if FTickColor <> AValue then begin FTickColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET REDLINE COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetRedlineColor(const AValue: TAlphaColor);
-begin if FRedlineColor <> AValue then begin FRedlineColor := AValue; Redraw; end; end;
+begin
+  if FRedlineColor <> AValue then begin FRedlineColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET NEEDLE COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetNeedleColor(const AValue: TAlphaColor);
-begin if FNeedleColor <> AValue then begin FNeedleColor := AValue; Redraw; end; end;
+begin
+  if FNeedleColor <> AValue then begin FNeedleColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHIFT LIGHT COLOR OFF
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetShiftLightColorOff(const AValue: TAlphaColor);
-begin if FShiftLightColorOff <> AValue then begin FShiftLightColorOff := AValue; Redraw; end; end;
+begin
+  if FShiftLightColorOff <> AValue then begin FShiftLightColorOff := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHIFT LIGHT COLOR ON
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetShiftLightColorOn(const AValue: TAlphaColor);
-begin if FShiftLightColorOn <> AValue then begin FShiftLightColorOn := AValue; Redraw; end; end;
+begin
+  if FShiftLightColorOn <> AValue then begin FShiftLightColorOn := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetCaption(const AValue: string);
-begin if FCaption <> AValue then begin FCaption := AValue; Redraw; end; end;
+begin
+  if FCaption <> AValue then begin FCaption := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET UNITS
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetUnits(const AValue: string);
-begin if FUnits <> AValue then begin FUnits := AValue; Redraw; end; end;
+begin
+  if FUnits <> AValue then begin FUnits := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW SHIFT LIGHT
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetShowShiftLight(const AValue: Boolean);
-begin if FShowShiftLight <> AValue then begin FShowShiftLight := AValue; Redraw; end; end;
+begin
+  if FShowShiftLight <> AValue then begin FShowShiftLight := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ANIMATION ENABLED
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.SetAnimationEnabled(const AValue: Boolean);
 begin
   if FAnimationEnabled <> AValue then
@@ -293,9 +478,20 @@ begin
     Redraw;
   end;
 end;
-procedure TOBDTachometerFMX.SetAnimationDurationMs(const AValue: Integer);
-begin if (AValue >= 0) and (FAnimationDurationMs <> AValue) then begin FAnimationDurationMs := AValue; Redraw; end; end;
 
+//------------------------------------------------------------------------------
+// SET ANIMATION DURATION MS
+//------------------------------------------------------------------------------
+procedure TOBDTachometerFMX.SetAnimationDurationMs(const AValue: Integer);
+begin
+  if (AValue >= 0) and (FAnimationDurationMs <> AValue) then begin FAnimationDurationMs := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDTachometerFMX.HandleDraw(ASender: TObject; const ACanvas: ISkCanvas;
   const ADest: TRectF; const AOpacity: Single);
 var

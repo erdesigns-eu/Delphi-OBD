@@ -29,7 +29,9 @@ type
   /// </summary>
   IFirmwareSignatureVerifier = interface
     ['{1B6F4C9B-9F32-4DC4-8C4E-8B87A6F7E8B0}']
-    /// <summary>Algorithm name for diagnostics ("SHA-256", "RSA-SHA256", …).</summary>
+    /// <summary>
+    ///   Algorithm name for diagnostics ("SHA-256", "RSA-SHA256", …).
+    /// </summary>
     function AlgorithmName: string;
     /// <summary>
     ///   True if <c>Firmware</c> matches <c>Signature</c>. Both blobs are
@@ -61,11 +63,16 @@ type
     function Verify(const Firmware, Signature: TBytes): Boolean;
   end;
 
-/// <summary>SHA-256 helper.</summary>
+/// <summary>
+///   SHA-256 helper.
+/// </summary>
 function ComputeSha256(const Data: TBytes): TBytes;
 
 implementation
 
+//------------------------------------------------------------------------------
+// COMPUTE SHA256
+//------------------------------------------------------------------------------
 function ComputeSha256(const Data: TBytes): TBytes;
 var
   H: THashSHA2;
@@ -76,6 +83,9 @@ begin
   Result := H.HashAsBytes;
 end;
 
+//------------------------------------------------------------------------------
+// BYTES EQUAL
+//------------------------------------------------------------------------------
 function BytesEqual(const A, B: TBytes): Boolean;
 var
   I: Integer;
@@ -93,11 +103,18 @@ end;
 //==============================================================================
 // TOBDSha256SignatureVerifier
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDSha256SignatureVerifier.AlgorithmName: string;
 begin
   Result := 'SHA-256';
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDSha256SignatureVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 begin
   Result := BytesEqual(ComputeSha256(Firmware), Signature);
@@ -106,11 +123,18 @@ end;
 //==============================================================================
 // TOBDPermissiveSignatureVerifier
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDPermissiveSignatureVerifier.AlgorithmName: string;
 begin
   Result := 'PERMISSIVE (development only)';
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDPermissiveSignatureVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 begin
   Result := True;

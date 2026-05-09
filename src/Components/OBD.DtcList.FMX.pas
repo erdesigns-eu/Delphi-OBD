@@ -131,6 +131,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDDtcListFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -156,12 +159,22 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDDtcListFMX.Destroy;
-begin FItems.Free; inherited; end;
+begin
+  FItems.Free;
+  inherited;
+end;
 
+//------------------------------------------------------------------------------
+// ADD ITEM
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.AddItem(const Code, Description: string;
   Severity: TOBDDtcSeverity; Status: TOBDDtcStatus; Tag: NativeInt): Integer;
-var Item: TOBDDtcItemFMX;
+var
+  Item: TOBDDtcItemFMX;
 begin
   Item.Code := Code; Item.Description := Description;
   Item.Severity := Severity; Item.Status := Status; Item.Tag := Tag;
@@ -169,6 +182,9 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// UPDATE ITEM
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.UpdateItem(Index: Integer; const Item: TOBDDtcItemFMX);
 begin
   if (Index < 0) or (Index >= FItems.Count) then Exit;
@@ -176,6 +192,9 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE ITEM
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.RemoveItem(Index: Integer);
 begin
   if (Index < 0) or (Index >= FItems.Count) then Exit;
@@ -185,43 +204,79 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR ITEMS
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.ClearItems;
 begin
   FItems.Clear; FSelectedIndex := -1; FScrollY := 0; Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// GET ITEM
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.GetItem(Index: Integer): TOBDDtcItemFMX;
-begin Result := FItems[Index]; end;
+begin
+  Result := FItems[Index];
+end;
 
+//------------------------------------------------------------------------------
+// GET ITEM COUNT
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.GetItemCount: Integer;
-begin Result := FItems.Count; end;
+begin
+  Result := FItems.Count;
+end;
 
+//------------------------------------------------------------------------------
+// LIST AREA TOP
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.ListAreaTop: Integer;
-begin if FShowHeader then Result := FHeaderHeight else Result := 0; end;
+begin
+  if FShowHeader then Result := FHeaderHeight else Result := 0;
+end;
 
+//------------------------------------------------------------------------------
+// LIST AREA HEIGHT
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.ListAreaHeight: Integer;
 begin
   Result := Trunc(Height) - ListAreaTop;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CONTENT HEIGHT
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.ContentHeight: Integer;
-begin Result := FItems.Count * FRowHeight; end;
+begin
+  Result := FItems.Count * FRowHeight;
+end;
 
+//------------------------------------------------------------------------------
+// MAX SCROLL
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.MaxScroll: Integer;
 begin
   Result := ContentHeight - ListAreaHeight;
   if Result < 0 then Result := 0;
 end;
 
+//------------------------------------------------------------------------------
+// CLAMP SCROLL
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.ClampScroll;
 begin
   if FScrollY < 0 then FScrollY := 0;
   if FScrollY > MaxScroll then FScrollY := MaxScroll;
 end;
 
+//------------------------------------------------------------------------------
+// INDEX AT Y
+//------------------------------------------------------------------------------
 function TOBDDtcListFMX.IndexAtY(Y: Single): Integer;
-var RelY, Idx: Integer;
+var
+  RelY, Idx: Integer;
 begin
   Result := -1;
   if Y < ListAreaTop then Exit;
@@ -230,8 +285,12 @@ begin
   if (Idx >= 0) and (Idx < FItems.Count) then Result := Idx;
 end;
 
+//------------------------------------------------------------------------------
+// ENSURE VISIBLE
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.EnsureVisible(Index: Integer);
-var RowTop, RowBottom: Integer;
+var
+  RowTop, RowBottom: Integer;
 begin
   if (Index < 0) or (Index >= FItems.Count) then Exit;
   RowTop := Index * FRowHeight;
@@ -243,53 +302,176 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// SET ROW HEIGHT
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.SetRowHeight(const AValue: Integer);
 begin
   if (AValue >= 12) and (FRowHeight <> AValue) then
-  begin FRowHeight := AValue; ClampScroll; Redraw; end;
+  begin
+    FRowHeight := AValue;
+    ClampScroll;
+    Redraw;
+  end;
 end;
+
+//------------------------------------------------------------------------------
+// SET HEADER HEIGHT
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.SetHeaderHeight(const AValue: Integer);
 begin
   if (AValue >= 0) and (FHeaderHeight <> AValue) then
-  begin FHeaderHeight := AValue; ClampScroll; Redraw; end;
+  begin
+    FHeaderHeight := AValue;
+    ClampScroll;
+    Redraw;
+  end;
 end;
-procedure TOBDDtcListFMX.SetSelectedIndex(const AValue: Integer);
-begin if FSelectedIndex <> AValue then begin FSelectedIndex := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetHeaderBackgroundColor(const AValue: TAlphaColor);
-begin if FHeaderBackgroundColor <> AValue then begin FHeaderBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetRowAltColor(const AValue: TAlphaColor);
-begin if FRowAltColor <> AValue then begin FRowAltColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetSelectionColor(const AValue: TAlphaColor);
-begin if FSelectionColor <> AValue then begin FSelectionColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetSeverityInfoColor(const AValue: TAlphaColor);
-begin if FSeverityInfoColor <> AValue then begin FSeverityInfoColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetSeverityWarningColor(const AValue: TAlphaColor);
-begin if FSeverityWarningColor <> AValue then begin FSeverityWarningColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetSeverityCriticalColor(const AValue: TAlphaColor);
-begin if FSeverityCriticalColor <> AValue then begin FSeverityCriticalColor := AValue; Redraw; end; end;
-procedure TOBDDtcListFMX.SetShowHeader(const AValue: Boolean);
-begin if FShowHeader <> AValue then begin FShowHeader := AValue; ClampScroll; Redraw; end; end;
-procedure TOBDDtcListFMX.SetShowAlternateRows(const AValue: Boolean);
-begin if FShowAlternateRows <> AValue then begin FShowAlternateRows := AValue; Redraw; end; end;
 
+//------------------------------------------------------------------------------
+// SET SELECTED INDEX
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetSelectedIndex(const AValue: Integer);
+begin
+  if FSelectedIndex <> AValue then begin FSelectedIndex := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetBackgroundColor(const AValue: TAlphaColor);
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET HEADER BACKGROUND COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetHeaderBackgroundColor(const AValue: TAlphaColor);
+begin
+  if FHeaderBackgroundColor <> AValue then begin FHeaderBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET ROW ALT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetRowAltColor(const AValue: TAlphaColor);
+begin
+  if FRowAltColor <> AValue then begin FRowAltColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetBorderColor(const AValue: TAlphaColor);
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetTextColor(const AValue: TAlphaColor);
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SELECTION COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetSelectionColor(const AValue: TAlphaColor);
+begin
+  if FSelectionColor <> AValue then begin FSelectionColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SEVERITY INFO COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetSeverityInfoColor(const AValue: TAlphaColor);
+begin
+  if FSeverityInfoColor <> AValue then begin FSeverityInfoColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SEVERITY WARNING COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetSeverityWarningColor(const AValue: TAlphaColor);
+begin
+  if FSeverityWarningColor <> AValue then begin FSeverityWarningColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SEVERITY CRITICAL COLOR
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetSeverityCriticalColor(const AValue: TAlphaColor);
+begin
+  if FSeverityCriticalColor <> AValue then begin FSeverityCriticalColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW HEADER
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetShowHeader(const AValue: Boolean);
+begin
+  if FShowHeader <> AValue then begin FShowHeader := AValue;
+  ClampScroll;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW ALTERNATE ROWS
+//------------------------------------------------------------------------------
+procedure TOBDDtcListFMX.SetShowAlternateRows(const AValue: Boolean);
+begin
+  if FShowAlternateRows <> AValue then begin FShowAlternateRows := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// MOUSE DOWN
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Single);
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   inherited;
   if not IsFocused then SetFocus;
   if Button <> TMouseButton.mbLeft then Exit;
   Idx := IndexAtY(Y);
-  if Idx <> FSelectedIndex then begin FSelectedIndex := Idx; Redraw; end;
+  if Idx <> FSelectedIndex then
+  begin
+    FSelectedIndex := Idx;
+    Redraw;
+  end;
   if (Idx >= 0) and Assigned(FOnDtcClick) then FOnDtcClick(Self, Idx);
 end;
 
+//------------------------------------------------------------------------------
+// DBL CLICK
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.DblClick;
 begin
   inherited;
@@ -297,8 +479,12 @@ begin
     FOnDtcDoubleClick(Self, FSelectedIndex);
 end;
 
+//------------------------------------------------------------------------------
+// MOUSE WHEEL
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.MouseWheel(Shift: TShiftState; WheelDelta: Integer;
-  var Handled: Boolean);
+  var
+    Handled: Boolean);
 const
   WHEEL_LINE_DELTA = 120;
 begin
@@ -311,6 +497,9 @@ begin
   Handled := True;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDDtcListFMX.HandleDraw(ASender: TObject;
   const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 var

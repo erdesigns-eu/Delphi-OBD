@@ -15,53 +15,91 @@ type
   [TestFixture]
   TPremiumVINTests = class
   public
-    /// <summary>Porsche claims zuffenhausen and leipzig.</summary>
+    /// <summary>
+    ///   Porsche claims zuffenhausen and leipzig.
+    /// </summary>
     [Test] procedure PorscheClaimsZuffenhausenAndLeipzig;
-    /// <summary>J l r claims jaguar and land rover plants.</summary>
+    /// <summary>
+    ///   J l r claims jaguar and land rover plants.
+    /// </summary>
     [Test] procedure JLRClaimsJaguarAndLandRoverPlants;
-    /// <summary>Iveco claims italy and spain.</summary>
+    /// <summary>
+    ///   Iveco claims italy and spain.
+    /// </summary>
     [Test] procedure IvecoClaimsItalyAndSpain;
-    /// <summary>Isuzu claims japan and u s a.</summary>
+    /// <summary>
+    ///   Isuzu claims japan and u s a.
+    /// </summary>
     [Test] procedure IsuzuClaimsJapanAndUSA;
-    /// <summary>Rivian claims normal i l.</summary>
+    /// <summary>
+    ///   Rivian claims normal i l.
+    /// </summary>
     [Test] procedure RivianClaimsNormalIL;
-    /// <summary>Polestar claims non volvo cars w m is.</summary>
+    /// <summary>
+    ///   Polestar claims non volvo cars w m is.
+    /// </summary>
     [Test] procedure PolestarClaimsNonVolvoCarsWMIs;
-    /// <summary>Polestar does not collide with volvo cars.</summary>
+    /// <summary>
+    ///   Polestar does not collide with volvo cars.
+    /// </summary>
     [Test] procedure PolestarDoesNotCollideWithVolvoCars;
   end;
 
   [TestFixture]
   TPremiumCatalogTests = class
   public
-    /// <summary>Porsche exposes p d k and p a s m.</summary>
+    /// <summary>
+    ///   Porsche exposes p d k and p a s m.
+    /// </summary>
     [Test] procedure PorscheExposesPDKAndPASM;
-    /// <summary>J l r exposes air suspension routine.</summary>
+    /// <summary>
+    ///   J l r exposes air suspension routine.
+    /// </summary>
     [Test] procedure JLRExposesAirSuspensionRoutine;
-    /// <summary>Iveco exposes f p t engine.</summary>
+    /// <summary>
+    ///   Iveco exposes f p t engine.
+    /// </summary>
     [Test] procedure IvecoExposesFPTEngine;
-    /// <summary>Isuzu exposes aftertreatment e c u.</summary>
+    /// <summary>
+    ///   Isuzu exposes aftertreatment e c u.
+    /// </summary>
     [Test] procedure IsuzuExposesAftertreatmentECU;
-    /// <summary>Rivian exposes quad motor.</summary>
+    /// <summary>
+    ///   Rivian exposes quad motor.
+    /// </summary>
     [Test] procedure RivianExposesQuadMotor;
-    /// <summary>Polestar exposes evcc and pilot assist.</summary>
+    /// <summary>
+    ///   Polestar exposes evcc and pilot assist.
+    /// </summary>
     [Test] procedure PolestarExposesEvccAndPilotAssist;
   end;
 
   [TestFixture]
   TPremiumDecoderTests = class
   public
-    /// <summary>Porsche decodes paint code.</summary>
+    /// <summary>
+    ///   Porsche decodes paint code.
+    /// </summary>
     [Test] procedure PorscheDecodesPaintCode;
-    /// <summary>J l r decodes model code.</summary>
+    /// <summary>
+    ///   J l r decodes model code.
+    /// </summary>
     [Test] procedure JLRDecodesModelCode;
-    /// <summary>Iveco decodes model code.</summary>
+    /// <summary>
+    ///   Iveco decodes model code.
+    /// </summary>
     [Test] procedure IvecoDecodesModelCode;
-    /// <summary>Isuzu decodes engine code.</summary>
+    /// <summary>
+    ///   Isuzu decodes engine code.
+    /// </summary>
     [Test] procedure IsuzuDecodesEngineCode;
-    /// <summary>Rivian decodes drivetrain.</summary>
+    /// <summary>
+    ///   Rivian decodes drivetrain.
+    /// </summary>
     [Test] procedure RivianDecodesDrivetrain;
-    /// <summary>Polestar decodes drivetrain.</summary>
+    /// <summary>
+    ///   Polestar decodes drivetrain.
+    /// </summary>
     [Test] procedure PolestarDecodesDrivetrain;
   end;
 
@@ -74,6 +112,9 @@ uses
   OBD.OEM.Isuzu, OBD.OEM.Rivian, OBD.OEM.Polestar,
   OBD.OEM.Volvo;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -83,6 +124,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PORSCHE CLAIMS ZUFFENHAUSEN AND LEIPZIG
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.PorscheClaimsZuffenhausenAndLeipzig;
 var
   Ext: IOBDOEMExtension;
@@ -93,6 +138,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('WVW')), 'should not claim VW');
 end;
 
+//------------------------------------------------------------------------------
+// JLRCLAIMS JAGUAR AND LAND ROVER PLANTS
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.JLRClaimsJaguarAndLandRoverPlants;
 var
   Ext: IOBDOEMExtension;
@@ -104,6 +152,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('MA1')), 'JLR India Pune');
 end;
 
+//------------------------------------------------------------------------------
+// IVECO CLAIMS ITALY AND SPAIN
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.IvecoClaimsItalyAndSpain;
 var
   Ext: IOBDOEMExtension;
@@ -113,6 +164,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('VCF')), 'Iveco Spain');
 end;
 
+//------------------------------------------------------------------------------
+// ISUZU CLAIMS JAPAN AND USA
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.IsuzuClaimsJapanAndUSA;
 var
   Ext: IOBDOEMExtension;
@@ -123,6 +177,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('5RY')), 'Isuzu Charlotte MI');
 end;
 
+//------------------------------------------------------------------------------
+// RIVIAN CLAIMS NORMAL IL
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.RivianClaimsNormalIL;
 var
   Ext: IOBDOEMExtension;
@@ -132,6 +189,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('5YJ')), 'should not claim Tesla');
 end;
 
+//------------------------------------------------------------------------------
+// POLESTAR CLAIMS NON VOLVO CARS WMIS
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.PolestarClaimsNonVolvoCarsWMIs;
 var
   Ext: IOBDOEMExtension;
@@ -141,6 +201,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('LFP')), 'Polestar 4 Hangzhou');
 end;
 
+//------------------------------------------------------------------------------
+// POLESTAR DOES NOT COLLIDE WITH VOLVO CARS
+//------------------------------------------------------------------------------
 procedure TPremiumVINTests.PolestarDoesNotCollideWithVolvoCars;
 var
   Polestar, Volvo: IOBDOEMExtension;
@@ -158,6 +221,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PORSCHE EXPOSES PDKAND PASM
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.PorscheExposesPDKAndPASM;
 var
   Ext: IOBDOEMExtension;
@@ -175,6 +242,9 @@ begin
   Assert.IsTrue(HasPASM, 'Porsche must expose the PASM suspension ECU');
 end;
 
+//------------------------------------------------------------------------------
+// JLREXPOSES AIR SUSPENSION ROUTINE
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.JLRExposesAirSuspensionRoutine;
 var
   Ext: IOBDOEMExtension;
@@ -188,6 +258,9 @@ begin
   Assert.IsTrue(Has, 'JLR must expose the air-suspension calibration routine');
 end;
 
+//------------------------------------------------------------------------------
+// IVECO EXPOSES FPTENGINE
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.IvecoExposesFPTEngine;
 var
   Ext: IOBDOEMExtension;
@@ -201,6 +274,9 @@ begin
   Assert.IsTrue(Has, 'Iveco must expose the FPT engine ECU');
 end;
 
+//------------------------------------------------------------------------------
+// ISUZU EXPOSES AFTERTREATMENT ECU
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.IsuzuExposesAftertreatmentECU;
 var
   Ext: IOBDOEMExtension;
@@ -214,6 +290,9 @@ begin
   Assert.IsTrue(Has, 'Isuzu must expose the aftertreatment ECU');
 end;
 
+//------------------------------------------------------------------------------
+// RIVIAN EXPOSES QUAD MOTOR
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.RivianExposesQuadMotor;
 var
   Ext: IOBDOEMExtension;
@@ -228,6 +307,9 @@ begin
     'Rivian must expose four motor inverters (quad-motor R1)');
 end;
 
+//------------------------------------------------------------------------------
+// POLESTAR EXPOSES EVCC AND PILOT ASSIST
+//------------------------------------------------------------------------------
 procedure TPremiumCatalogTests.PolestarExposesEvccAndPilotAssist;
 var
   Ext: IOBDOEMExtension;
@@ -248,6 +330,10 @@ end;
 //==============================================================================
 // Decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PORSCHE DECODES PAINT CODE
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.PorscheDecodesPaintCode;
 var
   Ext: IOBDOEMExtension;
@@ -258,6 +344,9 @@ begin
   Assert.IsTrue(Pos('porsche_paint_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// JLRDECODES MODEL CODE
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.JLRDecodesModelCode;
 var
   Ext: IOBDOEMExtension;
@@ -268,6 +357,9 @@ begin
   Assert.IsTrue(Pos('jlr_model_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// IVECO DECODES MODEL CODE
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.IvecoDecodesModelCode;
 var
   Ext: IOBDOEMExtension;
@@ -278,6 +370,9 @@ begin
   Assert.IsTrue(Pos('iveco_model_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// ISUZU DECODES ENGINE CODE
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.IsuzuDecodesEngineCode;
 var
   Ext: IOBDOEMExtension;
@@ -288,6 +383,9 @@ begin
   Assert.IsTrue(Pos('isuzu_engine_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// RIVIAN DECODES DRIVETRAIN
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.RivianDecodesDrivetrain;
 var
   Ext: IOBDOEMExtension;
@@ -298,6 +396,9 @@ begin
   Assert.IsTrue(Pos('rivian_drivetrain', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// POLESTAR DECODES DRIVETRAIN
+//------------------------------------------------------------------------------
 procedure TPremiumDecoderTests.PolestarDecodesDrivetrain;
 var
   Ext: IOBDOEMExtension;

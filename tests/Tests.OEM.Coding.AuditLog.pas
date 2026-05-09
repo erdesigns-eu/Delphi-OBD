@@ -26,17 +26,29 @@ type
     [Setup] procedure Setup;
     [TearDown] procedure TearDown;
 
-    /// <summary>Append creates verifiable single record.</summary>
+    /// <summary>
+    ///   Append creates verifiable single record.
+    /// </summary>
     [Test] procedure AppendCreatesVerifiableSingleRecord;
-    /// <summary>Append chains across multiple records.</summary>
+    /// <summary>
+    ///   Append chains across multiple records.
+    /// </summary>
     [Test] procedure AppendChainsAcrossMultipleRecords;
-    /// <summary>Tampering byte flip flags correct line.</summary>
+    /// <summary>
+    ///   Tampering byte flip flags correct line.
+    /// </summary>
     [Test] procedure TamperingByteFlipFlagsCorrectLine;
-    /// <summary>Tampering delete flags the next line.</summary>
+    /// <summary>
+    ///   Tampering delete flags the next line.
+    /// </summary>
     [Test] procedure TamperingDeleteFlagsTheNextLine;
-    /// <summary>Restart from existing file continues chain.</summary>
+    /// <summary>
+    ///   Restart from existing file continues chain.
+    /// </summary>
     [Test] procedure RestartFromExistingFileContinuesChain;
-    /// <summary>Empty key at construction raises.</summary>
+    /// <summary>
+    ///   Empty key at construction raises.
+    /// </summary>
     [Test] procedure EmptyKeyAtConstructionRaises;
   end;
 
@@ -46,6 +58,9 @@ uses
   System.SysUtils, System.Classes, System.IOUtils,
   OBD.OEM.Coding.AuditLog;
 
+//------------------------------------------------------------------------------
+// SETUP
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.Setup;
 begin
   FPath := TPath.Combine(TPath.GetTempPath,
@@ -53,12 +68,18 @@ begin
   FKey := TEncoding.UTF8.GetBytes('test-key-32-bytes-long-padding-x');
 end;
 
+//------------------------------------------------------------------------------
+// TEAR DOWN
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.TearDown;
 begin
   if TFile.Exists(FPath) then
     TFile.Delete(FPath);
 end;
 
+//------------------------------------------------------------------------------
+// MAKE REC
+//------------------------------------------------------------------------------
 function MakeRec(const VIN: string; const Index: Integer): TOBDCodingAuditRecord;
 begin
   Result := Default(TOBDCodingAuditRecord);
@@ -72,6 +93,9 @@ begin
   Result.Reason := 'test#' + IntToStr(Index);
 end;
 
+//------------------------------------------------------------------------------
+// APPEND CREATES VERIFIABLE SINGLE RECORD
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.AppendCreatesVerifiableSingleRecord;
 var
   Log: TOBDCodingAuditLog;
@@ -88,6 +112,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// APPEND CHAINS ACROSS MULTIPLE RECORDS
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.AppendChainsAcrossMultipleRecords;
 var
   Log: TOBDCodingAuditLog;
@@ -106,6 +133,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TAMPERING BYTE FLIP FLAGS CORRECT LINE
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.TamperingByteFlipFlagsCorrectLine;
 var
   Log: TOBDCodingAuditLog;
@@ -143,6 +173,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TAMPERING DELETE FLAGS THE NEXT LINE
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.TamperingDeleteFlagsTheNextLine;
 var
   Log: TOBDCodingAuditLog;
@@ -179,6 +212,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESTART FROM EXISTING FILE CONTINUES CHAIN
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.RestartFromExistingFileContinuesChain;
 var
   Log: TOBDCodingAuditLog;
@@ -203,11 +239,15 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EMPTY KEY AT CONSTRUCTION RAISES
+//------------------------------------------------------------------------------
 procedure TCodingAuditLogTests.EmptyKeyAtConstructionRaises;
 begin
   Assert.WillRaise(
     procedure
-    var Log: TOBDCodingAuditLog;
+    var
+      Log: TOBDCodingAuditLog;
     begin
       Log := TOBDCodingAuditLog.Create(FPath, nil);
       Log.Free;

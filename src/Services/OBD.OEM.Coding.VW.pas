@@ -44,21 +44,29 @@ type
     function GetBit(const ByteIndex, BitIndex: Integer): Boolean;
     procedure SetBit(const ByteIndex, BitIndex: Integer; const Value: Boolean);
 
-    /// <summary>True if any byte is non-zero — useful for the "is
-    /// this a fresh (zeroed) coding string?" check the dealer tools
-    /// run before offering a copy-from-vehicle workflow.</summary>
+    /// <summary>
+    ///   True if any byte is non-zero — useful for the "is
+    ///   this a fresh (zeroed) coding string?" check the dealer tools
+    ///   run before offering a copy-from-vehicle workflow.
+    /// </summary>
     function HasNonZeroByte: Boolean;
 
-    /// <summary>Snapshot the bytes (callers get a copy; mutating it
-    /// doesn't affect this object).</summary>
+    /// <summary>
+    ///   Snapshot the bytes (callers get a copy; mutating it
+    ///   doesn't affect this object).
+    /// </summary>
     function ToBytes: TBytes;
 
-    /// <summary>Render as the upper-case continuous hex form VAG
-    /// service tools display (e.g. <c>0204110030480500</c>).</summary>
+    /// <summary>
+    ///   Render as the upper-case continuous hex form VAG
+    ///   service tools display (e.g. <c>0204110030480500</c>).
+    /// </summary>
     function ToHex: string;
 
-    /// <summary>Render with a separator after every byte — useful
-    /// for human review or CSV export.</summary>
+    /// <summary>
+    ///   Render with a separator after every byte — useful
+    ///   for human review or CSV export.
+    /// </summary>
     function ToHexWithSeparator(const Separator: string): string;
 
     property Bytes[const Index: Integer]: Byte
@@ -67,6 +75,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDVWLongCoding.Create(const Length: Integer);
 begin
   inherited Create;
@@ -75,6 +86,9 @@ begin
   SetLength(FBytes, Length);
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDVWLongCoding.Create(const Bytes: TBytes);
 begin
   inherited Create;
@@ -83,14 +97,25 @@ begin
   FBytes := Copy(Bytes, 0, System.Length(Bytes));
 end;
 
+//------------------------------------------------------------------------------
+// CREATE FROM HEX
+//------------------------------------------------------------------------------
 constructor TOBDVWLongCoding.CreateFromHex(const HexString: string);
 begin
   Create(HexStringToBytes(HexString));
 end;
 
+//------------------------------------------------------------------------------
+// BYTE COUNT
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.ByteCount: Integer;
-begin Result := Length(FBytes); end;
+begin
+  Result := Length(FBytes);
+end;
 
+//------------------------------------------------------------------------------
+// GET BYTE
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.GetByte(const Index: Integer): Byte;
 begin
   if (Index < 0) or (Index > High(FBytes)) then
@@ -99,6 +124,9 @@ begin
   Result := FBytes[Index];
 end;
 
+//------------------------------------------------------------------------------
+// SET BYTE
+//------------------------------------------------------------------------------
 procedure TOBDVWLongCoding.SetByte(const Index: Integer; const Value: Byte);
 begin
   if (Index < 0) or (Index > High(FBytes)) then
@@ -107,17 +135,26 @@ begin
   FBytes[Index] := Value;
 end;
 
+//------------------------------------------------------------------------------
+// GET BIT
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.GetBit(const ByteIndex, BitIndex: Integer): Boolean;
 begin
   Result := OBD.OEM.Coding.GetBit(FBytes, ByteIndex, BitIndex);
 end;
 
+//------------------------------------------------------------------------------
+// SET BIT
+//------------------------------------------------------------------------------
 procedure TOBDVWLongCoding.SetBit(const ByteIndex, BitIndex: Integer;
   const Value: Boolean);
 begin
   OBD.OEM.Coding.SetBit(FBytes, ByteIndex, BitIndex, Value);
 end;
 
+//------------------------------------------------------------------------------
+// HAS NON ZERO BYTE
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.HasNonZeroByte: Boolean;
 var
   B: Byte;
@@ -127,15 +164,28 @@ begin
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// TO BYTES
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.ToBytes: TBytes;
 begin
   Result := Copy(FBytes, 0, Length(FBytes));
 end;
 
+//------------------------------------------------------------------------------
+// TO HEX
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.ToHex: string;
-begin Result := BytesToHexString(FBytes); end;
+begin
+  Result := BytesToHexString(FBytes);
+end;
 
+//------------------------------------------------------------------------------
+// TO HEX WITH SEPARATOR
+//------------------------------------------------------------------------------
 function TOBDVWLongCoding.ToHexWithSeparator(const Separator: string): string;
-begin Result := BytesToHexString(FBytes, Separator); end;
+begin
+  Result := BytesToHexString(FBytes, Separator);
+end;
 
 end.

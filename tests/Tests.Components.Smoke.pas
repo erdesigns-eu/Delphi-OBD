@@ -72,6 +72,9 @@ uses
 
 { TComponentSmokeTests }
 
+//------------------------------------------------------------------------------
+// CIRCULAR GAUGE_CONSTRUCTS AND ACCEPTS MIN MAX VALUE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.CircularGauge_ConstructsAndAcceptsMinMaxValue;
 var
   G: TOBDCircularGauge;
@@ -89,6 +92,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CIRCULAR GAUGE_VALUE IS CLAMPED INTO RANGE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.CircularGauge_ValueIsClampedIntoRange;
 var
   G: TOBDCircularGauge;
@@ -111,6 +117,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LINEAR GAUGE_CONSTRUCTS AND ACCEPTS MIN MAX VALUE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.LinearGauge_ConstructsAndAcceptsMinMaxValue;
 var
   G: TOBDLinearGauge;
@@ -128,6 +137,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LINEAR GAUGE_VALUE IS CLAMPED INTO RANGE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.LinearGauge_ValueIsClampedIntoRange;
 var
   G: TOBDLinearGauge;
@@ -145,6 +157,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LINEAR GAUGE_ORIENTATION AND DIRECTION TOGGLE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.LinearGauge_OrientationAndDirectionToggle;
 var
   G: TOBDLinearGauge;
@@ -160,6 +175,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TACHOMETER_CONSTRUCTS WITH RPM DEFAULTS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Tachometer_ConstructsWithRpmDefaults;
 var
   T: TOBDTachometer;
@@ -177,6 +195,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TACHOMETER_SHIFT LIGHT ACTIVE ABOVE SHIFT POINT
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Tachometer_ShiftLightActiveAboveShiftPoint;
 var
   T: TOBDTachometer;
@@ -197,6 +218,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TREND GRAPH_ADD SERIES_AND PUSH VALUES
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TrendGraph_AddSeries_AndPushValues;
 var
   G: TOBDTrendGraph;
@@ -219,6 +243,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TREND GRAPH_RING BUFFER OVERWRITES OLDEST
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TrendGraph_RingBufferOverwritesOldest;
 var
   G: TOBDTrendGraph;
@@ -239,6 +266,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TREND GRAPH_RESIZE MAX SAMPLES PRESERVES RECENT
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TrendGraph_ResizeMaxSamplesPreservesRecent;
 var
   G: TOBDTrendGraph;
@@ -259,6 +289,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DTC LIST_ADD REMOVE CLEAR
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.DtcList_AddRemoveClear;
 var
   L: TOBDDtcList;
@@ -282,6 +315,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DTC LIST_SELECTED INDEX CLAMPS ON REMOVE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.DtcList_SelectedIndexClampsOnRemove;
 var
   L: TOBDDtcList;
@@ -300,6 +336,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TERMINAL_LOG METHODS APPEND IN ORDER
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Terminal_LogMethodsAppendInOrder;
 var
   T: TOBDTerminal;
@@ -321,6 +360,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TERMINAL_MAX LINES EVICTS OLDEST
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Terminal_MaxLinesEvictsOldest;
 var
   T: TOBDTerminal;
@@ -347,12 +389,18 @@ type
     procedure HandleChange(Sender: TObject; const Value: Single);
   end;
 
+//------------------------------------------------------------------------------
+// HANDLE CHANGE
+//------------------------------------------------------------------------------
 procedure TKnobChangeRecorder.HandleChange(Sender: TObject; const Value: Single);
 begin
   Fired := True;
   LastValue := Value;
 end;
 
+//------------------------------------------------------------------------------
+// KNOB_VALUE CLAMPS AND SNAPS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Knob_ValueClampsAndSnaps;
 var
   K: TOBDKnob;
@@ -373,6 +421,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// KNOB_ON CHANGE FIRES
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Knob_OnChangeFires;
 var
   K: TOBDKnob;
@@ -392,6 +443,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEGMENTED SWITCH_ADD SEGMENTS AND SELECT
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.SegmentedSwitch_AddSegmentsAndSelect;
 var
   S: TOBDSegmentedSwitch;
@@ -409,6 +463,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SEGMENTED SWITCH_SELECTED INDEX CLAMPS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.SegmentedSwitch_SelectedIndexClamps;
 var
   S: TOBDSegmentedSwitch;
@@ -426,6 +483,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// THEME_DARK APPLIES TO TREND GRAPH
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Theme_DarkAppliesToTrendGraph;
 var
   Theme: TOBDTheme;
@@ -446,6 +506,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// THEME_LIGHT APPLIES TO TACHOMETER
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Theme_LightAppliesToTachometer;
 var
   Theme: TOBDTheme;
@@ -464,6 +527,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LED_CONSTRUCTS AND ACCEPTS STATE
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.Led_ConstructsAndAcceptsState;
 var
   L: TOBDLed;
@@ -481,6 +547,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MATRIX DISPLAY_CONSTRUCTS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.MatrixDisplay_Constructs;
 var
   M: TOBDMatrixDisplay;
@@ -493,6 +562,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TOUCH HEADER_CONSTRUCTS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TouchHeader_Constructs;
 var
   H: TOBDTouchHeader;
@@ -505,6 +577,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TOUCH STATUSBAR_CONSTRUCTS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TouchStatusbar_Constructs;
 var
   S: TOBDTouchStatusbar;
@@ -517,6 +592,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TOUCH SUBHEADER_CONSTRUCTS
+//------------------------------------------------------------------------------
 procedure TComponentSmokeTests.TouchSubheader_Constructs;
 var
   S: TOBDTouchSubheader;

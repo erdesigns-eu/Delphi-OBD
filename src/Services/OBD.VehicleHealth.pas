@@ -29,7 +29,9 @@ uses
 type
   EOBDHealthError = class(Exception);
 
-  /// <summary>One DTC + its catalog metadata.</summary>
+  /// <summary>
+  ///   One DTC + its catalog metadata.
+  /// </summary>
   TOBDHealthDTC = record
     Code: string;
     Catalogued: Boolean;
@@ -37,29 +39,45 @@ type
     Severity: TOBDDtcSeverity;
   end;
 
-  /// <summary>Aggregated diagnostic snapshot. Every field that
-  /// couldn't be read carries an error string; callers display
-  /// what's present and surface the missing pieces.</summary>
+  /// <summary>
+  ///   Aggregated diagnostic snapshot. Every field that
+  ///   couldn't be read carries an error string; callers display
+  ///   what's present and surface the missing pieces.
+  /// </summary>
   TOBDHealthSnapshot = record
-    /// <summary>Wall-clock timestamp when the snapshot was taken.</summary>
+    /// <summary>
+    ///   Wall-clock timestamp when the snapshot was taken.
+    /// </summary>
     Timestamp: TDateTime;
-    /// <summary>Vehicle identification number (Service 09 PID 02).</summary>
+    /// <summary>
+    ///   Vehicle identification number (Service 09 PID 02).
+    /// </summary>
     VIN: string;
     VINError: string;
-    /// <summary>Resolved OEM extension (or nil if no extension matched).</summary>
+    /// <summary>
+    ///   Resolved OEM extension (or nil if no extension matched).
+    /// </summary>
     OEM: IOBDOEMExtension;
     OEMDisplayName: string;
-    /// <summary>Active DTCs (Service 03) annotated with catalog metadata.</summary>
+    /// <summary>
+    ///   Active DTCs (Service 03) annotated with catalog metadata.
+    /// </summary>
     ActiveDTCs: TArray<TOBDHealthDTC>;
     DTCError: string;
-    /// <summary>Pending DTCs (Service 07) annotated with catalog metadata.</summary>
+    /// <summary>
+    ///   Pending DTCs (Service 07) annotated with catalog metadata.
+    /// </summary>
     PendingDTCs: TArray<TOBDHealthDTC>;
     PendingError: string;
-    /// <summary>Readiness monitor status (Service 01 PID 01).</summary>
+    /// <summary>
+    ///   Readiness monitor status (Service 01 PID 01).
+    /// </summary>
     Readiness: TOBDReadinessReport;
     ReadinessKnown: Boolean;
     ReadinessError: string;
-    /// <summary>Key live values pulled from Service 01.</summary>
+    /// <summary>
+    ///   Key live values pulled from Service 01.
+    /// </summary>
     BatteryVoltage: Double;
     BatteryVoltageKnown: Boolean;
     EngineRPM: Word;
@@ -70,18 +88,24 @@ type
     CoolantTemperatureKnown: Boolean;
     EngineLoad: Double;
     EngineLoadKnown: Boolean;
-    /// <summary>Computed health score 0..100 — 100 = healthy, 0 =
-    /// every catalogued DTC is critical with the MIL on. The
-    /// scoring rubric is documented in <c>ComputeHealthScore</c>.</summary>
+    /// <summary>
+    ///   Computed health score 0..100 — 100 = healthy, 0 =
+    ///   every catalogued DTC is critical with the MIL on. The
+    ///   scoring rubric is documented in <c>ComputeHealthScore</c>.
+    /// </summary>
     HealthScore: Byte;
-    /// <summary>One-line summary suitable for status bars.</summary>
+    /// <summary>
+    ///   One-line summary suitable for status bars.
+    /// </summary>
     SummaryLine: string;
   end;
 
-  /// <summary>Snapshot capture orchestrator. Wraps an async connection
-  /// + auto-resolves the OEM extension by VIN. Each public method
-  /// is best-effort — failures land in the snapshot's *Error
-  /// fields rather than raising.</summary>
+  /// <summary>
+  ///   Snapshot capture orchestrator. Wraps an async connection
+  ///   + auto-resolves the OEM extension by VIN. Each public method
+  ///   is best-effort — failures land in the snapshot's *Error
+  ///   fields rather than raising.
+  /// </summary>
   TOBDHealthCapture = class
   strict private
     FConnection: TOBDConnectionAsync;
@@ -100,10 +124,12 @@ type
   public
     constructor Create(const Conn: TOBDConnectionAsync);
 
-    /// <summary>One-shot capture. Walks: VIN → OEM resolution →
-    /// active DTCs → pending DTCs → readiness → live values →
-    /// health score + summary line. Returns the populated
-    /// snapshot regardless of partial failures.</summary>
+    /// <summary>
+    ///   One-shot capture. Walks: VIN → OEM resolution →
+    ///   active DTCs → pending DTCs → readiness → live values →
+    ///   health score + summary line. Returns the populated
+    ///   snapshot regardless of partial failures.
+    /// </summary>
     function Capture: TOBDHealthSnapshot;
   end;
 
@@ -113,6 +139,9 @@ uses
   System.StrUtils,
   OBD.Async, OBD.OEM.Coding;
 
+//------------------------------------------------------------------------------
+// IF THEN STR
+//------------------------------------------------------------------------------
 function IfThenStr(const Cond: Boolean; const A, B: string): string;
 begin
   if Cond then Result := A else Result := B;
@@ -126,6 +155,9 @@ const
   PID_VEHICLE_SPEED     = $0D;
   PID_BATTERY_VOLTAGE   = $42;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDHealthCapture.Create(const Conn: TOBDConnectionAsync);
 begin
   if Conn = nil then
@@ -134,6 +166,9 @@ begin
   FConnection := Conn;
 end;
 
+//------------------------------------------------------------------------------
+// READ OBDPID
+//------------------------------------------------------------------------------
 function TOBDHealthCapture.ReadOBDPid(const Pid: Word; out Bytes: TBytes;
   const TimeoutMs: Cardinal): Boolean;
 var
@@ -151,6 +186,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ VIN
+//------------------------------------------------------------------------------
 function TOBDHealthCapture.ReadVIN(out VIN: string): Boolean;
 var
   Future: IOBDFuture<string>;
@@ -177,6 +215,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DTCS SERVICE
+//------------------------------------------------------------------------------
 function TOBDHealthCapture.ReadDTCsService(const Service: Byte;
   out Codes: TArray<string>): Boolean;
 var
@@ -218,6 +259,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FILL DTCMETADATA
+//------------------------------------------------------------------------------
 procedure TOBDHealthCapture.FillDTCMetadata(const OEM: IOBDOEMExtension;
   const Codes: TArray<string>; out Annotated: TArray<TOBDHealthDTC>);
 var
@@ -245,6 +289,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ READINESS
+//------------------------------------------------------------------------------
 procedure TOBDHealthCapture.ReadReadiness(var Snap: TOBDHealthSnapshot);
 var
   Bytes, Payload: TBytes;
@@ -274,6 +321,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ LIVE VALUES
+//------------------------------------------------------------------------------
 procedure TOBDHealthCapture.ReadLiveValues(var Snap: TOBDHealthSnapshot);
 var
   Bytes: TBytes;
@@ -309,6 +359,9 @@ begin
     Snap.EngineLoad := Bytes[2] * (100 / 255);
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE HEALTH SCORE
+//------------------------------------------------------------------------------
 procedure TOBDHealthCapture.ComputeHealthScore(var Snap: TOBDHealthSnapshot);
 var
   Penalty: Integer;
@@ -345,6 +398,9 @@ begin
   else Snap.HealthScore := Byte(100 - Penalty);
 end;
 
+//------------------------------------------------------------------------------
+// COMPOSE SUMMARY
+//------------------------------------------------------------------------------
 procedure TOBDHealthCapture.ComposeSummary(var Snap: TOBDHealthSnapshot);
 var
   Buf: TStringBuilder;
@@ -367,6 +423,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CAPTURE
+//------------------------------------------------------------------------------
 function TOBDHealthCapture.Capture: TOBDHealthSnapshot;
 var
   Codes: TArray<string>;

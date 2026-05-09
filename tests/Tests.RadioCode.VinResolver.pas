@@ -20,19 +20,33 @@ type
   [TestFixture]
   TVinResolverTests = class
   public
-    /// <summary>V w  audi  mercedes  b m w  are registered as data available.</summary>
+    /// <summary>
+    ///   V w  audi  mercedes  b m w  are registered as data available.
+    /// </summary>
     [Test] procedure VW_Audi_Mercedes_BMW_AreRegisteredAsDataAvailable;
-    /// <summary>V w pre2007 european v i n resolves to early variant.</summary>
+    /// <summary>
+    ///   V w pre2007 european v i n resolves to early variant.
+    /// </summary>
     [Test] procedure VWPre2007EuropeanVINResolvesToEarlyVariant;
-    /// <summary>V w post2013 european v i n resolves to later variant.</summary>
+    /// <summary>
+    ///   V w post2013 european v i n resolves to later variant.
+    /// </summary>
     [Test] procedure VWPost2013EuropeanVINResolvesToLaterVariant;
-    /// <summary>Unknown brand gives null calculator and note.</summary>
+    /// <summary>
+    ///   Unknown brand gives null calculator and note.
+    /// </summary>
     [Test] procedure UnknownBrandGivesNullCalculatorAndNote;
-    /// <summary>Invalid v i n falls back to overrides and defaults.</summary>
+    /// <summary>
+    ///   Invalid v i n falls back to overrides and defaults.
+    /// </summary>
     [Test] procedure InvalidVINFallsBackToOverridesAndDefaults;
-    /// <summary>Region override takes precedence over v i n region.</summary>
+    /// <summary>
+    ///   Region override takes precedence over v i n region.
+    /// </summary>
     [Test] procedure RegionOverrideTakesPrecedenceOverVINRegion;
-    /// <summary>Resolution note populated when falling back to default.</summary>
+    /// <summary>
+    ///   Resolution note populated when falling back to default.
+    /// </summary>
     [Test] procedure ResolutionNotePopulatedWhenFallingBackToDefault;
   end;
 
@@ -43,6 +57,9 @@ uses
   OBD.RadioCode, OBD.RadioCode.Registry, OBD.RadioCode.Variants,
   OBD.RadioCode.VinResolver;
 
+//------------------------------------------------------------------------------
+// VW_AUDI_MERCEDES_BMW_ARE REGISTERED AS DATA AVAILABLE
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.VW_Audi_Mercedes_BMW_AreRegisteredAsDataAvailable;
 const
   Keys: array[0..3] of string = ('vw', 'audi', 'mercedes', 'bmw');
@@ -60,6 +77,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VWPRE2007 EUROPEAN VINRESOLVES TO EARLY VARIANT
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.VWPre2007EuropeanVINResolvesToEarlyVariant;
 var
   Ctx: TRadioCodeResolveContext;
@@ -79,6 +99,9 @@ begin
   Assert.IsTrue(Res.DataAvailable, 'VW must be data-available');
 end;
 
+//------------------------------------------------------------------------------
+// VWPOST2013 EUROPEAN VINRESOLVES TO LATER VARIANT
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.VWPost2013EuropeanVINResolvesToLaterVariant;
 var
   Ctx: TRadioCodeResolveContext;
@@ -94,6 +117,9 @@ begin
     'Selected variant must include 2018');
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN BRAND GIVES NULL CALCULATOR AND NOTE
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.UnknownBrandGivesNullCalculatorAndNote;
 var
   Ctx: TRadioCodeResolveContext;
@@ -107,6 +133,9 @@ begin
   Assert.IsNotEmpty(Res.ResolutionNotes);
 end;
 
+//------------------------------------------------------------------------------
+// INVALID VINFALLS BACK TO OVERRIDES AND DEFAULTS
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.InvalidVINFallsBackToOverridesAndDefaults;
 var
   Ctx: TRadioCodeResolveContext;
@@ -123,6 +152,9 @@ begin
   Assert.IsNotNull(Res.Variant);
 end;
 
+//------------------------------------------------------------------------------
+// REGION OVERRIDE TAKES PRECEDENCE OVER VINREGION
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.RegionOverrideTakesPrecedenceOverVINRegion;
 var
   Ctx: TRadioCodeResolveContext;
@@ -139,6 +171,9 @@ begin
     'Override should pick a NA variant or fall back to default with note');
 end;
 
+//------------------------------------------------------------------------------
+// RESOLUTION NOTE POPULATED WHEN FALLING BACK TO DEFAULT
+//------------------------------------------------------------------------------
 procedure TVinResolverTests.ResolutionNotePopulatedWhenFallingBackToDefault;
 var
   Ctx: TRadioCodeResolveContext;

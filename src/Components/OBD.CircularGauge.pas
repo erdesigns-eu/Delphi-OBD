@@ -1343,6 +1343,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET OFFSET
+//------------------------------------------------------------------------------
 procedure TOBDCircularGaugeTick.SetOffset(Value: Single);
 begin
   if (FOffset <> Value) and (Value >= 0) then

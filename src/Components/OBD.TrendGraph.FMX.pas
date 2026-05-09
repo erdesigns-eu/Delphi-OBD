@@ -28,7 +28,9 @@ const
   TGFMX_DEFAULT_TEXT        = TAlphaColors.White;
 
 type
-  /// <summary>One series for the FMX graph. Mirrors the VCL `TOBDTrendSeries`.</summary>
+  /// <summary>
+  ///   One series for the FMX graph. Mirrors the VCL `TOBDTrendSeries`.
+  /// </summary>
   TOBDTrendSeriesFMX = class
   strict private
     FName: string;
@@ -112,6 +114,10 @@ implementation
 //==============================================================================
 // TOBDTrendSeriesFMX — same ring-buffer mechanics as the VCL series.
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTrendSeriesFMX.Create(const AName: string; AColor: TAlphaColor;
   AMin, AMax: Single; ACapacity: Integer);
 begin
@@ -124,6 +130,9 @@ begin
   SetLength(FValues, ACapacity);
 end;
 
+//------------------------------------------------------------------------------
+// PUSH
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeriesFMX.Push(const AValue: Single);
 begin
   FValues[FHead] := AValue;
@@ -131,9 +140,18 @@ begin
   if FCount < Length(FValues) then Inc(FCount);
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeriesFMX.Clear;
-begin FHead := 0; FCount := 0; end;
+begin
+  FHead := 0;
+  FCount := 0;
+end;
 
+//------------------------------------------------------------------------------
+// RESIZE
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeriesFMX.Resize(NewCapacity: Integer);
 var
   Old: TArray<Single>;
@@ -151,20 +169,33 @@ begin
   for I := ReadIndex to OldCount - 1 do Push(Old[I]);
 end;
 
+//------------------------------------------------------------------------------
+// GET VALUE
+//------------------------------------------------------------------------------
 function TOBDTrendSeriesFMX.GetValue(LogicalIndex: Integer): Single;
-var Phys: Integer;
+var
+  Phys: Integer;
 begin
   if (LogicalIndex < 0) or (LogicalIndex >= FCount) then Exit(FMin);
   Phys := (FHead - FCount + LogicalIndex + Length(FValues)) mod Length(FValues);
   Result := FValues[Phys];
 end;
 
+//------------------------------------------------------------------------------
+// GET CAPACITY
+//------------------------------------------------------------------------------
 function TOBDTrendSeriesFMX.GetCapacity: Integer;
-begin Result := Length(FValues); end;
+begin
+  Result := Length(FValues);
+end;
 
 //==============================================================================
 // TOBDTrendGraphFMX
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTrendGraphFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -184,18 +215,31 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDTrendGraphFMX.Destroy;
-begin FSeries.Free; inherited; end;
+begin
+  FSeries.Free;
+  inherited;
+end;
 
+//------------------------------------------------------------------------------
+// ADD SERIES
+//------------------------------------------------------------------------------
 function TOBDTrendGraphFMX.AddSeries(const AName: string; AColor: TAlphaColor;
   AMin, AMax: Single): Integer;
-var S: TOBDTrendSeriesFMX;
+var
+  S: TOBDTrendSeriesFMX;
 begin
   S := TOBDTrendSeriesFMX.Create(AName, AColor, AMin, AMax, FMaxSamples);
   Result := FSeries.Add(S);
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE SERIES
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.RemoveSeries(Index: Integer);
 begin
   if (Index < 0) or (Index >= FSeries.Count) then Exit;
@@ -203,13 +247,20 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR SAMPLES
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.ClearSamples;
-var S: TOBDTrendSeriesFMX;
+var
+  S: TOBDTrendSeriesFMX;
 begin
   for S in FSeries do S.Clear;
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// PUSH VALUE
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.PushValue(SeriesIndex: Integer; const AValue: Single);
 begin
   if (SeriesIndex < 0) or (SeriesIndex >= FSeries.Count) then Exit;
@@ -217,14 +268,28 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// GET SERIES COUNT
+//------------------------------------------------------------------------------
 function TOBDTrendGraphFMX.GetSeriesCount: Integer;
-begin Result := FSeries.Count; end;
+begin
+  Result := FSeries.Count;
+end;
 
+//------------------------------------------------------------------------------
+// GET SERIES
+//------------------------------------------------------------------------------
 function TOBDTrendGraphFMX.GetSeries(Index: Integer): TOBDTrendSeriesFMX;
-begin Result := FSeries[Index]; end;
+begin
+  Result := FSeries[Index];
+end;
 
+//------------------------------------------------------------------------------
+// SET MAX SAMPLES
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.SetMaxSamples(const AValue: Integer);
-var S: TOBDTrendSeriesFMX;
+var
+  S: TOBDTrendSeriesFMX;
 begin
   if (AValue >= 2) and (FMaxSamples <> AValue) then
   begin
@@ -234,23 +299,89 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetGridColor(const AValue: TAlphaColor);
-begin if FGridColor <> AValue then begin FGridColor := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetShowGrid(const AValue: Boolean);
-begin if FShowGrid <> AValue then begin FShowGrid := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetShowLegend(const AValue: Boolean);
-begin if FShowLegend <> AValue then begin FShowLegend := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetShowBorder(const AValue: Boolean);
-begin if FShowBorder <> AValue then begin FShowBorder := AValue; Redraw; end; end;
-procedure TOBDTrendGraphFMX.SetStrokeWidth(const AValue: Single);
-begin if (AValue > 0) and (FStrokeWidth <> AValue) then begin FStrokeWidth := AValue; Redraw; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET GRID COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetGridColor(const AValue: TAlphaColor);
+begin
+  if FGridColor <> AValue then begin FGridColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetBorderColor(const AValue: TAlphaColor);
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetTextColor(const AValue: TAlphaColor);
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW GRID
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetShowGrid(const AValue: Boolean);
+begin
+  if FShowGrid <> AValue then begin FShowGrid := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW LEGEND
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetShowLegend(const AValue: Boolean);
+begin
+  if FShowLegend <> AValue then begin FShowLegend := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET SHOW BORDER
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetShowBorder(const AValue: Boolean);
+begin
+  if FShowBorder <> AValue then begin FShowBorder := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// SET STROKE WIDTH
+//------------------------------------------------------------------------------
+procedure TOBDTrendGraphFMX.SetStrokeWidth(const AValue: Single);
+begin
+  if (AValue > 0) and (FStrokeWidth <> AValue) then begin FStrokeWidth := AValue;
+  Redraw;
+  end;
+end;
+
+//------------------------------------------------------------------------------
+// HANDLE DRAW
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraphFMX.HandleDraw(ASender: TObject;
   const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
 var

@@ -20,29 +20,53 @@ type
   [TestFixture]
   TWWHOBDTests = class
   public
-    /// <summary>Dtc round trips through pack unpack.</summary>
+    /// <summary>
+    ///   Dtc round trips through pack unpack.
+    /// </summary>
     [Test] procedure DtcRoundTripsThroughPackUnpack;
-    /// <summary>Dtc s p n top bits are preserved.</summary>
+    /// <summary>
+    ///   Dtc s p n top bits are preserved.
+    /// </summary>
     [Test] procedure DtcSPNTopBitsArePreserved;
-    /// <summary>Dtc oversized s p n raises.</summary>
+    /// <summary>
+    ///   Dtc oversized s p n raises.
+    /// </summary>
     [Test] procedure DtcOversizedSPNRaises;
-    /// <summary>Dtc oversized f m i raises.</summary>
+    /// <summary>
+    ///   Dtc oversized f m i raises.
+    /// </summary>
     [Test] procedure DtcOversizedFMIRaises;
-    /// <summary>Dtc oversized o c raises.</summary>
+    /// <summary>
+    ///   Dtc oversized o c raises.
+    /// </summary>
     [Test] procedure DtcOversizedOCRaises;
-    /// <summary>Dtc conversion method only zero or one.</summary>
+    /// <summary>
+    ///   Dtc conversion method only zero or one.
+    /// </summary>
     [Test] procedure DtcConversionMethodOnlyZeroOrOne;
-    /// <summary>Unpack bad length raises.</summary>
+    /// <summary>
+    ///   Unpack bad length raises.
+    /// </summary>
     [Test] procedure UnpackBadLengthRaises;
-    /// <summary>Unpack stream multiple dtcs.</summary>
+    /// <summary>
+    ///   Unpack stream multiple dtcs.
+    /// </summary>
     [Test] procedure UnpackStreamMultipleDtcs;
-    /// <summary>Unpack stream ragged raises.</summary>
+    /// <summary>
+    ///   Unpack stream ragged raises.
+    /// </summary>
     [Test] procedure UnpackStreamRaggedRaises;
-    /// <summary>Dtc as string formats expected shape.</summary>
+    /// <summary>
+    ///   Dtc as string formats expected shape.
+    /// </summary>
     [Test] procedure DtcAsStringFormatsExpectedShape;
-    /// <summary>Find d i d by v i n returns name.</summary>
+    /// <summary>
+    ///   Find d i d by v i n returns name.
+    /// </summary>
     [Test] procedure FindDIDByVINReturnsName;
-    /// <summary>Find d i d unknown returns hex label.</summary>
+    /// <summary>
+    ///   Find d i d unknown returns hex label.
+    /// </summary>
     [Test] procedure FindDIDUnknownReturnsHexLabel;
   end;
 
@@ -51,6 +75,9 @@ implementation
 uses
   System.SysUtils, OBD.Protocol.WWHOBD;
 
+//------------------------------------------------------------------------------
+// DTC ROUND TRIPS THROUGH PACK UNPACK
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcRoundTripsThroughPackUnpack;
 var
   In_, Out_: TWWHDtc;
@@ -69,6 +96,9 @@ begin
   Assert.AreEqual(Integer(0), Integer(Out_.ConversionMethod));
 end;
 
+//------------------------------------------------------------------------------
+// DTC SPNTOP BITS ARE PRESERVED
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcSPNTopBitsArePreserved;
 var
   In_, Out_: TWWHDtc;
@@ -82,8 +112,12 @@ begin
   Assert.AreEqual(Integer(1), Integer(Out_.ConversionMethod));
 end;
 
+//------------------------------------------------------------------------------
+// DTC OVERSIZED SPNRAISES
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcOversizedSPNRaises;
-var Dtc: TWWHDtc;
+var
+  Dtc: TWWHDtc;
 begin
   Dtc.SPN := UInt32($80000); // 20-bit
   Dtc.FMI := 0;
@@ -92,8 +126,12 @@ begin
   Assert.WillRaise(procedure begin PackWWHDtc(Dtc); end, EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// DTC OVERSIZED FMIRAISES
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcOversizedFMIRaises;
-var Dtc: TWWHDtc;
+var
+  Dtc: TWWHDtc;
 begin
   Dtc.SPN := 100;
   Dtc.FMI := $20;
@@ -102,8 +140,12 @@ begin
   Assert.WillRaise(procedure begin PackWWHDtc(Dtc); end, EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// DTC OVERSIZED OCRAISES
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcOversizedOCRaises;
-var Dtc: TWWHDtc;
+var
+  Dtc: TWWHDtc;
 begin
   Dtc.SPN := 100;
   Dtc.FMI := 0;
@@ -112,8 +154,12 @@ begin
   Assert.WillRaise(procedure begin PackWWHDtc(Dtc); end, EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CONVERSION METHOD ONLY ZERO OR ONE
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcConversionMethodOnlyZeroOrOne;
-var Dtc: TWWHDtc;
+var
+  Dtc: TWWHDtc;
 begin
   Dtc.SPN := 100;
   Dtc.FMI := 0;
@@ -122,6 +168,9 @@ begin
   Assert.WillRaise(procedure begin PackWWHDtc(Dtc); end, EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// UNPACK BAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.UnpackBadLengthRaises;
 begin
   Assert.WillRaise(
@@ -129,6 +178,9 @@ begin
     EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// UNPACK STREAM MULTIPLE DTCS
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.UnpackStreamMultipleDtcs;
 var
   Stream: TBytes;
@@ -144,6 +196,9 @@ begin
   Assert.AreEqual(UInt32(4794), Out_[1].SPN);
 end;
 
+//------------------------------------------------------------------------------
+// UNPACK STREAM RAGGED RAISES
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.UnpackStreamRaggedRaises;
 begin
   Assert.WillRaise(
@@ -154,8 +209,12 @@ begin
     EOBDWWHOBD);
 end;
 
+//------------------------------------------------------------------------------
+// DTC AS STRING FORMATS EXPECTED SHAPE
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.DtcAsStringFormatsExpectedShape;
-var Dtc: TWWHDtc;
+var
+  Dtc: TWWHDtc;
 begin
   Dtc.SPN := 4794;
   Dtc.FMI := 4;
@@ -164,16 +223,24 @@ begin
   Assert.AreEqual('SPN 4794, FMI 4 (CM=0, OC=12)', Dtc.AsString);
 end;
 
+//------------------------------------------------------------------------------
+// FIND DIDBY VINRETURNS NAME
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.FindDIDByVINReturnsName;
-var Info: TWWHOBDDataIdentifier;
+var
+  Info: TWWHOBDDataIdentifier;
 begin
   Info := FindWWHOBDDataIdentifier(WWHOBD_DID_VIN);
   Assert.AreEqual('VIN', Info.Name);
   Assert.IsNotEmpty(Info.Description);
 end;
 
+//------------------------------------------------------------------------------
+// FIND DIDUNKNOWN RETURNS HEX LABEL
+//------------------------------------------------------------------------------
 procedure TWWHOBDTests.FindDIDUnknownReturnsHexLabel;
-var Info: TWWHOBDDataIdentifier;
+var
+  Info: TWWHOBDDataIdentifier;
 begin
   Info := FindWWHOBDDataIdentifier($1234);
   Assert.IsTrue(Info.Name.Contains('1234'));

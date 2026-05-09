@@ -20,25 +20,45 @@ type
   [TestFixture]
   TWWHOBDReadinessTests = class
   public
-    /// <summary>Decode rejects too short.</summary>
+    /// <summary>
+    ///   Decode rejects too short.
+    /// </summary>
     [Test] procedure DecodeRejectsTooShort;
-    /// <summary>M i l bit decodes.</summary>
+    /// <summary>
+    ///   M i l bit decodes.
+    /// </summary>
     [Test] procedure MILBitDecodes;
-    /// <summary>D t c count from lower seven bits.</summary>
+    /// <summary>
+    ///   D t c count from lower seven bits.
+    /// </summary>
     [Test] procedure DTCCountFromLowerSevenBits;
-    /// <summary>Continuous misfire supported not complete.</summary>
+    /// <summary>
+    ///   Continuous misfire supported not complete.
+    /// </summary>
     [Test] procedure ContinuousMisfireSupportedNotComplete;
-    /// <summary>Non continuous catalyst complete.</summary>
+    /// <summary>
+    ///   Non continuous catalyst complete.
+    /// </summary>
     [Test] procedure NonContinuousCatalystComplete;
-    /// <summary>Round trip four byte form.</summary>
+    /// <summary>
+    ///   Round trip four byte form.
+    /// </summary>
     [Test] procedure RoundTripFourByteForm;
-    /// <summary>Round trip six byte form with diesel monitors.</summary>
+    /// <summary>
+    ///   Round trip six byte form with diesel monitors.
+    /// </summary>
     [Test] procedure RoundTripSixByteFormWithDieselMonitors;
-    /// <summary>All ready true when everything complete.</summary>
+    /// <summary>
+    ///   All ready true when everything complete.
+    /// </summary>
     [Test] procedure AllReadyTrueWhenEverythingComplete;
-    /// <summary>All ready true when unsupported.</summary>
+    /// <summary>
+    ///   All ready true when unsupported.
+    /// </summary>
     [Test] procedure AllReadyTrueWhenUnsupported;
-    /// <summary>Pending monitors lists incomplete.</summary>
+    /// <summary>
+    ///   Pending monitors lists incomplete.
+    /// </summary>
     [Test] procedure PendingMonitorsListsIncomplete;
   end;
 
@@ -47,6 +67,9 @@ implementation
 uses
   System.SysUtils, OBD.Protocol.WWHOBD.Readiness;
 
+//------------------------------------------------------------------------------
+// DECODE REJECTS TOO SHORT
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.DecodeRejectsTooShort;
 begin
   Assert.WillRaise(
@@ -54,24 +77,36 @@ begin
     EOBDWWHOBDReadiness);
 end;
 
+//------------------------------------------------------------------------------
+// MILBIT DECODES
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.MILBitDecodes;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   R := DecodeWWHOBDReadiness(TBytes.Create($85, $00, $00, $00));
   Assert.IsTrue(R.MILActive);
   Assert.AreEqual(Integer(5), Integer(R.DTCCount));
 end;
 
+//------------------------------------------------------------------------------
+// DTCCOUNT FROM LOWER SEVEN BITS
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.DTCCountFromLowerSevenBits;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   R := DecodeWWHOBDReadiness(TBytes.Create($0A, $00, $00, $00));
   Assert.IsFalse(R.MILActive);
   Assert.AreEqual(Integer(10), Integer(R.DTCCount));
 end;
 
+//------------------------------------------------------------------------------
+// CONTINUOUS MISFIRE SUPPORTED NOT COMPLETE
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.ContinuousMisfireSupportedNotComplete;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   // bit 0 set in low nibble (Misfire supported), bit 4 set in high
   // nibble (Misfire NotComplete).
@@ -80,8 +115,12 @@ begin
   Assert.IsFalse(R.Misfire.Complete);
 end;
 
+//------------------------------------------------------------------------------
+// NON CONTINUOUS CATALYST COMPLETE
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.NonContinuousCatalystComplete;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   // Catalyst supported (byte 2 bit 0), Catalyst Complete (byte 3 bit 0 NOT set)
   R := DecodeWWHOBDReadiness(TBytes.Create($00, $00, $01, $00));
@@ -89,6 +128,9 @@ begin
   Assert.IsTrue(R.Catalyst.Complete);
 end;
 
+//------------------------------------------------------------------------------
+// ROUND TRIP FOUR BYTE FORM
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.RoundTripFourByteForm;
 var
   In_, Out_: TWWHOBDReadinessSet;
@@ -117,6 +159,9 @@ begin
   Assert.IsFalse(Out_.EvaporativeSystem.Complete);
 end;
 
+//------------------------------------------------------------------------------
+// ROUND TRIP SIX BYTE FORM WITH DIESEL MONITORS
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.RoundTripSixByteFormWithDieselMonitors;
 var
   In_, Out_: TWWHOBDReadinessSet;
@@ -136,8 +181,12 @@ begin
   Assert.IsFalse(Out_.NOxAftertreatment.Complete);
 end;
 
+//------------------------------------------------------------------------------
+// ALL READY TRUE WHEN EVERYTHING COMPLETE
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.AllReadyTrueWhenEverythingComplete;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   R := Default(TWWHOBDReadinessSet);
   R.Misfire.Supported := True; R.Misfire.Complete := True;
@@ -145,14 +194,21 @@ begin
   Assert.IsTrue(R.AllReady);
 end;
 
+//------------------------------------------------------------------------------
+// ALL READY TRUE WHEN UNSUPPORTED
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.AllReadyTrueWhenUnsupported;
-var R: TWWHOBDReadinessSet;
+var
+  R: TWWHOBDReadinessSet;
 begin
   R := Default(TWWHOBDReadinessSet);
   // No monitors supported -> AllReady is trivially true.
   Assert.IsTrue(R.AllReady);
 end;
 
+//------------------------------------------------------------------------------
+// PENDING MONITORS LISTS INCOMPLETE
+//------------------------------------------------------------------------------
 procedure TWWHOBDReadinessTests.PendingMonitorsListsIncomplete;
 var
   R: TWWHOBDReadinessSet;

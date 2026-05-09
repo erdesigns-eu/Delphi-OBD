@@ -2555,7 +2555,8 @@ begin
   begin
     if Length(Data) < 2 then Exit;
     //
-    var DTCFirstChar, DTCSecondChar: AnsiChar;
+    var
+      DTCFirstChar, DTCSecondChar: AnsiChar;
     // Decode the first character based on the most significant nibble of the first byte
     case (Data[0] shr 4) of
       0: DTCFirstChar := 'P';

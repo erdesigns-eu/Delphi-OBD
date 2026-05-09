@@ -137,6 +137,9 @@ begin
   Result := UInt32(SecondsBetween(EncodeDate(1970, 1, 1), DT));
 end;
 
+//------------------------------------------------------------------------------
+// TIME REAL TO DATE TIME
+//------------------------------------------------------------------------------
 function TimeRealToDateTime(const T: UInt32): TDateTime;
 begin
   Result := IncSecond(EncodeDate(1970, 1, 1), Integer(T));
@@ -172,6 +175,9 @@ begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT32 BE
+//------------------------------------------------------------------------------
 function ReadUInt32BE(const B: TBytes; Off: Integer): UInt32;
 begin
   Result := (UInt32(B[Off]) shl 24)

@@ -228,6 +228,9 @@ begin
   FreeAndNil(FInstance);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeRegistry.Register(Brand: TOBDRadioCodeBrand);
 begin
   if Brand = nil then Exit;

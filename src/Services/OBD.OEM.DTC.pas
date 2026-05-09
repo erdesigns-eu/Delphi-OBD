@@ -27,8 +27,10 @@ uses
 type
   EOBDDtcError = class(Exception);
 
-  /// <summary>Coarse severity hint for UI tinting / triage. The wire
-  /// protocol doesn't carry severity — these are catalog metadata.</summary>
+  /// <summary>
+  ///   Coarse severity hint for UI tinting / triage. The wire
+  ///   protocol doesn't carry severity — these are catalog metadata.
+  /// </summary>
   TOBDDtcSeverity = (
     dtcSeverityUnknown,
     dtcSeverityInfo,
@@ -36,7 +38,9 @@ type
     dtcSeverityCritical
   );
 
-  /// <summary>SAE J2012 system letter — the first character of a DTC.</summary>
+  /// <summary>
+  ///   SAE J2012 system letter — the first character of a DTC.
+  /// </summary>
   TOBDDtcSystem = (
     dtcPowertrain,    // P
     dtcChassis,       // C
@@ -44,11 +48,13 @@ type
     dtcNetwork        // U
   );
 
-  /// <summary>OBD-II monitor classification (SAE J1979 §6).
-  /// <c>dmtContinuous</c> covers misfire / fuel system / comprehensive
-  /// component monitors that run continuously while the engine is on.
-  /// <c>dmtNonContinuous</c> covers catalyst / EVAP / O2 sensor /
-  /// EGR monitors that run during specific drive cycles.</summary>
+  /// <summary>
+  ///   OBD-II monitor classification (SAE J1979 §6).
+  ///   <c>dmtContinuous</c> covers misfire / fuel system / comprehensive
+  ///   component monitors that run continuously while the engine is on.
+  ///   <c>dmtNonContinuous</c> covers catalyst / EVAP / O2 sensor /
+  ///   EGR monitors that run during specific drive cycles.
+  /// </summary>
   TOBDDtcMonitorType = (
     dmtUnknown,
     dmtContinuous,
@@ -57,46 +63,72 @@ type
   );
 
   TOBDDtcCatalogEntry = record
-    /// <summary>Five-character code: <c>P0301</c>, <c>B22A8</c>, etc.</summary>
+    /// <summary>
+    ///   Five-character code: <c>P0301</c>, <c>B22A8</c>, etc.
+    /// </summary>
     Code: string;
     Severity: TOBDDtcSeverity;
-    /// <summary>Short, single-line description ("Cylinder 1 misfire detected").</summary>
+    /// <summary>
+    ///   Short, single-line description ("Cylinder 1 misfire detected").
+    /// </summary>
     Description: string;
-    /// <summary>Free-form list of plausible causes shown to the user.</summary>
+    /// <summary>
+    ///   Free-form list of plausible causes shown to the user.
+    /// </summary>
     PossibleCauses: TArray<string>;
-    /// <summary>Repair-hint paragraph (often borrowed from service manuals).</summary>
+    /// <summary>
+    ///   Repair-hint paragraph (often borrowed from service manuals).
+    /// </summary>
     RepairHints: string;
-    /// <summary>Provenance — same vocabulary as the DID catalog
-    /// (<c>iso-15031-6</c>, <c>sae-j2012</c>, <c>ross-tech-wiki</c>,
-    /// <c>esys-community</c>, <c>community-pr</c>, …).</summary>
+    /// <summary>
+    ///   Provenance — same vocabulary as the DID catalog
+    ///   (<c>iso-15031-6</c>, <c>sae-j2012</c>, <c>ross-tech-wiki</c>,
+    ///   <c>esys-community</c>, <c>community-pr</c>, …).
+    /// </summary>
     Source: string;
-    /// <summary>True only when matched against an authoritative spec
-    /// (SAE J2012, OEM service manual) or capture fixture.</summary>
+    /// <summary>
+    ///   True only when matched against an authoritative spec
+    ///   (SAE J2012, OEM service manual) or capture fixture.
+    /// </summary>
     Verified: Boolean;
     //--------- v3.77 schema extensions ---------
-    /// <summary>Driver-observable symptoms ("rough idle", "MIL on",
-    /// "lurching upshift"). Optional. UI shows alongside causes.</summary>
+    /// <summary>
+    ///   Driver-observable symptoms ("rough idle", "MIL on",
+    ///   "lurching upshift"). Optional. UI shows alongside causes.
+    /// </summary>
     Symptoms: TArray<string>;
-    /// <summary>Stepped repair guidance (numbered steps, often
-    /// "1) Check connector. 2) Measure resistance ..."). Distinct
-    /// from the older free-form <c>RepairHints</c> which is a
-    /// paragraph blurb.</summary>
+    /// <summary>
+    ///   Stepped repair guidance (numbered steps, often
+    ///   "1) Check connector. 2) Measure resistance ..."). Distinct
+    ///   from the older free-form <c>RepairHints</c> which is a
+    ///   paragraph blurb.
+    /// </summary>
     RepairGuidance: TArray<string>;
-    /// <summary>SAE J1979 monitor category — drives readiness UI.</summary>
+    /// <summary>
+    ///   SAE J1979 monitor category — drives readiness UI.
+    /// </summary>
     MonitorType: TOBDDtcMonitorType;
-    /// <summary>Whether this code triggers a freeze-frame snapshot.
-    /// MIL-on codes typically do; pending codes typically don't.</summary>
+    /// <summary>
+    ///   Whether this code triggers a freeze-frame snapshot.
+    ///   MIL-on codes typically do; pending codes typically don't.
+    /// </summary>
     FreezeFrameRelevant: Boolean;
-    /// <summary>DID names from the same OEM catalog that are useful
-    /// during diagnosis (e.g. <c>ecm_misfire</c>, <c>ecm_lambda_b1</c>
-    /// for P0301). Lets a tool offer "read related data" buttons
-    /// next to the DTC entry.</summary>
+    /// <summary>
+    ///   DID names from the same OEM catalog that are useful
+    ///   during diagnosis (e.g. <c>ecm_misfire</c>, <c>ecm_lambda_b1</c>
+    ///   for P0301). Lets a tool offer "read related data" buttons
+    ///   next to the DTC entry.
+    /// </summary>
     RelatedDIDs: TArray<string>;
-    /// <summary>Routine names that are likely the corrective action
-    /// (e.g. <c>ecm_dpf_regen_force</c> for a P244A DPF fault).</summary>
+    /// <summary>
+    ///   Routine names that are likely the corrective action
+    ///   (e.g. <c>ecm_dpf_regen_force</c> for a P244A DPF fault).
+    /// </summary>
     RelatedRoutines: TArray<string>;
-    /// <summary>OEM service-bulletin reference (TSB number /
-    /// recall ID / dealer fix code). Free text.</summary>
+    /// <summary>
+    ///   OEM service-bulletin reference (TSB number /
+    ///   recall ID / dealer fix code). Free text.
+    /// </summary>
     OemBulletin: string;
   end;
 
@@ -114,49 +146,69 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    /// <summary>Add or replace an entry. Index is updated in lock-step.</summary>
+    /// <summary>
+    ///   Add or replace an entry. Index is updated in lock-step.
+    /// </summary>
     procedure Add(const Entry: TOBDDtcCatalogEntry);
 
-    /// <summary>Bulk-load from a JSON array (entries are appended;
-    /// existing codes are replaced).</summary>
+    /// <summary>
+    ///   Bulk-load from a JSON array (entries are appended;
+    ///   existing codes are replaced).
+    /// </summary>
     procedure LoadFromJSON(Arr: TJSONArray; const DefaultSource: string = '');
     procedure LoadFromFile(const FilePath: string);
     procedure LoadFromText(const JsonText: string);
 
-    /// <summary>Find an entry by its 5-character code (case-insensitive).</summary>
+    /// <summary>
+    ///   Find an entry by its 5-character code (case-insensitive).
+    /// </summary>
     function FindByCode(const Code: string;
       out Entry: TOBDDtcCatalogEntry): Boolean;
 
-    /// <summary>Number of catalogued entries.</summary>
+    /// <summary>
+    ///   Number of catalogued entries.
+    /// </summary>
     function Count: Integer;
     function Item(Index: Integer): TOBDDtcCatalogEntry;
     function ToArray: TArray<TOBDDtcCatalogEntry>;
     procedure Clear;
   end;
 
-/// <summary>Decode a two-byte ISO 15031-5 DTC into its 5-character form.</summary>
+/// <summary>
+///   Decode a two-byte ISO 15031-5 DTC into its 5-character form.
+/// </summary>
 function FormatDtc(const High, Low: Byte): string; overload;
 function FormatDtc(const Bytes: TBytes): string; overload;
 
-/// <summary>Encode a 5-character DTC (e.g. <c>P0301</c>) back into the
-/// two ISO 15031-5 bytes. Throws <c>EOBDDtcError</c> on a malformed
-/// input.</summary>
+/// <summary>
+///   Encode a 5-character DTC (e.g. <c>P0301</c>) back into the
+///   two ISO 15031-5 bytes. Throws <c>EOBDDtcError</c> on a malformed
+///   input.
+/// </summary>
 function EncodeDtc(const Code: string): TBytes;
 
-/// <summary>Letter (P/C/B/U) parser.</summary>
+/// <summary>
+///   Letter (P/C/B/U) parser.
+/// </summary>
 function ParseDtcSystem(const C: Char): TOBDDtcSystem;
 function FormatDtcSystem(const Sys: TOBDDtcSystem): Char;
 
-/// <summary>True if the DTC is in the manufacturer-specific range
-/// (P1xxx, P3xxx, B1xxx, B3xxx, C1xxx, C3xxx, U1xxx, U3xxx).</summary>
+/// <summary>
+///   True if the DTC is in the manufacturer-specific range
+///   (P1xxx, P3xxx, B1xxx, B3xxx, C1xxx, C3xxx, U1xxx, U3xxx).
+/// </summary>
 function IsManufacturerDtc(const Code: string): Boolean;
 
-/// <summary>Map the catalog's text severity tags to the enum.</summary>
+/// <summary>
+///   Map the catalog's text severity tags to the enum.
+/// </summary>
 function ParseSeverity(const S: string): TOBDDtcSeverity;
 function FormatSeverity(const Severity: TOBDDtcSeverity): string;
 
-/// <summary>Map the catalog's monitor_type strings (continuous /
-/// non_continuous / comprehensive_component / "") to the enum.</summary>
+/// <summary>
+///   Map the catalog's monitor_type strings (continuous /
+///   non_continuous / comprehensive_component / "") to the enum.
+/// </summary>
 function ParseMonitorType(const S: string): TOBDDtcMonitorType;
 function FormatMonitorType(const Mt: TOBDDtcMonitorType): string;
 
@@ -168,6 +220,10 @@ uses
 //==============================================================================
 // Encoding
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSE DTC SYSTEM
+//------------------------------------------------------------------------------
 function ParseDtcSystem(const C: Char): TOBDDtcSystem;
 begin
   case UpCase(C) of
@@ -180,6 +236,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT DTC SYSTEM
+//------------------------------------------------------------------------------
 function FormatDtcSystem(const Sys: TOBDDtcSystem): Char;
 begin
   case Sys of
@@ -192,6 +251,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT DTC
+//------------------------------------------------------------------------------
 function FormatDtc(const High, Low: Byte): string;
 const
   SYSTEMS: array[0..3] of Char = ('P', 'C', 'B', 'U');
@@ -213,6 +275,9 @@ begin
   ]);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT DTC
+//------------------------------------------------------------------------------
 function FormatDtc(const Bytes: TBytes): string;
 begin
   if Length(Bytes) < 2 then
@@ -220,6 +285,9 @@ begin
   Result := FormatDtc(Bytes[0], Bytes[1]);
 end;
 
+//------------------------------------------------------------------------------
+// HEX CHAR TO NIBBLE
+//------------------------------------------------------------------------------
 function HexCharToNibble(C: Char): Byte;
 begin
   case UpCase(C) of
@@ -230,6 +298,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE DTC
+//------------------------------------------------------------------------------
 function EncodeDtc(const Code: string): TBytes;
 var
   Norm: string;
@@ -261,6 +332,9 @@ begin
   Result[1] := (D4 shl 4) or D5;
 end;
 
+//------------------------------------------------------------------------------
+// IS MANUFACTURER DTC
+//------------------------------------------------------------------------------
 function IsManufacturerDtc(const Code: string): Boolean;
 begin
   if Length(Code) < 2 then Exit(False);
@@ -270,8 +344,13 @@ end;
 //==============================================================================
 // Severity
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// PARSE SEVERITY
+//------------------------------------------------------------------------------
 function ParseSeverity(const S: string): TOBDDtcSeverity;
-var L: string;
+var
+  L: string;
 begin
   L := LowerCase(Trim(S));
   if (L = 'info') or (L = 'information') then Exit(dtcSeverityInfo);
@@ -280,6 +359,9 @@ begin
   Result := dtcSeverityUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT SEVERITY
+//------------------------------------------------------------------------------
 function FormatSeverity(const Severity: TOBDDtcSeverity): string;
 begin
   case Severity of
@@ -291,8 +373,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE MONITOR TYPE
+//------------------------------------------------------------------------------
 function ParseMonitorType(const S: string): TOBDDtcMonitorType;
-var L: string;
+var
+  L: string;
 begin
   L := LowerCase(Trim(S));
   if (L = 'continuous') then Exit(dmtContinuous);
@@ -303,6 +389,9 @@ begin
   Result := dmtUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT MONITOR TYPE
+//------------------------------------------------------------------------------
 function FormatMonitorType(const Mt: TOBDDtcMonitorType): string;
 begin
   case Mt of
@@ -317,6 +406,10 @@ end;
 //==============================================================================
 // TOBDDtcCatalog
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDDtcCatalog.Create;
 begin
   inherited Create;
@@ -324,6 +417,9 @@ begin
   FByCode := TDictionary<string, Integer>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDDtcCatalog.Destroy;
 begin
   FByCode.Free;
@@ -331,6 +427,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// REBUILD INDEX
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.RebuildIndex;
 var
   I: Integer;
@@ -340,6 +439,9 @@ begin
     FByCode.AddOrSetValue(UpperCase(FEntries[I].Code), I);
 end;
 
+//------------------------------------------------------------------------------
+// ADD
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.Add(const Entry: TOBDDtcCatalogEntry);
 var
   ExistingIdx: Integer;
@@ -355,6 +457,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE CAUSES ARRAY
+//------------------------------------------------------------------------------
 function ParseCausesArray(Arr: TJSONArray): TArray<string>;
 var
   I: Integer;
@@ -365,6 +470,9 @@ begin
     Result[I] := Arr.Items[I].Value;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM JSON
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.LoadFromJSON(Arr: TJSONArray;
   const DefaultSource: string);
 var
@@ -405,6 +513,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM FILE
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.LoadFromFile(const FilePath: string);
 begin
   if not TFile.Exists(FilePath) then
@@ -412,6 +523,9 @@ begin
   LoadFromText(TFile.ReadAllText(FilePath, TEncoding.UTF8));
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM TEXT
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.LoadFromText(const JsonText: string);
 var
   Root: TJSONValue;
@@ -439,6 +553,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND BY CODE
+//------------------------------------------------------------------------------
 function TOBDDtcCatalog.FindByCode(const Code: string;
   out Entry: TOBDDtcCatalogEntry): Boolean;
 var
@@ -448,15 +565,33 @@ begin
   if Result then Entry := FEntries[Idx];
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDDtcCatalog.Count: Integer;
-begin Result := FEntries.Count; end;
+begin
+  Result := FEntries.Count;
+end;
 
+//------------------------------------------------------------------------------
+// ITEM
+//------------------------------------------------------------------------------
 function TOBDDtcCatalog.Item(Index: Integer): TOBDDtcCatalogEntry;
-begin Result := FEntries[Index]; end;
+begin
+  Result := FEntries[Index];
+end;
 
+//------------------------------------------------------------------------------
+// TO ARRAY
+//------------------------------------------------------------------------------
 function TOBDDtcCatalog.ToArray: TArray<TOBDDtcCatalogEntry>;
-begin Result := FEntries.ToArray; end;
+begin
+  Result := FEntries.ToArray;
+end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDDtcCatalog.Clear;
 begin
   FEntries.Clear;

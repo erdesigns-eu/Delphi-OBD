@@ -39,43 +39,67 @@ type
     function Count: Integer;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TCapturingSink.Create;
 begin
   inherited Create;
   FEvents := TList<TOBDLogEvent>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TCapturingSink.Destroy;
 begin
   FEvents.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE
+//------------------------------------------------------------------------------
 procedure TCapturingSink.Write(const Event: TOBDLogEvent);
 begin
   FEvents.Add(Event);
 end;
 
+//------------------------------------------------------------------------------
+// FLUSH
+//------------------------------------------------------------------------------
 procedure TCapturingSink.Flush;
 begin
 end;
 
+//------------------------------------------------------------------------------
+// AT
+//------------------------------------------------------------------------------
 function TCapturingSink.At(I: Integer): TOBDLogEvent;
 begin
   Result := FEvents[I];
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TCapturingSink.Count: Integer;
 begin
   Result := FEvents.Count;
 end;
 
+//------------------------------------------------------------------------------
+// SCRATCH LOG PATH
+//------------------------------------------------------------------------------
 function ScratchLogPath: string;
 begin
   Result := TPath.Combine(TPath.GetTempPath,
     Format('obdaudit-%d-%d.log', [GetCurrentProcessId, GetTickCount]));
 end;
 
+//------------------------------------------------------------------------------
+// SUCCESS ROUTES TO INFO LEVEL_AND JSON HAS OUTCOME
+//------------------------------------------------------------------------------
 procedure TAuditTests.SuccessRoutesToInfoLevel_AndJsonHasOutcome;
 var
   Path: string;
@@ -118,6 +142,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FAILURE ROUTES TO ERROR LEVEL
+//------------------------------------------------------------------------------
 procedure TAuditTests.FailureRoutesToErrorLevel;
 var
   Path: string;
@@ -140,6 +167,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DENIED ROUTES TO WARNING LEVEL
+//------------------------------------------------------------------------------
 procedure TAuditTests.DeniedRoutesToWarningLevel;
 var
   Path: string;
@@ -160,6 +190,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SOURCE TAG SET TO AUDIT
+//------------------------------------------------------------------------------
 procedure TAuditTests.SourceTagSetToAudit;
 var
   Path: string;
@@ -180,6 +213,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SOURCE TAG RESTORED AFTER RECORD
+//------------------------------------------------------------------------------
 procedure TAuditTests.SourceTagRestoredAfterRecord;
 var
   Path: string;

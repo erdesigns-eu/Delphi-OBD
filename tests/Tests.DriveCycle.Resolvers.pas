@@ -20,25 +20,45 @@ type
   [TestFixture]
   TDriveCycleResolversTests = class
   public
-    /// <summary>V w catalyst uses s s p388.</summary>
+    /// <summary>
+    ///   V w catalyst uses s s p388.
+    /// </summary>
     [Test] procedure VWCatalystUsesSSP388;
-    /// <summary>B m w catalyst uses t i s.</summary>
+    /// <summary>
+    ///   B m w catalyst uses t i s.
+    /// </summary>
     [Test] procedure BMWCatalystUsesTIS;
-    /// <summary>Mercedes catalyst uses w i s.</summary>
+    /// <summary>
+    ///   Mercedes catalyst uses w i s.
+    /// </summary>
     [Test] procedure MercedesCatalystUsesWIS;
-    /// <summary>Ford catalyst uses t s b.</summary>
+    /// <summary>
+    ///   Ford catalyst uses t s b.
+    /// </summary>
     [Test] procedure FordCatalystUsesTSB;
-    /// <summary>Toyota catalyst uses repair manual.</summary>
+    /// <summary>
+    ///   Toyota catalyst uses repair manual.
+    /// </summary>
     [Test] procedure ToyotaCatalystUsesRepairManual;
-    /// <summary>Unknown monitor falls through to generic.</summary>
+    /// <summary>
+    ///   Unknown monitor falls through to generic.
+    /// </summary>
     [Test] procedure UnknownMonitorFallsThroughToGeneric;
-    /// <summary>Unregistered o e m uses generic.</summary>
+    /// <summary>
+    ///   Unregistered o e m uses generic.
+    /// </summary>
     [Test] procedure UnregisteredOEMUsesGeneric;
-    /// <summary>V w e v a p has fuel level guidance.</summary>
+    /// <summary>
+    ///   V w e v a p has fuel level guidance.
+    /// </summary>
     [Test] procedure VWEVAPHasFuelLevelGuidance;
-    /// <summary>Ford e v a p requires cold start.</summary>
+    /// <summary>
+    ///   Ford e v a p requires cold start.
+    /// </summary>
     [Test] procedure FordEVAPRequiresColdStart;
-    /// <summary>Toyota e v a p requires eight hour soak.</summary>
+    /// <summary>
+    ///   Toyota e v a p requires eight hour soak.
+    /// </summary>
     [Test] procedure ToyotaEVAPRequiresEightHourSoak;
   end;
 
@@ -50,6 +70,9 @@ uses
   OBD.DriveCycle.Advisor,
   OBD.DriveCycle.Resolvers;
 
+//------------------------------------------------------------------------------
+// PENDING MONITOR
+//------------------------------------------------------------------------------
 function PendingMonitor(const Name: string): TWWHOBDReadinessSet;
 begin
   Result := Default(TWWHOBDReadinessSet);
@@ -75,6 +98,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIRST STEP
+//------------------------------------------------------------------------------
 function FirstStep(const Steps: TArray<TDriveCycleStep>): TDriveCycleStep;
 begin
   if Length(Steps) = 0 then
@@ -82,8 +108,12 @@ begin
   Result := Steps[0];
 end;
 
+//------------------------------------------------------------------------------
+// VWCATALYST USES SSP388
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.VWCatalystUsesSSP388;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('Catalyst'), 'vw'));
   Assert.IsTrue(Step.Description.Contains('SSP'));
@@ -91,36 +121,55 @@ begin
   Assert.IsTrue(Step.DurationSeconds > 0);
 end;
 
+//------------------------------------------------------------------------------
+// BMWCATALYST USES TIS
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.BMWCatalystUsesTIS;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('Catalyst'), 'bmw'));
   Assert.IsTrue(Step.Description.Contains('TIS'));
   Assert.IsTrue(Step.Description.Contains('BMW'));
 end;
 
+//------------------------------------------------------------------------------
+// MERCEDES CATALYST USES WIS
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.MercedesCatalystUsesWIS;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('Catalyst'), 'mercedes'));
   Assert.IsTrue(Step.Description.Contains('WIS'));
 end;
 
+//------------------------------------------------------------------------------
+// FORD CATALYST USES TSB
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.FordCatalystUsesTSB;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('Catalyst'), 'ford'));
   Assert.IsTrue(Step.Description.Contains('TSB'));
   Assert.IsTrue(Step.Description.Contains('OD'));   // overdrive guidance
 end;
 
+//------------------------------------------------------------------------------
+// TOYOTA CATALYST USES REPAIR MANUAL
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.ToyotaCatalystUsesRepairManual;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('Catalyst'), 'toyota'));
   Assert.IsTrue(Step.Description.Contains('RM'));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN MONITOR FALLS THROUGH TO GENERIC
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.UnknownMonitorFallsThroughToGeneric;
 var
   Generic, VWStep: TDriveCycleStep;
@@ -132,6 +181,9 @@ begin
   Assert.AreEqual(Generic.Description, VWStep.Description);
 end;
 
+//------------------------------------------------------------------------------
+// UNREGISTERED OEMUSES GENERIC
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.UnregisteredOEMUsesGeneric;
 var
   Generic, OEMStep: TDriveCycleStep;
@@ -144,24 +196,36 @@ begin
   Assert.AreEqual(Generic.Description, OEMStep.Description);
 end;
 
+//------------------------------------------------------------------------------
+// VWEVAPHAS FUEL LEVEL GUIDANCE
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.VWEVAPHasFuelLevelGuidance;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('EvaporativeSystem'), 'vw'));
   Assert.IsTrue(Step.Description.Contains('fuel level'));
   Assert.IsTrue(Step.Description.Contains('25'));   // 25–75% range cited
 end;
 
+//------------------------------------------------------------------------------
+// FORD EVAPREQUIRES COLD START
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.FordEVAPRequiresColdStart;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('EvaporativeSystem'), 'ford'));
   Assert.IsTrue(Step.Description.Contains('cold start') or
                 Step.Description.Contains('Cold start'));
 end;
 
+//------------------------------------------------------------------------------
+// TOYOTA EVAPREQUIRES EIGHT HOUR SOAK
+//------------------------------------------------------------------------------
 procedure TDriveCycleResolversTests.ToyotaEVAPRequiresEightHourSoak;
-var Step: TDriveCycleStep;
+var
+  Step: TDriveCycleStep;
 begin
   Step := FirstStep(BuildDriveCycle(PendingMonitor('EvaporativeSystem'),
                                      'toyota'));

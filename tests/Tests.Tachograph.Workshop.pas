@@ -20,29 +20,53 @@ type
   [TestFixture]
   TTachographWorkshopTests = class
   public
-    /// <summary>U t c sync round trip.</summary>
+    /// <summary>
+    ///   U t c sync round trip.
+    /// </summary>
     [Test] procedure UTCSyncRoundTrip;
-    /// <summary>U t c sync bad card id raises.</summary>
+    /// <summary>
+    ///   U t c sync bad card id raises.
+    /// </summary>
     [Test] procedure UTCSyncBadCardIdRaises;
-    /// <summary>K l w round trip.</summary>
+    /// <summary>
+    ///   K l w round trip.
+    /// </summary>
     [Test] procedure KLWRoundTrip;
-    /// <summary>K out of range raises.</summary>
+    /// <summary>
+    ///   K out of range raises.
+    /// </summary>
     [Test] procedure KOutOfRangeRaises;
-    /// <summary>Tyre size round trip.</summary>
+    /// <summary>
+    ///   Tyre size round trip.
+    /// </summary>
     [Test] procedure TyreSizeRoundTrip;
-    /// <summary>Tyre out of range raises.</summary>
+    /// <summary>
+    ///   Tyre out of range raises.
+    /// </summary>
     [Test] procedure TyreOutOfRangeRaises;
-    /// <summary>V i n round trip.</summary>
+    /// <summary>
+    ///   V i n round trip.
+    /// </summary>
     [Test] procedure VINRoundTrip;
-    /// <summary>V i n bad length raises.</summary>
+    /// <summary>
+    ///   V i n bad length raises.
+    /// </summary>
     [Test] procedure VINBadLengthRaises;
-    /// <summary>V r plate round trip.</summary>
+    /// <summary>
+    ///   V r plate round trip.
+    /// </summary>
     [Test] procedure VRPlateRoundTrip;
-    /// <summary>V r plate too long raises.</summary>
+    /// <summary>
+    ///   V r plate too long raises.
+    /// </summary>
     [Test] procedure VRPlateTooLongRaises;
-    /// <summary>Sealed activation layout.</summary>
+    /// <summary>
+    ///   Sealed activation layout.
+    /// </summary>
     [Test] procedure SealedActivationLayout;
-    /// <summary>Date time to time real round trips.</summary>
+    /// <summary>
+    ///   Date time to time real round trips.
+    /// </summary>
     [Test] procedure DateTimeToTimeRealRoundTrips;
   end;
 
@@ -52,6 +76,9 @@ uses
   System.SysUtils, System.DateUtils,
   OBD.Tachograph.Workshop;
 
+//------------------------------------------------------------------------------
+// UTCSYNC ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.UTCSyncRoundTrip;
 var
   In_, Out_: TTachoUTCSync;
@@ -69,8 +96,12 @@ begin
   Assert.AreEqual(Integer($77), Integer(Out_.WorkshopCardId[15]));
 end;
 
+//------------------------------------------------------------------------------
+// UTCSYNC BAD CARD ID RAISES
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.UTCSyncBadCardIdRaises;
-var Op: TTachoUTCSync;
+var
+  Op: TTachoUTCSync;
 begin
   Op.UTCTimestamp := 0;
   SetLength(Op.WorkshopCardId, 8);
@@ -78,6 +109,9 @@ begin
     procedure begin EncodeUTCSync(Op); end, EOBDTachoWorkshop);
 end;
 
+//------------------------------------------------------------------------------
+// KLWROUND TRIP
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.KLWRoundTrip;
 var
   In_, Out_: TTachoKLWFactors;
@@ -94,8 +128,12 @@ begin
   Assert.AreEqual(In_.W, Out_.W);
 end;
 
+//------------------------------------------------------------------------------
+// KOUT OF RANGE RAISES
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.KOutOfRangeRaises;
-var Op: TTachoKLWFactors;
+var
+  Op: TTachoKLWFactors;
 begin
   Op.K := 100;
   Op.L := 0;
@@ -104,6 +142,9 @@ begin
     procedure begin EncodeKLW(Op); end, EOBDTachoWorkshop);
 end;
 
+//------------------------------------------------------------------------------
+// TYRE SIZE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.TyreSizeRoundTrip;
 var
   In_, Out_: TTachoTyreSize;
@@ -116,14 +157,21 @@ begin
   Assert.AreEqual(2050, Integer(Out_.CircumferenceMm));
 end;
 
+//------------------------------------------------------------------------------
+// TYRE OUT OF RANGE RAISES
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.TyreOutOfRangeRaises;
-var Op: TTachoTyreSize;
+var
+  Op: TTachoTyreSize;
 begin
   Op.CircumferenceMm := 500;
   Assert.WillRaise(
     procedure begin EncodeTyreSize(Op); end, EOBDTachoWorkshop);
 end;
 
+//------------------------------------------------------------------------------
+// VINROUND TRIP
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.VINRoundTrip;
 var
   In_, Out_: TTachoVINUpdate;
@@ -136,14 +184,21 @@ begin
   Assert.AreEqual('WVWZZZ8N8Z1234567', Out_.VIN);
 end;
 
+//------------------------------------------------------------------------------
+// VINBAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.VINBadLengthRaises;
-var Op: TTachoVINUpdate;
+var
+  Op: TTachoVINUpdate;
 begin
   Op.VIN := 'TOO-SHORT';
   Assert.WillRaise(
     procedure begin EncodeVIN(Op); end, EOBDTachoWorkshop);
 end;
 
+//------------------------------------------------------------------------------
+// VRPLATE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.VRPlateRoundTrip;
 var
   In_, Out_: TTachoVRPlate;
@@ -157,8 +212,12 @@ begin
   Assert.AreEqual(Integer($1F), Integer(Out_.NationalSymbol));
 end;
 
+//------------------------------------------------------------------------------
+// VRPLATE TOO LONG RAISES
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.VRPlateTooLongRaises;
-var Op: TTachoVRPlate;
+var
+  Op: TTachoVRPlate;
 begin
   Op.PlateText := 'THIS-PLATE-IS-TOO-LONG-EXCEEDS-13';
   Op.NationalSymbol := 0;
@@ -166,6 +225,9 @@ begin
     procedure begin EncodeVRPlate(Op); end, EOBDTachoWorkshop);
 end;
 
+//------------------------------------------------------------------------------
+// SEALED ACTIVATION LAYOUT
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.SealedActivationLayout;
 var
   Op: TTachoSealedActivation;
@@ -182,6 +244,9 @@ begin
   Assert.AreEqual(Integer(Ord('K')), Integer(Bytes[22]));
 end;
 
+//------------------------------------------------------------------------------
+// DATE TIME TO TIME REAL ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TTachographWorkshopTests.DateTimeToTimeRealRoundTrips;
 var
   T: TDateTime;

@@ -28,6 +28,9 @@ uses
   System.DateUtils,
   OBD.Logger.Sinks;
 
+//------------------------------------------------------------------------------
+// MAKE EVENT
+//------------------------------------------------------------------------------
 function MakeEvent(L: TOBDLogLevel; const Msg: string;
   const Source: string = ''): TOBDLogEvent;
 begin
@@ -37,6 +40,9 @@ begin
   Result.Message := Msg;
 end;
 
+//------------------------------------------------------------------------------
+// SCRATCH PATH
+//------------------------------------------------------------------------------
 function ScratchPath(const Name: string): string;
 begin
   Result := TPath.Combine(TPath.GetTempPath,
@@ -45,6 +51,9 @@ end;
 
 { TLoggerSinksTests }
 
+//------------------------------------------------------------------------------
+// IN MEMORY SINK_ACCEPTS EVENTS AND CAPS AT CAPACITY
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.InMemorySink_AcceptsEventsAndCapsAtCapacity;
 var
   Sink: TInMemorySink;
@@ -64,6 +73,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IN MEMORY SINK_ON EVENT CALLBACK FIRES
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.InMemorySink_OnEventCallbackFires;
 var
   Sink: TInMemorySink;
@@ -81,6 +93,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// JSON LINE SINK_WRITES VALID JSON
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.JsonLineSink_WritesValidJson;
 var
   Path: string;
@@ -115,6 +130,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FILE ROTATION SINK_ROTATES WHEN SIZE EXCEEDED
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.FileRotationSink_RotatesWhenSizeExceeded;
 var
   Path, Backup1: string;
@@ -142,6 +160,9 @@ begin
   TFile.Delete(Backup1);
 end;
 
+//------------------------------------------------------------------------------
+// DAILY ROTATION SINK_NAMES FILE WITH DATE
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.DailyRotationSink_NamesFileWithDate;
 var
   Dir, Expected: string;
@@ -165,6 +186,9 @@ begin
   TFile.Delete(Expected);
 end;
 
+//------------------------------------------------------------------------------
+// LOG LEVEL NAME_RETURNS EXPECTED STRINGS
+//------------------------------------------------------------------------------
 procedure TLoggerSinksTests.LogLevelName_ReturnsExpectedStrings;
 begin
   Assert.AreEqual('DEBUG',    LogLevelName(lsDebug));

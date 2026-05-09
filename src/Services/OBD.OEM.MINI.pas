@@ -21,10 +21,12 @@ uses
   System.SysUtils, OBD.OEM, OBD.OEM.Session, OBD.OEM.SeedKey, OBD.OEM.DTC;
 
 type
-  /// <summary>MINI uses BMW E-Sys / ISTA, so the same negotiator
-  /// applies (security access required for both extended +
-  /// programming sessions; 1500 ms heartbeat for older R-series
-  /// DMEs).</summary>
+  /// <summary>
+  ///   MINI uses BMW E-Sys / ISTA, so the same negotiator
+  ///   applies (security access required for both extended +
+  ///   programming sessions; 1500 ms heartbeat for older R-series
+  ///   DMEs).
+  /// </summary>
   TOBDMINISessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     function RequiresSecurityAccess(SessionType: TOBDSessionType): Boolean; override;
@@ -35,13 +37,18 @@ type
   TOBDOEMExtensionMINI = class(TOBDOEMExtensionBase)
   protected
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
-      var Routines: TArray<TOBDOEMRoutine>;
+      var
+        Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
     procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-      var Adaptations: TArray<TOBDOEMAdaptation>;
-      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var
+        CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var
+        Adaptations: TArray<TOBDOEMAdaptation>;
+      var
+        ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var
+        LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
     procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
@@ -59,6 +66,9 @@ implementation
 uses
   OBD.OEM.Helpers, OBD.OEM.Catalog.Loader, OBD.OEM.DTC.Loader;
 
+//------------------------------------------------------------------------------
+// REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 function TOBDMINISessionNegotiator.RequiresSecurityAccess(
   SessionType: TOBDSessionType): Boolean;
 begin
@@ -66,27 +76,57 @@ begin
                             sstOEMSpecific1, sstOEMSpecific2];
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT TESTER PRESENT MS
+//------------------------------------------------------------------------------
 function TOBDMINISessionNegotiator.DefaultTesterPresentMs: Cardinal;
-begin Result := 1500; end;
+begin
+  Result := 1500;
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDMINISessionNegotiator.DisplayName: string;
-begin Result := 'MINI (BMW E-Sys / ISTA)'; end;
+begin
+  Result := 'MINI (BMW E-Sys / ISTA)';
+end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEY
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionMINI.ManufacturerKey: string;
-begin Result := 'MINI'; end;
+begin
+  Result := 'MINI';
+end;
 
+//------------------------------------------------------------------------------
+// DISPLAY NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionMINI.DisplayName: string;
-begin Result := 'MINI (BMW Group sub-brand)'; end;
+begin
+  Result := 'MINI (BMW Group sub-brand)';
+end;
 
+//------------------------------------------------------------------------------
+// APPLICABLE TO VIN
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionMINI.ApplicableToVIN(const VIN: string): Boolean;
 begin
   // JSON-only: applicable_wmis lives in mini.json.
   Result := VINMatchesCatalog('mini.json', VIN);
 end;
+
+//------------------------------------------------------------------------------
+// BUILD CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionMINI.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 begin
   // JSON-only — sole sources of truth are mini.json
   // + uds-standard.json. Hardcoded entries removed.
@@ -97,19 +137,36 @@ begin
 end;
 
 
+//------------------------------------------------------------------------------
+// BUILD EXTENDED CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionMINI.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
   MergeExtendedCatalogJSON('mini.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
 end;
-function TOBDOEMExtensionMINI.CreateSessionNegotiator: IOBDSessionNegotiator;
-begin Result := TOBDMINISessionNegotiator.Create; end;
 
+//------------------------------------------------------------------------------
+// CREATE SESSION NEGOTIATOR
+//------------------------------------------------------------------------------
+function TOBDOEMExtensionMINI.CreateSessionNegotiator: IOBDSessionNegotiator;
+begin
+  Result := TOBDMINISessionNegotiator.Create;
+end;
+
+//------------------------------------------------------------------------------
+// SEED DEFAULT SEED KEY ALGORITHMS
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionMINI.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 const
@@ -125,6 +182,9 @@ begin
     'MINI (BMW E-Sys lineage) XOR-mask placeholder', 'community-pr', False));
 end;
 
+//------------------------------------------------------------------------------
+// SEED DEFAULT DTC CATALOG
+//------------------------------------------------------------------------------
 procedure TOBDOEMExtensionMINI.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
@@ -132,9 +192,17 @@ begin
   MergeDtcCatalog(DtcCatalogFileName, Cat);
 end;
 
+//------------------------------------------------------------------------------
+// DTC CATALOG FILE NAME
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionMINI.DtcCatalogFileName: string;
-begin Result := 'dtc-mini.json'; end;
+begin
+  Result := 'dtc-mini.json';
+end;
 
+//------------------------------------------------------------------------------
+// DECODE DID
+//------------------------------------------------------------------------------
 function TOBDOEMExtensionMINI.DecodeDID(const DID: Word;
   const Payload: TBytes): string;
 begin

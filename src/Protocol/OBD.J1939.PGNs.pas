@@ -166,7 +166,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing
@@ -222,10 +226,17 @@ end;
 // J1939 PGNCOUNT
 //------------------------------------------------------------------------------
 function J1939PGNCount: Integer;
-begin Result := GPGNs.Count; end;
+begin
+  Result := GPGNs.Count;
+end;
 
+//------------------------------------------------------------------------------
+// J1939 PGNALL
+//------------------------------------------------------------------------------
 function J1939PGNAll: TArray<TJ1939PGNDescriptor>;
-begin Result := GPGNs.ToArray; end;
+begin
+  Result := GPGNs.ToArray;
+end;
 
 initialization
   // Create GPGNs

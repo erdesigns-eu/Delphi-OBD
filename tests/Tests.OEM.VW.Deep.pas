@@ -19,44 +19,78 @@ type
   [TestFixture]
   TVWDeepDIDTests = class
   public
-    /// <summary>Catalog exceeds baseline d i d count.</summary>
+    /// <summary>
+    ///   Catalog exceeds baseline d i d count.
+    /// </summary>
     [Test] procedure CatalogExceedsBaselineDIDCount;
-    /// <summary>Engine ecu has lambda per bank.</summary>
+    /// <summary>
+    ///   Engine ecu has lambda per bank.
+    /// </summary>
     [Test] procedure EngineEcuHasLambdaPerBank;
-    /// <summary>Engine ecu has misfire counters.</summary>
+    /// <summary>
+    ///   Engine ecu has misfire counters.
+    /// </summary>
     [Test] procedure EngineEcuHasMisfireCounters;
-    /// <summary>Transmission ecu has dsg clutch pressures.</summary>
+    /// <summary>
+    ///   Transmission ecu has dsg clutch pressures.
+    /// </summary>
     [Test] procedure TransmissionEcuHasDsgClutchPressures;
-    /// <summary>Abs ecu has four wheel speeds.</summary>
+    /// <summary>
+    ///   Abs ecu has four wheel speeds.
+    /// </summary>
     [Test] procedure AbsEcuHasFourWheelSpeeds;
-    /// <summary>Cluster has trip data and service counters.</summary>
+    /// <summary>
+    ///   Cluster has trip data and service counters.
+    /// </summary>
     [Test] procedure ClusterHasTripDataAndServiceCounters;
-    /// <summary>Ev stack present.</summary>
+    /// <summary>
+    ///   Ev stack present.
+    /// </summary>
     [Test] procedure EvStackPresent;
-    /// <summary>New ecus registered.</summary>
+    /// <summary>
+    ///   New ecus registered.
+    /// </summary>
     [Test] procedure NewEcusRegistered;
   end;
 
   [TestFixture]
   TVWDeepExtendedTests = class
   public
-    /// <summary>Exposes coding blocks.</summary>
+    /// <summary>
+    ///   Exposes coding blocks.
+    /// </summary>
     [Test] procedure ExposesCodingBlocks;
-    /// <summary>Bcm coding block has drl field.</summary>
+    /// <summary>
+    ///   Bcm coding block has drl field.
+    /// </summary>
     [Test] procedure BcmCodingBlockHasDrlField;
-    /// <summary>Exposes adaptations.</summary>
+    /// <summary>
+    ///   Exposes adaptations.
+    /// </summary>
     [Test] procedure ExposesAdaptations;
-    /// <summary>Service interval distance adaptation has bounds.</summary>
+    /// <summary>
+    ///   Service interval distance adaptation has bounds.
+    /// </summary>
     [Test] procedure ServiceIntervalDistanceAdaptationHasBounds;
-    /// <summary>Exposes actuator tests.</summary>
+    /// <summary>
+    ///   Exposes actuator tests.
+    /// </summary>
     [Test] procedure ExposesActuatorTests;
-    /// <summary>Cooling fan test carries safety warning.</summary>
+    /// <summary>
+    ///   Cooling fan test carries safety warning.
+    /// </summary>
     [Test] procedure CoolingFanTestCarriesSafetyWarning;
-    /// <summary>Exposes live p i ds.</summary>
+    /// <summary>
+    ///   Exposes live p i ds.
+    /// </summary>
     [Test] procedure ExposesLivePIDs;
-    /// <summary>Exposes dtc extended data.</summary>
+    /// <summary>
+    ///   Exposes dtc extended data.
+    /// </summary>
     [Test] procedure ExposesDtcExtendedData;
-    /// <summary>Implements extension v2 interface.</summary>
+    /// <summary>
+    ///   Implements extension v2 interface.
+    /// </summary>
     [Test] procedure ImplementsExtensionV2Interface;
   end;
 
@@ -66,17 +100,27 @@ uses
   System.SysUtils,
   OBD.OEM, OBD.OEM.VW;
 
+//------------------------------------------------------------------------------
+// FIND DID
+//------------------------------------------------------------------------------
 function FindDID(const All: TArray<TOBDOEMDataIdentifier>;
   const Name: string; out Entry: TOBDOEMDataIdentifier): Boolean;
-var D: TOBDOEMDataIdentifier;
+var
+  D: TOBDOEMDataIdentifier;
 begin
   for D in All do
     if D.Name = Name then
-    begin Entry := D; Exit(True); end;
+    begin
+      Entry := D;
+      Exit(True);
+    end;
   Entry := Default(TOBDOEMDataIdentifier);
   Result := False;
 end;
 
+//------------------------------------------------------------------------------
+// COUNT BY ECU
+//------------------------------------------------------------------------------
 function CountByEcu(const All: TArray<TOBDOEMDataIdentifier>;
   const Address: Word): Integer;
 var
@@ -92,8 +136,13 @@ end;
 //==============================================================================
 // Per-ECU DID enrichment
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CATALOG EXCEEDS BASELINE DIDCOUNT
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.CatalogExceedsBaselineDIDCount;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionVW.Create;
   Assert.IsTrue(Length(Ext.DataIdentifiers) >= 100,
@@ -101,6 +150,9 @@ begin
            [Length(Ext.DataIdentifiers)]));
 end;
 
+//------------------------------------------------------------------------------
+// ENGINE ECU HAS LAMBDA PER BANK
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.EngineEcuHasLambdaPerBank;
 var
   Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
@@ -114,6 +166,9 @@ begin
   Assert.IsTrue(FindDID(Ext.DataIdentifiers, 'vag_lambda_actual_b2s2', D));
 end;
 
+//------------------------------------------------------------------------------
+// ENGINE ECU HAS MISFIRE COUNTERS
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.EngineEcuHasMisfireCounters;
 var
   Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
@@ -123,6 +178,9 @@ begin
   Assert.IsTrue(FindDID(Ext.DataIdentifiers, 'vag_misfire_count_cyl4', D));
 end;
 
+//------------------------------------------------------------------------------
+// TRANSMISSION ECU HAS DSG CLUTCH PRESSURES
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.TransmissionEcuHasDsgClutchPressures;
 var
   Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
@@ -134,6 +192,9 @@ begin
     'DSG K2 pressure must be scoped to the transmission ECU');
 end;
 
+//------------------------------------------------------------------------------
+// ABS ECU HAS FOUR WHEEL SPEEDS
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.AbsEcuHasFourWheelSpeeds;
 var Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
 begin
@@ -144,6 +205,9 @@ begin
   Assert.IsTrue(FindDID(Ext.DataIdentifiers, 'vag_abs_wheel_speed_rr', D));
 end;
 
+//------------------------------------------------------------------------------
+// CLUSTER HAS TRIP DATA AND SERVICE COUNTERS
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.ClusterHasTripDataAndServiceCounters;
 var Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
 begin
@@ -153,6 +217,9 @@ begin
   Assert.IsTrue(FindDID(Ext.DataIdentifiers, 'vag_cluster_oil_distance_km', D));
 end;
 
+//------------------------------------------------------------------------------
+// EV STACK PRESENT
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.EvStackPresent;
 var Ext: IOBDOEMExtension; D: TOBDOEMDataIdentifier;
 begin
@@ -162,6 +229,9 @@ begin
   Assert.IsTrue(FindDID(Ext.DataIdentifiers, 'vag_ev_remaining_range_km', D));
 end;
 
+//------------------------------------------------------------------------------
+// NEW ECUS REGISTERED
+//------------------------------------------------------------------------------
 procedure TVWDeepDIDTests.NewEcusRegistered;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -183,6 +253,10 @@ end;
 //==============================================================================
 // Schema v2 — coding blocks / adaptations / actuator tests / live PIDs / DTC ext
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// IMPLEMENTS EXTENSION V2 INTERFACE
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ImplementsExtensionV2Interface;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -193,6 +267,9 @@ begin
   Assert.IsNotNull(V2);
 end;
 
+//------------------------------------------------------------------------------
+// EXPOSES CODING BLOCKS
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ExposesCodingBlocks;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -204,6 +281,9 @@ begin
       + IntToStr(Length(V2.CodingBlocks)) + ')');
 end;
 
+//------------------------------------------------------------------------------
+// BCM CODING BLOCK HAS DRL FIELD
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.BcmCodingBlockHasDrlField;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -230,6 +310,9 @@ begin
   Assert.IsTrue(HasCountry);
 end;
 
+//------------------------------------------------------------------------------
+// EXPOSES ADAPTATIONS
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ExposesAdaptations;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -240,6 +323,9 @@ begin
     'VW must expose at least 12 adaptation channels');
 end;
 
+//------------------------------------------------------------------------------
+// SERVICE INTERVAL DISTANCE ADAPTATION HAS BOUNDS
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ServiceIntervalDistanceAdaptationHasBounds;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -261,6 +347,9 @@ begin
   Assert.IsTrue(Found);
 end;
 
+//------------------------------------------------------------------------------
+// EXPOSES ACTUATOR TESTS
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ExposesActuatorTests;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -270,6 +359,9 @@ begin
   Assert.IsTrue(Length(V2.ActuatorTests) >= 10);
 end;
 
+//------------------------------------------------------------------------------
+// COOLING FAN TEST CARRIES SAFETY WARNING
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.CoolingFanTestCarriesSafetyWarning;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -291,6 +383,9 @@ begin
   Assert.IsTrue(Found);
 end;
 
+//------------------------------------------------------------------------------
+// EXPOSES LIVE PIDS
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ExposesLivePIDs;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;
@@ -309,6 +404,9 @@ begin
   Assert.IsTrue(HasService22, 'live_pids must include OEM mode 0x22 entries');
 end;
 
+//------------------------------------------------------------------------------
+// EXPOSES DTC EXTENDED DATA
+//------------------------------------------------------------------------------
 procedure TVWDeepExtendedTests.ExposesDtcExtendedData;
 var
   Ext: IOBDOEMExtension; V2: IOBDOEMExtensionV2;

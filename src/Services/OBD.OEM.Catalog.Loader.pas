@@ -47,7 +47,8 @@ function ResolveCatalogPath(const FileName: string): string;
 ///   fallback continues to work.
 /// </summary>
 procedure MergeCatalogJSON(const FileName: string;
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
   var Routines: TArray<TOBDOEMRoutine>); overload;
 
 /// <summary>
@@ -57,8 +58,10 @@ procedure MergeCatalogJSON(const FileName: string;
 ///   appended.
 /// </summary>
 procedure MergeCatalogJSON(const FileName: string;
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
   var ECUs: TArray<TOBDOEMECU>); overload;
 
 /// <summary>
@@ -71,11 +74,16 @@ procedure MergeCatalogJSON(const FileName: string;
 ///   no-ops when the file isn't found.
 /// </summary>
 procedure MergeExtendedCatalogJSON(const FileName: string;
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 
 /// <summary>
 ///   v3.31 — JSON-driven VIN routing. Returns True if the catalog's
@@ -90,16 +98,25 @@ implementation
 var
   GCatalogSearchPath: string = '';
 
+//------------------------------------------------------------------------------
+// SET CATALOG SEARCH PATH
+//------------------------------------------------------------------------------
 procedure SetCatalogSearchPath(const Path: string);
 begin
   GCatalogSearchPath := Path;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTABLE DIR
+//------------------------------------------------------------------------------
 function ExecutableDir: string;
 begin
   Result := TPath.GetDirectoryName(ParamStr(0));
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE CATALOG PATH
+//------------------------------------------------------------------------------
 function ResolveCatalogPath(const FileName: string): string;
 const
   // Vehicle-class subdirectories introduced in v3.77 (Phase B):
@@ -145,6 +162,9 @@ begin
   Result := '';
 end;
 
+//------------------------------------------------------------------------------
+// MERGE DIDS
+//------------------------------------------------------------------------------
 procedure MergeDIDs(var Existing: TArray<TOBDOEMDataIdentifier>;
   const Loaded: TArray<TOBDOEMDataIdentifier>);
 var
@@ -167,6 +187,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE ROUTINES
+//------------------------------------------------------------------------------
 procedure MergeRoutines(var Existing: TArray<TOBDOEMRoutine>;
   const Loaded: TArray<TOBDOEMRoutine>);
 var
@@ -188,6 +211,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE ECUS
+//------------------------------------------------------------------------------
 procedure MergeECUs(var Existing: TArray<TOBDOEMECU>;
   const Loaded: TArray<TOBDOEMECU>);
 var
@@ -209,9 +235,14 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE CATALOG JSON
+//------------------------------------------------------------------------------
 procedure MergeCatalogJSON(const FileName: string;
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>);
 var
   Discard: TArray<TOBDOEMECU>;
 begin
@@ -219,10 +250,16 @@ begin
   MergeCatalogJSON(FileName, DIDs, Routines, Discard);
 end;
 
+//------------------------------------------------------------------------------
+// MERGE CATALOG JSON
+//------------------------------------------------------------------------------
 procedure MergeCatalogJSON(const FileName: string;
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+  var
+    DIDs: TArray<TOBDOEMDataIdentifier>;
+  var
+    Routines: TArray<TOBDOEMRoutine>;
+  var
+    ECUs: TArray<TOBDOEMECU>);
 var
   Path: string;
   Catalog: TOBDOEMJSONCatalog;
@@ -248,6 +285,10 @@ end;
 //==============================================================================
 // v3.29 Phase A — extended-catalog merge
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CONVERT CODING BLOCK
+//------------------------------------------------------------------------------
 function ConvertCodingBlock(const E: TOBDCodingBlockEntry): TOBDOEMCodingBlock;
 var
   I: Integer;
@@ -281,6 +322,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT ADAPTATION
+//------------------------------------------------------------------------------
 function ConvertAdaptation(const E: TOBDAdaptationEntry): TOBDOEMAdaptation;
 begin
   Result := Default(TOBDOEMAdaptation);
@@ -296,6 +340,9 @@ begin
   Result.EnumValues := E.EnumValues;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT ACTUATOR TEST
+//------------------------------------------------------------------------------
 function ConvertActuatorTest(const E: TOBDActuatorTestEntry): TOBDOEMActuatorTest;
 begin
   Result := Default(TOBDOEMActuatorTest);
@@ -309,6 +356,9 @@ begin
   Result.ExpectedResponseLabel := E.ExpectedResponseLabel;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT LIVE PID
+//------------------------------------------------------------------------------
 function ConvertLivePID(const E: TOBDLivePIDEntry): TOBDOEMLivePID;
 begin
   Result := Default(TOBDOEMLivePID);
@@ -324,6 +374,9 @@ begin
   Result.Unit_ := E.Unit_;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT DTC EXTENDED
+//------------------------------------------------------------------------------
 function ConvertDtcExtended(const E: TOBDDtcExtendedDataEntry): TOBDDtcExtendedDataRecord;
 begin
   Result := Default(TOBDDtcExtendedDataRecord);
@@ -337,6 +390,9 @@ begin
   Result.Unit_ := E.Unit_;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE CODING BLOCKS
+//------------------------------------------------------------------------------
 procedure MergeCodingBlocks(var Existing: TArray<TOBDOEMCodingBlock>;
   const Loaded: TArray<TOBDOEMCodingBlock>);
 var I, J: Integer; Found: Boolean;
@@ -346,11 +402,18 @@ begin
     Found := False;
     for J := 0 to High(Existing) do
       if Existing[J].DataIdentifier = Loaded[I].DataIdentifier then
-      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
     if not Found then Existing := Existing + [Loaded[I]];
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE ADAPTATIONS
+//------------------------------------------------------------------------------
 procedure MergeAdaptations(var Existing: TArray<TOBDOEMAdaptation>;
   const Loaded: TArray<TOBDOEMAdaptation>);
 var I, J: Integer; Found: Boolean;
@@ -361,11 +424,18 @@ begin
     for J := 0 to High(Existing) do
       if (Existing[J].Channel = Loaded[I].Channel) and
          (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
-      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
     if not Found then Existing := Existing + [Loaded[I]];
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE ACTUATOR TESTS
+//------------------------------------------------------------------------------
 procedure MergeActuatorTests(var Existing: TArray<TOBDOEMActuatorTest>;
   const Loaded: TArray<TOBDOEMActuatorTest>);
 var I, J: Integer; Found: Boolean;
@@ -376,11 +446,18 @@ begin
     for J := 0 to High(Existing) do
       if (Existing[J].Identifier = Loaded[I].Identifier) and
          (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
-      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
     if not Found then Existing := Existing + [Loaded[I]];
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE LIVE PIDS
+//------------------------------------------------------------------------------
 procedure MergeLivePIDs(var Existing: TArray<TOBDOEMLivePID>;
   const Loaded: TArray<TOBDOEMLivePID>);
 var I, J: Integer; Found: Boolean;
@@ -392,11 +469,18 @@ begin
       if (Existing[J].Mode = Loaded[I].Mode) and
          (Existing[J].PID = Loaded[I].PID) and
          (Existing[J].EcuAddress = Loaded[I].EcuAddress) then
-      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
     if not Found then Existing := Existing + [Loaded[I]];
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE DTC EXTENDED
+//------------------------------------------------------------------------------
 procedure MergeDtcExtended(var Existing: TArray<TOBDDtcExtendedDataRecord>;
   const Loaded: TArray<TOBDDtcExtendedDataRecord>);
 var I, J: Integer; Found: Boolean;
@@ -407,17 +491,29 @@ begin
     for J := 0 to High(Existing) do
       if (Existing[J].DtcCode = Loaded[I].DtcCode) and
          (Existing[J].RecordNumber = Loaded[I].RecordNumber) then
-      begin Existing[J] := Loaded[I]; Found := True; Break; end;
+      begin
+        Existing[J] := Loaded[I];
+        Found := True;
+        Break;
+      end;
     if not Found then Existing := Existing + [Loaded[I]];
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MERGE EXTENDED CATALOG JSON
+//------------------------------------------------------------------------------
 procedure MergeExtendedCatalogJSON(const FileName: string;
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
-  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
-  var LivePIDs: TArray<TOBDOEMLivePID>;
-  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
+  var
+    CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var
+    Adaptations: TArray<TOBDOEMAdaptation>;
+  var
+    ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var
+    LivePIDs: TArray<TOBDOEMLivePID>;
+  var
+    DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 var
   Path: string;
   Catalog: TOBDOEMJSONCatalog;
@@ -465,6 +561,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VINMATCHES CATALOG
+//------------------------------------------------------------------------------
 function VINMatchesCatalog(const FileName, VIN: string): Boolean;
 var
   Path, WMI, CatalogWMI: string;

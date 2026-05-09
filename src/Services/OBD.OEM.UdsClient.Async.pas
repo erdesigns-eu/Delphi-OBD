@@ -27,26 +27,30 @@ uses
   OBD.Async, OBD.OEM.UdsClient, OBD.OEM.Catalog.JSON;
 
 type
-  /// <summary>Async facet of <see cref="IOBDUdsClient"/>. Each call
-  /// returns immediately with an <see cref="IOBDFuture{T}"/>; the
-  /// underlying UDS round-trip happens on the client's worker
-  /// thread. Session-management calls (<c>OpenSession</c>,
-  /// <c>CloseSession</c>, <c>IsOpen</c>) are synchronous because
-  /// they must complete before any async call is meaningful.
+  /// <summary>
+  ///   Async facet of <see cref="IOBDUdsClient"/>. Each call
+  ///   returns immediately with an <see cref="IOBDFuture{T}"/>; the
+  ///   underlying UDS round-trip happens on the client's worker
+  ///   thread. Session-management calls (<c>OpenSession</c>,
+  ///   <c>CloseSession</c>, <c>IsOpen</c>) are synchronous because
+  ///   they must complete before any async call is meaningful.
   /// </summary>
   IOBDUdsClientAsync = interface
     ['{D7E8F9A0-1B2C-3D4E-5F60-718293A4B5C6}']
 
-    /// <summary>Synchronously open a session against the supplied
-    /// catalog/transport pair. Must be called before any of the
-    /// *Async methods.</summary>
+    /// <summary>
+    ///   Synchronously open a session against the supplied
+    ///   catalog/transport pair. Must be called before any of the
+    ///   *Async methods.
+    /// </summary>
     procedure OpenSession(const Catalog: TOBDOEMJSONCatalog;
                           const Transport: IOBDDiagnosticTransport;
                           ECUAddress: Word);
 
-    /// <summary>Synchronously close the session. Drains the work
-    /// queue first — every queued future is signalled cancelled so
-    /// callers waiting on Await get <c>EOBDOperationCancelled</c>.
+    /// <summary>
+    ///   Synchronously close the session. Drains the work
+    ///   queue first — every queued future is signalled cancelled so
+    ///   callers waiting on Await get <c>EOBDOperationCancelled</c>.
     /// </summary>
     procedure CloseSession;
     function  IsOpen: Boolean;
@@ -66,9 +70,11 @@ type
                                   const Token: IOBDCancellationToken = nil)
                                   : IOBDFuture<TOBDActuatorResult>;
 
-    /// <summary>Result is the (live, owned) <c>TOBDCodingValues</c>
-    /// instance. Caller must <c>Free</c> it. Mirrors the sync
-    /// client's contract.</summary>
+    /// <summary>
+    ///   Result is the (live, owned) <c>TOBDCodingValues</c>
+    ///   instance. Caller must <c>Free</c> it. Mirrors the sync
+    ///   client's contract.
+    /// </summary>
     function  ReadCodingBlockAsync(const Name: string;
                                    const Token: IOBDCancellationToken = nil)
                                    : IOBDFuture<TOBDCodingValues>;
@@ -87,21 +93,26 @@ type
                             const Token: IOBDCancellationToken = nil)
                             : IOBDFuture<TArray<TOBDDtcInstance>>;
 
-    /// <summary>Direct access to the wrapped sync client for
-    /// streaming live-PID work — streaming already has its own
-    /// thread and IOBDStreamHandle; wrapping it as a future of
-    /// "stream handle" would obscure the streaming contract.
+    /// <summary>
+    ///   Direct access to the wrapped sync client for
+    ///   streaming live-PID work — streaming already has its own
+    ///   thread and IOBDStreamHandle; wrapping it as a future of
+    ///   "stream handle" would obscure the streaming contract.
     /// </summary>
     function Sync: IOBDUdsClient;
   end;
 
-/// <summary>Construct a fresh async client. The client owns one
-/// worker thread; <c>CloseSession</c> stops it cleanly.</summary>
+/// <summary>
+///   Construct a fresh async client. The client owns one
+///   worker thread; <c>CloseSession</c> stops it cleanly.
+/// </summary>
 function CreateUdsClientAsync: IOBDUdsClientAsync;
 
-/// <summary>Wrap an existing sync client. Useful when callers
-/// already hold a configured <c>IOBDUdsClient</c> (for example a
-/// test mock).</summary>
+/// <summary>
+///   Wrap an existing sync client. Useful when callers
+///   already hold a configured <c>IOBDUdsClient</c> (for example a
+///   test mock).
+/// </summary>
 function WrapAsAsync(const Sync: IOBDUdsClient): IOBDUdsClientAsync;
 
 implementation
@@ -109,10 +120,12 @@ implementation
 type
   TWorkProc = reference to procedure(const Sync: IOBDUdsClient);
 
-  /// <summary>One queued unit of work. Carries the closure that
-  /// runs on the worker, the cancellation token to consult before
-  /// running, and a "drop" callback used during shutdown to settle
-  /// the corresponding promise as cancelled.</summary>
+  /// <summary>
+  ///   One queued unit of work. Carries the closure that
+  ///   runs on the worker, the cancellation token to consult before
+  ///   running, and a "drop" callback used during shutdown to settle
+  ///   the corresponding promise as cancelled.
+  /// </summary>
   TWorkItem = record
     Run: TWorkProc;
     Token: IOBDCancellationToken;
@@ -135,8 +148,10 @@ type
     constructor Create(const ASync: IOBDUdsClient);
     destructor Destroy; override;
     procedure Enqueue(const Item: TWorkItem);
-    /// <summary>Signal stop and drain the queue (settling each
-    /// promise as cancelled). Joins the thread.</summary>
+    /// <summary>
+    ///   Signal stop and drain the queue (settling each
+    ///   promise as cancelled). Joins the thread.
+    /// </summary>
     procedure StopAndDrain;
   end;
 
@@ -188,6 +203,10 @@ type
 //==============================================================================
 // TWorker
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TWorker.Create(const ASync: IOBDUdsClient);
 begin
   inherited Create(True {suspended});
@@ -199,6 +218,9 @@ begin
   Start;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TWorker.Destroy;
 begin
   FSignal.Free;
@@ -207,6 +229,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ENQUEUE
+//------------------------------------------------------------------------------
 procedure TWorker.Enqueue(const Item: TWorkItem);
 var
   Refused: Boolean;
@@ -230,6 +255,9 @@ begin
   FSignal.SetEvent;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE
+//------------------------------------------------------------------------------
 procedure TWorker.Execute;
 var
   Item: TWorkItem;
@@ -277,6 +305,9 @@ begin
   DrainOnShutdown;
 end;
 
+//------------------------------------------------------------------------------
+// DRAIN ON SHUTDOWN
+//------------------------------------------------------------------------------
 procedure TWorker.DrainOnShutdown;
 var
   Item: TWorkItem;
@@ -294,6 +325,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STOP AND DRAIN
+//------------------------------------------------------------------------------
 procedure TWorker.StopAndDrain;
 begin
   FLock.Enter;
@@ -310,6 +344,10 @@ end;
 //==============================================================================
 // TUdsClientAsync
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TUdsClientAsync.Create(const ASync: IOBDUdsClient);
 begin
   inherited Create;
@@ -319,6 +357,9 @@ begin
   FLock := TCriticalSection.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TUdsClientAsync.Destroy;
 begin
   StopWorker;
@@ -326,6 +367,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ENSURE WORKER
+//------------------------------------------------------------------------------
 procedure TUdsClientAsync.EnsureWorker;
 begin
   FLock.Enter;
@@ -337,6 +381,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STOP WORKER
+//------------------------------------------------------------------------------
 procedure TUdsClientAsync.StopWorker;
 var
   W: TWorker;
@@ -355,6 +402,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// OPEN SESSION
+//------------------------------------------------------------------------------
 procedure TUdsClientAsync.OpenSession(const Catalog: TOBDOEMJSONCatalog;
                                       const Transport: IOBDDiagnosticTransport;
                                       ECUAddress: Word);
@@ -363,17 +413,26 @@ begin
   EnsureWorker;
 end;
 
+//------------------------------------------------------------------------------
+// CLOSE SESSION
+//------------------------------------------------------------------------------
 procedure TUdsClientAsync.CloseSession;
 begin
   StopWorker;
   FSync.CloseSession;
 end;
 
+//------------------------------------------------------------------------------
+// IS OPEN
+//------------------------------------------------------------------------------
 function TUdsClientAsync.IsOpen: Boolean;
 begin
   Result := FSync.IsOpen;
 end;
 
+//------------------------------------------------------------------------------
+// SYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.Sync: IOBDUdsClient;
 begin
   Result := FSync;
@@ -407,6 +466,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.WriteAdaptationAsync(const ChannelOrHex: string;
   Value: Int64; const Token: IOBDCancellationToken): IOBDFuture<Boolean>;
 var
@@ -434,6 +496,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE ROUTINE ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.ExecuteRoutineAsync(const NameOrHex: string;
   const Args: TBytes; RoutineType: Byte;
   const Token: IOBDCancellationToken): IOBDFuture<TOBDActuatorResult>;
@@ -464,6 +529,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// READ CODING BLOCK ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.ReadCodingBlockAsync(const Name: string;
   const Token: IOBDCancellationToken): IOBDFuture<TOBDCodingValues>;
 var
@@ -489,6 +557,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE CODING BLOCK ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.WriteCodingBlockAsync(const Name: string;
   const Values: TOBDCodingValues;
   const Token: IOBDCancellationToken): IOBDFuture<Boolean>;
@@ -522,6 +593,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// RUN ACTUATOR TEST ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.RunActuatorTestAsync(const Name: string;
   AcknowledgeSafetyWarning: Boolean;
   const Token: IOBDCancellationToken): IOBDFuture<TOBDActuatorResult>;
@@ -550,6 +624,9 @@ begin
   Result := Promise;
 end;
 
+//------------------------------------------------------------------------------
+// READ DTCS ASYNC
+//------------------------------------------------------------------------------
 function TUdsClientAsync.ReadDtcsAsync(StatusMask: Byte;
   const Token: IOBDCancellationToken): IOBDFuture<TArray<TOBDDtcInstance>>;
 var
@@ -578,11 +655,18 @@ end;
 //==============================================================================
 // Factories
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE UDS CLIENT ASYNC
+//------------------------------------------------------------------------------
 function CreateUdsClientAsync: IOBDUdsClientAsync;
 begin
   Result := TUdsClientAsync.Create(CreateUdsClient);
 end;
 
+//------------------------------------------------------------------------------
+// WRAP AS ASYNC
+//------------------------------------------------------------------------------
 function WrapAsAsync(const Sync: IOBDUdsClient): IOBDUdsClientAsync;
 begin
   Result := TUdsClientAsync.Create(Sync);

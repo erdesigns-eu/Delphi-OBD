@@ -36,8 +36,12 @@ procedure RenderKnob(const Canvas: ISkCanvas;
 
 implementation
 
+//------------------------------------------------------------------------------
+// KNOB VALUE FRACTION
+//------------------------------------------------------------------------------
 function KnobValueFraction(const Min, Max, Value: Single): Single;
-var Span: Single;
+var
+  Span: Single;
 begin
   Span := Max - Min;
   if Span <= 0 then Exit(0);
@@ -46,6 +50,9 @@ begin
   if Result > 1 then Result := 1;
 end;
 
+//------------------------------------------------------------------------------
+// RENDER KNOB
+//------------------------------------------------------------------------------
 procedure RenderKnob(const Canvas: ISkCanvas;
   const State: TOBDKnobRenderState);
 var

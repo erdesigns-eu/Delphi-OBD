@@ -25,12 +25,18 @@ uses
   System.SysUtils, System.IOUtils,
   OBD.Service.Recorder;
 
+//------------------------------------------------------------------------------
+// SCRATCH FILE
+//------------------------------------------------------------------------------
 function ScratchFile(const Name: string): string;
 begin
   Result := TPath.Combine(TPath.GetTempPath,
     Format('obdrec-%d-%s', [GetCurrentProcessId, Name]));
 end;
 
+//------------------------------------------------------------------------------
+// RECORDER CAPTURES ENTRIES IN ORDER
+//------------------------------------------------------------------------------
 procedure TRecorderTests.RecorderCapturesEntriesInOrder;
 var
   R: TOBDRecorder;
@@ -55,6 +61,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SAVE AND LOAD ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TRecorderTests.SaveAndLoadRoundTrip;
 var
   R: TOBDRecorder;
@@ -90,6 +99,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REPLAY FIRES ENTRIES WITH SPEED ZERO
+//------------------------------------------------------------------------------
 procedure TRecorderTests.ReplayFiresEntriesWithSpeedZero;
 var
   R: TOBDRecorder;
@@ -117,7 +129,9 @@ begin
     Replay.LoadFromFile(Path);
     Replay.Speed := 0; // skip sleeps
     Replay.OnEntry := procedure(Sender: TObject; const Entry: TOBDRecordedEntry)
-      begin Inc(Fired); end;
+      begin
+        Inc(Fired);
+      end;
     Replay.Run;
     Assert.AreEqual(3, Fired);
   finally
@@ -126,6 +140,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ESCAPES TAB AND NEWLINE IN TEXT
+//------------------------------------------------------------------------------
 procedure TRecorderTests.EscapesTabAndNewlineInText;
 var
   R: TOBDRecorder;

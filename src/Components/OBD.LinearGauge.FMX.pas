@@ -117,6 +117,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDLinearGaugeFMX.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -149,12 +152,18 @@ begin
   OnDraw := HandleDraw;
 end;
 
+//------------------------------------------------------------------------------
+// EASE OUT CUBIC
+//------------------------------------------------------------------------------
 function TOBDLinearGaugeFMX.EaseOutCubic(T: Single): Single;
 begin
   T := 1 - T;
   Result := 1 - (T * T * T);
 end;
 
+//------------------------------------------------------------------------------
+// UPDATE ANIMATION VALUE
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.UpdateAnimationValue;
 var
   Elapsed: Int64;
@@ -196,6 +205,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET MAX
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetMax(const AValue: Single);
 begin
   if FMax <> AValue then
@@ -207,6 +219,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VALUE
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetValue(const AValue: Single);
 var
   Clamped: Single;
@@ -229,45 +244,139 @@ begin
   Redraw;
 end;
 
+//------------------------------------------------------------------------------
+// SET ORIENTATION
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetOrientation(const AValue: TOBDLinearGaugeOrientation);
-begin if FOrientation <> AValue then begin FOrientation := AValue; Redraw; end; end;
+begin
+  if FOrientation <> AValue then begin FOrientation := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET DIRECTION
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetDirection(const AValue: TOBDLinearGaugeDirection);
-begin if FDirection <> AValue then begin FDirection := AValue; Redraw; end; end;
+begin
+  if FDirection <> AValue then begin FDirection := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetBackgroundColor(const AValue: TAlphaColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Redraw; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetBorderColor(const AValue: TAlphaColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Redraw; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BAR COLOR FROM
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetBarColorFrom(const AValue: TAlphaColor);
-begin if FBarColorFrom <> AValue then begin FBarColorFrom := AValue; Redraw; end; end;
+begin
+  if FBarColorFrom <> AValue then begin FBarColorFrom := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BAR COLOR TO
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetBarColorTo(const AValue: TAlphaColor);
-begin if FBarColorTo <> AValue then begin FBarColorTo := AValue; Redraw; end; end;
+begin
+  if FBarColorTo <> AValue then begin FBarColorTo := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetTextColor(const AValue: TAlphaColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Redraw; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetBorderWidth(const AValue: Single);
-begin if (AValue >= 0) and (FBorderWidth <> AValue) then begin FBorderWidth := AValue; Redraw; end; end;
+begin
+  if (AValue >= 0) and (FBorderWidth <> AValue) then begin FBorderWidth := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET CORNER RADIUS
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetCornerRadius(const AValue: Single);
-begin if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue; Redraw; end; end;
+begin
+  if (AValue >= 0) and (FCornerRadius <> AValue) then begin FCornerRadius := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET PADDING
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetPadding(const AValue: Single);
-begin if (AValue >= 0) and (FPadding <> AValue) then begin FPadding := AValue; Redraw; end; end;
+begin
+  if (AValue >= 0) and (FPadding <> AValue) then begin FPadding := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetCaption(const AValue: string);
-begin if FCaption <> AValue then begin FCaption := AValue; Redraw; end; end;
+begin
+  if FCaption <> AValue then begin FCaption := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET UNITS
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetUnits(const AValue: string);
-begin if FUnits <> AValue then begin FUnits := AValue; Redraw; end; end;
+begin
+  if FUnits <> AValue then begin FUnits := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW VALUE
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetShowValue(const AValue: Boolean);
-begin if FShowValue <> AValue then begin FShowValue := AValue; Redraw; end; end;
+begin
+  if FShowValue <> AValue then begin FShowValue := AValue;
+  Redraw;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET ANIMATION ENABLED
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetAnimationEnabled(const AValue: Boolean);
 begin
   if FAnimationEnabled <> AValue then
@@ -278,8 +387,15 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET ANIMATION DURATION MS
+//------------------------------------------------------------------------------
 procedure TOBDLinearGaugeFMX.SetAnimationDurationMs(const AValue: Integer);
-begin if (FAnimationDurationMs <> AValue) and (AValue >= 0) then begin FAnimationDurationMs := AValue; Redraw; end; end;
+begin
+  if (FAnimationDurationMs <> AValue) and (AValue >= 0) then begin FAnimationDurationMs := AValue;
+  Redraw;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 // HANDLE DRAW

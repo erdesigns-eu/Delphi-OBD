@@ -46,6 +46,9 @@ type
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRadioCodeHondaAdvanced.Create;
 begin
   inherited Create;
@@ -54,12 +57,18 @@ begin
   FCurrentVariant := FVariantManager.GetDefaultVariant;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRadioCodeHondaAdvanced.Destroy;
 begin
   FVariantManager.Free;
   inherited Destroy;
 end;
 
+//------------------------------------------------------------------------------
+// INITIALIZE VARIANTS
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeHondaAdvanced.InitializeVariants;
 var
   Variant: TRadioCodeVariant;
@@ -174,6 +183,9 @@ begin
   Variant.AlgorithmNotes := 'Australian market based on Japanese algorithm';
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V1
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.CalculateV1(const Serial: string): string;
 var
   Sanitized: string;
@@ -205,6 +217,9 @@ begin
   Output := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V2
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.CalculateV2(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -221,6 +236,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE V3
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.CalculateV3(const Serial: string): string;
 var
   SerialNum: Integer;
@@ -237,6 +255,9 @@ begin
   Result := Format('%d%d%d%d', [Code[0], Code[1], Code[2], Code[3]]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE ALPINE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaRegional.CalculateAlpine(const Serial: string): string;
 var
   Code: Integer;
@@ -264,6 +285,9 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE PANASONIC
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaRegional.CalculatePanasonic(const Serial: string): string;
 var
   Code: Integer;
@@ -293,6 +317,9 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE CLARION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaRegional.CalculateClarion(const Serial: string): string;
 var
   Code: Integer;
@@ -318,11 +345,17 @@ begin
   Result := Format('%.4d', [Code]);
 end;
 
+//------------------------------------------------------------------------------
+// GET DESCRIPTION
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.GetDescription: string;
 begin
   Result := 'Advanced Honda Radio Code Calculator with multiple algorithm variants';
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeHondaAdvanced.SetVariant(const VariantID: string);
 var
   Variant: TRadioCodeVariant;
@@ -334,6 +367,9 @@ begin
     raise Exception.CreateFmt('Variant "%s" not found', [VariantID]);
 end;
 
+//------------------------------------------------------------------------------
+// SET VARIANT
+//------------------------------------------------------------------------------
 procedure TOBDRadioCodeHondaAdvanced.SetVariant(const Region: TRadioCodeRegion; const ModelYear: Integer);
 var
   Variant: TRadioCodeVariant;
@@ -343,16 +379,25 @@ begin
     FCurrentVariant := Variant;
 end;
 
+//------------------------------------------------------------------------------
+// GET CURRENT VARIANT
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.GetCurrentVariant: TRadioCodeVariant;
 begin
   Result := FCurrentVariant;
 end;
 
+//------------------------------------------------------------------------------
+// GET AVAILABLE VARIANTS
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.GetAvailableVariants: TRadioCodeVariantManager;
 begin
   Result := FVariantManager;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.Validate(const Input: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;
@@ -384,6 +429,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CALCULATE
+//------------------------------------------------------------------------------
 function TOBDRadioCodeHondaAdvanced.Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean;
 var
   Sanitized: string;

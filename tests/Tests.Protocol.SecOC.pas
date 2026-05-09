@@ -20,21 +20,37 @@ type
   [TestFixture]
   TSecOCTests = class
   public
-    /// <summary>Profile3 hmac round trip verifies.</summary>
+    /// <summary>
+    ///   Profile3 hmac round trip verifies.
+    /// </summary>
     [Test] procedure Profile3HmacRoundTripVerifies;
-    /// <summary>Freshness value changes mac.</summary>
+    /// <summary>
+    ///   Freshness value changes mac.
+    /// </summary>
     [Test] procedure FreshnessValueChangesMac;
-    /// <summary>Payload flip fails verification.</summary>
+    /// <summary>
+    ///   Payload flip fails verification.
+    /// </summary>
     [Test] procedure PayloadFlipFailsVerification;
-    /// <summary>Wrong key fails verification.</summary>
+    /// <summary>
+    ///   Wrong key fails verification.
+    /// </summary>
     [Test] procedure WrongKeyFailsVerification;
-    /// <summary>Configurable truncation length.</summary>
+    /// <summary>
+    ///   Configurable truncation length.
+    /// </summary>
     [Test] procedure ConfigurableTruncationLength;
-    /// <summary>Profile1 raises until cmac binding ships.</summary>
+    /// <summary>
+    ///   Profile1 raises until cmac binding ships.
+    /// </summary>
     [Test] procedure Profile1RaisesUntilCmacBindingShips;
-    /// <summary>Encode p d u layout matches spec.</summary>
+    /// <summary>
+    ///   Encode p d u layout matches spec.
+    /// </summary>
     [Test] procedure EncodePDULayoutMatchesSpec;
-    /// <summary>Empty key raises.</summary>
+    /// <summary>
+    ///   Empty key raises.
+    /// </summary>
     [Test] procedure EmptyKeyRaises;
   end;
 
@@ -43,6 +59,9 @@ implementation
 uses
   System.SysUtils, OBD.Protocol.SecOC;
 
+//------------------------------------------------------------------------------
+// MAKE PROFILE3 CTX
+//------------------------------------------------------------------------------
 function MakeProfile3Ctx(FV: UInt64; const Key: TBytes): TSecOCContext;
 begin
   Result := Default(TSecOCContext);
@@ -53,6 +72,9 @@ begin
   Result.AuthenticatorBits := 32;
 end;
 
+//------------------------------------------------------------------------------
+// PROFILE3 HMAC ROUND TRIP VERIFIES
+//------------------------------------------------------------------------------
 procedure TSecOCTests.Profile3HmacRoundTripVerifies;
 var
   Ctx: TSecOCContext;
@@ -65,6 +87,9 @@ begin
   Assert.IsTrue(SecOCVerifyAuthenticator(Ctx, Payload, Mac));
 end;
 
+//------------------------------------------------------------------------------
+// FRESHNESS VALUE CHANGES MAC
+//------------------------------------------------------------------------------
 procedure TSecOCTests.FreshnessValueChangesMac;
 var
   Key, Payload, Mac1, Mac2: TBytes;
@@ -81,6 +106,9 @@ begin
     'Different FV must produce different MAC');
 end;
 
+//------------------------------------------------------------------------------
+// PAYLOAD FLIP FAILS VERIFICATION
+//------------------------------------------------------------------------------
 procedure TSecOCTests.PayloadFlipFailsVerification;
 var
   Ctx: TSecOCContext;
@@ -94,6 +122,9 @@ begin
   Assert.IsFalse(SecOCVerifyAuthenticator(Ctx, Tampered, Mac));
 end;
 
+//------------------------------------------------------------------------------
+// WRONG KEY FAILS VERIFICATION
+//------------------------------------------------------------------------------
 procedure TSecOCTests.WrongKeyFailsVerification;
 var
   Payload, Mac: TBytes;
@@ -106,6 +137,9 @@ begin
   Assert.IsFalse(SecOCVerifyAuthenticator(C2, Payload, Mac));
 end;
 
+//------------------------------------------------------------------------------
+// CONFIGURABLE TRUNCATION LENGTH
+//------------------------------------------------------------------------------
 procedure TSecOCTests.ConfigurableTruncationLength;
 var
   Ctx: TSecOCContext;
@@ -123,6 +157,9 @@ begin
   Assert.IsTrue(CompareMem(@Mac24[0], @Mac64[0], 3));
 end;
 
+//------------------------------------------------------------------------------
+// PROFILE1 RAISES UNTIL CMAC BINDING SHIPS
+//------------------------------------------------------------------------------
 procedure TSecOCTests.Profile1RaisesUntilCmacBindingShips;
 var
   Ctx: TSecOCContext;
@@ -138,6 +175,9 @@ begin
     EOBDSecOCAlgorithmNotAvailable);
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE PDULAYOUT MATCHES SPEC
+//------------------------------------------------------------------------------
 procedure TSecOCTests.EncodePDULayoutMatchesSpec;
 var
   Ctx: TSecOCContext;
@@ -156,6 +196,9 @@ begin
   Assert.AreEqual($CA, Integer(PDU[12])); // MAC follows payload
 end;
 
+//------------------------------------------------------------------------------
+// EMPTY KEY RAISES
+//------------------------------------------------------------------------------
 procedure TSecOCTests.EmptyKeyRaises;
 var
   Ctx: TSecOCContext;

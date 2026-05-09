@@ -178,7 +178,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing
@@ -228,7 +232,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing
@@ -292,6 +300,9 @@ begin
   Result := (TestValue >= MinLimit) and (TestValue <= MaxLimit);
 end;
 
+//------------------------------------------------------------------------------
+// SCALE FACTOR
+//------------------------------------------------------------------------------
 function TOBDMode06TestRecord.ScaleFactor: Single;
 begin
   Result := FindMode06Unit(UnitsAndScalingId).Scale;
@@ -305,6 +316,9 @@ begin
   Result := FindMode06Unit(UnitsAndScalingId).UnitName;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD MODE06 REQUEST
+//------------------------------------------------------------------------------
 function BuildMode06Request(OBDMID: Byte): TBytes;
 begin
   // Allocate Result

@@ -322,6 +322,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBackground.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -367,6 +370,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBorder.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -376,6 +382,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET HEIGHT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBorder.SetHeight(Value: Integer);
 begin
   if FHeight <> Value then
@@ -423,6 +432,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetSize(Value: Integer);
 begin
   if FSize <> Value then
@@ -432,6 +444,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetFromColor(Value: TColor);
 begin
   if FFromColor <> Value then
@@ -441,6 +456,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -450,6 +468,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetBorderWidth(Value: Single);
 begin
   if FBorderWidth <> Value then
@@ -459,6 +480,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetBorderColor(Value: TColor);
 begin
   if FBorderColor <> Value then
@@ -468,11 +492,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET FORMAT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetFormat(const Value: string);
 begin
   if FFormat <> Value then
@@ -482,6 +512,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET VOLTAGE
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.SetVoltage(Value: Single);
 begin
   if FVoltage <> Value then
@@ -491,6 +524,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FONT CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderBatteryIndicator.FontChanged(Sender: TObject);
 begin
   if Assigned(FOnChange) then FOnChange(Self);
@@ -556,6 +592,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetSize(Value: Integer);
 begin
   if FSize <> Value then
@@ -565,6 +604,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetFromColor(Value: TColor);
 begin
   if FFromColor <> Value then
@@ -574,6 +616,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -583,6 +628,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetBorderWidth(Value: Single);
 begin
   if FBorderWidth <> Value then
@@ -592,6 +640,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetBorderColor(Value: TColor);
 begin
   if FBorderColor <> Value then
@@ -601,11 +652,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.SetCaption(const Value: string);
 begin
   if FCaption <> Value then
@@ -615,6 +672,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FONT CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderVciIndicator.FontChanged(Sender: TObject);
 begin
   if Assigned(FOnChange) then FOnChange(Self);
@@ -678,6 +738,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetSize(Value: Integer);
 begin
   if FSize <> Value then
@@ -687,6 +750,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFromColor(Value: TColor);
 begin
   if FFromColor <> Value then
@@ -696,6 +762,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -705,6 +774,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderWidth(Value: Single);
 begin
   if FBorderWidth <> Value then
@@ -714,6 +786,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetBorderColor(Value: TColor);
 begin
   if FBorderColor <> Value then
@@ -723,11 +798,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.SetCaption(const Value: string);
 begin
   if FCaption <> Value then
@@ -737,6 +818,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FONT CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderInternetConnectionIndicator.FontChanged(Sender: TObject);
 begin
   if Assigned(FOnChange) then FOnChange(Self);
@@ -800,6 +884,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET SIZE
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetSize(Value: Integer);
 begin
   if FSize <> Value then
@@ -809,6 +896,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FROM COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetFromColor(Value: TColor);
 begin
   if FFromColor <> Value then
@@ -818,6 +908,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TO COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetToColor(Value: TColor);
 begin
   if FToColor <> Value then
@@ -827,6 +920,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetBorderWidth(Value: Single);
 begin
   if FBorderWidth <> Value then
@@ -836,6 +932,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetBorderColor(Value: TColor);
 begin
   if FBorderColor <> Value then
@@ -845,11 +944,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET FONT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetFont(Value: TFont);
 begin
   FFont.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET CAPTION
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.SetCaption(const Value: string);
 begin
   if FCaption <> Value then
@@ -859,6 +964,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FONT CHANGED
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheaderProtocolIndicator.FontChanged(Sender: TObject);
 begin
   if Assigned(FOnChange) then FOnChange(Self);
@@ -918,31 +1026,49 @@ begin
   FBackground.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET BORDER
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetBorder(Value: TOBDTouchSubheaderBorder);
 begin
   FBorder.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET BATTERY INDICATOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetBatteryIndicator(Value: TOBDTouchSubheaderBatteryIndicator);
 begin
   FBatteryIndicator.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET VCI INDICATOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetVciIndicator(Value: TOBDTouchSubheaderVciIndicator);
 begin
   FVciIndicator.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET INTERNET CONNECTION INDICATOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetInternetConnectionIndicator(Value: TOBDTouchSubheaderInternetConnectionIndicator);
 begin
   FInternetConnectionIndicator.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET PROTOCOL INDICATOR
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetProtocolIndicator(Value: TOBDTouchSubheaderProtocolIndicator);
 begin
   FProtocolIndicator.Assign(Value);
 end;
 
+//------------------------------------------------------------------------------
+// SET AUTO APPLY CONNECTION DETAILS
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetAutoApplyConnectionDetails(Value: Boolean);
 begin
   if FAutoApplyConnectionDetails <> Value then
@@ -953,6 +1079,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET CONNECTION COMPONENT
+//------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SetConnectionComponent(Value: TOBDConnectionComponent);
 begin
   if FConnectionComponent <> Value then

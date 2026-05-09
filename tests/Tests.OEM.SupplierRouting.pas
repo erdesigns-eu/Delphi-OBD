@@ -16,25 +16,45 @@ type
   [TestFixture]
   TSupplierRoutingTests = class
   public
-    /// <summary>Cummins claims cummins and cmi.</summary>
+    /// <summary>
+    ///   Cummins claims cummins and cmi.
+    /// </summary>
     [Test] procedure CumminsClaimsCumminsAndCmi;
-    /// <summary>Cummins rejects other suppliers.</summary>
+    /// <summary>
+    ///   Cummins rejects other suppliers.
+    /// </summary>
     [Test] procedure CumminsRejectsOtherSuppliers;
-    /// <summary>Detroit claims detroit ddc detroit ddc.</summary>
+    /// <summary>
+    ///   Detroit claims detroit ddc detroit ddc.
+    /// </summary>
     [Test] procedure DetroitClaimsDetroitDdcDetroitDdc;
-    /// <summary>Detroit rejects other suppliers.</summary>
+    /// <summary>
+    ///   Detroit rejects other suppliers.
+    /// </summary>
     [Test] procedure DetroitRejectsOtherSuppliers;
-    /// <summary>Registry routes by cummins id.</summary>
+    /// <summary>
+    ///   Registry routes by cummins id.
+    /// </summary>
     [Test] procedure RegistryRoutesByCumminsId;
-    /// <summary>Registry routes by detroit id.</summary>
+    /// <summary>
+    ///   Registry routes by detroit id.
+    /// </summary>
     [Test] procedure RegistryRoutesByDetroitId;
-    /// <summary>Registry returns nil for unknown supplier.</summary>
+    /// <summary>
+    ///   Registry returns nil for unknown supplier.
+    /// </summary>
     [Test] procedure RegistryReturnsNilForUnknownSupplier;
-    /// <summary>Registry handles empty string.</summary>
+    /// <summary>
+    ///   Registry handles empty string.
+    /// </summary>
     [Test] procedure RegistryHandlesEmptyString;
-    /// <summary>Non engine o e ms return false by default.</summary>
+    /// <summary>
+    ///   Non engine o e ms return false by default.
+    /// </summary>
     [Test] procedure NonEngineOEMsReturnFalseByDefault;
-    /// <summary>Supplier match is case insensitive.</summary>
+    /// <summary>
+    ///   Supplier match is case insensitive.
+    /// </summary>
     [Test] procedure SupplierMatchIsCaseInsensitive;
   end;
 
@@ -45,6 +65,9 @@ uses
   OBD.OEM, OBD.OEM.Cummins, OBD.OEM.DetroitDiesel,
   OBD.OEM.VW, OBD.OEM.Toyota;
 
+//------------------------------------------------------------------------------
+// CUMMINS CLAIMS CUMMINS AND CMI
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.CumminsClaimsCumminsAndCmi;
 var
   Ext: IOBDOEMExtension;
@@ -54,6 +77,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToECUSupplier('CMI'));
 end;
 
+//------------------------------------------------------------------------------
+// CUMMINS REJECTS OTHER SUPPLIERS
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.CumminsRejectsOtherSuppliers;
 var
   Ext: IOBDOEMExtension;
@@ -64,6 +90,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToECUSupplier(''));
 end;
 
+//------------------------------------------------------------------------------
+// DETROIT CLAIMS DETROIT DDC DETROIT DDC
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.DetroitClaimsDetroitDdcDetroitDdc;
 var
   Ext: IOBDOEMExtension;
@@ -74,6 +103,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToECUSupplier('DETROITDDC'));
 end;
 
+//------------------------------------------------------------------------------
+// DETROIT REJECTS OTHER SUPPLIERS
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.DetroitRejectsOtherSuppliers;
 var
   Ext: IOBDOEMExtension;
@@ -83,6 +115,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToECUSupplier('PACCAR'));
 end;
 
+//------------------------------------------------------------------------------
+// REGISTRY ROUTES BY CUMMINS ID
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.RegistryRoutesByCumminsId;
 var
   Ext: IOBDOEMExtension;
@@ -92,6 +127,9 @@ begin
   Assert.AreEqual('CUMMINS', Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTRY ROUTES BY DETROIT ID
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.RegistryRoutesByDetroitId;
 var
   Ext: IOBDOEMExtension;
@@ -101,6 +139,9 @@ begin
   Assert.AreEqual('DDC', Ext.ManufacturerKey);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTRY RETURNS NIL FOR UNKNOWN SUPPLIER
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.RegistryReturnsNilForUnknownSupplier;
 var
   Ext: IOBDOEMExtension;
@@ -109,6 +150,9 @@ begin
   Assert.IsNull(Ext);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTRY HANDLES EMPTY STRING
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.RegistryHandlesEmptyString;
 var
   Ext: IOBDOEMExtension;
@@ -120,6 +164,9 @@ begin
   Assert.IsNull(Ext);
 end;
 
+//------------------------------------------------------------------------------
+// NON ENGINE OEMS RETURN FALSE BY DEFAULT
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.NonEngineOEMsReturnFalseByDefault;
 var
   VW, Toyota: IOBDOEMExtension;
@@ -133,6 +180,9 @@ begin
   Assert.IsFalse(Toyota.ApplicableToECUSupplier('TOYOTA'));
 end;
 
+//------------------------------------------------------------------------------
+// SUPPLIER MATCH IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TSupplierRoutingTests.SupplierMatchIsCaseInsensitive;
 var
   Ext: IOBDOEMExtension;

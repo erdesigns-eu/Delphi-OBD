@@ -220,6 +220,9 @@ begin
   Result := PQCAlgorithmName(FAlgorithm);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDPQCSignatureVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 var
   Env: TOBDPQCEnvelope;

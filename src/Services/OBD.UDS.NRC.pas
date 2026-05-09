@@ -145,7 +145,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing
@@ -199,6 +203,9 @@ begin
   Result := (NRC = $21) or (NRC = $22) or (NRC = $78) or (NRC = $94);
 end;
 
+//------------------------------------------------------------------------------
+// NRCCATALOG COUNT
+//------------------------------------------------------------------------------
 function NRCCatalogCount: Integer;
 begin
   if GMap = nil then Result := 0 else Result := GMap.Count;

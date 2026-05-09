@@ -20,23 +20,41 @@ type
   [TestFixture]
   TToyotaKeyAdaptationTests = class
   public
-    /// <summary>Request round trip with master key.</summary>
+    /// <summary>
+    ///   Request round trip with master key.
+    /// </summary>
     [Test] procedure RequestRoundTripWithMasterKey;
-    /// <summary>Request round trip with p i n.</summary>
+    /// <summary>
+    ///   Request round trip with p i n.
+    /// </summary>
     [Test] procedure RequestRoundTripWithPIN;
-    /// <summary>Request requires p i n when no master key.</summary>
+    /// <summary>
+    ///   Request requires p i n when no master key.
+    /// </summary>
     [Test] procedure RequestRequiresPINWhenNoMasterKey;
-    /// <summary>Request pin too long raises.</summary>
+    /// <summary>
+    ///   Request pin too long raises.
+    /// </summary>
     [Test] procedure RequestPinTooLongRaises;
-    /// <summary>Response round trip.</summary>
+    /// <summary>
+    ///   Response round trip.
+    /// </summary>
     [Test] procedure ResponseRoundTrip;
-    /// <summary>Response bad added key id raises.</summary>
+    /// <summary>
+    ///   Response bad added key id raises.
+    /// </summary>
     [Test] procedure ResponseBadAddedKeyIdRaises;
-    /// <summary>Camry is master key.</summary>
+    /// <summary>
+    ///   Camry is master key.
+    /// </summary>
     [Test] procedure CamryIsMasterKey;
-    /// <summary>N x300 is pin.</summary>
+    /// <summary>
+    ///   N x300 is pin.
+    /// </summary>
     [Test] procedure NX300IsPin;
-    /// <summary>Unknown is certificate locked.</summary>
+    /// <summary>
+    ///   Unknown is certificate locked.
+    /// </summary>
     [Test] procedure UnknownIsCertificateLocked;
   end;
 
@@ -45,6 +63,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.KeyAdaptation.Toyota;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUND TRIP WITH MASTER KEY
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.RequestRoundTripWithMasterKey;
 var
   In_, Out_: TToyotaKeyRegisterRequest;
@@ -60,6 +81,9 @@ begin
   Assert.AreEqual('', Out_.PIN);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUND TRIP WITH PIN
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.RequestRoundTripWithPIN;
 var
   In_, Out_: TToyotaKeyRegisterRequest;
@@ -75,8 +99,12 @@ begin
   Assert.AreEqual('987654', Out_.PIN);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REQUIRES PINWHEN NO MASTER KEY
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.RequestRequiresPINWhenNoMasterKey;
-var Req: TToyotaKeyRegisterRequest;
+var
+  Req: TToyotaKeyRegisterRequest;
 begin
   Req.VIN := 'JTDBR32E230012345';
   Req.Mode := tkmAddKey;
@@ -87,8 +115,12 @@ begin
     EOBDToyotaKey);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST PIN TOO LONG RAISES
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.RequestPinTooLongRaises;
-var Req: TToyotaKeyRegisterRequest;
+var
+  Req: TToyotaKeyRegisterRequest;
 begin
   Req.VIN := 'JTDBR32E230012345';
   Req.Mode := tkmAddKey;
@@ -99,6 +131,9 @@ begin
     EOBDToyotaKey);
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.ResponseRoundTrip;
 var
   In_, Out_: TToyotaKeyRegisterResponse;
@@ -116,8 +151,12 @@ begin
   Assert.AreEqual(Integer($DD), Integer(Out_.AddedKeyId[3]));
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE BAD ADDED KEY ID RAISES
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.ResponseBadAddedKeyIdRaises;
-var Resp: TToyotaKeyRegisterResponse;
+var
+  Resp: TToyotaKeyRegisterResponse;
 begin
   Resp.Mode := tkmAddKey;
   Resp.Success := True;
@@ -128,22 +167,34 @@ begin
     EOBDToyotaKey);
 end;
 
+//------------------------------------------------------------------------------
+// CAMRY IS MASTER KEY
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.CamryIsMasterKey;
-var P: TToyotaPlatformInfo;
+var
+  P: TToyotaPlatformInfo;
 begin
   P := FindToyotaPlatform('asv50');
   Assert.AreEqual(Ord(tpaMasterKey), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// NX300 IS PIN
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.NX300IsPin;
-var P: TToyotaPlatformInfo;
+var
+  P: TToyotaPlatformInfo;
 begin
   P := FindToyotaPlatform('agz10');
   Assert.AreEqual(Ord(tpaPin), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN IS CERTIFICATE LOCKED
+//------------------------------------------------------------------------------
 procedure TToyotaKeyAdaptationTests.UnknownIsCertificateLocked;
-var P: TToyotaPlatformInfo;
+var
+  P: TToyotaPlatformInfo;
 begin
   P := FindToyotaPlatform('unknown-chassis');
   Assert.AreEqual(Ord(tpaCertificateRequired), Ord(P.Access));

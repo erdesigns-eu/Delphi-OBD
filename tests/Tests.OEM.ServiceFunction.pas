@@ -18,72 +18,124 @@ type
   [TestFixture]
   TServiceFunctionRegistryTests = class
   public
-    /// <summary>Name matches kind is case insensitive.</summary>
+    /// <summary>
+    ///   Name matches kind is case insensitive.
+    /// </summary>
     [Test] procedure NameMatchesKindIsCaseInsensitive;
-    /// <summary>Name matches kind recognises substring.</summary>
+    /// <summary>
+    ///   Name matches kind recognises substring.
+    /// </summary>
     [Test] procedure NameMatchesKindRecognisesSubstring;
-    /// <summary>Name matches kind rejects unrelated.</summary>
+    /// <summary>
+    ///   Name matches kind rejects unrelated.
+    /// </summary>
     [Test] procedure NameMatchesKindRejectsUnrelated;
-    /// <summary>Classify oil reset tokens.</summary>
+    /// <summary>
+    ///   Classify oil reset tokens.
+    /// </summary>
     [Test] procedure ClassifyOilResetTokens;
-    /// <summary>Classify epb tokens.</summary>
+    /// <summary>
+    ///   Classify epb tokens.
+    /// </summary>
     [Test] procedure ClassifyEpbTokens;
-    /// <summary>Classify dpf tokens.</summary>
+    /// <summary>
+    ///   Classify dpf tokens.
+    /// </summary>
     [Test] procedure ClassifyDpfTokens;
-    /// <summary>Classify tpms tokens.</summary>
+    /// <summary>
+    ///   Classify tpms tokens.
+    /// </summary>
     [Test] procedure ClassifyTpmsTokens;
-    /// <summary>Classify battery registration tokens.</summary>
+    /// <summary>
+    ///   Classify battery registration tokens.
+    /// </summary>
     [Test] procedure ClassifyBatteryRegistrationTokens;
-    /// <summary>Classify sas calibration tokens.</summary>
+    /// <summary>
+    ///   Classify sas calibration tokens.
+    /// </summary>
     [Test] procedure ClassifySasCalibrationTokens;
-    /// <summary>Classify immo relearn tokens.</summary>
+    /// <summary>
+    ///   Classify immo relearn tokens.
+    /// </summary>
     [Test] procedure ClassifyImmoRelearnTokens;
-    /// <summary>Classify unknown returns sf unknown.</summary>
+    /// <summary>
+    ///   Classify unknown returns sf unknown.
+    /// </summary>
     [Test] procedure ClassifyUnknownReturnsSfUnknown;
   end;
 
   [TestFixture]
   TServiceFunctionLookupTests = class
   public
-    /// <summary>Ferrari resolves oil reset.</summary>
+    /// <summary>
+    ///   Ferrari resolves oil reset.
+    /// </summary>
     [Test] procedure FerrariResolvesOilReset;
-    /// <summary>Mahindra resolves dpf regen.</summary>
+    /// <summary>
+    ///   Mahindra resolves dpf regen.
+    /// </summary>
     [Test] procedure MahindraResolvesDpfRegen;
-    /// <summary>Tata resolves battery registration.</summary>
+    /// <summary>
+    ///   Tata resolves battery registration.
+    /// </summary>
     [Test] procedure TataResolvesBatteryRegistration;
-    /// <summary>Mini resolves epb.</summary>
+    /// <summary>
+    ///   Mini resolves epb.
+    /// </summary>
     [Test] procedure MiniResolvesEpb;
-    /// <summary>Mini resolves sas calibration.</summary>
+    /// <summary>
+    ///   Mini resolves sas calibration.
+    /// </summary>
     [Test] procedure MiniResolvesSasCalibration;
-    /// <summary>Mini resolves tpms relearn.</summary>
+    /// <summary>
+    ///   Mini resolves tpms relearn.
+    /// </summary>
     [Test] procedure MiniResolvesTpmsRelearn;
-    /// <summary>Mini resolves immo relearn.</summary>
+    /// <summary>
+    ///   Mini resolves immo relearn.
+    /// </summary>
     [Test] procedure MiniResolvesImmoRelearn;
-    /// <summary>Unsupported kind returns false.</summary>
+    /// <summary>
+    ///   Unsupported kind returns false.
+    /// </summary>
     [Test] procedure UnsupportedKindReturnsFalse;
-    /// <summary>Nil extension returns false.</summary>
+    /// <summary>
+    ///   Nil extension returns false.
+    /// </summary>
     [Test] procedure NilExtensionReturnsFalse;
   end;
 
   [TestFixture]
   TServiceFunctionEnumerationTests = class
   public
-    /// <summary>Mini lists multiple service functions.</summary>
+    /// <summary>
+    ///   Mini lists multiple service functions.
+    /// </summary>
     [Test] procedure MiniListsMultipleServiceFunctions;
-    /// <summary>Mahindra lists at least oil and dpf.</summary>
+    /// <summary>
+    ///   Mahindra lists at least oil and dpf.
+    /// </summary>
     [Test] procedure MahindraListsAtLeastOilAndDpf;
-    /// <summary>List skips unknown names.</summary>
+    /// <summary>
+    ///   List skips unknown names.
+    /// </summary>
     [Test] procedure ListSkipsUnknownNames;
   end;
 
   [TestFixture]
   TServiceFunctionFrameTests = class
   public
-    /// <summary>Frame wraps routine id with sid and sub function.</summary>
+    /// <summary>
+    ///   Frame wraps routine id with sid and sub function.
+    /// </summary>
     [Test] procedure FrameWrapsRoutineIdWithSidAndSubFunction;
-    /// <summary>Frame appends input data.</summary>
+    /// <summary>
+    ///   Frame appends input data.
+    /// </summary>
     [Test] procedure FrameAppendsInputData;
-    /// <summary>Kind name produces human label.</summary>
+    /// <summary>
+    ///   Kind name produces human label.
+    /// </summary>
     [Test] procedure KindNameProducesHumanLabel;
   end;
 
@@ -98,6 +150,10 @@ uses
 //==============================================================================
 // Registry / classification
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.NameMatchesKindIsCaseInsensitive;
 begin
   Assert.IsTrue(TOBDServiceFunctionRegistry.NameMatchesKind(
@@ -106,6 +162,9 @@ begin
     'Ferrari_Oil_Life_Reset', sfOilLifeReset));
 end;
 
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND RECOGNISES SUBSTRING
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.NameMatchesKindRecognisesSubstring;
 begin
   // 'ferrari_oil_life_reset' should match the 'oil_life' token.
@@ -116,6 +175,9 @@ begin
     'mini_battery_register', sfBatteryRegistration));
 end;
 
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND REJECTS UNRELATED
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.NameMatchesKindRejectsUnrelated;
 begin
   Assert.IsFalse(TOBDServiceFunctionRegistry.NameMatchesKind(
@@ -124,6 +186,9 @@ begin
     'fa_write', sfBatteryRegistration));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY OIL RESET TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyOilResetTokens;
 begin
   Assert.AreEqual(Ord(sfOilLifeReset), Ord(
@@ -134,6 +199,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('reset_service_indicator')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY EPB TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyEpbTokens;
 begin
   Assert.AreEqual(Ord(sfEPBService), Ord(
@@ -142,6 +210,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('parking_brake_service_mode')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY DPF TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyDpfTokens;
 begin
   Assert.AreEqual(Ord(sfDPFRegen), Ord(
@@ -150,6 +221,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('forced_dpf_regen')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY TPMS TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyTpmsTokens;
 begin
   Assert.AreEqual(Ord(sfTPMSRelearn), Ord(
@@ -158,6 +232,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('tpms_relearn')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY BATTERY REGISTRATION TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyBatteryRegistrationTokens;
 begin
   Assert.AreEqual(Ord(sfBatteryRegistration), Ord(
@@ -166,6 +243,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('bmw_battery_registration')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY SAS CALIBRATION TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifySasCalibrationTokens;
 begin
   Assert.AreEqual(Ord(sfSASCalibration), Ord(
@@ -174,6 +254,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('steering_angle_reset')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY IMMO RELEARN TOKENS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyImmoRelearnTokens;
 begin
   Assert.AreEqual(Ord(sfImmoRelearn), Ord(
@@ -182,6 +265,9 @@ begin
     TOBDServiceFunctionRegistry.ClassifyName('mb_eis_relearn')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY UNKNOWN RETURNS SF UNKNOWN
+//------------------------------------------------------------------------------
 procedure TServiceFunctionRegistryTests.ClassifyUnknownReturnsSfUnknown;
 begin
   Assert.AreEqual(Ord(sfUnknown), Ord(
@@ -193,6 +279,10 @@ end;
 //==============================================================================
 // Lookup against shipped OEM catalogs
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FERRARI RESOLVES OIL RESET
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.FerrariResolvesOilReset;
 var
   Ext: IOBDOEMExtension;
@@ -205,6 +295,9 @@ begin
   Assert.IsTrue(Func.RoutineId <> 0, 'routine id must be populated');
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA RESOLVES DPF REGEN
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.MahindraResolvesDpfRegen;
 var
   Ext: IOBDOEMExtension;
@@ -215,6 +308,9 @@ begin
   Assert.AreEqual('mahindra_dpf_force_regen', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// TATA RESOLVES BATTERY REGISTRATION
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.TataResolvesBatteryRegistration;
 var
   Ext: IOBDOEMExtension;
@@ -225,6 +321,9 @@ begin
   Assert.AreEqual('tata_battery_register', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// MINI RESOLVES EPB
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.MiniResolvesEpb;
 var
   Ext: IOBDOEMExtension;
@@ -235,6 +334,9 @@ begin
   Assert.AreEqual('mini_epb_service', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// MINI RESOLVES SAS CALIBRATION
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.MiniResolvesSasCalibration;
 var
   Ext: IOBDOEMExtension;
@@ -245,6 +347,9 @@ begin
   Assert.AreEqual('sas_calibration', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// MINI RESOLVES TPMS RELEARN
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.MiniResolvesTpmsRelearn;
 var
   Ext: IOBDOEMExtension;
@@ -255,6 +360,9 @@ begin
   Assert.AreEqual('mini_rdc_relearn', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// MINI RESOLVES IMMO RELEARN
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.MiniResolvesImmoRelearn;
 var
   Ext: IOBDOEMExtension;
@@ -265,6 +373,9 @@ begin
   Assert.AreEqual('mini_cas_relearn', Func.RoutineName);
 end;
 
+//------------------------------------------------------------------------------
+// UNSUPPORTED KIND RETURNS FALSE
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.UnsupportedKindReturnsFalse;
 var
   Ext: IOBDOEMExtension;
@@ -276,6 +387,9 @@ begin
   Assert.AreEqual(Ord(sfUnknown), Ord(Func.Kind));
 end;
 
+//------------------------------------------------------------------------------
+// NIL EXTENSION RETURNS FALSE
+//------------------------------------------------------------------------------
 procedure TServiceFunctionLookupTests.NilExtensionReturnsFalse;
 var
   Func: TOBDServiceFunction;
@@ -286,6 +400,10 @@ end;
 //==============================================================================
 // Enumeration
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// MINI LISTS MULTIPLE SERVICE FUNCTIONS
+//------------------------------------------------------------------------------
 procedure TServiceFunctionEnumerationTests.MiniListsMultipleServiceFunctions;
 var
   Ext: IOBDOEMExtension;
@@ -312,6 +430,9 @@ begin
   Assert.IsTrue(HasImmo, 'MINI list should include CAS relearn');
 end;
 
+//------------------------------------------------------------------------------
+// MAHINDRA LISTS AT LEAST OIL AND DPF
+//------------------------------------------------------------------------------
 procedure TServiceFunctionEnumerationTests.MahindraListsAtLeastOilAndDpf;
 var
   Ext: IOBDOEMExtension;
@@ -331,6 +452,9 @@ begin
   Assert.IsTrue(HasDpf, 'Mahindra should expose a forced DPF regeneration');
 end;
 
+//------------------------------------------------------------------------------
+// LIST SKIPS UNKNOWN NAMES
+//------------------------------------------------------------------------------
 procedure TServiceFunctionEnumerationTests.ListSkipsUnknownNames;
 var
   Ext: IOBDOEMExtension;
@@ -349,6 +473,10 @@ end;
 //==============================================================================
 // Frame builder + display labels
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// FRAME WRAPS ROUTINE ID WITH SID AND SUB FUNCTION
+//------------------------------------------------------------------------------
 procedure TServiceFunctionFrameTests.FrameWrapsRoutineIdWithSidAndSubFunction;
 var
   Func: TOBDServiceFunction;
@@ -365,6 +493,9 @@ begin
   Assert.AreEqual($04, Integer(Frame[3]), 'RID lo byte');
 end;
 
+//------------------------------------------------------------------------------
+// FRAME APPENDS INPUT DATA
+//------------------------------------------------------------------------------
 procedure TServiceFunctionFrameTests.FrameAppendsInputData;
 var
   Func: TOBDServiceFunction;
@@ -379,6 +510,9 @@ begin
   Assert.AreEqual($BB, Integer(Frame[5]));
 end;
 
+//------------------------------------------------------------------------------
+// KIND NAME PRODUCES HUMAN LABEL
+//------------------------------------------------------------------------------
 procedure TServiceFunctionFrameTests.KindNameProducesHumanLabel;
 begin
   Assert.AreEqual('Oil Life Reset', ServiceFunctionKindName(sfOilLifeReset));

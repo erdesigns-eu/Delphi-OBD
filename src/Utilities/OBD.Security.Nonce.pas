@@ -64,17 +64,25 @@ type
     /// </summary>
     procedure Redeem(const Nonce: string);
 
-    /// <summary>True if <c>Nonce</c> is currently valid + unredeemed.</summary>
+    /// <summary>
+    ///   True if <c>Nonce</c> is currently valid + unredeemed.
+    /// </summary>
     function IsValid(const Nonce: string): Boolean;
 
-    /// <summary>Drop every issued and used nonce (e.g. on session reset).</summary>
+    /// <summary>
+    ///   Drop every issued and used nonce (e.g. on session reset).
+    /// </summary>
     procedure Reset;
 
-    /// <summary>Number of currently-valid nonces.</summary>
+    /// <summary>
+    ///   Number of currently-valid nonces.
+    /// </summary>
     function PendingCount: Integer;
 
     property TtlSeconds: Integer read FTtlSeconds write FTtlSeconds;
-    /// <summary>Nonce byte length before hex encoding (default 16 → 32 hex chars).</summary>
+    /// <summary>
+    ///   Nonce byte length before hex encoding (default 16 → 32 hex chars).
+    /// </summary>
     property NonceLength: Integer read FNonceLength write FNonceLength;
   end;
 
@@ -84,9 +92,16 @@ uses
   WinApi.Windows;
 
 // Crypto-quality random bytes via Windows RtlGenRandom (advapi32!SystemFunction036).
+
+//------------------------------------------------------------------------------
+// SYSTEM FUNCTION036
+//------------------------------------------------------------------------------
 function SystemFunction036(RandomBuffer: Pointer; RandomBufferLength: ULONG): BOOL;
   stdcall; external 'advapi32.dll' name 'SystemFunction036';
 
+//------------------------------------------------------------------------------
+// FILL SECURE RANDOM
+//------------------------------------------------------------------------------
 procedure FillSecureRandom(var Buffer: TBytes);
 begin
   if Length(Buffer) = 0 then Exit;
@@ -96,6 +111,9 @@ begin
       [GetLastError]);
 end;
 
+//------------------------------------------------------------------------------
+// BYTES TO HEX
+//------------------------------------------------------------------------------
 function BytesToHex(const Bytes: TBytes): string;
 const
   HexDigits: array[0..15] of Char =
@@ -120,6 +138,10 @@ end;
 //==============================================================================
 // TOBDNonceVault
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDNonceVault.Create(ATtlSeconds, ANonceLength: Integer);
 begin
   inherited Create;
@@ -134,6 +156,9 @@ begin
   FNonceLength := ANonceLength;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDNonceVault.Destroy;
 begin
   FActive.Free;
@@ -142,6 +167,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// GENERATE NONCE HEX
+//------------------------------------------------------------------------------
 function TOBDNonceVault.GenerateNonceHex: string;
 var
   Buffer: TBytes;
@@ -151,6 +179,9 @@ begin
   Result := BytesToHex(Buffer);
 end;
 
+//------------------------------------------------------------------------------
+// SWEEP EXPIRED
+//------------------------------------------------------------------------------
 procedure TOBDNonceVault.SweepExpired;
 var
   Now_: TDateTime;
@@ -179,6 +210,9 @@ begin
   for Key in ToDrop do FUsed.Remove(Key);
 end;
 
+//------------------------------------------------------------------------------
+// ISSUE
+//------------------------------------------------------------------------------
 function TOBDNonceVault.Issue: string;
 begin
   FLock.Enter;
@@ -191,6 +225,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REDEEM
+//------------------------------------------------------------------------------
 procedure TOBDNonceVault.Redeem(const Nonce: string);
 var
   Issued: TDateTime;
@@ -214,6 +251,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS VALID
+//------------------------------------------------------------------------------
 function TOBDNonceVault.IsValid(const Nonce: string): Boolean;
 var
   Issued: TDateTime;
@@ -228,6 +268,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RESET
+//------------------------------------------------------------------------------
 procedure TOBDNonceVault.Reset;
 begin
   FLock.Enter;
@@ -239,6 +282,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PENDING COUNT
+//------------------------------------------------------------------------------
 function TOBDNonceVault.PendingCount: Integer;
 begin
   FLock.Enter;

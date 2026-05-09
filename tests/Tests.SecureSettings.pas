@@ -33,12 +33,18 @@ uses
   System.SysUtils, System.IOUtils, System.Classes,
   OBD.SecureSettings;
 
+//------------------------------------------------------------------------------
+// SCRATCH PATH
+//------------------------------------------------------------------------------
 function ScratchPath(const Suffix: string): string;
 begin
   Result := TPath.Combine(TPath.GetTempPath,
     Format('obdsec-%d-%d-%s', [GetCurrentProcessId, GetTickCount, Suffix]));
 end;
 
+//------------------------------------------------------------------------------
+// DPAPI_ROUND TRIP_PRESERVES BYTES
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.DPAPI_RoundTrip_PreservesBytes;
 var
   Plain, Cipher, Decoded: TBytes;
@@ -55,6 +61,9 @@ begin
                   TEncoding.UTF8.GetString(Decoded));
 end;
 
+//------------------------------------------------------------------------------
+// DPAPI_EMPTY INPUT_ROUND TRIPS CLEANLY
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.DPAPI_EmptyInput_RoundTripsCleanly;
 var
   Empty, Cipher, Decoded: TBytes;
@@ -67,6 +76,9 @@ begin
   Assert.AreEqual(0, Length(Decoded));
 end;
 
+//------------------------------------------------------------------------------
+// DPAPI_DECRYPT OF TAMPERED CIPHERTEXT_RAISES
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.DPAPI_DecryptOfTamperedCiphertext_Raises;
 var
   Plain, Cipher: TBytes;
@@ -81,6 +93,9 @@ begin
     EOBDDpapiError);
 end;
 
+//------------------------------------------------------------------------------
+// SETTINGS_WRITE READ ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.Settings_WriteReadRoundTrip;
 var
   Path: string;
@@ -127,6 +142,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SETTINGS_MISSING KEY RETURNS DEFAULT
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.Settings_MissingKeyReturnsDefault;
 var
   Path: string;
@@ -144,6 +162,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SETTINGS_READ STRING_FALLS BACK ON GARBAGE CIPHER
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.Settings_ReadString_FallsBackOnGarbageCipher;
 var
   Path: string;
@@ -175,6 +196,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SETTINGS_DELETE KEY CLEARS VALUE
+//------------------------------------------------------------------------------
 procedure TSecureSettingsTests.Settings_DeleteKeyClearsValue;
 var
   Path: string;

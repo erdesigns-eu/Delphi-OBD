@@ -45,6 +45,9 @@ uses
   System.SysUtils,
   OBD.Request.Encoders;
 
+//------------------------------------------------------------------------------
+// HEX TO BYTE
+//------------------------------------------------------------------------------
 function HexToByte(const S: string): Byte;
 begin
   Result := StrToInt('$' + S);
@@ -52,6 +55,9 @@ end;
 
 { TServiceEncoderTests }
 
+//------------------------------------------------------------------------------
+// ENCODE SERVICE REQUEST_NO DATA_PRODUCES EXPECTED HEX
+//------------------------------------------------------------------------------
 procedure TServiceEncoderTests.EncodeServiceRequest_NoData_ProducesExpectedHex(
   const Service, PID, Expected: string);
 var
@@ -81,6 +87,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE SERVICE REQUEST_WITH DATA_APPENDS HEX
+//------------------------------------------------------------------------------
 procedure TServiceEncoderTests.EncodeServiceRequest_WithData_AppendsHex;
 var
   Encoder: TOBDService01RequestEncoder;
@@ -96,6 +105,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE SERVICE REQUEST_WITH EMPTY DATA_MATCHES NO DATA FORM
+//------------------------------------------------------------------------------
 procedure TServiceEncoderTests.EncodeServiceRequest_WithEmptyData_MatchesNoDataForm;
 var
   Encoder: TOBDService01RequestEncoder;

@@ -153,6 +153,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ENSURE INITIALISED
+//------------------------------------------------------------------------------
 procedure TOBDCodingAuditLog.EnsureInitialised;
 begin
   if FInitialised then Exit;

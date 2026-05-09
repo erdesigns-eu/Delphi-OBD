@@ -93,9 +93,11 @@ type
     Source: string;
   end;
 
-  /// <summary>v3.29 — extended-catalog parser entries. These mirror
-  /// the public records in <c>OBD.OEM</c> but carry the same source +
-  /// verified provenance flags as the legacy DID / routine entries.</summary>
+  /// <summary>
+  ///   v3.29 — extended-catalog parser entries. These mirror
+  ///   the public records in <c>OBD.OEM</c> but carry the same source +
+  ///   verified provenance flags as the legacy DID / routine entries.
+  /// </summary>
   TOBDCodingFieldEntry = record
     Name: string;
     Label_: string;
@@ -218,20 +220,30 @@ type
     constructor CreateFromText(const JsonText: string); overload;
     destructor Destroy; override;
 
-    /// <summary>Cast catalog DIDs to the <c>TOBDOEMDataIdentifier</c> shape
-    /// expected by <c>TOBDOEMExtensionBase</c>. Drops decoder/source.</summary>
+    /// <summary>
+    ///   Cast catalog DIDs to the <c>TOBDOEMDataIdentifier</c> shape
+    ///   expected by <c>TOBDOEMExtensionBase</c>. Drops decoder/source.
+    /// </summary>
     function AsBaseDIDs: TArray<TOBDOEMDataIdentifier>;
-    /// <summary>Cast catalog routines to the base shape.</summary>
+    /// <summary>
+    ///   Cast catalog routines to the base shape.
+    /// </summary>
     function AsBaseRoutines: TArray<TOBDOEMRoutine>;
 
-    /// <summary>Apply the decoder for <c>DID</c> (if any) to <c>Payload</c>.
-    /// Returns the formatted string, or empty if no decoder / payload too short.</summary>
+    /// <summary>
+    ///   Apply the decoder for <c>DID</c> (if any) to <c>Payload</c>.
+    ///   Returns the formatted string, or empty if no decoder / payload too short.
+    /// </summary>
     function DecodePayload(const DID: Word; const Payload: TBytes): string;
 
-    /// <summary>Find a DID; returns False if absent.</summary>
+    /// <summary>
+    ///   Find a DID; returns False if absent.
+    /// </summary>
     function FindDID(const DID: Word; out Entry: TOBDOEMDIDEntry): Boolean;
 
-    /// <summary>ECUs declared by the catalog (top-level <c>ecus</c> array).</summary>
+    /// <summary>
+    ///   ECUs declared by the catalog (top-level <c>ecus</c> array).
+    /// </summary>
     function AsBaseECUs: TArray<TOBDOEMECU>;
 
     property Version: Integer read FVersion;
@@ -249,7 +261,9 @@ type
     function ECUCount: Integer;
     function ECU(Index: Integer): TOBDOEMECUEntry;
 
-    /// <summary>v3.29 — extended-catalog accessors.</summary>
+    /// <summary>
+    ///   v3.29 — extended-catalog accessors.
+    /// </summary>
     function CodingBlockCount: Integer;
     function CodingBlock(Index: Integer): TOBDCodingBlockEntry;
     function AdaptationCount: Integer;
@@ -262,9 +276,11 @@ type
     function DtcExtended(Index: Integer): TOBDDtcExtendedDataEntry;
   end;
 
-/// <summary>Convert the JSON-side decoder-kind string to the
-/// <c>TOBDOEMDecoderKind</c> the public schema uses. Returns
-/// <c>dkUnknown</c> for unrecognised strings.</summary>
+/// <summary>
+///   Convert the JSON-side decoder-kind string to the
+///   <c>TOBDOEMDecoderKind</c> the public schema uses. Returns
+///   <c>dkUnknown</c> for unrecognised strings.
+/// </summary>
 function ParseOEMDecoderKind(const S: string): TOBDOEMDecoderKind;
 function ParseCodingFieldKind(const S: string): TOBDCodingFieldKind;
 function ParseAdaptationKind(const S: string): TOBDAdaptationKind;
@@ -277,6 +293,9 @@ implementation
 uses
   System.Math, System.NetEncoding;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDOEMJSONCatalog.Create(const FilePath: string);
 var
   Text: string;
@@ -287,6 +306,9 @@ begin
   CreateFromText(Text);
 end;
 
+//------------------------------------------------------------------------------
+// CREATE FROM TEXT
+//------------------------------------------------------------------------------
 constructor TOBDOEMJSONCatalog.CreateFromText(const JsonText: string);
 var
   Value: TJSONValue;
@@ -312,6 +334,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDOEMJSONCatalog.Destroy;
 var
   I: Integer;
@@ -334,6 +359,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEX OR INT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ParseHexOrInt(const S: string): Cardinal;
 var
   Trimmed: string;
@@ -345,6 +373,9 @@ begin
     Result := StrToInt(Trimmed);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DECODER
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
 const
   KindMap: array[0..10] of record Tag: string; Kind: TOBDDecoderKind end = (
@@ -375,7 +406,10 @@ begin
   KindStr := Obj.GetValue<string>('kind', '');
   for I := Low(KindMap) to High(KindMap) do
     if KindMap[I].Tag = KindStr then
-    begin Result.Kind := KindMap[I].Kind; Break; end;
+    begin
+      Result.Kind := KindMap[I].Kind;
+      Break;
+    end;
 
   Result.Size := Obj.GetValue<Integer>('size', 0);
   Result.Scale := Obj.GetValue<Double>('scale', 1.0);
@@ -405,6 +439,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM JSON
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadFromJSON(Root: TJSONObject);
 var
   WMIArr: TJSONArray;
@@ -460,6 +497,9 @@ begin
   if Assigned(Arr) then LoadDtcExtended(Arr);
 end;
 
+//------------------------------------------------------------------------------
+// LOAD DIDS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadDIDs(Arr: TJSONArray);
 var
   I: Integer;
@@ -487,6 +527,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ROUTINES
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadRoutines(Arr: TJSONArray);
 var
   I: Integer;
@@ -513,6 +556,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ECUS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadECUs(Arr: TJSONArray);
 var
   I: Integer;
@@ -531,6 +577,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD DTC RANGES
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadDtcRanges(Arr: TJSONArray);
 var
   I: Integer;
@@ -577,6 +626,9 @@ begin
   Result := dkUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE CODING FIELD KIND
+//------------------------------------------------------------------------------
 function ParseCodingFieldKind(const S: string): TOBDCodingFieldKind;
 const
   Map: array[0..8] of record Tag: string; Kind: TOBDCodingFieldKind end = (
@@ -600,6 +652,9 @@ begin
   Result := cfkUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ADAPTATION KIND
+//------------------------------------------------------------------------------
 function ParseAdaptationKind(const S: string): TOBDAdaptationKind;
 const
   Map: array[0..5] of record Tag: string; Kind: TOBDAdaptationKind end = (
@@ -620,8 +675,12 @@ begin
   Result := adkUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACTUATOR RESPONSE KIND
+//------------------------------------------------------------------------------
 function ParseActuatorResponseKind(const S: string): TOBDActuatorResponseKind;
-var Lower: string;
+var
+  Lower: string;
 begin
   Lower := LowerCase(S);
   if Lower = 'boolean' then Exit(arkBoolean);
@@ -631,8 +690,12 @@ begin
   Result := arkNone;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE LIVE PIDMODE
+//------------------------------------------------------------------------------
 function ParseLivePIDMode(const S: string): TOBDLivePIDMode;
-var Lower: string;
+var
+  Lower: string;
 begin
   Lower := LowerCase(S);
   if Lower = 'service01' then Exit(lpmService01);
@@ -640,6 +703,9 @@ begin
   Result := lpmUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE DTC EXTENDED KIND
+//------------------------------------------------------------------------------
 function ParseDtcExtendedKind(const S: string): TOBDDtcExtendedDataKind;
 const
   Map: array[0..5] of record Tag: string; Kind: TOBDDtcExtendedDataKind end = (
@@ -660,6 +726,9 @@ begin
   Result := xdkUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ENUM VALUES
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ParseEnumValues(Obj: TJSONObject;
   const Key: string): TArray<TPair<Integer, string>>;
 var
@@ -683,6 +752,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD CODING BLOCKS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadCodingBlocks(Arr: TJSONArray);
 var
   I, J: Integer;
@@ -738,6 +810,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ADAPTATIONS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadAdaptations(Arr: TJSONArray);
 var
   I: Integer;
@@ -770,6 +845,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ACTUATOR TESTS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadActuatorTests(Arr: TJSONArray);
 var
   I: Integer;
@@ -800,6 +878,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD LIVE PIDS
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadLivePIDs(Arr: TJSONArray);
 var
   I: Integer;
@@ -839,6 +920,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD DTC EXTENDED
+//------------------------------------------------------------------------------
 procedure TOBDOEMJSONCatalog.LoadDtcExtended(Arr: TJSONArray);
 var
   I: Integer;
@@ -891,6 +975,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// AS BASE ROUTINES
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.AsBaseRoutines: TArray<TOBDOEMRoutine>;
 var
   I: Integer;
@@ -908,6 +995,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// AS BASE ECUS
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.AsBaseECUs: TArray<TOBDOEMECU>;
 var
   I: Integer;
@@ -917,13 +1007,20 @@ begin
     Result[I] := MakeOEMECU(FECUs[I].Address, FECUs[I].Name, FECUs[I].CommonName);
 end;
 
+//------------------------------------------------------------------------------
+// FIND DID
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.FindDID(const DID: Word;
   out Entry: TOBDOEMDIDEntry): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to FDIDs.Count - 1 do
     if FDIDs[I].DID = DID then
-    begin Entry := FDIDs[I]; Exit(True); end;
+    begin
+      Entry := FDIDs[I];
+      Exit(True);
+    end;
   Result := False;
 end;
 
@@ -931,12 +1028,16 @@ end;
 // PAYLOAD DECODING
 //------------------------------------------------------------------------------
 function ReadUInt(const Payload: TBytes; Size: Integer): UInt64;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := 0;
   for I := 0 to Size - 1 do Result := (Result shl 8) or Payload[I];
 end;
 
+//------------------------------------------------------------------------------
+// READ INT
+//------------------------------------------------------------------------------
 function ReadInt(const Payload: TBytes; Size: Integer): Int64;
 var
   Mask: UInt64;
@@ -950,8 +1051,12 @@ begin
     Result := Int64(U);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT NUMERIC
+//------------------------------------------------------------------------------
 function FormatNumeric(Value: Double; const Spec: TOBDDecoderSpec): string;
-var Combined: Double;
+var
+  Combined: Double;
 begin
   Combined := (Value * Spec.Scale) + Spec.Offset;
   if Spec.Unit_ <> '' then
@@ -960,6 +1065,9 @@ begin
     Result := Format('%.6g', [Combined]);
 end;
 
+//------------------------------------------------------------------------------
+// HEX FALLBACK
+//------------------------------------------------------------------------------
 function HexFallback(const Payload: TBytes): string;
 var
   I: Integer;
@@ -978,6 +1086,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE PAYLOAD
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DecodePayload(const DID: Word;
   const Payload: TBytes): string;
 var
@@ -1065,58 +1176,148 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DIDCOUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DIDCount: Integer;
-begin Result := FDIDs.Count; end;
+begin
+  Result := FDIDs.Count;
+end;
 
+//------------------------------------------------------------------------------
+// DID
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DID(Index: Integer): TOBDOEMDIDEntry;
-begin Result := FDIDs[Index]; end;
+begin
+  Result := FDIDs[Index];
+end;
 
+//------------------------------------------------------------------------------
+// ROUTINE COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.RoutineCount: Integer;
-begin Result := FRoutines.Count; end;
+begin
+  Result := FRoutines.Count;
+end;
 
+//------------------------------------------------------------------------------
+// ROUTINE
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.Routine(Index: Integer): TOBDOEMRoutineEntry;
-begin Result := FRoutines[Index]; end;
+begin
+  Result := FRoutines[Index];
+end;
 
+//------------------------------------------------------------------------------
+// DTC RANGE COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DtcRangeCount: Integer;
-begin Result := FDtcRanges.Count; end;
+begin
+  Result := FDtcRanges.Count;
+end;
 
+//------------------------------------------------------------------------------
+// DTC RANGE
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DtcRange(Index: Integer): TOBDOEMDtcRange;
-begin Result := FDtcRanges[Index]; end;
+begin
+  Result := FDtcRanges[Index];
+end;
 
+//------------------------------------------------------------------------------
+// ECUCOUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ECUCount: Integer;
-begin Result := FECUs.Count; end;
+begin
+  Result := FECUs.Count;
+end;
 
+//------------------------------------------------------------------------------
+// ECU
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ECU(Index: Integer): TOBDOEMECUEntry;
-begin Result := FECUs[Index]; end;
+begin
+  Result := FECUs[Index];
+end;
 
+//------------------------------------------------------------------------------
+// CODING BLOCK COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.CodingBlockCount: Integer;
-begin Result := FCodingBlocks.Count; end;
+begin
+  Result := FCodingBlocks.Count;
+end;
 
+//------------------------------------------------------------------------------
+// CODING BLOCK
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.CodingBlock(Index: Integer): TOBDCodingBlockEntry;
-begin Result := FCodingBlocks[Index]; end;
+begin
+  Result := FCodingBlocks[Index];
+end;
 
+//------------------------------------------------------------------------------
+// ADAPTATION COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.AdaptationCount: Integer;
-begin Result := FAdaptations.Count; end;
+begin
+  Result := FAdaptations.Count;
+end;
 
+//------------------------------------------------------------------------------
+// ADAPTATION
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.Adaptation(Index: Integer): TOBDAdaptationEntry;
-begin Result := FAdaptations[Index]; end;
+begin
+  Result := FAdaptations[Index];
+end;
 
+//------------------------------------------------------------------------------
+// ACTUATOR TEST COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ActuatorTestCount: Integer;
-begin Result := FActuatorTests.Count; end;
+begin
+  Result := FActuatorTests.Count;
+end;
 
+//------------------------------------------------------------------------------
+// ACTUATOR TEST
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.ActuatorTest(Index: Integer): TOBDActuatorTestEntry;
-begin Result := FActuatorTests[Index]; end;
+begin
+  Result := FActuatorTests[Index];
+end;
 
+//------------------------------------------------------------------------------
+// LIVE PIDCOUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.LivePIDCount: Integer;
-begin Result := FLivePIDs.Count; end;
+begin
+  Result := FLivePIDs.Count;
+end;
 
+//------------------------------------------------------------------------------
+// LIVE PID
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.LivePID(Index: Integer): TOBDLivePIDEntry;
-begin Result := FLivePIDs[Index]; end;
+begin
+  Result := FLivePIDs[Index];
+end;
 
+//------------------------------------------------------------------------------
+// DTC EXTENDED COUNT
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DtcExtendedCount: Integer;
-begin Result := FDtcExtended.Count; end;
+begin
+  Result := FDtcExtended.Count;
+end;
 
+//------------------------------------------------------------------------------
+// DTC EXTENDED
+//------------------------------------------------------------------------------
 function TOBDOEMJSONCatalog.DtcExtended(Index: Integer): TOBDDtcExtendedDataEntry;
-begin Result := FDtcExtended[Index]; end;
+begin
+  Result := FDtcExtended[Index];
+end;
 
 end.

@@ -34,12 +34,16 @@ type
   /// </summary>
   IOBDHSMSession = interface
     ['{F5ECC5DD-9D0A-4F1B-9D08-7B70F3F5E0B6}']
-    /// <summary>Human-readable name of the HSM session ("AWS CloudHSM
-    /// us-east-1", "PKCS#11 slot 0", …). Surfaces in audit logs.</summary>
+    /// <summary>
+    ///   Human-readable name of the HSM session ("AWS CloudHSM
+    ///   us-east-1", "PKCS#11 slot 0", …). Surfaces in audit logs.
+    /// </summary>
     function SessionName: string;
 
-    /// <summary>Identifier of the key used for verification — typically a
-    /// PKCS#11 CKA_LABEL, a Key Vault key URI, or a vendor key handle.</summary>
+    /// <summary>
+    ///   Identifier of the key used for verification — typically a
+    ///   PKCS#11 CKA_LABEL, a Key Vault key URI, or a vendor key handle.
+    /// </summary>
     function KeyIdentifier: string;
 
     /// <summary>
@@ -67,12 +71,17 @@ type
     constructor Create(const ASession: IOBDHSMSession);
     function AlgorithmName: string;
     function Verify(const Firmware, Signature: TBytes): Boolean;
-    /// <summary>The wrapped session — exposed for audit-log enrichment.</summary>
+    /// <summary>
+    ///   The wrapped session — exposed for audit-log enrichment.
+    /// </summary>
     property Session: IOBDHSMSession read FSession;
   end;
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDHSMVerifier.Create(const ASession: IOBDHSMSession);
 begin
   inherited Create;
@@ -82,12 +91,18 @@ begin
   FSession := ASession;
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TOBDHSMVerifier.AlgorithmName: string;
 begin
   Result := Format('HSM (%s, key=%s)',
     [FSession.SessionName, FSession.KeyIdentifier]);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TOBDHSMVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 begin
   if not FSession.IsReady then Exit(False);

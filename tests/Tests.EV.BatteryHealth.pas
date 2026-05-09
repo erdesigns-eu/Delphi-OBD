@@ -20,27 +20,49 @@ type
   [TestFixture]
   TBatteryHealthTests = class
   public
-    /// <summary>Imbalance flat pack has zero spread.</summary>
+    /// <summary>
+    ///   Imbalance flat pack has zero spread.
+    /// </summary>
     [Test] procedure ImbalanceFlatPackHasZeroSpread;
-    /// <summary>Imbalance spread and std dev.</summary>
+    /// <summary>
+    ///   Imbalance spread and std dev.
+    /// </summary>
     [Test] procedure ImbalanceSpreadAndStdDev;
-    /// <summary>Imbalance outlier beyond three sigma.</summary>
+    /// <summary>
+    ///   Imbalance outlier beyond three sigma.
+    /// </summary>
     [Test] procedure ImbalanceOutlierBeyondThreeSigma;
-    /// <summary>Imbalance empty array raises.</summary>
+    /// <summary>
+    ///   Imbalance empty array raises.
+    /// </summary>
     [Test] procedure ImbalanceEmptyArrayRaises;
-    /// <summary>So h at rated capacity is one.</summary>
+    /// <summary>
+    ///   So h at rated capacity is one.
+    /// </summary>
     [Test] procedure SoHAtRatedCapacityIsOne;
-    /// <summary>So h at half capacity is half.</summary>
+    /// <summary>
+    ///   So h at half capacity is half.
+    /// </summary>
     [Test] procedure SoHAtHalfCapacityIsHalf;
-    /// <summary>So h rated zero raises.</summary>
+    /// <summary>
+    ///   So h rated zero raises.
+    /// </summary>
     [Test] procedure SoHRatedZeroRaises;
-    /// <summary>So h temperature derating composite.</summary>
+    /// <summary>
+    ///   So h temperature derating composite.
+    /// </summary>
     [Test] procedure SoHTemperatureDeratingComposite;
-    /// <summary>Charging session round trips.</summary>
+    /// <summary>
+    ///   Charging session round trips.
+    /// </summary>
     [Test] procedure ChargingSessionRoundTrips;
-    /// <summary>Charging session end before start raises.</summary>
+    /// <summary>
+    ///   Charging session end before start raises.
+    /// </summary>
     [Test] procedure ChargingSessionEndBeforeStartRaises;
-    /// <summary>Charging session out of range so c raises.</summary>
+    /// <summary>
+    ///   Charging session out of range so c raises.
+    /// </summary>
     [Test] procedure ChargingSessionOutOfRangeSoCRaises;
   end;
 
@@ -49,8 +71,12 @@ implementation
 uses
   System.SysUtils, System.Math, OBD.EV.BatteryHealth;
 
+//------------------------------------------------------------------------------
+// IMBALANCE FLAT PACK HAS ZERO SPREAD
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ImbalanceFlatPackHasZeroSpread;
-var R: TOBDCellImbalance;
+var
+  R: TOBDCellImbalance;
 begin
   R := ComputeCellImbalance([3.7, 3.7, 3.7, 3.7]);
   Assert.AreEqual(Single(0.0), R.SpreadVolts, 0.0001);
@@ -58,8 +84,12 @@ begin
   Assert.AreEqual(-1, R.OutlierIndex);
 end;
 
+//------------------------------------------------------------------------------
+// IMBALANCE SPREAD AND STD DEV
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ImbalanceSpreadAndStdDev;
-var R: TOBDCellImbalance;
+var
+  R: TOBDCellImbalance;
 begin
   R := ComputeCellImbalance([3.6, 3.7, 3.8, 3.7]);
   Assert.AreEqual(Single(3.6), R.MinVoltage, 0.0001);
@@ -69,6 +99,9 @@ begin
   Assert.IsTrue(R.StdDev > 0);
 end;
 
+//------------------------------------------------------------------------------
+// IMBALANCE OUTLIER BEYOND THREE SIGMA
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ImbalanceOutlierBeyondThreeSigma;
 var
   V: array of Single;
@@ -84,8 +117,12 @@ begin
   Assert.IsTrue(R.OutlierDeltaSigma > 3.0);
 end;
 
+//------------------------------------------------------------------------------
+// IMBALANCE EMPTY ARRAY RAISES
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ImbalanceEmptyArrayRaises;
-var V: array of Single;
+var
+  V: array of Single;
 begin
   SetLength(V, 0);
   Assert.WillRaise(
@@ -93,21 +130,32 @@ begin
     EOBDBatteryHealth);
 end;
 
+//------------------------------------------------------------------------------
+// SO HAT RATED CAPACITY IS ONE
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.SoHAtRatedCapacityIsOne;
-var R: TOBDBatterySoH;
+var
+  R: TOBDBatterySoH;
 begin
   R := ComputeBatterySoH(77.0, 77.0);
   Assert.AreEqual(Single(1.0), R.SoHFromCapacity, 0.0001);
   Assert.AreEqual(Single(1.0), R.CompositeSoH, 0.0001);
 end;
 
+//------------------------------------------------------------------------------
+// SO HAT HALF CAPACITY IS HALF
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.SoHAtHalfCapacityIsHalf;
-var R: TOBDBatterySoH;
+var
+  R: TOBDBatterySoH;
 begin
   R := ComputeBatterySoH(100.0, 50.0);
   Assert.AreEqual(Single(0.5), R.SoHFromCapacity, 0.0001);
 end;
 
+//------------------------------------------------------------------------------
+// SO HRATED ZERO RAISES
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.SoHRatedZeroRaises;
 begin
   Assert.WillRaise(
@@ -115,8 +163,12 @@ begin
     EOBDBatteryHealth);
 end;
 
+//------------------------------------------------------------------------------
+// SO HTEMPERATURE DERATING COMPOSITE
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.SoHTemperatureDeratingComposite;
-var R: TOBDBatterySoH;
+var
+  R: TOBDBatterySoH;
 begin
   R := ComputeBatterySoH(100, 80, 250, 0.9);
   Assert.AreEqual(Single(0.8), R.SoHFromCapacity, 0.0001);
@@ -124,6 +176,9 @@ begin
   Assert.AreEqual(250, R.EquivalentFullCycles);
 end;
 
+//------------------------------------------------------------------------------
+// CHARGING SESSION ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ChargingSessionRoundTrips;
 var
   Raw, Out_: TOBDChargingSession;
@@ -141,8 +196,12 @@ begin
   Assert.AreEqual('DC', Out_.SessionType);
 end;
 
+//------------------------------------------------------------------------------
+// CHARGING SESSION END BEFORE START RAISES
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ChargingSessionEndBeforeStartRaises;
-var Raw: TOBDChargingSession;
+var
+  Raw: TOBDChargingSession;
 begin
   Raw := Default(TOBDChargingSession);
   Raw.StartSoCPercent := 80;
@@ -152,8 +211,12 @@ begin
     EOBDBatteryHealth);
 end;
 
+//------------------------------------------------------------------------------
+// CHARGING SESSION OUT OF RANGE SO CRAISES
+//------------------------------------------------------------------------------
 procedure TBatteryHealthTests.ChargingSessionOutOfRangeSoCRaises;
-var Raw: TOBDChargingSession;
+var
+  Raw: TOBDChargingSession;
 begin
   Raw := Default(TOBDChargingSession);
   Raw.StartSoCPercent := -1;

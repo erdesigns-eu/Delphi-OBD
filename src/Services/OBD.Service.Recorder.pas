@@ -74,9 +74,13 @@ type
   public
     constructor Create;
 
-    /// <summary>Load entries from a `.obdlog` file.</summary>
+    /// <summary>
+    ///   Load entries from a `.obdlog` file.
+    /// </summary>
     procedure LoadFromFile(const FilePath: string);
-    /// <summary>Load from memory.</summary>
+    /// <summary>
+    ///   Load from memory.
+    /// </summary>
     procedure LoadEntries(const AEntries: TArray<TOBDRecordedEntry>);
 
     /// <summary>
@@ -89,9 +93,13 @@ type
 
     function Count: Integer;
     function Entries: TArray<TOBDRecordedEntry>;
-    /// <summary>Replay speed multiplier. 1.0 = real time. 0 = no delays.</summary>
+    /// <summary>
+    ///   Replay speed multiplier. 1.0 = real time. 0 = no delays.
+    /// </summary>
     property Speed: Single read FSpeed write FSpeed;
-    /// <summary>Fired for each entry as the replay progresses.</summary>
+    /// <summary>
+    ///   Fired for each entry as the replay progresses.
+    /// </summary>
     property OnEntry: TOBDReplayEvent read FOnEntry write FOnEntry;
   end;
 
@@ -100,6 +108,9 @@ implementation
 uses
   WinApi.Windows;
 
+//------------------------------------------------------------------------------
+// DIRECTION LETTER
+//------------------------------------------------------------------------------
 function DirectionLetter(D: TOBDRecorderDirection): Char;
 begin
   case D of
@@ -111,6 +122,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LETTER TO DIRECTION
+//------------------------------------------------------------------------------
 function LetterToDirection(C: Char): TOBDRecorderDirection;
 begin
   case UpCase(C) of
@@ -122,6 +136,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ESCAPE TEXT
+//------------------------------------------------------------------------------
 function EscapeText(const S: string): string;
 begin
   // Tabs and newlines would corrupt the field-delimited line format.
@@ -132,6 +149,9 @@ begin
   Result := StringReplace(Result, #10, '\n', [rfReplaceAll]);
 end;
 
+//------------------------------------------------------------------------------
+// UNESCAPE TEXT
+//------------------------------------------------------------------------------
 function UnescapeText(const S: string): string;
 var
   I: Integer;
@@ -170,6 +190,10 @@ end;
 //==============================================================================
 // TOBDRecorder
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDRecorder.Create;
 begin
   inherited Create;
@@ -177,6 +201,9 @@ begin
   FEntries := TList<TOBDRecordedEntry>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDRecorder.Destroy;
 begin
   FEntries.Free;
@@ -184,6 +211,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// START
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.Start;
 begin
   FLock.Enter;
@@ -195,6 +225,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STOP
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.Stop;
 begin
   FLock.Enter;
@@ -205,12 +238,18 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS RUNNING
+//------------------------------------------------------------------------------
 function TOBDRecorder.IsRunning: Boolean;
 begin
   FLock.Enter;
   try Result := FStopwatch.IsRunning; finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// APPEND ENTRY
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.AppendEntry(Direction: TOBDRecorderDirection;
   const Text: string);
 var
@@ -227,23 +266,47 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RECORD SENT
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.RecordSent    (const Text: string); begin AppendEntry(rdSent,     Text); end;
+
+//------------------------------------------------------------------------------
+// RECORD RECEIVED
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.RecordReceived(const Text: string); begin AppendEntry(rdReceived, Text); end;
+
+//------------------------------------------------------------------------------
+// RECORD INFO
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.RecordInfo    (const Text: string); begin AppendEntry(rdInfo,     Text); end;
+
+//------------------------------------------------------------------------------
+// RECORD ERROR
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.RecordError   (const Text: string); begin AppendEntry(rdError,    Text); end;
 
+//------------------------------------------------------------------------------
+// SNAPSHOT
+//------------------------------------------------------------------------------
 function TOBDRecorder.Snapshot: TArray<TOBDRecordedEntry>;
 begin
   FLock.Enter;
   try Result := FEntries.ToArray; finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDRecorder.Count: Integer;
 begin
   FLock.Enter;
   try Result := FEntries.Count; finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// SAVE TO FILE
+//------------------------------------------------------------------------------
 procedure TOBDRecorder.SaveToFile(const FilePath: string);
 var
   Output: TStringList;
@@ -269,12 +332,19 @@ end;
 //==============================================================================
 // TOBDReplayer
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDReplayer.Create;
 begin
   inherited Create;
   FSpeed := 1.0;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD FROM FILE
+//------------------------------------------------------------------------------
 procedure TOBDReplayer.LoadFromFile(const FilePath: string);
 var
   Lines: TStringList;
@@ -307,11 +377,17 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD ENTRIES
+//------------------------------------------------------------------------------
 procedure TOBDReplayer.LoadEntries(const AEntries: TArray<TOBDRecordedEntry>);
 begin
   FEntries := AEntries;
 end;
 
+//------------------------------------------------------------------------------
+// RUN
+//------------------------------------------------------------------------------
 procedure TOBDReplayer.Run;
 var
   I: Integer;
@@ -333,10 +409,20 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDReplayer.Count: Integer;
-begin Result := Length(FEntries); end;
+begin
+  Result := Length(FEntries);
+end;
 
+//------------------------------------------------------------------------------
+// ENTRIES
+//------------------------------------------------------------------------------
 function TOBDReplayer.Entries: TArray<TOBDRecordedEntry>;
-begin Result := FEntries; end;
+begin
+  Result := FEntries;
+end;
 
 end.

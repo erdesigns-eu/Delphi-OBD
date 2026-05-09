@@ -20,23 +20,41 @@ type
   [TestFixture]
   TRadioCodeRegistryTests = class
   public
-    /// <summary>Registry has all eight pending brands.</summary>
+    /// <summary>
+    ///   Registry has all eight pending brands.
+    /// </summary>
     [Test] procedure RegistryHasAllEightPendingBrands;
-    /// <summary>Find is case insensitive.</summary>
+    /// <summary>
+    ///   Find is case insensitive.
+    /// </summary>
     [Test] procedure FindIsCaseInsensitive;
-    /// <summary>Unknown brand returns nil.</summary>
+    /// <summary>
+    ///   Unknown brand returns nil.
+    /// </summary>
     [Test] procedure UnknownBrandReturnsNil;
-    /// <summary>Each pending brand has false data available.</summary>
+    /// <summary>
+    ///   Each pending brand has false data available.
+    /// </summary>
     [Test] procedure EachPendingBrandHasFalseDataAvailable;
-    /// <summary>Pending calculator raises on calculate.</summary>
+    /// <summary>
+    ///   Pending calculator raises on calculate.
+    /// </summary>
     [Test] procedure PendingCalculatorRaisesOnCalculate;
-    /// <summary>Pending calculator rejects validate.</summary>
+    /// <summary>
+    ///   Pending calculator rejects validate.
+    /// </summary>
     [Test] procedure PendingCalculatorRejectsValidate;
-    /// <summary>Pending calculator description is not empty.</summary>
+    /// <summary>
+    ///   Pending calculator description is not empty.
+    /// </summary>
     [Test] procedure PendingCalculatorDescriptionIsNotEmpty;
-    /// <summary>Register does not duplicate on same key.</summary>
+    /// <summary>
+    ///   Register does not duplicate on same key.
+    /// </summary>
     [Test] procedure RegisterDoesNotDuplicateOnSameKey;
-    /// <summary>Data notes is not empty for pending.</summary>
+    /// <summary>
+    ///   Data notes is not empty for pending.
+    /// </summary>
     [Test] procedure DataNotesIsNotEmptyForPending;
   end;
 
@@ -52,6 +70,9 @@ const
     'philips', 'grundig', 'panasonic', 'continental_vdo'
   );
 
+//------------------------------------------------------------------------------
+// REGISTRY HAS ALL EIGHT PENDING BRANDS
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.RegistryHasAllEightPendingBrands;
 var
   Key: string;
@@ -63,6 +84,9 @@ begin
       'Expected brand not registered: ' + Key);
 end;
 
+//------------------------------------------------------------------------------
+// FIND IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.FindIsCaseInsensitive;
 begin
   Assert.IsNotNull(TOBDRadioCodeRegistry.Instance.Find('PIONEER'));
@@ -70,11 +94,17 @@ begin
   Assert.IsNotNull(TOBDRadioCodeRegistry.Instance.Find('pioneer'));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN BRAND RETURNS NIL
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.UnknownBrandReturnsNil;
 begin
   Assert.IsNull(TOBDRadioCodeRegistry.Instance.Find('does_not_exist'));
 end;
 
+//------------------------------------------------------------------------------
+// EACH PENDING BRAND HAS FALSE DATA AVAILABLE
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.EachPendingBrandHasFalseDataAvailable;
 var
   Key: string;
@@ -84,6 +114,9 @@ begin
       'DataAvailable should be False for ' + Key);
 end;
 
+//------------------------------------------------------------------------------
+// PENDING CALCULATOR RAISES ON CALCULATE
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.PendingCalculatorRaisesOnCalculate;
 var
   Calc: IOBDRadioCode;
@@ -98,6 +131,9 @@ begin
     'Pending calculator should raise EOBDRadioCodeDataMissing');
 end;
 
+//------------------------------------------------------------------------------
+// PENDING CALCULATOR REJECTS VALIDATE
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.PendingCalculatorRejectsValidate;
 var
   Calc: IOBDRadioCode;
@@ -111,6 +147,9 @@ begin
     'Validate failure must produce a human-readable message');
 end;
 
+//------------------------------------------------------------------------------
+// PENDING CALCULATOR DESCRIPTION IS NOT EMPTY
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.PendingCalculatorDescriptionIsNotEmpty;
 var
   Calc: IOBDRadioCode;
@@ -119,6 +158,9 @@ begin
   Assert.IsNotEmpty(Calc.GetDescription);
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER DOES NOT DUPLICATE ON SAME KEY
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.RegisterDoesNotDuplicateOnSameKey;
 var
   CountBefore: Integer;
@@ -132,6 +174,9 @@ begin
   Assert.AreEqual(CountBefore, TOBDRadioCodeRegistry.Instance.Count);
 end;
 
+//------------------------------------------------------------------------------
+// DATA NOTES IS NOT EMPTY FOR PENDING
+//------------------------------------------------------------------------------
 procedure TRadioCodeRegistryTests.DataNotesIsNotEmptyForPending;
 var
   Key: string;

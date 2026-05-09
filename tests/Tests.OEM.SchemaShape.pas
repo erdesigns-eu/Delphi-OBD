@@ -29,19 +29,33 @@ type
   [TestFixture]
   TSchemaShapeTests = class
   public
-    /// <summary>W m i codes are three chars alphanumeric.</summary>
+    /// <summary>
+    ///   W m i codes are three chars alphanumeric.
+    /// </summary>
     [Test] procedure WMICodesAreThreeCharsAlphanumeric;
-    /// <summary>Decoder kinds use recognised tags.</summary>
+    /// <summary>
+    ///   Decoder kinds use recognised tags.
+    /// </summary>
     [Test] procedure DecoderKindsUseRecognisedTags;
-    /// <summary>Coding field kinds use recognised tags.</summary>
+    /// <summary>
+    ///   Coding field kinds use recognised tags.
+    /// </summary>
     [Test] procedure CodingFieldKindsUseRecognisedTags;
-    /// <summary>Adaptation kinds use recognised tags.</summary>
+    /// <summary>
+    ///   Adaptation kinds use recognised tags.
+    /// </summary>
     [Test] procedure AdaptationKindsUseRecognisedTags;
-    /// <summary>D t c codes match s a eor j1939 or oem format.</summary>
+    /// <summary>
+    ///   D t c codes match s a eor j1939 or oem format.
+    /// </summary>
     [Test] procedure DTCCodesMatchSAEorJ1939OrOemFormat;
-    /// <summary>Manufacturer keys are non empty.</summary>
+    /// <summary>
+    ///   Manufacturer keys are non empty.
+    /// </summary>
     [Test] procedure ManufacturerKeysAreNonEmpty;
-    /// <summary>Version field is one or two.</summary>
+    /// <summary>
+    ///   Version field is one or two.
+    /// </summary>
     [Test] procedure VersionFieldIsOneOrTwo;
   end;
 
@@ -67,6 +81,9 @@ begin
   Result := '';
 end;
 
+//------------------------------------------------------------------------------
+// COLLECT ALL JSON
+//------------------------------------------------------------------------------
 function CollectAllJson(const Root: string): TArray<string>;
 var
   All: TArray<string>;
@@ -91,6 +108,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS OEM CATALOG
+//------------------------------------------------------------------------------
 function IsOemCatalog(const Path: string): Boolean;
 var
   Name: string;
@@ -102,11 +122,17 @@ begin
                  Name.StartsWith('obd2-', True));
 end;
 
+//------------------------------------------------------------------------------
+// IS DTC CATALOG
+//------------------------------------------------------------------------------
 function IsDtcCatalog(const Path: string): Boolean;
 begin
   Result := TPath.GetFileName(Path).StartsWith('dtc-', True);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE JSON OBJ
+//------------------------------------------------------------------------------
 function ParseJsonObj(const Path: string): TJSONObject;
 var
   V: TJSONValue;
@@ -160,6 +186,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODER KINDS USE RECOGNISED TAGS
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.DecoderKindsUseRecognisedTags;
 const
   RecognisedKinds: array[0..13] of string = (
@@ -217,6 +246,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CODING FIELD KINDS USE RECOGNISED TAGS
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.CodingFieldKindsUseRecognisedTags;
 const
   RecognisedKinds: array[0..8] of string = (
@@ -274,6 +306,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ADAPTATION KINDS USE RECOGNISED TAGS
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.AdaptationKindsUseRecognisedTags;
 const
   RecognisedKinds: array[0..6] of string = (
@@ -323,6 +358,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DTCCODES MATCH SAEOR J1939 OR OEM FORMAT
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.DTCCodesMatchSAEorJ1939OrOemFormat;
 const
   // SAE J2012 + J1939 SPN + Volvo MID + OEM module-prefixed
@@ -380,6 +418,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// MANUFACTURER KEYS ARE NON EMPTY
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.ManufacturerKeysAreNonEmpty;
 var
   Root, Path, Key: string;
@@ -405,6 +446,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERSION FIELD IS ONE OR TWO
+//------------------------------------------------------------------------------
 procedure TSchemaShapeTests.VersionFieldIsOneOrTwo;
 var
   Root, Path: string;

@@ -38,14 +38,16 @@ type
   EOBDUdsNegativeResponse  = class(EOBDUdsClientError);
   EOBDUdsCodingError       = class(EOBDUdsClientError);
 
-  /// <summary>One round-trip diag message: caller passes the
-  /// service+payload, transport returns the response payload (or
-  /// raises). Decouples the client from CAN/DoIP wiring.
-  /// <c>Request</c> begins with the service byte (0x22, 0x2E, 0x31,
-  /// ...); transport prepends ISO-TP framing. Response begins with
-  /// the positive-response byte (service+0x40); on a negative
-  /// response (0x7F xx NRC), the transport raises
-  /// <c>EOBDUdsNegativeResponse</c> with the NRC byte set.</summary>
+  /// <summary>
+  ///   One round-trip diag message: caller passes the
+  ///   service+payload, transport returns the response payload (or
+  ///   raises). Decouples the client from CAN/DoIP wiring.
+  ///   <c>Request</c> begins with the service byte (0x22, 0x2E, 0x31,
+  ///   ...); transport prepends ISO-TP framing. Response begins with
+  ///   the positive-response byte (service+0x40); on a negative
+  ///   response (0x7F xx NRC), the transport raises
+  ///   <c>EOBDUdsNegativeResponse</c> with the NRC byte set.
+  /// </summary>
   IOBDDiagnosticTransport = interface
     ['{F1A2B3C4-D5E6-4789-AB12-345678901234}']
     function  SendReceive(const Request: TBytes;
@@ -54,11 +56,13 @@ type
     function  TargetECU: Word;
   end;
 
-  /// <summary>Decoded value tagged with its catalog metadata.
-  /// Numeric kinds populate <c>AsFloat</c> after scale/offset;
-  /// integer kinds populate <c>AsInteger</c>; text kinds populate
-  /// <c>AsString</c>. <c>Formatted</c> is always set to a
-  /// display-ready string ("23.5 °C", "ON", "0xAA BB").</summary>
+  /// <summary>
+  ///   Decoded value tagged with its catalog metadata.
+  ///   Numeric kinds populate <c>AsFloat</c> after scale/offset;
+  ///   integer kinds populate <c>AsInteger</c>; text kinds populate
+  ///   <c>AsString</c>. <c>Formatted</c> is always set to a
+  ///   display-ready string ("23.5 °C", "ON", "0xAA BB").
+  /// </summary>
   TOBDDecodedValue = record
     Name: string;
     Kind: TOBDOEMDecoderKind;
@@ -71,7 +75,9 @@ type
     RawPayload: TBytes;
   end;
 
-  /// <summary>One sample emitted by the live-PID streamer.</summary>
+  /// <summary>
+  ///   One sample emitted by the live-PID streamer.
+  /// </summary>
   TOBDLiveSample = record
     Name: string;
     Decoded: TOBDDecodedValue;
@@ -80,9 +86,11 @@ type
 
   TOBDLiveSampleEvent = reference to procedure(const Sample: TOBDLiveSample);
 
-  /// <summary>One DTC reported by the ECU. <c>StatusByte</c> is the
-  /// ISO 14229 §11.4 status byte; <c>Description</c> is filled
-  /// from the catalog if known.</summary>
+  /// <summary>
+  ///   One DTC reported by the ECU. <c>StatusByte</c> is the
+  ///   ISO 14229 §11.4 status byte; <c>Description</c> is filled
+  ///   from the catalog if known.
+  /// </summary>
   TOBDDtcInstance = record
     Code: string;
     StatusByte: Byte;
@@ -90,12 +98,14 @@ type
     Severity: TOBDDtcSeverity;
   end;
 
-  /// <summary>Coding-block snapshot returned by <c>ReadCodingBlock</c>.
-  /// Field name → typed value (Int64 for numeric/bit/enum; string
-  /// for ASCII). Hand back to <c>WriteCodingBlock</c> after edits;
-  /// the client repacks the modified payload bit-by-bit and writes
-  /// it via Service 2E. Read-modify-write preserves bits not covered
-  /// by the catalog block.</summary>
+  /// <summary>
+  ///   Coding-block snapshot returned by <c>ReadCodingBlock</c>.
+  ///   Field name → typed value (Int64 for numeric/bit/enum; string
+  ///   for ASCII). Hand back to <c>WriteCodingBlock</c> after edits;
+  ///   the client repacks the modified payload bit-by-bit and writes
+  ///   it via Service 2E. Read-modify-write preserves bits not covered
+  ///   by the catalog block.
+  /// </summary>
   TOBDCodingValues = class
   strict private
     FInts: TDictionary<string, Int64>;
@@ -111,27 +121,35 @@ type
     function  HasField(const Name: string): Boolean;
     function  IntFields: TArray<TPair<string, Int64>>;
     function  StrFields: TArray<TPair<string, string>>;
-    /// <summary>The original payload as read from the ECU. Used by
-    /// <c>WriteCodingBlock</c> to preserve uncovered bits.</summary>
+    /// <summary>
+    ///   The original payload as read from the ECU. Used by
+    ///   <c>WriteCodingBlock</c> to preserve uncovered bits.
+    /// </summary>
     property Raw: TBytes read FRaw write FRaw;
   end;
 
-  /// <summary>Result of an actuator test or routine execution.</summary>
+  /// <summary>
+  ///   Result of an actuator test or routine execution.
+  /// </summary>
   TOBDActuatorResult = record
     Status: Byte;
     Message: string;
     RawResponse: TBytes;
   end;
 
-  /// <summary>Stream handle returned by <c>StreamLivePIDs</c>; call
-  /// <c>Stop</c> to terminate the polling thread.</summary>
+  /// <summary>
+  ///   Stream handle returned by <c>StreamLivePIDs</c>; call
+  ///   <c>Stop</c> to terminate the polling thread.
+  /// </summary>
   IOBDStreamHandle = interface
     ['{B1C2D3E4-5F60-7890-1234-567890ABCDEF}']
     procedure Stop;
     function  IsRunning: Boolean;
   end;
 
-  /// <summary>The high-level catalog-driven UDS client.</summary>
+  /// <summary>
+  ///   The high-level catalog-driven UDS client.
+  /// </summary>
   IOBDUdsClient = interface
     ['{0A1B2C3D-4E5F-6789-ABCD-EF0123456789}']
     procedure OpenSession(const Catalog: TOBDOEMJSONCatalog;
@@ -163,13 +181,17 @@ type
                              : IOBDStreamHandle;
   end;
 
-/// <summary>Construct a fresh UDS client. Call <c>OpenSession</c>
-/// before any other method.</summary>
+/// <summary>
+///   Construct a fresh UDS client. Call <c>OpenSession</c>
+///   before any other method.
+/// </summary>
 function CreateUdsClient: IOBDUdsClient;
 
-/// <summary>Decode a raw payload using a catalog DID's decoder spec.
-/// Exposed for unit tests; production callers go through
-/// <c>IOBDUdsClient.ReadDID</c>.</summary>
+/// <summary>
+///   Decode a raw payload using a catalog DID's decoder spec.
+///   Exposed for unit tests; production callers go through
+///   <c>IOBDUdsClient.ReadDID</c>.
+/// </summary>
 function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog;
                         const DID: Word;
                         const Payload: TBytes): TOBDDecodedValue;
@@ -183,8 +205,14 @@ uses
 // Helpers
 //==============================================================================
 
-/// <summary>Parse <c>"0xABCD"</c> or <c>"abcd"</c> or <c>"43981"</c>
-/// (decimal) into a Word. Raises on malformed input.</summary>
+/// <summary>
+///   Parse <c>"0xABCD"</c> or <c>"abcd"</c> or <c>"43981"</c>
+///   (decimal) into a Word. Raises on malformed input.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// PARSE HEX OR DEC WORD
+//------------------------------------------------------------------------------
 function ParseHexOrDecWord(const S: string): Word;
 var
   Stripped: string;
@@ -203,12 +231,18 @@ begin
   Result := Word(Big);
 end;
 
-/// <summary>Decode a 3-byte UDS DTC representation into the
-/// canonical 5-character "P/B/C/U" code per ISO 15031-5 / SAE
-/// J2012. Bits 15-14 of the first 16 bits select the system letter;
-/// the remaining 14 bits decode as 4 hex digits. The third byte is
-/// the failure-mode extension and is typically 0 for stored
-/// codes — it isn't part of the displayed code.</summary>
+/// <summary>
+///   Decode a 3-byte UDS DTC representation into the
+///   canonical 5-character "P/B/C/U" code per ISO 15031-5 / SAE
+///   J2012. Bits 15-14 of the first 16 bits select the system letter;
+///   the remaining 14 bits decode as 4 hex digits. The third byte is
+///   the failure-mode extension and is typically 0 for stored
+///   codes — it isn't part of the displayed code.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// DECODE DTC CODE
+//------------------------------------------------------------------------------
 function DecodeDtcCode(const B0, B1, B2: Byte): string;
 const
   Letters: array[0..3] of Char = ('P', 'C', 'B', 'U');
@@ -221,9 +255,15 @@ begin
   Result := Format('%s%.4X', [Letter, Code14]);
 end;
 
-/// <summary>Look up a DID by its <c>Name</c> (preferred) or hex
-/// identifier. Raises <c>EOBDUdsCatalogMiss</c> if neither resolves
-/// inside the supplied catalog.</summary>
+/// <summary>
+///   Look up a DID by its <c>Name</c> (preferred) or hex
+///   identifier. Raises <c>EOBDUdsCatalogMiss</c> if neither resolves
+///   inside the supplied catalog.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// RESOLVE DID
+//------------------------------------------------------------------------------
 function ResolveDID(const Catalog: TOBDOEMJSONCatalog;
                     const NameOrHex: string;
                     out Entry: TOBDOEMDIDEntry): Word;
@@ -250,7 +290,13 @@ begin
       'DID %s not present in catalog', [NameOrHex]);
 end;
 
-/// <summary>Look up an adaptation channel by name or hex.</summary>
+/// <summary>
+///   Look up an adaptation channel by name or hex.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// RESOLVE ADAPTATION
+//------------------------------------------------------------------------------
 function ResolveAdaptation(const Catalog: TOBDOEMJSONCatalog;
                            const NameOrHex: string;
                            out Entry: TOBDAdaptationEntry): Word;
@@ -283,7 +329,13 @@ begin
     'Adaptation channel %s not in catalog', [NameOrHex]);
 end;
 
-/// <summary>Look up an actuator test by name or hex.</summary>
+/// <summary>
+///   Look up an actuator test by name or hex.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// RESOLVE ACTUATOR
+//------------------------------------------------------------------------------
 function ResolveActuator(const Catalog: TOBDOEMJSONCatalog;
                          const NameOrHex: string;
                          out Entry: TOBDActuatorTestEntry): Word;
@@ -316,9 +368,15 @@ begin
     'Actuator test %s not in catalog', [NameOrHex]);
 end;
 
-/// <summary>Look up a coding block by name. (Coding blocks are
-/// always identified by name; the underlying DID can collide across
-/// blocks for very-different coding payloads.)</summary>
+/// <summary>
+///   Look up a coding block by name. (Coding blocks are
+///   always identified by name; the underlying DID can collide across
+///   blocks for very-different coding payloads.)
+/// </summary>
+
+//------------------------------------------------------------------------------
+// RESOLVE CODING BLOCK
+//------------------------------------------------------------------------------
 function ResolveCodingBlock(const Catalog: TOBDOEMJSONCatalog;
                             const Name: string;
                             out Entry: TOBDCodingBlockEntry): Boolean;
@@ -338,7 +396,13 @@ begin
   end;
 end;
 
-/// <summary>Look up a routine by name or hex.</summary>
+/// <summary>
+///   Look up a routine by name or hex.
+/// </summary>
+
+//------------------------------------------------------------------------------
+// RESOLVE ROUTINE
+//------------------------------------------------------------------------------
 function ResolveRoutine(const Catalog: TOBDOEMJSONCatalog;
                         const NameOrHex: string;
                         out Entry: TOBDOEMRoutineEntry): Word;
@@ -376,11 +440,17 @@ end;
 // don't pull TUDSProtocol because we only need one-shot byte builders.)
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// BUILD READ DATA BY IDENTIFIER
+//------------------------------------------------------------------------------
 function BuildReadDataByIdentifier(const DID: Word): TBytes;
 begin
   Result := [$22, Byte(DID shr 8), Byte(DID and $FF)];
 end;
 
+//------------------------------------------------------------------------------
+// BUILD WRITE DATA BY IDENTIFIER
+//------------------------------------------------------------------------------
 function BuildWriteDataByIdentifier(const DID: Word; const Data: TBytes): TBytes;
 var
   I: Integer;
@@ -393,6 +463,9 @@ begin
     Result[3 + I] := Data[I];
 end;
 
+//------------------------------------------------------------------------------
+// BUILD ROUTINE CONTROL
+//------------------------------------------------------------------------------
 function BuildRoutineControl(const RoutineType: Byte; const RID: Word;
                              const Args: TBytes): TBytes;
 var
@@ -407,6 +480,9 @@ begin
     Result[4 + I] := Args[I];
 end;
 
+//------------------------------------------------------------------------------
+// BUILD READ DTC BY STATUS MASK
+//------------------------------------------------------------------------------
 function BuildReadDtcByStatusMask(const StatusMask: Byte): TBytes;
 begin
   Result := [$19, $02, StatusMask];
@@ -416,6 +492,9 @@ end;
 // Decoder dispatch (E.2)
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// FORMAT NUMERIC
+//------------------------------------------------------------------------------
 function FormatNumeric(const Value: Double; const Unit_: string): string;
 begin
   if Frac(Value) = 0 then
@@ -426,16 +505,25 @@ begin
     Result := Result + ' ' + Unit_;
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT16 BE
+//------------------------------------------------------------------------------
 function ReadUInt16BE(const B: TBytes; Offset: Integer): Word;
 begin
   Result := (Word(B[Offset]) shl 8) or B[Offset + 1];
 end;
 
+//------------------------------------------------------------------------------
+// READ INT16 BE
+//------------------------------------------------------------------------------
 function ReadInt16BE(const B: TBytes; Offset: Integer): SmallInt;
 begin
   Result := SmallInt((Word(B[Offset]) shl 8) or B[Offset + 1]);
 end;
 
+//------------------------------------------------------------------------------
+// READ UINT32 BE
+//------------------------------------------------------------------------------
 function ReadUInt32BE(const B: TBytes; Offset: Integer): Cardinal;
 begin
   Result := (Cardinal(B[Offset]) shl 24) or
@@ -444,11 +532,17 @@ begin
             B[Offset + 3];
 end;
 
+//------------------------------------------------------------------------------
+// READ INT32 BE
+//------------------------------------------------------------------------------
 function ReadInt32BE(const B: TBytes; Offset: Integer): Integer;
 begin
   Result := Integer(ReadUInt32BE(B, Offset));
 end;
 
+//------------------------------------------------------------------------------
+// HEX DUMP
+//------------------------------------------------------------------------------
 function HexDump(const B: TBytes): string;
 var
   I: Integer;
@@ -461,6 +555,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODE PAYLOAD AS
+//------------------------------------------------------------------------------
 function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog;
                         const DID: Word;
                         const Payload: TBytes): TOBDDecodedValue;
@@ -600,7 +697,8 @@ begin
   // If the catalog provides a friendlier formatted string, prefer it.
   if Result.Formatted = '' then
   begin
-    var Friendly: string := Catalog.DecodePayload(DID, Payload);
+    var
+      Friendly: string := Catalog.DecodePayload(DID, Payload);
     if Friendly <> '' then
       Result.Formatted := Friendly;
   end;
@@ -610,6 +708,9 @@ end;
 // TOBDCodingValues
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDCodingValues.Create;
 begin
   inherited Create;
@@ -617,6 +718,9 @@ begin
   FStrs := TDictionary<string, string>.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDCodingValues.Destroy;
 begin
   FInts.Free;
@@ -624,33 +728,51 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SET INT
+//------------------------------------------------------------------------------
 procedure TOBDCodingValues.SetInt(const Name: string; Value: Int64);
 begin
   FInts.AddOrSetValue(Name, Value);
 end;
 
+//------------------------------------------------------------------------------
+// GET INT
+//------------------------------------------------------------------------------
 function TOBDCodingValues.GetInt(const Name: string): Int64;
 begin
   if not FInts.TryGetValue(Name, Result) then
     raise EOBDUdsCodingError.CreateFmt('coding field not present: %s', [Name]);
 end;
 
+//------------------------------------------------------------------------------
+// SET STR
+//------------------------------------------------------------------------------
 procedure TOBDCodingValues.SetStr(const Name: string; const Value: string);
 begin
   FStrs.AddOrSetValue(Name, Value);
 end;
 
+//------------------------------------------------------------------------------
+// GET STR
+//------------------------------------------------------------------------------
 function TOBDCodingValues.GetStr(const Name: string): string;
 begin
   if not FStrs.TryGetValue(Name, Result) then
     raise EOBDUdsCodingError.CreateFmt('coding field not present: %s', [Name]);
 end;
 
+//------------------------------------------------------------------------------
+// HAS FIELD
+//------------------------------------------------------------------------------
 function TOBDCodingValues.HasField(const Name: string): Boolean;
 begin
   Result := FInts.ContainsKey(Name) or FStrs.ContainsKey(Name);
 end;
 
+//------------------------------------------------------------------------------
+// INT FIELDS
+//------------------------------------------------------------------------------
 function TOBDCodingValues.IntFields: TArray<TPair<string, Int64>>;
 var
   I: Integer;
@@ -665,6 +787,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STR FIELDS
+//------------------------------------------------------------------------------
 function TOBDCodingValues.StrFields: TArray<TPair<string, string>>;
 var
   I: Integer;
@@ -683,6 +808,9 @@ end;
 // Coding-block bit-level pack / unpack (E.3)
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// FIELD BIT WIDTH
+//------------------------------------------------------------------------------
 function FieldBitWidth(const Field: TOBDCodingFieldEntry): Integer;
 begin
   if Field.BitWidth > 0 then
@@ -701,9 +829,15 @@ begin
   end;
 end;
 
-/// <summary>Read <c>BitWidth</c> bits starting at byte
-/// <c>ByteOffset</c>, bit <c>BitOffset</c> (LSB-first within the
-/// byte, big-endian across bytes for multi-byte fields).</summary>
+/// <summary>
+///   Read <c>BitWidth</c> bits starting at byte
+///   <c>ByteOffset</c>, bit <c>BitOffset</c> (LSB-first within the
+///   byte, big-endian across bytes for multi-byte fields).
+/// </summary>
+
+//------------------------------------------------------------------------------
+// UNPACK BITS
+//------------------------------------------------------------------------------
 function UnpackBits(const Payload: TBytes;
                     ByteOffset, BitOffset, BitWidth: Integer): Int64;
 var
@@ -726,10 +860,16 @@ begin
   end;
 end;
 
-/// <summary>Pack <c>Value</c> into <c>BitWidth</c> bits starting at
-/// the given offset. Mutates <c>Payload</c> in place. Bits not
-/// covered by the field are preserved (read-modify-write
-/// safe).</summary>
+/// <summary>
+///   Pack <c>Value</c> into <c>BitWidth</c> bits starting at
+///   the given offset. Mutates <c>Payload</c> in place. Bits not
+///   covered by the field are preserved (read-modify-write
+///   safe).
+/// </summary>
+
+//------------------------------------------------------------------------------
+// PACK BITS
+//------------------------------------------------------------------------------
 procedure PackBits(var Payload: TBytes;
                    ByteOffset, BitOffset, BitWidth: Integer;
                    Value: Int64);
@@ -788,6 +928,9 @@ type
                        AInterval: Cardinal);
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TUdsStreamThread.Create(const ATransport: IOBDDiagnosticTransport;
                                     const ACatalog: TOBDOEMJSONCatalog;
                                     const APids: TArray<TOBDOEMLivePIDEntry>;
@@ -803,6 +946,9 @@ begin
   FInterval := AInterval;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE
+//------------------------------------------------------------------------------
 procedure TUdsStreamThread.Execute;
 var
   PID: TOBDOEMLivePIDEntry;
@@ -855,18 +1001,27 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TStreamHandle.Create(Thread: TUdsStreamThread);
 begin
   inherited Create;
   FThread := Thread;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TStreamHandle.Destroy;
 begin
   Stop;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// STOP
+//------------------------------------------------------------------------------
 procedure TStreamHandle.Stop;
 begin
   if Assigned(FThread) then
@@ -877,6 +1032,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS RUNNING
+//------------------------------------------------------------------------------
 function TStreamHandle.IsRunning: Boolean;
 begin
   Result := Assigned(FThread) and not FThread.Finished;
@@ -923,12 +1081,18 @@ type
                              : IOBDStreamHandle;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDUdsClient.Create;
 begin
   inherited Create;
   FLock := TCriticalSection.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDUdsClient.Destroy;
 begin
   CloseSession;
@@ -936,6 +1100,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// OPEN SESSION
+//------------------------------------------------------------------------------
 procedure TOBDUdsClient.OpenSession(const Catalog: TOBDOEMJSONCatalog;
                                    const Transport: IOBDDiagnosticTransport;
                                    ECUAddress: Word);
@@ -958,6 +1125,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CLOSE SESSION
+//------------------------------------------------------------------------------
 procedure TOBDUdsClient.CloseSession;
 begin
   FLock.Enter;
@@ -970,17 +1140,26 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// IS OPEN
+//------------------------------------------------------------------------------
 function TOBDUdsClient.IsOpen: Boolean;
 begin
   Result := FOpen;
 end;
 
+//------------------------------------------------------------------------------
+// ENSURE OPEN
+//------------------------------------------------------------------------------
 procedure TOBDUdsClient.EnsureOpen;
 begin
   if not FOpen then
     raise EOBDUdsNoSession.Create('OpenSession must be called first');
 end;
 
+//------------------------------------------------------------------------------
+// STRIP DIDECHO
+//------------------------------------------------------------------------------
 function TOBDUdsClient.StripDIDEcho(const Resp: TBytes; DID: Word): TBytes;
 var
   I: Integer;
@@ -1000,6 +1179,9 @@ begin
     Result[I] := Resp[3 + I];
 end;
 
+//------------------------------------------------------------------------------
+// READ DID
+//------------------------------------------------------------------------------
 function TOBDUdsClient.ReadDID(const NameOrHex: string): TOBDDecodedValue;
 var
   Entry: TOBDOEMDIDEntry;
@@ -1021,6 +1203,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION
+//------------------------------------------------------------------------------
 function TOBDUdsClient.WriteAdaptation(const ChannelOrHex: string;
                                        Value: Int64): Boolean;
 var
@@ -1067,6 +1252,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE ROUTINE
+//------------------------------------------------------------------------------
 function TOBDUdsClient.ExecuteRoutine(const NameOrHex: string;
                                       const Args: TBytes;
                                       RoutineType: Byte = $01): TOBDActuatorResult;
@@ -1100,6 +1288,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ CODING BLOCK
+//------------------------------------------------------------------------------
 function TOBDUdsClient.ReadCodingBlock(const Name: string): TOBDCodingValues;
 var
   Block: TOBDCodingBlockEntry;
@@ -1131,7 +1322,8 @@ begin
       Kind := ParseCodingFieldKind(Field.KindStr);
       if Kind = cfkAscii then
       begin
-        var S: string := '';
+        var
+          S: string := '';
         for var J := 0 to Field.BitWidth - 1 do
           if (Field.ByteOffset + J) < Length(Payload) then
             S := S + Char(Payload[Field.ByteOffset + J]);
@@ -1150,6 +1342,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE CODING BLOCK
+//------------------------------------------------------------------------------
 procedure TOBDUdsClient.WriteCodingBlock(const Name: string;
                                         const Values: TOBDCodingValues);
 var
@@ -1192,7 +1387,8 @@ begin
     begin
       Width := FieldBitWidth(Field);
       // Validate min/max if specified.
-      var V: Int64 := Values.GetInt(Field.Name);
+      var
+        V: Int64 := Values.GetInt(Field.Name);
       // Always validate. The JSON loader populates absent min/max
       // with Low(Int64)/High(Int64), so unbounded fields are
       // no-ops while explicit min=max=0 (e.g. a fixed bit) is
@@ -1219,6 +1415,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RUN ACTUATOR TEST
+//------------------------------------------------------------------------------
 function TOBDUdsClient.RunActuatorTest(const Name: string;
                                        AcknowledgeSafetyWarning: Boolean): TOBDActuatorResult;
 var
@@ -1262,6 +1461,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DTCS
+//------------------------------------------------------------------------------
 function TOBDUdsClient.ReadDtcs(StatusMask: Byte): TArray<TOBDDtcInstance>;
 var
   Req, Resp: TBytes;
@@ -1291,6 +1493,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// STREAM LIVE PIDS
+//------------------------------------------------------------------------------
 function TOBDUdsClient.StreamLivePIDs(const Names: array of string;
                                      const OnSample: TOBDLiveSampleEvent;
                                      PollIntervalMs: Cardinal): IOBDStreamHandle;
@@ -1328,6 +1533,9 @@ begin
   Result := TStreamHandle.Create(Thread);
 end;
 
+//------------------------------------------------------------------------------
+// CREATE UDS CLIENT
+//------------------------------------------------------------------------------
 function CreateUdsClient: IOBDUdsClient;
 begin
   Result := TOBDUdsClient.Create;

@@ -26,8 +26,10 @@ uses
   OBD.OEM, OBD.OEM.RoutineControl;
 
 type
-  /// <summary>Canonical service-function kinds. The set of routines a
-  /// dealer-style tool typically exposes as one-tap actions.</summary>
+  /// <summary>
+  ///   Canonical service-function kinds. The set of routines a
+  ///   dealer-style tool typically exposes as one-tap actions.
+  /// </summary>
   TOBDServiceFunctionKind = (
     sfUnknown,
     sfOilLifeReset,             // 'reset oil life monitor'
@@ -51,22 +53,34 @@ type
     sfFuelTrimReset             // 'reset adaptive fuel trim'
   );
 
-  /// <summary>Resolved service function — one routine the OEM
-  /// extension exposes that matches a canonical kind.</summary>
+  /// <summary>
+  ///   Resolved service function — one routine the OEM
+  ///   extension exposes that matches a canonical kind.
+  /// </summary>
   TOBDServiceFunction = record
     Kind: TOBDServiceFunctionKind;
-    /// <summary>Routine identifier (the RID part of `31 01 RID`).</summary>
+    /// <summary>
+    ///   Routine identifier (the RID part of `31 01 RID`).
+    /// </summary>
     RoutineId: Word;
-    /// <summary>Routine's catalog name (snake_case from the OEM JSON).</summary>
+    /// <summary>
+    ///   Routine's catalog name (snake_case from the OEM JSON).
+    /// </summary>
     RoutineName: string;
-    /// <summary>Human-readable description from the catalog.</summary>
+    /// <summary>
+    ///   Human-readable description from the catalog.
+    /// </summary>
     Description: string;
-    /// <summary>Target ECU (J1939 source address or UDS request CAN-ID).
-    /// 0 = global / not scoped to a specific ECU.</summary>
+    /// <summary>
+    ///   Target ECU (J1939 source address or UDS request CAN-ID).
+    ///   0 = global / not scoped to a specific ECU.
+    /// </summary>
     EcuAddress: Word;
   end;
 
-  /// <summary>Registry of canonical kind → name-token mappings.</summary>
+  /// <summary>
+  ///   Registry of canonical kind → name-token mappings.
+  /// </summary>
   TOBDServiceFunctionRegistry = class
   strict private class var
     FTokens: TObjectDictionary<TOBDServiceFunctionKind, TList<string>>;
@@ -74,40 +88,55 @@ type
     class procedure RegisterTokens(const Kind: TOBDServiceFunctionKind;
       const Names: array of string);
   public
-    /// <summary>True if <c>Name</c> matches a known token for <c>Kind</c>
-    /// (case-insensitive substring match).</summary>
+    /// <summary>
+    ///   True if <c>Name</c> matches a known token for <c>Kind</c>
+    ///   (case-insensitive substring match).
+    /// </summary>
     class function NameMatchesKind(const Name: string;
       const Kind: TOBDServiceFunctionKind): Boolean;
-    /// <summary>Best-guess canonical kind for an arbitrary routine
-    /// name. Returns sfUnknown when no token matches.</summary>
+    /// <summary>
+    ///   Best-guess canonical kind for an arbitrary routine
+    ///   name. Returns sfUnknown when no token matches.
+    /// </summary>
     class function ClassifyName(const Name: string): TOBDServiceFunctionKind;
   end;
 
-/// <summary>Find the first routine in the OEM extension's catalog
-/// that maps to <c>Kind</c>. Returns <c>True</c> + populates
-/// <c>Func</c>; returns <c>False</c> when no matching routine exists.</summary>
+/// <summary>
+///   Find the first routine in the OEM extension's catalog
+///   that maps to <c>Kind</c>. Returns <c>True</c> + populates
+///   <c>Func</c>; returns <c>False</c> when no matching routine exists.
+/// </summary>
 function FindServiceFunction(const Ext: IOBDOEMExtension;
   const Kind: TOBDServiceFunctionKind;
   out Func: TOBDServiceFunction): Boolean;
 
-/// <summary>Discover every supported service function on the OEM
-/// extension. Useful for populating a "Service" menu in a tool
-/// without hard-coding which OEMs support what.</summary>
+/// <summary>
+///   Discover every supported service function on the OEM
+///   extension. Useful for populating a "Service" menu in a tool
+///   without hard-coding which OEMs support what.
+/// </summary>
 function ListServiceFunctions(
   const Ext: IOBDOEMExtension): TArray<TOBDServiceFunction>;
 
-/// <summary>Build the start-routine UDS frame for a service function.
-/// Caller-supplied <c>InputData</c> is appended past the RID; pass
-/// <c>nil</c> for routines that take no arguments (most service
-/// functions don't).</summary>
+/// <summary>
+///   Build the start-routine UDS frame for a service function.
+///   Caller-supplied <c>InputData</c> is appended past the RID; pass
+///   <c>nil</c> for routines that take no arguments (most service
+///   functions don't).
+/// </summary>
 function BuildServiceFunctionFrame(const Func: TOBDServiceFunction;
   const InputData: TBytes = nil): TBytes;
 
-/// <summary>Display label for a service-function kind (used by UI).</summary>
+/// <summary>
+///   Display label for a service-function kind (used by UI).
+/// </summary>
 function ServiceFunctionKindName(const Kind: TOBDServiceFunctionKind): string;
 
 implementation
 
+//------------------------------------------------------------------------------
+// ENSURE INITIALIZED
+//------------------------------------------------------------------------------
 class procedure TOBDServiceFunctionRegistry.EnsureInitialized;
 begin
   if FTokens = nil then
@@ -176,6 +205,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// REGISTER TOKENS
+//------------------------------------------------------------------------------
 class procedure TOBDServiceFunctionRegistry.RegisterTokens(
   const Kind: TOBDServiceFunctionKind; const Names: array of string);
 var
@@ -187,6 +219,9 @@ begin
   FTokens.AddOrSetValue(Kind, L);
 end;
 
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND
+//------------------------------------------------------------------------------
 class function TOBDServiceFunctionRegistry.NameMatchesKind(
   const Name: string; const Kind: TOBDServiceFunctionKind): Boolean;
 var
@@ -201,6 +236,9 @@ begin
     if Pos(Token, Lower) > 0 then Exit(True);
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY NAME
+//------------------------------------------------------------------------------
 class function TOBDServiceFunctionRegistry.ClassifyName(
   const Name: string): TOBDServiceFunctionKind;
 var
@@ -216,6 +254,9 @@ begin
   Result := sfUnknown;
 end;
 
+//------------------------------------------------------------------------------
+// SERVICE FUNCTION KIND NAME
+//------------------------------------------------------------------------------
 function ServiceFunctionKindName(const Kind: TOBDServiceFunctionKind): string;
 begin
   case Kind of
@@ -243,6 +284,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND SERVICE FUNCTION
+//------------------------------------------------------------------------------
 function FindServiceFunction(const Ext: IOBDOEMExtension;
   const Kind: TOBDServiceFunctionKind;
   out Func: TOBDServiceFunction): Boolean;
@@ -264,6 +308,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// LIST SERVICE FUNCTIONS
+//------------------------------------------------------------------------------
 function ListServiceFunctions(
   const Ext: IOBDOEMExtension): TArray<TOBDServiceFunction>;
 var
@@ -293,6 +340,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD SERVICE FUNCTION FRAME
+//------------------------------------------------------------------------------
 function BuildServiceFunctionFrame(const Func: TOBDServiceFunction;
   const InputData: TBytes): TBytes;
 begin

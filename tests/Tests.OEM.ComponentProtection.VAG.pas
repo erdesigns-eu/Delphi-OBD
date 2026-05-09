@@ -20,19 +20,33 @@ type
   [TestFixture]
   TVAGCPTests = class
   public
-    /// <summary>Request round trip.</summary>
+    /// <summary>
+    ///   Request round trip.
+    /// </summary>
     [Test] procedure RequestRoundTrip;
-    /// <summary>Response round trip.</summary>
+    /// <summary>
+    ///   Response round trip.
+    /// </summary>
     [Test] procedure ResponseRoundTrip;
-    /// <summary>Request rejects bad v i n.</summary>
+    /// <summary>
+    ///   Request rejects bad v i n.
+    /// </summary>
     [Test] procedure RequestRejectsBadVIN;
-    /// <summary>Request decode rejects truncated serial.</summary>
+    /// <summary>
+    ///   Request decode rejects truncated serial.
+    /// </summary>
     [Test] procedure RequestDecodeRejectsTruncatedSerial;
-    /// <summary>Request decode rejects bad v i n length.</summary>
+    /// <summary>
+    ///   Request decode rejects bad v i n length.
+    /// </summary>
     [Test] procedure RequestDecodeRejectsBadVINLength;
-    /// <summary>Response decode rejects truncated response.</summary>
+    /// <summary>
+    ///   Response decode rejects truncated response.
+    /// </summary>
     [Test] procedure ResponseDecodeRejectsTruncatedResponse;
-    /// <summary>Default solver fails closed.</summary>
+    /// <summary>
+    ///   Default solver fails closed.
+    /// </summary>
     [Test] procedure DefaultSolverFailsClosed;
   end;
 
@@ -41,6 +55,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.ComponentProtection.VAG;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.RequestRoundTrip;
 var
   In_, Out_: TVAGCPRequest;
@@ -60,6 +77,9 @@ begin
   Assert.AreEqual(Integer($55), Integer(Out_.Nonce[4]));
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.ResponseRoundTrip;
 var
   In_, Out_: TVAGCPResponse;
@@ -75,8 +95,12 @@ begin
   Assert.AreEqual(Integer($11), Integer(Out_.Signature[3]));
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REJECTS BAD VIN
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.RequestRejectsBadVIN;
-var Req: TVAGCPRequest;
+var
+  Req: TVAGCPRequest;
 begin
   Req.ECUType := 0;
   Req.VIN := 'TOO-SHORT';
@@ -84,8 +108,12 @@ begin
     procedure begin EncodeVAGCPRequest(Req); end, EOBDVAGCP);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST DECODE REJECTS TRUNCATED SERIAL
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.RequestDecodeRejectsTruncatedSerial;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   // ECUType=0x0042, serial-len=0x0010, but no body bytes
   Bytes := TBytes.Create($00, $42, $00, $10);
@@ -93,6 +121,9 @@ begin
     procedure begin DecodeVAGCPRequest(Bytes); end, EOBDVAGCP);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST DECODE REJECTS BAD VINLENGTH
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.RequestDecodeRejectsBadVINLength;
 var
   Bytes: TBytes;
@@ -108,6 +139,9 @@ begin
     procedure begin DecodeVAGCPRequest(Bytes); end, EOBDVAGCP);
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE DECODE REJECTS TRUNCATED RESPONSE
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.ResponseDecodeRejectsTruncatedResponse;
 begin
   // Declares 4 response bytes but only 2 follow
@@ -119,6 +153,9 @@ begin
     EOBDVAGCP);
 end;
 
+//------------------------------------------------------------------------------
+// DEFAULT SOLVER FAILS CLOSED
+//------------------------------------------------------------------------------
 procedure TVAGCPTests.DefaultSolverFailsClosed;
 var
   Solver: IVAGCPSolver;

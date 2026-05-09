@@ -20,21 +20,37 @@ type
   [TestFixture]
   TFordPATSTests = class
   public
-    /// <summary>Request round trip.</summary>
+    /// <summary>
+    ///   Request round trip.
+    /// </summary>
     [Test] procedure RequestRoundTrip;
-    /// <summary>Request rejects bad v i n.</summary>
+    /// <summary>
+    ///   Request rejects bad v i n.
+    /// </summary>
     [Test] procedure RequestRejectsBadVIN;
-    /// <summary>Request decode bad length raises.</summary>
+    /// <summary>
+    ///   Request decode bad length raises.
+    /// </summary>
     [Test] procedure RequestDecodeBadLengthRaises;
-    /// <summary>Status round trip.</summary>
+    /// <summary>
+    ///   Status round trip.
+    /// </summary>
     [Test] procedure StatusRoundTrip;
-    /// <summary>Status decode bad length raises.</summary>
+    /// <summary>
+    ///   Status decode bad length raises.
+    /// </summary>
     [Test] procedure StatusDecodeBadLengthRaises;
-    /// <summary>F150 is open.</summary>
+    /// <summary>
+    ///   F150 is open.
+    /// </summary>
     [Test] procedure F150IsOpen;
-    /// <summary>Mach e is gateway locked.</summary>
+    /// <summary>
+    ///   Mach e is gateway locked.
+    /// </summary>
     [Test] procedure MachEIsGatewayLocked;
-    /// <summary>Unknown is gateway locked.</summary>
+    /// <summary>
+    ///   Unknown is gateway locked.
+    /// </summary>
     [Test] procedure UnknownIsGatewayLocked;
   end;
 
@@ -43,6 +59,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.KeyAdaptation.Ford;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.RequestRoundTrip;
 var
   In_, Out_: TFordPATSRequest;
@@ -58,8 +77,12 @@ begin
   Assert.AreEqual(Integer($42), Integer(Out_.ProgrammerPresentByte));
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REJECTS BAD VIN
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.RequestRejectsBadVIN;
-var Req: TFordPATSRequest;
+var
+  Req: TFordPATSRequest;
 begin
   Req.VIN := 'TOO-SHORT';
   Req.Operation := fpoStatus;
@@ -68,6 +91,9 @@ begin
     procedure begin EncodeFordPATSRequest(Req); end, EOBDFordPATS);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST DECODE BAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.RequestDecodeBadLengthRaises;
 begin
   Assert.WillRaise(
@@ -75,6 +101,9 @@ begin
     EOBDFordPATS);
 end;
 
+//------------------------------------------------------------------------------
+// STATUS ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.StatusRoundTrip;
 var
   In_, Out_: TFordPATSStatus;
@@ -92,6 +121,9 @@ begin
   Assert.IsTrue(Out_.PinCodePresent);
 end;
 
+//------------------------------------------------------------------------------
+// STATUS DECODE BAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.StatusDecodeBadLengthRaises;
 begin
   Assert.WillRaise(
@@ -99,22 +131,34 @@ begin
     EOBDFordPATS);
 end;
 
+//------------------------------------------------------------------------------
+// F150 IS OPEN
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.F150IsOpen;
-var P: TFordPlatformInfo;
+var
+  P: TFordPlatformInfo;
 begin
   P := FindFordPlatform('p552');
   Assert.AreEqual(Ord(fpaOpen), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// MACH EIS GATEWAY LOCKED
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.MachEIsGatewayLocked;
-var P: TFordPlatformInfo;
+var
+  P: TFordPlatformInfo;
 begin
   P := FindFordPlatform('cd542');
   Assert.AreEqual(Ord(fpaGatewayLocked), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// UNKNOWN IS GATEWAY LOCKED
+//------------------------------------------------------------------------------
 procedure TFordPATSTests.UnknownIsGatewayLocked;
-var P: TFordPlatformInfo;
+var
+  P: TFordPlatformInfo;
 begin
   P := FindFordPlatform('unknown-chassis');
   Assert.AreEqual(Ord(fpaGatewayLocked), Ord(P.Access));

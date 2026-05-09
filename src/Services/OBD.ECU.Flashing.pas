@@ -136,11 +136,15 @@ type
     /// </summary>
     procedure RequestCancel;
 
-    /// <summary>Current pipeline stage.</summary>
+    /// <summary>
+    ///   Current pipeline stage.
+    /// </summary>
     function Stage: TOBDFlashStage;
 
   published
-    /// <summary>Maximum block size when streaming firmware to the ECU.</summary>
+    /// <summary>
+    ///   Maximum block size when streaming firmware to the ECU.
+    /// </summary>
     property BlockSize: Integer read FBlockSize write FBlockSize default 1024;
     /// <summary>
     ///   Where to write the pre-flash snapshot. Empty string disables
@@ -155,28 +159,43 @@ type
     property OnFailed: TOBDFlashStageEvent read FOnFailed write FOnFailed;
 
   public
-    /// <summary>Pluggable signature verifier (default: SHA-256).</summary>
+    /// <summary>
+    ///   Pluggable signature verifier (default: SHA-256).
+    /// </summary>
     property SignatureVerifier: IFirmwareSignatureVerifier
       read FSignatureVerifier write FSignatureVerifier;
-    /// <summary>Pre-flash health check (battery, ignition, comm).</summary>
+    /// <summary>
+    ///   Pre-flash health check (battery, ignition, comm).
+    /// </summary>
     property OnHealthCheck: TOBDFlashHealthCheck
       read FHealthCheck write FHealthCheck;
-    /// <summary>ECU read-back implementation.</summary>
+    /// <summary>
+    ///   ECU read-back implementation.
+    /// </summary>
     property OnSnapshot: TOBDFlashSnapshotProc
       read FSnapshot write FSnapshot;
-    /// <summary>Per-block write implementation.</summary>
+    /// <summary>
+    ///   Per-block write implementation.
+    /// </summary>
     property OnWriteChunk: TOBDFlashWriteChunkProc
       read FWriteChunk write FWriteChunk;
-    /// <summary>Post-write finalisation (RequestTransferExit, checksum).</summary>
+    /// <summary>
+    ///   Post-write finalisation (RequestTransferExit, checksum).
+    /// </summary>
     property OnFinalise: TOBDFlashFinaliseProc
       read FFinalise write FFinalise;
-    /// <summary>Post-flash verification (re-read + signature recheck).</summary>
+    /// <summary>
+    ///   Post-flash verification (re-read + signature recheck).
+    /// </summary>
     property OnVerifyEcu: TOBDFlashVerifyProc
       read FVerifyEcu write FVerifyEcu;
   end;
 
 implementation
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDECUFlashing.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -186,12 +205,18 @@ begin
   FSignatureVerifier := TOBDSha256SignatureVerifier.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDECUFlashing.Destroy;
 begin
   FStageLock.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// SET STAGE
+//------------------------------------------------------------------------------
 procedure TOBDECUFlashing.SetStage(NewStage: TOBDFlashStage);
 var
   Cb: TOBDFlashStageEvent;
@@ -201,6 +226,9 @@ begin
   if Assigned(Cb) then try Cb(Self, NewStage); except end;
 end;
 
+//------------------------------------------------------------------------------
+// REPORT PROGRESS
+//------------------------------------------------------------------------------
 procedure TOBDECUFlashing.ReportProgress(Percent: Single; const Msg: string);
 var
   Cb: TOBDFlashProgressEvent;
@@ -211,18 +239,27 @@ begin
   if Assigned(Cb) then try Cb(Self, Stg, Percent, Msg); except end;
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST CANCEL
+//------------------------------------------------------------------------------
 procedure TOBDECUFlashing.RequestCancel;
 begin
   FStageLock.Enter;
   try FCancelRequested := True; finally FStageLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// STAGE
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.Stage: TOBDFlashStage;
 begin
   FStageLock.Enter;
   try Result := FStage; finally FStageLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM PRE CHECK
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformPreCheck(out Reason: string): Boolean;
 begin
   Reason := '';
@@ -230,6 +267,9 @@ begin
   Result := FHealthCheck(Reason);
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM SNAPSHOT
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformSnapshot(out Snapshot: TBytes;
   out Reason: string): Boolean;
 begin
@@ -255,6 +295,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PERSIST SNAPSHOT
+//------------------------------------------------------------------------------
 procedure TOBDECUFlashing.PersistSnapshot(const Snapshot: TBytes);
 begin
   if (FBackupPath = '') or (Length(Snapshot) = 0) then Exit;
@@ -267,6 +310,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM VERIFY SIGNATURE
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformVerifySignature(const Firmware,
   Signature: TBytes; out Reason: string): Boolean;
 begin
@@ -285,6 +331,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM WRITE
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformWrite(const Firmware: TBytes;
   out Reason: string): Boolean;
 var
@@ -329,7 +378,10 @@ begin
       end;
     except
       on E: Exception do
-      begin Reason := Format('Block %d threw: %s', [Block, E.Message]); Exit(False); end;
+      begin
+        Reason := Format('Block %d threw: %s', [Block, E.Message]);
+        Exit(False);
+      end;
     end;
 
     Inc(Offset, ChunkLen);
@@ -341,6 +393,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM FINALISE
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformFinalise(out Reason: string): Boolean;
 begin
   Reason := '';
@@ -350,6 +405,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM VERIFY ECU
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.PerformVerifyEcu(out Reason: string): Boolean;
 begin
   Reason := '';
@@ -359,6 +417,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PERFORM ROLLBACK
+//------------------------------------------------------------------------------
 procedure TOBDECUFlashing.PerformRollback(const Snapshot: TBytes);
 var
   Reason: string;
@@ -373,6 +434,9 @@ begin
   // already failed and rollback is best-effort.
 end;
 
+//------------------------------------------------------------------------------
+// START FLASH
+//------------------------------------------------------------------------------
 function TOBDECUFlashing.StartFlash(const Firmware, Signature: TBytes): Boolean;
 var
   Reason: string;
@@ -395,7 +459,11 @@ begin
     Exit;
   end;
 
-  if FCancelRequested then begin SetStage(fsCancelled); Exit; end;
+  if FCancelRequested then
+  begin
+    SetStage(fsCancelled);
+    Exit;
+  end;
 
   // Signature ----------------------------------------------------------
   SetStage(fsVerifySignature);
@@ -407,7 +475,11 @@ begin
     Exit;
   end;
 
-  if FCancelRequested then begin SetStage(fsCancelled); Exit; end;
+  if FCancelRequested then
+  begin
+    SetStage(fsCancelled);
+    Exit;
+  end;
 
   // Snapshot -----------------------------------------------------------
   SetStage(fsSnapshot);
@@ -420,7 +492,11 @@ begin
   end;
   PersistSnapshot(Snapshot);
 
-  if FCancelRequested then begin SetStage(fsCancelled); Exit; end;
+  if FCancelRequested then
+  begin
+    SetStage(fsCancelled);
+    Exit;
+  end;
 
   // Erase is implicit in most UDS flows — RequestDownload (SID $34)
   // covers it. We expose a stage marker for UI feedback even though
@@ -428,7 +504,11 @@ begin
   SetStage(fsErase);
   ReportProgress(0, 'preparing ECU for download');
 
-  if FCancelRequested then begin SetStage(fsCancelled); Exit; end;
+  if FCancelRequested then
+  begin
+    SetStage(fsCancelled);
+    Exit;
+  end;
 
   // Write --------------------------------------------------------------
   SetStage(fsWrite);
@@ -441,7 +521,11 @@ begin
     Exit;
   end;
 
-  if FCancelRequested then begin SetStage(fsCancelled); Exit; end;
+  if FCancelRequested then
+  begin
+    SetStage(fsCancelled);
+    Exit;
+  end;
 
   // Finalise -----------------------------------------------------------
   SetStage(fsFinalise);

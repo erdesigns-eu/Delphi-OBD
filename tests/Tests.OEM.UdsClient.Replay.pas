@@ -21,11 +21,17 @@ type
   [TestFixture]
   TUdsClientReplayTests = class
   public
-    /// <summary>V w  v i n  decodes from captured f190.</summary>
+    /// <summary>
+    ///   V w  v i n  decodes from captured f190.
+    /// </summary>
     [Test] procedure VW_VIN_DecodesFromCapturedF190;
-    /// <summary>V w  hardware number  decodes from captured f187.</summary>
+    /// <summary>
+    ///   V w  hardware number  decodes from captured f187.
+    /// </summary>
     [Test] procedure VW_HardwareNumber_DecodesFromCapturedF187;
-    /// <summary>V w  unknown d i d  raises catalog miss.</summary>
+    /// <summary>
+    ///   V w  unknown d i d  raises catalog miss.
+    /// </summary>
     [Test] procedure VW_UnknownDID_RaisesCatalogMiss;
   end;
 
@@ -41,6 +47,9 @@ uses
 // Helpers
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// HEX STRING TO BYTES
+//------------------------------------------------------------------------------
 function HexStringToBytes(const Hex: string): TBytes;
 var
   Clean: string;
@@ -62,6 +71,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIXTURE PATH
+//------------------------------------------------------------------------------
 function FixturePath(const FileName: string): string;
 var
   Candidate: string;
@@ -102,6 +114,9 @@ type
     function  TargetECU: Word;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TCaptureReplayTransport.Create(
   const Pairs: TArray<TOBDCapturePair>);
 var
@@ -119,12 +134,18 @@ begin
   SetLength(FConsumed, FPairs.Count);
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TCaptureReplayTransport.Destroy;
 begin
   FPairs.Free;
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// BYTES EQUAL
+//------------------------------------------------------------------------------
 function BytesEqual(const A, B: TBytes): Boolean;
 var
   I: Integer;
@@ -135,6 +156,9 @@ begin
   Result := True;
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TCaptureReplayTransport.SendReceive(const Request: TBytes;
   TimeoutMs: Cardinal): TBytes;
 var
@@ -150,15 +174,29 @@ begin
     'replay: no pair matches request (%d bytes)', [Length(Request)]);
 end;
 
+//------------------------------------------------------------------------------
+// SET TARGET ECU
+//------------------------------------------------------------------------------
 procedure TCaptureReplayTransport.SetTargetECU(Address: Word);
-begin FECU := Address; end;
+begin
+  FECU := Address;
+end;
 
+//------------------------------------------------------------------------------
+// TARGET ECU
+//------------------------------------------------------------------------------
 function TCaptureReplayTransport.TargetECU: Word;
-begin Result := FECU; end;
+begin
+  Result := FECU;
+end;
 
 //==============================================================================
 // Tests
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// LOAD VW CAPTURE
+//------------------------------------------------------------------------------
 function LoadVwCapture: TArray<TOBDCapturePair>;
 var
   Path: string;
@@ -176,6 +214,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// LOAD VW CATALOG
+//------------------------------------------------------------------------------
 function LoadVwCatalog: TOBDOEMJSONCatalog;
 var
   Path: string;
@@ -186,6 +227,9 @@ begin
   Result := TOBDOEMJSONCatalog.Create(Path);
 end;
 
+//------------------------------------------------------------------------------
+// VW_VIN_DECODES FROM CAPTURED F190
+//------------------------------------------------------------------------------
 procedure TUdsClientReplayTests.VW_VIN_DecodesFromCapturedF190;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -212,6 +256,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VW_HARDWARE NUMBER_DECODES FROM CAPTURED F187
+//------------------------------------------------------------------------------
 procedure TUdsClientReplayTests.VW_HardwareNumber_DecodesFromCapturedF187;
 var
   Pairs: TArray<TOBDCapturePair>;
@@ -239,6 +286,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VW_UNKNOWN DID_RAISES CATALOG MISS
+//------------------------------------------------------------------------------
 procedure TUdsClientReplayTests.VW_UnknownDID_RaisesCatalogMiss;
 var
   Pairs: TArray<TOBDCapturePair>;

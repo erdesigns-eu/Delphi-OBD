@@ -20,19 +20,33 @@ type
   [TestFixture]
   TTachographSignatureTests = class
   public
-    /// <summary>Parses empty file as zero blocks.</summary>
+    /// <summary>
+    ///   Parses empty file as zero blocks.
+    /// </summary>
     [Test] procedure ParsesEmptyFileAsZeroBlocks;
-    /// <summary>Parses single t l v.</summary>
+    /// <summary>
+    ///   Parses single t l v.
+    /// </summary>
     [Test] procedure ParsesSingleTLV;
-    /// <summary>Truncated declared length raises.</summary>
+    /// <summary>
+    ///   Truncated declared length raises.
+    /// </summary>
     [Test] procedure TruncatedDeclaredLengthRaises;
-    /// <summary>Verify chain succeeds when verifiers pass.</summary>
+    /// <summary>
+    ///   Verify chain succeeds when verifiers pass.
+    /// </summary>
     [Test] procedure VerifyChainSucceedsWhenVerifiersPass;
-    /// <summary>Verify chain fails when signature block missing.</summary>
+    /// <summary>
+    ///   Verify chain fails when signature block missing.
+    /// </summary>
     [Test] procedure VerifyChainFailsWhenSignatureBlockMissing;
-    /// <summary>Verify chain fails when verifier returns false.</summary>
+    /// <summary>
+    ///   Verify chain fails when verifier returns false.
+    /// </summary>
     [Test] procedure VerifyChainFailsWhenVerifierReturnsFalse;
-    /// <summary>Verify chain fails when verifier not configured.</summary>
+    /// <summary>
+    ///   Verify chain fails when verifier not configured.
+    /// </summary>
     [Test] procedure VerifyChainFailsWhenVerifierNotConfigured;
   end;
 
@@ -53,22 +67,34 @@ type
     function Verify(const Firmware, Signature: TBytes): Boolean;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TConfigurableVerifier.Create(Accept: Boolean);
 begin
   inherited Create;
   FAccept := Accept;
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME
+//------------------------------------------------------------------------------
 function TConfigurableVerifier.AlgorithmName: string;
 begin
   if FAccept then Result := 'TEST-ACCEPT' else Result := 'TEST-REJECT';
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY
+//------------------------------------------------------------------------------
 function TConfigurableVerifier.Verify(const Firmware, Signature: TBytes): Boolean;
 begin
   Result := FAccept;
 end;
 
+//------------------------------------------------------------------------------
+// MAKE BLOCK
+//------------------------------------------------------------------------------
 function MakeBlock(TagHi, TagLo: Byte; const Body: TBytes): TBytes;
 var
   Out_: TBytes;
@@ -83,6 +109,9 @@ begin
   Result := Out_;
 end;
 
+//------------------------------------------------------------------------------
+// CONCAT BYTES
+//------------------------------------------------------------------------------
 function ConcatBytes(const Parts: array of TBytes): TBytes;
 var
   Total, I, Off: Integer;
@@ -99,6 +128,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES EMPTY FILE AS ZERO BLOCKS
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.ParsesEmptyFileAsZeroBlocks;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -113,6 +145,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// PARSES SINGLE TLV
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.ParsesSingleTLV;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -132,6 +167,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TRUNCATED DECLARED LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.TruncatedDeclaredLengthRaises;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -149,6 +187,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY CHAIN SUCCEEDS WHEN VERIFIERS PASS
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.VerifyChainSucceedsWhenVerifiersPass;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -173,6 +214,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY CHAIN FAILS WHEN SIGNATURE BLOCK MISSING
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.VerifyChainFailsWhenSignatureBlockMissing;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -193,6 +237,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY CHAIN FAILS WHEN VERIFIER RETURNS FALSE
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.VerifyChainFailsWhenVerifierReturnsFalse;
 var
   Checker: TOBDTachographSignatureChecker;
@@ -214,6 +261,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY CHAIN FAILS WHEN VERIFIER NOT CONFIGURED
+//------------------------------------------------------------------------------
 procedure TTachographSignatureTests.VerifyChainFailsWhenVerifierNotConfigured;
 var
   Checker: TOBDTachographSignatureChecker;

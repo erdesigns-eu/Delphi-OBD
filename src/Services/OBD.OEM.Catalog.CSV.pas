@@ -44,9 +44,13 @@ type
     constructor Create(const AManufacturerKey, ADisplayName: string;
       const AApplicableWMIs: TArray<string>;
       const ADefaultSource: string = '');
-    /// <summary>Read <c>CsvPath</c>, write a v1 JSON catalog to <c>JsonPath</c>.</summary>
+    /// <summary>
+    ///   Read <c>CsvPath</c>, write a v1 JSON catalog to <c>JsonPath</c>.
+    /// </summary>
     procedure Convert(const CsvPath, JsonPath: string);
-    /// <summary>In-memory variant — useful for tests.</summary>
+    /// <summary>
+    ///   In-memory variant — useful for tests.
+    /// </summary>
     function ConvertText(const CsvText: string): string;
 
     property ManufacturerKey: string read FManufacturerKey;
@@ -59,6 +63,9 @@ implementation
 uses
   System.IOUtils;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDCatalogCSVImporter.Create(
   const AManufacturerKey, ADisplayName: string;
   const AApplicableWMIs: TArray<string>;
@@ -73,6 +80,9 @@ begin
   FDefaultSource := ADefaultSource;
 end;
 
+//------------------------------------------------------------------------------
+// PARSE CSVLINE
+//------------------------------------------------------------------------------
 function ParseCSVLine(const Line: string): TArray<string>;
 // Minimal RFC-4180-style parser: comma-separated, fields may be quoted with
 // double-quotes, embedded `""` decodes to a single `"`. CSV data with
@@ -141,14 +151,21 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND INDEX
+//------------------------------------------------------------------------------
 function FindIndex(const Headers: TArray<string>; const Name: string): Integer;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to High(Headers) do
     if SameText(Trim(Headers[I]), Name) then Exit(I);
   Result := -1;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT TEXT
+//------------------------------------------------------------------------------
 function TOBDCatalogCSVImporter.ConvertText(const CsvText: string): string;
 var
   Reader: TStringList;
@@ -240,6 +257,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONVERT
+//------------------------------------------------------------------------------
 procedure TOBDCatalogCSVImporter.Convert(const CsvPath, JsonPath: string);
 var
   CsvText, JsonText: string;

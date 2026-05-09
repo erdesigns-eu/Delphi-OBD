@@ -20,25 +20,45 @@ type
   [TestFixture]
   TPQCSignatureTests = class
   public
-    /// <summary>Envelope round trips.</summary>
+    /// <summary>
+    ///   Envelope round trips.
+    /// </summary>
     [Test] procedure EnvelopeRoundTrips;
-    /// <summary>Envelope with empty key id round trips.</summary>
+    /// <summary>
+    ///   Envelope with empty key id round trips.
+    /// </summary>
     [Test] procedure EnvelopeWithEmptyKeyIdRoundTrips;
-    /// <summary>Envelope truncated at sig len raises.</summary>
+    /// <summary>
+    ///   Envelope truncated at sig len raises.
+    /// </summary>
     [Test] procedure EnvelopeTruncatedAtSigLenRaises;
-    /// <summary>Envelope truncated at signature raises.</summary>
+    /// <summary>
+    ///   Envelope truncated at signature raises.
+    /// </summary>
     [Test] procedure EnvelopeTruncatedAtSignatureRaises;
-    /// <summary>Envelope too short raises.</summary>
+    /// <summary>
+    ///   Envelope too short raises.
+    /// </summary>
     [Test] procedure EnvelopeTooShortRaises;
-    /// <summary>Verify algorithm mismatch raises.</summary>
+    /// <summary>
+    ///   Verify algorithm mismatch raises.
+    /// </summary>
     [Test] procedure VerifyAlgorithmMismatchRaises;
-    /// <summary>Verify raises not available until binding ships.</summary>
+    /// <summary>
+    ///   Verify raises not available until binding ships.
+    /// </summary>
     [Test] procedure VerifyRaisesNotAvailableUntilBindingShips;
-    /// <summary>Constructor rejects unknown algorithm.</summary>
+    /// <summary>
+    ///   Constructor rejects unknown algorithm.
+    /// </summary>
     [Test] procedure ConstructorRejectsUnknownAlgorithm;
-    /// <summary>Constructor rejects empty public key.</summary>
+    /// <summary>
+    ///   Constructor rejects empty public key.
+    /// </summary>
     [Test] procedure ConstructorRejectsEmptyPublicKey;
-    /// <summary>Algorithm name matches enum.</summary>
+    /// <summary>
+    ///   Algorithm name matches enum.
+    /// </summary>
     [Test] procedure AlgorithmNameMatchesEnum;
   end;
 
@@ -47,6 +67,9 @@ implementation
 uses
   System.SysUtils, OBD.ECU.Signature, OBD.ECU.Signature.PQC;
 
+//------------------------------------------------------------------------------
+// ENVELOPE ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.EnvelopeRoundTrips;
 var
   Env, Out_: TOBDPQCEnvelope;
@@ -65,6 +88,9 @@ begin
   Assert.AreEqual($05, Integer(Out_.Signature[4]));
 end;
 
+//------------------------------------------------------------------------------
+// ENVELOPE WITH EMPTY KEY ID ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.EnvelopeWithEmptyKeyIdRoundTrips;
 var
   Env, Out_: TOBDPQCEnvelope;
@@ -79,8 +105,12 @@ begin
   Assert.AreEqual(1, Length(Out_.Signature));
 end;
 
+//------------------------------------------------------------------------------
+// ENVELOPE TRUNCATED AT SIG LEN RAISES
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.EnvelopeTruncatedAtSigLenRaises;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   Bytes := TBytes.Create($02, $00, $00, $00, $00); // missing one sig-len byte
   Assert.WillRaise(
@@ -88,8 +118,12 @@ begin
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// ENVELOPE TRUNCATED AT SIGNATURE RAISES
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.EnvelopeTruncatedAtSignatureRaises;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   // alg=2, keylen=0, siglen=4, but only 2 sig bytes follow
   Bytes := TBytes.Create($02, $00, $00, $00, $00, $04, $AA, $BB);
@@ -98,6 +132,9 @@ begin
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// ENVELOPE TOO SHORT RAISES
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.EnvelopeTooShortRaises;
 begin
   Assert.WillRaise(
@@ -105,6 +142,9 @@ begin
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY ALGORITHM MISMATCH RAISES
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.VerifyAlgorithmMismatchRaises;
 var
   V: IFirmwareSignatureVerifier;
@@ -121,6 +161,9 @@ begin
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// VERIFY RAISES NOT AVAILABLE UNTIL BINDING SHIPS
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.VerifyRaisesNotAvailableUntilBindingShips;
 var
   V: IFirmwareSignatureVerifier;
@@ -137,28 +180,39 @@ begin
     EOBDPQCNotAvailable);
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCTOR REJECTS UNKNOWN ALGORITHM
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.ConstructorRejectsUnknownAlgorithm;
 begin
   Assert.WillRaise(
     procedure
-    var V: IFirmwareSignatureVerifier;
+    var
+      V: IFirmwareSignatureVerifier;
     begin
       V := TOBDPQCSignatureVerifier.Create(pqcUnknown, TBytes.Create($01));
     end,
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCTOR REJECTS EMPTY PUBLIC KEY
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.ConstructorRejectsEmptyPublicKey;
 begin
   Assert.WillRaise(
     procedure
-    var V: IFirmwareSignatureVerifier;
+    var
+      V: IFirmwareSignatureVerifier;
     begin
       V := TOBDPQCSignatureVerifier.Create(pqcMlDsa65, nil);
     end,
     EOBDPQCSignature);
 end;
 
+//------------------------------------------------------------------------------
+// ALGORITHM NAME MATCHES ENUM
+//------------------------------------------------------------------------------
 procedure TPQCSignatureTests.AlgorithmNameMatchesEnum;
 begin
   Assert.AreEqual('ML-DSA-65', PQCAlgorithmName(pqcMlDsa65));

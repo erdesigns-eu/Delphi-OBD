@@ -53,6 +53,9 @@ type
     property Error: string read FError;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TFakeGateway.Create(const UdsResponse: TBytes);
 begin
   inherited Create(True);
@@ -61,6 +64,9 @@ begin
   FreeOnTerminate := False;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TFakeGateway.Destroy;
 begin
   FReady.Free;
@@ -72,11 +78,17 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// WAIT READY
+//------------------------------------------------------------------------------
 procedure TFakeGateway.WaitReady(TimeoutMs: Cardinal);
 begin
   FReady.WaitFor(TimeoutMs);
 end;
 
+//------------------------------------------------------------------------------
+// READ EXACT
+//------------------------------------------------------------------------------
 function TFakeGateway.ReadExact(Sock: TSocket; Count: Integer): TBytes;
 var
   Acc, Chunk: TBytes;
@@ -95,6 +107,9 @@ begin
   Result := Acc;
 end;
 
+//------------------------------------------------------------------------------
+// HANDLE CLIENT
+//------------------------------------------------------------------------------
 procedure TFakeGateway.HandleClient(Sock: TSocket);
 var
   Header, Payload: TBytes;
@@ -184,6 +199,9 @@ begin
   Sock.Send(ResponseHeader + DiagResp);
 end;
 
+//------------------------------------------------------------------------------
+// EXECUTE
+//------------------------------------------------------------------------------
 procedure TFakeGateway.Execute;
 var
   ClientSock: TSocket;
@@ -214,6 +232,10 @@ end;
 //==============================================================================
 // Test
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ROUTING ACTIVATION AND DIAGNOSTIC ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TDoIPCrossTests.RoutingActivationAndDiagnosticRoundTrip;
 var
   Gateway: TFakeGateway;

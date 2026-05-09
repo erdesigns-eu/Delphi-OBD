@@ -113,6 +113,9 @@ begin
   Result := Length(FBytes);
 end;
 
+//------------------------------------------------------------------------------
+// GET BYTE
+//------------------------------------------------------------------------------
 function TOBDHondaOptionByte.GetByte(const Index: Integer): Byte;
 begin
   if (Index < 0) or (Index > High(FBytes)) then
@@ -140,6 +143,9 @@ begin
   Result := OBD.OEM.Coding.GetBit(FBytes, ByteIndex, BitIndex);
 end;
 
+//------------------------------------------------------------------------------
+// SET BIT
+//------------------------------------------------------------------------------
 procedure TOBDHondaOptionByte.SetBit(const ByteIndex, BitIndex: Integer;
   const Value: Boolean);
 begin
@@ -154,6 +160,9 @@ begin
   Result := Copy(FBytes);
 end;
 
+//------------------------------------------------------------------------------
+// TO HEX
+//------------------------------------------------------------------------------
 function TOBDHondaOptionByte.ToHex: string;
 begin
   Result := BytesToHexString(FBytes);

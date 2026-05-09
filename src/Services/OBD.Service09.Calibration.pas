@@ -98,6 +98,9 @@ const
   CALID_BLOCK_BYTES = 16;
   CVN_BLOCK_BYTES   = 4;
 
+//------------------------------------------------------------------------------
+// ENCODE CAL IDREQUEST
+//------------------------------------------------------------------------------
 function EncodeCalIDRequest: TBytes;
 begin
   // Allocate Result
@@ -206,6 +209,9 @@ begin
   Result := Format('%.8X', [CVN]);
 end;
 
+//------------------------------------------------------------------------------
+// PAIR CAL IDS AND CVNS
+//------------------------------------------------------------------------------
 function PairCalIDsAndCVNs(const IDs: TArray<TOBDCalibrationID>;
   const VNs: TArray<TOBDCalibrationVerification>): TArray<TOBDCalibrationPair>;
 var

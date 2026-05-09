@@ -21,29 +21,51 @@ type
   [TestFixture]
   TBCryptVerifierTests = class
   public
-    /// <summary>R s a  construct  recognises algorithm.</summary>
+    /// <summary>
+    ///   R s a  construct  recognises algorithm.
+    /// </summary>
     [Test] procedure RSA_Construct_RecognisesAlgorithm;
-    /// <summary>R s a  verify  accepts known good signature.</summary>
+    /// <summary>
+    ///   R s a  verify  accepts known good signature.
+    /// </summary>
     [Test] procedure RSA_Verify_AcceptsKnownGoodSignature;
-    /// <summary>R s a  verify  rejects tampered firmware.</summary>
+    /// <summary>
+    ///   R s a  verify  rejects tampered firmware.
+    /// </summary>
     [Test] procedure RSA_Verify_RejectsTamperedFirmware;
-    /// <summary>R s a  verify  rejects tampered signature.</summary>
+    /// <summary>
+    ///   R s a  verify  rejects tampered signature.
+    /// </summary>
     [Test] procedure RSA_Verify_RejectsTamperedSignature;
-    /// <summary>R s a  verify  rejects empty firmware.</summary>
+    /// <summary>
+    ///   R s a  verify  rejects empty firmware.
+    /// </summary>
     [Test] procedure RSA_Verify_RejectsEmptyFirmware;
-    /// <summary>R s a  verify  rejects empty signature.</summary>
+    /// <summary>
+    ///   R s a  verify  rejects empty signature.
+    /// </summary>
     [Test] procedure RSA_Verify_RejectsEmptySignature;
 
-    /// <summary>E c d s a  construct  recognises algorithm.</summary>
+    /// <summary>
+    ///   E c d s a  construct  recognises algorithm.
+    /// </summary>
     [Test] procedure ECDSA_Construct_RecognisesAlgorithm;
-    /// <summary>E c d s a  verify  accepts known good signature.</summary>
+    /// <summary>
+    ///   E c d s a  verify  accepts known good signature.
+    /// </summary>
     [Test] procedure ECDSA_Verify_AcceptsKnownGoodSignature;
-    /// <summary>E c d s a  verify  rejects tampered firmware.</summary>
+    /// <summary>
+    ///   E c d s a  verify  rejects tampered firmware.
+    /// </summary>
     [Test] procedure ECDSA_Verify_RejectsTamperedFirmware;
 
-    /// <summary>Construct  rejects empty der.</summary>
+    /// <summary>
+    ///   Construct  rejects empty der.
+    /// </summary>
     [Test] procedure Construct_RejectsEmptyDer;
-    /// <summary>Construct  rejects garbage der.</summary>
+    /// <summary>
+    ///   Construct  rejects garbage der.
+    /// </summary>
     [Test] procedure Construct_RejectsGarbageDer;
   end;
 
@@ -55,37 +77,56 @@ uses
 const
 {$I 'fixtures\test-fixtures.inc'}
 
+//------------------------------------------------------------------------------
+// PUB KEY RSA
+//------------------------------------------------------------------------------
 function PubKeyRSA: TBytes;
 begin
   SetLength(Result, TEST_RSA_PUB_DER_LEN);
   Move(TEST_RSA_PUB_DER[0], Result[0], TEST_RSA_PUB_DER_LEN);
 end;
 
+//------------------------------------------------------------------------------
+// PUB KEY EC
+//------------------------------------------------------------------------------
 function PubKeyEC: TBytes;
 begin
   SetLength(Result, TEST_EC_PUB_DER_LEN);
   Move(TEST_EC_PUB_DER[0], Result[0], TEST_EC_PUB_DER_LEN);
 end;
 
+//------------------------------------------------------------------------------
+// SIG RSA
+//------------------------------------------------------------------------------
 function SigRSA: TBytes;
 begin
   SetLength(Result, TEST_RSA_SIG_PKCS1_LEN);
   Move(TEST_RSA_SIG_PKCS1[0], Result[0], TEST_RSA_SIG_PKCS1_LEN);
 end;
 
+//------------------------------------------------------------------------------
+// SIG EC
+//------------------------------------------------------------------------------
 function SigEC: TBytes;
 begin
   SetLength(Result, TEST_EC_SIG_LEN);
   Move(TEST_EC_SIG[0], Result[0], TEST_EC_SIG_LEN);
 end;
 
+//------------------------------------------------------------------------------
+// MESSAGE BYTES
+//------------------------------------------------------------------------------
 function MessageBytes: TBytes;
 begin
   Result := TEncoding.ASCII.GetBytes(TEST_MESSAGE_TEXT);
 end;
 
+//------------------------------------------------------------------------------
+// RSA_CONSTRUCT_RECOGNISES ALGORITHM
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Construct_RecognisesAlgorithm;
-var V: TOBDBCryptVerifier;
+var
+  V: TOBDBCryptVerifier;
 begin
   V := TOBDBCryptVerifier.Create(PubKeyRSA);
   try
@@ -96,8 +137,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RSA_VERIFY_ACCEPTS KNOWN GOOD SIGNATURE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Verify_AcceptsKnownGoodSignature;
-var V: TOBDBCryptVerifier;
+var
+  V: TOBDBCryptVerifier;
 begin
   V := TOBDBCryptVerifier.Create(PubKeyRSA);
   try
@@ -108,6 +153,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RSA_VERIFY_REJECTS TAMPERED FIRMWARE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Verify_RejectsTamperedFirmware;
 var
   V: TOBDBCryptVerifier;
@@ -123,6 +171,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RSA_VERIFY_REJECTS TAMPERED SIGNATURE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Verify_RejectsTamperedSignature;
 var
   V: TOBDBCryptVerifier;
@@ -139,6 +190,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RSA_VERIFY_REJECTS EMPTY FIRMWARE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Verify_RejectsEmptyFirmware;
 var V: TOBDBCryptVerifier; Empty: TBytes;
 begin
@@ -151,6 +205,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RSA_VERIFY_REJECTS EMPTY SIGNATURE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.RSA_Verify_RejectsEmptySignature;
 var V: TOBDBCryptVerifier; Empty: TBytes;
 begin
@@ -163,8 +220,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ECDSA_CONSTRUCT_RECOGNISES ALGORITHM
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.ECDSA_Construct_RecognisesAlgorithm;
-var V: TOBDBCryptVerifier;
+var
+  V: TOBDBCryptVerifier;
 begin
   V := TOBDBCryptVerifier.Create(PubKeyEC);
   try
@@ -175,8 +236,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ECDSA_VERIFY_ACCEPTS KNOWN GOOD SIGNATURE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.ECDSA_Verify_AcceptsKnownGoodSignature;
-var V: TOBDBCryptVerifier;
+var
+  V: TOBDBCryptVerifier;
 begin
   V := TOBDBCryptVerifier.Create(PubKeyEC);
   try
@@ -187,6 +252,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// ECDSA_VERIFY_REJECTS TAMPERED FIRMWARE
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.ECDSA_Verify_RejectsTamperedFirmware;
 var
   V: TOBDBCryptVerifier;
@@ -201,8 +269,12 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCT_REJECTS EMPTY DER
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.Construct_RejectsEmptyDer;
-var Empty: TBytes;
+var
+  Empty: TBytes;
 begin
   SetLength(Empty, 0);
   Assert.WillRaise(
@@ -210,8 +282,12 @@ begin
     EOBDBCryptError);
 end;
 
+//------------------------------------------------------------------------------
+// CONSTRUCT_REJECTS GARBAGE DER
+//------------------------------------------------------------------------------
 procedure TBCryptVerifierTests.Construct_RejectsGarbageDer;
-var Garbage: TBytes;
+var
+  Garbage: TBytes;
 begin
   Garbage := TBytes.Create($AA, $BB, $CC, $DD, $EE, $FF);
   Assert.WillRaise(

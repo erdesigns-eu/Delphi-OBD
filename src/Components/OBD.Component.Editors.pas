@@ -88,6 +88,9 @@ begin
   Result := inherited GetAttributes + [paValueList, paSortList, paMultiSelect];
 end;
 
+//------------------------------------------------------------------------------
+// GET VALUES
+//------------------------------------------------------------------------------
 procedure TOBDConnectionComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
@@ -103,6 +106,9 @@ begin
   Result := inherited GetAttributes + [paValueList, paSortList, paMultiSelect];
 end;
 
+//------------------------------------------------------------------------------
+// GET VALUES
+//------------------------------------------------------------------------------
 procedure TOBDProtocolComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then
@@ -118,6 +124,9 @@ begin
   Result := inherited GetAttributes + [paValueList, paSortList, paMultiSelect];
 end;
 
+//------------------------------------------------------------------------------
+// GET VALUES
+//------------------------------------------------------------------------------
 procedure TOBDGaugeComponentProperty.GetValues(Proc: TGetStrProc);
 begin
   if not Assigned(Designer) then

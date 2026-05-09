@@ -17,19 +17,33 @@ type
   [TestFixture]
   TUdsClientAsyncTests = class
   public
-    /// <summary>Read d i d async  await returns decoded value.</summary>
+    /// <summary>
+    ///   Read d i d async  await returns decoded value.
+    /// </summary>
     [Test] procedure ReadDIDAsync_AwaitReturnsDecodedValue;
-    /// <summary>Read d i d async  on complete fires.</summary>
+    /// <summary>
+    ///   Read d i d async  on complete fires.
+    /// </summary>
     [Test] procedure ReadDIDAsync_OnCompleteFires;
-    /// <summary>Read d i d async  pre cancelled token settles cancelled.</summary>
+    /// <summary>
+    ///   Read d i d async  pre cancelled token settles cancelled.
+    /// </summary>
     [Test] procedure ReadDIDAsync_PreCancelledTokenSettlesCancelled;
-    /// <summary>Close session  drains pending futures as cancelled.</summary>
+    /// <summary>
+    ///   Close session  drains pending futures as cancelled.
+    /// </summary>
     [Test] procedure CloseSession_DrainsPendingFuturesAsCancelled;
-    /// <summary>Read d i d async  propagates exception through await.</summary>
+    /// <summary>
+    ///   Read d i d async  propagates exception through await.
+    /// </summary>
     [Test] procedure ReadDIDAsync_PropagatesExceptionThroughAwait;
-    /// <summary>Write adaptation async  await returns true.</summary>
+    /// <summary>
+    ///   Write adaptation async  await returns true.
+    /// </summary>
     [Test] procedure WriteAdaptationAsync_AwaitReturnsTrue;
-    /// <summary>Serial ordering  two calls complete in queue order.</summary>
+    /// <summary>
+    ///   Serial ordering  two calls complete in queue order.
+    /// </summary>
     [Test] procedure SerialOrdering_TwoCallsCompleteInQueueOrder;
   end;
 
@@ -68,6 +82,9 @@ type
     function  TargetECU: Word;
   end;
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TStallMock.Create;
 begin
   inherited;
@@ -77,6 +94,9 @@ begin
   FLock := TCriticalSection.Create;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TStallMock.Destroy;
 begin
   FGate.Free;
@@ -86,35 +106,53 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// ENQUEUE RESPONSE
+//------------------------------------------------------------------------------
 procedure TStallMock.EnqueueResponse(const Bytes: TBytes);
 begin
   FLock.Enter;
   try FQueue.Add(Bytes); finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// STALL NEXT REQUEST
+//------------------------------------------------------------------------------
 procedure TStallMock.StallNextRequest;
 begin
   FStall := True;
   FGate.ResetEvent;
 end;
 
+//------------------------------------------------------------------------------
+// RELEASE STALL
+//------------------------------------------------------------------------------
 procedure TStallMock.ReleaseStall;
 begin
   FStall := False;
   FGate.SetEvent;
 end;
 
+//------------------------------------------------------------------------------
+// FAIL NEXT REQUEST
+//------------------------------------------------------------------------------
 procedure TStallMock.FailNextRequest;
 begin
   FFailNext := True;
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST COUNT
+//------------------------------------------------------------------------------
 function TStallMock.RequestCount: Integer;
 begin
   FLock.Enter;
   try Result := FRequests.Count; finally FLock.Leave; end;
 end;
 
+//------------------------------------------------------------------------------
+// SEND RECEIVE
+//------------------------------------------------------------------------------
 function TStallMock.SendReceive(const Request: TBytes;
   TimeoutMs: Cardinal): TBytes;
 var
@@ -143,11 +181,21 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET TARGET ECU
+//------------------------------------------------------------------------------
 procedure TStallMock.SetTargetECU(Address: Word);
-begin FECU := Address; end;
+begin
+  FECU := Address;
+end;
 
+//------------------------------------------------------------------------------
+// TARGET ECU
+//------------------------------------------------------------------------------
 function TStallMock.TargetECU: Word;
-begin Result := FECU; end;
+begin
+  Result := FECU;
+end;
 
 //==============================================================================
 // Catalog fixture
@@ -168,11 +216,17 @@ const
     '    "kind": "uint16_be", "min": 600, "max": 1500, "default": 800, "unit": "rpm"}' +
     ' ]}';
 
+//------------------------------------------------------------------------------
+// MAKE ASYNC CATALOG
+//------------------------------------------------------------------------------
 function MakeAsyncCatalog: TOBDOEMJSONCatalog;
 begin
   Result := TOBDOEMJSONCatalog.CreateFromText(ASYNC_CATALOG);
 end;
 
+//------------------------------------------------------------------------------
+// NEW STALL MOCK
+//------------------------------------------------------------------------------
 procedure NewStallMock(out Mock: TStallMock;
                        out ITransport: IOBDDiagnosticTransport);
 begin
@@ -183,6 +237,10 @@ end;
 //==============================================================================
 // Tests
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// READ DIDASYNC_AWAIT RETURNS DECODED VALUE
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.ReadDIDAsync_AwaitReturnsDecodedValue;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -214,6 +272,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DIDASYNC_ON COMPLETE FIRES
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.ReadDIDAsync_OnCompleteFires;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -248,6 +309,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DIDASYNC_PRE CANCELLED TOKEN SETTLES CANCELLED
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.ReadDIDAsync_PreCancelledTokenSettlesCancelled;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -292,6 +356,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// CLOSE SESSION_DRAINS PENDING FUTURES AS CANCELLED
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.CloseSession_DrainsPendingFuturesAsCancelled;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -328,6 +395,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// READ DIDASYNC_PROPAGATES EXCEPTION THROUGH AWAIT
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.ReadDIDAsync_PropagatesExceptionThroughAwait;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -356,6 +426,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// WRITE ADAPTATION ASYNC_AWAIT RETURNS TRUE
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.WriteAdaptationAsync_AwaitReturnsTrue;
 var
   Cat: TOBDOEMJSONCatalog;
@@ -382,6 +455,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SERIAL ORDERING_TWO CALLS COMPLETE IN QUEUE ORDER
+//------------------------------------------------------------------------------
 procedure TUdsClientAsyncTests.SerialOrdering_TwoCallsCompleteInQueueOrder;
 var
   Cat: TOBDOEMJSONCatalog;

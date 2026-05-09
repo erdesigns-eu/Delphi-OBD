@@ -137,7 +137,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing

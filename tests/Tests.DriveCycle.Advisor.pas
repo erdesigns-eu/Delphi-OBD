@@ -20,19 +20,33 @@ type
   [TestFixture]
   TDriveCycleAdvisorTests = class
   public
-    /// <summary>Empty readiness produces no steps.</summary>
+    /// <summary>
+    ///   Empty readiness produces no steps.
+    /// </summary>
     [Test] procedure EmptyReadinessProducesNoSteps;
-    /// <summary>Complete readiness produces no steps.</summary>
+    /// <summary>
+    ///   Complete readiness produces no steps.
+    /// </summary>
     [Test] procedure CompleteReadinessProducesNoSteps;
-    /// <summary>Pending catalyst produces generic step.</summary>
+    /// <summary>
+    ///   Pending catalyst produces generic step.
+    /// </summary>
     [Test] procedure PendingCatalystProducesGenericStep;
-    /// <summary>Generic step has non empty description.</summary>
+    /// <summary>
+    ///   Generic step has non empty description.
+    /// </summary>
     [Test] procedure GenericStepHasNonEmptyDescription;
-    /// <summary>Custom resolver overrides generic.</summary>
+    /// <summary>
+    ///   Custom resolver overrides generic.
+    /// </summary>
     [Test] procedure CustomResolverOverridesGeneric;
-    /// <summary>Custom resolver empty description falls back to generic.</summary>
+    /// <summary>
+    ///   Custom resolver empty description falls back to generic.
+    /// </summary>
     [Test] procedure CustomResolverEmptyDescriptionFallsBackToGeneric;
-    /// <summary>Diesel monitors produce diesel steps.</summary>
+    /// <summary>
+    ///   Diesel monitors produce diesel steps.
+    /// </summary>
     [Test] procedure DieselMonitorsProduceDieselSteps;
   end;
 
@@ -43,6 +57,9 @@ uses
   OBD.Protocol.WWHOBD.Readiness,
   OBD.DriveCycle.Advisor;
 
+//------------------------------------------------------------------------------
+// EMPTY READINESS PRODUCES NO STEPS
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.EmptyReadinessProducesNoSteps;
 var
   R: TWWHOBDReadinessSet;
@@ -53,6 +70,9 @@ begin
   Assert.AreEqual(0, Length(Steps));
 end;
 
+//------------------------------------------------------------------------------
+// COMPLETE READINESS PRODUCES NO STEPS
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.CompleteReadinessProducesNoSteps;
 var
   R: TWWHOBDReadinessSet;
@@ -65,6 +85,9 @@ begin
   Assert.AreEqual(0, Length(Steps));
 end;
 
+//------------------------------------------------------------------------------
+// PENDING CATALYST PRODUCES GENERIC STEP
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.PendingCatalystProducesGenericStep;
 var
   R: TWWHOBDReadinessSet;
@@ -79,6 +102,9 @@ begin
   Assert.IsNotEmpty(Steps[0].Description);
 end;
 
+//------------------------------------------------------------------------------
+// GENERIC STEP HAS NON EMPTY DESCRIPTION
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.GenericStepHasNonEmptyDescription;
 var
   Step: TDriveCycleStep;
@@ -88,6 +114,9 @@ begin
   Assert.IsTrue(Step.DurationSeconds > 0);
 end;
 
+//------------------------------------------------------------------------------
+// CUSTOM RESOLVER OVERRIDES GENERIC
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.CustomResolverOverridesGeneric;
 var
   R: TWWHOBDReadinessSet;
@@ -109,6 +138,9 @@ begin
   Assert.AreEqual(42, Steps[0].DurationSeconds);
 end;
 
+//------------------------------------------------------------------------------
+// CUSTOM RESOLVER EMPTY DESCRIPTION FALLS BACK TO GENERIC
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.CustomResolverEmptyDescriptionFallsBackToGeneric;
 var
   R: TWWHOBDReadinessSet;
@@ -130,6 +162,9 @@ begin
     'Should have fallen back to the generic Misfire description');
 end;
 
+//------------------------------------------------------------------------------
+// DIESEL MONITORS PRODUCE DIESEL STEPS
+//------------------------------------------------------------------------------
 procedure TDriveCycleAdvisorTests.DieselMonitorsProduceDieselSteps;
 var
   R: TWWHOBDReadinessSet;

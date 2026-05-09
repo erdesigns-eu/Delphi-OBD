@@ -24,10 +24,14 @@ type
   TOBDGoldenVector = record
     DID: Word;
     Payload: TBytes;
-    /// <summary>Substring the decoder's output must contain. Empty
-    /// means "any non-empty output passes".</summary>
+    /// <summary>
+    ///   Substring the decoder's output must contain. Empty
+    ///   means "any non-empty output passes".
+    /// </summary>
     ExpectedSubstring: string;
-    /// <summary>Free-text label for failure messages.</summary>
+    /// <summary>
+    ///   Free-text label for failure messages.
+    /// </summary>
     Description: string;
   end;
 
@@ -37,12 +41,16 @@ type
     Reason: string;
   end;
 
-/// <summary>Build a vector inline.</summary>
+/// <summary>
+///   Build a vector inline.
+/// </summary>
 function GoldenVector(const DID: Word; const Payload: TBytes;
   const ExpectedSubstring, Description: string): TOBDGoldenVector;
 
-/// <summary>Run every vector through <c>Ext.DecodeDID</c>. Returns
-/// the failures list — empty when every vector passed.</summary>
+/// <summary>
+///   Run every vector through <c>Ext.DecodeDID</c>. Returns
+///   the failures list — empty when every vector passed.
+/// </summary>
 function CheckGoldenVectors(const Ext: IOBDOEMExtension;
   const Vectors: TArray<TOBDGoldenVector>): TArray<TOBDGoldenFailure>;
 
@@ -51,6 +59,9 @@ implementation
 uses
   System.Generics.Collections;
 
+//------------------------------------------------------------------------------
+// GOLDEN VECTOR
+//------------------------------------------------------------------------------
 function GoldenVector(const DID: Word; const Payload: TBytes;
   const ExpectedSubstring, Description: string): TOBDGoldenVector;
 begin
@@ -60,6 +71,9 @@ begin
   Result.Description := Description;
 end;
 
+//------------------------------------------------------------------------------
+// CHECK GOLDEN VECTORS
+//------------------------------------------------------------------------------
 function CheckGoldenVectors(const Ext: IOBDOEMExtension;
   const Vectors: TArray<TOBDGoldenVector>): TArray<TOBDGoldenFailure>;
 var

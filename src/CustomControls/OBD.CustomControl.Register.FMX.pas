@@ -29,6 +29,9 @@ uses
   OBD.DtcList.FMX, OBD.Terminal.FMX, OBD.Knob.FMX,
   OBD.SegmentedSwitch.FMX, OBD.LED.FMX;
 
+//------------------------------------------------------------------------------
+// REGISTER
+//------------------------------------------------------------------------------
 procedure Register;
 begin
   RegisterComponents(ComponentPage, [

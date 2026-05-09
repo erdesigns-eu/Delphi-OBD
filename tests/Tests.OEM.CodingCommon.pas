@@ -15,53 +15,91 @@ type
   [TestFixture]
   TCodingRegistryTests = class
   public
-    /// <summary>Name matches kind is case insensitive.</summary>
+    /// <summary>
+    ///   Name matches kind is case insensitive.
+    /// </summary>
     [Test] procedure NameMatchesKindIsCaseInsensitive;
-    /// <summary>Classify vehicle order tokens.</summary>
+    /// <summary>
+    ///   Classify vehicle order tokens.
+    /// </summary>
     [Test] procedure ClassifyVehicleOrderTokens;
-    /// <summary>Classify as built code tokens.</summary>
+    /// <summary>
+    ///   Classify as built code tokens.
+    /// </summary>
     [Test] procedure ClassifyAsBuiltCodeTokens;
-    /// <summary>Classify fca proxi tokens.</summary>
+    /// <summary>
+    ///   Classify fca proxi tokens.
+    /// </summary>
     [Test] procedure ClassifyFcaProxiTokens;
-    /// <summary>Classify market region tokens.</summary>
+    /// <summary>
+    ///   Classify market region tokens.
+    /// </summary>
     [Test] procedure ClassifyMarketRegionTokens;
-    /// <summary>Classify starlight tokens.</summary>
+    /// <summary>
+    ///   Classify starlight tokens.
+    /// </summary>
     [Test] procedure ClassifyStarlightTokens;
-    /// <summary>Classify unknown returns cf unknown.</summary>
+    /// <summary>
+    ///   Classify unknown returns cf unknown.
+    /// </summary>
     [Test] procedure ClassifyUnknownReturnsCfUnknown;
   end;
 
   [TestFixture]
   TCodingLookupTests = class
   public
-    /// <summary>Rolls royce resolves vehicle order.</summary>
+    /// <summary>
+    ///   Rolls royce resolves vehicle order.
+    /// </summary>
     [Test] procedure RollsRoyceResolvesVehicleOrder;
-    /// <summary>Rolls royce resolves starlight pattern.</summary>
+    /// <summary>
+    ///   Rolls royce resolves starlight pattern.
+    /// </summary>
     [Test] procedure RollsRoyceResolvesStarlightPattern;
-    /// <summary>Mazda resolves as built code.</summary>
+    /// <summary>
+    ///   Mazda resolves as built code.
+    /// </summary>
     [Test] procedure MazdaResolvesAsBuiltCode;
-    /// <summary>Mazda resolves market region.</summary>
+    /// <summary>
+    ///   Mazda resolves market region.
+    /// </summary>
     [Test] procedure MazdaResolvesMarketRegion;
-    /// <summary>Unsupported kind returns false.</summary>
+    /// <summary>
+    ///   Unsupported kind returns false.
+    /// </summary>
     [Test] procedure UnsupportedKindReturnsFalse;
-    /// <summary>Nil extension returns false.</summary>
+    /// <summary>
+    ///   Nil extension returns false.
+    /// </summary>
     [Test] procedure NilExtensionReturnsFalse;
   end;
 
   [TestFixture]
   TCodingFrameTests = class
   public
-    /// <summary>Write data by identifier wraps sid and d i d.</summary>
+    /// <summary>
+    ///   Write data by identifier wraps sid and d i d.
+    /// </summary>
     [Test] procedure WriteDataByIdentifierWrapsSidAndDID;
-    /// <summary>Write data by identifier appends payload.</summary>
+    /// <summary>
+    ///   Write data by identifier appends payload.
+    /// </summary>
     [Test] procedure WriteDataByIdentifierAppendsPayload;
-    /// <summary>Parse accepts positive response.</summary>
+    /// <summary>
+    ///   Parse accepts positive response.
+    /// </summary>
     [Test] procedure ParseAcceptsPositiveResponse;
-    /// <summary>Parse rejects wrong sid.</summary>
+    /// <summary>
+    ///   Parse rejects wrong sid.
+    /// </summary>
     [Test] procedure ParseRejectsWrongSid;
-    /// <summary>Parse rejects wrong d i d.</summary>
+    /// <summary>
+    ///   Parse rejects wrong d i d.
+    /// </summary>
     [Test] procedure ParseRejectsWrongDID;
-    /// <summary>Kind name produces human label.</summary>
+    /// <summary>
+    ///   Kind name produces human label.
+    /// </summary>
     [Test] procedure KindNameProducesHumanLabel;
   end;
 
@@ -72,6 +110,9 @@ uses
   OBD.OEM, OBD.OEM.Coding.Common,
   OBD.OEM.RollsRoyce, OBD.OEM.Mazda;
 
+//------------------------------------------------------------------------------
+// NAME MATCHES KIND IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.NameMatchesKindIsCaseInsensitive;
 begin
   Assert.IsTrue(TOBDCodingFunctionRegistry.NameMatchesKind(
@@ -80,6 +121,9 @@ begin
     'Fa_Assembly', cfVehicleOrder));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY VEHICLE ORDER TOKENS
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyVehicleOrderTokens;
 begin
   Assert.AreEqual(Ord(cfVehicleOrder), Ord(
@@ -90,6 +134,9 @@ begin
     TOBDCodingFunctionRegistry.ClassifyName('vehicle_order')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY AS BUILT CODE TOKENS
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyAsBuiltCodeTokens;
 begin
   Assert.AreEqual(Ord(cfAsBuiltCode), Ord(
@@ -98,12 +145,18 @@ begin
     TOBDCodingFunctionRegistry.ClassifyName('ford_as_built_block')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY FCA PROXI TOKENS
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyFcaProxiTokens;
 begin
   Assert.AreEqual(Ord(cfFcaProxi), Ord(
     TOBDCodingFunctionRegistry.ClassifyName('witech_proxi_align')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY MARKET REGION TOKENS
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyMarketRegionTokens;
 begin
   Assert.AreEqual(Ord(cfMarketRegion), Ord(
@@ -112,12 +165,18 @@ begin
     TOBDCodingFunctionRegistry.ClassifyName('subaru_market_code')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY STARLIGHT TOKENS
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyStarlightTokens;
 begin
   Assert.AreEqual(Ord(cfStarlightPattern), Ord(
     TOBDCodingFunctionRegistry.ClassifyName('rr_starlight_pattern')));
 end;
 
+//------------------------------------------------------------------------------
+// CLASSIFY UNKNOWN RETURNS CF UNKNOWN
+//------------------------------------------------------------------------------
 procedure TCodingRegistryTests.ClassifyUnknownReturnsCfUnknown;
 begin
   Assert.AreEqual(Ord(cfUnknown), Ord(
@@ -129,6 +188,10 @@ end;
 //==============================================================================
 // Lookup against shipped OEM catalogs
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ROLLS ROYCE RESOLVES VEHICLE ORDER
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.RollsRoyceResolvesVehicleOrder;
 var
   Ext: IOBDOEMExtension;
@@ -140,6 +203,9 @@ begin
   Assert.AreEqual('fa_assembly', Func.DidName);
 end;
 
+//------------------------------------------------------------------------------
+// ROLLS ROYCE RESOLVES STARLIGHT PATTERN
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.RollsRoyceResolvesStarlightPattern;
 var
   Ext: IOBDOEMExtension;
@@ -150,6 +216,9 @@ begin
   Assert.AreEqual('rr_starlight_pattern', Func.DidName);
 end;
 
+//------------------------------------------------------------------------------
+// MAZDA RESOLVES AS BUILT CODE
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.MazdaResolvesAsBuiltCode;
 var
   Ext: IOBDOEMExtension;
@@ -160,6 +229,9 @@ begin
   Assert.AreEqual('mazda_as_built_code', Func.DidName);
 end;
 
+//------------------------------------------------------------------------------
+// MAZDA RESOLVES MARKET REGION
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.MazdaResolvesMarketRegion;
 var
   Ext: IOBDOEMExtension;
@@ -170,6 +242,9 @@ begin
   Assert.AreEqual('mazda_market_code', Func.DidName);
 end;
 
+//------------------------------------------------------------------------------
+// UNSUPPORTED KIND RETURNS FALSE
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.UnsupportedKindReturnsFalse;
 var
   Ext: IOBDOEMExtension;
@@ -181,6 +256,9 @@ begin
   Assert.AreEqual(Ord(cfUnknown), Ord(Func.Kind));
 end;
 
+//------------------------------------------------------------------------------
+// NIL EXTENSION RETURNS FALSE
+//------------------------------------------------------------------------------
 procedure TCodingLookupTests.NilExtensionReturnsFalse;
 var
   Func: TOBDCodingFunction;
@@ -191,6 +269,10 @@ end;
 //==============================================================================
 // Frame builder + display labels
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// WRITE DATA BY IDENTIFIER WRAPS SID AND DID
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.WriteDataByIdentifierWrapsSidAndDID;
 var
   Frame: TBytes;
@@ -202,6 +284,9 @@ begin
   Assert.AreEqual($A2, Integer(Frame[2]), 'DID lo byte');
 end;
 
+//------------------------------------------------------------------------------
+// WRITE DATA BY IDENTIFIER APPENDS PAYLOAD
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.WriteDataByIdentifierAppendsPayload;
 var
   Frame, Data: TBytes;
@@ -215,6 +300,9 @@ begin
   Assert.AreEqual($DD, Integer(Frame[6]));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE ACCEPTS POSITIVE RESPONSE
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.ParseAcceptsPositiveResponse;
 var
   Resp: TBytes;
@@ -224,6 +312,9 @@ begin
   Assert.IsTrue(ParseCodingResponse(Resp, $F1A2));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG SID
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.ParseRejectsWrongSid;
 var
   Resp: TBytes;
@@ -232,6 +323,9 @@ begin
   Assert.IsFalse(ParseCodingResponse(Resp, $F1A2));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG DID
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.ParseRejectsWrongDID;
 var
   Resp: TBytes;
@@ -240,6 +334,9 @@ begin
   Assert.IsFalse(ParseCodingResponse(Resp, $F1A2));
 end;
 
+//------------------------------------------------------------------------------
+// KIND NAME PRODUCES HUMAN LABEL
+//------------------------------------------------------------------------------
 procedure TCodingFrameTests.KindNameProducesHumanLabel;
 begin
   Assert.AreEqual('Vehicle Order / FA / Commission',

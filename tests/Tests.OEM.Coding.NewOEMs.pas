@@ -20,21 +20,37 @@ type
   [TestFixture]
   TNewOEMCodingTests = class
   public
-    /// <summary>Toyota  hex round trip.</summary>
+    /// <summary>
+    ///   Toyota  hex round trip.
+    /// </summary>
     [Test] procedure Toyota_HexRoundTrip;
-    /// <summary>Toyota  bit flip persists.</summary>
+    /// <summary>
+    ///   Toyota  bit flip persists.
+    /// </summary>
     [Test] procedure Toyota_BitFlipPersists;
-    /// <summary>Honda  hex round trip.</summary>
+    /// <summary>
+    ///   Honda  hex round trip.
+    /// </summary>
     [Test] procedure Honda_HexRoundTrip;
-    /// <summary>H m g  out of range byte raises.</summary>
+    /// <summary>
+    ///   H m g  out of range byte raises.
+    /// </summary>
     [Test] procedure HMG_OutOfRangeByteRaises;
-    /// <summary>Stellantis  bit and byte access.</summary>
+    /// <summary>
+    ///   Stellantis  bit and byte access.
+    /// </summary>
     [Test] procedure Stellantis_BitAndByteAccess;
-    /// <summary>Stellantis  compute checksum raises for gap.</summary>
+    /// <summary>
+    ///   Stellantis  compute checksum raises for gap.
+    /// </summary>
     [Test] procedure Stellantis_ComputeChecksumRaisesForGap;
-    /// <summary>Stellantis  set checksum writes two bytes.</summary>
+    /// <summary>
+    ///   Stellantis  set checksum writes two bytes.
+    /// </summary>
     [Test] procedure Stellantis_SetChecksumWritesTwoBytes;
-    /// <summary>Zero length construction raises.</summary>
+    /// <summary>
+    ///   Zero length construction raises.
+    /// </summary>
     [Test] procedure ZeroLengthConstructionRaises;
   end;
 
@@ -48,8 +64,12 @@ uses
   OBD.OEM.Coding.HMG,
   OBD.OEM.Coding.Stellantis;
 
+//------------------------------------------------------------------------------
+// TOYOTA_HEX ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Toyota_HexRoundTrip;
-var C: TOBDToyotaCustomize;
+var
+  C: TOBDToyotaCustomize;
 begin
   C := TOBDToyotaCustomize.CreateFromHex('0102030405');
   try
@@ -58,8 +78,12 @@ begin
   finally C.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// TOYOTA_BIT FLIP PERSISTS
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Toyota_BitFlipPersists;
-var C: TOBDToyotaCustomize;
+var
+  C: TOBDToyotaCustomize;
 begin
   C := TOBDToyotaCustomize.Create(1);
   try
@@ -70,8 +94,12 @@ begin
   finally C.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// HONDA_HEX ROUND TRIP
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Honda_HexRoundTrip;
-var H: TOBDHondaOptionByte;
+var
+  H: TOBDHondaOptionByte;
 begin
   H := TOBDHondaOptionByte.CreateFromHex('AABBCC');
   try
@@ -80,8 +108,12 @@ begin
   finally H.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// HMG_OUT OF RANGE BYTE RAISES
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.HMG_OutOfRangeByteRaises;
-var V: TOBDHMGVariantCoding;
+var
+  V: TOBDHMGVariantCoding;
 begin
   V := TOBDHMGVariantCoding.Create(2);
   try
@@ -91,8 +123,12 @@ begin
   finally V.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS_BIT AND BYTE ACCESS
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Stellantis_BitAndByteAccess;
-var P: TOBDStellantisProxi;
+var
+  P: TOBDStellantisProxi;
 begin
   P := TOBDStellantisProxi.Create(4);
   try
@@ -102,8 +138,12 @@ begin
   finally P.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS_COMPUTE CHECKSUM RAISES FOR GAP
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Stellantis_ComputeChecksumRaisesForGap;
-var P: TOBDStellantisProxi;
+var
+  P: TOBDStellantisProxi;
 begin
   P := TOBDStellantisProxi.Create(4);
   try
@@ -113,8 +153,12 @@ begin
   finally P.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// STELLANTIS_SET CHECKSUM WRITES TWO BYTES
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.Stellantis_SetChecksumWritesTwoBytes;
-var P: TOBDStellantisProxi;
+var
+  P: TOBDStellantisProxi;
 begin
   P := TOBDStellantisProxi.Create(4);
   try
@@ -124,11 +168,15 @@ begin
   finally P.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// ZERO LENGTH CONSTRUCTION RAISES
+//------------------------------------------------------------------------------
 procedure TNewOEMCodingTests.ZeroLengthConstructionRaises;
 begin
   Assert.WillRaise(
     procedure
-    var C: TOBDToyotaCustomize;
+    var
+      C: TOBDToyotaCustomize;
     begin C := TOBDToyotaCustomize.Create(0); C.Free; end,
     EOBDCodingError);
 end;

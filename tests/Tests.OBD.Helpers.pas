@@ -52,6 +52,10 @@ uses
 //==============================================================================
 // Readiness monitor
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// DECODES ALL ZEROS CLEANLY
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesAllZerosCleanly;
 var
   Report: TOBDReadinessReport;
@@ -64,6 +68,9 @@ begin
   Assert.AreEqual(11, Length(Report.Monitors));
 end;
 
+//------------------------------------------------------------------------------
+// DECODES MILON AND DTC COUNT
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesMILOnAndDtcCount;
 var
   Report: TOBDReadinessReport;
@@ -74,6 +81,9 @@ begin
   Assert.AreEqual(Byte(5), Report.DtcCount);
 end;
 
+//------------------------------------------------------------------------------
+// DECODES CONTINUOUS MONITOR READY
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesContinuousMonitorReady;
 var
   Report: TOBDReadinessReport;
@@ -90,6 +100,9 @@ begin
   Assert.Fail('misfire monitor missing from report');
 end;
 
+//------------------------------------------------------------------------------
+// DECODES CONTINUOUS MONITOR NOT READY
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesContinuousMonitorNotReady;
 var
   Report: TOBDReadinessReport;
@@ -105,6 +118,9 @@ begin
     end;
 end;
 
+//------------------------------------------------------------------------------
+// DECODES GASOLINE NON CONTINUOUS READY
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesGasolineNonContinuousReady;
 var
   Report: TOBDReadinessReport;
@@ -124,6 +140,9 @@ begin
   Assert.IsTrue(HasCatalyst, 'catalyst monitor should appear for SI engines');
 end;
 
+//------------------------------------------------------------------------------
+// DECODES DIESEL FLAG AND MONITORS
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.DecodesDieselFlagAndMonitors;
 var
   Report: TOBDReadinessReport;
@@ -147,6 +166,9 @@ begin
     'diesel report must NOT include the SI catalyst monitor');
 end;
 
+//------------------------------------------------------------------------------
+// REJECTS TOO SHORT
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.RejectsTooShort;
 begin
   Assert.WillRaise(
@@ -154,6 +176,9 @@ begin
     EOBDReadinessError);
 end;
 
+//------------------------------------------------------------------------------
+// SUMMARY FORMATS CORRECTLY
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.SummaryFormatsCorrectly;
 var
   Report: TOBDReadinessReport;
@@ -167,6 +192,9 @@ begin
   Assert.IsTrue(Pos('spark-ignition', Summary) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MONITOR KIND NAMES ARE CANONICAL
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.MonitorKindNamesAreCanonical;
 begin
   Assert.AreEqual('misfire',           MonitorKindName(monMisfire));
@@ -175,6 +203,9 @@ begin
   Assert.AreEqual('pm_filter',         MonitorKindName(monPMFilter));
 end;
 
+//------------------------------------------------------------------------------
+// MONITOR STATE NAMES ARE CANONICAL
+//------------------------------------------------------------------------------
 procedure TReadinessMonitorTests.MonitorStateNamesAreCanonical;
 begin
   Assert.AreEqual('not_supported', MonitorStateName(msNotSupported));
@@ -185,6 +216,10 @@ end;
 //==============================================================================
 // Freeze frame
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BUILD REQUEST ENCODES PID AND FRAME
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.BuildRequestEncodesPidAndFrame;
 var
   Req: TBytes;
@@ -196,6 +231,9 @@ begin
   Assert.AreEqual(Byte($00), Req[2]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE POSITIVE RESPONSE
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.ParsePositiveResponse;
 var
   Entry: TOBDFreezeFrameEntry;
@@ -209,6 +247,9 @@ begin
   Assert.AreEqual(Byte($F8), Entry.Payload[1]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS TOO SHORT
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.ParseRejectsTooShort;
 begin
   Assert.WillRaise(
@@ -218,6 +259,9 @@ begin
     EOBDFreezeFrameError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG SID
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.ParseRejectsWrongSID;
 begin
   Assert.WillRaise(
@@ -227,6 +271,9 @@ begin
     EOBDFreezeFrameError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE REJECTS WRONG PID
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.ParseRejectsWrongPID;
 begin
   Assert.WillRaise(
@@ -236,6 +283,9 @@ begin
     EOBDFreezeFrameError);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HANDLES NEGATIVE NRC
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.ParseHandlesNegativeNRC;
 begin
   Assert.WillRaise(
@@ -245,6 +295,9 @@ begin
     EOBDFreezeFrameError);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT TRIGGER DTC ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TFreezeFrameTests.FormatTriggerDtcRoundTrips;
 begin
   // 0x03 0x01 → P0301 (cylinder 1 misfire).

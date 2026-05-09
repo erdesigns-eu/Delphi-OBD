@@ -20,29 +20,53 @@ type
   [TestFixture]
   TCalibrationTests = class
   public
-    /// <summary>Cal i d request is two bytes.</summary>
+    /// <summary>
+    ///   Cal i d request is two bytes.
+    /// </summary>
     [Test] procedure CalIDRequestIsTwoBytes;
-    /// <summary>C v n request is two bytes.</summary>
+    /// <summary>
+    ///   C v n request is two bytes.
+    /// </summary>
     [Test] procedure CVNRequestIsTwoBytes;
-    /// <summary>Decode cal i d strips trailing nulls.</summary>
+    /// <summary>
+    ///   Decode cal i d strips trailing nulls.
+    /// </summary>
     [Test] procedure DecodeCalIDStripsTrailingNulls;
-    /// <summary>Decode multi block cal i ds.</summary>
+    /// <summary>
+    ///   Decode multi block cal i ds.
+    /// </summary>
     [Test] procedure DecodeMultiBlockCalIDs;
-    /// <summary>Decode cal i d rejects bad service id.</summary>
+    /// <summary>
+    ///   Decode cal i d rejects bad service id.
+    /// </summary>
     [Test] procedure DecodeCalIDRejectsBadServiceId;
-    /// <summary>Decode cal i d rejects truncated.</summary>
+    /// <summary>
+    ///   Decode cal i d rejects truncated.
+    /// </summary>
     [Test] procedure DecodeCalIDRejectsTruncated;
-    /// <summary>Decode c v n big endian four bytes.</summary>
+    /// <summary>
+    ///   Decode c v n big endian four bytes.
+    /// </summary>
     [Test] procedure DecodeCVNBigEndianFourBytes;
-    /// <summary>Decode multi block c v ns.</summary>
+    /// <summary>
+    ///   Decode multi block c v ns.
+    /// </summary>
     [Test] procedure DecodeMultiBlockCVNs;
-    /// <summary>Decode c v n rejects bad p i d.</summary>
+    /// <summary>
+    ///   Decode c v n rejects bad p i d.
+    /// </summary>
     [Test] procedure DecodeCVNRejectsBadPID;
-    /// <summary>Format c v n upper hex.</summary>
+    /// <summary>
+    ///   Format c v n upper hex.
+    /// </summary>
     [Test] procedure FormatCVNUpperHex;
-    /// <summary>Pair matches positionally.</summary>
+    /// <summary>
+    ///   Pair matches positionally.
+    /// </summary>
     [Test] procedure PairMatchesPositionally;
-    /// <summary>Pair mismatched lengths raises.</summary>
+    /// <summary>
+    ///   Pair mismatched lengths raises.
+    /// </summary>
     [Test] procedure PairMismatchedLengthsRaises;
   end;
 
@@ -51,8 +75,12 @@ implementation
 uses
   System.SysUtils, OBD.Service09.Calibration;
 
+//------------------------------------------------------------------------------
+// CAL IDREQUEST IS TWO BYTES
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.CalIDRequestIsTwoBytes;
-var R: TBytes;
+var
+  R: TBytes;
 begin
   R := EncodeCalIDRequest;
   Assert.AreEqual(2, Length(R));
@@ -60,14 +88,21 @@ begin
   Assert.AreEqual($04, Integer(R[1]));
 end;
 
+//------------------------------------------------------------------------------
+// CVNREQUEST IS TWO BYTES
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.CVNRequestIsTwoBytes;
-var R: TBytes;
+var
+  R: TBytes;
 begin
   R := EncodeCVNRequest;
   Assert.AreEqual($09, Integer(R[0]));
   Assert.AreEqual($06, Integer(R[1]));
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CAL IDSTRIPS TRAILING NULLS
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeCalIDStripsTrailingNulls;
 var
   Resp: TBytes;
@@ -81,6 +116,9 @@ begin
   Assert.AreEqual('ABC123', IDs[0].CalID);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE MULTI BLOCK CAL IDS
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeMultiBlockCalIDs;
 var
   Resp: TBytes;
@@ -97,6 +135,9 @@ begin
   Assert.AreEqual('ABCDEF', IDs[1].CalID);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CAL IDREJECTS BAD SERVICE ID
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeCalIDRejectsBadServiceId;
 begin
   Assert.WillRaise(
@@ -104,6 +145,9 @@ begin
     EOBDCalibration);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CAL IDREJECTS TRUNCATED
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeCalIDRejectsTruncated;
 begin
   // Declares 1 block of 16 bytes but only 4 follow
@@ -115,6 +159,9 @@ begin
     EOBDCalibration);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CVNBIG ENDIAN FOUR BYTES
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeCVNBigEndianFourBytes;
 var
   VNs: TArray<TOBDCalibrationVerification>;
@@ -124,6 +171,9 @@ begin
   Assert.AreEqual(UInt32($DEADBEEF), VNs[0].CVN);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE MULTI BLOCK CVNS
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeMultiBlockCVNs;
 var
   VNs: TArray<TOBDCalibrationVerification>;
@@ -137,6 +187,9 @@ begin
   Assert.AreEqual(UInt32($55667788), VNs[1].CVN);
 end;
 
+//------------------------------------------------------------------------------
+// DECODE CVNREJECTS BAD PID
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.DecodeCVNRejectsBadPID;
 begin
   Assert.WillRaise(
@@ -144,12 +197,18 @@ begin
     EOBDCalibration);
 end;
 
+//------------------------------------------------------------------------------
+// FORMAT CVNUPPER HEX
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.FormatCVNUpperHex;
 begin
   Assert.AreEqual('DEADBEEF', FormatCVN(UInt32($DEADBEEF)));
   Assert.AreEqual('00000001', FormatCVN(UInt32(1)));
 end;
 
+//------------------------------------------------------------------------------
+// PAIR MATCHES POSITIONALLY
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.PairMatchesPositionally;
 var
   IDs: TArray<TOBDCalibrationID>;
@@ -166,6 +225,9 @@ begin
   Assert.AreEqual('CAL2', Pairs[1].CalID);
 end;
 
+//------------------------------------------------------------------------------
+// PAIR MISMATCHED LENGTHS RAISES
+//------------------------------------------------------------------------------
 procedure TCalibrationTests.PairMismatchedLengthsRaises;
 var
   IDs: TArray<TOBDCalibrationID>;

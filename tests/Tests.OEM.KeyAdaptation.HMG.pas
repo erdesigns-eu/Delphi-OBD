@@ -20,23 +20,41 @@ type
   [TestFixture]
   THMGKeyAdaptationTests = class
   public
-    /// <summary>Request round trip.</summary>
+    /// <summary>
+    ///   Request round trip.
+    /// </summary>
     [Test] procedure RequestRoundTrip;
-    /// <summary>Response round trip.</summary>
+    /// <summary>
+    ///   Response round trip.
+    /// </summary>
     [Test] procedure ResponseRoundTrip;
-    /// <summary>Request rejects bad v i n.</summary>
+    /// <summary>
+    ///   Request rejects bad v i n.
+    /// </summary>
     [Test] procedure RequestRejectsBadVIN;
-    /// <summary>Request rejects bad p i n length.</summary>
+    /// <summary>
+    ///   Request rejects bad p i n length.
+    /// </summary>
     [Test] procedure RequestRejectsBadPINLength;
-    /// <summary>Request rejects bad key index.</summary>
+    /// <summary>
+    ///   Request rejects bad key index.
+    /// </summary>
     [Test] procedure RequestRejectsBadKeyIndex;
-    /// <summary>Response decode bad length raises.</summary>
+    /// <summary>
+    ///   Response decode bad length raises.
+    /// </summary>
     [Test] procedure ResponseDecodeBadLengthRaises;
-    /// <summary>Platform lookup returns known.</summary>
+    /// <summary>
+    ///   Platform lookup returns known.
+    /// </summary>
     [Test] procedure PlatformLookupReturnsKnown;
-    /// <summary>Platform lookup unknown is certificate required.</summary>
+    /// <summary>
+    ///   Platform lookup unknown is certificate required.
+    /// </summary>
     [Test] procedure PlatformLookupUnknownIsCertificateRequired;
-    /// <summary>E g m p is gateway locked.</summary>
+    /// <summary>
+    ///   E g m p is gateway locked.
+    /// </summary>
     [Test] procedure EGMPIsGatewayLocked;
   end;
 
@@ -45,6 +63,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.KeyAdaptation.HMG;
 
+//------------------------------------------------------------------------------
+// REQUEST ROUND TRIP
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.RequestRoundTrip;
 var
   In_, Out_: THMGKeyRegisterRequest;
@@ -62,6 +83,9 @@ begin
   Assert.AreEqual(Integer(2), Integer(Out_.KeyIndex));
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE ROUND TRIP
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.ResponseRoundTrip;
 var
   In_, Out_: THMGKeyRegisterResponse;
@@ -77,8 +101,12 @@ begin
   Assert.AreEqual(Integer(4), Integer(Out_.KeyCount));
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REJECTS BAD VIN
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.RequestRejectsBadVIN;
-var Req: THMGKeyRegisterRequest;
+var
+  Req: THMGKeyRegisterRequest;
 begin
   Req.VIN := 'TOO-SHORT';
   Req.Mode := hkmAddKey;
@@ -88,8 +116,12 @@ begin
     procedure begin EncodeHMGKeyRegisterRequest(Req); end, EOBDHMGKey);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REJECTS BAD PINLENGTH
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.RequestRejectsBadPINLength;
-var Req: THMGKeyRegisterRequest;
+var
+  Req: THMGKeyRegisterRequest;
 begin
   Req.VIN := 'KMHE241CBKA000001';
   Req.Mode := hkmAddKey;
@@ -99,8 +131,12 @@ begin
     procedure begin EncodeHMGKeyRegisterRequest(Req); end, EOBDHMGKey);
 end;
 
+//------------------------------------------------------------------------------
+// REQUEST REJECTS BAD KEY INDEX
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.RequestRejectsBadKeyIndex;
-var Req: THMGKeyRegisterRequest;
+var
+  Req: THMGKeyRegisterRequest;
 begin
   Req.VIN := 'KMHE241CBKA000001';
   Req.Mode := hkmAddKey;
@@ -110,6 +146,9 @@ begin
     procedure begin EncodeHMGKeyRegisterRequest(Req); end, EOBDHMGKey);
 end;
 
+//------------------------------------------------------------------------------
+// RESPONSE DECODE BAD LENGTH RAISES
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.ResponseDecodeBadLengthRaises;
 begin
   Assert.WillRaise(
@@ -117,23 +156,35 @@ begin
     EOBDHMGKey);
 end;
 
+//------------------------------------------------------------------------------
+// PLATFORM LOOKUP RETURNS KNOWN
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.PlatformLookupReturnsKnown;
-var P: THMGPlatformInfo;
+var
+  P: THMGPlatformInfo;
 begin
   P := FindHMGPlatform('rb');
   Assert.IsTrue(P.DisplayName.Contains('i20'));
   Assert.AreEqual(Ord(hpaOpenWithPIN), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// PLATFORM LOOKUP UNKNOWN IS CERTIFICATE REQUIRED
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.PlatformLookupUnknownIsCertificateRequired;
-var P: THMGPlatformInfo;
+var
+  P: THMGPlatformInfo;
 begin
   P := FindHMGPlatform('made-up-platform');
   Assert.AreEqual(Ord(hpaCertificateRequired), Ord(P.Access));
 end;
 
+//------------------------------------------------------------------------------
+// EGMPIS GATEWAY LOCKED
+//------------------------------------------------------------------------------
 procedure THMGKeyAdaptationTests.EGMPIsGatewayLocked;
-var P: THMGPlatformInfo;
+var
+  P: THMGPlatformInfo;
 begin
   P := FindHMGPlatform('ev_e_gmp');
   Assert.AreEqual(Ord(hpaGatewayLockedPostMY2020), Ord(P.Access));

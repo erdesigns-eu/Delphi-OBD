@@ -20,27 +20,49 @@ type
   [TestFixture]
   TServiceRoutinesTests = class
   public
-    /// <summary>Registry has at least thirty.</summary>
+    /// <summary>
+    ///   Registry has at least thirty.
+    /// </summary>
     [Test] procedure RegistryHasAtLeastThirty;
-    /// <summary>Every entry has citation.</summary>
+    /// <summary>
+    ///   Every entry has citation.
+    /// </summary>
     [Test] procedure EveryEntryHasCitation;
-    /// <summary>Every entry has non empty key and name.</summary>
+    /// <summary>
+    ///   Every entry has non empty key and name.
+    /// </summary>
     [Test] procedure EveryEntryHasNonEmptyKeyAndName;
-    /// <summary>R i ds are non zero.</summary>
+    /// <summary>
+    ///   R i ds are non zero.
+    /// </summary>
     [Test] procedure RIDsAreNonZero;
-    /// <summary>Sub function is valid u d s.</summary>
+    /// <summary>
+    ///   Sub function is valid u d s.
+    /// </summary>
     [Test] procedure SubFunctionIsValidUDS;
-    /// <summary>Find is case insensitive.</summary>
+    /// <summary>
+    ///   Find is case insensitive.
+    /// </summary>
     [Test] procedure FindIsCaseInsensitive;
-    /// <summary>Get by category returns maintenance.</summary>
+    /// <summary>
+    ///   Get by category returns maintenance.
+    /// </summary>
     [Test] procedure GetByCategoryReturnsMaintenance;
-    /// <summary>Get by o e m returns b m w routines.</summary>
+    /// <summary>
+    ///   Get by o e m returns b m w routines.
+    /// </summary>
     [Test] procedure GetByOEMReturnsBMWRoutines;
-    /// <summary>Frame builder produces correct layout.</summary>
+    /// <summary>
+    ///   Frame builder produces correct layout.
+    /// </summary>
     [Test] procedure FrameBuilderProducesCorrectLayout;
-    /// <summary>Frame builder rejects bad sub function.</summary>
+    /// <summary>
+    ///   Frame builder rejects bad sub function.
+    /// </summary>
     [Test] procedure FrameBuilderRejectsBadSubFunction;
-    /// <summary>No duplicate keys.</summary>
+    /// <summary>
+    ///   No duplicate keys.
+    /// </summary>
     [Test] procedure NoDuplicateKeys;
   end;
 
@@ -49,6 +71,9 @@ implementation
 uses
   System.SysUtils, OBD.OEM.ServiceRoutines;
 
+//------------------------------------------------------------------------------
+// REGISTRY HAS AT LEAST THIRTY
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.RegistryHasAtLeastThirty;
 begin
   Assert.IsTrue(TOBDServiceRoutineRegistry.Instance.Count >= 25,
@@ -56,6 +81,9 @@ begin
     IntToStr(TOBDServiceRoutineRegistry.Instance.Count));
 end;
 
+//------------------------------------------------------------------------------
+// EVERY ENTRY HAS CITATION
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.EveryEntryHasCitation;
 var
   I: Integer;
@@ -69,6 +97,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// EVERY ENTRY HAS NON EMPTY KEY AND NAME
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.EveryEntryHasNonEmptyKeyAndName;
 var
   I: Integer;
@@ -82,6 +113,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// RIDS ARE NON ZERO
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.RIDsAreNonZero;
 var
   I: Integer;
@@ -95,6 +129,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SUB FUNCTION IS VALID UDS
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.SubFunctionIsValidUDS;
 var
   I: Integer;
@@ -108,6 +145,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// FIND IS CASE INSENSITIVE
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.FindIsCaseInsensitive;
 var
   R: TOBDServiceRoutine;
@@ -118,6 +158,9 @@ begin
   Assert.AreEqual('Oil Service Reset (BMW CBS)', R.DisplayName);
 end;
 
+//------------------------------------------------------------------------------
+// GET BY CATEGORY RETURNS MAINTENANCE
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.GetByCategoryReturnsMaintenance;
 var
   Routines: TArray<TOBDServiceRoutine>;
@@ -127,6 +170,9 @@ begin
     'Maintenance category should have several entries');
 end;
 
+//------------------------------------------------------------------------------
+// GET BY OEMRETURNS BMWROUTINES
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.GetByOEMReturnsBMWRoutines;
 var
   Routines: TArray<TOBDServiceRoutine>;
@@ -141,6 +187,9 @@ begin
   Assert.IsTrue(Found, 'BMW lookup should include oil_reset_bmw');
 end;
 
+//------------------------------------------------------------------------------
+// FRAME BUILDER PRODUCES CORRECT LAYOUT
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.FrameBuilderProducesCorrectLayout;
 var
   R: TOBDServiceRoutine;
@@ -155,6 +204,9 @@ begin
   Assert.AreEqual(4, Length(Frame), 'No OptionRecord -> 4 bytes total');
 end;
 
+//------------------------------------------------------------------------------
+// FRAME BUILDER REJECTS BAD SUB FUNCTION
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.FrameBuilderRejectsBadSubFunction;
 var
   R: TOBDServiceRoutine;
@@ -167,6 +219,9 @@ begin
     EOBDServiceRoutine);
 end;
 
+//------------------------------------------------------------------------------
+// NO DUPLICATE KEYS
+//------------------------------------------------------------------------------
 procedure TServiceRoutinesTests.NoDuplicateKeys;
 var
   Seen: TArray<string>;

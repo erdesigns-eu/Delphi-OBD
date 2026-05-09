@@ -26,67 +26,99 @@ uses
 type
   EOBDCaptureError = class(Exception);
 
-  /// <summary>One paired request/response in a capture.</summary>
+  /// <summary>
+  ///   One paired request/response in a capture.
+  /// </summary>
   TOBDCapturePair = record
-    /// <summary>Wall-clock millisecond when the request was sent
-    /// (relative to the capture's Start).</summary>
+    /// <summary>
+    ///   Wall-clock millisecond when the request was sent
+    ///   (relative to the capture's Start).
+    /// </summary>
     SentAt: Int64;
-    /// <summary>Raw request text exactly as the recorder saw it
-    /// (whitespace + ELM327 prompts stripped).</summary>
+    /// <summary>
+    ///   Raw request text exactly as the recorder saw it
+    ///   (whitespace + ELM327 prompts stripped).
+    /// </summary>
     RequestText: string;
-    /// <summary>Raw response text.</summary>
+    /// <summary>
+    ///   Raw response text.
+    /// </summary>
     ResponseText: string;
-    /// <summary>Best-effort UDS service ID inferred from the request
-    /// (0 if the request didn't start with a valid hex byte).</summary>
+    /// <summary>
+    ///   Best-effort UDS service ID inferred from the request
+    ///   (0 if the request didn't start with a valid hex byte).
+    /// </summary>
     ServiceID: Byte;
-    /// <summary>For a 0x22 ReadDataByIdentifier request, the DID
-    /// extracted from bytes 1-2; 0 otherwise.</summary>
+    /// <summary>
+    ///   For a 0x22 ReadDataByIdentifier request, the DID
+    ///   extracted from bytes 1-2; 0 otherwise.
+    /// </summary>
     DID: Word;
-    /// <summary>Response payload past the SID + DID echo. For a
-    /// 0x22 reply, this is the bytes after <c>62 HiDID LoDID</c>;
-    /// for everything else it's the bytes after the SID echo.</summary>
+    /// <summary>
+    ///   Response payload past the SID + DID echo. For a
+    ///   0x22 reply, this is the bytes after <c>62 HiDID LoDID</c>;
+    ///   for everything else it's the bytes after the SID echo.
+    /// </summary>
     PayloadBytes: TBytes;
-    /// <summary>True if the response is a <c>7F &lt;SID&gt; NRC</c>
-    /// negative reply.</summary>
+    /// <summary>
+    ///   True if the response is a <c>7F &lt;SID&gt; NRC</c>
+    ///   negative reply.
+    /// </summary>
     IsNegative: Boolean;
-    /// <summary>NRC value when <c>IsNegative</c> is True.</summary>
+    /// <summary>
+    ///   NRC value when <c>IsNegative</c> is True.
+    /// </summary>
     NegativeResponseCode: Byte;
   end;
 
   TOBDCaptureDecoded = record
     Pair: TOBDCapturePair;
-    /// <summary>True if the OEM extension catalogues this DID.</summary>
+    /// <summary>
+    ///   True if the OEM extension catalogues this DID.
+    /// </summary>
     DidIsCatalogued: Boolean;
-    /// <summary>The catalogued name when <c>DidIsCatalogued</c>;
-    /// empty otherwise.</summary>
+    /// <summary>
+    ///   The catalogued name when <c>DidIsCatalogued</c>;
+    ///   empty otherwise.
+    /// </summary>
     DidName: string;
-    /// <summary>The OEM's <c>DecodeDID</c> output. Always populated
-    /// when the request was a 0x22 (the base implementation falls
-    /// back to a hex dump for unknown DIDs).</summary>
+    /// <summary>
+    ///   The OEM's <c>DecodeDID</c> output. Always populated
+    ///   when the request was a 0x22 (the base implementation falls
+    ///   back to a hex dump for unknown DIDs).
+    /// </summary>
     Display: string;
   end;
 
-/// <summary>Walk <c>Entries</c> and emit one <c>TOBDCapturePair</c>
-/// per Sent → next-Received pair. Info / Error lines are skipped.
-/// Sent lines without a matching Received before the next Sent are
-/// emitted with an empty <c>ResponseText</c>.</summary>
+/// <summary>
+///   Walk <c>Entries</c> and emit one <c>TOBDCapturePair</c>
+///   per Sent → next-Received pair. Info / Error lines are skipped.
+///   Sent lines without a matching Received before the next Sent are
+///   emitted with an empty <c>ResponseText</c>.
+/// </summary>
 function ExtractCapturePairs(
   const Entries: TArray<TOBDRecordedEntry>): TArray<TOBDCapturePair>;
 
-/// <summary>Run every <c>22 HiDID LoDID</c> pair through
-/// <c>Ext.DecodeDID</c> and report the results.</summary>
+/// <summary>
+///   Run every <c>22 HiDID LoDID</c> pair through
+///   <c>Ext.DecodeDID</c> and report the results.
+/// </summary>
 function ValidateAgainstExtension(
   const Pairs: TArray<TOBDCapturePair>;
   const Ext: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
 
-/// <summary>Convenience: load <c>.obdlog</c>, extract pairs, and
-/// validate against <c>Ext</c>.</summary>
+/// <summary>
+///   Convenience: load <c>.obdlog</c>, extract pairs, and
+///   validate against <c>Ext</c>.
+/// </summary>
 function ValidateCaptureFile(const FilePath: string;
   const Ext: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
 
-/// <summary>Strip ELM327-style framing (whitespace, prompts,
-/// <c>SEARCHING...</c>, multi-line response prefixes like
-/// <c>0:</c> / <c>1:</c>) and return the contiguous hex payload.</summary>
+/// <summary>
+///   Strip ELM327-style framing (whitespace, prompts,
+///   <c>SEARCHING...</c>, multi-line response prefixes like
+///   <c>0:</c> / <c>1:</c>) and return the contiguous hex payload.
+/// </summary>
 function NormalizeResponseText(const Raw: string): string;
 
 implementation
@@ -94,6 +126,9 @@ implementation
 uses
   System.Character, OBD.OEM.Coding;
 
+//------------------------------------------------------------------------------
+// NORMALIZE RESPONSE TEXT
+//------------------------------------------------------------------------------
 function NormalizeResponseText(const Raw: string): string;
 var
   Lines: TArray<string>;
@@ -130,6 +165,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// TRY HEX BYTES
+//------------------------------------------------------------------------------
 function TryHexBytes(const S: string; out Bytes: TBytes): Boolean;
 begin
   try
@@ -141,6 +179,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// BUILD PAIR
+//------------------------------------------------------------------------------
 function BuildPair(const SentEntry, ReceivedEntry: TOBDRecordedEntry): TOBDCapturePair;
 var
   ReqBytes, RespBytes: TBytes;
@@ -184,6 +225,9 @@ begin
     Result.PayloadBytes := RespBytes;
 end;
 
+//------------------------------------------------------------------------------
+// EXTRACT CAPTURE PAIRS
+//------------------------------------------------------------------------------
 function ExtractCapturePairs(
   const Entries: TArray<TOBDRecordedEntry>): TArray<TOBDCapturePair>;
 var
@@ -228,6 +272,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE AGAINST EXTENSION
+//------------------------------------------------------------------------------
 function ValidateAgainstExtension(
   const Pairs: TArray<TOBDCapturePair>;
   const Ext: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
@@ -261,6 +308,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// VALIDATE CAPTURE FILE
+//------------------------------------------------------------------------------
 function ValidateCaptureFile(const FilePath: string;
   const Ext: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
 var

@@ -20,17 +20,29 @@ type
   [TestFixture]
   TJ2534v2Tests = class
   public
-    /// <summary>Empty list serialises to four zero bytes.</summary>
+    /// <summary>
+    ///   Empty list serialises to four zero bytes.
+    /// </summary>
     [Test] procedure EmptyListSerialisesToFourZeroBytes;
-    /// <summary>Single entry serialises little endian.</summary>
+    /// <summary>
+    ///   Single entry serialises little endian.
+    /// </summary>
     [Test] procedure SingleEntrySerialisesLittleEndian;
-    /// <summary>Multiple entries preserve order.</summary>
+    /// <summary>
+    ///   Multiple entries preserve order.
+    /// </summary>
     [Test] procedure MultipleEntriesPreserveOrder;
-    /// <summary>Count reports length.</summary>
+    /// <summary>
+    ///   Count reports length.
+    /// </summary>
     [Test] procedure CountReportsLength;
-    /// <summary>C a n f d data rate constant is0x8011.</summary>
+    /// <summary>
+    ///   C a n f d data rate constant is0x8011.
+    /// </summary>
     [Test] procedure CANFDDataRateConstantIs0x8011;
-    /// <summary>Mixed format constant is0x800 b.</summary>
+    /// <summary>
+    ///   Mixed format constant is0x800 b.
+    /// </summary>
     [Test] procedure MixedFormatConstantIs0x800B;
   end;
 
@@ -39,6 +51,9 @@ implementation
 uses
   System.SysUtils, OBD.Adapter.PassThrough.J2534v2;
 
+//------------------------------------------------------------------------------
+// EMPTY LIST SERIALISES TO FOUR ZERO BYTES
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.EmptyListSerialisesToFourZeroBytes;
 var
   L: TJ2534ConfigList;
@@ -55,6 +70,9 @@ begin
   finally L.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// SINGLE ENTRY SERIALISES LITTLE ENDIAN
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.SingleEntrySerialisesLittleEndian;
 var
   L: TJ2534ConfigList;
@@ -78,6 +96,9 @@ begin
   finally L.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// MULTIPLE ENTRIES PRESERVE ORDER
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.MultipleEntriesPreserveOrder;
 var
   L: TJ2534ConfigList;
@@ -92,6 +113,9 @@ begin
   finally L.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// COUNT REPORTS LENGTH
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.CountReportsLength;
 var
   L: TJ2534ConfigList;
@@ -104,11 +128,17 @@ begin
   finally L.Free; end;
 end;
 
+//------------------------------------------------------------------------------
+// CANFDDATA RATE CONSTANT IS0X8011
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.CANFDDataRateConstantIs0x8011;
 begin
   Assert.AreEqual(Cardinal($8011), CFG_CAN_FD_DATA_RATE);
 end;
 
+//------------------------------------------------------------------------------
+// MIXED FORMAT CONSTANT IS0X800 B
+//------------------------------------------------------------------------------
 procedure TJ2534v2Tests.MixedFormatConstantIs0x800B;
 begin
   Assert.AreEqual(Cardinal($800B), CFG_CAN_MIXED_FORMAT);

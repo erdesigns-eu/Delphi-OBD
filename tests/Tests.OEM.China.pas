@@ -15,47 +15,79 @@ type
   [TestFixture]
   TChinaVINTests = class
   public
-    /// <summary>B y d matches all plants.</summary>
+    /// <summary>
+    ///   B y d matches all plants.
+    /// </summary>
     [Test] procedure BYDMatchesAllPlants;
-    /// <summary>Geely matches lynk and zeekr.</summary>
+    /// <summary>
+    ///   Geely matches lynk and zeekr.
+    /// </summary>
     [Test] procedure GeelyMatchesLynkAndZeekr;
-    /// <summary>N i o matches hefei.</summary>
+    /// <summary>
+    ///   N i o matches hefei.
+    /// </summary>
     [Test] procedure NIOMatchesHefei;
-    /// <summary>Xpeng matches guangzhou and zhaoqing.</summary>
+    /// <summary>
+    ///   Xpeng matches guangzhou and zhaoqing.
+    /// </summary>
     [Test] procedure XpengMatchesGuangzhouAndZhaoqing;
-    /// <summary>Great wall matches all sub brands.</summary>
+    /// <summary>
+    ///   Great wall matches all sub brands.
+    /// </summary>
     [Test] procedure GreatWallMatchesAllSubBrands;
-    /// <summary>Chinese o e ms do not collide with volvo cars.</summary>
+    /// <summary>
+    ///   Chinese o e ms do not collide with volvo cars.
+    /// </summary>
     [Test] procedure ChineseOEMsDoNotCollideWithVolvoCars;
   end;
 
   [TestFixture]
   TChinaCatalogTests = class
   public
-    /// <summary>B y d exposes blade battery b m s.</summary>
+    /// <summary>
+    ///   B y d exposes blade battery b m s.
+    /// </summary>
     [Test] procedure BYDExposesBladeBatteryBMS;
-    /// <summary>N i o exposes aquila sensor suite.</summary>
+    /// <summary>
+    ///   N i o exposes aquila sensor suite.
+    /// </summary>
     [Test] procedure NIOExposesAquilaSensorSuite;
-    /// <summary>Xpeng exposes x p i l o t computer.</summary>
+    /// <summary>
+    ///   Xpeng exposes x p i l o t computer.
+    /// </summary>
     [Test] procedure XpengExposesXPILOTComputer;
-    /// <summary>Great wall exposes hi4 hybrid.</summary>
+    /// <summary>
+    ///   Great wall exposes hi4 hybrid.
+    /// </summary>
     [Test] procedure GreatWallExposesHi4Hybrid;
-    /// <summary>Geely exposes evcc for geometry zeekr.</summary>
+    /// <summary>
+    ///   Geely exposes evcc for geometry zeekr.
+    /// </summary>
     [Test] procedure GeelyExposesEvccForGeometryZeekr;
   end;
 
   [TestFixture]
   TChinaDecoderTests = class
   public
-    /// <summary>B y d decodes model code.</summary>
+    /// <summary>
+    ///   B y d decodes model code.
+    /// </summary>
     [Test] procedure BYDDecodesModelCode;
-    /// <summary>Geely decodes platform code.</summary>
+    /// <summary>
+    ///   Geely decodes platform code.
+    /// </summary>
     [Test] procedure GeelyDecodesPlatformCode;
-    /// <summary>N i o decodes battery swap id.</summary>
+    /// <summary>
+    ///   N i o decodes battery swap id.
+    /// </summary>
     [Test] procedure NIODecodesBatterySwapId;
-    /// <summary>Xpeng decodes x p i l o t version.</summary>
+    /// <summary>
+    ///   Xpeng decodes x p i l o t version.
+    /// </summary>
     [Test] procedure XpengDecodesXPILOTVersion;
-    /// <summary>Great wall decodes brand code.</summary>
+    /// <summary>
+    ///   Great wall decodes brand code.
+    /// </summary>
     [Test] procedure GreatWallDecodesBrandCode;
   end;
 
@@ -67,6 +99,9 @@ uses
   OBD.OEM.BYD, OBD.OEM.Geely, OBD.OEM.NIO,
   OBD.OEM.Xpeng, OBD.OEM.GreatWall, OBD.OEM.Volvo;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -76,6 +111,10 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BYDMATCHES ALL PLANTS
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.BYDMatchesAllPlants;
 var
   Ext: IOBDOEMExtension;
@@ -87,6 +126,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('LJN')), 'NIO Hefei');
 end;
 
+//------------------------------------------------------------------------------
+// GEELY MATCHES LYNK AND ZEEKR
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.GeelyMatchesLynkAndZeekr;
 var
   Ext: IOBDOEMExtension;
@@ -98,6 +140,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('LGZ')), 'Zeekr');
 end;
 
+//------------------------------------------------------------------------------
+// NIOMATCHES HEFEI
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.NIOMatchesHefei;
 var
   Ext: IOBDOEMExtension;
@@ -108,6 +153,9 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('LJY')), 'should not claim Xpeng');
 end;
 
+//------------------------------------------------------------------------------
+// XPENG MATCHES GUANGZHOU AND ZHAOQING
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.XpengMatchesGuangzhouAndZhaoqing;
 var
   Ext: IOBDOEMExtension;
@@ -117,6 +165,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('LMZ')));
 end;
 
+//------------------------------------------------------------------------------
+// GREAT WALL MATCHES ALL SUB BRANDS
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.GreatWallMatchesAllSubBrands;
 var
   Ext: IOBDOEMExtension;
@@ -128,6 +179,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('X9X')), 'GWM Russia / export');
 end;
 
+//------------------------------------------------------------------------------
+// CHINESE OEMS DO NOT COLLIDE WITH VOLVO CARS
+//------------------------------------------------------------------------------
 procedure TChinaVINTests.ChineseOEMsDoNotCollideWithVolvoCars;
 var
   Volvo, Geely: IOBDOEMExtension;
@@ -145,6 +199,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BYDEXPOSES BLADE BATTERY BMS
+//------------------------------------------------------------------------------
 procedure TChinaCatalogTests.BYDExposesBladeBatteryBMS;
 var
   Ext: IOBDOEMExtension;
@@ -158,6 +216,9 @@ begin
   Assert.IsTrue(Found, 'BYD must expose Blade-battery BMS at 0x782');
 end;
 
+//------------------------------------------------------------------------------
+// NIOEXPOSES AQUILA SENSOR SUITE
+//------------------------------------------------------------------------------
 procedure TChinaCatalogTests.NIOExposesAquilaSensorSuite;
 var
   Ext: IOBDOEMExtension;
@@ -171,6 +232,9 @@ begin
   Assert.IsTrue(HasAquila, 'NIO must expose the Aquila autonomous-driving sensor suite');
 end;
 
+//------------------------------------------------------------------------------
+// XPENG EXPOSES XPILOTCOMPUTER
+//------------------------------------------------------------------------------
 procedure TChinaCatalogTests.XpengExposesXPILOTComputer;
 var
   Ext: IOBDOEMExtension;
@@ -184,6 +248,9 @@ begin
   Assert.IsTrue(HasXpilot, 'Xpeng must expose the XPILOT ADAS computer');
 end;
 
+//------------------------------------------------------------------------------
+// GREAT WALL EXPOSES HI4 HYBRID
+//------------------------------------------------------------------------------
 procedure TChinaCatalogTests.GreatWallExposesHi4Hybrid;
 var
   Ext: IOBDOEMExtension;
@@ -197,6 +264,9 @@ begin
   Assert.IsTrue(HasHybrid, 'GWM must expose the Hi4 hybrid controller');
 end;
 
+//------------------------------------------------------------------------------
+// GEELY EXPOSES EVCC FOR GEOMETRY ZEEKR
+//------------------------------------------------------------------------------
 procedure TChinaCatalogTests.GeelyExposesEvccForGeometryZeekr;
 var
   Ext: IOBDOEMExtension;
@@ -213,6 +283,10 @@ end;
 //==============================================================================
 // Decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// BYDDECODES MODEL CODE
+//------------------------------------------------------------------------------
 procedure TChinaDecoderTests.BYDDecodesModelCode;
 var
   Ext: IOBDOEMExtension;
@@ -223,6 +297,9 @@ begin
   Assert.IsTrue(Pos('byd_model_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// GEELY DECODES PLATFORM CODE
+//------------------------------------------------------------------------------
 procedure TChinaDecoderTests.GeelyDecodesPlatformCode;
 var
   Ext: IOBDOEMExtension;
@@ -233,6 +310,9 @@ begin
   Assert.IsTrue(Pos('geely_platform_code', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// NIODECODES BATTERY SWAP ID
+//------------------------------------------------------------------------------
 procedure TChinaDecoderTests.NIODecodesBatterySwapId;
 var
   Ext: IOBDOEMExtension;
@@ -243,6 +323,9 @@ begin
   Assert.IsTrue(Pos('nio_battery_swap_id', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// XPENG DECODES XPILOTVERSION
+//------------------------------------------------------------------------------
 procedure TChinaDecoderTests.XpengDecodesXPILOTVersion;
 var
   Ext: IOBDOEMExtension;
@@ -253,6 +336,9 @@ begin
   Assert.IsTrue(Pos('xpeng_xpilot_version', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// GREAT WALL DECODES BRAND CODE
+//------------------------------------------------------------------------------
 procedure TChinaDecoderTests.GreatWallDecodesBrandCode;
 var
   Ext: IOBDOEMExtension;

@@ -30,23 +30,35 @@ type
   ///   per-segment semantics from their own data files.
   /// </summary>
   TOBDMercedesSCN = record
-    /// <summary>Hardware/dataset segment — typically a 10-digit
-    /// numeric prefix that identifies the ECU dataset.</summary>
+    /// <summary>
+    ///   Hardware/dataset segment — typically a 10-digit
+    ///   numeric prefix that identifies the ECU dataset.
+    /// </summary>
     HardwareSegment: string;
-    /// <summary>Project / variant marker — 3-4 alphanumerics, e.g.
-    /// "212" for W212, "204" for W204.</summary>
+    /// <summary>
+    ///   Project / variant marker — 3-4 alphanumerics, e.g.
+    ///   "212" for W212, "204" for W204.
+    /// </summary>
     ProjectSegment: string;
-    /// <summary>Build / patch marker — 5-6 alphanumerics for the
-    /// specific calibration revision.</summary>
+    /// <summary>
+    ///   Build / patch marker — 5-6 alphanumerics for the
+    ///   specific calibration revision.
+    /// </summary>
     BuildSegment: string;
 
-    /// <summary>Parse a wire-format SCN; raises on a malformed input.</summary>
+    /// <summary>
+    ///   Parse a wire-format SCN; raises on a malformed input.
+    /// </summary>
     class function Parse(const S: string): TOBDMercedesSCN; static;
 
-    /// <summary>True if any segment is non-empty.</summary>
+    /// <summary>
+    ///   True if any segment is non-empty.
+    /// </summary>
     function IsValid: Boolean;
 
-    /// <summary>Render in the canonical hyphenated form.</summary>
+    /// <summary>
+    ///   Render in the canonical hyphenated form.
+    /// </summary>
     function ToString: string;
   end;
 
@@ -55,6 +67,9 @@ implementation
 const
   ALLOWED_CHARS = ['0'..'9', 'A'..'Z'];
 
+//------------------------------------------------------------------------------
+// NORMALIZE SEGMENT
+//------------------------------------------------------------------------------
 function NormalizeSegment(const S: string): string;
 var
   C: Char;
@@ -68,6 +83,9 @@ begin
         'SCN segment contains illegal character "%s" in "%s"', [C, S]);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE
+//------------------------------------------------------------------------------
 class function TOBDMercedesSCN.Parse(const S: string): TOBDMercedesSCN;
 var
   Parts: TArray<string>;
@@ -83,6 +101,9 @@ begin
   Result.BuildSegment    := NormalizeSegment(Parts[2]);
 end;
 
+//------------------------------------------------------------------------------
+// IS VALID
+//------------------------------------------------------------------------------
 function TOBDMercedesSCN.IsValid: Boolean;
 begin
   Result := (HardwareSegment <> '') and
@@ -90,6 +111,9 @@ begin
             (BuildSegment    <> '');
 end;
 
+//------------------------------------------------------------------------------
+// TO STRING
+//------------------------------------------------------------------------------
 function TOBDMercedesSCN.ToString: string;
 begin
   Result := Format('%s-%s-%s',

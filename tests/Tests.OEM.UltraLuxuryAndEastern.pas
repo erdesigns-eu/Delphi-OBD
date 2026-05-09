@@ -18,59 +18,103 @@ type
   [TestFixture]
   TUltraLuxuryVINTests = class
   public
-    /// <summary>Aston martin claims scf.</summary>
+    /// <summary>
+    ///   Aston martin claims scf.
+    /// </summary>
     [Test] procedure AstonMartinClaimsScf;
-    /// <summary>Bentley claims scb.</summary>
+    /// <summary>
+    ///   Bentley claims scb.
+    /// </summary>
     [Test] procedure BentleyClaimsScb;
-    /// <summary>Rolls royce claims sca.</summary>
+    /// <summary>
+    ///   Rolls royce claims sca.
+    /// </summary>
     [Test] procedure RollsRoyceClaimsSca;
-    /// <summary>Mc laren claims sbm.</summary>
+    /// <summary>
+    ///   Mc laren claims sbm.
+    /// </summary>
     [Test] procedure McLarenClaimsSbm;
-    /// <summary>Lada claims all plants.</summary>
+    /// <summary>
+    ///   Lada claims all plants.
+    /// </summary>
     [Test] procedure LadaClaimsAllPlants;
-    /// <summary>Dacia claims romania and china.</summary>
+    /// <summary>
+    ///   Dacia claims romania and china.
+    /// </summary>
     [Test] procedure DaciaClaimsRomaniaAndChina;
-    /// <summary>Paccar no longer claims scb.</summary>
+    /// <summary>
+    ///   Paccar no longer claims scb.
+    /// </summary>
     [Test] procedure PaccarNoLongerClaimsScb;
-    /// <summary>Renault no longer claims u u1.</summary>
+    /// <summary>
+    ///   Renault no longer claims u u1.
+    /// </summary>
     [Test] procedure RenaultNoLongerClaimsUU1;
-    /// <summary>Dacia does not claim renault v f1.</summary>
+    /// <summary>
+    ///   Dacia does not claim renault v f1.
+    /// </summary>
     [Test] procedure DaciaDoesNotClaimRenaultVF1;
   end;
 
   [TestFixture]
   TUltraLuxuryCatalogTests = class
   public
-    /// <summary>Aston martin exposes valhalla p h e v.</summary>
+    /// <summary>
+    ///   Aston martin exposes valhalla p h e v.
+    /// </summary>
     [Test] procedure AstonMartinExposesValhallaPHEV;
-    /// <summary>Bentley exposes dynamic ride and rear steer.</summary>
+    /// <summary>
+    ///   Bentley exposes dynamic ride and rear steer.
+    /// </summary>
     [Test] procedure BentleyExposesDynamicRideAndRearSteer;
-    /// <summary>Rolls royce session requires security access.</summary>
+    /// <summary>
+    ///   Rolls royce session requires security access.
+    /// </summary>
     [Test] procedure RollsRoyceSessionRequiresSecurityAccess;
-    /// <summary>Rolls royce exposes spectre e v.</summary>
+    /// <summary>
+    ///   Rolls royce exposes spectre e v.
+    /// </summary>
     [Test] procedure RollsRoyceExposesSpectreEV;
-    /// <summary>Mc laren exposes artura p h e v.</summary>
+    /// <summary>
+    ///   Mc laren exposes artura p h e v.
+    /// </summary>
     [Test] procedure McLarenExposesArturaPHEV;
-    /// <summary>Lada exposes niva transfer case.</summary>
+    /// <summary>
+    ///   Lada exposes niva transfer case.
+    /// </summary>
     [Test] procedure LadaExposesNivaTransferCase;
-    /// <summary>Dacia exposes spring e v.</summary>
+    /// <summary>
+    ///   Dacia exposes spring e v.
+    /// </summary>
     [Test] procedure DaciaExposesSpringEV;
   end;
 
   [TestFixture]
   TUltraLuxuryDecoderTests = class
   public
-    /// <summary>Aston martin decodes paint code.</summary>
+    /// <summary>
+    ///   Aston martin decodes paint code.
+    /// </summary>
     [Test] procedure AstonMartinDecodesPaintCode;
-    /// <summary>Bentley decodes commission number.</summary>
+    /// <summary>
+    ///   Bentley decodes commission number.
+    /// </summary>
     [Test] procedure BentleyDecodesCommissionNumber;
-    /// <summary>Rolls royce decodes starlight pattern.</summary>
+    /// <summary>
+    ///   Rolls royce decodes starlight pattern.
+    /// </summary>
     [Test] procedure RollsRoyceDecodesStarlightPattern;
-    /// <summary>Mc laren decodes chassis serial.</summary>
+    /// <summary>
+    ///   Mc laren decodes chassis serial.
+    /// </summary>
     [Test] procedure McLarenDecodesChassisSerial;
-    /// <summary>Lada decodes engine code.</summary>
+    /// <summary>
+    ///   Lada decodes engine code.
+    /// </summary>
     [Test] procedure LadaDecodesEngineCode;
-    /// <summary>Dacia decodes engine code.</summary>
+    /// <summary>
+    ///   Dacia decodes engine code.
+    /// </summary>
     [Test] procedure DaciaDecodesEngineCode;
   end;
 
@@ -83,6 +127,9 @@ uses
   OBD.OEM.McLaren, OBD.OEM.Lada, OBD.OEM.Dacia,
   OBD.OEM.PACCAR, OBD.OEM.Renault;
 
+//------------------------------------------------------------------------------
+// MAKE VIN
+//------------------------------------------------------------------------------
 function MakeVin(const Prefix: string): string;
 begin
   Result := (Prefix + '00000000000000');
@@ -92,8 +139,13 @@ end;
 //==============================================================================
 // VIN routing
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ASTON MARTIN CLAIMS SCF
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.AstonMartinClaimsScf;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionAstonMartin.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('SCF')));
@@ -101,30 +153,46 @@ begin
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('SCB')), 'SCB is Bentley');
 end;
 
+//------------------------------------------------------------------------------
+// BENTLEY CLAIMS SCB
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.BentleyClaimsScb;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionBentley.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('SCB')));
   Assert.IsFalse(Ext.ApplicableToVIN(MakeVin('SCA')));
 end;
 
+//------------------------------------------------------------------------------
+// ROLLS ROYCE CLAIMS SCA
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.RollsRoyceClaimsSca;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionRollsRoyce.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('SCA')));
 end;
 
+//------------------------------------------------------------------------------
+// MC LAREN CLAIMS SBM
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.McLarenClaimsSbm;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionMcLaren.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('SBM')));
 end;
 
+//------------------------------------------------------------------------------
+// LADA CLAIMS ALL PLANTS
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.LadaClaimsAllPlants;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionLada.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('XTA')), 'Tolyatti volume');
@@ -132,8 +200,12 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('XTV')), 'Bronto special-vehicles');
 end;
 
+//------------------------------------------------------------------------------
+// DACIA CLAIMS ROMANIA AND CHINA
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.DaciaClaimsRomaniaAndChina;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionDacia.Create;
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('UU1')), 'Mioveni passenger');
@@ -141,6 +213,9 @@ begin
   Assert.IsTrue(Ext.ApplicableToVIN(MakeVin('LBR')), 'Dongfeng-Renault Wuhan (Spring)');
 end;
 
+//------------------------------------------------------------------------------
+// PACCAR NO LONGER CLAIMS SCB
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.PaccarNoLongerClaimsScb;
 var
   PACCAR, Bentley: IOBDOEMExtension;
@@ -154,6 +229,9 @@ begin
   Assert.IsTrue(PACCAR.ApplicableToVIN(MakeVin('SAR')));
 end;
 
+//------------------------------------------------------------------------------
+// RENAULT NO LONGER CLAIMS UU1
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.RenaultNoLongerClaimsUU1;
 var
   Renault, Dacia: IOBDOEMExtension;
@@ -165,8 +243,12 @@ begin
   Assert.IsTrue(Dacia.ApplicableToVIN(MakeVin('UU1')));
 end;
 
+//------------------------------------------------------------------------------
+// DACIA DOES NOT CLAIM RENAULT VF1
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryVINTests.DaciaDoesNotClaimRenaultVF1;
-var Dacia: IOBDOEMExtension;
+var
+  Dacia: IOBDOEMExtension;
 begin
   Dacia := TOBDOEMExtensionDacia.Create;
   Assert.IsFalse(Dacia.ApplicableToVIN(MakeVin('VF1')));
@@ -176,6 +258,10 @@ end;
 //==============================================================================
 // Catalog spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ASTON MARTIN EXPOSES VALHALLA PHEV
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.AstonMartinExposesValhallaPHEV;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -192,6 +278,9 @@ begin
     'Aston Martin must expose Valhalla PHEV stack');
 end;
 
+//------------------------------------------------------------------------------
+// BENTLEY EXPOSES DYNAMIC RIDE AND REAR STEER
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.BentleyExposesDynamicRideAndRearSteer;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -208,14 +297,21 @@ begin
   Assert.IsTrue(HasRearSteer,  'Bentley must expose rear-wheel steering');
 end;
 
+//------------------------------------------------------------------------------
+// ROLLS ROYCE SESSION REQUIRES SECURITY ACCESS
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.RollsRoyceSessionRequiresSecurityAccess;
-var Ext: IOBDOEMExtension;
+var
+  Ext: IOBDOEMExtension;
 begin
   Ext := TOBDOEMExtensionRollsRoyce.Create;
   Assert.IsTrue(Ext.SessionNegotiator.RequiresSecurityAccess(sstExtendedDiagnostic));
   Assert.IsTrue(Ext.SessionNegotiator.RequiresSecurityAccess(sstProgramming));
 end;
 
+//------------------------------------------------------------------------------
+// ROLLS ROYCE EXPOSES SPECTRE EV
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.RollsRoyceExposesSpectreEV;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -233,6 +329,9 @@ begin
   Assert.IsTrue(HasStarlight, 'Rolls-Royce must expose Starlight controller');
 end;
 
+//------------------------------------------------------------------------------
+// MC LAREN EXPOSES ARTURA PHEV
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.McLarenExposesArturaPHEV;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -251,6 +350,9 @@ begin
   Assert.IsTrue(HasLift, 'McLaren must expose front-axle lift');
 end;
 
+//------------------------------------------------------------------------------
+// LADA EXPOSES NIVA TRANSFER CASE
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.LadaExposesNivaTransferCase;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -267,6 +369,9 @@ begin
   Assert.IsTrue(HasImmo, 'Lada must expose APS immobilizer');
 end;
 
+//------------------------------------------------------------------------------
+// DACIA EXPOSES SPRING EV
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryCatalogTests.DaciaExposesSpringEV;
 var
   Ext: IOBDOEMExtension; E: TOBDOEMECU;
@@ -288,6 +393,10 @@ end;
 //==============================================================================
 // DID decoder spot-checks
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// ASTON MARTIN DECODES PAINT CODE
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.AstonMartinDecodesPaintCode;
 var
   Ext: IOBDOEMExtension; Output: string;
@@ -297,6 +406,9 @@ begin
   Assert.IsTrue(Pos('Skyfall-Silver', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// BENTLEY DECODES COMMISSION NUMBER
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.BentleyDecodesCommissionNumber;
 var
   Ext: IOBDOEMExtension; Output: string;
@@ -306,6 +418,9 @@ begin
   Assert.IsTrue(Pos('CGT-2026-MULL-042', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// ROLLS ROYCE DECODES STARLIGHT PATTERN
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.RollsRoyceDecodesStarlightPattern;
 var
   Ext: IOBDOEMExtension; Output: string;
@@ -315,6 +430,9 @@ begin
   Assert.IsTrue(Pos('Phantom-Bespoke-Constellation-DOB', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// MC LAREN DECODES CHASSIS SERIAL
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.McLarenDecodesChassisSerial;
 var
   Ext: IOBDOEMExtension; Output: string;
@@ -324,6 +442,9 @@ begin
   Assert.IsTrue(Pos('MonoCellII-J-0457', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// LADA DECODES ENGINE CODE
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.LadaDecodesEngineCode;
 var
   Ext: IOBDOEMExtension; Output: string;
@@ -333,6 +454,9 @@ begin
   Assert.IsTrue(Pos('VAZ-21179', Output) > 0);
 end;
 
+//------------------------------------------------------------------------------
+// DACIA DECODES ENGINE CODE
+//------------------------------------------------------------------------------
 procedure TUltraLuxuryDecoderTests.DaciaDecodesEngineCode;
 var
   Ext: IOBDOEMExtension; Output: string;

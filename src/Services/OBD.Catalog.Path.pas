@@ -42,6 +42,9 @@ begin
   GGlobalCatalogPath := Path;
 end;
 
+//------------------------------------------------------------------------------
+// RESOLVE CATALOG PATH
+//------------------------------------------------------------------------------
 function ResolveCatalogPath(const FileName: string): string;
 const
   Subdirs: array[0..3] of string =

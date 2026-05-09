@@ -63,22 +63,34 @@ type
     constructor Create(const AName: string; AColor: TColor;
       AMin, AMax: Single; ACapacity: Integer);
 
-    /// <summary>Push a new sample. The oldest sample drops off when full.</summary>
+    /// <summary>
+    ///   Push a new sample. The oldest sample drops off when full.
+    /// </summary>
     procedure Push(const AValue: Single);
-    /// <summary>Reset the buffer to empty.</summary>
+    /// <summary>
+    ///   Reset the buffer to empty.
+    /// </summary>
     procedure Clear;
-    /// <summary>Re-allocate the ring buffer to a new capacity (preserves recent samples).</summary>
+    /// <summary>
+    ///   Re-allocate the ring buffer to a new capacity (preserves recent samples).
+    /// </summary>
     procedure Resize(NewCapacity: Integer);
 
     property Name: string read FName write FName;
     property Color: TColor read FColor write FColor;
     property Min: Single read FMin write FMin;
     property Max: Single read FMax write FMax;
-    /// <summary>Number of valid samples (≤ Capacity).</summary>
+    /// <summary>
+    ///   Number of valid samples (≤ Capacity).
+    /// </summary>
     property Count: Integer read FCount;
-    /// <summary>Ring-buffer capacity.</summary>
+    /// <summary>
+    ///   Ring-buffer capacity.
+    /// </summary>
     property Capacity: Integer read GetCapacity;
-    /// <summary>Sample at logical index 0 = oldest, Count-1 = newest.</summary>
+    /// <summary>
+    ///   Sample at logical index 0 = oldest, Count-1 = newest.
+    /// </summary>
     property Values[LogicalIndex: Integer]: Single read GetValue;
   end;
 
@@ -127,18 +139,26 @@ type
     /// </summary>
     function AddSeries(const AName: string; AColor: TColor;
       AMin, AMax: Single): Integer;
-    /// <summary>Remove the series at the given index.</summary>
+    /// <summary>
+    ///   Remove the series at the given index.
+    /// </summary>
     procedure RemoveSeries(Index: Integer);
-    /// <summary>Drop all samples from every series (does not remove the series).</summary>
+    /// <summary>
+    ///   Drop all samples from every series (does not remove the series).
+    /// </summary>
     procedure ClearSamples;
-    /// <summary>Push a value onto the named series.</summary>
+    /// <summary>
+    ///   Push a value onto the named series.
+    /// </summary>
     procedure PushValue(SeriesIndex: Integer; const AValue: Single);
 
     property SeriesCount: Integer read GetSeriesCount;
     property Series[Index: Integer]: TOBDTrendSeries read GetSeries;
 
   published
-    /// <summary>Number of samples retained per series.</summary>
+    /// <summary>
+    ///   Number of samples retained per series.
+    /// </summary>
     property MaxSamples: Integer read FMaxSamples write SetMaxSamples default TG_DEFAULT_MAX_SAMPLES;
     property BackgroundColor: TColor read FBackgroundColor write SetBackgroundColor default TG_DEFAULT_BACKGROUND;
     property GridColor: TColor read FGridColor write SetGridColor default TG_DEFAULT_GRID_COLOR;
@@ -156,6 +176,9 @@ implementation
 // TOBDTrendSeries
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTrendSeries.Create(const AName: string; AColor: TColor;
   AMin, AMax: Single; ACapacity: Integer);
 begin
@@ -170,6 +193,9 @@ begin
   FCount := 0;
 end;
 
+//------------------------------------------------------------------------------
+// PUSH
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeries.Push(const AValue: Single);
 begin
   FValues[FHead] := AValue;
@@ -177,12 +203,18 @@ begin
   if FCount < Length(FValues) then Inc(FCount);
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeries.Clear;
 begin
   FHead := 0;
   FCount := 0;
 end;
 
+//------------------------------------------------------------------------------
+// RESIZE
+//------------------------------------------------------------------------------
 procedure TOBDTrendSeries.Resize(NewCapacity: Integer);
 var
   OldValues: TArray<Single>;
@@ -209,11 +241,17 @@ begin
     Push(OldValues[I]);
 end;
 
+//------------------------------------------------------------------------------
+// GET CAPACITY
+//------------------------------------------------------------------------------
 function TOBDTrendSeries.GetCapacity: Integer;
 begin
   Result := Length(FValues);
 end;
 
+//------------------------------------------------------------------------------
+// GET VALUE
+//------------------------------------------------------------------------------
 function TOBDTrendSeries.GetValue(LogicalIndex: Integer): Single;
 var
   PhysIndex: Integer;
@@ -229,6 +267,9 @@ end;
 // TOBDTrendGraph
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// CREATE
+//------------------------------------------------------------------------------
 constructor TOBDTrendGraph.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -247,6 +288,9 @@ begin
   Height := 180;
 end;
 
+//------------------------------------------------------------------------------
+// DESTROY
+//------------------------------------------------------------------------------
 destructor TOBDTrendGraph.Destroy;
 begin
   FSeries.Free;
@@ -266,6 +310,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// REMOVE SERIES
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.RemoveSeries(Index: Integer);
 begin
   if (Index < 0) or (Index >= FSeries.Count) then Exit;
@@ -273,6 +320,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR SAMPLES
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.ClearSamples;
 var
   S: TOBDTrendSeries;
@@ -281,6 +331,9 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// PUSH VALUE
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.PushValue(SeriesIndex: Integer; const AValue: Single);
 begin
   if (SeriesIndex < 0) or (SeriesIndex >= FSeries.Count) then Exit;
@@ -288,11 +341,17 @@ begin
   Invalidate;
 end;
 
+//------------------------------------------------------------------------------
+// GET SERIES COUNT
+//------------------------------------------------------------------------------
 function TOBDTrendGraph.GetSeriesCount: Integer;
 begin
   Result := FSeries.Count;
 end;
 
+//------------------------------------------------------------------------------
+// GET SERIES
+//------------------------------------------------------------------------------
 function TOBDTrendGraph.GetSeries(Index: Integer): TOBDTrendSeries;
 begin
   Result := FSeries[Index];
@@ -313,29 +372,85 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// SET BACKGROUND COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetBackgroundColor(const AValue: TColor);
-begin if FBackgroundColor <> AValue then begin FBackgroundColor := AValue; Invalidate; end; end;
+begin
+  if FBackgroundColor <> AValue then begin FBackgroundColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET GRID COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetGridColor(const AValue: TColor);
-begin if FGridColor <> AValue then begin FGridColor := AValue; Invalidate; end; end;
+begin
+  if FGridColor <> AValue then begin FGridColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET BORDER COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetBorderColor(const AValue: TColor);
-begin if FBorderColor <> AValue then begin FBorderColor := AValue; Invalidate; end; end;
+begin
+  if FBorderColor <> AValue then begin FBorderColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET TEXT COLOR
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetTextColor(const AValue: TColor);
-begin if FTextColor <> AValue then begin FTextColor := AValue; Invalidate; end; end;
+begin
+  if FTextColor <> AValue then begin FTextColor := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW GRID
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetShowGrid(const AValue: Boolean);
-begin if FShowGrid <> AValue then begin FShowGrid := AValue; Invalidate; end; end;
+begin
+  if FShowGrid <> AValue then begin FShowGrid := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW LEGEND
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetShowLegend(const AValue: Boolean);
-begin if FShowLegend <> AValue then begin FShowLegend := AValue; Invalidate; end; end;
+begin
+  if FShowLegend <> AValue then begin FShowLegend := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET SHOW BORDER
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetShowBorder(const AValue: Boolean);
-begin if FShowBorder <> AValue then begin FShowBorder := AValue; Invalidate; end; end;
+begin
+  if FShowBorder <> AValue then begin FShowBorder := AValue;
+  Invalidate;
+  end;
+end;
 
+//------------------------------------------------------------------------------
+// SET STROKE WIDTH
+//------------------------------------------------------------------------------
 procedure TOBDTrendGraph.SetStrokeWidth(const AValue: Single);
-begin if (AValue > 0) and (FStrokeWidth <> AValue) then begin FStrokeWidth := AValue; Invalidate; end; end;
+begin
+  if (AValue > 0) and (FStrokeWidth <> AValue) then begin FStrokeWidth := AValue;
+  Invalidate;
+  end;
+end;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

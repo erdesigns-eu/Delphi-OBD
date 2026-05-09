@@ -99,6 +99,9 @@ begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
 end;
 
+//------------------------------------------------------------------------------
+// ENCODE VAGCPREQUEST
+//------------------------------------------------------------------------------
 function EncodeVAGCPRequest(const Request: TVAGCPRequest): TBytes;
 var
   Total, Cursor, I: Integer;

@@ -84,6 +84,9 @@ const
   SHA256_DIGEST_BYTES = 32;
   CMAC_AES_BLOCK_BYTES = 16;
 
+//------------------------------------------------------------------------------
+// FV WIDTH BYTES
+//------------------------------------------------------------------------------
 function FvWidthBytes(P: TSecOCProfile): Integer;
 begin
   case P of
@@ -130,8 +133,16 @@ begin
   // Allocate Result
   SetLength(Result, Length(A) + Length(B) + Length(C));
   Off := 0;
-  if Length(A) > 0 then begin Move(A[0], Result[Off], Length(A)); Inc(Off, Length(A)); end;
-  if Length(B) > 0 then begin Move(B[0], Result[Off], Length(B)); Inc(Off, Length(B)); end;
+  if Length(A) > 0 then
+  begin
+    Move(A[0], Result[Off], Length(A));
+    Inc(Off, Length(A));
+  end;
+  if Length(B) > 0 then
+  begin
+    Move(B[0], Result[Off], Length(B));
+    Inc(Off, Length(B));
+  end;
   if Length(C) > 0 then Move(C[0], Result[Off], Length(C));
 end;
 

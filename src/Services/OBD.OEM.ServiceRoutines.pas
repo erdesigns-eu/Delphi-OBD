@@ -302,15 +302,25 @@ begin
   FreeAndNil(FInstance);
 end;
 
+//------------------------------------------------------------------------------
+// COUNT
+//------------------------------------------------------------------------------
 function TOBDServiceRoutineRegistry.Count: Integer;
-begin Result := FRoutines.Count; end;
+begin
+  Result := FRoutines.Count;
+end;
 
 //------------------------------------------------------------------------------
 // GET
 //------------------------------------------------------------------------------
 function TOBDServiceRoutineRegistry.Get(Index: Integer): TOBDServiceRoutine;
-begin Result := FRoutines[Index]; end;
+begin
+  Result := FRoutines[Index];
+end;
 
+//------------------------------------------------------------------------------
+// FIND
+//------------------------------------------------------------------------------
 function TOBDServiceRoutineRegistry.Find(const Key: string;
   out Routine: TOBDServiceRoutine): Boolean;
 var
@@ -396,7 +406,11 @@ begin
   end;
   // Parse JSON document
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  if not (Doc is TJSONObject) then
+  begin
+    Doc.Free;
+    Exit;
+  end;
   try
     Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
     // Bail if array is missing

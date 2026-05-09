@@ -20,25 +20,45 @@ type
   [TestFixture]
   TDoIPDiscoveryTests = class
   public
-    /// <summary>Header has inverse protocol version.</summary>
+    /// <summary>
+    ///   Header has inverse protocol version.
+    /// </summary>
     [Test] procedure HeaderHasInverseProtocolVersion;
-    /// <summary>Vehicle ident request is eight bytes.</summary>
+    /// <summary>
+    ///   Vehicle ident request is eight bytes.
+    /// </summary>
     [Test] procedure VehicleIdentRequestIsEightBytes;
-    /// <summary>Vehicle ident request v i n payload is17 bytes.</summary>
+    /// <summary>
+    ///   Vehicle ident request v i n payload is17 bytes.
+    /// </summary>
     [Test] procedure VehicleIdentRequestVINPayloadIs17Bytes;
-    /// <summary>V i n length mismatch raises.</summary>
+    /// <summary>
+    ///   V i n length mismatch raises.
+    /// </summary>
     [Test] procedure VINLengthMismatchRaises;
-    /// <summary>E i d length mismatch raises.</summary>
+    /// <summary>
+    ///   E i d length mismatch raises.
+    /// </summary>
     [Test] procedure EIDLengthMismatchRaises;
-    /// <summary>Alive check response carries source address.</summary>
+    /// <summary>
+    ///   Alive check response carries source address.
+    /// </summary>
     [Test] procedure AliveCheckResponseCarriesSourceAddress;
-    /// <summary>Parse header rejects bad inverse.</summary>
+    /// <summary>
+    ///   Parse header rejects bad inverse.
+    /// </summary>
     [Test] procedure ParseHeaderRejectsBadInverse;
-    /// <summary>Parse header rejects truncated frame.</summary>
+    /// <summary>
+    ///   Parse header rejects truncated frame.
+    /// </summary>
     [Test] procedure ParseHeaderRejectsTruncatedFrame;
-    /// <summary>Vehicle announcement round trips.</summary>
+    /// <summary>
+    ///   Vehicle announcement round trips.
+    /// </summary>
     [Test] procedure VehicleAnnouncementRoundTrips;
-    /// <summary>Vehicle announcement2012 without sync is valid.</summary>
+    /// <summary>
+    ///   Vehicle announcement2012 without sync is valid.
+    /// </summary>
     [Test] procedure VehicleAnnouncement2012WithoutSyncIsValid;
   end;
 
@@ -48,16 +68,24 @@ uses
   System.SysUtils,
   OBD.Protocol.DoIP.Discovery;
 
+//------------------------------------------------------------------------------
+// HEADER HAS INVERSE PROTOCOL VERSION
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.HeaderHasInverseProtocolVersion;
-var Frame: TBytes;
+var
+  Frame: TBytes;
 begin
   Frame := BuildVehicleIdentRequest(DOIP_PROTOCOL_VERSION_2019);
   Assert.AreEqual(DOIP_PROTOCOL_VERSION_2019, Integer(Frame[0]));
   Assert.AreEqual(Byte(not DOIP_PROTOCOL_VERSION_2019), Frame[1]);
 end;
 
+//------------------------------------------------------------------------------
+// VEHICLE IDENT REQUEST IS EIGHT BYTES
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.VehicleIdentRequestIsEightBytes;
-var Frame: TBytes;
+var
+  Frame: TBytes;
 begin
   Frame := BuildVehicleIdentRequest;
   Assert.AreEqual(8, Length(Frame));
@@ -68,8 +96,12 @@ begin
   Assert.AreEqual(0, Integer(Frame[7]));
 end;
 
+//------------------------------------------------------------------------------
+// VEHICLE IDENT REQUEST VINPAYLOAD IS17 BYTES
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.VehicleIdentRequestVINPayloadIs17Bytes;
-var Frame: TBytes;
+var
+  Frame: TBytes;
 begin
   Frame := BuildVehicleIdentRequestVIN('WVWZZZ8N8Z1234567');
   Assert.AreEqual(8 + 17, Length(Frame));
@@ -78,6 +110,9 @@ begin
   Assert.AreEqual(Byte(Ord('7')), Frame[8 + 16]);
 end;
 
+//------------------------------------------------------------------------------
+// VINLENGTH MISMATCH RAISES
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.VINLengthMismatchRaises;
 begin
   Assert.WillRaise(
@@ -85,6 +120,9 @@ begin
     EOBDDoIPDiscovery);
 end;
 
+//------------------------------------------------------------------------------
+// EIDLENGTH MISMATCH RAISES
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.EIDLengthMismatchRaises;
 begin
   Assert.WillRaise(
@@ -95,8 +133,12 @@ begin
     EOBDDoIPDiscovery);
 end;
 
+//------------------------------------------------------------------------------
+// ALIVE CHECK RESPONSE CARRIES SOURCE ADDRESS
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.AliveCheckResponseCarriesSourceAddress;
-var Frame: TBytes;
+var
+  Frame: TBytes;
 begin
   Frame := BuildAliveCheckResponse($0E80);
   Assert.AreEqual(8 + 2, Length(Frame));
@@ -104,8 +146,12 @@ begin
   Assert.AreEqual($80, Integer(Frame[9]));
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEADER REJECTS BAD INVERSE
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.ParseHeaderRejectsBadInverse;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   Bytes := TBytes.Create($02, $00, $00, $01, $00, $00, $00, $00); // bad inverse
   Assert.WillRaise(
@@ -113,8 +159,12 @@ begin
     EOBDDoIPDiscovery);
 end;
 
+//------------------------------------------------------------------------------
+// PARSE HEADER REJECTS TRUNCATED FRAME
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.ParseHeaderRejectsTruncatedFrame;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   // declared payload-len = 0xFF, but no payload bytes follow
   Bytes := TBytes.Create($03, $FC, $00, $04, $00, $00, $00, $FF);
@@ -123,6 +173,9 @@ begin
     EOBDDoIPDiscovery);
 end;
 
+//------------------------------------------------------------------------------
+// VEHICLE ANNOUNCEMENT ROUND TRIPS
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.VehicleAnnouncementRoundTrips;
 var
   Payload: TBytes;
@@ -155,6 +208,9 @@ begin
   Assert.AreEqual($10, Integer(Ann.SyncStatus));
 end;
 
+//------------------------------------------------------------------------------
+// VEHICLE ANNOUNCEMENT2012 WITHOUT SYNC IS VALID
+//------------------------------------------------------------------------------
 procedure TDoIPDiscoveryTests.VehicleAnnouncement2012WithoutSyncIsValid;
 var
   Payload: TBytes;

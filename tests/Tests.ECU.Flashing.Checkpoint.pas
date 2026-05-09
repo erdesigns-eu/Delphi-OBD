@@ -26,17 +26,29 @@ type
     [Setup] procedure Setup;
     [TearDown] procedure TearDown;
 
-    /// <summary>Initialise persists and is resumable.</summary>
+    /// <summary>
+    ///   Initialise persists and is resumable.
+    /// </summary>
     [Test] procedure InitialisePersistsAndIsResumable;
-    /// <summary>Progress is recorded across blocks.</summary>
+    /// <summary>
+    ///   Progress is recorded across blocks.
+    /// </summary>
     [Test] procedure ProgressIsRecordedAcrossBlocks;
-    /// <summary>Firmware mismatch prevents resume.</summary>
+    /// <summary>
+    ///   Firmware mismatch prevents resume.
+    /// </summary>
     [Test] procedure FirmwareMismatchPreventsResume;
-    /// <summary>Completed flash is not resumable.</summary>
+    /// <summary>
+    ///   Completed flash is not resumable.
+    /// </summary>
     [Test] procedure CompletedFlashIsNotResumable;
-    /// <summary>Clear deletes sidecar.</summary>
+    /// <summary>
+    ///   Clear deletes sidecar.
+    /// </summary>
     [Test] procedure ClearDeletesSidecar;
-    /// <summary>Out of range block index raises.</summary>
+    /// <summary>
+    ///   Out of range block index raises.
+    /// </summary>
     [Test] procedure OutOfRangeBlockIndexRaises;
   end;
 
@@ -46,11 +58,17 @@ uses
   System.SysUtils, System.IOUtils,
   OBD.ECU.Flashing.Checkpoint;
 
+//------------------------------------------------------------------------------
+// WRITE FILE
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.WriteFile(const Path, Body: string);
 begin
   TFile.WriteAllText(Path, Body, TEncoding.UTF8);
 end;
 
+//------------------------------------------------------------------------------
+// SETUP
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.Setup;
 var
   Stem: string;
@@ -62,6 +80,9 @@ begin
   WriteFile(FFwPath, 'firmware-payload-v1');
 end;
 
+//------------------------------------------------------------------------------
+// TEAR DOWN
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.TearDown;
 begin
   if TFile.Exists(FFwPath) then TFile.Delete(FFwPath);
@@ -69,6 +90,9 @@ begin
   if TFile.Exists(FSnap) then TFile.Delete(FSnap);
 end;
 
+//------------------------------------------------------------------------------
+// INITIALISE PERSISTS AND IS RESUMABLE
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.InitialisePersistsAndIsResumable;
 var
   CP: TOBDFlashCheckpoint;
@@ -86,6 +110,9 @@ begin
   Assert.AreEqual(0, R.NextBlock);
 end;
 
+//------------------------------------------------------------------------------
+// PROGRESS IS RECORDED ACROSS BLOCKS
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.ProgressIsRecordedAcrossBlocks;
 var
   CP: TOBDFlashCheckpoint;
@@ -107,6 +134,9 @@ begin
   Assert.AreEqual(3, R.NextBlock);
 end;
 
+//------------------------------------------------------------------------------
+// FIRMWARE MISMATCH PREVENTS RESUME
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.FirmwareMismatchPreventsResume;
 var
   CP: TOBDFlashCheckpoint;
@@ -126,6 +156,9 @@ begin
     'Reason should call out the SHA mismatch: ' + R.Reason);
 end;
 
+//------------------------------------------------------------------------------
+// COMPLETED FLASH IS NOT RESUMABLE
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.CompletedFlashIsNotResumable;
 var
   CP: TOBDFlashCheckpoint;
@@ -143,6 +176,9 @@ begin
   Assert.IsTrue(R.Reason.Contains('all blocks already completed'));
 end;
 
+//------------------------------------------------------------------------------
+// CLEAR DELETES SIDECAR
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.ClearDeletesSidecar;
 var
   CP: TOBDFlashCheckpoint;
@@ -157,6 +193,9 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+// OUT OF RANGE BLOCK INDEX RAISES
+//------------------------------------------------------------------------------
 procedure TFlashCheckpointTests.OutOfRangeBlockIndexRaises;
 var
   CP: TOBDFlashCheckpoint;

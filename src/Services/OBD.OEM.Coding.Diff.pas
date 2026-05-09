@@ -205,6 +205,9 @@ begin
   inherited;
 end;
 
+//------------------------------------------------------------------------------
+// COMPUTE DIFF
+//------------------------------------------------------------------------------
 procedure TOBDCodingPlan.ComputeDiff;
 var
   I: Integer;
@@ -289,6 +292,9 @@ begin
   Result := Length(FDiff) = 0;
 end;
 
+//------------------------------------------------------------------------------
+// AS TEXT
+//------------------------------------------------------------------------------
 function TOBDCodingPlan.AsText: string;
 var
   Entry: TOBDCodingDiffEntry;

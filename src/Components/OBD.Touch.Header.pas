@@ -2854,7 +2854,10 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
           1: begin BodyFromColor := BackButton.HotColor.FromColor; BodyToColor := BackButton.HotColor.ToColor; end;
           2: begin BodyFromColor := BackButton.PressedColor.FromColor; BodyToColor := BackButton.PressedColor.ToColor; end;
         else
-          begin BodyFromColor := BackButton.NormalColor.FromColor; BodyToColor := BackButton.NormalColor.ToColor; end;
+          begin
+            BodyFromColor := BackButton.NormalColor.FromColor;
+            BodyToColor := BackButton.NormalColor.ToColor;
+          end;
         end;
       end;
 
@@ -2916,7 +2919,10 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
           1: begin BodyFromColor := ActionButton.HotColor.FromColor; BodyToColor := ActionButton.HotColor.ToColor; end;
           2: begin BodyFromColor := ActionButton.PressedColor.FromColor; BodyToColor := ActionButton.PressedColor.ToColor; end;
         else
-          begin BodyFromColor := ActionButton.NormalColor.FromColor; BodyToColor := ActionButton.NormalColor.ToColor; end;
+          begin
+            BodyFromColor := ActionButton.NormalColor.FromColor;
+            BodyToColor := ActionButton.NormalColor.ToColor;
+          end;
         end;
       end;
 
@@ -3099,7 +3105,8 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
     begin
       if BackHasImage and Assigned(BackButton.Image.Graphic) then
       begin
-        var BackImage := GraphicToSkImage(BackButton.Image.Graphic);
+        var
+          BackImage := GraphicToSkImage(BackButton.Image.Graphic);
         if Assigned(BackImage) then
           Canvas.DrawImageRect(BackImage,
             TRectF.Create(
@@ -3117,7 +3124,8 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
     begin
       if ActionHasImage and Assigned(ActionButton.Image.Graphic) then
       begin
-        var ActionImage := GraphicToSkImage(ActionButton.Image.Graphic);
+        var
+          ActionImage := GraphicToSkImage(ActionButton.Image.Graphic);
         if Assigned(ActionImage) then
           Canvas.DrawImageRect(ActionImage,
             TRectF.Create(
@@ -3138,7 +3146,8 @@ procedure TOBDTouchHeader.PaintSkia(Canvas: ISkCanvas);
         if not TabOverlays[I].Visible then Continue;
         if Assigned(TabOverlays[I].Image) then
         begin
-          var TabImage := GraphicToSkImage(TabOverlays[I].Image);
+          var
+            TabImage := GraphicToSkImage(TabOverlays[I].Image);
           if Assigned(TabImage) then
             Canvas.DrawImageRect(TabImage,
               TRectF.Create(
