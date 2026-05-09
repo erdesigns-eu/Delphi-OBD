@@ -678,24 +678,37 @@ These belong in later subphases per PLAN §Phase 4 split:
 
 ### Honest review
 
-1. **Sample 03-ReadVIN's VIN parser is lenient.** It filters
-   printable ASCII and trims to the trailing 17 characters. A
-   strict ISO 3779 VIN validator (excluded letters I/O/Q,
-   check-digit on position 9) is out of scope for 4b; documented
-   on the sample README.
+1. ~~Sample 03-ReadVIN's VIN parser is lenient.~~ **Closed.** New
+   `OBD.Protocol.VIN` ships `TOBDVINValidator.IsValid` (alphabet +
+   ISO 3779 check-digit at position 9), `Normalize`, `CheckDigit`,
+   and `ExtractFromOBDResponse`. Sample 03 now reports both the
+   extracted VIN and whether it passed ISO 3779 strict validation.
+   10 DUnitX assertions cover I/O/Q rejection, transliteration,
+   check-digit on a published reference VIN, length-mismatch raises,
+   and noisy-response trailing extraction.
 2. **Async cancellation through `Connection.Close` works.** The
    adapter forwards cancel via its `FCancelEvent` (Phase 3
    follow-up #3) which the protocol's adapter call honours within
    ~50 ms. The protocol does not have its own cancel knob beyond
    that.
-3. **`OnFrame` is declared but not yet wired.** Frame-level events
-   are useful for raw-CAN traces (J2534 / DoIP); the ELM327 path
-   surfaces only the assembled response, not individual frames.
-   `OnFrame` will fire from 4c onwards when the J1939 transport
-   produces per-frame events.
-4. **Sample 03 build will fail until DUnitX / RAD Studio is set
-   up locally** — the .dpr `uses` clause is correct, but no CI
-   runner has compiled it yet (Phase 0 deferred).
+3. ~~`OnFrame` is declared but not yet wired.~~ **Closed.** New
+   `DispatchFrames` helper splits the adapter's raw response into
+   one `TOBDFrame` per line and queues `OnFrame` to the main thread
+   before the decoder runs. Detects an optional leading CAN-ID
+   token (3 hex digits for 11-bit, 8 for 29-bit) when the chip is
+   in headers-on mode; payload comes from the trailing hex bytes.
+   Subscribers therefore see frames in arrival order even on the
+   ELM327 / OBDLink path; the J2534 / DoIP raw-CAN path will reuse
+   the same dispatch in 4c.
+4. ~~Sample 03 build will fail…~~ **Outside our control** —
+   compile-time validation is gated on a self-hosted CI runner
+   (Phase 0 deferred); not actionable in this session.
+
+Phase 4a flag #3 (UDS positive-response SID mismatch is silent)
+is also **closed** here: the protocol component compares
+`Result.ServiceID` to the expected `request SID + 0x40` after
+decode and fires `OnError(oeUnexpectedFrame)` with both SIDs in
+the message when they differ (and the response wasn't negative).
 
 ### Quality bars met
 

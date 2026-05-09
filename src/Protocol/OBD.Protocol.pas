@@ -103,6 +103,8 @@ type
     procedure FireOnError(ACode: TOBDErrorCode; const AMessage: string);
     procedure FireOnProgress(AIndex, ACount: Cardinal;
       const AName, ADetail: string);
+    procedure FireOnFrame(const AFrame: TOBDFrame);
+    procedure DispatchFrames(const ARawHex: string);
 
     function DoSend(const ARequest: TOBDRequest): TOBDResponse;
   protected
@@ -387,11 +389,84 @@ begin
       end);
 end;
 
+procedure TOBDProtocol.FireOnFrame(const AFrame: TOBDFrame);
+var
+  Snapshot: TOBDFrame;
+begin
+  if not Assigned(FOnFrame) then Exit;
+  Snapshot := AFrame;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnFrame(Self, Snapshot)
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnFrame) then
+          FOnFrame(Self, Snapshot);
+      end);
+end;
+
+procedure TOBDProtocol.DispatchFrames(const ARawHex: string);
+var
+  Lines: TArray<string>;
+  Trimmed, IdToken, Rest: string;
+  I, SpaceAt: Integer;
+  Frame: TOBDFrame;
+  IdValue: Int64;
+begin
+  if not Assigned(FOnFrame) then Exit;
+  Lines := SplitString(ARawHex, #13#10);
+  if Length(Lines) = 0 then
+    Lines := SplitString(ARawHex, #13);
+  if Length(Lines) = 0 then
+    Lines := SplitString(ARawHex, #10);
+  if Length(Lines) = 0 then
+  begin
+    SetLength(Lines, 1);
+    Lines[0] := ARawHex;
+  end;
+
+  for I := 0 to High(Lines) do
+  begin
+    Trimmed := Trim(Lines[I]);
+    if Trimmed = '' then Continue;
+
+    Frame := Default(TOBDFrame);
+    Frame.Timestamp := Now;
+    Frame.Kind := fkRaw;
+    Frame.Id := 0;
+    Frame.IsExtendedId := False;
+
+    // ELM327 with headers on prefixes each frame with the CAN ID
+    // (3 hex digits for 11-bit, 8 for 29-bit) followed by a space
+    // and the data bytes. Detect by an isolated leading hex token.
+    SpaceAt := Pos(' ', Trimmed);
+    if (SpaceAt > 0) and (SpaceAt in [4, 9]) then
+    begin
+      IdToken := Copy(Trimmed, 1, SpaceAt - 1);
+      if TryStrToInt64('$' + IdToken, IdValue) then
+      begin
+        Frame.Id := Cardinal(IdValue);
+        Frame.IsExtendedId := SpaceAt = 9;
+        Rest := Copy(Trimmed, SpaceAt + 1, MaxInt);
+        Frame.Payload := HexToBytes(Rest);
+      end
+      else
+        Frame.Payload := HexToBytes(Trimmed);
+    end
+    else
+      Frame.Payload := HexToBytes(Trimmed);
+
+    FireOnFrame(Frame);
+  end;
+end;
+
 function TOBDProtocol.DoSend(const ARequest: TOBDRequest): TOBDResponse;
 var
   Hex: string;
   AdapterResp: TOBDAdapterResponse;
   Effective: Cardinal;
+  ExpectedSID: Byte;
 begin
   if (FAdapter = nil) or (FAdapter.Connection = nil) or
      not FAdapter.Connection.Active then
@@ -405,6 +480,11 @@ begin
 
   FireOnProgress(2, 3, 'Adapter exchange', Hex);
   AdapterResp := FAdapter.WriteOBDCommand(Hex, Effective);
+
+  // Frame-level fan-out (one TOBDFrame per response line). Done
+  // before decoding so subscribers see frames in arrival order
+  // even if decoding raises.
+  DispatchFrames(AdapterResp.Raw);
 
   FireOnProgress(3, 3, 'Decoding', '');
   if AdapterResp.IsError then
@@ -421,7 +501,23 @@ begin
   if Result.IsNegative then
     FireOnNRC(ARequest, Result.NRC, Result.NRCText)
   else
+  begin
+    // SID-mismatch surfaces as a transient OnError(oeUnexpectedFrame).
+    // Some adapters silently strip the SID echo; only flag when we
+    // got a non-zero SID that doesn't match the expected positive
+    // response.
+    case ARequest.Protocol of
+      apKWP2000:
+        ExpectedSID := TOBDKWPCodec.ExpectedPositiveResponse(ARequest.ServiceID);
+    else
+      ExpectedSID := TOBDUDSCodec.ExpectedPositiveResponse(ARequest.ServiceID);
+    end;
+    if (Result.ServiceID <> 0) and (Result.ServiceID <> ExpectedSID) then
+      FireOnError(oeUnexpectedFrame,
+        Format('Unexpected response SID 0x%2.2X (expected 0x%2.2X for request 0x%2.2X)',
+          [Result.ServiceID, ExpectedSID, ARequest.ServiceID]));
     FireOnResponse(Result);
+  end;
 end;
 
 function TOBDProtocol.Send(const ARequest: TOBDRequest): TOBDResponse;

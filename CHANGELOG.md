@@ -29,6 +29,23 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4b follow-ups (closed before 4c)
+- `OBD.Protocol.VIN` — ISO 3779 VIN validator with full alphabet
+  check (excludes I, O, Q), transliteration table, check-digit at
+  position 9, lenient `ExtractFromOBDResponse` for Service 09 PID
+  02 responses. 10 DUnitX assertions in
+  `Tests.OBD.Protocol.VIN`.
+- `TOBDProtocol.OnFrame` now fires once per line of the adapter
+  response. Frames carry the optional CAN ID (parsed from a
+  leading 3- or 8-hex-digit token when headers are on) and payload
+  bytes. Marshalled to the main thread.
+- `TOBDProtocol` raises `OnError(oeUnexpectedFrame)` when the
+  decoded positive response's SID does not match the expected
+  `request SID + 0x40`. Closes Phase 4a honest-review flag #3.
+- Sample `03-ReadVIN` now uses `TOBDVINValidator` and prints both
+  the extracted VIN and whether it passed strict ISO 3779
+  validation.
+
 ### Added — Phase 4b (TOBDProtocol component + sample 03-ReadVIN)
 - `OBD.Protocol` — `TOBDProtocol` component bound to `TOBDAdapter`;
   `Mode` (auto/manual), `Manual` (TOBDProtocolID), `Application`

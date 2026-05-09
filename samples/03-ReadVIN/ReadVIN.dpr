@@ -61,6 +61,7 @@ uses
   OBD.Protocol.J1850 in '..\..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\..\src\Protocol\OBD.Protocol.J1939.pas',
   OBD.Protocol.ISO15765 in '..\..\src\Protocol\OBD.Protocol.ISO15765.pas',
+  OBD.Protocol.VIN in '..\..\src\Protocol\OBD.Protocol.VIN.pas',
   OBD.Protocol in '..\..\src\Protocol\OBD.Protocol.pas';
 
 var
@@ -75,23 +76,13 @@ begin
      IfThen(AStep.Detail <> '', ' — ' + AStep.Detail, '')]));
 end;
 
-function ExtractVIN(const AData: TBytes): string;
-var
-  I: Integer;
+function ExtractVIN(const AData: TBytes; out AStrictlyValid: Boolean): string;
 begin
-  // Service 09 PID 02 response shape (after SID strip):
-  //   [02] [01] [VIN bytes 1..17]   on classic CAN
-  // Skip the leading PID and message-count bytes; keep printable ASCII.
-  Result := '';
-  for I := 0 to High(AData) do
-    if AData[I] in [$20..$7E] then
-      Result := Result + Char(AData[I]);
-  // Trim leading non-VIN echo characters.
-  while (Length(Result) > 17) and (Result[1] in [' ', #0..#1]) do
-    Delete(Result, 1, 1);
-  // VIN is exactly 17 characters; trim from the right if longer.
-  if Length(Result) > 17 then
-    Result := Copy(Result, Length(Result) - 16, 17);
+  // Lenient extractor finds the rightmost 17-character VIN-shaped
+  // substring; strict ISO 3779 validation (alphabet + check digit)
+  // runs alongside.
+  Result := TOBDVINValidator.ExtractFromOBDResponse(AData);
+  AStrictlyValid := (Result <> '') and TOBDVINValidator.IsValid(Result);
 end;
 
 var
@@ -101,6 +92,7 @@ var
   I: Integer;
   Resp: TOBDResponse;
   VIN: string;
+  StrictlyValid: Boolean;
 begin
   Host := '192.168.0.10';
   Port := 35000;
@@ -160,8 +152,17 @@ begin
       Halt(4);
     end;
 
-    VIN := ExtractVIN(Resp.Data);
-    Writeln('VIN: ', VIN);
+    VIN := ExtractVIN(Resp.Data, StrictlyValid);
+    if VIN = '' then
+      Writeln(ErrOutput, 'No 17-character VIN-shaped substring found in response.')
+    else
+    begin
+      Writeln('VIN: ', VIN);
+      if StrictlyValid then
+        Writeln('  ISO 3779 valid (alphabet + check digit OK)')
+      else
+        Writeln('  ISO 3779 check failed — VIN extracted but not validated.');
+    end;
     Writeln(Format('Round-trip: %d ms', [Resp.Elapsed]));
 
     Connection.Close;
