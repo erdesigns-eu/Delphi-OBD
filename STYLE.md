@@ -30,9 +30,9 @@ mandatory; copy the template and fill them in.
 //  <Optional multi-line description: scope, important behaviours, references
 //   to specifications (e.g. "Implements ISO 15765-2 Network Layer Services").>
 //
-//  Author      : <Name> <<email>>
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Co-authors  : <Name>, <Name>
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  References  :
@@ -67,19 +67,41 @@ record member gets XMLDoc immediately above its declaration in the
 
 ### Rules
 
+The mandatory minimum for every public symbol:
+
+| Symbol | Required tags | Optional tags |
+|---|---|---|
+| Type (class, record, interface, enum) | `<summary>`, `<remarks>` (when non-trivial) | `<see cref="…">` |
+| Enum member | `<summary>` | — |
+| Constructor / destructor | `<summary>`, `<param>` for each parameter, `<exception>` for each raise | `<remarks>` |
+| Procedure | `<summary>`, `<param>` for each parameter, `<exception>` for each raise | `<remarks>` |
+| Function | `<summary>`, `<param>` for each parameter, `<returns>`, `<exception>` for each raise | `<remarks>` |
+| Property | `<summary>`. `<remarks>` if it has side effects, threading, default value, units | — |
+| Field (record member) | `<summary>` | — |
+| Event property | `<summary>` describing **when** it fires and on **which thread** | — |
+
+Specifics:
+
 - **Always** document. There is no "obvious" exception. If it really is
   obvious, the doc takes one line.
 - **Use the `///` triple-slash form.** Delphi's IDE and code-completion
   surface these directly.
 - **First sentence** is a single line that ends with a period. The IDE
   shows just this in tooltips.
-- **`<param>`** for every parameter. Even self-evident ones.
+- **`<param>`** for every parameter. Even self-evident ones. The
+  CI hygiene job rejects PRs whose public methods are missing parameter
+  docs.
 - **`<returns>`** for every function (not procedures).
 - **`<remarks>`** for behavioural caveats: threading, blocking, side
   effects, ownership, exceptions raised, units of measure.
-- **`<exception cref="EOBDxxx">`** for every exception the method can raise
-  (programmer errors only — transient I/O fires `OnError`, not raises).
+- **`<exception cref="EOBDxxx">`** for every exception the method can
+  raise (programmer / configuration errors only — transient I/O fires
+  `OnError`, not raises).
 - **`<see cref="…">`** to point at related types/methods.
+- **Implementation methods that satisfy an interface** still need
+  XMLDoc on the **class**, not just the interface. The IDE shows the
+  class doc when navigating from a concrete instance, the interface
+  doc only when navigating from the interface reference.
 
 ### Example
 

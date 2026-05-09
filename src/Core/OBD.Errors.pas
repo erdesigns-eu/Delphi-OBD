@@ -8,7 +8,7 @@
 //  they have one; otherwise they fall back to <see cref="OBDErrorCodeToMessage"/>
 //  to produce the canonical text for the code.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

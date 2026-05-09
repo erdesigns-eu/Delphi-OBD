@@ -6,7 +6,7 @@
 //  be replaced by real samples (01-ConnectAndPing onwards) starting in
 //  Phase 2.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

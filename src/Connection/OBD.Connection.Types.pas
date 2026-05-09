@@ -1,0 +1,283 @@
+//------------------------------------------------------------------------------
+//  OBD.Connection.Types
+//
+//  Shared types and the IOBDConnectionTransport contract.
+//
+//  Every concrete transport (Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI)
+//  implements <see cref="IOBDConnectionTransport"/>; the TOBDConnection
+//  component routes its public surface to whichever transport the
+//  Transport enum selects.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  References  :
+//    - OBD.Types (TOBDTransport, TOBDErrorCode)
+//
+//  History     :
+//    2026-05-09  ERD  Phase 2 initial: contract for transports, byte
+//                     events, state enum, baud rate / handshake / parity
+//                     enums.
+//
+//  Future work :
+//    - SecOC freshness hook (Phase 4) needs an authenticated-frame
+//      callback shape; revisit when SecOC lands.
+//------------------------------------------------------------------------------
+
+unit OBD.Connection.Types;
+
+interface
+
+uses
+  System.SysUtils,
+  System.Classes,
+  OBD.Types;
+
+type
+  /// <summary>
+  ///   Lifecycle state of a connection / transport.
+  /// </summary>
+  /// <remarks>
+  ///   Stable enum order; values are streamed.
+  /// </remarks>
+  TOBDConnectionState = (
+    /// <summary>Closed and idle.</summary>
+    csClosed,
+    /// <summary>Open is in progress (e.g. dialling Bluetooth, opening
+    /// COM port). Transient state.</summary>
+    csOpening,
+    /// <summary>Open and ready for I/O.</summary>
+    csOpen,
+    /// <summary>Close is in progress. Transient state.</summary>
+    csClosing,
+    /// <summary>Errored — reason surfaced on the most recent OnError
+    /// event. The transport is logically closed.</summary>
+    csError
+  );
+
+  /// <summary>
+  ///   Standard serial baud rates for COM and FTDI transports.
+  /// </summary>
+  /// <remarks>
+  ///   Numeric values match the canonical baud number, not a Windows
+  ///   constant. Convert with <see cref="OBDBaudRateValue"/> for the
+  ///   underlying API.
+  /// </remarks>
+  TOBDBaudRate = (
+    br9600     = 9600,
+    br19200    = 19200,
+    br38400    = 38400,
+    br57600    = 57600,
+    br115200   = 115200,
+    br230400   = 230400,
+    br460800   = 460800,
+    br500000   = 500000,
+    br921600   = 921600,
+    br1000000  = 1000000,
+    br2000000  = 2000000
+  );
+
+  /// <summary>Serial parity options.</summary>
+  TOBDParity = (
+    /// <summary>No parity bit.</summary>
+    paNone,
+    /// <summary>Odd parity.</summary>
+    paOdd,
+    /// <summary>Even parity.</summary>
+    paEven,
+    /// <summary>Mark parity (forced 1).</summary>
+    paMark,
+    /// <summary>Space parity (forced 0).</summary>
+    paSpace
+  );
+
+  /// <summary>Serial stop bit options.</summary>
+  TOBDStopBits = (
+    /// <summary>1 stop bit (default).</summary>
+    sb1,
+    /// <summary>1.5 stop bits.</summary>
+    sb1_5,
+    /// <summary>2 stop bits.</summary>
+    sb2
+  );
+
+  /// <summary>Serial flow control.</summary>
+  TOBDFlowControl = (
+    /// <summary>No flow control.</summary>
+    fcNone,
+    /// <summary>RTS/CTS hardware flow control.</summary>
+    fcHardware,
+    /// <summary>XON/XOFF software flow control.</summary>
+    fcSoftware
+  );
+
+  /// <summary>
+  ///   Event raised when a transport receives bytes from the wire.
+  /// </summary>
+  /// <param name="Sender">Transport instance.</param>
+  /// <param name="ABytes">Newly received bytes. Owned by the transport
+  /// (do not free); copy if you need to retain.</param>
+  /// <remarks>
+  ///   Fired on the worker thread of the transport. The TOBDConnection
+  ///   component re-fires its own <c>OnDataReceived</c> on the main
+  ///   thread; consumers should subscribe to that, not to the transport
+  ///   directly.
+  /// </remarks>
+  TOBDBytesEvent = procedure(Sender: TObject; const ABytes: TBytes) of object;
+
+  /// <summary>
+  ///   Event raised when the transport state changes.
+  /// </summary>
+  /// <param name="Sender">Transport instance.</param>
+  /// <param name="NewState">New lifecycle state.</param>
+  TOBDStateEvent = procedure(Sender: TObject;
+    NewState: TOBDConnectionState) of object;
+
+  /// <summary>
+  ///   Event raised when a transient error occurs.
+  /// </summary>
+  /// <param name="Sender">Transport instance.</param>
+  /// <param name="ACode">Coded error from <see cref="TOBDErrorCode"/>.</param>
+  /// <param name="AMessage">Human-readable message; never empty.</param>
+  /// <remarks>
+  ///   Errors fire here, not exceptions. Configuration / programmer
+  ///   errors raise <see cref="EOBDError"/> descendants synchronously
+  ///   from the call site instead.
+  /// </remarks>
+  TOBDTransportErrorEvent = procedure(Sender: TObject;
+    ACode: TOBDErrorCode; const AMessage: string) of object;
+
+  /// <summary>
+  ///   Settings root for a transport. Concrete subclasses
+  ///   (<c>TOBDSerialSettings</c>, <c>TOBDWiFiSettings</c>, …) live in
+  ///   <c>OBD.Connection.Settings</c>; this base just provides a uniform
+  ///   anchor for cross-transport plumbing.
+  /// </summary>
+  /// <remarks>
+  ///   Subclasses must publish their tuneables so they round-trip
+  ///   through DFM streaming, and must override <c>Assign</c> to copy
+  ///   them in <c>SetXxxSettings</c> on the parent component.
+  /// </remarks>
+  TOBDTransportSettings = class(TPersistent);
+
+  /// <summary>
+  ///   Contract every concrete transport implements.
+  /// </summary>
+  /// <remarks>
+  ///   Implementations are expected to spawn a worker thread on Open
+  ///   and tear it down on Close. Read callbacks fire on the worker
+  ///   thread; the consumer (TOBDConnection) is responsible for
+  ///   marshalling to the main thread.
+  ///
+  ///   <c>WriteBytes</c> is synchronous from the caller's perspective —
+  ///   either the bytes are queued for transmission and the call
+  ///   returns <c>Length(ABytes)</c>, or the transport is in error and
+  ///   the call raises (configuration-shaped) or fires
+  ///   <c>OnTransportError</c> and returns 0 (transient).
+  /// </remarks>
+  IOBDConnectionTransport = interface
+    ['{D4E5C7A2-3F1B-4C9E-9D8A-7E6B5C4D3A2F}']
+
+    /// <summary>
+    ///   Closes the transport, terminates its worker thread, and
+    ///   releases any OS handle held.
+    /// </summary>
+    /// <remarks>
+    ///   No-op when already closed. Safe to call from any thread.
+    ///   Blocks until the worker thread has stopped.
+    /// </remarks>
+    procedure Close;
+
+    /// <summary>
+    ///   Indicates whether the transport is currently in
+    ///   <see cref="TOBDConnectionState.csOpen"/>.
+    /// </summary>
+    /// <returns><c>True</c> when ready for I/O.</returns>
+    function IsOpen: Boolean;
+
+    /// <summary>
+    ///   Current lifecycle state.
+    /// </summary>
+    /// <returns>One of <see cref="TOBDConnectionState"/>.</returns>
+    function State: TOBDConnectionState;
+
+    /// <summary>
+    ///   Sends bytes to the wire.
+    /// </summary>
+    /// <param name="ABytes">Bytes to transmit. Empty is allowed and
+    /// returns 0.</param>
+    /// <returns>Number of bytes accepted for transmission. May be less
+    /// than <c>Length(ABytes)</c> if the underlying buffer is full;
+    /// caller should retry the remainder.</returns>
+    /// <remarks>
+    ///   Synchronous. Transient transport errors fire
+    ///   <c>OnTransportError</c> and return 0 rather than raising.
+    /// </remarks>
+    /// <exception cref="EOBDNotConnected">Transport is not open.</exception>
+    function WriteBytes(const ABytes: TBytes): Integer;
+
+    /// <summary>Internal accessor for <c>OnDataReceived</c>.</summary>
+    function GetOnDataReceived: TOBDBytesEvent;
+    /// <summary>Internal mutator for <c>OnDataReceived</c>.</summary>
+    /// <param name="AValue">New handler. <c>nil</c> clears the event.</param>
+    procedure SetOnDataReceived(const AValue: TOBDBytesEvent);
+    /// <summary>Internal accessor for <c>OnStateChanged</c>.</summary>
+    function GetOnStateChanged: TOBDStateEvent;
+    /// <summary>Internal mutator for <c>OnStateChanged</c>.</summary>
+    /// <param name="AValue">New handler. <c>nil</c> clears the event.</param>
+    procedure SetOnStateChanged(const AValue: TOBDStateEvent);
+    /// <summary>Internal accessor for <c>OnTransportError</c>.</summary>
+    function GetOnTransportError: TOBDTransportErrorEvent;
+    /// <summary>Internal mutator for <c>OnTransportError</c>.</summary>
+    /// <param name="AValue">New handler. <c>nil</c> clears the event.</param>
+    procedure SetOnTransportError(const AValue: TOBDTransportErrorEvent);
+
+    /// <summary>
+    ///   Fires when bytes arrive from the wire.
+    /// </summary>
+    /// <remarks>
+    ///   Always fires on the transport's worker thread.
+    ///   <c>TOBDConnection</c> re-fires its own <c>OnDataReceived</c>
+    ///   on the main thread; consumers normally subscribe there.
+    /// </remarks>
+    property OnDataReceived: TOBDBytesEvent
+      read GetOnDataReceived write SetOnDataReceived;
+
+    /// <summary>
+    ///   Fires when <c>State</c> changes.
+    /// </summary>
+    /// <remarks>
+    ///   May fire on the worker thread (rx side detected disconnect)
+    ///   or the caller thread (Open / Close called by the user).
+    /// </remarks>
+    property OnStateChanged: TOBDStateEvent
+      read GetOnStateChanged write SetOnStateChanged;
+
+    /// <summary>
+    ///   Fires when a transient I/O error occurs.
+    /// </summary>
+    /// <remarks>
+    ///   Configuration / programmer errors raise
+    ///   <see cref="EOBDError"/> instead of firing this event.
+    /// </remarks>
+    property OnTransportError: TOBDTransportErrorEvent
+      read GetOnTransportError write SetOnTransportError;
+  end;
+
+/// <summary>
+///   Returns the integer baud rate for a <see cref="TOBDBaudRate"/>
+///   value (e.g. 115200 for <c>br115200</c>).
+/// </summary>
+/// <param name="ABaud">Symbolic baud-rate enum value.</param>
+/// <returns>Baud rate in bits/second.</returns>
+function OBDBaudRateValue(ABaud: TOBDBaudRate): Cardinal;
+
+implementation
+
+function OBDBaudRateValue(ABaud: TOBDBaudRate): Cardinal;
+begin
+  Result := Cardinal(ABaud);
+end;
+
+end.

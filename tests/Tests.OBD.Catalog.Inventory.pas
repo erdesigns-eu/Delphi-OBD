@@ -8,7 +8,7 @@
 //  Counts here are minimum thresholds, not exact numbers. New entries
 //  are welcome; only deletions need to bump the baseline.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

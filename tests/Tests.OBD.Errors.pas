@@ -4,7 +4,7 @@
 //  Smoke coverage for OBD.Errors. Verifies every defined error code
 //  has a non-empty message and a Pascal-style identifier.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

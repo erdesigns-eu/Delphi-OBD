@@ -7,7 +7,7 @@
 //  primarily to give CI something to run during Phase 0 before real
 //  components land.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

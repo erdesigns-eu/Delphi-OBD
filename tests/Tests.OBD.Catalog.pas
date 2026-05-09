@@ -8,7 +8,7 @@
 //  state. This lets the suite live alongside the production code and
 //  exercise the same code path users hit.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

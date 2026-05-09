@@ -10,6 +10,34 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+### Added — Phase 2 (Connection layer)
+- `OBD.Connection.Types` — `IOBDConnectionTransport` contract and
+  shared enums (state, baud, parity, stop-bits, flow-control).
+- `OBD.Connection.Settings` — TPersistent sub-objects per transport.
+- `OBD.Connection.Retry` — `TOBDRetryPolicy` with exponential backoff
+  and seedable jitter.
+- `OBD.Connection.Mock` — in-memory transport for tests.
+- `OBD.Connection.Serial` — Win32 serial transport.
+- `OBD.Connection.WiFi` / `OBD.Connection.UDP` — TCP / UDP transports.
+- `OBD.Connection.Bluetooth` — Bluetooth Classic (RFCOMM / SPP).
+- `OBD.Connection.BLE` — Bluetooth LE (GATT, FFE0/FFE1 default profile).
+- `OBD.Connection.FTDI` — FTDI D2XX via dynamically-loaded
+  `ftd2xx.dll`.
+- `OBD.Connection` — `TOBDConnection` component (TComponent,
+  enum-driven), main-thread event marshalling, retry-loop integration.
+- DUnitX coverage: `Tests.OBD.Connection.Mock` (9), `Tests.OBD.Connection.Retry`
+  (6), `Tests.OBD.Connection` (8).
+- Sample `01-ConnectAndPing`.
+
+### Changed — process & attribution
+- Author attribution corrected to **Ernst Reidinga (ERDesigns)** in
+  every file header. ERDesigns is the practice; Ernst is the author.
+- `STYLE.md` extended with a **mandatory-tag table per symbol kind**
+  so the XMLDoc standard is unambiguous; every Phase 2 unit
+  re-reviewed against the new table.
+- `LICENSE` and `CHANGELOG.md` copyright lines now name Ernst Reidinga
+  alongside the contributors.
+
 ### Added — Phase 1 (Core types & catalog loader)
 - `OBD.Types` — foundational enums (`TOBDTransport`, `TOBDAdapterFamily`,
   `TOBDProtocolID`, `TOBDErrorCode`, `TOBDValueKind`), the polymorphic

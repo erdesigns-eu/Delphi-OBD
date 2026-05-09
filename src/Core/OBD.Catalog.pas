@@ -19,7 +19,7 @@
 //  The loader rejects malformed files with a clear diagnostic naming
 //  the offending file:line. Lookup is by <c>(type, mode, id)</c> tuple.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

@@ -6,7 +6,7 @@
 //  Defines the enums, value carriers, and exception hierarchy that are
 //  used by every other layer. Has no dependencies beyond the System RTL.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

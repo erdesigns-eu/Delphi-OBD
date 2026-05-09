@@ -412,17 +412,21 @@ Each phase ships independently and ends with a green CI run. `[ ]` = open,
 - [x] Phase 1 review report: [`docs/phase-reviews.md`](docs/phase-reviews.md) — what landed, what was deliberately deferred, honest follow-ups
 
 ### Phase 2 — Connection layer (~2 weeks)
-- [ ] `OBD.Connection.pas` — `TOBDConnection` component, transport-agnostic public surface
-- [ ] `OBD.Connection.Serial.pas` — Serial transport implementation (no `Vcl.Forms`)
-- [ ] `OBD.Connection.Bluetooth.pas` — RFCOMM
-- [ ] `OBD.Connection.BLE.pas`
-- [ ] `OBD.Connection.WiFi.pas`
-- [ ] `OBD.Connection.UDP.pas`
-- [ ] `OBD.Connection.FTDI.pas`
-- [ ] Internal threading: rx-thread + bounded queue + `TThread.Queue` event marshalling
-- [ ] Retry policy as `TPersistent` sub-object (`TOBDRetryPolicy`)
-- [ ] Tests: mock transport, queue ordering, event marshalling, reconnect, timeout
-- [ ] Sample `01-ConnectAndPing`
+- [x] `OBD.Connection.Types.pas` — `IOBDConnectionTransport` contract, state / baud / parity / stop-bits / flow-control enums, byte / state / error event types
+- [x] `OBD.Connection.Settings.pas` — TPersistent sub-objects per transport: Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI
+- [x] `OBD.Connection.Retry.pas` — `TOBDRetryPolicy` (TPersistent) with exponential backoff, MaxDelay clamp, configurable jitter, seedable RNG
+- [x] `OBD.Connection.Mock.pas` — `TOBDMockTransport` with state simulation, write capture, byte feed, error injection
+- [x] `OBD.Connection.Serial.pas` — Win32 COM port (CreateFile / ReadFile / WriteFile + read thread)
+- [x] `OBD.Connection.WiFi.pas` — TCP transport via `System.Net.Socket`
+- [x] `OBD.Connection.UDP.pas` — UDP transport via `System.Net.Socket`
+- [x] `OBD.Connection.Bluetooth.pas` — RFCOMM via `System.Bluetooth.TBluetoothManager`
+- [x] `OBD.Connection.BLE.pas` — GATT via `System.Bluetooth.TBluetoothLEManager` (FFE0/FFE1 default profile)
+- [x] `OBD.Connection.FTDI.pas` — D2XX via dynamically-loaded `ftd2xx.dll`
+- [x] `OBD.Connection.pas` — `TOBDConnection` component (TComponent, enum-driven), main-thread event marshalling via `TThread.Queue`, retry-loop integration
+- [x] Tests: `Tests.OBD.Connection.Mock` (9 assertions), `Tests.OBD.Connection.Retry` (6 assertions), `Tests.OBD.Connection` (8 lifecycle assertions)
+- [x] Sample `01-ConnectAndPing` (Wi-Fi → ATZ → response, configurable host/port)
+- [x] Phase 2 review report appended to `docs/phase-reviews.md`
+- *Hardware-dependent integration tests (real adapter loop) deferred until a self-hosted CI runner with bench hardware is online.*
 
 ### Phase 3 — Adapter layer (~2 weeks)
 - [ ] `OBD.Adapter.pas` — `TOBDAdapter` component, `Family` enum
@@ -795,3 +799,4 @@ Append entries here as work progresses.
 | 2026-05-09 | — | Plan drafted and locked. v2 branch not yet cut. |
 | 2026-05-09 | 0 | v2 branch cut from main; old src/tests/examples/tools/docs/Packages/Resources wiped (catalogs preserved). Skeleton landed: LICENSE (MIT), README, CONTRIBUTING, STYLE guide, file-header template, RT+DT package skeletons, DUnitX runner with smoke test, hygiene CI workflow, issue/PR templates, samples/00-Hello, src/ subdir map, docs/flashing-safety.md. Coverage CI deferred until Windows runner is online. |
 | 2026-05-09 | 1 | Core layer landed: OBD.Types (enums, TOBDValue, exception hierarchy), OBD.Errors (code → message), OBD.Decoders (registry + 10 built-in scaling primitives), OBD.Catalog (JSON loader, in-memory store, typed lookup). **Full catalogue port from main: 1,550 entries across 55 files** — 84 Mode 01 PIDs, 528 generic DTCs, 60 UDS NRCs, 34 Mode 06 MIDs, 22 Mode 06 TIDs, 22 WWH-OBD DIDs, 31 UDS DIDs, 55 J1939 PGNs, 658 OEM standard DTCs across 39 vendors, 51 J1939 SPN-FMI fault codes across 7 heavy-duty OEMs. Inventory regression tests guard against silent data loss. Phase 1 review report at docs/phase-reviews.md. |
+| 2026-05-09 | 2 | Connection layer landed: ~2,920 lines runtime + ~655 lines tests / sample. `IOBDConnectionTransport` contract with six concrete transports (Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI) plus mock. `TOBDConnection` enum-driven component with main-thread event marshalling and `TOBDRetryPolicy` exponential-backoff retry. 23 DUnitX assertions across mock / retry / lifecycle. Sample `01-ConnectAndPing`. Mid-phase user feedback applied: author attribution corrected to **Ernst Reidinga (ERDesigns)** across all 24 source/test/sample/template files; STYLE.md extended with mandatory-tag table per symbol kind; every Phase 2 public symbol re-reviewed against the new bar. |

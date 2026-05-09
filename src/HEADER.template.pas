@@ -6,9 +6,9 @@
 //  <Optional multi-line description: scope, important behaviours, references
 //   to specifications (e.g. "Implements ISO 15765-2 Network Layer Services").>
 //
-//  Author      : <Name> <<email>>
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Co-authors  : <Name>, <Name>
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  References  :

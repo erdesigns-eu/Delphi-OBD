@@ -13,7 +13,7 @@
 //    - "OBD Visual" — reserved for future visual companions (currently
 //                     empty by design — v1 is headless)
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //

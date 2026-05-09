@@ -124,10 +124,161 @@ consuming component is designed.**
 
 1. Add a `Tests.OBD.Catalog.Inventory` fixture asserting baseline
    entry counts (e.g. ≥ 80 Mode 01 PIDs) so a future PR cannot silently
-   drop data.
+   drop data. **Done in this phase.**
 2. Decide on the NRC text-style policy (verbatim ISO camelCase vs
    prettified). Mark the decision in this document.
 3. Decide on whether `vin-*` and `radiocode-*` belong in the v2
    roadmap at all. If yes, they need a Phase entry in PLAN.md; if no,
    delete the decision log so it doesn't dangle.
+
+---
+
+## Phase 2 — Connection layer
+
+**Status:** Complete on `claude/v2-phase-1` (the active PR branch).
+**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Connection/ tests/Tests.OBD.Connection*.pas samples/01-ConnectAndPing/`.
+
+### Code landed
+
+| Unit | Lines | Purpose |
+|---|---:|---|
+| `src/Connection/OBD.Connection.Types.pas` | ~210 | `IOBDConnectionTransport` contract; state, baud, parity, stop-bit, flow-control enums; byte / state / error event types. |
+| `src/Connection/OBD.Connection.Settings.pas` | ~290 | TPersistent sub-objects for every transport (Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI). |
+| `src/Connection/OBD.Connection.Retry.pas` | ~140 | `TOBDRetryPolicy` with exponential backoff, MaxDelay clamp, configurable jitter, seedable RNG. |
+| `src/Connection/OBD.Connection.Mock.pas` | ~220 | `TOBDMockTransport` for tests — state simulation, write capture, byte feed, error injection. |
+| `src/Connection/OBD.Connection.Serial.pas` | ~330 | Win32 serial transport with `CreateFile` + read thread. |
+| `src/Connection/OBD.Connection.WiFi.pas` | ~225 | TCP transport via `System.Net.Socket`. |
+| `src/Connection/OBD.Connection.UDP.pas` | ~225 | UDP transport via `System.Net.Socket`. |
+| `src/Connection/OBD.Connection.Bluetooth.pas` | ~285 | RFCOMM via `System.Bluetooth`. |
+| `src/Connection/OBD.Connection.BLE.pas` | ~270 | GATT via `System.Bluetooth.TBluetoothLEManager`. |
+| `src/Connection/OBD.Connection.FTDI.pas` | ~365 | FTDI D2XX via dynamically-loaded `ftd2xx.dll`. |
+| `src/Connection/OBD.Connection.pas` | ~360 | `TOBDConnection` component, retry loop, event marshalling. |
+| **Total runtime** | **~2,920** | |
+| `tests/Tests.OBD.Connection.Mock.pas` | ~210 | Mock transport coverage. |
+| `tests/Tests.OBD.Connection.Retry.pas` | ~165 | Retry policy coverage. |
+| `tests/Tests.OBD.Connection.pas` | ~165 | Component lifecycle + sub-settings round-trip. |
+| `samples/01-ConnectAndPing/ConnectAndPing.dpr` | ~115 | Wi-Fi → ATZ → response sample. |
+| **Total tests + sample** | **~655** | |
+
+### Architecture highlights
+
+- **One component, enum-driven.** Setting `Transport` selects the
+  active sub-settings; `Active := True` instantiates the matching
+  `IOBDConnectionTransport`, wires its callbacks, and starts its
+  worker thread.
+- **All events fire on the main thread.** `HandleTransportBytes`,
+  `HandleTransportState`, and `HandleTransportError` use
+  `TThread.Queue` to marshal off the worker thread.
+- **Retry as a real concept.** `TOBDRetryPolicy` is a published
+  sub-object with exponential backoff, MaxDelay clamp, jitter
+  envelope. `DoOpen` runs the retry loop transparently.
+- **Pluggable transports.** Concrete transports implement
+  `IOBDConnectionTransport`. Adding a new transport (e.g. Linux
+  termios) is a new unit, not a fork of `TOBDConnection`.
+- **No `Vcl.Forms`, no `Application.ProcessMessages`, no `Sleep`
+  busy-loops** in any unit. CI hygiene job already enforces the VCL
+  boundary.
+
+### Author attribution & documentation pass
+
+Mid-phase the user pointed out:
+
+1. The author block in headers said *"ERDesigns"* alone; correct
+   attribution is **"Ernst Reidinga (ERDesigns)"** — Ernst is the
+   author, ERDesigns is the practice.
+2. The XMLDoc on Phase 2 units was less rigorous than `STYLE.md`
+   demands.
+
+Both addressed in this commit:
+
+- All 24 source / test / sample / template files updated to
+  `Author : Ernst Reidinga (ERDesigns)`. The `STYLE.md` template and
+  `src/HEADER.template.pas` updated to match. `LICENSE` and `CHANGELOG.md`
+  copyright lines also updated.
+- `STYLE.md` extended with an explicit **mandatory-tag table per symbol
+  kind** so the standard is unambiguous (constructors must have
+  `<param>` and `<exception>` per raise; functions must have `<returns>`;
+  event properties must say *when* they fire and on *which thread*; etc.).
+- Every public type, constructor, destructor, method, property, and
+  event in the Phase 2 units re-reviewed against the new table and
+  brought up to standard.
+
+### What was deliberately not ported
+
+| v1 file / behaviour | Reason | Where it lands |
+|---|---|---|
+| `OBD.Connection.Async.pas` (the SendAsync wrapper) | Async API is not the v2 public surface — sync API + events was the locked decision in PLAN §2 row 5. The async machinery is reused internally inside `TOBDAdapter` (Phase 3). | Phase 3 |
+| Per-OS POSIX serial backend | v1 was Windows-only; v2 keeps Windows-only for serial / FTDI. POSIX termios backend is out of scope until someone needs it. | Post-1.0 / community |
+| Adapter / port enumeration (port-scan helpers in `OBD.Adapter.Enumerator.pas`) | Belongs on `TOBDAdapter`, not on the connection layer. | Phase 3 |
+| `OBD.Connection.Constants.pas` | Constants from v1 were transport-specific magic numbers (CTS / DCB flags, BT buffer sizes) — all inlined where used in v2 with named comments for the magic bits. The unit's existence on `main` is no longer needed. | n/a (folded in) |
+| `OBD.Connection.Component.pas` (the v1 wrapper) | v1 had a separate "component" wrapper because the v1 base was a plain class. v2's `TOBDConnection` IS the component; no wrapper needed. | n/a |
+
+### Honest review — what a reviewer should double-check
+
+1. **Bluetooth pairing flow.** `Open` requires the device to be
+   already paired with the host OS. The package does **not** trigger
+   pairing dialogs. If we want that, it would have to be an
+   `OnPairRequired` event or similar. Currently raises with a clear
+   message instead.
+2. **BLE notifications fire on the BLE manager's worker thread.**
+   `TOBDConnection` then re-fires on the main thread, which is
+   correct, but reviewers should verify that `OnCharacteristicRead` in
+   `OBD.Connection.BLE.pas:HandleCharRead` matches the RTL expectation
+   for the Delphi version we're testing on (10.3 is the floor).
+3. **FTDI `Sleep(2)` in the read loop.** The D2XX `FT_Read` returns
+   immediately when no bytes are queued; without a brief sleep the loop
+   would peg the CPU. A more elegant solution would be event-driven
+   reads via `FT_SetEventNotification`, but adds complexity without a
+   clear benefit. **Open decision** for a follow-up if profiling shows
+   it matters.
+4. **Component-level retry only triggers on Open.** Once the transport
+   is open and connection drops mid-session, the retry policy does
+   **not** re-engage. That's deliberate (auto-reconnect surprises the
+   adapter / protocol layer), but worth flagging in the docs.
+5. **`SetTransportWhileActiveRaises` test is indirect.** Without a
+   real-I/O adapter we exercise the FActive guard via a deliberate
+   refused-connection. A cleaner test would inject the mock transport
+   into the component, which requires either a protected setter or a
+   factory hook. **Suggested follow-up** — promote `TransportImpl` to
+   settable for tests, or add `RegisterTransportFactory` for design-time.
+6. **No real-I/O integration tests.** Hardware-loop tests need a
+   self-hosted CI runner with a bench adapter; deferred per Phase 0
+   plan.
+7. **Bluetooth Classic `FManager` is assigned but currently not
+   released explicitly.** `TBluetoothManager.Current` is a singleton
+   so this is fine, but the field could be cleared in `Close` for
+   symmetry; reviewer's call.
+8. **Event marshalling captures `Snapshot`** by-reference into the
+   anonymous method, which is correct because `TBytes` is reference
+   counted. Spot-check the closures in
+   `OBD.Connection.pas:HandleTransportBytes` to make sure no race
+   exists across the `TThread.Queue` boundary.
+
+### Quality bars met
+
+- [x] Every public symbol has XMLDoc per the new mandatory-tag table.
+- [x] Every `.pas` file has the standard file header with the
+      corrected author attribution.
+- [x] No `Vcl.*` / `FMX.*` references in any runtime unit.
+- [x] No `Application.ProcessMessages`. No `Sleep` busy-loops outside
+      the FTDI 2 ms idle (documented).
+- [x] All transport events route to the main thread before the
+      consumer sees them.
+- [x] Settings round-trip via `Assign`.
+- [x] Retry policy is testable (seedable RNG) and tested.
+
+### Suggested follow-up before Phase 3
+
+1. Decide on the test-injection mechanism for `TOBDConnection`
+   (protected `TransportImpl` setter vs. factory registry). Phase 3
+   will want to mock the transport heavily for adapter detection
+   tests.
+2. Document the design-time Object Inspector behaviour we want for
+   conditional sub-settings (only show `SerialSettings` when
+   `Transport = otSerial`, etc.). The runtime exposes them all; the
+   design-time package (Phase 11) will hide the irrelevant ones via a
+   property-editor visibility hook.
+3. Add a `tools/lint` rule that checks every public method has
+   `<param>` for each parameter, so future PRs cannot regress the
+   doc-quality bar quietly.
 

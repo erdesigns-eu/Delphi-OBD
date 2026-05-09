@@ -12,7 +12,7 @@
 //  same output. This makes them trivial to unit-test against captured
 //  fixtures.
 //
-//  Author      : ERDesigns
+//  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
