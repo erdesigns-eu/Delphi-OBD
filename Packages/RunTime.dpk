@@ -193,6 +193,7 @@ contains
   OBD.Protocol.SecOC in '..\src\Protocol\OBD.Protocol.SecOC.pas',
   OBD.Protocol.IsoTp.Timing in '..\src\Protocol\OBD.Protocol.IsoTp.Timing.pas',
   OBD.Adapter.PassThrough.J2534v2 in '..\src\Adapters\OBD.Adapter.PassThrough.J2534v2.pas',
+  OBD.EV.BatteryHealth in '..\src\Services\OBD.EV.BatteryHealth.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',

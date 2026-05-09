@@ -1,0 +1,186 @@
+//------------------------------------------------------------------------------
+// UNIT           : OBD.EV.BatteryHealth.pas
+// CONTENTS       : EV-specific high-level helpers built on top of the
+//                : per-cell DIDs the OEM catalogs already ship.
+//                :   * TOBDBatterySoH  — derive a state-of-health figure
+//                :                       from per-cell voltages, capacity
+//                :                       DIDs, and cycle counts.
+//                :   * TOBDCellImbalance — spread / std-dev / outlier
+//                :                          detection across the per-cell
+//                :                          voltage array.
+//                :   * TOBDChargingSession — decode a charging-session
+//                :                            telemetry record (start/end
+//                :                            SoC, energy, peak power,
+//                :                            average temperature).
+//
+// Why            : v3.34+ shipped per-cell voltages / temperatures + pack
+//                : SoC/SoH DIDs across VW MEB, Tesla, BMW i, HMG E-GMP,
+//                : Volvo / Polestar, Lucid, NIO, BYD, Xpeng, Rivian
+//                : (~108-192 cells per pack on the bigger entries). The
+//                : data has been shipped for a while; the missing bit
+//                : was the high-level API to turn raw cell numbers into
+//                : workshop-grade SoH and imbalance reports.
+//
+// Notes          : This unit is pure math + decoders. It does not call
+//                : the wire-level UDS layer; production callers fetch
+//                : the underlying DIDs through the existing OEM client
+//                : and pass the results in. That keeps tests pure and
+//                : the unit reusable across capture-replay fixtures.
+//------------------------------------------------------------------------------
+unit OBD.EV.BatteryHealth;
+
+interface
+
+uses
+  System.SysUtils, System.Math;
+
+type
+  EOBDBatteryHealth = class(Exception);
+
+  /// <summary>Cell-imbalance summary computed from the per-cell array.</summary>
+  TOBDCellImbalance = record
+    CellCount: Integer;
+    MinVoltage: Single;
+    MaxVoltage: Single;
+    MeanVoltage: Single;
+    StdDev: Single;          // population standard deviation
+    SpreadVolts: Single;     // Max - Min, the workshop-friendly figure
+    OutlierIndex: Integer;   // -1 if no cell deviates > 3 sigma; else its index
+    OutlierDeltaSigma: Single;
+  end;
+
+  /// <summary>State-of-health computed from observed pack capacity vs
+  /// rated capacity. SoHFromCapacity is the canonical form; the other
+  /// fields are intermediate values shown to the workshop UI.</summary>
+  TOBDBatterySoH = record
+    RatedCapacityKwh: Single;
+    ObservedCapacityKwh: Single;
+    SoHFromCapacity: Single;     // 0..1 (1.0 = brand new)
+    EquivalentFullCycles: Integer;
+    DeratingFromTemperature: Single; // 0..1 multiplier; 1.0 = no derating
+    CompositeSoH: Single;        // SoHFromCapacity * DeratingFromTemperature
+  end;
+
+  /// <summary>One charging-session record. The OEM catalog DIDs that
+  /// feed this come in slightly different units across OEMs; the
+  /// caller normalises before constructing.</summary>
+  TOBDChargingSession = record
+    StartSoCPercent: Single;
+    EndSoCPercent: Single;
+    EnergyDeliveredKwh: Single;
+    PeakPowerKw: Single;
+    AverageBatteryTempC: Single;
+    DurationSeconds: Integer;
+    SessionType: string;          // 'AC', 'DC', 'V2L', 'V2G', etc.
+  end;
+
+/// <summary>Compute imbalance metrics across the per-cell voltage
+/// array (volts). Raises on empty input.</summary>
+function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalance;
+
+/// <summary>Compute SoH from a (rated, observed) capacity pair. Both
+/// must be positive. Optional temperature derating multiplier in
+/// 0..1; default 1.0 (no derating).</summary>
+function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
+  EquivalentFullCycles: Integer = 0;
+  DeratingFromTemperature: Single = 1.0): TOBDBatterySoH;
+
+/// <summary>Normalise a charging-session record. Validates the
+/// SoC pair (start < end, 0..100) and the duration.</summary>
+function NormaliseChargingSession(const Raw: TOBDChargingSession):
+  TOBDChargingSession;
+
+implementation
+
+function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalance;
+var
+  I: Integer;
+  Sum, SumSq, Diff, Sigma: Double;
+  MaxAbs: Double;
+begin
+  if Length(CellVolts) = 0 then
+    raise EOBDBatteryHealth.Create('Need at least one cell voltage');
+  Result := Default(TOBDCellImbalance);
+  Result.CellCount := Length(CellVolts);
+  Result.MinVoltage := CellVolts[0];
+  Result.MaxVoltage := CellVolts[0];
+  Sum := 0;
+  for I := 0 to High(CellVolts) do
+  begin
+    if CellVolts[I] < Result.MinVoltage then Result.MinVoltage := CellVolts[I];
+    if CellVolts[I] > Result.MaxVoltage then Result.MaxVoltage := CellVolts[I];
+    Sum := Sum + CellVolts[I];
+  end;
+  Result.MeanVoltage := Sum / Length(CellVolts);
+  Result.SpreadVolts := Result.MaxVoltage - Result.MinVoltage;
+
+  SumSq := 0;
+  for I := 0 to High(CellVolts) do
+  begin
+    Diff := CellVolts[I] - Result.MeanVoltage;
+    SumSq := SumSq + Diff * Diff;
+  end;
+  Result.StdDev := Sqrt(SumSq / Length(CellVolts));
+
+  Result.OutlierIndex := -1;
+  Result.OutlierDeltaSigma := 0;
+  if Result.StdDev > 0 then
+  begin
+    MaxAbs := 0;
+    for I := 0 to High(CellVolts) do
+    begin
+      Diff := Abs(CellVolts[I] - Result.MeanVoltage) / Result.StdDev;
+      if Diff > MaxAbs then
+      begin
+        MaxAbs := Diff;
+        Result.OutlierIndex := I;
+        Result.OutlierDeltaSigma := Diff;
+      end;
+    end;
+    // Only flag if >3-sigma; below that it's noise.
+    if MaxAbs <= 3.0 then
+    begin
+      Result.OutlierIndex := -1;
+      Result.OutlierDeltaSigma := MaxAbs;
+    end;
+  end;
+end;
+
+function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
+  EquivalentFullCycles: Integer; DeratingFromTemperature: Single): TOBDBatterySoH;
+begin
+  if RatedKwh <= 0 then
+    raise EOBDBatteryHealth.Create('Rated capacity must be positive');
+  if ObservedKwh < 0 then
+    raise EOBDBatteryHealth.Create('Observed capacity cannot be negative');
+  if (DeratingFromTemperature < 0) or (DeratingFromTemperature > 1) then
+    raise EOBDBatteryHealth.Create(
+      'DeratingFromTemperature must be in [0, 1]');
+  Result.RatedCapacityKwh := RatedKwh;
+  Result.ObservedCapacityKwh := ObservedKwh;
+  Result.SoHFromCapacity := ObservedKwh / RatedKwh;
+  if Result.SoHFromCapacity > 1 then
+    Result.SoHFromCapacity := 1;
+  Result.EquivalentFullCycles := EquivalentFullCycles;
+  Result.DeratingFromTemperature := DeratingFromTemperature;
+  Result.CompositeSoH := Result.SoHFromCapacity * DeratingFromTemperature;
+end;
+
+function NormaliseChargingSession(const Raw: TOBDChargingSession):
+  TOBDChargingSession;
+begin
+  Result := Raw;
+  if (Raw.StartSoCPercent < 0) or (Raw.StartSoCPercent > 100) then
+    raise EOBDBatteryHealth.CreateFmt(
+      'StartSoC out of range: %.2f', [Raw.StartSoCPercent]);
+  if (Raw.EndSoCPercent < 0) or (Raw.EndSoCPercent > 100) then
+    raise EOBDBatteryHealth.CreateFmt(
+      'EndSoC out of range: %.2f', [Raw.EndSoCPercent]);
+  if Raw.EndSoCPercent < Raw.StartSoCPercent then
+    raise EOBDBatteryHealth.Create(
+      'EndSoC must be >= StartSoC for a charging session');
+  if Raw.DurationSeconds < 0 then
+    raise EOBDBatteryHealth.Create('Duration cannot be negative');
+end;
+
+end.
