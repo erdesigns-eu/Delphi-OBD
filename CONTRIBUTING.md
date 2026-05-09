@@ -1,74 +1,105 @@
 # Contributing to Delphi-OBD
 
-Thanks for considering a contribution. This file is the short version of how
-work happens here. The long version lives in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Thanks for considering a contribution. This document covers how to work with
+the codebase. The architectural plan is in [`PLAN.md`](PLAN.md). The code
+style is in [`STYLE.md`](STYLE.md). Read both before opening a PR.
 
-## Branching
+## Ground rules
 
-* `main` is always shippable.
-* Feature branches: `feature/<short-name>` or `fix/<short-name>`.
-* Bot/AI-assisted branches: `claude/<short-name>` or `copilot/<short-name>`.
-* Never push directly to `main`. Open a PR.
+1. **Code-as-documentation.** Every unit, class, method, property, event,
+   record, and interface is XMLDoc'd in the source. External markdown is
+   reserved for disclaimers, quick-starts, and policy. If you add a public
+   surface, document it in the source.
+2. **No CLA.** This project is MIT licensed; contributions are accepted under
+   the same license (inbound = outbound). You retain copyright on your
+   contributions.
+3. **Sign-off optional.** A `Signed-off-by:` trailer on commits is appreciated
+   but not required.
+4. **Match the plan.** [`PLAN.md`](PLAN.md) is the source of truth for what
+   ships in v1. New components, services, or major behaviour need to be
+   discussed in an issue first so the plan can be updated.
 
-## Commit messages
+## Branching and commits
 
-* Imperative mood, ≤72-char subject (`Add VIN golden tests`, not
-  `Added some tests`).
-* Body explains **why**, not what — the diff already shows what.
-* Group related changes; do not bundle a typo fix with a feature commit.
-* Reference issues with `#NNN` in the body when relevant.
+- `main` — frozen v1 reference. Do not commit here.
+- `v2` — active development. Do not commit here directly; PR into it.
+- Feature branches off `v2`: `v2/phase-N-shortname`
+  (e.g. `v2/phase-2-connection`).
+- Conventional commit subjects: `feat:`, `fix:`, `docs:`, `test:`,
+  `refactor:`, `chore:`. Imperative mood, no trailing period.
+- Squash-merge into `v2` is the default. Keep the squashed message clean.
 
 ## Pull requests
 
-Before opening a PR:
+1. Open against `v2`.
+2. CI must be green.
+3. Every public symbol you add or change must have current XMLDoc.
+4. Tests for new behaviour. DUnitX. Capture-driven where the input is a wire
+   format (see `tests/fixtures/`).
+5. If the change affects [`PLAN.md`](PLAN.md), update the plan in the same
+   PR.
+6. Link the issue if there is one.
 
-1. **Tests pass.** Run `tests/Tests.dpr` locally — green is the bar.
-2. **Static checks clean.** The CI `lint` job rejects mangled signatures,
-   stray `end.`, leftover `Redraw;` calls, missing trailing newlines, and
-   CRLF line endings. Fix locally; CI is not your linter.
-3. **Roadmap updated.** If your change ships an item from
-   [`docs/ROADMAP.md`](docs/ROADMAP.md), tick the box and link the PR.
-4. **CHANGELOG updated.** Add a line under `[Unreleased]` matching the
-   appropriate section (Added / Changed / Fixed / Removed / Deprecated /
-   Security).
-5. **No new patterns without a doc.** If you introduce an architectural
-   concept, update `docs/ARCHITECTURE.md` (create it if missing) in the
-   same PR.
+## Filing issues
 
-PR description should answer:
+- Use the bug or feature template.
+- For bugs: include Delphi version, OS, adapter (chip + firmware), and
+  ideally a `.obdlog` capture from `TOBDRecorder`.
+- For security issues affecting flashing or signature verification: do
+  **not** open a public issue — email the maintainer
+  (address in the package About box once Phase 11 lands).
 
-* What problem does this solve?
-* What's the user-visible change?
-* What did you test?
-* Anything reviewers should pay extra attention to?
+## Catalogue contributions
 
-## Code style
+Adding a PID, DTC, DID, J1939 PGN, or any other catalogue entry:
 
-* Pascal: follow the existing style in surrounding code. Two-space indent;
-  `begin`/`end` on their own lines; XML doc comments (`///`) on every
-  public method/property.
-* No commented-out code. Delete it; git remembers.
-* No comments that restate the code. Reserve comments for the *why*: a
-  hidden constraint, a workaround, surprising behaviour.
-* Components: render through Skia. Do not mix `TBitmap` buffers. See the
-  cleanup that happened in v2.1 if you're tempted.
-* Default to `Invalidate` for redraws. There is no `Redraw` method.
+- Edit the JSON file under `catalogs/`.
+- Schema is in `catalogs/_schema/`; loader will reject malformed entries
+  with a clear error pointing to the offending file:line.
+- No Pascal recompile required.
+- One catalogue PR per logical group (e.g. "add Mode 06 MIDs for diesel
+  particulate filter monitor").
 
-## Tests
+## OEM extension contributions
 
-* Add a test with every change. Bug fixes get a regression test.
-* Test units live under `tests/` and follow `Tests.<Subsystem>.pas`.
-* Register fixtures in the unit's `initialization` block AND add the unit
-  to the `uses` clause of `tests/Tests.dpr`.
-* For algorithm-driven calculators, add real verified `(input → output)`
-  goldens. Synthetic / property tests are fine but not a substitute.
+OEM-specific decoders go in `catalogs/oem/<vendor>/` and use the OEM
+extension registry. Per-vendor coding components (`TOBDCodingVAG`,
+`TOBDCodingBMW`, …) live in `src/Coding/`. See `OBD.OEM.Registry.pas` for
+the registration pattern once Phase 6 lands.
 
-## Reporting issues
+## Local development
 
-Use the templates under `.github/ISSUE_TEMPLATE/`. The smallest reproducible
-example beats the most thorough description.
+Once the package skeletons compile (Phase 0):
 
-## License
+1. Install RAD Studio 10.3 Rio or newer (12 Athens recommended).
+2. Open `packages/DelphiOBD_RT.dpk` and `packages/DelphiOBD_DT.dpk`. RAD
+   Studio will create the matching `.dproj` files on first open.
+3. Build `RT`, then build and install `DT`.
+4. Run `tests/DelphiOBD_Tests.dpr` for the DUnitX suite.
 
-By contributing you agree your work will be released under the project's
-[Apache 2.0 license](LICENSE.md).
+## Running CI locally
+
+The GitHub Actions workflow uses a Delphi CI image and runs:
+
+- Build of `DelphiOBD_RT.dpk` and `DelphiOBD_DT.dpk` on every supported
+  Delphi version.
+- DUnitX test run.
+- Coverage report via DelphiCodeCoverage (artefact uploaded).
+- Lint pass: `tools/lint.cmd` (style + presence of file headers + XMLDoc
+  on public symbols).
+- VCL/FMX guard: `grep` check that runtime units do not include
+  `Vcl.*` / `FMX.*`.
+
+Run these locally before opening a PR if you can.
+
+## Hardware-affecting changes
+
+Any change touching `src/Flashing/`, `src/Coding/`, `src/Signature/`, or
+`OBD.UDS.WriteDID`, `OBD.UDS.WriteMemory`, `OBD.UDS.Transfer` requires:
+
+- An issue describing the change and the test plan.
+- Tests against captured fixtures (no real-ECU dependency in CI).
+- A note on the PR confirming that bench testing was performed and what
+  vehicle/ECU was used.
+
+Brick risk is real; care here is non-negotiable.

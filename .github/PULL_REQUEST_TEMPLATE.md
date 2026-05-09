@@ -9,18 +9,30 @@ doesn't apply, write "n/a".
 
 ## How did you test it?
 
-<!-- Bullet list. CI lint is not enough; tell us what you ran locally. -->
-
-- [ ] `tests/Tests.dpr` runs green
-- [ ] Manually exercised the affected components / examples
+- [ ] `tests/DelphiOBD_Tests.dpr` runs green
+- [ ] Manually exercised the affected components / samples
+- [ ] CI hygiene job is green (file headers, VCL/FMX guard, JSON lint)
 - [ ] N/A — explain:
 
-## Roadmap & changelog
+## Documentation
 
-- [ ] Ticked the matching item in [`docs/ROADMAP.md`](../docs/ROADMAP.md)
-      (or this PR doesn't touch the roadmap)
-- [ ] Added an entry under `[Unreleased]` in [`CHANGELOG.md`](../CHANGELOG.md)
-      (or this PR is non-user-visible — explain)
+Per [`STYLE.md`](../STYLE.md), every public symbol carries XMLDoc.
+
+- [ ] Every new or modified public type / method / property / event has
+      current XMLDoc
+- [ ] File headers updated (history block append-only)
+- [ ] [`PLAN.md`](../PLAN.md) updated if this PR affects scope or phasing
+- [ ] [`CHANGELOG.md`](../CHANGELOG.md) updated under `[Unreleased]`
+
+## Hardware risk (flashing / coding only)
+
+<!-- If this PR touches src/Flashing/, src/Coding/, src/Signature/, or
+the UDS write/transfer/memory components, fill these in. Otherwise
+delete this section. -->
+
+- [ ] Bench-tested on a real ECU. Vehicle / ECU model:
+- [ ] Tests cover the behaviour against captured fixtures (no live-ECU
+      dependency in CI)
 
 ## Reviewer notes
 

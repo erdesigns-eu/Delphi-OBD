@@ -1,34 +1,33 @@
 # Changelog
 
-All notable changes are documented per major version. The full history
-was previously a single 308 KB file; it has been split for browsability.
+All notable changes to Delphi-OBD v2 are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Per-version files
+The previous v1 release line lives on the
+[`main`](https://github.com/erdesigns-eu/Delphi-OBD/tree/main) branch.
 
-- **[CHANGELOG/v3.md](CHANGELOG/v3.md)** — v3.0.0 → v3.79.0 (current).
-  All FMX bindings, the OEM extension framework, JSON catalog format,
-  79 OEM catalogs, async UDS, cross-platform DoIP, DoIP TLS, coverage
-  harness.
-- **[CHANGELOG/v2.md](CHANGELOG/v2.md)** — v2.1.0 → v2.5.0. Test +
-  CI foundation, component library, async + logging, distribution +
-  docs, hardening + ECU flashing.
+## [Unreleased]
 
-## Latest release at a glance
+### Added
+- Phase 0 skeleton: `LICENSE` (MIT), `README.md`, `CONTRIBUTING.md`,
+  `STYLE.md`, `PLAN.md`, file-header template (`src/HEADER.template.pas`),
+  `docs/flashing-safety.md`.
+- Runtime + design-time package shells (`packages/DelphiOBD_RT.dpk`,
+  `packages/DelphiOBD_DT.dpk`).
+- DUnitX test runner (`tests/DelphiOBD_Tests.dpr`) with smoke-test
+  fixture (`Tests.OBD.Version`).
+- `OBD.Version` runtime unit (single source of truth for the package
+  version string).
+- GitHub Actions CI workflow with hygiene checks (file headers, VCL/FMX
+  guard on runtime units, JSON catalogue lint). Windows build matrix
+  configured but gated until a self-hosted runner is wired up.
+- Issue templates (`bug_report.yml`, `feature_request.yml`) and PR
+  template.
+- Sample placeholder `samples/00-Hello/`.
+- `src/` directory map with read-me and per-folder placeholders.
 
-**v3.79.0** (2026-05-08) — Async UDS + cross-platform DoIP + TLS +
-tooling.
-
-- `OBD.OEM.UdsClient.Async` — future-returning UDS facade with
-  cooperative cancellation.
-- `OBD.Protocol.DoIP.Session.Cross` — TCP DoIP on `System.Net.Socket`
-  for all platforms.
-- `OBD.Protocol.DoIP.Session.TLS` — ISO 13400-3 §7 TLS 1.2+ via Indy +
-  OpenSSL with mutual TLS support.
-- `TCaptureReplayTransport` — deterministic `.obdlog` round-trip.
-- `examples/catalogbrowser` — VCL catalog explorer.
-- `tools/coverage/` — `delphi-code-coverage` harness.
-
-See [CHANGELOG/v3.md](CHANGELOG/v3.md) for the full v3.79 entry.
+### Changed
+- Repository reorganised for the v2 rewrite. `src/` wiped; old code
+  preserved on the `main` branch as reference only.
