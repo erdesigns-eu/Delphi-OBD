@@ -46,6 +46,9 @@ uses
   System.JSON,
   System.NetEncoding,
   System.Hash,
+{$IFDEF MSWINDOWS}
+  Winapi.Windows,
+{$ENDIF}
   OBD.Types,
   OBD.UDS.Transfer;
 
@@ -90,6 +93,15 @@ implementation
 
 uses
   System.Generics.Collections;
+
+{$IFDEF MSWINDOWS}
+const
+  /// <summary>ReplaceFile flag: write-through (commit before
+  /// returning).</summary>
+  REPLACEFILE_WRITE_THROUGH        = $00000001;
+  /// <summary>ReplaceFile flag: continue when ACL merge fails.</summary>
+  REPLACEFILE_IGNORE_MERGE_ERRORS  = $00000002;
+{$ENDIF}
 
 class function TOBDFlashCheckpoint.ComputeImageHash(
   const AImage: TBytes): TBytes;
@@ -146,8 +158,31 @@ begin
   end;
   TempName := AFileName + '.tmp';
   TFile.WriteAllText(TempName, Json, TEncoding.UTF8);
-  if TFile.Exists(AFileName) then TFile.Delete(AFileName);
+
+{$IFDEF MSWINDOWS}
+  // Atomic-replace via ReplaceFile so a crash mid-rename leaves
+  // either the old or the new checkpoint on disk — never neither.
+  // ReplaceFile is documented atomic on NTFS / ReFS; on FAT the
+  // fallback below kicks in.
+  if TFile.Exists(AFileName) then
+  begin
+    if not ReplaceFile(PChar(AFileName), PChar(TempName), nil,
+      REPLACEFILE_WRITE_THROUGH or REPLACEFILE_IGNORE_MERGE_ERRORS,
+      nil, nil) then
+    begin
+      // Filesystem doesn't support ReplaceFile (FAT, network share,
+      // etc.). Fall back to the unlink-then-rename pattern.
+      TFile.Delete(AFileName);
+      TFile.Move(TempName, AFileName);
+    end;
+  end
+  else
+    // First-time write: just rename the temp into place.
+    TFile.Move(TempName, AFileName);
+{$ELSE}
+  // POSIX rename(2) is atomic.
   TFile.Move(TempName, AFileName);
+{$ENDIF}
 end;
 
 class function TOBDFlashCheckpoint.Load(

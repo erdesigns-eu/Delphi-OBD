@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erdesigns-eu/Delphi-OBD/schemas/oem-flash-handshake-catalog.schema.json",
+  "title": "Delphi-OBD OEM flash-handshake catalogue",
+  "description": "Per-platform / per-ECU overrides for the Phase 9e bootloader handshakes. Hosts populate this catalogue from their own ground-truth sources (ISTA / ODX / vendor service docs); the package ships only the schema. The TOBDFlashHandshake* component reads the matching entry and applies the overrides before Run.",
+  "type": "object",
+  "required": ["version", "vendor", "platforms"],
+  "additionalProperties": false,
+  "properties": {
+    "version":          { "type": "integer", "const": 1 },
+    "vendor": {
+      "type": "string",
+      "enum": [
+        "vag", "bmw", "ford", "hmg", "honda",
+        "mercedes", "stellantis", "toyota"
+      ]
+    },
+    "vendor_display":   { "type": "string" },
+    "source":           { "type": "string" },
+    "platforms": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/platform" }
+    }
+  },
+  "$defs": {
+    "platform": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Free-form platform identifier (e.g. 'MED17.5.20', 'F15-ZGW', 'Sync4').",
+          "type": "string",
+          "minLength": 1
+        },
+        "ecu_family": {
+          "description": "Optional ECU family / model the platform applies to (free-form).",
+          "type": "string"
+        },
+        "session_subfunction": {
+          "description": "DiagnosticSessionControl sub-function. Default 0x02 (programming).",
+          "type": "integer", "minimum": 0, "maximum": 255
+        },
+        "extended_first": {
+          "description": "When true, send 0x10 0x03 before 0x10 0x02. F-series BMW ZGW gateways require this.",
+          "type": "boolean"
+        },
+        "security_level": {
+          "description": "SecurityAccess requestSeed level. Must be odd.",
+          "type": "integer", "minimum": 1, "maximum": 255
+        },
+        "erase_routine_id": {
+          "description": "RoutineControl Start RID for the erase step. 0 disables the erase call.",
+          "type": ["integer", "string"]
+        },
+        "verify_routine_id": {
+          "description": "Optional verify RID called from fpVerify.",
+          "type": ["integer", "string"]
+        },
+        "address_format_bytes": {
+          "type": "integer", "minimum": 1, "maximum": 8
+        },
+        "length_format_bytes": {
+          "type": "integer", "minimum": 1, "maximum": 8
+        },
+        "data_format_identifier": {
+          "type": "integer", "minimum": 0, "maximum": 255
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

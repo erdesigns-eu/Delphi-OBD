@@ -131,6 +131,9 @@ uses
   OBD.Flash.OEM.Mercedes in '..\src\Flashing\OBD.Flash.OEM.Mercedes.pas',
   OBD.Flash.OEM.Stellantis in '..\src\Flashing\OBD.Flash.OEM.Stellantis.pas',
   OBD.Flash.OEM.Toyota in '..\src\Flashing\OBD.Flash.OEM.Toyota.pas',
+  OBD.Flash.ImageApplicability in '..\src\Flashing\OBD.Flash.ImageApplicability.pas',
+  OBD.Signature.HSM.PKCS11 in '..\src\Flashing\OBD.Signature.HSM.PKCS11.pas',
+  OBD.Flash.OEM.Catalog in '..\src\Flashing\OBD.Flash.OEM.Catalog.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
   OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
@@ -183,7 +186,8 @@ uses
   Tests.OBD.Flashing.Phase9b in 'Tests.OBD.Flashing.Phase9b.pas',
   Tests.OBD.Flashing.Phase9c in 'Tests.OBD.Flashing.Phase9c.pas',
   Tests.OBD.Flashing.Phase9d in 'Tests.OBD.Flashing.Phase9d.pas',
-  Tests.OBD.Flashing.Phase9e in 'Tests.OBD.Flashing.Phase9e.pas';
+  Tests.OBD.Flashing.Phase9e in 'Tests.OBD.Flashing.Phase9e.pas',
+  Tests.OBD.Flashing.Followups in 'Tests.OBD.Flashing.Followups.pas';
 
 {$IFDEF CI}
 var
