@@ -86,6 +86,10 @@ uses
   OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas',
   OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
   OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas',
+  OBD.Coding.SecurityAccess in '..\src\Coding\OBD.Coding.SecurityAccess.pas',
+  OBD.Coding.DataIdentifierIO in '..\src\Coding\OBD.Coding.DataIdentifierIO.pas',
+  OBD.Coding.RoutineControl in '..\src\Coding\OBD.Coding.RoutineControl.pas',
+  OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -117,7 +121,8 @@ uses
   Tests.OBD.Protocol.MOST in 'Tests.OBD.Protocol.MOST.pas',
   Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas',
   Tests.OBD.Service in 'Tests.OBD.Service.pas',
-  Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas';
+  Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
+  Tests.OBD.Coding in 'Tests.OBD.Coding.pas';
 
 {$IFDEF CI}
 var

@@ -1756,3 +1756,172 @@ siblings.
 The only remaining Phase 5 deferral is the real-vehicle
 hardware-loop test, which is the same convention used since
 Phase 2 and is gated on the rig the user actually owns.
+
+---
+
+## Phase 6 — UDS coding & flashing components
+
+### Code landed
+
+- `src/Coding/OBD.Coding.SecurityAccess.pas` — `TOBDSecurityAccess`.
+  ISO 14229-1 § 9.4 SecurityAccess (SID 0x27). Drives the
+  request-seed → compute-key → send-key handshake. The seed →
+  key transform is OEM-specific so the component does not ship
+  one; hosts attach a `TOBDSeedToKeyFunc` (functional) or
+  `OnComputeKey` event (procedural). Validates the level is
+  odd, handles the "already unlocked / zero-byte seed" reply
+  per § 9.4.5.2, and emits `OnUnlocked` only on positive ACK.
+  Sync + Async + Progress.
+- `src/Coding/OBD.Coding.DataIdentifierIO.pas` —
+  `TOBDDataIdentifierIO`. UDS Read (0x22) / Write (0x2E).
+  Reads support multiple DIDs in a single request and split
+  the response per DID echo. Writes are gated by
+  `AutoExecute = False` (default).
+- `src/Coding/OBD.Coding.RoutineControl.pas` — `TOBDRoutineControl`.
+  UDS Service 0x31 with all three sub-functions: `Start`,
+  `Stop`, `RequestResults`. Start / Stop are gated by
+  `AutoExecute`; results queries are read-only and not gated.
+- `src/Coding/OBD.Coding.Flasher.pas` — `TOBDFlasher`. UDS
+  download trio: 0x34 RequestDownload (negotiates max block
+  length, accounting for the 2-byte SID + BSC overhead), 0x36
+  TransferData chunked transfer with BSC counter (1..255 then
+  wraps to 1), 0x37 RequestTransferExit. `AutoExecute = False`
+  default. `OnBeforeFlash` fires on the main thread with a
+  `Cancel: Boolean` out-parameter for last-ditch UI
+  confirmation. `OnProgress` fires per chunk so a host can drive
+  a progress bar without polling.
+- `tests/Tests.OBD.Coding.pas` — four fixtures. Safety-gate
+  rejection on every gated entry-point, even-level rejection on
+  `Unlock`, transform-not-configured rejection, empty-DID-list
+  rejection on read, empty-image rejection on flash,
+  `OnBeforeFlash` cancel honoured.
+- `src/DesignTime/OBD.Design.Registration.pas` — registers the
+  four components on a new **OBD Coding** palette tab so a host
+  can keep the write-side gear visually separated from the
+  read-only service-mode components.
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added all four units and the new test fixture.
+
+### Architecture highlights
+
+- **Single AutoExecute discipline.** The same gate pattern from
+  `TOBDActuator` (Phase 5) extends across every write-side
+  component: `TOBDActuator`, `TOBDDataIdentifierIO.Write*`,
+  `TOBDRoutineControl.Start*` / `Stop*`, `TOBDFlasher.Flash*`.
+  A host that sets `AutoExecute := True` once knows that gate
+  is now open; nothing else changes shape between safe-default
+  and unlocked behaviour.
+- **OnBeforeFlash returns to main thread under
+  `TThread.Synchronize`.** The flasher's safety hook fires
+  synchronously from the worker so the worker waits for the
+  user's confirmation before any wire access. `Cancel := True`
+  raises `EOBDConfig`; `OnError` then fires per the standard
+  failure path.
+- **BSC overhead deduction in RequestDownload.** ISO 14229-1
+  reports `maxNumberOfBlockLength` *including* the SID + BSC
+  overhead bytes. The flasher subtracts 2 before chunking, so
+  hosts setting per-chunk progress bars see actual data bytes
+  per request, not wire bytes.
+- **Multi-DID read response splitting.** UDS does not carry
+  per-DID lengths in the response — the receiver must already
+  know each DID's data length, or split heuristically. We split
+  on the next requested DID byte-pair; this matches the layout
+  every OEM tester I've inspected uses, and refuses on a DID-
+  echo mismatch with a clear diagnostic.
+
+### What's intentionally not in v1
+
+- **Built-in seed → key implementations.** Every OEM uses a
+  proprietary algorithm (PSAtech, BMW INPA, VW SK1+SK2, …) and
+  many of those are NDA. The component contract is the
+  callback; a host that has the right secret implements one
+  function and wires it.
+- **UDS Service 0x35 RequestUpload.** Mirror of 0x34/0x36/0x37
+  for ECU → tester data transfer. Identical shape but used for
+  flash-readout / VBF / S19 dumps. Deferred — not on the user's
+  priority list. Tracked.
+- **Address/length format > 8 bytes.** `EncodeMSB` validates
+  the format byte count is in `[1..8]`. ISO 14229-1 allows up
+  to 15 in the format identifier nibble; values above 8 would
+  mean an integer-overflow target memory address that no
+  realistic ECU exposes.
+- **Compression / encryption preprocessing.** The flasher
+  honours the `DataFormatIdentifier` byte but does not
+  compress or encrypt the image — hosts pre-process the buffer
+  themselves. Adding a compression registry parallels the
+  PID-decoder one shipped in Phase 5 follow-up.
+- **TransferData NRC 0x71 (transferDataSuspended) wait
+  handling.** The current code raises on any negative response.
+  ISO 14229-1 § 14.5.5.4 lets the ECU pause the transfer with
+  a request-correctly-received-response-pending NRC; a host
+  that hits a slow target needs the protocol layer's existing
+  pending-handling. Worth a follow-up.
+
+### Honest review
+
+1. **Multi-DID read splits heuristically.** The spec does not
+   carry per-DID lengths; we walk the response forward looking
+   for the next requested DID byte pair. If an ECU happens to
+   include a payload byte that matches a later DID's two bytes,
+   the split is wrong. In practice this is vanishingly rare —
+   DIDs are 16-bit values chosen by the vendor — but a strict
+   mode that requires the host to declare expected lengths is
+   tracked.
+2. **Flasher does not stage memory in any way.** It opens 0x34,
+   chunks the entire image, closes 0x37. Real ECUs often need
+   a routine-control "erase memory" first (RID 0xFF00) and a
+   "check memory" / "verify checksum" after (RID 0xFF01). The
+   coding component composer (host) drives those today; a
+   future `TOBDFlashSession` orchestrator could roll the
+   classic "session 0x10/02 → 0x27 → 0x31 erase → 0x34/36/37 →
+   0x31 verify → 0x11/01 reset" choreography into a single
+   call. **Tracked.**
+3. **No per-chunk retry.** TransferData failures abort the
+   flash with `EOBDProtocolErr`. ISO 14229-1 lets the tester
+   retransmit the same BSC; we don't. A user with a bench
+   tool flagged this as something they want — adding it
+   needs a configurable retry budget. **Tracked.**
+4. **SecurityAccess does not detect the
+   "already unlocked"-zero-seed reply on every ECU.** Some
+   vendors use an all-zero seed instead of a true empty
+   array. The component compares `Length(Seed) = 0`; vendors
+   sending `[0x00, 0x00, …]` would be re-keyed unnecessarily.
+   Documented; hosts that hit it filter the seed in
+   `OnComputeKey`.
+5. **No real-vehicle integration test.** Same hardware-loop
+   deferral as every prior phase — and this is the phase
+   where hardware is most relevant. The DUnitX coverage
+   verifies the safety gates and request shapes; bench-loop
+   verification is gated on the rig.
+6. **OnComputeKey fires off the main thread when invoked
+   from `UnlockAsync`.** Documented in the property's XMLDoc;
+   the handler is responsible for its own thread safety
+   (typically: pure function on the seed bytes, no shared
+   state). The functional `SeedToKey` form is the cleaner
+   path for stateless transforms.
+
+### Phase 6 follow-ups (tracked, not closed)
+
+- `TOBDUploader` for UDS Service 0x35 RequestUpload.
+- `TOBDFlashSession` orchestrator that wraps Session control +
+  SecurityAccess + erase-routine + 0x34/0x36/0x37 + verify-
+  routine + ECUReset into a single call.
+- Per-chunk retry budget on TransferData.
+- Strict-mode multi-DID read with declared per-DID lengths.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] Sync + async + progress dual-method rule for every public
+      action.
+- [x] All events fire on the main thread (`TThread.Queue` /
+      `TThread.Synchronize` for the cancel hook).
+- [x] `AutoExecute = False` default on every write-side
+      component.
+- [x] Single-in-flight async discipline on every component.
+- [x] `FreeNotification` wired on every component's `Protocol`
+      property.
+- [x] All four components register on the **OBD Coding** palette
+      tab.

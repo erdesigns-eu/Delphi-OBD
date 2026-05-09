@@ -52,7 +52,11 @@ uses
   OBD.Service.VIN,
   OBD.Service.FreezeFrame,
   OBD.Service.OnBoardMonitor,
-  OBD.Service.Actuator;
+  OBD.Service.Actuator,
+  OBD.Coding.SecurityAccess,
+  OBD.Coding.DataIdentifierIO,
+  OBD.Coding.RoutineControl,
+  OBD.Coding.Flasher;
 
 procedure Register;
 begin
@@ -75,6 +79,16 @@ begin
     TOBDFreezeFrame,
     TOBDOnBoardMonitor,
     TOBDActuator
+  ]);
+
+  // Coding & flashing (Phase 6): write-side UDS components. Live
+  // on their own tab so a host can keep them visually separated
+  // from the read-only service-mode components.
+  RegisterComponents('OBD Coding', [
+    TOBDSecurityAccess,
+    TOBDDataIdentifierIO,
+    TOBDRoutineControl,
+    TOBDFlasher
   ]);
 end;
 

@@ -85,6 +85,10 @@ contains
   OBD.Service.VIN in '..\src\Service\OBD.Service.VIN.pas',
   OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas',
   OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
-  OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas';
+  OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas',
+  OBD.Coding.SecurityAccess in '..\src\Coding\OBD.Coding.SecurityAccess.pas',
+  OBD.Coding.DataIdentifierIO in '..\src\Coding\OBD.Coding.DataIdentifierIO.pas',
+  OBD.Coding.RoutineControl in '..\src\Coding\OBD.Coding.RoutineControl.pas',
+  OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas';
 
 end.
