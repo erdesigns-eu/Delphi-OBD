@@ -8,14 +8,11 @@
 // COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
 // RELEASE DATE   : 20/03/2024
 // UPDATED        : 06/12/2025 - Refactored for direct Skia rendering (no TBitmap buffer)
-//                  09/12/2025 - Added double buffering to prevent flickering
 // COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
 // NOTE           : This component serves as a base for Skia-rendered components.
 //                  It provides timer-based rendering for animations and on-demand
 //                  rendering for static content. Child classes override PaintSkia
-//                  to render directly using Skia's canvas. Double buffering is used
-//                  to prevent flickering: content is rendered to a back buffer first,
-//                  then copied atomically to the screen.
+//                  to render directly using Skia's canvas.
 //------------------------------------------------------------------------------
 unit OBD.CustomControl;
 
@@ -62,18 +59,6 @@ type
     ///   Handle of the FPS timer
     /// </summary>
     FTimerHandle: THandle;
-    /// <summary>
-    ///   Back buffer surface for double buffering (prevents flickering)
-    /// </summary>
-    FBackBuffer: ISkSurface;
-    /// <summary>
-    ///   Back buffer image snapshot
-    /// </summary>
-    FBackBufferImage: ISkImage;
-    /// <summary>
-    ///   Flag indicating the back buffer needs to be recreated
-    /// </summary>
-    FBackBufferInvalid: Boolean;
   private
     /// <summary>
     ///   Frames per second
@@ -84,10 +69,6 @@ type
     ///   Set frames per second
     /// </summary>
     procedure SetFramesPerSecond(Value: Integer);
-    /// <summary>
-    ///   Invalidate the back buffer (force recreation on next draw)
-    /// </summary>
-    procedure InvalidateBackBuffer;
 
   protected
     /// <summary>
@@ -192,43 +173,12 @@ end;
 
 
 //------------------------------------------------------------------------------
-// INVALIDATE BACK BUFFER
-//------------------------------------------------------------------------------
-procedure TOBDCustomControl.InvalidateBackBuffer;
-begin
-  FBackBufferInvalid := True;
-end;
-
-//------------------------------------------------------------------------------
 // DRAW (Override from TSkCustomControl)
 //------------------------------------------------------------------------------
 procedure TOBDCustomControl.Draw(const ACanvas: ISkCanvas; const ADest: TRectF; const AOpacity: Single);
-var
-  BufferCanvas: ISkCanvas;
 begin
-  // Recreate back buffer if invalid flag set, size changed, or first draw
-  if FBackBufferInvalid or not Assigned(FBackBuffer) or 
-     (Assigned(FBackBuffer) and ((FBackBuffer.Width <> Round(Width)) or (FBackBuffer.Height <> Round(Height)))) then
-  begin
-    // Create a new back buffer surface with current dimensions
-    FBackBuffer := TSkSurface.MakeRaster(Round(Width), Round(Height));
-    FBackBufferInvalid := False;
-  end;
-  
-  // Always render to the back buffer first (prevents flickering)
-  if Assigned(FBackBuffer) then
-  begin
-    // Get the canvas from the back buffer
-    BufferCanvas := FBackBuffer.Canvas;
-    // Render to the back buffer
-    PaintSkia(BufferCanvas);
-    // Create an immutable snapshot for atomic display
-    FBackBufferImage := FBackBuffer.MakeImageSnapshot;
-    
-    // Draw the back buffer image to the screen (atomic operation, no flickering)
-    if Assigned(FBackBufferImage) then
-      ACanvas.DrawImage(FBackBufferImage, 0, 0);
-  end;
+  // Call PaintSkia with the Skia canvas provided by TSkCustomControl
+  PaintSkia(ACanvas);
 end;
 
 //------------------------------------------------------------------------------
@@ -238,8 +188,6 @@ procedure TOBDCustomControl.Resize;
 begin
   // Call inherited Resize
   inherited;
-  // Invalidate back buffer so it gets recreated with new size
-  InvalidateBackBuffer;
   // Trigger repaint with new size
   Invalidate;
 end;
@@ -290,8 +238,6 @@ begin
   inherited Create(AOwner);
   // Set initial FPS (for animation support)
   FFramesPerSecond := DEFAULT_FPS;
-  // Mark back buffer as invalid (needs to be created on first draw)
-  FBackBufferInvalid := True;
   // Allocate window handle for the timer
   if not (csDesigning in ComponentState) then FWindowHandle := AllocateHWnd(TimerProc);
 end;
@@ -308,9 +254,6 @@ begin
     // Deallocate window handle
     DeallocateHWnd(FWindowHandle);
   end;
-  // Clear back buffer references
-  FBackBufferImage := nil;
-  FBackBuffer := nil;
   // Call inherited destructor
   inherited Destroy;
 end;

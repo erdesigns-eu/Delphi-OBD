@@ -1,0 +1,206 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # ------------------------------------------------------------------
+  # Static checks — runs on every push/PR, no Delphi required.
+  # Catches the kind of regressions the Dec-2025 fix-spiral introduced
+  # (mangled Parse signatures, stray mid-file `end.`, mixed line endings).
+  # ------------------------------------------------------------------
+  lint:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No mangled "function T<X>function T<Y>" signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -rnE 'function T[A-Za-z0-9]+function T|procedure T[A-Za-z0-9]+procedure T' src/ examples/ ; then
+            echo "::error::Found corrupted nested function/procedure signatures."
+            exit 1
+          fi
+
+      - name: No stray "end." mid-file (only one terminator per unit)
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r f; do
+            count=$(grep -cE '^end\.$' "$f" || true)
+            if [ "$count" != "1" ]; then
+              echo "::error file=$f::expected exactly one 'end.' terminator, found $count"
+              fail=1
+            fi
+          done < <(find src tests examples -name '*.pas' 2>/dev/null)
+          exit $fail
+
+      - name: No "Redraw;" calls outside the cleanup history
+        shell: bash
+        run: |
+          set -euo pipefail
+          # NeedRedraw locals are legitimate; everything else was the spiral.
+          if grep -rnE '(^|[^A-Za-z])Redraw;' src/ | grep -v 'NeedRedraw'; then
+            echo "::error::Stray Redraw; calls — use Invalidate instead."
+            exit 1
+          fi
+
+      - name: No double-buffer / lock leftovers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -rnE 'FBackBuffer|FBackBufferImage|InvalidateBackBuffer' src/ ; then
+            echo "::error::Double-buffer fields/methods leaked back into source."
+            exit 1
+          fi
+
+      - name: Pascal files end with newline
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r f; do
+            if [ -n "$(tail -c1 "$f")" ]; then
+              echo "::error file=$f::missing trailing newline"
+              fail=1
+            fi
+          done < <(find src tests -name '*.pas' 2>/dev/null)
+          exit $fail
+
+      - name: No CRLF line endings on text sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r f; do
+            if grep -lU $'\r' "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::CRLF line endings detected"
+              fail=1
+            fi
+          done < <(find src tests -name '*.pas' 2>/dev/null)
+          exit $fail
+
+      - name: No duplicate primary keys in catalog JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Lightweight integrity check: every section that has a
+          # primary key (ecus.address, dids.did, routines.id,
+          # coding_blocks.did, adaptations.channel,
+          # actuator_tests.id, dtcs.code) must be unique within its
+          # catalog. Heavier structural validation (schema, bit-level
+          # coding-block bounds, cross-section ECU resolution) is
+          # exercised by Tests.OEM.CatalogIntegrity (DUnitX).
+          fail=0
+          while IFS= read -r f; do
+            # Use grep + sort/uniq instead of jq — keeps the runner
+            # dependency-free.
+            for field in '"address"' '"did"' '"id"' '"channel"' '"code"'; do
+              dups=$(grep -E "^[[:space:]]*$field[[:space:]]*:" "$f" \
+                       | sort | uniq -d || true)
+              if [ -n "$dups" ]; then
+                echo "::error file=$f::duplicate $field values:"
+                echo "$dups"
+                fail=1
+              fi
+            done
+          done < <(find catalogs -name '*.json' -not -path '*/_schema/*' \
+                                 -not -name 'test-*.json')
+          exit $fail
+
+  # ------------------------------------------------------------------
+  # Build + DUnitX. Requires a self-hosted runner with Delphi 11+ and
+  # Skia4Delphi installed. Opt in by adding the `delphi` label to the
+  # repository's runner registration (or change `runs-on` to your label).
+  # ------------------------------------------------------------------
+  build-and-test:
+    name: Build packages + DUnitX (Delphi ${{ matrix.delphi }})
+    needs: lint
+    # Until a self-hosted Delphi runner is registered, this job stays
+    # disabled. Flip `if: false` to `if: ${{ true }}` once ready.
+    if: false
+    strategy:
+      fail-fast: false
+      matrix:
+        delphi: ['11', '12']
+    runs-on: [self-hosted, windows, delphi-${{ matrix.delphi }}]
+    steps:
+      - uses: actions/checkout@v4
+
+      # MSBuild output (DCU + BPL) compresses well and dominates rebuild
+      # time. Cache against the Delphi version + a hash of every .pas under
+      # src/ so any source change invalidates correctly.
+      - name: Cache MSBuild output
+        uses: actions/cache@v4
+        with:
+          path: |
+            $(BDSCOMMONDIR)\Bpl
+            $(BDSCOMMONDIR)\Dcp
+          key: msbuild-${{ matrix.delphi }}-${{ hashFiles('src/**/*.pas', 'Packages/*.dproj') }}
+          restore-keys: |
+            msbuild-${{ matrix.delphi }}-
+
+      - name: Build runtime + design-time packages
+        shell: cmd
+        run: |
+          call "%RSVARSDIR%\rsvars.bat"
+          msbuild Packages\RunTime.dproj /t:Build /p:Config=Release /p:Platform=Win32
+          msbuild Packages\DesignTime.dproj /t:Build /p:Config=Release /p:Platform=Win32
+
+      - name: Compile test runner
+        shell: cmd
+        run: |
+          call "%RSVARSDIR%\rsvars.bat"
+          dcc32 -B tests\Tests.dpr
+
+      - name: Run DUnitX suite
+        shell: cmd
+        run: tests\Tests.exe
+
+      - name: Upload NUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dunitx-results-${{ matrix.delphi }}
+          path: tests/TestResults.xml
+
+      # Coverage: requires `delphi-code-coverage` on PATH on the runner.
+      # Skipped silently on runners that don't have it. Generates an
+      # EMMA-format XML which the codecov action consumes.
+      - name: Run coverage (delphi-code-coverage)
+        shell: cmd
+        continue-on-error: true
+        run: |
+          where dcc32cov >nul 2>nul && (
+            dcc32cov ^
+              -e tests\Tests.exe ^
+              -m tests\Tests.map ^
+              -uns OBD.Service01;OBD.Service02;OBD.Service03;OBD.Service04;^
+                   OBD.Service05;OBD.Service06;OBD.Service07;OBD.Service08;^
+                   OBD.Service09;OBD.Service0A;OBD.Request.Encoders;^
+                   OBD.Response.Decoders;OBD.VIN.Decoder;^
+                   OBD.Protocol;OBD.Protocol.CAN ^
+              -emma -emma21 -od coverage
+          )
+
+      - name: Upload coverage artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.delphi }}
+          path: coverage/
+
+      - name: Compile every example
+        shell: cmd
+        run: |
+          call "%RSVARSDIR%\rsvars.bat"
+          for /R examples %%f in (*.dpr) do dcc32 -B "%%f"

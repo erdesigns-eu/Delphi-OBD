@@ -292,6 +292,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Repaint;
     procedure Assign(Source: TPersistent); override;
   published
     property Background: TOBDTouchSubheaderBackground read FBackground write SetBackground;
@@ -947,8 +948,8 @@ begin
   if FAutoApplyConnectionDetails <> Value then
   begin
     FAutoApplyConnectionDetails := Value;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -966,8 +967,8 @@ begin
     if Assigned(FConnectionComponent) and FAutoApplyConnectionDetails then
       FConnectionComponent.OnConnectionStateChanged := HandleConnectionStateChanged;
     
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -992,8 +993,8 @@ begin
       FProtocolIndicator.Caption := 'AUTO';
     end;
     
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -1004,8 +1005,6 @@ procedure TOBDTouchSubheader.UpdateStyleElements;
 begin
   // Call inherited Loaded
   inherited;
-  // Redraw Skia
-  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1015,8 +1014,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDTouchSubheader.SettingsChanged(Sender: TObject);
 begin
-  // Redraw Skia
-  Redraw;
   // Trigger repaint
   Invalidate;
 end;
@@ -1311,6 +1308,15 @@ begin
     FConnectionComponent.OnConnectionStateChanged := nil;
   // Call inherited destructor
   inherited Destroy;
+end;
+
+//------------------------------------------------------------------------------
+// REPAINT
+//------------------------------------------------------------------------------
+procedure TOBDTouchSubheader.Repaint;
+begin
+  // Call inherited repaint
+  inherited;
 end;
 
 //------------------------------------------------------------------------------

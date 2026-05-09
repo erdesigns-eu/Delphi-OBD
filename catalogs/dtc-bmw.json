@@ -1,0 +1,319 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "BMW DTC starter (DME / DSC / CAS / KOMBI common codes)",
+  "default_source": "BMW E-Sys / NCS-Expert community DTCs",
+  "dtcs": [
+    {
+      "code": "B7F8A",
+      "severity": "warning",
+      "description": "Tire Pressure Indicator (RDC) — Pressure Below Threshold",
+      "verified": false
+    },
+    {
+      "code": "P0492",
+      "severity": "warning",
+      "description": "Secondary Air Injection System: Insufficient Flow Bank 2 (BMW N62/N63)",
+      "possible_causes": [
+        "Stuck secondary air valve",
+        "Failed secondary air pump"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P10DF",
+      "severity": "warning",
+      "description": "VANOS Solenoid Bank 1: Stuck Open",
+      "possible_causes": [
+        "Carbon build-up on intake VANOS",
+        "Sticky solenoid"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_vct_intake_b1"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P10E1",
+      "severity": "warning",
+      "description": "VANOS Solenoid Bank 1: Stuck Closed",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_vct_intake_b1"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1100",
+      "severity": "warning",
+      "description": "Low Pressure Fuel System: Range/Performance",
+      "possible_causes": [
+        "Failed in-tank pump",
+        "Crushed fuel line",
+        "Worn LPFP"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_fuel_rail"
+      ],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P1248",
+      "severity": "warning",
+      "description": "BMW DDE Boost Pressure — Below Limit (Diesel)",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "severity": "critical",
+      "description": "Camshaft Position Sensor Bank 1: Plausibility (BMW)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P15F0",
+      "severity": "warning",
+      "description": "Eccentric Shaft Sensor (Valvetronic) — Plausibility",
+      "verified": false
+    },
+    {
+      "code": "P1734",
+      "severity": "warning",
+      "description": "EGS Pressure Solenoid 5 — Electrical (ZF8HP)",
+      "verified": false
+    },
+    {
+      "code": "P1A0F",
+      "severity": "info",
+      "description": "Battery Charge Mode: Battery Replacement Not Registered",
+      "possible_causes": [
+        "New battery not coded to IBS"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "ecm_battery_register"
+      ],
+      "oem_bulletin": "BMW SI B61 03 16"
+    },
+    {
+      "code": "P200C",
+      "severity": "critical",
+      "description": "Diesel Particulate Filter: Over-Temperature Bank 1",
+      "possible_causes": [
+        "Aborted regen",
+        "Driver-canceled regen multiple times"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "non_continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [
+        "ecm_dpf_load"
+      ],
+      "related_routines": [
+        "ecm_dpf_regen_force"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P3060",
+      "severity": "critical",
+      "description": "Drive Train Insulation Fault (BMW i)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "HV Battery System: Pack Voltage Imbalance (BMW i)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [
+        "hv_cell_balance"
+      ],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P30FF",
+      "severity": "info",
+      "description": "Hybrid Battery State-of-Charge Low (i3 / i8)",
+      "verified": false
+    },
+    {
+      "code": "U10E5",
+      "severity": "critical",
+      "description": "Lost Communication With FEM/BDC Module",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U10E8",
+      "severity": "critical",
+      "description": "FlexRay — Bus Off Error Frame (FRMs / chassis)",
+      "verified": false
+    }
+  ]
+}

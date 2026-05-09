@@ -1,0 +1,173 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Rivian DTC starter",
+  "default_source": "Rivian Service Mode community DTCs",
+  "dtcs": [
+    {
+      "code": "B100D",
+      "severity": "warning",
+      "description": "Rivian Driver+ front camera obstructed",
+      "verified": false
+    },
+    {
+      "code": "B105F",
+      "severity": "warning",
+      "description": "Rivian air-suspension ride-height sensor open circuit",
+      "verified": false
+    },
+    {
+      "code": "C1A20",
+      "severity": "warning",
+      "description": "Rivian air-suspension compressor overheating",
+      "verified": false
+    },
+    {
+      "code": "C1B00",
+      "severity": "warning",
+      "description": "Rivian — Quad-motor torque vectoring controller fault",
+      "verified": false
+    },
+    {
+      "code": "P0A1F",
+      "severity": "critical",
+      "description": "Drive Motor Inverter Performance (Rivian Quad-motor)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0A2A",
+      "severity": "warning",
+      "description": "Rivian — Drive Motor 'A' Temperature Sensor Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0A3A",
+      "severity": "warning",
+      "description": "Rivian — Drive Motor 'B' Temperature Sensor Circuit (rear)",
+      "verified": false
+    },
+    {
+      "code": "P0A78",
+      "severity": "critical",
+      "description": "Front Drive Module Performance (Rivian Gen 2)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "Rivian — HV Battery Voltage System Isolation Fault",
+      "verified": false
+    },
+    {
+      "code": "P0AC0",
+      "severity": "warning",
+      "description": "Rivian — Hybrid/EV battery temperature sensor 'A' circuit",
+      "verified": false
+    },
+    {
+      "code": "P0D38",
+      "severity": "warning",
+      "description": "Rivian — DC/DC converter performance",
+      "verified": false
+    },
+    {
+      "code": "P1FFF",
+      "severity": "warning",
+      "description": "Rivian VCU internal CRC mismatch",
+      "verified": false
+    },
+    {
+      "code": "P3000",
+      "severity": "critical",
+      "description": "Rivian — High voltage battery system performance",
+      "verified": false
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Rivian — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Rivian — Lost Communication With IVI",
+      "verified": false
+    },
+    {
+      "code": "U0293",
+      "severity": "critical",
+      "description": "Rivian — Lost Communication With BMS",
+      "verified": false
+    },
+    {
+      "code": "U2018",
+      "severity": "warning",
+      "description": "Driver+ Camera Calibration Required (Rivian)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    }
+  ]
+}

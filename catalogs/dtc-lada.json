@@ -1,0 +1,206 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Lada / AvtoVAZ DTC starter",
+  "default_source": "Lada OPEN diag / Renolink DTCs",
+  "dtcs": [
+    {
+      "code": "B1318",
+      "severity": "info",
+      "description": "Lada BCM — Battery voltage low",
+      "verified": false
+    },
+    {
+      "code": "C0040",
+      "severity": "warning",
+      "description": "Lada — ABS wheel speed sensor front-left circuit",
+      "verified": false
+    },
+    {
+      "code": "P0102",
+      "severity": "warning",
+      "description": "Lada — Mass Air Flow Circuit Low Input",
+      "verified": false
+    },
+    {
+      "code": "P0103",
+      "severity": "warning",
+      "description": "MAF Sensor Out of Range (VAZ ECU)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0117",
+      "severity": "warning",
+      "description": "Lada — Engine Coolant Temp Sensor Circuit Low Input",
+      "verified": false
+    },
+    {
+      "code": "P0118",
+      "severity": "warning",
+      "description": "Lada — Engine Coolant Temp Sensor Circuit High Input",
+      "verified": false
+    },
+    {
+      "code": "P0122",
+      "severity": "warning",
+      "description": "Lada — Throttle Position Sensor 'A' Circuit Low",
+      "verified": false
+    },
+    {
+      "code": "P0123",
+      "severity": "warning",
+      "description": "Lada — Throttle Position Sensor 'A' Circuit High",
+      "verified": false
+    },
+    {
+      "code": "P0130",
+      "severity": "warning",
+      "description": "Lada — O2 Sensor Bank 1 Sensor 1 Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0171",
+      "severity": "warning",
+      "description": "Lada — System Too Lean Bank 1",
+      "verified": false
+    },
+    {
+      "code": "P0172",
+      "severity": "warning",
+      "description": "Lada — System Too Rich Bank 1",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "severity": "warning",
+      "description": "Lada VAZ-21127 / 21179 — Cylinder 1 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "warning",
+      "description": "Lada — Cylinder 2 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "warning",
+      "description": "Lada — Cylinder 3 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "warning",
+      "description": "Lada — Cylinder 4 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0335",
+      "severity": "critical",
+      "description": "Crankshaft Position Sensor 'A' Circuit (Lada)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0340",
+      "severity": "critical",
+      "description": "Lada — Camshaft Position Sensor 'A' Circuit",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Lada — Catalyst Bank 1 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0444",
+      "severity": "warning",
+      "description": "Lada — EVAP Purge Control Valve Circuit Open",
+      "verified": false
+    },
+    {
+      "code": "P0500",
+      "severity": "warning",
+      "description": "Lada — Vehicle Speed Sensor 'A' fault",
+      "verified": false
+    },
+    {
+      "code": "P0628",
+      "severity": "warning",
+      "description": "Lada — Fuel pump 'A' control circuit low",
+      "verified": false
+    },
+    {
+      "code": "P0830",
+      "severity": "info",
+      "description": "Lada — Clutch pedal switch 'A' circuit (Granta 5MT)",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "severity": "warning",
+      "description": "Lada VAZ — CKP self-learning incomplete",
+      "verified": false
+    },
+    {
+      "code": "P1602",
+      "severity": "warning",
+      "description": "Lada APS — Immobilizer code authentication error",
+      "verified": false
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Lada — Control module communication bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0100",
+      "severity": "critical",
+      "description": "Lada — Lost Communication With ECM/PCM 'A'",
+      "verified": false
+    }
+  ]
+}

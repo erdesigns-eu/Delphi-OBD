@@ -559,7 +559,7 @@ end;
 //------------------------------------------------------------------------------
 // ERROR DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDErrorDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var ServiceID: Integer; var Error: Byte; var AdditionalData: TBytes): Boolean;
+function TOBDErrorDecoder.Parse(const Data: TBytes; var ServiceID: Integer; var Error: Byte; var AdditionalData: TBytes): Boolean;
 begin
   // initialize result
   Result := False;
@@ -624,7 +624,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL SYSTEM STATUS DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDFuelSystemStatusDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var FuelSystem1: TOBDServiceFuelSystemStatus; var FuelSystem2: TOBDServiceFuelSystemStatus): Boolean;
+function TOBDFuelSystemStatusDecoder.Parse(const Data: TBytes; var FuelSystem1: TOBDServiceFuelSystemStatus; var FuelSystem2: TOBDServiceFuelSystemStatus): Boolean;
 
   function ByteToFuelSystemStatus(Value: Byte): TOBDServiceFuelSystemStatus;
   begin
@@ -659,7 +659,7 @@ end;
 //------------------------------------------------------------------------------
 // PERCENTAGE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDPercentageDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDPercentageDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -676,7 +676,7 @@ end;
 //------------------------------------------------------------------------------
 // TEMPERATURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDTemperatureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Temperature: Integer): Boolean;
+function TOBDTemperatureDecoder.Parse(const Data: TBytes; var Temperature: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -693,7 +693,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL TRIM DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDFuelTrimDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDFuelTrimDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -710,7 +710,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDFuelPressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Integer): Boolean;
+function TOBDFuelPressureDecoder.Parse(const Data: TBytes; var Pressure: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -727,7 +727,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE RPM DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDEngineRPMDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var RPM: Integer): Boolean;
+function TOBDEngineRPMDecoder.Parse(const Data: TBytes; var RPM: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -744,7 +744,7 @@ end;
 //------------------------------------------------------------------------------
 // TIMING ADVANCE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDTimingAdvanceDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Degree: Double): Boolean;
+function TOBDTimingAdvanceDecoder.Parse(const Data: TBytes; var Degree: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -761,7 +761,7 @@ end;
 //------------------------------------------------------------------------------
 // MASS AIR FLOW RATE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDMassAirFlowRateDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var MAF: Double): Boolean;
+function TOBDMassAirFlowRateDecoder.Parse(const Data: TBytes; var MAF: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -778,7 +778,7 @@ end;
 //------------------------------------------------------------------------------
 // COMMANDED SECONDARY AIR STATUS DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDCommandedSecondaryAirStatusDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Status: TOBDServiceCommandedSecondaryAirStatus): Boolean;
+function TOBDCommandedSecondaryAirStatusDecoder.Parse(const Data: TBytes; var Status: TOBDServiceCommandedSecondaryAirStatus): Boolean;
 begin
   // initialize result
   Result := False;
@@ -802,7 +802,7 @@ end;
 //------------------------------------------------------------------------------
 // OXYGEN SENSOR READING DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceOxygenSensorReadingDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Voltage: Double; var Percent: Double): Boolean;
+function TOBDServiceOxygenSensorReadingDecoder.Parse(const Data: TBytes; var Voltage: Double; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -822,7 +822,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE RUNTIME DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEngineRuntimeDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Seconds: Integer): Boolean;
+function TOBDServiceEngineRuntimeDecoder.Parse(const Data: TBytes; var Seconds: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -839,7 +839,7 @@ end;
 //------------------------------------------------------------------------------
 // DISTANCE TRAVELED WITH MIL ON DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceDistanceTraveledWithMILOnDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Distance: Integer): Boolean;
+function TOBDServiceDistanceTraveledWithMILOnDecoder.Parse(const Data: TBytes; var Distance: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -856,7 +856,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL RAIL PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceFuelRailPressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceFuelRailPressureDecoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -873,7 +873,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL RAIL GAUGE PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceFuelRailGaugePressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceFuelRailGaugePressureDecoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -890,7 +890,7 @@ end;
 //------------------------------------------------------------------------------
 // OXYGEN SENSOR AIR-FUEL EQ RATIO AND VOLTAGE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceOxygenSensorReadingRVDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Ratio: Double; var Voltage: Double): Boolean;
+function TOBDServiceOxygenSensorReadingRVDecoder.Parse(const Data: TBytes; var Ratio: Double; var Voltage: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -909,7 +909,7 @@ end;
 //------------------------------------------------------------------------------
 // EGR ERROR DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEGRErrorDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDServiceEGRErrorDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -926,7 +926,7 @@ end;
 //------------------------------------------------------------------------------
 // DISTANCE SINCE CODES CLEARED DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceDistanceSinceCodesClearedDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Distance: Integer): Boolean;
+function TOBDServiceDistanceSinceCodesClearedDecoder.Parse(const Data: TBytes; var Distance: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -943,7 +943,7 @@ end;
 //------------------------------------------------------------------------------
 // EVAP. SYSTEM VAPOR PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEvapSystemVaporPressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceEvapSystemVaporPressureDecoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 var
   RawValue: Integer;
 begin
@@ -967,7 +967,7 @@ end;
 //------------------------------------------------------------------------------
 // OXYGEN SENSOR AIR-FUEL EQ RATIO AND CURRENT DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceOxygenSensorReadingRCDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Ratio: Double; var Current: Double): Boolean;
+function TOBDServiceOxygenSensorReadingRCDecoder.Parse(const Data: TBytes; var Ratio: Double; var Current: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -987,7 +987,7 @@ end;
 //------------------------------------------------------------------------------
 // CATALYST TEMPERATURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceCatalystTemperatureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Temperature: Double): Boolean;
+function TOBDServiceCatalystTemperatureDecoder.Parse(const Data: TBytes; var Temperature: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1004,7 +1004,7 @@ end;
 //------------------------------------------------------------------------------
 // CONTROL MODULE VOLTAGE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceControlModuleVoltageDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Voltage: Double): Boolean;
+function TOBDServiceControlModuleVoltageDecoder.Parse(const Data: TBytes; var Voltage: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1021,7 +1021,7 @@ end;
 //------------------------------------------------------------------------------
 // ABSOLUTE LOAD VALUE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceAbsoluteLoadValueDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDServiceAbsoluteLoadValueDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1038,7 +1038,7 @@ end;
 //------------------------------------------------------------------------------
 //  COMMANDED AIR-FUEL EQUIVALENCE RATIO DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceCommandedAirFuelEQRatioDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Ratio: Double): Boolean;
+function TOBDServiceCommandedAirFuelEQRatioDecoder.Parse(const Data: TBytes; var Ratio: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1055,7 +1055,7 @@ end;
 //------------------------------------------------------------------------------
 //  TIME IN MINUTES DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceMinuteDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Time: Integer): Boolean;
+function TOBDServiceMinuteDecoder.Parse(const Data: TBytes; var Time: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1072,7 +1072,7 @@ end;
 //------------------------------------------------------------------------------
 //  MAXIMUM SENSOR VALUES DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceMaxSensorValuesDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var FuelAirEQRatio: Double; var OxygenSensorVoltage: Double; var OxygenSensorCurrent: Double; var IntakeManifoldPressure: Integer): Boolean;
+function TOBDServiceMaxSensorValuesDecoder.Parse(const Data: TBytes; var FuelAirEQRatio: Double; var OxygenSensorVoltage: Double; var OxygenSensorCurrent: Double; var IntakeManifoldPressure: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1096,7 +1096,7 @@ end;
 //------------------------------------------------------------------------------
 //  ABSOLUTE EEVAP SYSTEM VAPOR PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceAbsoluteEvapSystemVaporPressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceAbsoluteEvapSystemVaporPressureDecoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1113,7 +1113,7 @@ end;
 //------------------------------------------------------------------------------
 // EVAP. SYSTEM VAPOR PRESSURE 2 DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEvapSystemVaporPressure2Decoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceEvapSystemVaporPressure2Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 var
   RawValue: Integer;
 begin
@@ -1137,7 +1137,7 @@ end;
 //------------------------------------------------------------------------------
 // OXYGEN SENSOR TRIM DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceOxygenSensorTrimDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var BankA: Double; var BankB: Double): Boolean;
+function TOBDServiceOxygenSensorTrimDecoder.Parse(const Data: TBytes; var BankA: Double; var BankB: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1157,7 +1157,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL RAIL ABSOLUTE PRESSURE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceFuelRailAbsolutePressureDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
+function TOBDServiceFuelRailAbsolutePressureDecoder.Parse(const Data: TBytes; var Pressure: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1174,7 +1174,7 @@ end;
 //------------------------------------------------------------------------------
 // FUEL INJECTION TIMING DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceFuelInjectionTimingDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDServiceFuelInjectionTimingDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1191,7 +1191,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE FUEL RATE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEngineFuelRateDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Rate: Double): Boolean;
+function TOBDServiceEngineFuelRateDecoder.Parse(const Data: TBytes; var Rate: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1208,7 +1208,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE TORQUE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEngineTorqueDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
+function TOBDServiceEngineTorqueDecoder.Parse(const Data: TBytes; var Percent: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1225,7 +1225,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE REFERENCE TORQUE DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEngineReferenceTorqueDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Torque: Integer): Boolean;
+function TOBDServiceEngineReferenceTorqueDecoder.Parse(const Data: TBytes; var Torque: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1242,7 +1242,7 @@ end;
 //------------------------------------------------------------------------------
 // ENGINE PERCENT TORQUE DATA DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceEnginePercentTorqueDataDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Idle: Integer; var Point1: Integer; var Point2: Integer; var Point3: Integer; var Point4: Integer): Boolean;
+function TOBDServiceEnginePercentTorqueDataDecoder.Parse(const Data: TBytes; var Idle: Integer; var Point1: Integer; var Point2: Integer; var Point3: Integer; var Point4: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1263,7 +1263,7 @@ end;
 //------------------------------------------------------------------------------
 // MASS AIRFLOW SENSOR DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceMassAirflowSensorDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorARate: Double; var SensorBRate: Double): Boolean;
+function TOBDServiceMassAirflowSensorDecoder.Parse(const Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorARate: Double; var SensorBRate: Double): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1283,7 +1283,7 @@ end;
 //------------------------------------------------------------------------------
 // SENSOR TEMPERATURE DATA DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceSensorTemperatureDataDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorATemperature: Integer; var SensorBTemperature: Integer): Boolean;
+function TOBDServiceSensorTemperatureDataDecoder.Parse(const Data: TBytes; var SensorASupported: Boolean; var SensorBSupported: Boolean; var SensorATemperature: Integer; var SensorBTemperature: Integer): Boolean;
 begin
   // initialize result
   Result := False;
@@ -1303,7 +1303,7 @@ end;
 //------------------------------------------------------------------------------
 // OXYGEN SENSOR MONITORING TEST RESULTS DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceOxygenSensorMonitoringTestResultsDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Voltage: Double): Boolean;
+function TOBDServiceOxygenSensorMonitoringTestResultsDecoder.Parse(const Data: TBytes; var Voltage: Double): Boolean;
 const
   VoltageResolution = 0.005;
   MaxValue = $FF;
@@ -1323,7 +1323,7 @@ end;
 //------------------------------------------------------------------------------
 // VEHICLE IDENTIFICATION NUMBER DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceVehicleIdentificationNumberDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var VIN: string): Boolean;
+function TOBDServiceVehicleIdentificationNumberDecoder.Parse(const Data: TBytes; var VIN: string): Boolean;
 var
   I: Integer;
 begin
@@ -1348,7 +1348,7 @@ end;
 //------------------------------------------------------------------------------
 // CALIBRATION ID DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceCalibrationIdDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var List: TStrings): Boolean;
+function TOBDServiceCalibrationIdDecoder.Parse(const Data: TBytes; var List: TStrings): Boolean;
 var
   I, J: Integer;
   S: string;
@@ -1390,7 +1390,7 @@ end;
 //------------------------------------------------------------------------------
 // CALIBRATION VERIFICATION NUMBER DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceCalibrationVerificationNumberDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var List: TStrings): Boolean;
+function TOBDServiceCalibrationVerificationNumberDecoder.Parse(const Data: TBytes; var List: TStrings): Boolean;
 var
   I: Integer;
   C: Cardinal;
@@ -1416,7 +1416,7 @@ end;
 //------------------------------------------------------------------------------
 // ECU NAME DECODER: PARSE
 //------------------------------------------------------------------------------
-function TOBDfunction TOBDServiceECUNameDecoder.Parse(Data: TBytes;Decoder.Parse(const Data: TBytes; var Name: string): Boolean;
+function TOBDServiceECUNameDecoder.Parse(const Data: TBytes; var Name: string): Boolean;
 var
   I: Integer;
   S: string;

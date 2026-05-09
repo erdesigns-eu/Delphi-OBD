@@ -1,0 +1,187 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Aston Martin DTC starter",
+  "default_source": "Aston Martin AMDS community DTCs",
+  "dtcs": [
+    {
+      "code": "B100D",
+      "severity": "info",
+      "description": "Aston Martin — Front camera obstructed (DBX ADAS)",
+      "verified": false
+    },
+    {
+      "code": "C1A20",
+      "severity": "warning",
+      "description": "Aston Martin DBX — Air-suspension compressor performance",
+      "verified": false
+    },
+    {
+      "code": "C1A21",
+      "severity": "warning",
+      "description": "Aston Martin DBX — Air-suspension reservoir pressure too low",
+      "verified": false
+    },
+    {
+      "code": "C1B20",
+      "severity": "warning",
+      "description": "Aston Martin — Bilstein DTX adaptive damper drive circuit",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "Aston Martin V8 (M177 twin-turbo) — Turbocharger overboost condition",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Turbocharger Underboost (AMG M178 / AML V12)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Confirm boost target vs actual via live data.",
+        "2) Smoke-test the intake / charge-air system for leaks.",
+        "3) Inspect wastegate solenoid and actuator rod travel.",
+        "4) Check for cracked CAC, intercooler, or hose clamps.",
+        "5) Replace failed solenoid / actuator if signal correct."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0301",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 1 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 2 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 3 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 4 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0305",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 5 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0306",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 6 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0307",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 7 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0308",
+      "severity": "warning",
+      "description": "Aston Martin V8 / V12 — Cylinder 8 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Aston Martin — Catalyst Bank 1 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0430",
+      "severity": "warning",
+      "description": "Aston Martin — Catalyst Bank 2 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "Aston Martin — Engine oil pressure too low",
+      "verified": false
+    },
+    {
+      "code": "P052E",
+      "severity": "warning",
+      "description": "Aston Martin V12 — Camshaft phasing performance",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "Aston Martin Valhalla — HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "HV Battery Imbalance (Aston Martin Hybrid)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Aston Martin — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0146",
+      "severity": "warning",
+      "description": "Aston Martin — Lost Communication With Gateway 'A'",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Aston Martin — Lost Communication With AMi infotainment",
+      "verified": false
+    }
+  ]
+}

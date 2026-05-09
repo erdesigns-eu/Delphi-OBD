@@ -1,0 +1,231 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Bentley DTC starter",
+  "default_source": "Bentley VW Group ODIS shared / VAGCAN DTCs",
+  "dtcs": [
+    {
+      "code": "B116F",
+      "severity": "warning",
+      "description": "Bentley — KESSY antenna circuit fault",
+      "verified": false
+    },
+    {
+      "code": "C0A20",
+      "severity": "warning",
+      "description": "Bentley — Dynamic Ride 48 V actuator drive fault",
+      "verified": false
+    },
+    {
+      "code": "C10C0",
+      "severity": "critical",
+      "description": "Bentley — Air-suspension reservoir pressure too low",
+      "verified": false
+    },
+    {
+      "code": "C10C1",
+      "severity": "warning",
+      "description": "Bentley — Air-suspension level sensor implausible",
+      "verified": false
+    },
+    {
+      "code": "C1525",
+      "severity": "warning",
+      "description": "Bentley Dynamic Ride: Pump Over-Time",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Read freeze-frame data and verify the fault is current.",
+        "2) Inspect the affected sensor / actuator wiring for chafing, corrosion, or loose connectors.",
+        "3) Measure circuit resistance + supply voltage with a multimeter.",
+        "4) Compare live data against expected values per OEM service data.",
+        "5) Replace the defective component if all wiring tests pass."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "C1A30",
+      "severity": "warning",
+      "description": "Bentley Flying Spur Mulliner — Rear-wheel steering position implausible",
+      "verified": false
+    },
+    {
+      "code": "P0234",
+      "severity": "critical",
+      "description": "Bentley V8 TFSI / W12 — Turbocharger overboost",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Bentley V8 TFSI / W12 — Turbocharger underboost",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "severity": "warning",
+      "description": "Bentley V8 TFSI / W12 TSI — Cylinder 1 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "warning",
+      "description": "Bentley V8 / W12 — Cylinder 2 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "warning",
+      "description": "Bentley V8 / W12 — Cylinder 3 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "warning",
+      "description": "Bentley V8 / W12 — Cylinder 4 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0305",
+      "severity": "warning",
+      "description": "Bentley W12 — Cylinder 5 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0306",
+      "severity": "warning",
+      "description": "Bentley W12 — Cylinder 6 misfire detected",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Bentley — Catalyst Bank 1 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0430",
+      "severity": "warning",
+      "description": "Bentley W12 — Catalyst Bank 2 efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "Bentley — Engine oil pressure too low",
+      "verified": false
+    },
+    {
+      "code": "P052E",
+      "severity": "warning",
+      "description": "Bentley — Camshaft phasing performance (Valvelift / chain stretch)",
+      "verified": false
+    },
+    {
+      "code": "P0A7A",
+      "severity": "warning",
+      "description": "Bentley Hybrid — Hybrid battery pack deterioration",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "Bentley Hybrid — HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P0D29",
+      "severity": "warning",
+      "description": "Bentley Hybrid — AC charging coupler latch fault (Type 2)",
+      "verified": false
+    },
+    {
+      "code": "P10DF",
+      "severity": "warning",
+      "description": "VarioCam Solenoid Stuck (W12 / V8)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Run live data: target vs actual cam advance per bank.",
+        "2) Check engine oil quality and level — VVT solenoids fail with old/dirty oil.",
+        "3) Inspect VVT solenoid screen for debris.",
+        "4) Replace solenoid; if mechanical (timing chain wear), open inspection."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P2002",
+      "severity": "critical",
+      "description": "Bentley diesel-equivalent / Mulsanne — DPF efficiency below threshold",
+      "verified": false
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "HV Battery Cell Imbalance (Continental GT Speed PHEV)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U0073",
+      "severity": "critical",
+      "description": "Bentley — High-speed CAN bus 'A' off",
+      "verified": false
+    },
+    {
+      "code": "U0146",
+      "severity": "warning",
+      "description": "Bentley — Lost Communication With Gateway 'A'",
+      "verified": false
+    },
+    {
+      "code": "U0184",
+      "severity": "warning",
+      "description": "Bentley — Lost Communication With Bentley Rotating Display",
+      "verified": false
+    }
+  ]
+}

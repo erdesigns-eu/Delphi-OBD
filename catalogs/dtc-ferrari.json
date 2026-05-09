@@ -1,0 +1,163 @@
+{
+  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "version": 1,
+  "name": "Ferrari DTC starter (SD3 / Leonardo)",
+  "default_source": "Ferrari SD3 / Leonardo community DTCs",
+  "dtcs": [
+    {
+      "code": "B107A",
+      "severity": "warning",
+      "description": "Ferrari front lift / nose-lift system fault",
+      "verified": false
+    },
+    {
+      "code": "C1A20",
+      "severity": "warning",
+      "description": "Ferrari Magneride damper controller fault",
+      "verified": false
+    },
+    {
+      "code": "P0299",
+      "severity": "warning",
+      "description": "Turbocharger Underboost (F154/F163 BiTurbo)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Confirm boost target vs actual via live data.",
+        "2) Smoke-test the intake / charge-air system for leaks.",
+        "3) Inspect wastegate solenoid and actuator rod travel.",
+        "4) Check for cracked CAC, intercooler, or hose clamps.",
+        "5) Replace failed solenoid / actuator if signal correct."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "P0301",
+      "severity": "critical",
+      "description": "Cylinder 1 misfire (Ferrari V8 / V12 — coil pack failure pattern)",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "severity": "critical",
+      "description": "Cylinder 2 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "severity": "critical",
+      "description": "Cylinder 3 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "severity": "critical",
+      "description": "Cylinder 4 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0305",
+      "severity": "critical",
+      "description": "Cylinder 5 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0306",
+      "severity": "critical",
+      "description": "Cylinder 6 misfire",
+      "verified": false
+    },
+    {
+      "code": "P0307",
+      "severity": "critical",
+      "description": "Cylinder 7 misfire (V8 / V12)",
+      "verified": false
+    },
+    {
+      "code": "P0308",
+      "severity": "critical",
+      "description": "Cylinder 8 misfire (V8 / V12)",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "severity": "warning",
+      "description": "Catalyst Bank 1 efficiency below threshold (Ferrari)",
+      "verified": false
+    },
+    {
+      "code": "P0430",
+      "severity": "warning",
+      "description": "Catalyst Bank 2 efficiency below threshold (Ferrari)",
+      "verified": false
+    },
+    {
+      "code": "P0524",
+      "severity": "critical",
+      "description": "Engine oil pressure low (Ferrari V8 turbo / V12 NA)",
+      "verified": false
+    },
+    {
+      "code": "P0AA6",
+      "severity": "critical",
+      "description": "SF90 / 296 / 12Cilindri HV battery isolation fault",
+      "verified": false
+    },
+    {
+      "code": "P0AFA",
+      "severity": "warning",
+      "description": "SF90 / 296 hybrid battery cell-voltage delta out of range",
+      "verified": false
+    },
+    {
+      "code": "P164A",
+      "severity": "warning",
+      "description": "Camshaft phaser solenoid (Ferrari V8 / V12)",
+      "verified": false
+    },
+    {
+      "code": "P30F0",
+      "severity": "critical",
+      "description": "HV Battery Imbalance (SF90/296 PHEV)",
+      "possible_causes": [
+        "Sensor / actuator failure",
+        "Wiring fault",
+        "Module driver failure"
+      ],
+      "verified": false,
+      "symptoms": [
+        "MIL on",
+        "Possible drivability impact"
+      ],
+      "repair_guidance": [
+        "1) Check pack SOH, cell delta, and individual cell voltages.",
+        "2) Run cell-balance routine.",
+        "3) Inspect HV connectors for corrosion / arcing damage.",
+        "4) Test pack isolation — replace damaged module if isolation low."
+      ],
+      "monitor_type": "continuous",
+      "freeze_frame_relevant": true,
+      "related_dids": [],
+      "related_routines": [],
+      "oem_bulletin": ""
+    },
+    {
+      "code": "U1A00",
+      "severity": "warning",
+      "description": "Ferrari CAN-FD Powertrain Bus performance fault",
+      "verified": false
+    }
+  ]
+}

@@ -18,8 +18,7 @@ uses
   System.SysUtils, System.Classes, System.SyncObjs, System.Diagnostics, Vcl.Controls, 
   WinApi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Themes, System.Skia, Vcl.Skia, System.Types,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation,
-  OBD.CustomControl.AnimationManager;
+  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.Animation;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -855,7 +854,7 @@ type
   /// <summary>
   ///   Circular Gauge Component
   /// </summary>
-  TOBDCircularGauge = class(TOBDCustomControl, IOBDAnimatable)
+  TOBDCircularGauge = class(TOBDCustomControl)
   private
     /// <summary>
     ///   Cached Skia snapshot of the static gauge background for reuse between frames.
@@ -1047,20 +1046,14 @@ type
     ///   Override assign method
     /// </summary>
     procedure Assign(Source: TPersistent); override;
-
-    // IOBDAnimatable interface methods
+  protected
     /// <summary>
-    ///   Called on each animation tick
+    ///   Recompute the live <c>Animation.Value</c> from the wall-clock
+    ///   elapsed time since the last <c>SetValue</c>. Called from
+    ///   <c>PaintSkia</c> so the needle is always painted at the current
+    ///   eased position regardless of when the timer happens to tick.
     /// </summary>
-    procedure AnimationTick(ElapsedMs: Int64);
-    /// <summary>
-    ///   Returns true if the control has active animations
-    /// </summary>
-    function IsAnimating: Boolean;
-    /// <summary>
-    ///   Get the desired frames per second for this control
-    /// </summary>
-    function GetFramesPerSecond: Integer;
+    procedure UpdateAnimationValue;
   published
     /// <summary>
     ///   Start angle
@@ -1916,8 +1909,8 @@ begin
     FStartAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1936,8 +1929,8 @@ begin
     FEndAngle := Value;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1958,8 +1951,8 @@ begin
       FValue := FMin;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -1980,8 +1973,8 @@ begin
       FValue := FMax;
     // Invalidate the background buffer
     InvalidateBackground;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -2001,11 +1994,11 @@ begin
     // Handle animation
     if Animation.Enabled and not (csDesigning in ComponentState) then
     begin
-      // Animation is enabled: set up animation parameters
-      Animation.StartValue := Animation.Value;  // Start from current animated position
+      // Animation is enabled: snapshot the start state. UpdateAnimationValue
+      // (called from PaintSkia) will interpolate from here on each frame
+      // delivered by the inherited TOBDCustomControl timer.
+      Animation.StartValue := Animation.Value;
       FAnimationStartMs := FStopwatch.ElapsedMilliseconds;
-      // Notify animation manager to start timer
-      AnimationManager.CheckAnimationState;
     end
     else
     begin
@@ -2013,8 +2006,8 @@ begin
       Animation.Value := FValue;
     end;
     
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate buffer
+    Invalidate;
   end;
 end;
 
@@ -2095,10 +2088,6 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.InvalidateBackground;
 begin
-  // Safety check: FRenderLock might not be initialized yet during parent constructor
-  if not Assigned(FRenderLock) then
-    Exit;
-    
   // Clear and rebuild the cached background snapshot under the render lock
   TMonitor.Enter(FRenderLock);
   try
@@ -2129,14 +2118,6 @@ var
   ArcPath: ISkPath;
   PathBuilder: ISkPathBuilder;
 begin
-  // Safety check: ensure all required objects are initialized
-  // This prevents access violations if called during constructor
-  if not Assigned(FBackground) or not Assigned(FBorder) or
-     not Assigned(FMajorTicks) or not Assigned(FMinorTicks) or
-     not Assigned(FTopCaption) or not Assigned(FBottomCaption) or
-     not Assigned(FGradientScaleItems) then
-    Exit;
-    
   // Allocate a Skia surface that holds the static gauge background
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -2377,14 +2358,6 @@ var
   PathBuilder: ISkPathBuilder;
 begin
   try
-    // Safety check: ensure all required objects are initialized before painting
-    // This prevents access violations if paint is triggered during constructor
-    if not Assigned(FBackground) or not Assigned(FBorder) or not Assigned(FNeedle) then
-    begin
-      Canvas.Clear(SafeColorRefToSkColor(Self.Color));
-      Exit;
-    end;
-    
     // Draw the cached background image first
     BackgroundImage := AcquireBackgroundSnapshot;
     if Assigned(BackgroundImage) then
@@ -2482,6 +2455,10 @@ end;
 procedure TOBDCircularGauge.PaintSkia(Canvas: ISkCanvas);
 begin
   try
+    // Refresh the animated needle value from wall-clock elapsed time
+    // before drawing — the inherited timer fires Invalidate at FPS Hz so
+    // every paint observes the current eased position.
+    UpdateAnimationValue;
     // Paint the gauge with needle directly to the provided canvas
     PaintNeedle(Canvas);
   except
@@ -2502,8 +2479,8 @@ procedure TOBDCircularGauge.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2511,8 +2488,8 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.NeedleSettingsChanged(Sender: TObject);
 begin
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2520,81 +2497,43 @@ end;
 //------------------------------------------------------------------------------
 procedure TOBDCircularGauge.AnimationChanged(Sender: TObject);
 begin
-  if not (csDesigning in ComponentState) then
-  begin
-    // Notify the animation manager to check animation state
-    AnimationManager.CheckAnimationState;
-  end;
-  
   // If animation is disabled, immediately set Animation.Value to current value
   if not Animation.Enabled then
     Animation.Value := FValue;
-  
-  // Redraw Skia (also invalidates)
-  Redraw;
+
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
-// ANIMATION TICK (IOBDAnimatable interface)
+// UPDATE ANIMATION VALUE
 //------------------------------------------------------------------------------
-procedure TOBDCircularGauge.AnimationTick(ElapsedMs: Int64);
+procedure TOBDCircularGauge.UpdateAnimationValue;
 var
   CurrentMs, Elapsed: Int64;
   AnimationProgress, EasedProgress, InterpolatedValue: Single;
   EasingFunction: TOBDCustomControlAnimationEasingFunction;
 begin
   if not Animation.Enabled then
+  begin
+    Animation.Value := FValue;
     Exit;
+  end;
 
-  // Get current time from stopwatch
   CurrentMs := FStopwatch.ElapsedMilliseconds;
-  // Calculate elapsed time since animation start
-  Elapsed := CurrentMs - FAnimationStartMs;
+  Elapsed   := CurrentMs - FAnimationStartMs;
 
-  // Get the easing function
   EasingFunction := GetEasingFunction(Animation.&Type);
   if Elapsed < Animation.Duration then
   begin
-    // Calculate the animation progress
     AnimationProgress := Elapsed / Animation.Duration;
-    // Apply easing function to AnimationProgress
     EasedProgress := EasingFunction(AnimationProgress);
-    // Calculate the interpolated value using the eased progress
-    InterpolatedValue := Animation.StartValue + (FValue - Animation.StartValue) * EasedProgress;
-    // Update the animation value
+    InterpolatedValue := Animation.StartValue +
+      (FValue - Animation.StartValue) * EasedProgress;
     Animation.Value := InterpolatedValue;
   end
   else
-  begin
-    // Directly set to target value when animation duration has passed
     Animation.Value := FValue;
-  end;
-
-  // Redraw Skia (also invalidates and triggers repaint)
-  Redraw;
-end;
-
-//------------------------------------------------------------------------------
-// IS ANIMATING (IOBDAnimatable interface)
-//------------------------------------------------------------------------------
-function TOBDCircularGauge.IsAnimating: Boolean;
-var
-  CurrentMs, Elapsed: Int64;
-begin
-  if not Animation.Enabled then
-    Exit(False);
-    
-  CurrentMs := FStopwatch.ElapsedMilliseconds;
-  Elapsed := CurrentMs - FAnimationStartMs;
-  Result := (Elapsed < Animation.Duration) and (Animation.StartValue <> FValue);
-end;
-
-//------------------------------------------------------------------------------
-// GET FRAMES PER SECOND (IOBDAnimatable interface)
-//------------------------------------------------------------------------------
-function TOBDCircularGauge.GetFramesPerSecond: Integer;
-begin
-  Result := FramesPerSecond;
 end;
 
 //------------------------------------------------------------------------------
@@ -2606,8 +2545,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2619,8 +2558,8 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 //------------------------------------------------------------------------------
@@ -2687,12 +2626,6 @@ begin
   FStopwatch := TStopwatch.StartNew;
   FAnimationStartMs := 0;
 
-  if not (csDesigning in ComponentState) then
-  begin
-    // Register with the animation manager
-    AnimationManager.RegisterControl(Self);
-  end;
-
   // Set default dimensions
   Width := 176;
   Height := 176;
@@ -2703,11 +2636,6 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDCircularGauge.Destroy;
 begin
-  if not (csDesigning in ComponentState) then
-  begin
-    // Unregister from the animation manager
-    AnimationManager.UnregisterControl(Self);
-  end;
   // Release render lock
   FRenderLock.Free;
   // Free gauge background properties
@@ -2756,8 +2684,8 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
-  // Redraw Skia (also invalidates)
-  Redraw;
+  // Invalidate the buffer
+  Invalidate;
 end;
 
 end.

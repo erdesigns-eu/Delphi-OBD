@@ -1,0 +1,75 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One sentence — what's wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: |
+        Smallest steps to trigger the bug. Include component, adapter,
+        protocol, vehicle (year/make/model), and any relevant settings.
+      placeholder: |
+        1. Drop TOBDCircularGauge on a form
+        2. Set FramesPerSecond := 0
+        3. Run — gauge no longer updates after Value change
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+
+  - type: input
+    id: delphi
+    attributes:
+      label: Delphi version
+      placeholder: "Delphi 12.1 Athens"
+    validations:
+      required: true
+
+  - type: input
+    id: skia
+    attributes:
+      label: Skia4Delphi version
+      placeholder: "6.x"
+
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "Windows 11 23H2"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack trace
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true
+        - label: I'm on the latest tagged release (or `main`).
+          required: true

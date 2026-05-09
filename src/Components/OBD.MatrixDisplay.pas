@@ -19,7 +19,7 @@ uses
   WinApi.Windows, Winapi.Messages, System.Math, Vcl.Graphics, System.Skia, Vcl.Skia,
   System.UITypes,
 
-  OBD.CustomControl, OBD.CustomControl.Helpers, OBD.CustomControl.AnimationManager;
+  OBD.CustomControl, OBD.CustomControl.Helpers;
 
 //------------------------------------------------------------------------------
 // CONSTANTS
@@ -311,7 +311,7 @@ type
   /// <summary>
   ///   Matrix Display Component
   /// </summary>
-  TOBDMatrixDisplay = class(TOBDCustomControl, IOBDAnimatable)
+  TOBDMatrixDisplay = class(TOBDCustomControl)
   private
     /// <summary>
     ///   Cached Skia background image to reuse across paint cycles
@@ -517,20 +517,12 @@ type
     ///   Load text centered in the display
     /// </summary>
     procedure LoadTextCentered(const Value: string; const Horizontal: Boolean = True; const Vertical: Boolean = True; const Inversed: Boolean = False);
-
-    // IOBDAnimatable interface methods
+  protected
     /// <summary>
-    ///   Called on each animation tick
+    ///   Advance the scroll/invert animation if its duration has elapsed.
+    ///   Called from PaintSkia so the inherited timer drives the effect.
     /// </summary>
-    procedure AnimationTick(ElapsedMs: Int64);
-    /// <summary>
-    ///   Returns true if the control has active animations
-    /// </summary>
-    function IsAnimating: Boolean;
-    /// <summary>
-    ///   Get the desired frames per second for this control
-    /// </summary>
-    function GetFramesPerSecond: Integer;
+    procedure UpdateAnimationFrame;
   published
     /// <summary>
     ///   Cell size
@@ -794,8 +786,8 @@ begin
   begin
     // Set new cell size
     FCellSize := Value;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -811,8 +803,8 @@ begin
   begin
     // Set new cell spacing
     FCellSpacing := Value;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -831,8 +823,8 @@ begin
     FRows := Value;
     // Initialize cells
     InitializeCells;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -851,8 +843,6 @@ begin
     FCols := Value;
     // Initialize cells
     InitializeCells;
-    // Redraw Skia
-    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -883,8 +873,8 @@ begin
   begin
     // Set new on color
     FOnColor := Value;
-    // Redraw Skia (also invalidates)
-    Redraw;
+    // Invalidate the buffer
+    Invalidate;
   end;
 end;
 
@@ -897,8 +887,6 @@ begin
   begin
     // Set new off color
     FOffColor := Value;
-    // Redraw Skia
-    Redraw;
     // Invalidate buffer
     Invalidate;
   end;
@@ -974,14 +962,6 @@ var
   Path: ISkPath;
   Paint: ISkPaint;
 begin
-  // Safety check: ensure required objects are initialized
-  if not Assigned(FBackground) or not Assigned(FBorder) then
-    Exit;
-  
-  // Safety check: don't build snapshot with invalid dimensions
-  if (Width <= 0) or (Height <= 0) then
-    Exit;
-    
   // Allocate a Skia surface for fully hardware-accelerated drawing
   Surface := TSkSurface.MakeRaster(Width, Height);
   Canvas := Surface.Canvas;
@@ -1067,11 +1047,6 @@ var
   PaintOn, PaintOff: ISkPaint;
   CellRect: TRectF;
 begin
-  // Safety check: ensure FCellsLock is initialized before accessing cells
-  // This prevents access violations if paint is triggered during constructor
-  if not Assigned(FCellsLock) then
-    Exit;
-    
   // Prepare paint objects upfront to avoid allocations inside the nested loops
   PaintOn := TSkPaint.Create;
   PaintOn.Style := TSkPaintStyle.Fill;
@@ -1136,6 +1111,11 @@ end;
 procedure TOBDMatrixDisplay.PaintSkia(Canvas: ISkCanvas);
 begin
   try
+    // Advance the scroll/invert effect (if any) before drawing — the
+    // inherited TOBDCustomControl timer fires Invalidate at FPS Hz and
+    // UpdateAnimationFrame self-throttles to Animation.Duration.
+    UpdateAnimationFrame;
+
     // Draw the cached background image first for optimal overdraw behavior
     if FBackgroundImage <> nil then
       Canvas.DrawImage(FBackgroundImage, 0, 0)
@@ -1160,8 +1140,6 @@ procedure TOBDMatrixDisplay.SettingsChanged(Sender: TObject);
 begin
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia
-  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1172,34 +1150,28 @@ end;
 procedure TOBDMatrixDisplay.AnimationChanged(Sender: TObject);
 begin
   if not (csDesigning in ComponentState) then
-  begin
     // Reset the animation timer when animation settings change
     FLastAnimationMs := FStopwatch.ElapsedMilliseconds;
-    // Notify the animation manager to check animation state
-    AnimationManager.CheckAnimationState;
-  end;
-  // Redraw Skia
-  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
 
 //------------------------------------------------------------------------------
-// ANIMATION TICK (IOBDAnimatable interface)
+// UPDATE ANIMATION FRAME
 //------------------------------------------------------------------------------
-procedure TOBDMatrixDisplay.AnimationTick(ElapsedMs: Int64);
+procedure TOBDMatrixDisplay.UpdateAnimationFrame;
 var
   CurrentMs, TimeSinceLastTick: Int64;
 begin
-  if not Animation.Enabled then
-    Exit;
+  if not Animation.Enabled then Exit;
+  if csDesigning in ComponentState then Exit;
 
-  // Get current time from stopwatch
   CurrentMs := FStopwatch.ElapsedMilliseconds;
-  // Calculate time since last animation tick
   TimeSinceLastTick := CurrentMs - FLastAnimationMs;
 
-  // Only perform animation action if duration has elapsed
+  // Only advance the effect once its configured per-frame duration has
+  // elapsed — the inherited TOBDCustomControl timer ticks faster than that
+  // so we throttle here.
   if TimeSinceLastTick >= Animation.Duration then
   begin
     case Animation.&Type of
@@ -1209,32 +1181,8 @@ begin
       atScrollDown  : ScrollDown;
       atInvert      : Invert;
     end;
-
-    // Update last tick time
     FLastAnimationMs := CurrentMs;
-    
-    // Redraw Skia
-    Redraw;
-    // Trigger a repaint to display the updated display
-    Invalidate;
   end;
-end;
-
-//------------------------------------------------------------------------------
-// IS ANIMATING (IOBDAnimatable interface)
-//------------------------------------------------------------------------------
-function TOBDMatrixDisplay.IsAnimating: Boolean;
-begin
-  Result := Animation.Enabled;
-end;
-
-//------------------------------------------------------------------------------
-// GET FRAMES PER SECOND (IOBDAnimatable interface)
-//------------------------------------------------------------------------------
-function TOBDMatrixDisplay.GetFramesPerSecond: Integer;
-begin
-  // MatrixDisplay uses custom duration-based timing, so use default FPS
-  Result := FramesPerSecond;
 end;
 
 //------------------------------------------------------------------------------
@@ -1285,8 +1233,6 @@ begin
   inherited;
   // Invalidate background
   InvalidateBackground;
-  // Redraw Skia
-  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1300,8 +1246,6 @@ begin
   inherited;
   // Invalidate the background
   InvalidateBackground;
-  // Redraw Skia
-  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
@@ -1368,12 +1312,6 @@ begin
   // Initialize stopwatch for high-resolution timing
   FStopwatch := TStopwatch.StartNew;
   FLastAnimationMs := 0;
-
-  if not (csDesigning in ComponentState) then
-  begin
-    // Register with the animation manager
-    AnimationManager.RegisterControl(Self);
-  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -1381,11 +1319,6 @@ end;
 //------------------------------------------------------------------------------
 destructor TOBDMatrixDisplay.Destroy;
 begin
-  if not (csDesigning in ComponentState) then
-  begin
-    // Unregister from the animation manager
-    AnimationManager.UnregisterControl(Self);
-  end;
   // Release the cell lock
   FCellsLock.Free;
   // Free background
@@ -1418,8 +1351,6 @@ begin
   end;
   // Invalidate background
   InvalidateBackground;
-  // Redraw Skia
-  Redraw;
   // Invalidate the buffer
   Invalidate;
 end;
