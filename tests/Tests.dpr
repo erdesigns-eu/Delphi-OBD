@@ -36,6 +36,7 @@ uses
   Tests.OEM.Coding.AuditLog in 'Tests.OEM.Coding.AuditLog.pas',
   Tests.ECU.Flashing.Checkpoint in 'Tests.ECU.Flashing.Checkpoint.pas',
   Tests.OEM.Coding.NewOEMs in 'Tests.OEM.Coding.NewOEMs.pas',
+  Tests.ECU.Signature.PQC in 'Tests.ECU.Signature.PQC.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

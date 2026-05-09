@@ -61,6 +61,29 @@ catalogs need verified bit layouts captured from real ECUs.
 (fcaproxitool.com), I-CAR CRN-1291 "Identifying FCA/Stellantis
 Programming Differences", NHTSA TSB MC-10251789-9999.
 
+### v3.80 / 4.5 — Post-quantum signature OpenSSL binding
+
+`OBD.ECU.Signature.PQC` ships the envelope codec
+(algorithm tag + key-id + signature length + signature) and the
+verifier scaffolding plumbed into the existing
+`IFirmwareSignatureVerifier` interface. The envelope codec is fully
+tested. `Verify` raises `EOBDPQCNotAvailable` until OpenSSL 3.x EVP
+is bound, because:
+
+1. No OEM has shipped a signed-PQC ECU as of 2026-05-09, so there's
+   no production wire format to validate against — fail-closed is
+   correct.
+2. NIST FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA) finalised in 2024
+   are the algorithm baselines. Once an OEM publishes a wire spec,
+   the OpenSSL EVP binding (using `EVP_PKEY_verify` with the right
+   OID) is a straightforward ~30-line addition.
+
+What's needed to close the gap:
+- An OEM-published wire spec (envelope layout, key derivation, OID).
+- OpenSSL 3.x linkage on every supported platform (Windows / macOS /
+  Linux / iOS / Android). For Windows we'd reuse the existing
+  `OBD.ECU.Signature.OpenSSL` library-load path.
+
 ## Resolved
 
 *(empty; populated as gaps close)*
