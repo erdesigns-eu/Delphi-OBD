@@ -76,24 +76,24 @@ the same form.
 | `TOBDLiveData` | Mode 01 — current sensor data. Batched PID polling, supported-PID handling. | `Protocol`, `PIDs: TOBDPIDList` (collection), `Interval: Cardinal`, `Active: Boolean` | `OnPIDValue(Sender; PID; const Value: TOBDValue)`, `OnSupportedChanged` |
 | `TOBDFreezeFrame` | Mode 02 — freeze-frame snapshot at the moment a DTC was stored. | `Protocol`, `FrameIndex: Byte`, `PIDs: TOBDPIDList` | `OnFrame(Sender; const Snapshot: TOBDFreezeFrame)` |
 | `TOBDDTC` | Modes 03/07/0A bundle — stored, pending, permanent DTCs. | `Protocol`, `IncludeStored`, `IncludePending`, `IncludePermanent` | `OnDTCList(Sender; const DTCs: TArray<TOBDTroubleCode>)` |
-| `TOBDClearDTC` | Mode 04 — clear DTCs and freeze frames. Action component. | `Protocol`, `RequireConfirmation: Boolean` | `OnCleared`, `OnError` |
+| `TOBDClearDTC` | Mode 04 — clear DTCs and freeze frames. Action component. | `Protocol`, `AutoExecute: Boolean = False` | `OnCleared`, `OnError` |
 | `TOBDOxygenMonitor` | Mode 05 — O₂ sensor monitoring (non-CAN). Test-ID structured, distinct from Mode 01. | `Protocol`, `TestIDs: TOBDTestIDList`, `Sensor: TOBDOxygenSensor` | `OnTestResult(Sender; const Result: TOBDOxygenTestResult)` |
 | `TOBDMonitorResults` | Mode 06 — on-board monitoring test results (CAN). MID/TID/UASID structured; ranges per test (min/max/value). | `Protocol`, `MonitorIDs: TOBDMonitorIDList` | `OnMonitorResult(Sender; const Result: TOBDMonitorTestResult)`, `OnAvailabilityChanged` |
-| `TOBDSystemControl` | Mode 08 — bidirectional control / actuator tests. Action component. | `Protocol`, `TestID: Byte`, `RequireConfirmation: Boolean` | `OnControlResponse`, `OnError` |
+| `TOBDSystemControl` | Mode 08 — bidirectional control / actuator tests. Action component. | `Protocol`, `TestID: Byte`, `AutoExecute: Boolean = False` | `OnControlResponse`, `OnError` |
 | `TOBDVehicleInfo` | Mode 09 — vehicle information (VIN, CalIDs, CVNs, ECU Name, IPT, ESN). Includes calibration helpers (verify CVN against CalID, range checks). | `Protocol`, `Calibration: TOBDCalibrationHelper` (sub-object) | `OnVIN`, `OnCalibrationIDs`, `OnCVNs`, `OnInUsePerformanceSpark`, `OnInUsePerformanceCompression`, `OnECUName`, `OnECUNameExtended`, `OnEngineSerialNumber`, `OnAuxInputStatus` |
 | **UDS (ISO 14229)** — full diagnostic, coding, and flashing surface. | | | |
 | `TOBDUDS` | Session/transport hub. Handles 0x10 Session Control, 0x11 ECU Reset, 0x27 Security Access, 0x28 Communication Control, 0x29 Authentication, 0x3E Tester Present, 0x83 Access Timing, 0x85 Control DTC Setting, 0x86 Response On Event, 0x87 Link Control. Other UDS components bind here. | `Protocol`, `Session: TOBDUDSSession`, `Tester: TOBDUDSTester` (timing, addresses), `Security: TOBDUDSSecurity` (level + seed/key callback) | `OnSessionChanged`, `OnSecurityGranted`, `OnNRC`, `OnError` |
 | `TOBDUDSReadDID` | Service 0x22 / 0x24 — Read Data By Identifier (with optional scaling info via 0x24). Collection-driven. | `UDS`, `DIDs: TOBDDIDList` (collection), `Interval: Cardinal`, `Active: Boolean` | `OnDIDValue(Sender; DID; const Value: TOBDValue)` |
 | `TOBDUDSReadDTC` | Service 0x19 — Read DTC Information. Supports all subfunctions (01 number-by-status, 02 by-status, 03 snapshot ID, 04 snapshot record, 06 extended record, 0A all, 14 fault detection counter, 15 mirror memory, 17 mirror counts, 18 user-def memory, 42 WWH-OBD, 55/56 WWH-OBD permanent). | `UDS`, `Subfunction: TOBDUDSReadDTCSubfunction`, `StatusMask`, `MemorySelection` | `OnDTCList`, `OnDTCSnapshot`, `OnDTCExtendedData` |
-| `TOBDUDSClearDTC` | Service 0x14 — Clear Diagnostic Information. Action component. | `UDS`, `GroupOfDTC: Cardinal`, `MemorySelection`, `RequireConfirmation` | `OnCleared`, `OnError` |
-| `TOBDUDSReset` | Service 0x11 — ECU Reset (hard/key-off-on/soft/enableRapidPowerShutDown/disableRapidPowerShutDown). Action component. | `UDS`, `ResetType: TOBDUDSResetType`, `RequireConfirmation` | `OnReset`, `OnPowerDownTime`, `OnError` |
+| `TOBDUDSClearDTC` | Service 0x14 — Clear Diagnostic Information. Action component. | `UDS`, `GroupOfDTC: Cardinal`, `MemorySelection`, `AutoExecute: Boolean = False` | `OnCleared`, `OnError` |
+| `TOBDUDSReset` | Service 0x11 — ECU Reset (hard/key-off-on/soft/enableRapidPowerShutDown/disableRapidPowerShutDown). Action component. | `UDS`, `ResetType: TOBDUDSResetType`, `AutoExecute: Boolean = False` | `OnReset`, `OnPowerDownTime`, `OnError` |
 | `TOBDUDSIOControl` | Service 0x2F — Input/Output Control By Identifier (actuator tests, freeze, return-to-ECU). | `UDS`, `DID`, `ControlOption: TOBDUDSIOControlOption`, `EnableMask` | `OnControlResponse`, `OnError` |
 | `TOBDUDSRoutine` | Service 0x31 — Routine Control (start/stop/request results). For diagnostic routines (e.g. injector tests, leak detection, calibration verify). | `UDS`, `RoutineID`, `RoutineParams: TBytes` | `OnStarted`, `OnStopped`, `OnResults`, `OnError` |
 | `TOBDUDSReadByPeriodic` | Service 0x2A — Read Data By Periodic Identifier (slow/medium/fast rate). | `UDS`, `Items: TOBDPeriodicList`, `TransmissionMode` | `OnPeriodicValue` |
 | `TOBDUDSDynamicDID` | Service 0x2C — Dynamically Define Data Identifier. | `UDS`, `DefinedDID`, `Sources: TOBDDynamicSourceList` | `OnDefined`, `OnCleared` |
 | `TOBDUDSReadMemory` | Service 0x23 — Read Memory By Address. | `UDS`, `Address`, `Size`, `AddressFormat`, `SizeFormat` | `OnMemory`, `OnError` |
-| `TOBDUDSWriteDID` | Service 0x2E — Write Data By Identifier (coding). Collection of DID/value pairs with confirmation gate. | `UDS`, `Writes: TOBDDIDWriteList`, `RequireConfirmation`, `AuditLog` | `OnWritten(Sender; DID; Success)`, `OnError` |
-| `TOBDUDSWriteMemory` | Service 0x3D — Write Memory By Address (flashing low-level primitive). | `UDS`, `Address`, `Data`, `RequireConfirmation` | `OnWritten`, `OnError` |
+| `TOBDUDSWriteDID` | Service 0x2E — Write Data By Identifier (coding). Collection of DID/value pairs with confirmation gate. | `UDS`, `Writes: TOBDDIDWriteList`, `AutoExecute: Boolean = False`, `AuditLog` | `OnWritten(Sender; DID; Success)`, `OnError` |
+| `TOBDUDSWriteMemory` | Service 0x3D — Write Memory By Address (flashing low-level primitive). | `UDS`, `Address`, `Data`, `AutoExecute: Boolean = False` | `OnWritten`, `OnError` |
 | `TOBDUDSTransfer` | Services 0x34/0x35/0x36/0x37 — Request Download / Request Upload / Transfer Data / Request Transfer Exit. State-machine driven; chunked; resumable. | `UDS`, `Direction: tdDownload/tdUpload`, `Address`, `Size`, `BlockSize`, `Compression`, `Encryption`, `Source: TStream` (download) / `Target: TStream` (upload) | `OnBlockTransferred(Sender; BlockIndex; TotalBlocks)`, `OnComplete`, `OnError` |
 | **KWP2000 (ISO 14230)** — pre-UDS but still common on European cars. Mirrors UDS surface where services overlap. | | | |
 | `TOBDKWP` | Session/transport hub. 0x10 Session, 0x27 Security, 0x3E Tester Present. | `Protocol`, `EcuAddress`, `Session`, `Security` | `OnSessionChanged`, `OnSecurityGranted`, `OnNRC`, `OnError` |
@@ -101,7 +101,7 @@ the same form.
 | `TOBDKWPReadDTC` | Services 0x18 (Read DTC by status), 0x19 (Read DTC). | `KWP`, `StatusMask`, `Group` | `OnDTCList` |
 | `TOBDKWPIOControl` | Services 0x2F / 0x30 (IO control by Local/Common ID). | `KWP`, `Identifier`, `ControlOption` | `OnControlResponse` |
 | `TOBDKWPRoutine` | Services 0x31 (start), 0x32 (stop), 0x33 (request results). | `KWP`, `RoutineID`, `Params` | `OnStarted`, `OnStopped`, `OnResults` |
-| `TOBDKWPClearDTC` | Service 0x14 — Clear Diagnostic Information. | `KWP`, `Group`, `RequireConfirmation` | `OnCleared` |
+| `TOBDKWPClearDTC` | Service 0x14 — Clear Diagnostic Information. | `KWP`, `Group`, `AutoExecute: Boolean = False` | `OnCleared` |
 | **J1939 (heavy duty)** — full DM diagnostic message family for v1. | | | |
 | `TOBDJ1939` | Bus client / address claim / transport (TP.CM, TP.DT, ETP). | `Connection`, `SourceAddress`, `PreferredAddress`, `Subscriptions: TOBDPGNList`, `AddressClaim: TOBDJ1939AddressClaim` | `OnAddressClaimed`, `OnAddressLost`, `OnPGN`, `OnError` |
 | `TOBDJ1939DM` | All diagnostic messages bundled. Subscribed via `Messages` set. Covers DM1 (active DTCs, PGN 65226), DM2 (previously active), DM3 (clear previously active), DM4/DM25 (freeze frame / expanded), DM5/DM21/DM26 (readiness), DM6 (pending), DM11 (clear active), DM12 (emission DTCs), DM19 (calibration info), DM20 (IUMPR), DM22 (individual clear), DM23 (emission previously active), DM24 (SPN support), DM27 (all pending), DM28 (permanent), DM29 (DTC counts), DM30 (scaled test results), DM31 (DTC→lamp), DM32 (DTC extended). | `J1939`, `Messages: TOBDJ1939DMSet`, `RequestInterval` | `OnDM1ActiveDTCs`, `OnDM2PreviousDTCs`, `OnDM4FreezeFrame`, `OnDM5Readiness`, `OnDM6PendingDTCs`, `OnDM11Cleared`, `OnDM19CalibrationInfo`, `OnDM20IUMPR`, `OnDM24SPNSupport`, `OnDM25ExpandedFreezeFrame`, `OnDM27AllPending`, `OnDM28Permanent`, `OnDM29Counts`, `OnDM30ScaledResults`, `OnDM31LampStatus`, `OnDM32ExtendedData` |
@@ -137,7 +137,7 @@ the same form.
 | `TOBDCodingAuditLog` | Tamper-evident JSONL audit log of every write. Includes timestamp, user, VIN, ECU, DID, before, after, signature. | `FileName`, `Signing: TOBDSignatureVerifier`, `Active` | `OnEntry` |
 | `TOBDCodingBMW`, `TOBDCodingFord`, `TOBDCodingHMG`, `TOBDCodingHonda`, `TOBDCodingMercedes`, `TOBDCodingStellantis`, `TOBDCodingToyota`, `TOBDCodingVAG` | OEM-specific coding helpers. Each wraps `TOBDCodingSession` with vendor protocols (e.g. VAG long coding strings, BMW NCS encoded data, Ford AsBuilt, HMG configuration words). | `Coding: TOBDCodingSession`, vendor-specific properties | OEM-specific events |
 | **Flashing** — full ECU flashing pipeline, hardware-safety gated. | | | |
-| `TOBDFlasher` | Flashing orchestrator. Drives the full sequence: pre-conditions check, voltage gate, security access, request download, transfer loop, request transfer exit, post-checks, ECU reset. Resumable via checkpoints. | `UDS` (or `J1939`), `FirmwareFile`, `Signature: TOBDSignatureVerifier`, `VoltageGate: TOBDVoltageGate`, `Checkpoint: TOBDFlashCheckpoint`, `RequireConfirmation`, `AuditLog` | `OnPhase(Sender; Phase: TOBDFlashPhase)`, `OnProgress(Sender; Bytes, Total)`, `OnComplete`, `OnAborted`, `OnError` |
+| `TOBDFlasher` | Flashing orchestrator. Drives the full sequence: pre-conditions check, voltage gate, security access, request download, transfer loop, request transfer exit, post-checks, ECU reset. Resumable via checkpoints. | `UDS` (or `J1939`), `FirmwareFile`, `Signature: TOBDSignatureVerifier`, `VoltageGate: TOBDVoltageGate`, `Checkpoint: TOBDFlashCheckpoint`, `AutoExecute: Boolean = False`, `AuditLog` | `OnPhase(Sender; Phase: TOBDFlashPhase)`, `OnProgress(Sender; Bytes, Total)`, `OnComplete`, `OnAborted`, `OnError` |
 | `TOBDVoltageGate` | Voltage monitor that aborts flashing if battery dips below a threshold during transfer. | `MinVolts`, `MaxVolts`, `SampleInterval`, `VoltageSource` | `OnReadingChanged`, `OnGateOpened`, `OnGateClosed` |
 | `TOBDFlashCheckpoint` | Checkpoint and recovery store. Persists transfer state so an interrupted flash can resume from the last good block. | `FileName`, `BlockSize` | `OnCheckpointWritten`, `OnResumed` |
 | `TOBDSignatureVerifier` | Abstract base. Subclasses: `TOBDSignatureBCrypt`, `TOBDSignatureHSM`, `TOBDSignatureOpenSSL`, `TOBDSignaturePQC`. Verifies firmware signature before flashing. | `PublicKey`, `Algorithm`, backend-specific | `OnVerified`, `OnRejected` |
@@ -181,7 +181,40 @@ EOBDError                       (base)
 Transient issues (timeouts, NRC, NO-DATA, bus glitches) **never** raise; they
 fire `OnError`.
 
-### 3.4 OEM extension hooks
+### 3.4 Destructive components & confirmation pattern
+
+Every component that writes to or commands an ECU (clear DTCs, reset,
+write DID, write memory, flash, system control, OEM coding, …) follows
+the same pattern:
+
+```pascal
+type
+  TOBDConfirmExecuteEvent = procedure(Sender: TObject;
+    const Description: string; var Allow: Boolean) of object;
+
+  // …on every destructive component:
+  property AutoExecute: Boolean read FAuto write FAuto default False;
+  property OnConfirmExecute: TOBDConfirmExecuteEvent
+    read FOnConfirmExecute write FOnConfirmExecute;
+```
+
+**Default `AutoExecute = False`.** Calling `Execute` (or analogous method
+name) on a destructive component:
+
+1. If `AutoExecute = True` → proceed immediately. Developer has taken
+   responsibility.
+2. Else if `OnConfirmExecute` is assigned → fire it with a
+   human-readable `Description` of what will happen
+   (e.g. `'Clear all stored DTCs from ECU 7E0'`). Proceed only if
+   handler sets `Allow := True`.
+3. Else → raise `EOBDConfig('Confirmation required')`.
+
+This forces every developer building on the package to consciously
+decide between (a) wiring a UI/voice/whatever confirmation, or (b)
+explicitly opting out. There is no silent default that fires destructive
+operations.
+
+### 3.5 OEM extension hooks
 
 Coding and flashing land post-1.0, but **OEM-specific diagnostic data** (vendor
 DIDs, vendor PIDs, manufacturer-specific DTCs, custom NRCs, custom J1939 PGNs)
@@ -209,7 +242,7 @@ This keeps the v1 surface diagnostic-only while leaving the door open for
 OEM packages (`OBD.OEM.VAG`, `OBD.OEM.BMW`, …) to ship as add-ons later
 without modifying the core.
 
-### 3.5 Component design rules
+### 3.6 Component design rules
 
 - Every component is a `TComponent`. Sub-objects are `TPersistent` (or
   `TOwnedCollection`/`TCollectionItem` for lists).
@@ -563,7 +596,7 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 
 **Audit & safety**
 - [ ] `TOBDFlasher` writes a full audit log via `TOBDCodingAuditLog` for every flash
-- [ ] Confirmation gate: `RequireConfirmation` published property defaults `True`; bypassing requires explicit code
+- [ ] Confirmation gate: `AutoExecute: Boolean` defaults **False** on every destructive component. When False, the component fires `OnConfirmExecute(Sender; var Allow: Boolean)` and waits; if no handler is wired and `AutoExecute = False`, the operation aborts with `EOBDConfig`. Developer either wires the event to their UI (button/dialog/voice/whatever) or sets `AutoExecute := True` to take responsibility silently.
 - [ ] Voltage-source warning: a `TOBDFlasher` with no `VoltageGate` assigned logs a `WARN` event at start of flash but proceeds (developer choice)
 - [ ] Loud documentation: every flashing component's XMLDoc opens with a brick-risk warning; `docs/flashing-safety.md` is a required read
 
@@ -667,8 +700,12 @@ These are non-negotiable for a 1.0 release.
   primitives and documents the risk loudly:
   - Every flashing component's XMLDoc, the README, and `docs/flashing-safety.md`
     carry an unambiguous warning that misuse can permanently brick an ECU.
-  - `TOBDFlasher.RequireConfirmation: Boolean` defaults `True` (user can
-    disable consciously).
+  - All destructive components publish `AutoExecute: Boolean` defaulting
+    **`False`**. When `False`, the component fires
+    `OnConfirmExecute(Sender; var Allow: Boolean)` and waits; if no handler
+    is wired the operation aborts with `EOBDConfig('Confirmation required')`.
+    Setting `AutoExecute := True` is an explicit, conscious act that hands
+    responsibility to the developer.
   - `TOBDVoltageGate` ships pre-wired in samples; using `TOBDFlasher` without
     a voltage source is allowed but logged as a warning at start-up.
   - Every flash operation writes a signed audit log entry via
