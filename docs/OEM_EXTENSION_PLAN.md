@@ -1,5 +1,26 @@
 # OEM Extension Build-Out Plan
 
+> **Status (as of v3.79):** The 7-phase plan below has shipped.
+> Phases 1.1–1.4 (catalogs / per-ECU sub-catalogs / session negotiation /
+> Seed-Key plug-ins) shipped in v3.3–v3.6. Phase 2 (DTC catalogs) shipped
+> in v3.7. Phase 3 (coding / variant-write) shipped in v3.8. Phase 4
+> (RoutineControl framework) shipped in v3.9. Phase 5 (capture-replay
+> validation) shipped in v3.10. Phase 6.1 (`TOBDDiagSession` wrapper)
+> shipped in v3.11. Phase 6.2 (DoIP / ISO 13400-2) shipped in v3.12.
+> Phase 7 (golden-vector helper + reference CLI) shipped in v3.13 and
+> closed the original plan.
+>
+> Subsequent releases (v3.14–v3.79) expanded coverage to **79 OEM
+> catalogs / 247,279 entries / 5 vehicle classes**, added cross-platform
+> DoIP, DoIP TLS, and the async UDS client. See [ROADMAP.md](ROADMAP.md)
+> for the per-release breakdown.
+>
+> This document is kept as the historical design reference for how the
+> framework was built. New OEM-coverage work is tracked in
+> [ROADMAP.md](ROADMAP.md), not here.
+
+---
+
 The v3.0/v3.2 OEM extensions (`OBD.OEM.VW`, `OBD.OEM.BMW`,
 `OBD.OEM.Mercedes`, `OBD.OEM.Ford`, `OBD.OEM.GM`,
 `OBD.OEM.Stellantis`) are deliberately **starter catalogs**: ~15
