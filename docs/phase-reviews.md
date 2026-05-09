@@ -866,3 +866,220 @@ variants, cancel-without-pending no-op timing, SendCommand connection
 guard ordering, JSON override register / resolve / clear-revert /
 malformed / unknown-family skip.
 
+
+---
+
+## Phase 4d — DoIP (TCP / TLS) + ISO 13400-2 client
+
+### Code landed
+
+- `src/Protocol/OBD.Protocol.DoIP.Header.pas` — 8-byte ISO 13400-2
+  header (protocol version + inverse + payload-type +
+  payload-length), payload-type catalogue, Generic-NACK reasons,
+  port constants (TCP 13400, UDP 13400, TLS 3496). Encode /
+  Decode / Validate plus a human-readable type-name helper.
+- `src/Protocol/OBD.Protocol.DoIP.Messages.pas` — records and
+  `TOBDDoIPCodec` for every payload type defined in Table 17:
+  routing-activation request / response, vehicle ID request
+  (generic / EID / VIN), vehicle announcement, alive check,
+  entity status, diagnostic power-mode info, diagnostic message,
+  diagnostic positive / negative ACK, Generic NACK. Includes the
+  routing-activation response codes (Table 23), DM NACK codes
+  (Table 39), node types (Table 33) and "further-action-required"
+  (Table 19) constants.
+- `src/Protocol/OBD.Protocol.DoIP.Transport.pas` — `IOBDDoIPTransport`
+  contract (Connect / Disconnect / IsConnected / Send / Receive)
+  and `TOBDDoIPPlainTransport` that wraps the Phase 2
+  `TOBDConnection` Wi-Fi transport for unencrypted DoIP on port
+  13400.
+- `src/Protocol/OBD.Protocol.DoIP.TLS.OpenSSL.pas` — drop-in
+  OpenSSL 3.x plug. Dynamic-loads `libssl-3` / `libcrypto-3`
+  (Win64 + Linux fallback names). Implements the same
+  `IOBDDoIPTransport`. TLS 1.2 minimum, TLS 1.3 maximum, SNI,
+  hostname verification (`SSL_set1_host`), three verify modes
+  (`vmRequire` / `vmAllowSelfSigned` / `vmInsecureNone`),
+  optional CA bundle / CA path, optional mutual-TLS client
+  certificate + key, optional cipher / ciphersuite overrides.
+  Hosts ship the OpenSSL DLLs next to their EXE; no compile-time
+  dependency.
+- `src/Protocol/OBD.Protocol.DoIP.Client.pas` — non-visual
+  `TOBDDoIPClient` component. Bound to any `IOBDDoIPTransport`,
+  exposes Connect / Disconnect plus the standard exchanges:
+  `ActivateRouting`, `SendDiagnostic`, `AliveCheck`,
+  `RequestEntityStatus`, `RequestPowerMode`, `RequestVehicleID`.
+  Each method has a sync version (blocks on `TEvent`) and an
+  `…Async` counterpart (worker thread + main-thread events) per
+  the dual-method rule (PLAN §3.7). Background read-pump
+  reassembles header + payload from the byte stream and
+  dispatches to event handlers and pending-op events.
+  Configurable `SourceAddress` / `TargetAddress` /
+  `ActivationType` / `DefaultTimeoutMs` / `ActivationTimeoutMs`.
+- `src/Protocol/OBD.Protocol.DoIP.pas` — facade unit that re-
+  exports the public types from header / messages / transport /
+  client for one-line `uses`. The OpenSSL plug is intentionally
+  not re-exported here; hosts that don't ship OpenSSL DLLs are
+  not forced to take the dependency.
+- `tests/Tests.OBD.Protocol.DoIP.pas` — DUnitX coverage:
+  five header tests, eleven message-codec tests, six client-
+  lifecycle tests against an in-memory loopback transport that
+  simulates a DoIP entity (activation OK / denied, diagnostic
+  pos / neg / silent, alive check).
+- `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
+  added the new Header, Messages, Transport, Client, and DoIP
+  facade units. The OpenSSL plug is **not** added to the runtime
+  package by design.
+
+### Architecture highlights
+
+- **Single transport contract.** Both the plain TCP path and the
+  OpenSSL TLS path implement the same `IOBDDoIPTransport`. The
+  client itself never touches a TLS library directly, so a host
+  that prefers Indy / SChannel / a custom stack can drop in its
+  own implementation without a single line of client-code
+  change.
+- **Pending-op events.** Each blocking exchange owns its own
+  `TEvent` (`FPendingDiag`, `FPendingRouting`, `FPendingAlive`,
+  `FPendingEntity`, `FPendingPower`, `FPendingVehicle`). The
+  read-pump signals the matching event when the corresponding
+  payload type arrives. `FOpLock` serialises one synchronous
+  exchange at a time so `FPending*` records are owned by a
+  single caller.
+- **Read pump byte-stream resync.** Reassembly is greedy: drain
+  every complete message present in `FRxBuffer`, and drop one
+  byte at a time when `DecodeDoIPHeader` rejects the header
+  (catches partial / corrupt frames without losing the next
+  one). Lock is released around dispatch so event handlers
+  can call back into the client safely.
+- **OpenSSL is optional.** The unit ships in `src/Protocol/`
+  but is not added to `DelphiOBD_RT.dpk`. Hosts that want
+  TLS add the unit to their own project + drop the two DLLs.
+  This keeps the runtime package free of mandatory third-party
+  dependencies.
+- **Header validation returns NACK code, not Boolean.** Matches
+  the wire protocol — when the entity rejects a header it
+  responds with a Generic NACK whose code equals the reason
+  bucket (`DOIP_NACK_*`). `ValidateDoIPHeader` returns that
+  code (or `$FF` for OK), so a server-side implementation
+  built on these primitives can answer with one round-trip.
+
+### What's intentionally not in 4d
+
+- **UDP discovery** (`Vehicle Identification Request` /
+  `Vehicle Announcement` over UDP broadcast on port 13400). The
+  TCP path is covered (`RequestVehicleID` over the open TCP/TLS
+  link). UDP discovery requires a separate datagram client and
+  network-broadcast permission semantics; tracked as a 4d follow-up.
+- **Non-Windows TCP transport for the OpenSSL plug.** Linux /
+  macOS path is stubbed with a clear `EOBDError`. The plain
+  transport works on every platform `TOBDConnection.WiFi`
+  supports. Tracked as a follow-up.
+- **Server-side DoIP entity (gateway emulation).** The codec
+  primitives are shape-symmetrical (encode and decode for every
+  type), but a full gateway component is out of scope for the
+  client phase.
+- **Heartbeat / auto-alive-check loop.** The client exposes
+  `AliveCheckIntervalMs` as a hint and ships `AliveCheckAsync`,
+  but the host drives it from a `TTimer`. Intentional — keeps
+  the component's threading model simple.
+- **Routing-activation OEM-data echo back to the host.** The
+  decoded response carries it (`HasOEMData` / `OEMData`) but
+  the client doesn't surface a separate OEM-data event; the
+  full record is delivered in `OnRoutingActivated`.
+- **Authentication-pending re-poll.**
+  `DOIP_RA_RESP_PendingConfirmation` is decoded and reported
+  but the client treats it as "not activated" and surfaces it
+  via `EOBDProtocolErr`. Hosts that need the pending flow
+  watch `OnRoutingActivated` and call `ActivateRouting` again
+  after the user confirms.
+
+### Honest review
+
+1. **OpenSSL plug is Windows-only in this drop.** The TCP-
+   connect path inside `TOBDDoIPOpenSSLTransport` calls Winsock
+   directly; the `{$ELSE}` branch raises a descriptive error.
+   The OpenSSL function pointers themselves are platform-
+   neutral (the unit even maps `libssl.so.3` / `libcrypto.so.3`
+   names), but a Linux host can't actually use the plug today.
+   Tracked for a follow-up that adds a POSIX socket path.
+2. **Async helpers don't pre-check `FAsyncThread = nil` under
+   the lock.** `ActivateRoutingAsync` and `SendDiagnosticAsync`
+   guard against double-fire with an `EOBDConfig` raise. The
+   four convenience helpers (`AliveCheckAsync`,
+   `RequestEntityStatusAsync`, `RequestPowerModeAsync`,
+   `RequestVehicleIDAsync`) call `WaitForAsync` first instead
+   of raising — a host that fires two of them back-to-back from
+   different threads will serialise rather than getting an
+   error. This is consistent with the protocol's "one in-flight"
+   discipline but it differs from the two flagship methods. To
+   close before Phase 4e: add the same lock + raise to all
+   four.
+3. **Diagnostic positive ACK is informational only.** The
+   client fires `OnDiagnosticPosAck` and continues to wait for
+   the actual UDS / OBD-II response message. ISO 13400 §7.5
+   permits an entity to send only the ACK with no follow-up
+   when the request didn't trigger any application-level
+   response (e.g. TesterPresent). For those cases
+   `SendDiagnostic` will time out today; a host that knows
+   the request is fire-and-forget must call the lower-level
+   transport directly. Track as: add an opt-in
+   `ExpectsResponse` flag in a follow-up.
+4. **Routing-activation response with `PendingConfirmation`
+   raises an error.** Per spec, the entity may return code
+   `$11` while waiting for a human at the gateway to confirm.
+   The client surfaces it as `EOBDProtocolErr` rather than
+   blocking. That's safer than silently waiting indefinitely,
+   but it means a polite GUI flow needs to wire an
+   `OnRoutingActivated` handler that distinguishes `$11` from
+   the denial codes and re-arms the call. Worth a code-sample
+   in `samples/` (deferred to 4f close-out).
+5. **Read-pump exception path closes the loop.** Any exception
+   from `Transport.Receive` ends the pump and fires
+   `OnError(oeIO, …)`. There is no auto-reconnect: a host that
+   wants reconnection on a transient TCP drop subscribes to
+   `OnError`, calls `Disconnect`, then `Connect` again. Same
+   contract as Phase 2's connection layer.
+6. **TLS verification policy `vmAllowSelfSigned` is permissive
+   on the chain but enforces hostname.** OpenSSL's
+   `SSL_VERIFY_NONE` would normally accept anything; we keep
+   `SSL_set1_host` engaged, so even with `vmAllowSelfSigned`
+   the leaf must match the hostname. Documented in the type's
+   XMLDoc but worth highlighting — hosts targeting in-vehicle
+   ECUs that ship with a fixed self-signed leaf bound to a
+   constant hostname (e.g. `doip.local`) get a sane default;
+   hosts that talk to an entity with a freshly generated leaf
+   per boot need `vmInsecureNone` and a manual fingerprint
+   check on top.
+7. **No real-DoIP-entity integration test.** Same hardware-
+   loop deferral as Phase 2 / 3 / 4c. The DUnitX coverage uses
+   an in-memory loopback `TDoIPLoopback` that simulates the
+   entity's responses; against a real Bosch / Vector / Cariad
+   gateway the timing characteristics (T_TCP_RA, T_TCP_General)
+   should be measured. **Defers to hardware loop.**
+
+### Phase 4d follow-ups closed
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | OpenSSL plug Windows-only TCP path | **Deferred (not applicable to the user's stated need).** The user asked for "a ready-to-use plug using OpenSSL — drop the DLL and have it working", which scopes the deliverable to Windows. The non-Windows TCP-connect branch raises a clear `EOBDError` so it fails fast. Tracked for a later phase that explicitly targets Linux / macOS hosts. |
+| 2 | Async helpers don't raise on double-fire | **Closed.** New private `GuardSingleAsync` helper acquires `FAsyncLock`, raises `EOBDConfig` when `FAsyncThread <> nil`, releases. All six async entry points (`ActivateRoutingAsync`, `SendDiagnosticAsync`, `AliveCheckAsync`, `RequestEntityStatusAsync`, `RequestPowerModeAsync`, `RequestVehicleIDAsync`) call it — every one now behaves identically on double-fire. |
+| 3 | Fire-and-forget diagnostic requests time out | **Closed.** `SendDiagnostic` and `SendDiagnosticAsync` gained an `AExpectsResponse: Boolean = True` parameter. When `False`, the call returns as soon as the entity's positive ACK (`DOIP_PT_DiagnosticMessagePosAck`) arrives, backed by a dedicated `FPendingDiagAckEvent` that the read pump signals on PosAck / NegAck / GenericNACK. Negative ACKs and Generic NACKs still raise `EOBDProtocolErr` exactly like the regular path. |
+
+Items 4–7 are deferred (sample, hardware loop) or
+intentional behaviour with documented trade-offs.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] All payload-type / NACK / port constants verbatim from
+      ISO 13400-2:2019.
+- [x] Sync + Async dual-method rule for every public client op.
+- [x] All events fire on the main thread (TThread.Queue).
+- [x] Read pump is thread-safe (TCriticalSection around buffer).
+- [x] Single in-flight discipline guarded by `FOpLock`.
+- [x] OpenSSL is fully dynamic-loaded — no compile-time
+      dependency on libssl / libcrypto.
+- [x] Header round-trip and every message round-trip covered
+      by tests.
+- [x] Client lifecycle covered against an in-memory entity.

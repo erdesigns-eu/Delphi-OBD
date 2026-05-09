@@ -64,6 +64,11 @@ uses
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
   OBD.Protocol.J1939.TP in '..\src\Protocol\OBD.Protocol.J1939.TP.pas',
   OBD.Protocol.VIN in '..\src\Protocol\OBD.Protocol.VIN.pas',
+  OBD.Protocol.DoIP.Header in '..\src\Protocol\OBD.Protocol.DoIP.Header.pas',
+  OBD.Protocol.DoIP.Messages in '..\src\Protocol\OBD.Protocol.DoIP.Messages.pas',
+  OBD.Protocol.DoIP.Transport in '..\src\Protocol\OBD.Protocol.DoIP.Transport.pas',
+  OBD.Protocol.DoIP.Client in '..\src\Protocol\OBD.Protocol.DoIP.Client.pas',
+  OBD.Protocol.DoIP in '..\src\Protocol\OBD.Protocol.DoIP.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
@@ -88,7 +93,8 @@ uses
   Tests.OBD.Protocol.Legacy in 'Tests.OBD.Protocol.Legacy.pas',
   Tests.OBD.Protocol in 'Tests.OBD.Protocol.pas',
   Tests.OBD.Protocol.VIN in 'Tests.OBD.Protocol.VIN.pas',
-  Tests.OBD.Protocol.J1939.TP in 'Tests.OBD.Protocol.J1939.TP.pas';
+  Tests.OBD.Protocol.J1939.TP in 'Tests.OBD.Protocol.J1939.TP.pas',
+  Tests.OBD.Protocol.DoIP in 'Tests.OBD.Protocol.DoIP.pas';
 
 {$IFDEF CI}
 var
