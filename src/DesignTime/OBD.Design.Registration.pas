@@ -50,7 +50,9 @@ uses
   OBD.Service.LiveData,
   OBD.Service.DTCs,
   OBD.Service.VIN,
-  OBD.Service.FreezeFrame;
+  OBD.Service.FreezeFrame,
+  OBD.Service.OnBoardMonitor,
+  OBD.Service.Actuator;
 
 procedure Register;
 begin
@@ -70,7 +72,9 @@ begin
     TOBDLiveData,
     TOBDDTCs,
     TOBDVIN,
-    TOBDFreezeFrame
+    TOBDFreezeFrame,
+    TOBDOnBoardMonitor,
+    TOBDActuator
   ]);
 end;
 

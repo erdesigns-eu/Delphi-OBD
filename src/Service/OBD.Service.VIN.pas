@@ -32,6 +32,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.SyncObjs,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol.UDS,
@@ -74,8 +75,12 @@ type
   TOBDVIN = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FAsyncLock: TCriticalSection;
+    FAsyncInFlight: Boolean;
     FOnVIN: TOBDVINEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure GuardSingleAsync;
+    procedure ReleaseAsync;
 
     function ReadOBDII: TOBDVINResult;
     function ReadUDS: TOBDVINResult;
@@ -87,6 +92,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
     /// <summary>Reads the VIN synchronously via the chosen
     /// source.</summary>
@@ -107,6 +113,30 @@ implementation
 constructor TOBDVIN.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FAsyncLock := TCriticalSection.Create;
+end;
+
+destructor TOBDVIN.Destroy;
+begin
+  FAsyncLock.Free;
+  inherited;
+end;
+
+procedure TOBDVIN.GuardSingleAsync;
+begin
+  FAsyncLock.Enter;
+  try
+    if FAsyncInFlight then
+      raise EOBDConfig.Create('TOBDVIN: async read already in flight');
+    FAsyncInFlight := True;
+  finally FAsyncLock.Leave; end;
+end;
+
+procedure TOBDVIN.ReleaseAsync;
+begin
+  FAsyncLock.Enter;
+  try FAsyncInFlight := False;
+  finally FAsyncLock.Leave; end;
 end;
 
 procedure TOBDVIN.SetProtocol(AValue: TOBDProtocol);
@@ -199,6 +229,7 @@ var
   Self_: TOBDVIN;
   Source: TOBDVINSource;
 begin
+  GuardSingleAsync;
   Self_ := Self; Source := ASource;
   TThread.CreateAnonymousThread(
     procedure
@@ -206,15 +237,19 @@ begin
       R: TOBDVINResult;
     begin
       try
-        case Source of
-          vsUDS:    R := Self_.ReadUDS;
-        else
-          R := Self_.ReadOBDII;
+        try
+          case Source of
+            vsUDS:    R := Self_.ReadUDS;
+          else
+            R := Self_.ReadOBDII;
+          end;
+          Self_.FireVIN(R);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
         end;
-        Self_.FireVIN(R);
-      except
-        on E: Exception do
-          Self_.FireError(oeIO, E.Message);
+      finally
+        Self_.ReleaseAsync;
       end;
     end).Start;
 end;

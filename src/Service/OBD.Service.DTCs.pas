@@ -34,11 +34,13 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.SyncObjs,
   OBD.Types,
   OBD.Catalog,
   OBD.Protocol.Types,
   OBD.Protocol.UDS,
-  OBD.Protocol;
+  OBD.Protocol,
+  OBD.Service.Catalog;
 
 const
   /// <summary>OBD-II Mode 03 — current (confirmed) DTCs.</summary>
@@ -93,8 +95,12 @@ type
   TOBDDTCs = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FAsyncLock: TCriticalSection;
+    FAsyncInFlight: Boolean;
     FOnDTCs: TOBDDtcsEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure GuardSingleAsync;
+    procedure ReleaseAsync;
 
     function ReadOBDMode(AMode: Byte; AKind: TOBDDtcKind): TArray<TOBDDtcEntry>;
     function ReadUDSStatusMask(AStatusMask: Byte): TArray<TOBDDtcEntry>;
@@ -109,6 +115,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
     /// <summary>Reads confirmed (Mode 03) DTCs synchronously.</summary>
     function ReadConfirmed: TArray<TOBDDtcEntry>;
@@ -161,6 +168,32 @@ const
 constructor TOBDDTCs.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FAsyncLock := TCriticalSection.Create;
+end;
+
+destructor TOBDDTCs.Destroy;
+begin
+  FAsyncLock.Free;
+  inherited;
+end;
+
+procedure TOBDDTCs.GuardSingleAsync;
+begin
+  FAsyncLock.Enter;
+  try
+    if FAsyncInFlight then
+      raise EOBDConfig.Create('TOBDDTCs: async read already in flight');
+    FAsyncInFlight := True;
+  finally
+    FAsyncLock.Leave;
+  end;
+end;
+
+procedure TOBDDTCs.ReleaseAsync;
+begin
+  FAsyncLock.Enter;
+  try FAsyncInFlight := False;
+  finally FAsyncLock.Leave; end;
 end;
 
 procedure TOBDDTCs.SetProtocol(AValue: TOBDProtocol);
@@ -192,26 +225,29 @@ end;
 
 function ResolveDtcText(const ACode: string): string;
 var
-  Numeric: Cardinal;
-  L: Char;
-  HexPart: string;
-  ParsedHex: Integer;
+  Info: TOBDDtcInfo;
 begin
   Result := '';
+  // 1. JSON DTC catalogue (richest data, including severity).
+  if TOBDServiceCatalog.Default.TryGetDTC(ACode, Info) then
+  begin
+    Result := Info.Description;
+    if Result <> '' then Exit;
+  end;
+  // 2. Legacy v1 schema catalogue. Encode the family letter in
+  //    the top byte so the catalogue can split P / C / B / U.
   if Length(ACode) < 5 then Exit;
-  L := ACode[1];
-  HexPart := Copy(ACode, 2, 4);
+  var HexPart: string := Copy(ACode, 2, 4);
+  var ParsedHex: Integer;
   if not TryStrToInt('$' + HexPart, ParsedHex) then Exit;
-  Numeric := Cardinal(ParsedHex);
-  // Encode the family letter in the high byte of the code so the
-  // catalogue can split P / C / B / U.
-  case L of
+  var Numeric: Cardinal := Cardinal(ParsedHex);
+  case ACode[1] of
     'P': Numeric := Numeric or $00000000;
     'C': Numeric := Numeric or $00010000;
     'B': Numeric := Numeric or $00020000;
     'U': Numeric := Numeric or $00030000;
   end;
-  TOBDCatalogStore.Default.FindText(ckDTC, Numeric, Result);
+  TOBDCatalogStore.Default.FindText(ckOBD2DTC, Numeric, Result);
 end;
 
 function ParseTwoByteList(const AData: TBytes; AStart: Integer;
@@ -339,6 +375,7 @@ var
   Kind: TOBDDtcKind;
   Impl: TFunc<TArray<TOBDDtcEntry>>;
 begin
+  GuardSingleAsync;
   Self_ := Self; Kind := AKind; Impl := AImpl;
   TThread.CreateAnonymousThread(
     procedure
@@ -346,11 +383,15 @@ begin
       Entries: TArray<TOBDDtcEntry>;
     begin
       try
-        Entries := Impl();
-        Self_.FireDTCs(Kind, Entries);
-      except
-        on E: Exception do
-          Self_.FireError(oeIO, E.Message);
+        try
+          Entries := Impl();
+          Self_.FireDTCs(Kind, Entries);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
       end;
     end).Start;
 end;

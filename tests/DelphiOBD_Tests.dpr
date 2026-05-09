@@ -79,10 +79,13 @@ uses
   OBD.Protocol.FlexRay.Frame in '..\src\Protocol\OBD.Protocol.FlexRay.Frame.pas',
   OBD.Protocol.MOST.Control in '..\src\Protocol\OBD.Protocol.MOST.Control.pas',
   OBD.Protocol in '..\src\Protocol\OBD.Protocol.pas',
+  OBD.Service.Catalog in '..\src\Service\OBD.Service.Catalog.pas',
   OBD.Service.LiveData in '..\src\Service\OBD.Service.LiveData.pas',
   OBD.Service.DTCs in '..\src\Service\OBD.Service.DTCs.pas',
   OBD.Service.VIN in '..\src\Service\OBD.Service.VIN.pas',
   OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas',
+  OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
+  OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -113,7 +116,8 @@ uses
   Tests.OBD.Protocol.FlexRay in 'Tests.OBD.Protocol.FlexRay.pas',
   Tests.OBD.Protocol.MOST in 'Tests.OBD.Protocol.MOST.pas',
   Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas',
-  Tests.OBD.Service in 'Tests.OBD.Service.pas';
+  Tests.OBD.Service in 'Tests.OBD.Service.pas',
+  Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas';
 
 {$IFDEF CI}
 var

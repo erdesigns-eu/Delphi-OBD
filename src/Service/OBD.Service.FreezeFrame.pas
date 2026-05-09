@@ -24,6 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.SyncObjs,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol,
@@ -42,8 +43,12 @@ type
   TOBDFreezeFrame = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FAsyncLock: TCriticalSection;
+    FAsyncInFlight: Boolean;
     FOnValue: TOBDFreezeFrameEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure GuardSingleAsync;
+    procedure ReleaseAsync;
     function DoRead(APID: Byte; AFrameIndex: Byte): TOBDPIDValue;
     procedure FireValue(AFrameIndex: Byte; const AValue: TOBDPIDValue);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
@@ -53,6 +58,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
     /// <summary>Reads <c>APID</c> from freeze-frame
     /// <c>AFrameIndex</c>.</summary>
@@ -76,6 +82,30 @@ uses
 constructor TOBDFreezeFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FAsyncLock := TCriticalSection.Create;
+end;
+
+destructor TOBDFreezeFrame.Destroy;
+begin
+  FAsyncLock.Free;
+  inherited;
+end;
+
+procedure TOBDFreezeFrame.GuardSingleAsync;
+begin
+  FAsyncLock.Enter;
+  try
+    if FAsyncInFlight then
+      raise EOBDConfig.Create('TOBDFreezeFrame: async read already in flight');
+    FAsyncInFlight := True;
+  finally FAsyncLock.Leave; end;
+end;
+
+procedure TOBDFreezeFrame.ReleaseAsync;
+begin
+  FAsyncLock.Enter;
+  try FAsyncInFlight := False;
+  finally FAsyncLock.Leave; end;
 end;
 
 procedure TOBDFreezeFrame.SetProtocol(AValue: TOBDProtocol);
@@ -143,6 +173,7 @@ var
   Self_: TOBDFreezeFrame;
   PID, Frame: Byte;
 begin
+  GuardSingleAsync;
   Self_ := Self; PID := APID; Frame := AFrameIndex;
   TThread.CreateAnonymousThread(
     procedure
@@ -150,11 +181,15 @@ begin
       V: TOBDPIDValue;
     begin
       try
-        V := Self_.DoRead(PID, Frame);
-        Self_.FireValue(Frame, V);
-      except
-        on E: Exception do
-          Self_.FireError(oeIO, E.Message);
+        try
+          V := Self_.DoRead(PID, Frame);
+          Self_.FireValue(Frame, V);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
       end;
     end).Start;
 end;

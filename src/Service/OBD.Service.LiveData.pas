@@ -38,7 +38,8 @@ uses
   System.Generics.Collections,
   OBD.Types,
   OBD.Protocol.Types,
-  OBD.Protocol;
+  OBD.Protocol,
+  OBD.Service.Catalog;
 
 const
   /// <summary>OBD-II Mode 01 — show current data.</summary>
@@ -101,6 +102,11 @@ type
     FOnRaw: TOBDPIDRawEvent;
     FOnError: TOBDConnectionErrorEvent;
 
+    FAsyncLock: TCriticalSection;
+    FAsyncInFlight: Boolean;
+
+    procedure GuardSingleAsync;
+    procedure ReleaseAsync;
     function DoRead(APID: Byte): TOBDPIDValue;
     procedure DispatchValue(const AValue: TOBDPIDValue;
       const ARaw: TBytes);
@@ -304,13 +310,37 @@ constructor TOBDLiveData.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FPollLock := TCriticalSection.Create;
+  FAsyncLock := TCriticalSection.Create;
 end;
 
 destructor TOBDLiveData.Destroy;
 begin
   PollStop;
+  FAsyncLock.Free;
   FPollLock.Free;
   inherited;
+end;
+
+procedure TOBDLiveData.GuardSingleAsync;
+begin
+  FAsyncLock.Enter;
+  try
+    if FAsyncInFlight then
+      raise EOBDConfig.Create('TOBDLiveData: async read already in flight');
+    FAsyncInFlight := True;
+  finally
+    FAsyncLock.Leave;
+  end;
+end;
+
+procedure TOBDLiveData.ReleaseAsync;
+begin
+  FAsyncLock.Enter;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDLiveData.SetProtocol(AValue: TOBDProtocol);
@@ -360,14 +390,26 @@ begin
   Result := Default(TOBDPIDValue);
   Result.PID := APID;
   Result.Raw := Raw;
-  if DecodePID(APID, Raw, V, Unit_, Desc) then
+  Result.Value := NaN;
+
+  // Catalog first (JSON-driven). Fall back to the hand-coded
+  // dictionary so a host that has not loaded a catalogue still
+  // gets the J1979 classics.
+  var CatInfo: TOBDPIDInfo;
+  if TOBDServiceCatalog.Default.TryGetPID(APID, CatInfo) then
+  begin
+    Result.Description := CatInfo.Description;
+    if CatInfo.Description = '' then Result.Description := CatInfo.Name;
+    Result.Unit_ := CatInfo.Decoder.Unit_;
+    if EvaluatePIDDecoder(CatInfo.Decoder, Raw, V) then
+      Result.Value := V;
+  end
+  else if DecodePID(APID, Raw, V, Unit_, Desc) then
   begin
     Result.Value := V;
     Result.Unit_ := Unit_;
     Result.Description := Desc;
-  end
-  else
-    Result.Value := NaN;
+  end;
 end;
 
 function TOBDLiveData.Read(APID: Byte): TOBDPIDValue;
@@ -383,6 +425,7 @@ var
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDLiveData: Protocol not assigned');
+  GuardSingleAsync;
   Self_ := Self;
   PIDCopy := APID;
   TThread.CreateAnonymousThread(
@@ -391,11 +434,15 @@ begin
       V: TOBDPIDValue;
     begin
       try
-        V := Self_.DoRead(PIDCopy);
-        Self_.DispatchValue(V, V.Raw);
-      except
-        on E: Exception do
-          Self_.FireError(oeIO, E.Message);
+        try
+          V := Self_.DoRead(PIDCopy);
+          Self_.DispatchValue(V, V.Raw);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
       end;
     end).Start;
 end;

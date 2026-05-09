@@ -1719,3 +1719,40 @@ TOBDFreezeFrame, TOBDDTCs, TOBDVIN) is the next milestone.
 - [x] J1979 PID decoder formulas pinned to test vectors.
 - [x] All four service components register on the **OBD
       Services** palette tab.
+
+---
+
+### Phase 5 follow-ups closed (no deferrals)
+
+The user pulled all Phase 5 deferrals forward except the
+hardware loop. All five flags are now closed:
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | Built-in PID decoder dictionary (hand-coded `case`) | **Closed.** New `OBD.Service.Catalog` unit loads the existing `catalogs/obd2-pids.json` shape (`dids` array with nested `decoder.kind` / `scale` / `offset` / `unit`). `EvaluatePIDDecoder` covers `uint8` / `int8` / `uint16_be` / `int16_be` / `uint32_be`. `TOBDLiveData.DoRead` queries the catalogue first and falls back to the hand-coded dictionary so a host that has not loaded any catalogue still gets the J1979 classics. |
+| 4 | DTC description catalogue | **Closed.** Same unit handles the existing `catalogs/dtc-*.json` shape (`dtcs` array with `code` / `description` / `severity`). Case-insensitive lookup. `TOBDDTCs.ResolveDtcText` consults the JSON catalogue first, then the legacy `OBD.Catalog` v1 schema (now correctly using `ckOBD2DTC`, fixing a `ckDTC` typo from the original Phase 5 commit). |
+| 6 | Single-in-flight async discipline | **Closed.** `GuardSingleAsync` / `ReleaseAsync` pattern (mirrored from `TOBDDoIPClient`) applied to `TOBDLiveData.ReadAsync`, `TOBDDTCs.DispatchAsync` (covers all four read variants), `TOBDVIN.ReadAsync`, `TOBDFreezeFrame.ReadAsync`, and the two new components below. Concurrent calls now raise `EOBDConfig` instead of silently serialising. |
+| — | Mode 06 (on-board monitoring) | **Closed.** New `TOBDOnBoardMonitor` component reads MID-keyed test results into a flat `TArray<TOBDMonitorResult>` (TID + ComponentID + UnitAndScale + signed 16-bit Value/Min/Max). Sync + Async + main-thread events. |
+| — | Mode 08 (actuator control) | **Closed with safety gate.** New `TOBDActuator` component honours the original `AutoExecute = False`-by-default discussion: every `Send` raises `EOBDConfig` until the host explicitly flips the gate, and `OnBeforeSend` fires on the main thread with a `Cancel: Boolean` out-parameter so a UI can pop a confirmation dialog. The synchronous and asynchronous send paths share the gate; there is no back-door entry. |
+
+New tests in `Tests.OBD.Service.Catalog`:
+
+- `LoadsPIDFromJSON` / `LoadsDTCFromJSON` — round-trip a temp
+  JSON file through the catalogue.
+- `UnknownPIDReturnsFalse` — empty-catalog miss.
+- `DecoderUInt16BEScaleAndOffset` / `DecoderUInt8WithOffset` /
+  `DecoderInt16HandlesNegative` — formula vectors against
+  hand-derived expectations.
+- `DecoderUnknownKindReturnsFalse` — non-numeric decoders
+  return False with `NaN`.
+- `SendRaisesWhenAutoExecuteFalse` — Mode 08 safety gate.
+- `SendAsyncRaisesWhenAutoExecuteFalse` — gate honoured on the
+  async path.
+
+Components registered: `TOBDOnBoardMonitor` and `TOBDActuator`
+land on the **OBD Services** palette tab alongside their four
+siblings.
+
+The only remaining Phase 5 deferral is the real-vehicle
+hardware-loop test, which is the same convention used since
+Phase 2 and is gated on the rig the user actually owns.
