@@ -14,7 +14,7 @@ unit OBD.UDS.NRC;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -31,14 +31,13 @@ type
 
   TOBDUDSNrcInfo = record
     Code: Byte;
-    ShortName: string;       // e.g. 'GR', 'SAS', 'ROOR'
-    Description: string;     // ISO 14229-1 prose
+    ShortName: string;
+    Description: string;
     Category: TOBDUDSNrcCategory;
   end;
 
 /// <summary>Look up an NRC. Unknown / reserved codes return a record
-/// with category=nrcReserved and a synthetic description; never raises.
-/// </summary>
+/// with category=nrcReserved and a synthetic description; never raises.</summary>
 function DescribeNRC(NRC: Byte): TOBDUDSNrcInfo;
 
 /// <summary>One-line formatter convenient for log lines and exception
@@ -49,103 +48,120 @@ function FormatNRC(NRC: Byte): string;
 /// (busy / repeat-request, conditions-not-correct).</summary>
 function IsTransientNRC(NRC: Byte): Boolean;
 
+/// <summary>Total entries loaded from the catalog (excludes synthetic).</summary>
+function NRCCatalogCount: Integer;
+
 //------------------------------------------------------------------------------
 // IMPLEMENTATION
 //------------------------------------------------------------------------------
 implementation
 
-function NewInfo(Code: Byte; const Short, Desc: string;
-  Cat: TOBDUDSNrcCategory): TOBDUDSNrcInfo;
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
+const
+  CatalogFileName = 'uds-nrc.json';
+
+var
+  GMap: TDictionary<Byte, TOBDUDSNrcInfo> = nil;
+
+function CategoryFromString(const S: string): TOBDUDSNrcCategory;
 begin
-  Result.Code := Code;
-  Result.ShortName := Short;
-  Result.Description := Desc;
-  Result.Category := Cat;
+  if SameText(S, 'general')      then Exit(nrcGeneral);
+  if SameText(S, 'security')     then Exit(nrcSecurity);
+  if SameText(S, 'request_data') then Exit(nrcRequestData);
+  if SameText(S, 'condition')    then Exit(nrcCondition);
+  if SameText(S, 'server')       then Exit(nrcServer);
+  Result := nrcReserved;
+end;
+
+function ParseHexByte(const S: string; out B: Byte): Boolean;
+var
+  V: Integer;
+  T: string;
+begin
+  T := S;
+  if T.StartsWith('$') then
+    T := T  // already Delphi hex
+  else if T.StartsWith('0x', True) then
+    T := '$' + T.Substring(2);
+  Result := TryStrToInt(T, V) and (V >= 0) and (V <= 255);
+  if Result then B := Byte(V);
+end;
+
+procedure LoadCatalog;
+var
+  Path, Raw: string;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Info: TOBDUDSNrcInfo;
+  Code: Byte;
+  Stream: TStringStream;
+begin
+  Path := ResolveCatalogPath(CatalogFileName);
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      if not ParseHexByte(Obj.GetValue<string>('code', ''), Code) then Continue;
+      Info.Code        := Code;
+      Info.ShortName   := Obj.GetValue<string>('short', '');
+      Info.Description := Obj.GetValue<string>('description', '');
+      Info.Category    := CategoryFromString(Obj.GetValue<string>('category', 'reserved'));
+      GMap.AddOrSetValue(Code, Info);
+    end;
+  finally
+    Doc.Free;
+  end;
 end;
 
 function DescribeNRC(NRC: Byte): TOBDUDSNrcInfo;
 begin
-  case NRC of
-    $00: Result := NewInfo($00, 'PR',   'positiveResponse',                                   nrcGeneral);
-    $10: Result := NewInfo($10, 'GR',   'generalReject',                                       nrcGeneral);
-    $11: Result := NewInfo($11, 'SNS',  'serviceNotSupported',                                 nrcGeneral);
-    $12: Result := NewInfo($12, 'SFNS', 'subFunctionNotSupported',                             nrcGeneral);
-    $13: Result := NewInfo($13, 'IMLOIF','incorrectMessageLengthOrInvalidFormat',              nrcGeneral);
-    $14: Result := NewInfo($14, 'RTL',  'responseTooLong',                                     nrcGeneral);
-    $21: Result := NewInfo($21, 'BRR',  'busyRepeatRequest',                                   nrcCondition);
-    $22: Result := NewInfo($22, 'CNC',  'conditionsNotCorrect',                                nrcCondition);
-    $24: Result := NewInfo($24, 'RSE',  'requestSequenceError',                                nrcCondition);
-    $25: Result := NewInfo($25, 'NRFSC','noResponseFromSubnetComponent',                       nrcServer);
-    $26: Result := NewInfo($26, 'FPEORA','failurePreventsExecutionOfRequestedAction',          nrcServer);
-    $31: Result := NewInfo($31, 'ROOR', 'requestOutOfRange',                                   nrcRequestData);
-    $33: Result := NewInfo($33, 'SAD',  'securityAccessDenied',                                nrcSecurity);
-    $34: Result := NewInfo($34, 'AR',   'authenticationRequired',                              nrcSecurity);
-    $35: Result := NewInfo($35, 'IK',   'invalidKey',                                          nrcSecurity);
-    $36: Result := NewInfo($36, 'ENOA', 'exceededNumberOfAttempts',                            nrcSecurity);
-    $37: Result := NewInfo($37, 'RTDNE','requiredTimeDelayNotExpired',                         nrcSecurity);
-    $38: Result := NewInfo($38, 'SDTR', 'secureDataTransmissionRequired',                      nrcSecurity);
-    $39: Result := NewInfo($39, 'SDTNA','secureDataTransmissionNotAllowed',                    nrcSecurity);
-    $3A: Result := NewInfo($3A, 'SDVF', 'secureDataVerificationFailed',                        nrcSecurity);
-    $50: Result := NewInfo($50, 'CVFITP','certificateVerificationFailed_InvalidTimePeriod',    nrcSecurity);
-    $51: Result := NewInfo($51, 'CVFIS','certificateVerificationFailed_InvalidSignature',      nrcSecurity);
-    $52: Result := NewInfo($52, 'CVFITC','certificateVerificationFailed_InvalidChainOfTrust',  nrcSecurity);
-    $53: Result := NewInfo($53, 'CVFIT','certificateVerificationFailed_InvalidType',           nrcSecurity);
-    $54: Result := NewInfo($54, 'CVFIF','certificateVerificationFailed_InvalidFormat',         nrcSecurity);
-    $55: Result := NewInfo($55, 'CVFIC','certificateVerificationFailed_InvalidContent',        nrcSecurity);
-    $56: Result := NewInfo($56, 'CVFIS2','certificateVerificationFailed_InvalidScope',         nrcSecurity);
-    $57: Result := NewInfo($57, 'CVFIC2','certificateVerificationFailed_InvalidCertificate',   nrcSecurity);
-    $58: Result := NewInfo($58, 'OVF',  'ownershipVerificationFailed',                         nrcSecurity);
-    $59: Result := NewInfo($59, 'CCF',  'challengeCalculationFailed',                          nrcSecurity);
-    $5A: Result := NewInfo($5A, 'SARF', 'settingAccessRightsFailed',                           nrcSecurity);
-    $5B: Result := NewInfo($5B, 'SKDF', 'sessionKeyCreation/DerivationFailed',                 nrcSecurity);
-    $5C: Result := NewInfo($5C, 'CDUF', 'configurationDataUsageFailed',                        nrcSecurity);
-    $5D: Result := NewInfo($5D, 'DVFAA','deAuthenticationFailed',                              nrcSecurity);
-    $70: Result := NewInfo($70, 'UDNA', 'uploadDownloadNotAccepted',                           nrcServer);
-    $71: Result := NewInfo($71, 'TDS',  'transferDataSuspended',                               nrcServer);
-    $72: Result := NewInfo($72, 'GPF',  'generalProgrammingFailure',                           nrcServer);
-    $73: Result := NewInfo($73, 'WBSC', 'wrongBlockSequenceCounter',                           nrcServer);
-    $78: Result := NewInfo($78, 'RCRRP','requestCorrectlyReceived-ResponsePending',            nrcCondition);
-    $7E: Result := NewInfo($7E, 'SFNSIAS','subFunctionNotSupportedInActiveSession',            nrcCondition);
-    $7F: Result := NewInfo($7F, 'SNSIAS','serviceNotSupportedInActiveSession',                 nrcCondition);
-    $81: Result := NewInfo($81, 'RPMTH','rpmTooHigh',                                          nrcCondition);
-    $82: Result := NewInfo($82, 'RPMTL','rpmTooLow',                                           nrcCondition);
-    $83: Result := NewInfo($83, 'EIR',  'engineIsRunning',                                     nrcCondition);
-    $84: Result := NewInfo($84, 'EINR', 'engineIsNotRunning',                                  nrcCondition);
-    $85: Result := NewInfo($85, 'ERTTL','engineRunTimeTooLow',                                 nrcCondition);
-    $86: Result := NewInfo($86, 'TEMPTH','temperatureTooHigh',                                 nrcCondition);
-    $87: Result := NewInfo($87, 'TEMPTL','temperatureTooLow',                                  nrcCondition);
-    $88: Result := NewInfo($88, 'VSTH', 'vehicleSpeedTooHigh',                                 nrcCondition);
-    $89: Result := NewInfo($89, 'VSTL', 'vehicleSpeedTooLow',                                  nrcCondition);
-    $8A: Result := NewInfo($8A, 'TPTH', 'throttle/PedalTooHigh',                               nrcCondition);
-    $8B: Result := NewInfo($8B, 'TPTL', 'throttle/PedalTooLow',                                nrcCondition);
-    $8C: Result := NewInfo($8C, 'TRNIN','transmissionRangeNotInNeutral',                       nrcCondition);
-    $8D: Result := NewInfo($8D, 'TRNIG','transmissionRangeNotInGear',                          nrcCondition);
-    $8F: Result := NewInfo($8F, 'BSNC', 'brakeSwitch(es)NotClosed (Brake Pedal not pressed or not applied)', nrcCondition);
-    $90: Result := NewInfo($90, 'SLNIP','shifterLeverNotInPark',                               nrcCondition);
-    $91: Result := NewInfo($91, 'TCCL', 'torqueConverterClutchLocked',                         nrcCondition);
-    $92: Result := NewInfo($92, 'VTH',  'voltageTooHigh',                                      nrcCondition);
-    $93: Result := NewInfo($93, 'VTL',  'voltageTooLow',                                       nrcCondition);
-    $94: Result := NewInfo($94, 'RTNT', 'resourceTemporarilyNotAvailable',                     nrcServer);
-  else
-    Result := NewInfo(NRC,
-      Format('NRC_0x%.2x', [NRC]),
-      Format('reserved or manufacturer-specific NRC 0x%.2x', [NRC]),
-      nrcReserved);
-  end;
+  if (GMap <> nil) and GMap.TryGetValue(NRC, Result) then Exit;
+  Result.Code := NRC;
+  Result.ShortName   := Format('NRC_0x%.2x', [NRC]);
+  Result.Description := Format('reserved or manufacturer-specific NRC 0x%.2x', [NRC]);
+  Result.Category    := nrcReserved;
 end;
 
 function FormatNRC(NRC: Byte): string;
-var
-  Info: TOBDUDSNrcInfo;
+var Info: TOBDUDSNrcInfo;
 begin
   Info := DescribeNRC(NRC);
-  Result := Format('NRC 0x%.2x (%s: %s)',
-    [NRC, Info.ShortName, Info.Description]);
+  Result := Format('NRC 0x%.2x (%s: %s)', [NRC, Info.ShortName, Info.Description]);
 end;
 
 function IsTransientNRC(NRC: Byte): Boolean;
 begin
   Result := (NRC = $21) or (NRC = $22) or (NRC = $78) or (NRC = $94);
 end;
+
+function NRCCatalogCount: Integer;
+begin
+  if GMap = nil then Result := 0 else Result := GMap.Count;
+end;
+
+initialization
+  GMap := TDictionary<Byte, TOBDUDSNrcInfo>.Create;
+  LoadCatalog;
+
+finalization
+  GMap.Free;
 
 end.

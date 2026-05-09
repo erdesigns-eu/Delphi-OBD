@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "spec": "SAE J1939-71/73/75/81/21",
+  "description": "Named PGN catalog. Add OEM-specific or trade-secret PGNs here without recompiling.",
+  "fields": {
+    "pgn": "Parameter Group Number (decimal or 0xHEX)",
+    "mnemonic": "ASCII short name",
+    "name": "Human-readable name",
+    "length_bytes": "Frame length; 0 = variable / multi-packet",
+    "default_priority": "0..7 (0 highest)",
+    "tx_rate_ms": "0 = on request only; -1 = on change only",
+    "spec_section": "Source citation, e.g. 'J1939-71 §5.3.1'"
+  },
+  "entries": [
+    {
+      "pgn": "0xF004",
+      "mnemonic": "EEC1",
+      "name": "Electronic Engine Controller 1",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 20,
+      "spec_section": "J1939-71 §5.3.1"
+    },
+    {
+      "pgn": "0xF003",
+      "mnemonic": "EEC2",
+      "name": "Electronic Engine Controller 2",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 50,
+      "spec_section": "J1939-71 §5.3.2"
+    },
+    {
+      "pgn": "0xFEDF",
+      "mnemonic": "EEC3",
+      "name": "Electronic Engine Controller 3",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 250,
+      "spec_section": "J1939-71 §5.3.3"
+    },
+    {
+      "pgn": "0xFE9E",
+      "mnemonic": "EEC4",
+      "name": "Electronic Engine Controller 4",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.3.4"
+    },
+    {
+      "pgn": "0xFEEE",
+      "mnemonic": "ET1",
+      "name": "Engine Temperature 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.6"
+    },
+    {
+      "pgn": "0xFEEF",
+      "mnemonic": "EFL/P1",
+      "name": "Engine Fluid Level/Pressure 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 500,
+      "spec_section": "J1939-71 §5.3.7"
+    },
+    {
+      "pgn": "0xFEF2",
+      "mnemonic": "LFE1",
+      "name": "Fuel Economy (Liquid)",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.3.8"
+    },
+    {
+      "pgn": "0xFEF1",
+      "mnemonic": "CCVS",
+      "name": "Cruise Control / Vehicle Speed",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.3.9"
+    },
+    {
+      "pgn": "0xFEF5",
+      "mnemonic": "AMB",
+      "name": "Ambient Conditions",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.10"
+    },
+    {
+      "pgn": "0xFEF6",
+      "mnemonic": "IC1",
+      "name": "Inlet/Exhaust Conditions 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 500,
+      "spec_section": "J1939-71 §5.3.11"
+    },
+    {
+      "pgn": "0xFEF7",
+      "mnemonic": "VEP1",
+      "name": "Vehicle Electrical Power 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.12"
+    },
+    {
+      "pgn": "0xFEF8",
+      "mnemonic": "TRF1",
+      "name": "Transmission Fluids 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.13"
+    },
+    {
+      "pgn": "0xFEFC",
+      "mnemonic": "DD",
+      "name": "Dash Display",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.14"
+    },
+    {
+      "pgn": "0xFEFE",
+      "mnemonic": "AAI",
+      "name": "Auxiliary Analog Information",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.15"
+    },
+    {
+      "pgn": "0xFEFF",
+      "mnemonic": "WFI",
+      "name": "Water in Fuel Indicator",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.3.16"
+    },
+    {
+      "pgn": "0xFECA",
+      "mnemonic": "DM1",
+      "name": "Active Diagnostic Trouble Codes",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.1"
+    },
+    {
+      "pgn": "0xFECB",
+      "mnemonic": "DM2",
+      "name": "Previously Active DTCs",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.2"
+    },
+    {
+      "pgn": "0xFECC",
+      "mnemonic": "DM3",
+      "name": "Diagnostic Data Clear (Previously Active)",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.3"
+    },
+    {
+      "pgn": "0xFECD",
+      "mnemonic": "DM4",
+      "name": "Freeze Frame Parameters",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.4"
+    },
+    {
+      "pgn": "0xFECE",
+      "mnemonic": "DM5",
+      "name": "Diagnostic Readiness 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.5"
+    },
+    {
+      "pgn": "0xFED3",
+      "mnemonic": "DM11",
+      "name": "Diagnostic Data Clear (Active)",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.11"
+    },
+    {
+      "pgn": "0xFED5",
+      "mnemonic": "DM12",
+      "name": "Emission-Related Active DTCs",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.12"
+    },
+    {
+      "pgn": "0xFECF",
+      "mnemonic": "DM6",
+      "name": "Emission-Related Pending DTCs",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.6"
+    },
+    {
+      "pgn": "0xFE2A",
+      "mnemonic": "DM7",
+      "name": "Test Results",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.7"
+    },
+    {
+      "pgn": "0xFE2B",
+      "mnemonic": "DM8",
+      "name": "Test Results — broadcast",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.8"
+    },
+    {
+      "pgn": "0xFE2C",
+      "mnemonic": "DM10",
+      "name": "Inactive DTCs Selected",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.10"
+    },
+    {
+      "pgn": "0xFDB0",
+      "mnemonic": "DM23",
+      "name": "Emission-Related Previously Active DTCs",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.23"
+    },
+    {
+      "pgn": "0xFE6F",
+      "mnemonic": "DM26",
+      "name": "Diagnostic Readiness 3",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-73 §5.7.26"
+    },
+    {
+      "pgn": "0xFEAE",
+      "mnemonic": "AIR1",
+      "name": "Air Supply Pressure",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.4.1"
+    },
+    {
+      "pgn": "0xF001",
+      "mnemonic": "EBC1",
+      "name": "Electronic Brake Controller 1",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.4.2"
+    },
+    {
+      "pgn": "0xFEC1",
+      "mnemonic": "HRVD",
+      "name": "High Resolution Vehicle Distance",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 250,
+      "spec_section": "J1939-71 §5.4.4"
+    },
+    {
+      "pgn": "0xFEC4",
+      "mnemonic": "EBS5",
+      "name": "Electronic Brake Stability",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 20,
+      "spec_section": "J1939-71 §5.4.5"
+    },
+    {
+      "pgn": "0xF002",
+      "mnemonic": "ETC1",
+      "name": "Electronic Transmission Controller 1",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 10,
+      "spec_section": "J1939-71 §5.5.1"
+    },
+    {
+      "pgn": "0xF005",
+      "mnemonic": "ETC2",
+      "name": "Electronic Transmission Controller 2",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.5.2"
+    },
+    {
+      "pgn": "0xFFEC",
+      "mnemonic": "ETC3",
+      "name": "Electronic Transmission Controller 3",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 250,
+      "spec_section": "J1939-71 §5.5.3"
+    },
+    {
+      "pgn": "0xFF00",
+      "mnemonic": "ETC7",
+      "name": "Electronic Transmission Controller 7",
+      "length_bytes": 8,
+      "default_priority": 3,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.5.7"
+    },
+    {
+      "pgn": "0xFEF0",
+      "mnemonic": "PTO",
+      "name": "Power Takeoff Information",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 100,
+      "spec_section": "J1939-71 §5.6.1"
+    },
+    {
+      "pgn": "0xFEF3",
+      "mnemonic": "VP",
+      "name": "Vehicle Position",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 5000,
+      "spec_section": "J1939-71 §5.6.2"
+    },
+    {
+      "pgn": "0xFEE9",
+      "mnemonic": "TIME",
+      "name": "Time / Date",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.6.4"
+    },
+    {
+      "pgn": "0xFEEA",
+      "mnemonic": "VW",
+      "name": "Vehicle Weight",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 500,
+      "spec_section": "J1939-71 §5.6.5"
+    },
+    {
+      "pgn": "0xFEEC",
+      "mnemonic": "VI",
+      "name": "Vehicle Identification (VIN)",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-71 §5.6.6"
+    },
+    {
+      "pgn": "0xFEEB",
+      "mnemonic": "CI",
+      "name": "Component Identification",
+      "length_bytes": 0,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-71 §5.6.7"
+    },
+    {
+      "pgn": "0xFEE5",
+      "mnemonic": "EH",
+      "name": "Engine Hours / Revolutions",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.6.10"
+    },
+    {
+      "pgn": "0xFE56",
+      "mnemonic": "AT1IG1",
+      "name": "After-treatment 1 Diesel Exhaust Fluid Tank 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.7.1"
+    },
+    {
+      "pgn": "0xFD7C",
+      "mnemonic": "AT1S",
+      "name": "After-treatment 1 Status (DPF/SCR)",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.7.2"
+    },
+    {
+      "pgn": "0xFD7D",
+      "mnemonic": "DPFC1",
+      "name": "Diesel Particulate Filter Control 1",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.7.3"
+    },
+    {
+      "pgn": "0xFE57",
+      "mnemonic": "AT1IMG1",
+      "name": "After-treatment 1 DEF Quality",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.7.4"
+    },
+    {
+      "pgn": "0xFE5B",
+      "mnemonic": "AT1OG1",
+      "name": "After-treatment 1 Outlet Gas",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-71 §5.7.5"
+    },
+    {
+      "pgn": "0xEE00",
+      "mnemonic": "AC",
+      "name": "Address Claimed / Cannot Claim",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-81 §4.2"
+    },
+    {
+      "pgn": "0xEC00",
+      "mnemonic": "TP.CM",
+      "name": "Transport Protocol Connection Management",
+      "length_bytes": 8,
+      "default_priority": 7,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-21 §5.10.1"
+    },
+    {
+      "pgn": "0xEB00",
+      "mnemonic": "TP.DT",
+      "name": "Transport Protocol Data Transfer",
+      "length_bytes": 8,
+      "default_priority": 7,
+      "tx_rate_ms": 0,
+      "spec_section": "J1939-21 §5.10.2"
+    },
+    {
+      "pgn": "0xFFC9",
+      "mnemonic": "GG",
+      "name": "Genset Group",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-75 §6.1"
+    },
+    {
+      "pgn": "0xFFC8",
+      "mnemonic": "GAP",
+      "name": "Genset Average Power",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-75 §6.2"
+    },
+    {
+      "pgn": "0xFFC7",
+      "mnemonic": "GTH",
+      "name": "Genset Total Hours",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-75 §6.3"
+    },
+    {
+      "pgn": "0xFFC6",
+      "mnemonic": "GTHA",
+      "name": "Genset Total Hours — Active",
+      "length_bytes": 8,
+      "default_priority": 6,
+      "tx_rate_ms": 1000,
+      "spec_section": "J1939-75 §6.4"
+    }
+  ]
+}
