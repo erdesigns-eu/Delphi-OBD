@@ -43,6 +43,24 @@ against pre-existing brands (Becker4 / Becker5) so the slot is real.
    `tests/Tests.RadioCode.<Brand>.pas`.
 4. Move the row out of "Open" into `### Resolved` with a tag.
 
+### v3.80 / 4.4 — Coding encoders
+
+The Toyota / Honda / HMG / Stellantis units provide the byte / bit
+shape (mirroring `OBD.OEM.Coding.VW`). Schema-aware bit-field
+descriptions are loaded from per-OEM JSON catalogs; production-quality
+catalogs need verified bit layouts captured from real ECUs.
+
+| Encoder | What's needed | Notes |
+|---|---|---|
+| `OBD.OEM.Coding.Toyota` (CUW) | Verified Customize bit map per ECU family (engine, body, BCM, A/C, security). | Some Toyota service-manual notes documented (e.g. wiper sensitivity, key-remote functions) but no consolidated public table. |
+| `OBD.OEM.Coding.Honda` (HDS option-byte) | Verified option-byte layout per ECU family. | Some daytime-running-light / auto-lock options publicly known. |
+| `OBD.OEM.Coding.HMG` (GDS variant-coding) | Verified variant-coding bit map. | Hyundai / Kia / Genesis share the GDS payload conventions. |
+| `OBD.OEM.Coding.Stellantis` (Proxi) | **CRC polynomial** for the Proxi configuration map. | `ComputeChecksum` raises `EOBDStellantisProxi` until the polynomial is supplied. The wiTECH workflow itself is publicly documented (see FCA TSBs and NHTSA bulletin MC-10251789-9999) but the wire-level CRC algorithm is not. |
+
+**Sources reviewed (Stellantis Proxi):** FCA Proxi Tool documentation
+(fcaproxitool.com), I-CAR CRN-1291 "Identifying FCA/Stellantis
+Programming Differences", NHTSA TSB MC-10251789-9999.
+
 ## Resolved
 
 *(empty; populated as gaps close)*
