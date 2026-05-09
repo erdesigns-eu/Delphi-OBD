@@ -61,6 +61,7 @@ uses
   Tests.OEM.KeyAdaptation.Ford in 'Tests.OEM.KeyAdaptation.Ford.pas',
   Tests.OEM.KeyAdaptation.Toyota in 'Tests.OEM.KeyAdaptation.Toyota.pas',
   Tests.OEM.SessionHelper in 'Tests.OEM.SessionHelper.pas',
+  Tests.DriveCycle.Resolvers in 'Tests.DriveCycle.Resolvers.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',

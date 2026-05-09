@@ -211,6 +211,7 @@ contains
   OBD.OEM.KeyAdaptation.Ford in '..\src\Services\OBD.OEM.KeyAdaptation.Ford.pas',
   OBD.OEM.KeyAdaptation.Toyota in '..\src\Services\OBD.OEM.KeyAdaptation.Toyota.pas',
   OBD.OEM.SessionHelper in '..\src\Services\OBD.OEM.SessionHelper.pas',
+  OBD.DriveCycle.Resolvers in '..\src\Services\OBD.DriveCycle.Resolvers.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
