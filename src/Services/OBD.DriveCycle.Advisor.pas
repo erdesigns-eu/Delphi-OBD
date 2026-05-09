@@ -58,76 +58,59 @@ function GenericStepFor(const MonitorName: string): TDriveCycleStep;
 //------------------------------------------------------------------------------
 implementation
 
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
 var
   GResolvers: TDictionary<string, TDriveCycleResolver>;
+  GGeneric: TDictionary<string, TDriveCycleStep> = nil;
 
-function StepRec(const Monitor, Desc: string; Dur: Integer): TDriveCycleStep;
+procedure LoadGenericCatalog;
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Step: TDriveCycleStep;
 begin
-  Result.Monitor := Monitor;
-  Result.Description := Desc;
-  Result.DurationSeconds := Dur;
+  Path := ResolveCatalogPath('drive-cycle-generic.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      Step.Monitor         := Obj.GetValue<string>('monitor', '');
+      if Step.Monitor = '' then Continue;
+      Step.Description     := Obj.GetValue<string>('description', '');
+      Step.DurationSeconds := Obj.GetValue<Integer>('duration_seconds', 0);
+      GGeneric.AddOrSetValue(Step.Monitor, Step);
+    end;
+  finally
+    Doc.Free;
+  end;
 end;
 
 function GenericStepFor(const MonitorName: string): TDriveCycleStep;
 begin
-  if MonitorName = 'Misfire' then
-    Result := StepRec(MonitorName,
-      'Cold start, idle 30 s, accelerate to 90 km/h, cruise 5 min, '
-      + 'decelerate without braking. Repeat once.', 600)
-  else if MonitorName = 'FuelSystem' then
-    Result := StepRec(MonitorName,
-      'Cruise at 80 km/h in closed loop for 5 minutes after warm-up.', 300)
-  else if MonitorName = 'Comprehensive' then
-    Result := StepRec(MonitorName,
-      'After warm-up, idle 30 s and cruise 5 min in closed loop.', 330)
-  else if MonitorName = 'Catalyst' then
-    Result := StepRec(MonitorName,
-      'Two stabilised cruises at 65 km/h for 3 min each, separated by '
-      + '15 s of deceleration without braking.', 420)
-  else if MonitorName = 'HeatedCatalyst' then
-    Result := StepRec(MonitorName,
-      'Cold start; let the catalyst reach light-off temperature.', 600)
-  else if MonitorName = 'EvaporativeSystem' then
-    Result := StepRec(MonitorName,
-      'Cold start with fuel level between 1/4 and 3/4. Idle 4 min, '
-      + 'cruise 50–80 km/h for 10 min.', 900)
-  else if MonitorName = 'SecondaryAirSystem' then
-    Result := StepRec(MonitorName,
-      'Cold start; idle until secondary air pump cycles off (~30–90 s).', 90)
-  else if MonitorName = 'OxygenSensor' then
-    Result := StepRec(MonitorName,
-      'Cruise at constant speed in closed loop for 10 minutes.', 600)
-  else if MonitorName = 'OxygenSensorHeater' then
-    Result := StepRec(MonitorName,
-      'Cold start; let oxygen sensors heat up (~30 s after start).', 60)
-  else if MonitorName = 'EGRorVVTSystem' then
-    Result := StepRec(MonitorName,
-      'Cruise at 80 km/h for 5 min, then decelerate to 30 km/h with '
-      + 'foot off accelerator.', 360)
-  else if MonitorName = 'ACRefrigerant' then
-    Result := StepRec(MonitorName,
-      'Run A/C for at least 10 minutes at idle and cruise.', 600)
-  else if MonitorName = 'NMHCCatalyst' then
-    Result := StepRec(MonitorName,
-      'Diesel cold start; sustained cruise at 60–90 km/h for 15 min.', 900)
-  else if MonitorName = 'NOxAftertreatment' then
-    Result := StepRec(MonitorName,
-      'Diesel: highway cruise 80–100 km/h for 20 min after AdBlue dosing.', 1200)
-  else if MonitorName = 'BoostPressureSystem' then
-    Result := StepRec(MonitorName,
-      'Three full-throttle accelerations from 30–100 km/h with full warm-up.', 600)
-  else if MonitorName = 'ExhaustGasSensor' then
-    Result := StepRec(MonitorName,
-      'Cold start; 20 min mixed driving including idle and cruise.', 1200)
-  else if MonitorName = 'PMFilter' then
-    Result := StepRec(MonitorName,
-      'Diesel: cruise above 60 km/h for 20 min to reach regen temperature.', 1200)
-  else if MonitorName = 'EGRSystem' then
-    Result := StepRec(MonitorName,
-      'Cruise 60–80 km/h for 10 min after warm-up.', 600)
-  else
-    Result := StepRec(MonitorName,
-      'Complete the OEM-specific drive cycle for this monitor.', 0);
+  if (GGeneric <> nil) and GGeneric.TryGetValue(MonitorName, Result) then Exit;
+  Result.Monitor := MonitorName;
+  Result.Description := 'Complete the OEM-specific drive cycle for this monitor.';
+  Result.DurationSeconds := 0;
 end;
 
 function BuildDriveCycle(const Readiness: TWWHOBDReadinessSet;
@@ -163,8 +146,11 @@ end;
 
 initialization
   GResolvers := TDictionary<string, TDriveCycleResolver>.Create;
+  GGeneric   := TDictionary<string, TDriveCycleStep>.Create;
+  LoadGenericCatalog;
 
 finalization
+  GGeneric.Free;
   GResolvers.Free;
 
 end.

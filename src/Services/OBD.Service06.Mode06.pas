@@ -14,7 +14,7 @@ unit OBD.Service06.Mode06;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -73,6 +73,10 @@ function FindMode06OBDMIDName(OBDMID: Byte): string;
 //------------------------------------------------------------------------------
 implementation
 
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
 //------------------------------------------------------------------------------
 // CONSTANTS
 //------------------------------------------------------------------------------
@@ -80,125 +84,118 @@ const
   // TID(1) + UCSID(1) + TestValue(2) + MinLimit(2) + MaxLimit(2)
   TEST_RECORD_BYTES = 8;
 
-// ISO 15031-5 §B.2 — selection of the standardised Test IDs that
-// appear in passenger-vehicle Mode 06. The full table is large and
-// varies per OEM; this list covers what every scan tool relies on.
+var
+  GTIDs:    TDictionary<Byte, string> = nil;
+  GOBDMIDs: TDictionary<Byte, string> = nil;
+  GUCSIDs:  TDictionary<Byte, TOBDMode06UnitInfo> = nil;
+
+function ParseHexByteOrZero(const S: string): Integer;
+var T: string;
+begin
+  T := S;
+  if T.StartsWith('0x', True) then T := '$' + T.Substring(2);
+  if not TryStrToInt(T, Result) then Result := 0;
+end;
+
+procedure LoadStringMap(const FileName, KeyField: string;
+  Map: TDictionary<Byte, string>);
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  V: Integer;
+begin
+  Path := ResolveCatalogPath(FileName);
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      V := ParseHexByteOrZero(Obj.GetValue<string>(KeyField, ''));
+      if (V < 0) or (V > 255) then Continue;
+      Map.AddOrSetValue(Byte(V), Obj.GetValue<string>('name', ''));
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
+procedure LoadUCSIDCatalog;
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Info: TOBDMode06UnitInfo;
+  V: Integer;
+begin
+  Path := ResolveCatalogPath('mode06-units.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      V := ParseHexByteOrZero(Obj.GetValue<string>('ucsid', ''));
+      if (V < 0) or (V > 255) then Continue;
+      Info.UCSID       := Byte(V);
+      Info.Scale       := Single(Obj.GetValue<Double>('scale', 1.0));
+      Info.UnitName    := Obj.GetValue<string>('unit', '');
+      Info.Description := Obj.GetValue<string>('description', '');
+      GUCSIDs.AddOrSetValue(Info.UCSID, Info);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 function FindMode06TestIdName(TID: Byte): string;
 begin
-  case TID of
-    $01: Result := 'Rich-to-lean sensor threshold voltage';
-    $02: Result := 'Lean-to-rich sensor threshold voltage';
-    $03: Result := 'Low sensor voltage for switch time calculation';
-    $04: Result := 'High sensor voltage for switch time calculation';
-    $05: Result := 'Rich-to-lean switch time';
-    $06: Result := 'Lean-to-rich switch time';
-    $07: Result := 'Minimum sensor voltage for test';
-    $08: Result := 'Maximum sensor voltage for test';
-    $09: Result := 'Time between sensor transitions';
-    $0A: Result := 'Sensor period';
-    $0B: Result := 'EWMA misfire counts for last ten driving cycles';
-    $0C: Result := 'Misfire counts for last/current driving cycle';
-    $81: Result := 'Catalyst monitor — bank 1, sensor 1 (test 1)';
-    $82: Result := 'Catalyst monitor — bank 1, sensor 2 (test 2)';
-    $83: Result := 'Catalyst monitor — bank 2, sensor 1';
-    $84: Result := 'Catalyst monitor — bank 2, sensor 2';
-    $85: Result := 'EVAP monitor (0.040)';
-    $86: Result := 'EVAP monitor (0.020)';
-    $87: Result := 'EVAP monitor (cap off)';
-    $A1: Result := 'EGR monitor';
-    $A2: Result := 'PCV monitor';
-    $B1: Result := 'Cold-start emission reduction monitor';
-  else
-    Result := Format('TID 0x%.2X', [TID]);
-  end;
+  if (GTIDs <> nil) and GTIDs.TryGetValue(TID, Result) and (Result <> '') then Exit;
+  Result := Format('TID 0x%.2X', [TID]);
 end;
 
-// ISO 15031-5 §B.4 — Standardised OBDMID list (selection).
 function FindMode06OBDMIDName(OBDMID: Byte): string;
 begin
-  case OBDMID of
-    $01: Result := 'O2 Sensor Monitor Bank 1 Sensor 1';
-    $02: Result := 'O2 Sensor Monitor Bank 1 Sensor 2';
-    $03: Result := 'O2 Sensor Monitor Bank 1 Sensor 3';
-    $04: Result := 'O2 Sensor Monitor Bank 1 Sensor 4';
-    $05: Result := 'O2 Sensor Monitor Bank 2 Sensor 1';
-    $06: Result := 'O2 Sensor Monitor Bank 2 Sensor 2';
-    $07: Result := 'O2 Sensor Monitor Bank 2 Sensor 3';
-    $08: Result := 'O2 Sensor Monitor Bank 2 Sensor 4';
-    $21: Result := 'Catalyst Monitor Bank 1';
-    $22: Result := 'Catalyst Monitor Bank 2';
-    $31: Result := 'EGR Monitor';
-    $32: Result := 'VVT Monitor';
-    $39: Result := 'EVAP Monitor (Cap off)';
-    $3A: Result := 'EVAP Monitor (0.040)';
-    $3B: Result := 'EVAP Monitor (0.020)';
-    $41: Result := 'Oxygen Sensor Heater Monitor Bank 1 Sensor 1';
-    $42: Result := 'Oxygen Sensor Heater Monitor Bank 1 Sensor 2';
-    $43: Result := 'Oxygen Sensor Heater Monitor Bank 2 Sensor 1';
-    $44: Result := 'Oxygen Sensor Heater Monitor Bank 2 Sensor 2';
-    $61: Result := 'Misfire Monitor — General';
-    $71: Result := 'Misfire Cylinder 1';
-    $72: Result := 'Misfire Cylinder 2';
-    $73: Result := 'Misfire Cylinder 3';
-    $74: Result := 'Misfire Cylinder 4';
-    $75: Result := 'Misfire Cylinder 5';
-    $76: Result := 'Misfire Cylinder 6';
-    $77: Result := 'Misfire Cylinder 7';
-    $78: Result := 'Misfire Cylinder 8';
-    $A1: Result := 'PM Filter Monitor Bank 1';
-    $A2: Result := 'PM Filter Monitor Bank 2';
-    $B1: Result := 'NMHC Catalyst Bank 1';
-    $B2: Result := 'NMHC Catalyst Bank 2';
-    $C1: Result := 'NOx Adsorber Bank 1';
-    $C2: Result := 'NOx Adsorber Bank 2';
-  else
-    Result := Format('OBDMID 0x%.2X', [OBDMID]);
-  end;
+  if (GOBDMIDs <> nil) and GOBDMIDs.TryGetValue(OBDMID, Result) and (Result <> '') then Exit;
+  Result := Format('OBDMID 0x%.2X', [OBDMID]);
 end;
 
-// ISO 15031-5 §B.3 — Unit and Scaling IDs. Each entry has a
-// scale factor and unit string. Selection covers the IDs that
-// occur in the passenger-vehicle Mode 06 stream.
 function FindMode06Unit(UCSID: Byte): TOBDMode06UnitInfo;
 begin
-  Result.UCSID := UCSID;
-  case UCSID of
-    $01: begin Result.Scale := 1.0;        Result.UnitName := 'count';   Result.Description := 'Raw count'; end;
-    $02: begin Result.Scale := 0.1;        Result.UnitName := 'count';   Result.Description := 'Count, 0.1 resolution'; end;
-    $03: begin Result.Scale := 0.01;       Result.UnitName := 'count';   Result.Description := 'Count, 0.01 resolution'; end;
-    $04: begin Result.Scale := 0.001;      Result.UnitName := 'count';   Result.Description := 'Count, 0.001 resolution'; end;
-    $05: begin Result.Scale := 0.0000305;  Result.UnitName := 'count';   Result.Description := 'Count, 1/32768'; end;
-    $06: begin Result.Scale := 0.000305;   Result.UnitName := 'count';   Result.Description := 'Count, 1/3276.8'; end;
-    $07: begin Result.Scale := 0.25;       Result.UnitName := 'rpm';     Result.Description := 'Engine speed'; end;
-    $08: begin Result.Scale := 0.01;       Result.UnitName := 'km/h';    Result.Description := 'Vehicle speed'; end;
-    $09: begin Result.Scale := 1.0;        Result.UnitName := 'km/h';    Result.Description := 'Vehicle speed'; end;
-    $0A: begin Result.Scale := 0.122;      Result.UnitName := 'mV';      Result.Description := 'Voltage'; end;
-    $0B: begin Result.Scale := 0.001;      Result.UnitName := 'V';       Result.Description := 'Voltage'; end;
-    $0C: begin Result.Scale := 0.01;       Result.UnitName := 'V';       Result.Description := 'Voltage'; end;
-    $0D: begin Result.Scale := 1.0;        Result.UnitName := 'mA';      Result.Description := 'Current'; end;
-    $10: begin Result.Scale := 1.0;        Result.UnitName := 'ms';      Result.Description := 'Time period'; end;
-    $11: begin Result.Scale := 100.0;      Result.UnitName := 'ms';      Result.Description := 'Long time period'; end;
-    $12: begin Result.Scale := 1.0;        Result.UnitName := 's';       Result.Description := 'Time'; end;
-    $14: begin Result.Scale := 0.000305;   Result.UnitName := 'kPa';     Result.Description := 'Gauge pressure'; end;
-    $15: begin Result.Scale := 0.001;      Result.UnitName := 'kPa';     Result.Description := 'Air pressure'; end;
-    $16: begin Result.Scale := 0.01;       Result.UnitName := 'kPa';     Result.Description := 'Pressure'; end;
-    $17: begin Result.Scale := 0.1;        Result.UnitName := 'kPa';     Result.Description := 'Pressure'; end;
-    $18: begin Result.Scale := 1.0;        Result.UnitName := 'kPa';     Result.Description := 'Pressure'; end;
-    $19: begin Result.Scale := 10.0;       Result.UnitName := 'kPa';     Result.Description := 'Pressure'; end;
-    $20: begin Result.Scale := 0.01;       Result.UnitName := '%';       Result.Description := 'Percent'; end;
-    $21: begin Result.Scale := 0.001525;   Result.UnitName := '%';       Result.Description := '%, 0..100 over uint16'; end;
-    $22: begin Result.Scale := 0.0000305;  Result.UnitName := 'lambda';  Result.Description := 'Equivalence ratio'; end;
-    $24: begin Result.Scale := 1.0;        Result.UnitName := '°C';      Result.Description := 'Temperature'; end;
-    $25: begin Result.Scale := 0.1;        Result.UnitName := '°C';      Result.Description := 'Temperature, 0.1 res.'; end;
-    $26: begin Result.Scale := 0.01;       Result.UnitName := '°C';      Result.Description := 'Temperature, 0.01 res.'; end;
-    $30: begin Result.Scale := 0.0000305;  Result.UnitName := 'g/s';     Result.Description := 'Mass flow rate'; end;
-    $31: begin Result.Scale := 0.000305;   Result.UnitName := 'g/s';     Result.Description := 'Mass flow rate'; end;
-    $32: begin Result.Scale := 0.01;       Result.UnitName := 'g/s';     Result.Description := 'Mass flow rate'; end;
-  else
-    Result.Scale := 1.0;
-    Result.UnitName := '';
-    Result.Description := Format('Unknown UCSID 0x%.2X', [UCSID]);
-  end;
+  if (GUCSIDs <> nil) and GUCSIDs.TryGetValue(UCSID, Result) then Exit;
+  Result.UCSID       := UCSID;
+  Result.Scale       := 1.0;
+  Result.UnitName    := '';
+  Result.Description := Format('Unknown UCSID 0x%.2X', [UCSID]);
 end;
 
 { TOBDMode06TestRecord }
@@ -257,5 +254,18 @@ begin
   end;
   Result.Records := RecordList;
 end;
+
+initialization
+  GTIDs    := TDictionary<Byte, string>.Create;
+  GOBDMIDs := TDictionary<Byte, string>.Create;
+  GUCSIDs  := TDictionary<Byte, TOBDMode06UnitInfo>.Create;
+  LoadStringMap('mode06-tids.json',    'tid',    GTIDs);
+  LoadStringMap('mode06-obdmids.json', 'obdmid', GOBDMIDs);
+  LoadUCSIDCatalog;
+
+finalization
+  GUCSIDs.Free;
+  GOBDMIDs.Free;
+  GTIDs.Free;
 
 end.

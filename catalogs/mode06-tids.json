@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "spec": "ISO 15031-5 Annex B Test Identifier list",
+  "description": "Mode 06 Test Identifier names. Add OEM-specific TIDs without recompiling.",
+  "entries": [
+    {
+      "tid": "0x01",
+      "name": "Rich-to-lean sensor threshold voltage"
+    },
+    {
+      "tid": "0x02",
+      "name": "Lean-to-rich sensor threshold voltage"
+    },
+    {
+      "tid": "0x03",
+      "name": "Low sensor voltage for switch time calculation"
+    },
+    {
+      "tid": "0x04",
+      "name": "High sensor voltage for switch time calculation"
+    },
+    {
+      "tid": "0x05",
+      "name": "Rich-to-lean switch time"
+    },
+    {
+      "tid": "0x06",
+      "name": "Lean-to-rich switch time"
+    },
+    {
+      "tid": "0x07",
+      "name": "Minimum sensor voltage for test"
+    },
+    {
+      "tid": "0x08",
+      "name": "Maximum sensor voltage for test"
+    },
+    {
+      "tid": "0x09",
+      "name": "Time between sensor transitions"
+    },
+    {
+      "tid": "0x0A",
+      "name": "Sensor period"
+    },
+    {
+      "tid": "0x0B",
+      "name": "EWMA misfire counts for last ten driving cycles"
+    },
+    {
+      "tid": "0x0C",
+      "name": "Misfire counts for last/current driving cycle"
+    },
+    {
+      "tid": "0x81",
+      "name": "Catalyst monitor — bank 1, sensor 1 (test 1)"
+    },
+    {
+      "tid": "0x82",
+      "name": "Catalyst monitor — bank 1, sensor 2 (test 2)"
+    },
+    {
+      "tid": "0x83",
+      "name": "Catalyst monitor — bank 2, sensor 1"
+    },
+    {
+      "tid": "0x84",
+      "name": "Catalyst monitor — bank 2, sensor 2"
+    },
+    {
+      "tid": "0x85",
+      "name": "EVAP monitor (0.040)"
+    },
+    {
+      "tid": "0x86",
+      "name": "EVAP monitor (0.020)"
+    },
+    {
+      "tid": "0x87",
+      "name": "EVAP monitor (cap off)"
+    },
+    {
+      "tid": "0xA1",
+      "name": "EGR monitor"
+    },
+    {
+      "tid": "0xA2",
+      "name": "PCV monitor"
+    },
+    {
+      "tid": "0xB1",
+      "name": "Cold-start emission reduction monitor"
+    }
+  ]
+}

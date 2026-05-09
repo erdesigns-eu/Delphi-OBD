@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "spec": "ISO 15031-5 Annex B.3 Units & Scaling table",
+  "description": "Mode 06 Unit-and-Scaling identifiers. Each entry combines a scale factor and a unit string.",
+  "entries": [
+    {
+      "ucsid": "0x01",
+      "scale": 1.0,
+      "unit": "count",
+      "description": "Raw count"
+    },
+    {
+      "ucsid": "0x02",
+      "scale": 0.1,
+      "unit": "count",
+      "description": "Count, 0.1 resolution"
+    },
+    {
+      "ucsid": "0x03",
+      "scale": 0.01,
+      "unit": "count",
+      "description": "Count, 0.01 resolution"
+    },
+    {
+      "ucsid": "0x04",
+      "scale": 0.001,
+      "unit": "count",
+      "description": "Count, 0.001 resolution"
+    },
+    {
+      "ucsid": "0x05",
+      "scale": 3.05e-05,
+      "unit": "count",
+      "description": "Count, 1/32768"
+    },
+    {
+      "ucsid": "0x06",
+      "scale": 0.000305,
+      "unit": "count",
+      "description": "Count, 1/3276.8"
+    },
+    {
+      "ucsid": "0x07",
+      "scale": 0.25,
+      "unit": "rpm",
+      "description": "Engine speed"
+    },
+    {
+      "ucsid": "0x08",
+      "scale": 0.01,
+      "unit": "km/h",
+      "description": "Vehicle speed"
+    },
+    {
+      "ucsid": "0x09",
+      "scale": 1.0,
+      "unit": "km/h",
+      "description": "Vehicle speed"
+    },
+    {
+      "ucsid": "0x0A",
+      "scale": 0.122,
+      "unit": "mV",
+      "description": "Voltage"
+    },
+    {
+      "ucsid": "0x0B",
+      "scale": 0.001,
+      "unit": "V",
+      "description": "Voltage"
+    },
+    {
+      "ucsid": "0x0C",
+      "scale": 0.01,
+      "unit": "V",
+      "description": "Voltage"
+    },
+    {
+      "ucsid": "0x0D",
+      "scale": 1.0,
+      "unit": "mA",
+      "description": "Current"
+    },
+    {
+      "ucsid": "0x10",
+      "scale": 1.0,
+      "unit": "ms",
+      "description": "Time period"
+    },
+    {
+      "ucsid": "0x11",
+      "scale": 100.0,
+      "unit": "ms",
+      "description": "Long time period"
+    },
+    {
+      "ucsid": "0x12",
+      "scale": 1.0,
+      "unit": "s",
+      "description": "Time"
+    },
+    {
+      "ucsid": "0x14",
+      "scale": 0.000305,
+      "unit": "kPa",
+      "description": "Gauge pressure"
+    },
+    {
+      "ucsid": "0x15",
+      "scale": 0.001,
+      "unit": "kPa",
+      "description": "Air pressure"
+    },
+    {
+      "ucsid": "0x16",
+      "scale": 0.01,
+      "unit": "kPa",
+      "description": "Pressure"
+    },
+    {
+      "ucsid": "0x17",
+      "scale": 0.1,
+      "unit": "kPa",
+      "description": "Pressure"
+    },
+    {
+      "ucsid": "0x18",
+      "scale": 1.0,
+      "unit": "kPa",
+      "description": "Pressure"
+    },
+    {
+      "ucsid": "0x19",
+      "scale": 10.0,
+      "unit": "kPa",
+      "description": "Pressure"
+    },
+    {
+      "ucsid": "0x20",
+      "scale": 0.01,
+      "unit": "%",
+      "description": "Percent"
+    },
+    {
+      "ucsid": "0x21",
+      "scale": 0.001525,
+      "unit": "%",
+      "description": "%, 0..100 over uint16"
+    },
+    {
+      "ucsid": "0x22",
+      "scale": 3.05e-05,
+      "unit": "lambda",
+      "description": "Equivalence ratio"
+    },
+    {
+      "ucsid": "0x24",
+      "scale": 1.0,
+      "unit": "°C",
+      "description": "Temperature"
+    },
+    {
+      "ucsid": "0x25",
+      "scale": 0.1,
+      "unit": "°C",
+      "description": "Temperature, 0.1 res."
+    },
+    {
+      "ucsid": "0x26",
+      "scale": 0.01,
+      "unit": "°C",
+      "description": "Temperature, 0.01 res."
+    },
+    {
+      "ucsid": "0x30",
+      "scale": 3.05e-05,
+      "unit": "g/s",
+      "description": "Mass flow rate"
+    },
+    {
+      "ucsid": "0x31",
+      "scale": 0.000305,
+      "unit": "g/s",
+      "description": "Mass flow rate"
+    },
+    {
+      "ucsid": "0x32",
+      "scale": 0.01,
+      "unit": "g/s",
+      "description": "Mass flow rate"
+    }
+  ]
+}
