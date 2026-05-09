@@ -14,7 +14,7 @@ unit OBD.OEM.KeyAdaptation.Toyota;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -61,6 +61,60 @@ function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
 // IMPLEMENTATION
 //------------------------------------------------------------------------------
 implementation
+
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
+var
+  GToyotaPlatforms: TDictionary<string, TToyotaPlatformInfo> = nil;
+
+function ToyotaAccessFromString(const S: string): TToyotaPlatformAccess;
+begin
+  if SameText(S, 'master_key') then Exit(tpaMasterKey);
+  if SameText(S, 'pin')        then Exit(tpaPin);
+  Result := tpaCertificateRequired;
+end;
+
+procedure LoadToyotaCatalog;
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Info: TToyotaPlatformInfo;
+begin
+  Path := ResolveCatalogPath('key-platforms-toyota.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      Info.Key := LowerCase(Obj.GetValue<string>('chassis_key', ''));
+      if Info.Key = '' then Continue;
+      Info.DisplayName := Obj.GetValue<string>('display_name', '');
+      Info.Access      := ToyotaAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes       := Obj.GetValue<string>('notes', '');
+      GToyotaPlatforms.AddOrSetValue(Info.Key, Info);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
 
 function EncodeToyotaKeyRegisterRequest(const Req: TToyotaKeyRegisterRequest): TBytes;
 var
@@ -134,33 +188,21 @@ begin
 end;
 
 function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
-
-  procedure Set_(const K, N: string; A: TToyotaPlatformAccess; const Note: string);
-  begin
-    Result.Key := K; Result.DisplayName := N; Result.Access := A; Result.Notes := Note;
-  end;
-
 var Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
-  if Lookup = 'zre182' then
-    Set_(Lookup, 'Toyota Auris ZRE182', tpaMasterKey,
-      'Master-key timing dance documented; smart key adds via OBD.')
-  else if Lookup = 'asv50' then
-    Set_(Lookup, 'Toyota Camry ASV50', tpaMasterKey,
-      'Master-key procedure; up to 6 keys.')
-  else if Lookup = 'agz10' then
-    Set_(Lookup, 'Lexus NX AGZ10', tpaPin,
-      'PIN-required smart-key registration via Techstream.')
-  else if Lookup = 'mxua70' then
-    Set_(Lookup, 'Toyota RAV4 MXUA70', tpaPin,
-      'PIN required from Toyota dealer portal.')
-  else if Lookup = 'mxpa10' then
-    Set_(Lookup, 'Toyota Yaris MXPA10', tpaCertificateRequired,
-      'Certificate-locked Techstream after MY2021.')
-  else
-    Set_(LowerCase(ChassisKey), ChassisKey, tpaCertificateRequired,
-      'Unknown platform; assume certificate-locked.');
+  if (GToyotaPlatforms <> nil) and GToyotaPlatforms.TryGetValue(Lookup, Result) then Exit;
+  Result.Key := Lookup;
+  Result.DisplayName := ChassisKey;
+  Result.Access := tpaCertificateRequired;
+  Result.Notes := 'Unknown platform; assume certificate-locked.';
 end;
+
+initialization
+  GToyotaPlatforms := TDictionary<string, TToyotaPlatformInfo>.Create;
+  LoadToyotaCatalog;
+
+finalization
+  GToyotaPlatforms.Free;
 
 end.

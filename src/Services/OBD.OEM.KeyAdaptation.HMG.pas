@@ -14,7 +14,7 @@ unit OBD.OEM.KeyAdaptation.HMG;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -61,6 +61,10 @@ function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 // IMPLEMENTATION
 //------------------------------------------------------------------------------
 implementation
+
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
 
 function EncodeHMGKeyRegisterRequest(const Req: THMGKeyRegisterRequest): TBytes;
 var
@@ -122,38 +126,72 @@ begin
   Result.StatusCode := Bytes[3];
 end;
 
-function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
+var
+  GHMGPlatforms: TDictionary<string, THMGPlatformInfo> = nil;
 
-  procedure Set_(const K, N: string; A: THMGPlatformAccess; const Note: string);
-  begin
-    Result.Key := K; Result.DisplayName := N; Result.Access := A; Result.Notes := Note;
+function HMGAccessFromString(const S: string): THMGPlatformAccess;
+begin
+  if SameText(S, 'open_with_pin') then Exit(hpaOpenWithPIN);
+  if SameText(S, 'gateway_locked_post_my2020') then Exit(hpaGatewayLockedPostMY2020);
+  Result := hpaCertificateRequired;
+end;
+
+procedure LoadHMGCatalog;
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Info: THMGPlatformInfo;
+begin
+  Path := ResolveCatalogPath('key-platforms-hmg.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
   end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      Info.Key := LowerCase(Obj.GetValue<string>('platform_key', ''));
+      if Info.Key = '' then Continue;
+      Info.DisplayName := Obj.GetValue<string>('display_name', '');
+      Info.Access      := HMGAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes       := Obj.GetValue<string>('notes', '');
+      GHMGPlatforms.AddOrSetValue(Info.Key, Info);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
 
+function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 var Lookup: string;
 begin
   Lookup := LowerCase(PlatformKey);
-  if Lookup = 'rb' then            // Hyundai i20 RB pre-2018
-    Set_(Lookup, 'Hyundai i20 RB (pre-MY2018)', hpaOpenWithPIN,
-      'Open with 4-digit PIN from dealer label.')
-  else if Lookup = 'ld' then       // Hyundai Elantra LD
-    Set_(Lookup, 'Hyundai Elantra LD', hpaOpenWithPIN,
-      '4-digit PIN procedure documented in GDS.')
-  else if Lookup = 'jf' then       // Hyundai Sonata JF
-    Set_(Lookup, 'Hyundai Sonata JF', hpaOpenWithPIN,
-      '6-digit PIN; SMK module accepts up to 4 keys.')
-  else if Lookup = 'qs' then       // Kia Stonic QS
-    Set_(Lookup, 'Kia Stonic QS', hpaOpenWithPIN,
-      'KDS PIN procedure; up to 4 smart keys.')
-  else if Lookup = 'ev_e_gmp' then // Generic E-GMP key
-    Set_(Lookup, 'HMG E-GMP (post-MY2021)', hpaGatewayLockedPostMY2020,
-      'Gateway-protected; smart-key registration locked behind ' +
-      'dealer SST tool.')
-  else if Lookup = 'genesis_g80' then
-    Set_(Lookup, 'Genesis G80 (RG3)', hpaCertificateRequired,
-      'Requires Genesis-only certificate; out of scope for OBD.')
-  else
-    Set_(LowerCase(PlatformKey), PlatformKey, hpaCertificateRequired,
-      'Unknown platform; assume gateway-locked.');
+  if (GHMGPlatforms <> nil) and GHMGPlatforms.TryGetValue(Lookup, Result) then Exit;
+  Result.Key := Lookup;
+  Result.DisplayName := PlatformKey;
+  Result.Access := hpaCertificateRequired;
+  Result.Notes := 'Unknown platform; assume gateway-locked.';
 end;
+
+initialization
+  GHMGPlatforms := TDictionary<string, THMGPlatformInfo>.Create;
+  LoadHMGCatalog;
+
+finalization
+  GHMGPlatforms.Free;
 
 end.

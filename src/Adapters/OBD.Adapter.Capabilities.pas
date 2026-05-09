@@ -77,6 +77,10 @@ function ResolveIsoTpFrameBytes(const AdapterKey: string): Integer;
 //------------------------------------------------------------------------------
 implementation
 
+uses
+  System.TypInfo, System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
 var
   GLock: TCriticalSection;
   GByKey: TDictionary<string, TOBDAdapterCapabilities>;
@@ -159,42 +163,67 @@ begin
   Result := 7;
 end;
 
-procedure SeedDefaultAdapters;
-
-  procedure Reg(const Key, Name: string; const Caps: TOBDAdapterCapabilitySet;
-    MaxIsoTp: Integer);
-  var R: TOBDAdapterCapabilities;
-  begin
-    R.AdapterKey := Key;
-    R.DisplayName := Name;
-    R.CapSet := Caps;
-    R.MaxIsoTpFrameBytes := MaxIsoTp;
-    RegisterAdapterCapabilities(R);
-  end;
-
+function CapabilityFromString(const S: string; out C: TOBDAdapterCapability): Boolean;
+var I: TOBDAdapterCapability;
 begin
-  // ELM327 — CAN only, ISO-TP, K-Line, voltage. No CAN-FD.
-  Reg('elm327', 'ELM327',
-    [acCAN, acISOTP, acKLine, acVoltageMonitor], 7);
-  // OBDLink SX/MX — same as ELM327 plus ST commands; still no CAN-FD.
-  Reg('obdlink_mx', 'OBDLink MX',
-    [acCAN, acISOTP, acKLine, acVoltageMonitor, acBluetoothLE], 7);
-  // OBDLink EX — STN2255 supports CAN-FD.
-  Reg('obdlink_ex', 'OBDLink EX',
-    [acCAN, acCANFD, acISOTP, acISOTPLargeFrame, acKLine,
-     acVoltageMonitor, acFTDI], 62);
-  // DoIP gateway — Ethernet only, no K-Line / classical CAN.
-  Reg('doip_gateway', 'DoIP Gateway',
-    [acDoIP, acISOTP, acISOTPLargeFrame, acVoltageMonitor], 4095);
-  // J2534 pass-through — CAN classic and FD when the vendor DLL exposes it.
-  Reg('j2534', 'J2534 Pass-Through',
-    [acCAN, acISOTP, acKLine, acJ1939, acJ2534, acVoltageMonitor], 7);
+  for I := Low(TOBDAdapterCapability) to High(TOBDAdapterCapability) do
+    if SameText(S, CapNames[I]) or SameText(S, GetEnumName(TypeInfo(TOBDAdapterCapability), Ord(I))) then
+    begin
+      C := I; Exit(True);
+    end;
+  Result := False;
+end;
+
+procedure LoadAdapterCatalog;
+var
+  Path, Raw: string;
+  Doc: TJSONValue;
+  Arr, CapArr: TJSONArray;
+  Item, CapItem: TJSONValue;
+  Obj: TJSONObject;
+  R: TOBDAdapterCapabilities;
+  Cap: TOBDAdapterCapability;
+  Stream: TStringStream;
+begin
+  Path := ResolveCatalogPath('adapter-capabilities.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      R := Default(TOBDAdapterCapabilities);
+      R.AdapterKey  := Obj.GetValue<string>('adapter_key', '');
+      if R.AdapterKey = '' then Continue;
+      R.DisplayName := Obj.GetValue<string>('display_name', '');
+      R.MaxIsoTpFrameBytes := Obj.GetValue<Integer>('max_iso_tp_frame_bytes', 7);
+      CapArr := Obj.GetValue<TJSONArray>('capabilities');
+      if CapArr <> nil then
+        for CapItem in CapArr do
+          if (CapItem is TJSONString) and CapabilityFromString(CapItem.Value, Cap) then
+            Include(R.CapSet, Cap);
+      RegisterAdapterCapabilities(R);
+    end;
+  finally
+    Doc.Free;
+  end;
 end;
 
 initialization
   GLock := TCriticalSection.Create;
   GByKey := TDictionary<string, TOBDAdapterCapabilities>.Create;
-  SeedDefaultAdapters;
+  LoadAdapterCatalog;
 
 finalization
   GByKey.Free;

@@ -14,7 +14,7 @@ unit OBD.Protocol.WWHOBD;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -89,6 +89,65 @@ function FindWWHOBDDataIdentifier(DID: Word): TWWHOBDDataIdentifier;
 //------------------------------------------------------------------------------
 implementation
 
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
+const
+  CatalogFileName = 'wwhobd-dids.json';
+
+var
+  GDIDs: TDictionary<Word, TWWHOBDDataIdentifier> = nil;
+
+function ParseHexWord(const S: string; out W: Word): Boolean;
+var
+  T: string;
+  V: Integer;
+begin
+  T := S;
+  if T.StartsWith('0x', True) then T := '$' + T.Substring(2);
+  Result := TryStrToInt(T, V) and (V >= 0) and (V <= $FFFF);
+  if Result then W := Word(V);
+end;
+
+procedure LoadDIDCatalog;
+var
+  Path, Raw: string;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  D: TWWHOBDDataIdentifier;
+  Stream: TStringStream;
+begin
+  Path := ResolveCatalogPath(CatalogFileName);
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      if not ParseHexWord(Obj.GetValue<string>('did', ''), D.DID) then Continue;
+      D.Name := Obj.GetValue<string>('name', '');
+      D.Description := Obj.GetValue<string>('description', '');
+      GDIDs.AddOrSetValue(D.DID, D);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 { TWWHDtc }
 
 function TWWHDtc.AsString: string;
@@ -152,56 +211,17 @@ end;
 
 function FindWWHOBDDataIdentifier(DID: Word): TWWHOBDDataIdentifier;
 begin
+  if (GDIDs <> nil) and GDIDs.TryGetValue(DID, Result) then Exit;
   Result.DID := DID;
-  case DID of
-    WWHOBD_DID_VIN:
-      begin Result.Name := 'VIN'; Result.Description := 'Vehicle Identification Number (17 ASCII)'; end;
-    WWHOBD_DID_VEHICLE_FAMILY_ID:
-      begin Result.Name := 'VehicleFamilyId'; Result.Description := 'Emissions vehicle-family identifier'; end;
-    WWHOBD_DID_CALIBRATION_ID:
-      begin Result.Name := 'CalibrationID'; Result.Description := 'Calibration ID per ISO 15031-5'; end;
-    WWHOBD_DID_CALIBRATION_VERIFICATION:
-      begin Result.Name := 'CVN'; Result.Description := 'Calibration Verification Number'; end;
-    WWHOBD_DID_ECU_NAME:
-      begin Result.Name := 'ECUName'; Result.Description := 'ECU name string'; end;
-    WWHOBD_DID_PROGRAMMING_DATE:
-      begin Result.Name := 'ProgrammingDate'; Result.Description := 'Last reprogramming date'; end;
-    WWHOBD_DID_ACTIVE_DIAG_SESSION:
-      begin Result.Name := 'ActiveDiagnosticSession'; Result.Description := 'Currently active UDS session'; end;
-    WWHOBD_DID_PROTOCOL_VERSION:
-      begin Result.Name := 'WWHOBDProtocolVersion'; Result.Description := 'WWH-OBD protocol version'; end;
-    WWHOBD_DID_OBD_REQUIREMENT:
-      begin Result.Name := 'OBDRequirement'; Result.Description := 'OBD certification requirement (e.g. EOBD, WWH-OBD)'; end;
-    WWHOBD_DID_OBDMID_LIST:
-      begin Result.Name := 'OBDMIDList'; Result.Description := 'List of supported OBDMIDs'; end;
-    WWHOBD_DID_DTC_DATA:
-      begin Result.Name := 'ActiveDTCs'; Result.Description := 'Stream of active DTCs in J1939-FMI form'; end;
-    WWHOBD_DID_PERMANENT_DTC_DATA:
-      begin Result.Name := 'PermanentDTCs'; Result.Description := 'Permanent DTCs that survive cleared codes'; end;
-    WWHOBD_DID_READINESS:
-      begin Result.Name := 'ReadinessStatus'; Result.Description := 'Monitor readiness bitmap'; end;
-    WWHOBD_DID_LIVE_DATA:
-      begin Result.Name := 'LiveData'; Result.Description := 'WWH-OBD live data'; end;
-    WWHOBD_DID_FREEZE_FRAME:
-      begin Result.Name := 'FreezeFrame'; Result.Description := 'Freeze frame for the DTC that triggered MIL'; end;
-    WWHOBD_DID_VEHICLE_MFR_SOFTWARE_NAME:
-      begin Result.Name := 'VehicleMfrSoftwareName'; Result.Description := 'Manufacturer software identifier string'; end;
-    WWHOBD_DID_VEHICLE_MFR_HARDWARE_NUM:
-      begin Result.Name := 'VehicleMfrHardwareNumber'; Result.Description := 'Manufacturer hardware identifier string'; end;
-    WWHOBD_DID_DISTANCE_WITH_MIL_ON:
-      begin Result.Name := 'DistanceWithMILOn'; Result.Description := 'km with MIL active'; end;
-    WWHOBD_DID_DISTANCE_SINCE_DTC_CLEAR:
-      begin Result.Name := 'DistanceSinceDTCClear'; Result.Description := 'km since DTCs were cleared'; end;
-    WWHOBD_DID_TIME_WITH_MIL_ON:
-      begin Result.Name := 'TimeWithMILOn'; Result.Description := 'minutes with MIL active'; end;
-    WWHOBD_DID_TIME_SINCE_DTC_CLEAR:
-      begin Result.Name := 'TimeSinceDTCClear'; Result.Description := 'minutes since DTCs were cleared'; end;
-    WWHOBD_DID_NUMBER_OF_WARMUPS:
-      begin Result.Name := 'NumberOfWarmups'; Result.Description := 'Warm-up cycles since DTC clear'; end;
-  else
-    Result.Name := Format('DID 0x%.4X', [DID]);
-    Result.Description := 'Unknown WWH-OBD DID';
-  end;
+  Result.Name := Format('DID 0x%.4X', [DID]);
+  Result.Description := 'Unknown WWH-OBD DID';
 end;
+
+initialization
+  GDIDs := TDictionary<Word, TWWHOBDDataIdentifier>.Create;
+  LoadDIDCatalog;
+
+finalization
+  GDIDs.Free;
 
 end.

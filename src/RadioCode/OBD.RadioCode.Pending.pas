@@ -14,9 +14,10 @@ unit OBD.RadioCode.Pending;
 interface
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes, System.JSON,
 
-  OBD.RadioCode, OBD.RadioCode.Registry, OBD.RadioCode.Variants;
+  OBD.RadioCode, OBD.RadioCode.Registry, OBD.RadioCode.Variants,
+  OBD.Catalog.Path;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -81,67 +82,57 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-// REGISTRATION
+// REGISTRATION (catalog-driven)
 //------------------------------------------------------------------------------
-type
-  TPendingFactory = record
-    Key, Name, Notes: string;
-  end;
-
-//------------------------------------------------------------------------------
-// CONSTANTS
-//------------------------------------------------------------------------------
-const
-  PendingFactories: array[0..7] of TPendingFactory = (
-    (Key: 'pioneer';
-     Name: 'Pioneer';
-     Notes: 'Needs verified serial-to-code algorithm or lookup table for at least DEH/AVH/MVH model families. Commercial DBs cover ~30M units; community-published algorithms are partial and generation-specific.'),
-    (Key: 'kenwood';
-     Name: 'Kenwood';
-     Notes: 'Needs verified algorithm or lookup table for KDC/DDX/DNX/KMM model families. After the 2008 JVC-Kenwood merger some platforms share supply chain with JVC; an algorithm covering one may apply to the other.'),
-    (Key: 'jvc';
-     Name: 'JVC';
-     Notes: 'Needs verified algorithm or lookup table for KD/KW model families. Post-2008 platforms may share with Kenwood.'),
-    (Key: 'sony';
-     Name: 'Sony';
-     Notes: 'Needs verified algorithm or lookup table for CDX/WX/MEX after-market head units. Modern Sony OEM fitments are tied to VIN via the gateway and out of scope.'),
-    (Key: 'philips';
-     Name: 'Philips';
-     Notes: 'Needs the licensed serial-to-code database (Philips ships ~14M entries). EEPROM-extraction route is hardware-side and not implementable here.'),
-    (Key: 'grundig';
-     Name: 'Grundig';
-     Notes: 'Pre-2000 European OEM head units (WKC/EC series). Possibly recoverable from a specific generation via the same approach used for Becker4/Becker5; needs a leaked/published table.'),
-    (Key: 'panasonic';
-     Name: 'Panasonic (Matsushita)';
-     Notes: 'Needs CQ-series algorithm or lookup table; per-region variants common.'),
-    (Key: 'continental_vdo';
-     Name: 'Continental / VDO';
-     Notes: 'OEM head-unit supplier in VW / Mercedes / Ford. Often re-uses VAG variants but the specific mapping per part number is undocumented publicly.')
-  );
-
 function MakePendingFactory(const Key, Name, Notes: string): TOBDRadioCodeFactory;
 begin
-  // Wrapping in a separate function captures parameters per-call rather
-  // than per-loop-iteration; necessary because Delphi anonymous methods
-  // capture enclosing variables by reference.
   Result := function: IOBDRadioCode
     begin
       Result := TOBDRadioCodePending.Create(Key, Name, Notes);
     end;
 end;
 
-procedure RegisterPendingBrands;
+procedure LoadPendingBrands;
 var
-  P: TPendingFactory;
+  Path, Raw, K, N, Notes: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
 begin
-  for P in PendingFactories do
-    TOBDRadioCodeRegistry.Instance.Register(
-      TOBDRadioCodeBrand.Create(
-        P.Key, P.Name, False, P.Notes,
-        MakePendingFactory(P.Key, P.Name, P.Notes)));
+  Path := ResolveCatalogPath('radiocode-pending-brands.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      K := Obj.GetValue<string>('brand_key', '');
+      if K = '' then Continue;
+      N := Obj.GetValue<string>('display_name', '');
+      Notes := Obj.GetValue<string>('data_notes', '');
+      TOBDRadioCodeRegistry.Instance.Register(
+        TOBDRadioCodeBrand.Create(K, N, False, Notes,
+          MakePendingFactory(K, N, Notes)));
+    end;
+  finally
+    Doc.Free;
+  end;
 end;
 
 initialization
-  RegisterPendingBrands;
+  LoadPendingBrands;
 
 end.

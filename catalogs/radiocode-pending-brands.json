@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "description": "Data-pending radio-code brands. Each entry installs a stub calculator that raises EOBDRadioCodeDataMissing on Calculate, surfacing the data gap to UIs.",
+  "entries": [
+    {
+      "brand_key": "pioneer",
+      "display_name": "Pioneer",
+      "data_notes": "Needs verified serial-to-code algorithm or lookup table for at least DEH/AVH/MVH model families. Commercial DBs cover ~30M units; community-published algorithms are partial and generation-specific."
+    },
+    {
+      "brand_key": "kenwood",
+      "display_name": "Kenwood",
+      "data_notes": "Needs verified algorithm or lookup table for KDC/DDX/DNX/KMM model families. After the 2008 JVC-Kenwood merger some platforms share supply chain with JVC; an algorithm covering one may apply to the other."
+    },
+    {
+      "brand_key": "jvc",
+      "display_name": "JVC",
+      "data_notes": "Needs verified algorithm or lookup table for KD/KW model families. Post-2008 platforms may share with Kenwood."
+    },
+    {
+      "brand_key": "sony",
+      "display_name": "Sony",
+      "data_notes": "Needs verified algorithm or lookup table for CDX/WX/MEX after-market head units. Modern Sony OEM fitments are tied to VIN via the gateway and out of scope."
+    },
+    {
+      "brand_key": "philips",
+      "display_name": "Philips",
+      "data_notes": "Needs the licensed serial-to-code database (Philips ships ~14M entries). EEPROM-extraction route is hardware-side and not implementable here."
+    },
+    {
+      "brand_key": "grundig",
+      "display_name": "Grundig",
+      "data_notes": "Pre-2000 European OEM head units (WKC/EC series). Possibly recoverable from a specific generation via the same approach used for Becker4/Becker5; needs a leaked/published table."
+    },
+    {
+      "brand_key": "panasonic",
+      "display_name": "Panasonic (Matsushita)",
+      "data_notes": "Needs CQ-series algorithm or lookup table; per-region variants common."
+    },
+    {
+      "brand_key": "continental_vdo",
+      "display_name": "Continental / VDO",
+      "data_notes": "OEM head-unit supplier in VW / Mercedes / Ford. Often re-uses VAG variants but the specific mapping per part number is undocumented publicly."
+    }
+  ]
+}

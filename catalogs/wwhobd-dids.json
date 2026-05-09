@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "spec": "ISO 27145-3 + UN GTR No.5 Annex A",
+  "description": "Universal WWH-OBD Data Identifiers. Add OEM-specific DIDs without recompiling.",
+  "entries": [
+    {
+      "did": "0xF190",
+      "name": "VIN",
+      "description": "Vehicle Identification Number (17 ASCII)"
+    },
+    {
+      "did": "0xF197",
+      "name": "VehicleFamilyId",
+      "description": "Emissions vehicle-family identifier"
+    },
+    {
+      "did": "0xF198",
+      "name": "CalibrationID",
+      "description": "Calibration ID per ISO 15031-5"
+    },
+    {
+      "did": "0xF199",
+      "name": "CVN",
+      "description": "Calibration Verification Number"
+    },
+    {
+      "did": "0xF19A",
+      "name": "ECUName",
+      "description": "ECU name string"
+    },
+    {
+      "did": "0xF184",
+      "name": "ProgrammingDate",
+      "description": "Last reprogramming date"
+    },
+    {
+      "did": "0xF186",
+      "name": "ActiveDiagnosticSession",
+      "description": "Currently active UDS session"
+    },
+    {
+      "did": "0xFD00",
+      "name": "WWHOBDProtocolVersion",
+      "description": "WWH-OBD protocol version"
+    },
+    {
+      "did": "0xFD01",
+      "name": "OBDRequirement",
+      "description": "OBD certification requirement (e.g. EOBD, WWH-OBD)"
+    },
+    {
+      "did": "0xFD02",
+      "name": "OBDMIDList",
+      "description": "List of supported OBDMIDs"
+    },
+    {
+      "did": "0xFD03",
+      "name": "ActiveDTCs",
+      "description": "Stream of active DTCs in J1939-FMI form"
+    },
+    {
+      "did": "0xFD04",
+      "name": "PermanentDTCs",
+      "description": "Permanent DTCs that survive cleared codes"
+    },
+    {
+      "did": "0xFD05",
+      "name": "ReadinessStatus",
+      "description": "Monitor readiness bitmap"
+    },
+    {
+      "did": "0xFD06",
+      "name": "LiveData",
+      "description": "WWH-OBD live data"
+    },
+    {
+      "did": "0xFD07",
+      "name": "FreezeFrame",
+      "description": "Freeze frame for the DTC that triggered MIL"
+    },
+    {
+      "did": "0xFD08",
+      "name": "VehicleMfrSoftwareName",
+      "description": "Manufacturer software identifier string"
+    },
+    {
+      "did": "0xFD09",
+      "name": "VehicleMfrHardwareNumber",
+      "description": "Manufacturer hardware identifier string"
+    },
+    {
+      "did": "0xFD0A",
+      "name": "DistanceWithMILOn",
+      "description": "km with MIL active"
+    },
+    {
+      "did": "0xFD0B",
+      "name": "DistanceSinceDTCClear",
+      "description": "km since DTCs were cleared"
+    },
+    {
+      "did": "0xFD0C",
+      "name": "TimeWithMILOn",
+      "description": "minutes with MIL active"
+    },
+    {
+      "did": "0xFD0D",
+      "name": "TimeSinceDTCClear",
+      "description": "minutes since DTCs were cleared"
+    },
+    {
+      "did": "0xFD0E",
+      "name": "NumberOfWarmups",
+      "description": "Warm-up cycles since DTC clear"
+    }
+  ]
+}

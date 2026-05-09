@@ -14,7 +14,7 @@ unit OBD.OEM.KeyAdaptation.Ford;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Generics.Collections;
 
 //------------------------------------------------------------------------------
 // TYPES
@@ -62,6 +62,60 @@ function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
 //------------------------------------------------------------------------------
 implementation
 
+uses
+  System.Classes, System.JSON,
+  OBD.Catalog.Path;
+
+var
+  GFordPlatforms: TDictionary<string, TFordPlatformInfo> = nil;
+
+function FordAccessFromString(const S: string): TFordPlatformAccess;
+begin
+  if SameText(S, 'open')         then Exit(fpaOpen);
+  if SameText(S, 'pin_required') then Exit(fpaPinRequired);
+  Result := fpaGatewayLocked;
+end;
+
+procedure LoadFordCatalog;
+var
+  Path, Raw: string;
+  Stream: TStringStream;
+  Doc: TJSONValue;
+  Arr: TJSONArray;
+  Item: TJSONValue;
+  Obj: TJSONObject;
+  Info: TFordPlatformInfo;
+begin
+  Path := ResolveCatalogPath('key-platforms-ford.json');
+  if Path = '' then Exit;
+  Stream := TStringStream.Create('', TEncoding.UTF8);
+  try
+    Stream.LoadFromFile(Path);
+    Raw := Stream.DataString;
+  finally
+    Stream.Free;
+  end;
+  Doc := TJSONObject.ParseJSONValue(Raw);
+  if not (Doc is TJSONObject) then begin Doc.Free; Exit; end;
+  try
+    Arr := (Doc as TJSONObject).GetValue<TJSONArray>('entries');
+    if Arr = nil then Exit;
+    for Item in Arr do
+    begin
+      if not (Item is TJSONObject) then Continue;
+      Obj := Item as TJSONObject;
+      Info.Key := LowerCase(Obj.GetValue<string>('chassis_key', ''));
+      if Info.Key = '' then Continue;
+      Info.DisplayName := Obj.GetValue<string>('display_name', '');
+      Info.Access      := FordAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes       := Obj.GetValue<string>('notes', '');
+      GFordPlatforms.AddOrSetValue(Info.Key, Info);
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
 function EncodeFordPATSRequest(const Req: TFordPATSRequest): TBytes;
 var I: Integer;
 begin
@@ -108,36 +162,21 @@ begin
 end;
 
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
-
-  procedure Set_(const K, N: string; A: TFordPlatformAccess; const Note: string);
-  begin
-    Result.Key := K; Result.DisplayName := N; Result.Access := A; Result.Notes := Note;
-  end;
-
 var Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
-  if Lookup = 'p552' then         // Ford F-150 (2015-2020)
-    Set_(Lookup, 'Ford F-150 P552', fpaOpen,
-      'Open via OBD; well-documented 2-key timing dance.')
-  else if Lookup = 'cd391' then   // Ford Fusion (2013-2020)
-    Set_(Lookup, 'Ford Fusion CD391', fpaOpen,
-      'Open via OBD; up to 8 keys.')
-  else if Lookup = 'c520' then    // Focus 3rd gen (2011-2018)
-    Set_(Lookup, 'Ford Focus C520', fpaOpen,
-      'Open via OBD; PATS reset documented in FORScan.')
-  else if Lookup = 'p702' then    // Ranger (2019+)
-    Set_(Lookup, 'Ford Ranger P702', fpaPinRequired,
-      'Outgoing-key PIN required to add new key.')
-  else if Lookup = 'cd542' then   // Mustang Mach-E
-    Set_(Lookup, 'Ford Mustang Mach-E CD542', fpaGatewayLocked,
-      'Gateway-protected; requires Ford IDS or licensed FDRS access.')
-  else if Lookup = 'p708' then    // F-150 Lightning
-    Set_(Lookup, 'Ford F-150 Lightning P708', fpaGatewayLocked,
-      'Gateway-protected; requires FDRS.')
-  else
-    Set_(LowerCase(ChassisKey), ChassisKey, fpaGatewayLocked,
-      'Unknown platform; assume gateway-locked.');
+  if (GFordPlatforms <> nil) and GFordPlatforms.TryGetValue(Lookup, Result) then Exit;
+  Result.Key := Lookup;
+  Result.DisplayName := ChassisKey;
+  Result.Access := fpaGatewayLocked;
+  Result.Notes := 'Unknown platform; assume gateway-locked.';
 end;
+
+initialization
+  GFordPlatforms := TDictionary<string, TFordPlatformInfo>.Create;
+  LoadFordCatalog;
+
+finalization
+  GFordPlatforms.Free;
 
 end.
