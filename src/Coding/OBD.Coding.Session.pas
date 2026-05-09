@@ -69,6 +69,7 @@ type
     FAutoExecute: Boolean;
     FRollbackOnFail: Boolean;
     FVerifyAfterWrite: Boolean;
+    FDryRun: Boolean;
     FAuditLog: TOBDCodingAuditLog;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
@@ -132,6 +133,12 @@ type
     /// <c>True</c>.</summary>
     property VerifyAfterWrite: Boolean read FVerifyAfterWrite
       write FVerifyAfterWrite default True;
+    /// <summary>Dry-run mode. When <c>True</c>, the session
+    /// snapshots, emits the audit-log trail with each entry's
+    /// <c>kind</c> set to the appropriate stage, but does NOT
+    /// touch the wire for write / verify / rollback. Useful for
+    /// "review before commit" UIs. Default <c>False</c>.</summary>
+    property DryRun: Boolean read FDryRun write FDryRun default False;
 
     property OnStepWritten: TOBDCodingStepEvent read FOnStepWritten
       write FOnStepWritten;
@@ -230,10 +237,20 @@ end;
 
 procedure TOBDCodingSession.WriteStep(var AStep: TOBDCodingStep;
   AIO: TOBDDataIdentifierIO);
+var
+  Note: string;
 begin
-  AIO.Write(AStep.DID, AStep.NewValue);
+  if FDryRun then
+  begin
+    Note := 'dry-run';
+  end
+  else
+  begin
+    AIO.Write(AStep.DID, AStep.NewValue);
+    Note := '';
+  end;
   WriteAudit(akWrite, Format('0x%4.4X', [AStep.DID]),
-    AStep.OldValue, AStep.NewValue, '');
+    AStep.OldValue, AStep.NewValue, Note);
 end;
 
 procedure TOBDCodingSession.VerifyStep(var AStep: TOBDCodingStep;
@@ -242,6 +259,12 @@ var
   ReadBack: TBytes;
   Diff: TOBDCodingDiffResult;
 begin
+  if FDryRun then
+  begin
+    WriteAudit(akVerify, Format('0x%4.4X', [AStep.DID]),
+      nil, AStep.NewValue, 'dry-run (verify skipped)');
+    Exit;
+  end;
   ReadBack := AIO.ReadOne(AStep.DID);
   Diff := TOBDCodingDiff.Compute(ReadBack, AStep.NewValue);
   if Length(Diff.Changes) <> 0 then
@@ -256,6 +279,12 @@ procedure TOBDCodingSession.RollbackStep(const AStep: TOBDCodingStep;
   AIO: TOBDDataIdentifierIO);
 begin
   if Length(AStep.OldValue) = 0 then Exit;
+  if FDryRun then
+  begin
+    WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]),
+      AStep.NewValue, AStep.OldValue, 'dry-run (no wire access)');
+    Exit;
+  end;
   AIO.Write(AStep.DID, AStep.OldValue);
   WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]),
     AStep.NewValue, AStep.OldValue, 'restored');

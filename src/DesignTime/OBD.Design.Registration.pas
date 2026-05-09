@@ -66,7 +66,10 @@ uses
   OBD.KWP.WriteID,
   OBD.Coding.AuditLog,
   OBD.Coding.Session,
-  OBD.OEM.ComponentProtection.VAG;
+  OBD.OEM.ComponentProtection.VAG,
+  OBD.OEM.ComponentProtection.BMW,
+  OBD.OEM.ComponentProtection.Mercedes,
+  OBD.OEM.ComponentProtection.Stellantis;
 
 procedure Register;
 begin
@@ -119,7 +122,10 @@ begin
     TOBDKWPWriteID,
     TOBDCodingAuditLog,
     TOBDCodingSession,
-    TOBDComponentProtectionVAG
+    TOBDComponentProtectionVAG,
+    TOBDComponentProtectionBMW,
+    TOBDComponentProtectionMercedes,
+    TOBDComponentProtectionStellantis
   ]);
 end;
 

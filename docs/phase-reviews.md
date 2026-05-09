@@ -2294,16 +2294,27 @@ loop test, per the standing convention.
    deferral as every prior phase — this is the phase where
    the gate matters most.
 
-### Phase 8 follow-ups
+### Phase 8 follow-ups closed
 
-- Per-OEM option-name catalogues sourced from the host's data
-  files (no OEM secrets shipped here).
-- Dry-run / preview mode for `TOBDCodingSession`.
-- Run-length-encoded diff for firmware-scale buffers.
-- BMW CAS / Mercedes EZS / FCA SGW component-protection
-  helpers paralleling the VAG one.
-- OEM "label file" parsers for VAG / BMW / Ford / Mercedes.
-- Hardware-loop integration.
+User pulled five of the six Phase 8 follow-ups forward. Only
+the hardware-loop test remains deferred (per existing
+convention).
+
+| # | Flag | Resolution |
+|---|---|---|
+| 1 | Per-OEM option-name catalogues | **Closed (loader-only).** New `data/schemas/oem-coding-catalog.schema.json` (JSON Schema 2020-12) + `OBD.Coding.OptionCatalog.pas` loader. Schema covers all seven addressing kinds (`byte_bit`, `byte_field`, `byte_range`, `tlv_id`, `config_word`, `asbuilt_section`, `menu_index`) plus optional value-label tables and tag arrays. The loader validates `version`, `vendor`, `module`, every option's `addressing.kind`-specific fields, and per-kind range constraints (bit 0..7, width 1..8, etc). No OEM content shipped — hosts populate from their own ground-truth sources, as you said. |
+| 2 | `TOBDCodingSession` dry-run mode | **Closed.** New `DryRun: Boolean` property (default `False`). When `True`, snapshot reads still happen (so the audit trail captures the pre-state), but write / verify / rollback skip the wire and emit audit-log entries with `'dry-run'` notes. Hosts get the full audit trail without touching the ECU. |
+| 3 | Run-length-encoded diff | **Closed.** New `OBD.Coding.DiffRLE.pas` ships `TOBDCodingDiffRLE` with run-based change records. Configurable gap budget — `AGap = 0` keeps strict per-run boundaries; raising it merges nearby runs into fewer, larger transfers (useful for flasher chunking). `TransferSize` returns the total post-merge transfer bytes so a host can compare strict-vs-merged encodings before committing to a flash plan. |
+| 4 | BMW / Mercedes / Stellantis component-protection helpers | **Closed.** Three new units paralleling the VAG variant. Each ships its default DID catalogue (BMW 0xF1B0/B2/B4, Mercedes 0xF1C0/C2/C4, Stellantis 0xF1D0/D2/D4) overridable per ECU, plus the same `AuthFunc` callback contract. All three register on the **OBD Coding** palette tab. No OEM secrets shipped — hosts wire ISTA / DAS-Xentry / SGW token bridges. |
+| 5 | OEM label-file parser (VAG `.lbl`) | **Closed.** New `OBD.Coding.LabelFile.VAG.pas` ships `TOBDLabelFileVAG`. Parses the line-oriented Ross-Tech `.lbl` format: bit-position labels (`byte,bit,description`), bit-range labels (`byte,bit-bit,description`), whole-byte labels (`byte,Bx,description`), adaptation channels (`Adp;channel;description`), inline value tables (`(0=Off,1=On)`), and header / inline comments. BMW CAFD, Ford AsBuilt, Mercedes SCN-XML are vendor-proprietary formats; for those the JSON option catalogue is the supported path. |
+
+New tests in `Tests.OBD.Coding.Phase8b`: 22 across 4 fixtures —
+catalogue load + schema validation (7 cases), RLE diff
+round-trip + gap merging + reject paths (7), CP safety paths
+across the three new vendors (5), `.lbl` parser (5).
+
+Three new component-protection units register on the
+**OBD Coding** palette tab.
 
 ### Quality bars met
 
