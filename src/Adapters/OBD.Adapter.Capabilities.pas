@@ -20,7 +20,9 @@ uses
 // TYPES
 //------------------------------------------------------------------------------
 type
-  /// <summary>One capability bit. Stable enum values; never renumber.</summary>
+  /// <summary>
+  ///   One capability bit. Stable enum values; never renumber.
+  /// </summary>
   TOBDAdapterCapability = (
     acCAN              = 0,
     acCANFD            = 1,   // CAN-FD (ISO 11898-1:2015)
@@ -42,36 +44,52 @@ type
 
   TOBDAdapterCapabilities = record
     AdapterKey: string;       // e.g. 'elm327', 'obdlink_ex', 'doip_gateway'
-    /// <summary>Display name.</summary>
+    /// <summary>
+    ///   Display name.
+    /// </summary>
     DisplayName: string;
-    /// <summary>Cap set.</summary>
+    /// <summary>
+    ///   Cap set.
+    /// </summary>
     CapSet: TOBDAdapterCapabilitySet;
-    /// <summary>Maximum ISO-TP frame body length in bytes. 7 for CAN
-    /// classic single-frame; 62 for CAN-FD 64-byte single-frame.</summary>
+    /// <summary>
+    ///   Maximum ISO-TP frame body length in bytes. 7 for CAN
+    ///   classic single-frame; 62 for CAN-FD 64-byte single-frame.
+    /// </summary>
     MaxIsoTpFrameBytes: Integer;
   end;
 
-/// <summary>Render a capability set as a comma-separated list, useful
-/// for log lines and UI display.</summary>
+/// <summary>
+///   Render a capability set as a comma-separated list, useful
+///   for log lines and UI display.
+/// </summary>
 function CapabilitySetToString(const S: TOBDAdapterCapabilitySet): string;
 
-/// <summary>Register or replace an adapter's capabilities. Idempotent
-/// on the same key.</summary>
+/// <summary>
+///   Register or replace an adapter's capabilities. Idempotent
+///   on the same key.
+/// </summary>
 procedure RegisterAdapterCapabilities(const Caps: TOBDAdapterCapabilities);
 
-/// <summary>Look up an adapter's capabilities by key. Returns False if
-/// the adapter hasn't registered.</summary>
+/// <summary>
+///   Look up an adapter's capabilities by key. Returns False if
+///   the adapter hasn't registered.
+/// </summary>
 function FindAdapterCapabilities(const AdapterKey: string;
   out Caps: TOBDAdapterCapabilities): Boolean;
 
-/// <summary>Convenience: True iff the adapter is registered and the
-/// capability is set.</summary>
+/// <summary>
+///   Convenience: True iff the adapter is registered and the
+///   capability is set.
+/// </summary>
 function AdapterSupports(const AdapterKey: string;
   Capability: TOBDAdapterCapability): Boolean;
 
-/// <summary>Pick the best ISO-TP single-frame size for the resolved
-/// adapter. Returns 7 for CAN-classic (or unknown), 62 for CAN-FD
-/// when acISOTPLargeFrame is set.</summary>
+/// <summary>
+///   Pick the best ISO-TP single-frame size for the resolved
+///   adapter. Returns 7 for CAN-classic (or unknown), 62 for CAN-FD
+///   when acISOTPLargeFrame is set.
+/// </summary>
 function ResolveIsoTpFrameBytes(const AdapterKey: string): Integer;
 
 //------------------------------------------------------------------------------
@@ -187,7 +205,8 @@ end;
 // CAPABILITY FROM STRING
 //------------------------------------------------------------------------------
 function CapabilityFromString(const S: string; out C: TOBDAdapterCapability): Boolean;
-var I: TOBDAdapterCapability;
+var
+  I: TOBDAdapterCapability;
 begin
   // Loop over TOBDAdapterCapability
   for I := Low(TOBDAdapterCapability) to High(TOBDAdapterCapability) do

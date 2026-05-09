@@ -22,62 +22,98 @@ uses
 type
   EOBDMode06 = class(Exception);
 
-  /// <summary>One Mode 06 test record. ISO 15031-5 §6.5.1.</summary>
+  /// <summary>
+  ///   One Mode 06 test record. ISO 15031-5 §6.5.1.
+  /// </summary>
   TOBDMode06TestRecord = record
     OBDMID: Byte;          // On-Board Diagnostic Monitor ID
     TestId: Byte;          // What was measured (TID)
     UnitsAndScalingId: Byte;  // How to interpret the value (UCSID)
-    /// <summary>Test value.</summary>
+    /// <summary>
+    ///   Test value.
+    /// </summary>
     TestValue: Word;
-    /// <summary>Min limit.</summary>
+    /// <summary>
+    ///   Min limit.
+    /// </summary>
     MinLimit: Word;
-    /// <summary>Max limit.</summary>
+    /// <summary>
+    ///   Max limit.
+    /// </summary>
     MaxLimit: Word;
-    /// <summary>Passed test.</summary>
+    /// <summary>
+    ///   Passed test.
+    /// </summary>
     function PassedTest: Boolean;  // Min <= TestValue <= Max
-    /// <summary>Scale factor.</summary>
+    /// <summary>
+    ///   Scale factor.
+    /// </summary>
     function ScaleFactor: Single;  // multiplier from UCSID
-    /// <summary>Unit name.</summary>
+    /// <summary>
+    ///   Unit name.
+    /// </summary>
     function UnitName: string;     // 'V', 'mA', '%', etc.
   end;
 
   TOBDMode06Response = record
-    /// <summary>Obdmid.</summary>
+    /// <summary>
+    ///   Obdmid.
+    /// </summary>
     OBDMID: Byte;
-    /// <summary>Records.</summary>
+    /// <summary>
+    ///   Records.
+    /// </summary>
     Records: TArray<TOBDMode06TestRecord>;
   end;
 
   TOBDMode06UnitInfo = record
-    /// <summary>Ucsid.</summary>
+    /// <summary>
+    ///   Ucsid.
+    /// </summary>
     UCSID: Byte;
-    /// <summary>Scale.</summary>
+    /// <summary>
+    ///   Scale.
+    /// </summary>
     Scale: Single;
-    /// <summary>Unit name.</summary>
+    /// <summary>
+    ///   Unit name.
+    /// </summary>
     UnitName: string;
-    /// <summary>Description.</summary>
+    /// <summary>
+    ///   Description.
+    /// </summary>
     Description: string;
   end;
 
-/// <summary>Build the Mode 06 request: 46 OBDMID.</summary>
+/// <summary>
+///   Build the Mode 06 request: 46 OBDMID.
+/// </summary>
 function BuildMode06Request(OBDMID: Byte): TBytes;
 
-/// <summary>Decode a Mode 06 response into one or more test records.
-/// Each record is 9 bytes: TID UCSID Value-MSB Value-LSB Min-MSB
-/// Min-LSB Max-MSB Max-LSB. Caller-side note: the leading 46 +
-/// OBDMID echo (2 bytes) must be present.</summary>
+/// <summary>
+///   Decode a Mode 06 response into one or more test records.
+///   Each record is 9 bytes: TID UCSID Value-MSB Value-LSB Min-MSB
+///   Min-LSB Max-MSB Max-LSB. Caller-side note: the leading 46 +
+///   OBDMID echo (2 bytes) must be present.
+/// </summary>
 function ParseMode06Response(const Bytes: TBytes): TOBDMode06Response;
 
-/// <summary>Look up a Unit-and-Scaling-ID. Returns a default
-/// "Unknown UCSID" entry for anything not in the table; never raises.</summary>
+/// <summary>
+///   Look up a Unit-and-Scaling-ID. Returns a default
+///   "Unknown UCSID" entry for anything not in the table; never raises.
+/// </summary>
 function FindMode06Unit(UCSID: Byte): TOBDMode06UnitInfo;
 
-/// <summary>Look up a standardised Test ID (ISO 15031-5 Table B.2).</summary>
+/// <summary>
+///   Look up a standardised Test ID (ISO 15031-5 Table B.2).
+/// </summary>
 function FindMode06TestIdName(TID: Byte): string;
 
-/// <summary>Look up a standardised Component ID / OBDMID for the
-/// well-known monitors (catalyst bank 1/2, EGR, EVAP, O2 sensors,
-/// etc.) per Table B.4.</summary>
+/// <summary>
+///   Look up a standardised Component ID / OBDMID for the
+///   well-known monitors (catalyst bank 1/2, EGR, EVAP, O2 sensors,
+///   etc.) per Table B.4.
+/// </summary>
 function FindMode06OBDMIDName(OBDMID: Byte): string;
 
 //------------------------------------------------------------------------------
@@ -105,7 +141,8 @@ var
 // PARSE HEX BYTE OR ZERO
 //------------------------------------------------------------------------------
 function ParseHexByteOrZero(const S: string): Integer;
-var T: string;
+var
+  T: string;
 begin
   T := S;
   if T.StartsWith('0x', True) then T := '$' + T.Substring(2);

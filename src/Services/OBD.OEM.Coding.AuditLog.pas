@@ -24,29 +24,47 @@ type
   EOBDCodingAuditLog = class(Exception);
 
   TOBDCodingAuditRecord = record
-    /// <summary>Timestamp.</summary>
+    /// <summary>
+    ///   Timestamp.
+    /// </summary>
     Timestamp: TDateTime;
-    /// <summary>Vin.</summary>
+    /// <summary>
+    ///   Vin.
+    /// </summary>
     VIN: string;
-    /// <summary>Ecu.</summary>
+    /// <summary>
+    ///   Ecu.
+    /// </summary>
     ECU: string;
-    /// <summary>Block.</summary>
+    /// <summary>
+    ///   Block.
+    /// </summary>
     Block: string;
     BeforeHex: string;     // hex-encoded current bytes
     AfterHex: string;      // hex-encoded target bytes
-    /// <summary>Operator.</summary>
+    /// <summary>
+    ///   Operator.
+    /// </summary>
     Operator: string;
-    /// <summary>Reason.</summary>
+    /// <summary>
+    ///   Reason.
+    /// </summary>
     Reason: string;
   end;
 
   TOBDCodingAuditChainResult = record
-    /// <summary>Total records.</summary>
+    /// <summary>
+    ///   Total records.
+    /// </summary>
     TotalRecords: Integer;
-    /// <summary>Verified.</summary>
+    /// <summary>
+    ///   Verified.
+    /// </summary>
     Verified: Boolean;
     FirstTamperLine: Integer;   // 1-based; 0 if Verified
-    /// <summary>Reason.</summary>
+    /// <summary>
+    ///   Reason.
+    /// </summary>
     Reason: string;
   end;
 
@@ -56,33 +74,55 @@ type
     FKey: TBytes;
     FPrevHmac: TBytes;
     FInitialised: Boolean;
-    /// <summary>Ensure initialised.</summary>
+    /// <summary>
+    ///   Ensure initialised.
+    /// </summary>
     procedure EnsureInitialised;
-    /// <summary>Canonical body.</summary>
+    /// <summary>
+    ///   Canonical body.
+    /// </summary>
     function CanonicalBody(const Rec: TOBDCodingAuditRecord): string;
-    /// <summary>Compute hmac.</summary>
+    /// <summary>
+    ///   Compute hmac.
+    /// </summary>
     function ComputeHmac(const Prev: TBytes; const Body: string): TBytes;
-    /// <summary>Hex encode.</summary>
+    /// <summary>
+    ///   Hex encode.
+    /// </summary>
     function HexEncode(const Bytes: TBytes): string;
-    /// <summary>Hex decode.</summary>
+    /// <summary>
+    ///   Hex decode.
+    /// </summary>
     function HexDecode(const S: string): TBytes;
-    /// <summary>Load last hmac.</summary>
+    /// <summary>
+    ///   Load last hmac.
+    /// </summary>
     function LoadLastHmac: TBytes;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const APath: string; const AKey: TBytes);
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Append a record. The HMAC binds it to the previous
-    /// record's HMAC, forming a chain.</summary>
+    /// <summary>
+    ///   Append a record. The HMAC binds it to the previous
+    ///   record's HMAC, forming a chain.
+    /// </summary>
     procedure Append(const Rec: TOBDCodingAuditRecord);
 
-    /// <summary>Walk the file from the start; returns success only when
-    /// every record's HMAC matches the recomputed value.</summary>
+    /// <summary>
+    ///   Walk the file from the start; returns success only when
+    ///   every record's HMAC matches the recomputed value.
+    /// </summary>
     function Verify: TOBDCodingAuditChainResult;
 
-    /// <summary>Path.</summary>
+    /// <summary>
+    ///   Path.
+    /// </summary>
     property Path: string read FPath;
   end;
 

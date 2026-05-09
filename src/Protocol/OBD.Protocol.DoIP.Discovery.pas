@@ -45,23 +45,35 @@ const
 type
   EOBDDoIPDiscovery = class(Exception);
 
-  /// <summary>One DoIP frame as carried over UDP. Header (8 bytes) +
-  /// payload bytes. Build via the helper functions; parse via
-  /// ParseDoIPHeader / ParseVehicleAnnouncement.</summary>
+  /// <summary>
+  ///   One DoIP frame as carried over UDP. Header (8 bytes) +
+  ///   payload bytes. Build via the helper functions; parse via
+  ///   ParseDoIPHeader / ParseVehicleAnnouncement.
+  /// </summary>
   TDoIPFrame = record
-    /// <summary>Protocol version.</summary>
+    /// <summary>
+    ///   Protocol version.
+    /// </summary>
     ProtocolVersion: Byte;
-    /// <summary>Inverse protocol version.</summary>
+    /// <summary>
+    ///   Inverse protocol version.
+    /// </summary>
     InverseProtocolVersion: Byte;
-    /// <summary>Payload type.</summary>
+    /// <summary>
+    ///   Payload type.
+    /// </summary>
     PayloadType: Word;
-    /// <summary>Payload.</summary>
+    /// <summary>
+    ///   Payload.
+    /// </summary>
     Payload: TBytes;
   end;
 
-  /// <summary>Decoded Vehicle Announcement / Identification Response
-  /// payload (ISO 13400-2 §5.5.1). All multi-byte fields are big-
-  /// endian on the wire; we expose them in host order.</summary>
+  /// <summary>
+  ///   Decoded Vehicle Announcement / Identification Response
+  ///   payload (ISO 13400-2 §5.5.1). All multi-byte fields are big-
+  ///   endian on the wire; we expose them in host order.
+  /// </summary>
   TDoIPVehicleAnnouncement = record
     VIN: string;                   // 17 ASCII characters
     LogicalAddress: Word;          // 2 bytes
@@ -72,41 +84,57 @@ type
     HasSyncStatus: Boolean;        // true when payload included it
   end;
 
-/// <summary>Build a DoIP UDP frame: 4-byte header + 4-byte payload-
-/// length + payload. The protocol version byte is followed by its
-/// bitwise NOT for header validation.</summary>
+/// <summary>
+///   Build a DoIP UDP frame: 4-byte header + 4-byte payload-
+///   length + payload. The protocol version byte is followed by its
+///   bitwise NOT for header validation.
+/// </summary>
 function BuildDoIPFrame(PayloadType: Word; const Payload: TBytes;
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>Builder shortcut for a Vehicle Identification Request
-/// (no EID / no VIN). The payload is empty.</summary>
+/// <summary>
+///   Builder shortcut for a Vehicle Identification Request
+///   (no EID / no VIN). The payload is empty.
+/// </summary>
 function BuildVehicleIdentRequest(
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>Builder shortcut for VIN-targeted discovery.</summary>
+/// <summary>
+///   Builder shortcut for VIN-targeted discovery.
+/// </summary>
 function BuildVehicleIdentRequestVIN(const VIN: string;
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>Builder shortcut for EID-targeted discovery (6 bytes).</summary>
+/// <summary>
+///   Builder shortcut for EID-targeted discovery (6 bytes).
+/// </summary>
 function BuildVehicleIdentRequestEID(const EID: TBytes;
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>AliveCheck request (empty payload).</summary>
+/// <summary>
+///   AliveCheck request (empty payload).
+/// </summary>
 function BuildAliveCheckRequest(
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>AliveCheck response — payload carries the gateway's
-/// 2-byte logical source address.</summary>
+/// <summary>
+///   AliveCheck response — payload carries the gateway's
+///   2-byte logical source address.
+/// </summary>
 function BuildAliveCheckResponse(SourceAddress: Word;
   ProtocolVersion: Byte = DOIP_PROTOCOL_VERSION_2019): TBytes;
 
-/// <summary>Parse the 8-byte DoIP header. Verifies the
-/// protocol-version / inverse pairing and the declared payload-length.
-/// Raises EOBDDoIPDiscovery on malformed input.</summary>
+/// <summary>
+///   Parse the 8-byte DoIP header. Verifies the
+///   protocol-version / inverse pairing and the declared payload-length.
+///   Raises EOBDDoIPDiscovery on malformed input.
+/// </summary>
 function ParseDoIPHeader(const Bytes: TBytes): TDoIPFrame;
 
-/// <summary>Parse a Vehicle Announcement / Identification Response
-/// payload (ISO 13400-2 §5.5.1).</summary>
+/// <summary>
+///   Parse a Vehicle Announcement / Identification Response
+///   payload (ISO 13400-2 §5.5.1).
+/// </summary>
 function ParseVehicleAnnouncement(const Frame: TDoIPFrame):
   TDoIPVehicleAnnouncement;
 

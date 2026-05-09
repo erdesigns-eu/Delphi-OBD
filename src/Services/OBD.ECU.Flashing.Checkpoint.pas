@@ -25,24 +25,38 @@ type
 
   TOBDFlashCheckpointState = record
     Sha256: string;             // hex of firmware SHA-256 at checkpoint create
-    /// <summary>Block size.</summary>
+    /// <summary>
+    ///   Block size.
+    /// </summary>
     BlockSize: Integer;
-    /// <summary>Total blocks.</summary>
+    /// <summary>
+    ///   Total blocks.
+    /// </summary>
     TotalBlocks: Integer;
     LastCompletedBlock: Integer;  // -1 = nothing completed
-    /// <summary>Snapshot path.</summary>
+    /// <summary>
+    ///   Snapshot path.
+    /// </summary>
     SnapshotPath: string;
-    /// <summary>Updated at utc.</summary>
+    /// <summary>
+    ///   Updated at utc.
+    /// </summary>
     UpdatedAtUtc: TDateTime;
   end;
 
   TOBDFlashCheckpointVerifyResult = record
-    /// <summary>Resumable.</summary>
+    /// <summary>
+    ///   Resumable.
+    /// </summary>
     Resumable: Boolean;
     NextBlock: Integer;          // next block to write (= LastCompletedBlock + 1)
-    /// <summary>State.</summary>
+    /// <summary>
+    ///   State.
+    /// </summary>
     State: TOBDFlashCheckpointState;
-    /// <summary>Reason.</summary>
+    /// <summary>
+    ///   Reason.
+    /// </summary>
     Reason: string;
   end;
 
@@ -50,36 +64,52 @@ type
   private
     FSidecarPath: string;
     FState: TOBDFlashCheckpointState;
-    /// <summary>Save.</summary>
+    /// <summary>
+    ///   Save.
+    /// </summary>
     procedure Save;
   public
-    /// <summary>Compute the SHA-256 hex digest of <c>FirmwarePath</c>.
-    /// Used both at create time (recorded into the sidecar) and at
-    /// resume time (compared against the sidecar to detect a swapped
-    /// firmware).</summary>
+    /// <summary>
+    ///   Compute the SHA-256 hex digest of <c>FirmwarePath</c>.
+    ///   Used both at create time (recorded into the sidecar) and at
+    ///   resume time (compared against the sidecar to detect a swapped
+    ///   firmware).
+    /// </summary>
     class function Sha256OfFile(const FirmwarePath: string): string;
 
-    /// <summary>Create a fresh checkpoint and persist it.</summary>
+    /// <summary>
+    ///   Create a fresh checkpoint and persist it.
+    /// </summary>
     class function Initialise(const ASidecarPath, AFirmwarePath: string;
       ABlockSize, ATotalBlocks: Integer;
       const ASnapshotPath: string): TOBDFlashCheckpoint;
 
-    /// <summary>Load an existing sidecar and check it matches the firmware.
-    /// On mismatch <c>Resumable</c> is False and <c>Reason</c> tells you why.</summary>
+    /// <summary>
+    ///   Load an existing sidecar and check it matches the firmware.
+    ///   On mismatch <c>Resumable</c> is False and <c>Reason</c> tells you why.
+    /// </summary>
     class function LoadAndVerify(const ASidecarPath, AFirmwarePath: string):
       TOBDFlashCheckpointVerifyResult;
 
-    /// <summary>Mark a block done and persist immediately. Idempotent —
-    /// re-marking a block that's already <= LastCompletedBlock is a
-    /// no-op.</summary>
+    /// <summary>
+    ///   Mark a block done and persist immediately. Idempotent —
+    ///   re-marking a block that's already <= LastCompletedBlock is a
+    ///   no-op.
+    /// </summary>
     procedure MarkBlockComplete(BlockIndex: Integer);
 
-    /// <summary>Delete the sidecar (call on successful flash completion).</summary>
+    /// <summary>
+    ///   Delete the sidecar (call on successful flash completion).
+    /// </summary>
     procedure Clear;
 
-    /// <summary>State.</summary>
+    /// <summary>
+    ///   State.
+    /// </summary>
     property State: TOBDFlashCheckpointState read FState;
-    /// <summary>Sidecar path.</summary>
+    /// <summary>
+    ///   Sidecar path.
+    /// </summary>
     property SidecarPath: string read FSidecarPath;
   end;
 

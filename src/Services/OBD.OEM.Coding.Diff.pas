@@ -24,53 +24,77 @@ uses
 type
   EOBDCodingDiffError = class(Exception);
 
-  /// <summary>Optional named-field schema. Each entry describes a bit-
-  /// or byte-range in the coding payload so the diff can render
-  /// human-readable field changes ("LongCoding[7].bit3: false -> true:
-  /// CornerLights") rather than just byte indices.</summary>
+  /// <summary>
+  ///   Optional named-field schema. Each entry describes a bit-
+  ///   or byte-range in the coding payload so the diff can render
+  ///   human-readable field changes ("LongCoding[7].bit3: false -> true:
+  ///   CornerLights") rather than just byte indices.
+  /// </summary>
   TOBDCodingFieldKind = (cfkBit, cfkByte, cfkUInt16);
 
   TOBDCodingFieldSchema = record
-    /// <summary>Name.</summary>
+    /// <summary>
+    ///   Name.
+    /// </summary>
     Name: string;
-    /// <summary>Description.</summary>
+    /// <summary>
+    ///   Description.
+    /// </summary>
     Description: string;
-    /// <summary>Kind.</summary>
+    /// <summary>
+    ///   Kind.
+    /// </summary>
     Kind: TOBDCodingFieldKind;
-    /// <summary>Byte index.</summary>
+    /// <summary>
+    ///   Byte index.
+    /// </summary>
     ByteIndex: Integer;
     BitIndex: Integer;       // valid only for cfkBit
   end;
 
   TOBDCodingSchema = TArray<TOBDCodingFieldSchema>;
 
-  /// <summary>One diff entry — either field-level (when Schema supplied)
-  /// or byte-level (no schema).</summary>
+  /// <summary>
+  ///   One diff entry — either field-level (when Schema supplied)
+  ///   or byte-level (no schema).
+  /// </summary>
   TOBDCodingDiffEntry = record
     FieldName: string;       // empty when byte-level
     Description: string;     // empty when byte-level
-    /// <summary>Byte index.</summary>
+    /// <summary>
+    ///   Byte index.
+    /// </summary>
     ByteIndex: Integer;
     BitIndex: Integer;       // -1 for byte/uint16 entries
-    /// <summary>Before value.</summary>
+    /// <summary>
+    ///   Before value.
+    /// </summary>
     BeforeValue: UInt32;
-    /// <summary>After value.</summary>
+    /// <summary>
+    ///   After value.
+    /// </summary>
     AfterValue: UInt32;
-    /// <summary>As text.</summary>
+    /// <summary>
+    ///   As text.
+    /// </summary>
     function AsText: string;
   end;
 
   TOBDCodingDiff = TArray<TOBDCodingDiffEntry>;
 
-  /// <summary>Callback invoked by Plan.Apply when the caller confirms
-  /// the write. Implementations typically wrap the OEM-specific
-  /// WriteDataByIdentifier (UDS 0x2E) call. Raise on failure; the plan
-  /// catches and reports through Last write outcome.</summary>
+  /// <summary>
+  ///   Callback invoked by Plan.Apply when the caller confirms
+  ///   the write. Implementations typically wrap the OEM-specific
+  ///   WriteDataByIdentifier (UDS 0x2E) call. Raise on failure; the plan
+  ///   catches and reports through Last write outcome.
+  /// </summary>
   TOBDCodingWriter = reference to procedure(const Bytes: TBytes);
 
-  /// <summary>Holds a snapshot pair + diff. Apply is a no-op unless the
-  /// caller passes Confirmed=True, encoding the human in the loop into
-  /// the type signature.</summary>
+  /// <summary>
+  ///   Holds a snapshot pair + diff. Apply is a no-op unless the
+  ///   caller passes Confirmed=True, encoding the human in the loop into
+  ///   the type signature.
+  /// </summary>
   TOBDCodingPlan = class
   private
     FCurrent: TBytes;
@@ -78,29 +102,49 @@ type
     FSchema: TOBDCodingSchema;
     FDiff: TOBDCodingDiff;
     FApplied: Boolean;
-    /// <summary>Compute diff.</summary>
+    /// <summary>
+    ///   Compute diff.
+    /// </summary>
     procedure ComputeDiff;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const Current, Target: TBytes;
       const Schema: TOBDCodingSchema = nil);
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Is no op.</summary>
+    /// <summary>
+    ///   Is no op.
+    /// </summary>
     function IsNoOp: Boolean;
-    /// <summary>As text.</summary>
+    /// <summary>
+    ///   As text.
+    /// </summary>
     function AsText: string;
-    /// <summary>Apply.</summary>
+    /// <summary>
+    ///   Apply.
+    /// </summary>
     procedure Apply(Confirmed: Boolean; const Writer: TOBDCodingWriter);
 
-    /// <summary>Current.</summary>
+    /// <summary>
+    ///   Current.
+    /// </summary>
     property Current: TBytes read FCurrent;
-    /// <summary>Target.</summary>
+    /// <summary>
+    ///   Target.
+    /// </summary>
     property Target: TBytes read FTarget;
-    /// <summary>Diff.</summary>
+    /// <summary>
+    ///   Diff.
+    /// </summary>
     property Diff: TOBDCodingDiff read FDiff;
-    /// <summary>Applied.</summary>
+    /// <summary>
+    ///   Applied.
+    /// </summary>
     property Applied: Boolean read FApplied;
   end;
 

@@ -22,25 +22,37 @@ uses
 type
   EOBDWWHOBD = class(Exception);
 
-  /// <summary>One DTC packed in J1939-FMI form (4 bytes).</summary>
+  /// <summary>
+  ///   One DTC packed in J1939-FMI form (4 bytes).
+  /// </summary>
   TWWHDtc = record
     SPN: UInt32;             // 0..524287 (19-bit field)
     FMI: Byte;               // 0..31 (5-bit field)
     OccurrenceCount: Byte;   // 0..127
     ConversionMethod: Byte;  // 0 = J1939-73 §5.7.1, 1 = §5.7.2
-    /// <summary>As string.</summary>
+    /// <summary>
+    ///   As string.
+    /// </summary>
     function AsString: string;  // 'SPN 4794, FMI 4 (CM=0, OC=12)'
   end;
 
-  /// <summary>Standard WWH-OBD DIDs from ISO 27145-3 + UN GTR No.5
-  /// Annex A. The values are spec-stable; the host fetches them via
-  /// UDS 0x22 ReadDataByIdentifier.</summary>
+  /// <summary>
+  ///   Standard WWH-OBD DIDs from ISO 27145-3 + UN GTR No.5
+  ///   Annex A. The values are spec-stable; the host fetches them via
+  ///   UDS 0x22 ReadDataByIdentifier.
+  /// </summary>
   TWWHOBDDataIdentifier = record
-    /// <summary>Did.</summary>
+    /// <summary>
+    ///   Did.
+    /// </summary>
     DID: Word;
-    /// <summary>Name.</summary>
+    /// <summary>
+    ///   Name.
+    /// </summary>
     Name: string;
-    /// <summary>Description.</summary>
+    /// <summary>
+    ///   Description.
+    /// </summary>
     Description: string;
   end;
 
@@ -73,19 +85,27 @@ const
   WWHOBD_DID_TIME_SINCE_DTC_CLEAR      = $FD0D;
   WWHOBD_DID_NUMBER_OF_WARMUPS         = $FD0E;
 
-/// <summary>Pack a TWWHDtc into 4 wire bytes per ISO 15031-5 §7.</summary>
+/// <summary>
+///   Pack a TWWHDtc into 4 wire bytes per ISO 15031-5 §7.
+/// </summary>
 function PackWWHDtc(const Dtc: TWWHDtc): TBytes;
 
-/// <summary>Unpack 4 wire bytes back into a TWWHDtc. Raises on bad
-/// length or out-of-range fields.</summary>
+/// <summary>
+///   Unpack 4 wire bytes back into a TWWHDtc. Raises on bad
+///   length or out-of-range fields.
+/// </summary>
 function UnpackWWHDtc(const Bytes: TBytes): TWWHDtc;
 
-/// <summary>Convenience: parse a stream of N x 4 DTC blobs.</summary>
+/// <summary>
+///   Convenience: parse a stream of N x 4 DTC blobs.
+/// </summary>
 function UnpackWWHDtcStream(const Bytes: TBytes): TArray<TWWHDtc>;
 
-/// <summary>Look up the human-readable name + description for one of
-/// the WWH-OBD DIDs above. Falls back to a synthetic 'DID 0xXXXX'
-/// for unknown ids; never raises.</summary>
+/// <summary>
+///   Look up the human-readable name + description for one of
+///   the WWH-OBD DIDs above. Falls back to a synthetic 'DID 0xXXXX'
+///   for unknown ids; never raises.
+/// </summary>
 function FindWWHOBDDataIdentifier(DID: Word): TWWHOBDDataIdentifier;
 
 //------------------------------------------------------------------------------

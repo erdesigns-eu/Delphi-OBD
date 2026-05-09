@@ -22,18 +22,24 @@ uses
 type
   EOBDTachoWorkshop = class(Exception);
 
-  /// <summary>UTC time set/sync record. The VU clock is monotonic
-  /// during sealed operation; only a workshop card can step it.</summary>
+  /// <summary>
+  ///   UTC time set/sync record. The VU clock is monotonic
+  ///   during sealed operation; only a workshop card can step it.
+  /// </summary>
   TTachoUTCSync = record
-    /// <summary>Seconds since 1970-01-01 00:00:00 UTC, big-endian
-    /// uint32 on the wire (Annex 1C TimeReal).</summary>
+    /// <summary>
+    ///   Seconds since 1970-01-01 00:00:00 UTC, big-endian
+    ///   uint32 on the wire (Annex 1C TimeReal).
+    /// </summary>
     UTCTimestamp: UInt32;
     WorkshopCardId: TBytes;   // 16 bytes — extracted from the card cert
   end;
 
-  /// <summary>Speed-source coefficients. K is the canonical figure
-  /// the workshop technician adjusts; L and W are derived from the
-  /// vehicle's drivetrain.</summary>
+  /// <summary>
+  ///   Speed-source coefficients. K is the canonical figure
+  ///   the workshop technician adjusts; L and W are derived from the
+  ///   vehicle's drivetrain.
+  /// </summary>
   TTachoKLWFactors = record
     K: UInt16;   // pulses/km — VU input scaling, 4000..25000 typical
     L: UInt16;   // tyre circumference in mm/rev * 100 (e.g. 200000 = 2000 mm)
@@ -41,7 +47,9 @@ type
   end;
 
   TTachoTyreSize = record
-    /// <summary>Tyre rolling circumference in millimetres.</summary>
+    /// <summary>
+    ///   Tyre rolling circumference in millimetres.
+    /// </summary>
     CircumferenceMm: UInt16;
   end;
 
@@ -55,7 +63,9 @@ type
   end;
 
   TTachoSpeedSource = record
-    /// <summary>Pulses per revolution.</summary>
+    /// <summary>
+    ///   Pulses per revolution.
+    /// </summary>
     PulsesPerRevolution: UInt16;
   end;
 
@@ -65,36 +75,52 @@ type
     PostSealNote: string;        // optional free-form notes
   end;
 
-/// <summary>Encode UTCSync to the wire form: 4 bytes (timestamp BE)
-/// followed by 16 bytes (workshop card id).</summary>
+/// <summary>
+///   Encode UTCSync to the wire form: 4 bytes (timestamp BE)
+///   followed by 16 bytes (workshop card id).
+/// </summary>
 function EncodeUTCSync(const Op: TTachoUTCSync): TBytes;
 function DecodeUTCSync(const Bytes: TBytes): TTachoUTCSync;
 
-/// <summary>Encode K/L/W as 6 bytes, three big-endian uint16 values.</summary>
+/// <summary>
+///   Encode K/L/W as 6 bytes, three big-endian uint16 values.
+/// </summary>
 function EncodeKLW(const Op: TTachoKLWFactors): TBytes;
 function DecodeKLW(const Bytes: TBytes): TTachoKLWFactors;
 
-/// <summary>Encode tyre circumference as 2 BE bytes.</summary>
+/// <summary>
+///   Encode tyre circumference as 2 BE bytes.
+/// </summary>
 function EncodeTyreSize(const Op: TTachoTyreSize): TBytes;
 function DecodeTyreSize(const Bytes: TBytes): TTachoTyreSize;
 
-/// <summary>Encode VIN as 17 ASCII bytes. Validates length.</summary>
+/// <summary>
+///   Encode VIN as 17 ASCII bytes. Validates length.
+/// </summary>
 function EncodeVIN(const Op: TTachoVINUpdate): TBytes;
 function DecodeVIN(const Bytes: TBytes): TTachoVINUpdate;
 
-/// <summary>Encode VRPlate as length-prefixed ASCII + 1 byte symbol.</summary>
+/// <summary>
+///   Encode VRPlate as length-prefixed ASCII + 1 byte symbol.
+/// </summary>
 function EncodeVRPlate(const Op: TTachoVRPlate): TBytes;
 function DecodeVRPlate(const Bytes: TBytes): TTachoVRPlate;
 
-/// <summary>Encode pulses-per-revolution as 2 BE bytes.</summary>
+/// <summary>
+///   Encode pulses-per-revolution as 2 BE bytes.
+/// </summary>
 function EncodeSpeedSource(const Op: TTachoSpeedSource): TBytes;
 
-/// <summary>Encode sealed-state activation: 4 bytes timestamp,
-/// 16 bytes card id, length-prefixed UTF-8 note.</summary>
+/// <summary>
+///   Encode sealed-state activation: 4 bytes timestamp,
+///   16 bytes card id, length-prefixed UTF-8 note.
+/// </summary>
 function EncodeSealedActivation(const Op: TTachoSealedActivation): TBytes;
 
-/// <summary>Convert a Delphi TDateTime to the Annex 1C TimeReal
-/// uint32 (seconds since UNIX epoch).</summary>
+/// <summary>
+///   Convert a Delphi TDateTime to the Annex 1C TimeReal
+///   uint32 (seconds since UNIX epoch).
+/// </summary>
 function DateTimeToTimeReal(const DT: TDateTime): UInt32;
 function TimeRealToDateTime(const T: UInt32): TDateTime;
 
@@ -236,7 +262,8 @@ end;
 // ENCODE VIN
 //------------------------------------------------------------------------------
 function EncodeVIN(const Op: TTachoVINUpdate): TBytes;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Op.VIN) <> 17 then
     raise EOBDTachoWorkshop.CreateFmt(
@@ -250,7 +277,8 @@ end;
 // DECODE VIN
 //------------------------------------------------------------------------------
 function DecodeVIN(const Bytes: TBytes): TTachoVINUpdate;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Bytes) <> 17 then
     raise EOBDTachoWorkshop.Create('VIN expects 17 bytes');

@@ -23,59 +23,87 @@ type
   EOBDProgrammingVoltageTooLow = class(Exception);
   EOBDProgrammingVoltageUnavailable = class(Exception);
 
-  /// <summary>Caller-supplied voltage source. Returns the current pack
-  /// voltage in volts; raise on hardware error. Implementations
-  /// typically forward to TOBDAdapter.GetVoltage.</summary>
+  /// <summary>
+  ///   Caller-supplied voltage source. Returns the current pack
+  ///   voltage in volts; raise on hardware error. Implementations
+  ///   typically forward to TOBDAdapter.GetVoltage.
+  /// </summary>
   TOBDVoltageReader = reference to function: Single;
 
   TOBDVoltageGateConfig = record
-    /// <summary>Minimum acceptable voltage in volts. Default 12.5
-    /// (ISO 22900-2 informative annex).</summary>
+    /// <summary>
+    ///   Minimum acceptable voltage in volts. Default 12.5
+    ///   (ISO 22900-2 informative annex).
+    /// </summary>
     MinimumVolts: Single;
-    /// <summary>Optional per-OEM threshold override. Empty key uses
-    /// MinimumVolts. Lookup is case-insensitive on OEM key.</summary>
+    /// <summary>
+    ///   Optional per-OEM threshold override. Empty key uses
+    ///   MinimumVolts. Lookup is case-insensitive on OEM key.
+    /// </summary>
     PerOEM: TDictionary<string, Single>;
   end;
 
   TOBDVoltageGateResult = record
-    /// <summary>Passed.</summary>
+    /// <summary>
+    ///   Passed.
+    /// </summary>
     Passed: Boolean;
-    /// <summary>Measured volts.</summary>
+    /// <summary>
+    ///   Measured volts.
+    /// </summary>
     MeasuredVolts: Single;
-    /// <summary>Required volts.</summary>
+    /// <summary>
+    ///   Required volts.
+    /// </summary>
     RequiredVolts: Single;
     OEMUsed: string;          // empty if generic
-    /// <summary>Reason.</summary>
+    /// <summary>
+    ///   Reason.
+    /// </summary>
     Reason: string;
   end;
 
   TOBDProgrammingVoltageGate = class
   private
     FConfig: TOBDVoltageGateConfig;
-    /// <summary>Resolve threshold.</summary>
+    /// <summary>
+    ///   Resolve threshold.
+    /// </summary>
     function ResolveThreshold(const OEMKey: string;
       out OEMUsed: string): Single;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create;
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Set the generic minimum threshold (default 12.5 V).</summary>
+    /// <summary>
+    ///   Set the generic minimum threshold (default 12.5 V).
+    /// </summary>
     procedure SetMinimumVolts(V: Single);
 
-    /// <summary>Add or replace a per-OEM threshold (e.g. 'tesla-hv'
-    /// might require 13.0 V because the LV pack must be at the right
-    /// SoC for the contactor sequencer).</summary>
+    /// <summary>
+    ///   Add or replace a per-OEM threshold (e.g. 'tesla-hv'
+    ///   might require 13.0 V because the LV pack must be at the right
+    ///   SoC for the contactor sequencer).
+    /// </summary>
     procedure SetOEMThreshold(const OEMKey: string; V: Single);
 
-    /// <summary>Run the check. Reads the voltage via Reader and
-    /// compares against the resolved threshold.</summary>
+    /// <summary>
+    ///   Run the check. Reads the voltage via Reader and
+    ///   compares against the resolved threshold.
+    /// </summary>
     function Check(const Reader: TOBDVoltageReader;
       const OEMKey: string = ''): TOBDVoltageGateResult;
 
-    /// <summary>Same as Check but raises EOBDProgrammingVoltageTooLow
-    /// on failure instead of returning a result record.</summary>
+    /// <summary>
+    ///   Same as Check but raises EOBDProgrammingVoltageTooLow
+    ///   on failure instead of returning a result record.
+    /// </summary>
     procedure RequirePass(const Reader: TOBDVoltageReader;
       const OEMKey: string = '');
   end;
@@ -84,8 +112,10 @@ type
 // CONSTANTS
 //------------------------------------------------------------------------------
 const
-  /// <summary>Conservative passenger-car minimum from ISO 22900-2
-  /// informative annex.</summary>
+  /// <summary>
+  ///   Conservative passenger-car minimum from ISO 22900-2
+  ///   informative annex.
+  /// </summary>
   DEFAULT_PROGRAMMING_VOLTAGE_MIN: Single = 12.5;
 
 //------------------------------------------------------------------------------

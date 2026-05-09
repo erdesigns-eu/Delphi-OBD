@@ -22,72 +22,116 @@ uses
 type
   EOBDBatteryHealth = class(Exception);
 
-  /// <summary>Cell-imbalance summary computed from the per-cell array.</summary>
+  /// <summary>
+  ///   Cell-imbalance summary computed from the per-cell array.
+  /// </summary>
   TOBDCellImbalance = record
-    /// <summary>Cell count.</summary>
+    /// <summary>
+    ///   Cell count.
+    /// </summary>
     CellCount: Integer;
-    /// <summary>Min voltage.</summary>
+    /// <summary>
+    ///   Min voltage.
+    /// </summary>
     MinVoltage: Single;
-    /// <summary>Max voltage.</summary>
+    /// <summary>
+    ///   Max voltage.
+    /// </summary>
     MaxVoltage: Single;
-    /// <summary>Mean voltage.</summary>
+    /// <summary>
+    ///   Mean voltage.
+    /// </summary>
     MeanVoltage: Single;
     StdDev: Single;          // population standard deviation
     SpreadVolts: Single;     // Max - Min, the workshop-friendly figure
     OutlierIndex: Integer;   // -1 if no cell deviates > 3 sigma; else its index
-    /// <summary>Outlier delta sigma.</summary>
+    /// <summary>
+    ///   Outlier delta sigma.
+    /// </summary>
     OutlierDeltaSigma: Single;
   end;
 
-  /// <summary>State-of-health computed from observed pack capacity vs
-  /// rated capacity. SoHFromCapacity is the canonical form; the other
-  /// fields are intermediate values shown to the workshop UI.</summary>
+  /// <summary>
+  ///   State-of-health computed from observed pack capacity vs
+  ///   rated capacity. SoHFromCapacity is the canonical form; the other
+  ///   fields are intermediate values shown to the workshop UI.
+  /// </summary>
   TOBDBatterySoH = record
-    /// <summary>Rated capacity kwh.</summary>
+    /// <summary>
+    ///   Rated capacity kwh.
+    /// </summary>
     RatedCapacityKwh: Single;
-    /// <summary>Observed capacity kwh.</summary>
+    /// <summary>
+    ///   Observed capacity kwh.
+    /// </summary>
     ObservedCapacityKwh: Single;
     SoHFromCapacity: Single;     // 0..1 (1.0 = brand new)
-    /// <summary>Equivalent full cycles.</summary>
+    /// <summary>
+    ///   Equivalent full cycles.
+    /// </summary>
     EquivalentFullCycles: Integer;
     DeratingFromTemperature: Single; // 0..1 multiplier; 1.0 = no derating
     CompositeSoH: Single;        // SoHFromCapacity * DeratingFromTemperature
   end;
 
-  /// <summary>One charging-session record. The OEM catalog DIDs that
-  /// feed this come in slightly different units across OEMs; the
-  /// caller normalises before constructing.</summary>
+  /// <summary>
+  ///   One charging-session record. The OEM catalog DIDs that
+  ///   feed this come in slightly different units across OEMs; the
+  ///   caller normalises before constructing.
+  /// </summary>
   TOBDChargingSession = record
-    /// <summary>Start so c percent.</summary>
+    /// <summary>
+    ///   Start so c percent.
+    /// </summary>
     StartSoCPercent: Single;
-    /// <summary>End so c percent.</summary>
+    /// <summary>
+    ///   End so c percent.
+    /// </summary>
     EndSoCPercent: Single;
-    /// <summary>Energy delivered kwh.</summary>
+    /// <summary>
+    ///   Energy delivered kwh.
+    /// </summary>
     EnergyDeliveredKwh: Single;
-    /// <summary>Peak power kw.</summary>
+    /// <summary>
+    ///   Peak power kw.
+    /// </summary>
     PeakPowerKw: Single;
-    /// <summary>Average battery temp c.</summary>
+    /// <summary>
+    ///   Average battery temp c.
+    /// </summary>
     AverageBatteryTempC: Single;
-    /// <summary>Duration seconds.</summary>
+    /// <summary>
+    ///   Duration seconds.
+    /// </summary>
     DurationSeconds: Integer;
     SessionType: string;          // 'AC', 'DC', 'V2L', 'V2G', etc.
   end;
 
-/// <summary>Compute imbalance metrics across the per-cell voltage
-/// array (volts). Raises on empty input.</summary>
+/// <summary>
+///   Compute imbalance metrics across the per-cell voltage
+///   array (volts). Raises on empty input.
+/// </summary>
 function ComputeCellImbalance(const CellVolts: array of Single): TOBDCellImbalance;
 
-/// <summary>Compute SoH from a (rated, observed) capacity pair. Both
-/// must be positive. Optional temperature derating multiplier in
-/// 0..1; default 1.0 (no derating).</summary>
+/// <summary>
+///   Compute SoH from a (rated, observed) capacity pair. Both
+///   must be positive. Optional temperature derating multiplier in
+///   0..1; default 1.0 (no derating).
+/// </summary>
 function ComputeBatterySoH(const RatedKwh, ObservedKwh: Single;
-  /// <summary>Equivalent full cycles.</summary>
+  /// <summary>
+  ///   Equivalent full cycles.
+  /// </summary>
   EquivalentFullCycles: Integer = 0;
-  /// <summary>Derating from temperature.</summary>
+  /// <summary>
+  ///   Derating from temperature.
+  /// </summary>
   DeratingFromTemperature: Single = 1.0): TOBDBatterySoH;
 
-/// <summary>Normalise a charging-session record. Validates the
-/// SoC pair (start < end, 0..100) and the duration.</summary>
+/// <summary>
+///   Normalise a charging-session record. Validates the
+///   SoC pair (start < end, 0..100) and the duration.
+/// </summary>
 function NormaliseChargingSession(const Raw: TOBDChargingSession):
   TOBDChargingSession;
 

@@ -35,16 +35,22 @@ type
   end;
 
   TMBSCNCodingRequest = record
-    /// <summary>Vin.</summary>
+    /// <summary>
+    ///   Vin.
+    /// </summary>
     VIN: string;
-    /// <summary>Ecu id.</summary>
+    /// <summary>
+    ///   Ecu id.
+    /// </summary>
     ECUId: Word;
     Variant: TBytes;             // OEM variant code per ECU
     AccessoryList: TBytes;       // OEM accessory bitmap / list
   end;
 
   TMBSCNCodingResponse = record
-    /// <summary>New scn.</summary>
+    /// <summary>
+    ///   New scn.
+    /// </summary>
     NewSCN: TBytes;
     ServerSignature: TBytes;     // server-side signature, opaque
   end;
@@ -53,17 +59,23 @@ type
     ['{0A8F4B2D-8E1C-4D3A-B7E9-1F4C9E8D7A11}']
     function FetchCurrentVersion(const Req: TMBSCNVersionRequest):
       TMBSCNVersionResponse;
-    /// <summary>Request coding.</summary>
+    /// <summary>
+    ///   Request coding.
+    /// </summary>
     function RequestCoding(const Req: TMBSCNCodingRequest):
       TMBSCNCodingResponse;
   end;
 
   TMBSCNSolverNotAvailable = class(TInterfacedObject, IMBSCNSolver)
   public
-    /// <summary>Fetch current version.</summary>
+    /// <summary>
+    ///   Fetch current version.
+    /// </summary>
     function FetchCurrentVersion(const Req: TMBSCNVersionRequest):
       TMBSCNVersionResponse;
-    /// <summary>Request coding.</summary>
+    /// <summary>
+    ///   Request coding.
+    /// </summary>
     function RequestCoding(const Req: TMBSCNCodingRequest):
       TMBSCNCodingResponse;
   end;
@@ -99,7 +111,8 @@ begin
 end;
 
 function EncodeMBSCNVersionRequest(const Req: TMBSCNVersionRequest): TBytes;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Req.VIN) <> 17 then
     raise EOBDMBSCN.CreateFmt('VIN must be 17 chars (got %d)', [Length(Req.VIN)]);
@@ -113,7 +126,8 @@ end;
 // DECODE MBSCNVERSION REQUEST
 //------------------------------------------------------------------------------
 function DecodeMBSCNVersionRequest(const Bytes: TBytes): TMBSCNVersionRequest;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Bytes) <> 19 then
     raise EOBDMBSCN.CreateFmt(
@@ -193,7 +207,8 @@ end;
 // ENCODE MBSCNCODING RESPONSE
 //------------------------------------------------------------------------------
 function EncodeMBSCNCodingResponse(const Resp: TMBSCNCodingResponse): TBytes;
-var Cursor: Integer;
+var
+  Cursor: Integer;
 begin
   if Length(Resp.NewSCN) > $FFFF then
     raise EOBDMBSCN.Create('NewSCN exceeds 65535 bytes');
@@ -217,7 +232,8 @@ end;
 // DECODE MBSCNCODING RESPONSE
 //------------------------------------------------------------------------------
 function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
-var Cursor, Len: Integer;
+var
+  Cursor, Len: Integer;
 begin
   if Length(Bytes) < 4 then
     raise EOBDMBSCN.Create('SCN coding response too short');

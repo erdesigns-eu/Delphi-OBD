@@ -30,29 +30,45 @@ type
   );
 
   TOBDUDSNrcInfo = record
-    /// <summary>Code.</summary>
+    /// <summary>
+    ///   Code.
+    /// </summary>
     Code: Byte;
-    /// <summary>Short name.</summary>
+    /// <summary>
+    ///   Short name.
+    /// </summary>
     ShortName: string;
-    /// <summary>Description.</summary>
+    /// <summary>
+    ///   Description.
+    /// </summary>
     Description: string;
-    /// <summary>Category.</summary>
+    /// <summary>
+    ///   Category.
+    /// </summary>
     Category: TOBDUDSNrcCategory;
   end;
 
-/// <summary>Look up an NRC. Unknown / reserved codes return a record
-/// with category=nrcReserved and a synthetic description; never raises.</summary>
+/// <summary>
+///   Look up an NRC. Unknown / reserved codes return a record
+///   with category=nrcReserved and a synthetic description; never raises.
+/// </summary>
 function DescribeNRC(NRC: Byte): TOBDUDSNrcInfo;
 
-/// <summary>One-line formatter convenient for log lines and exception
-/// messages: "NRC 0x33 (SAD: securityAccessDenied)".</summary>
+/// <summary>
+///   One-line formatter convenient for log lines and exception
+///   messages: "NRC 0x33 (SAD: securityAccessDenied)".
+/// </summary>
 function FormatNRC(NRC: Byte): string;
 
-/// <summary>True if the byte is in a category clients should retry
-/// (busy / repeat-request, conditions-not-correct).</summary>
+/// <summary>
+///   True if the byte is in a category clients should retry
+///   (busy / repeat-request, conditions-not-correct).
+/// </summary>
 function IsTransientNRC(NRC: Byte): Boolean;
 
-/// <summary>Total entries loaded from the catalog (excludes synthetic).</summary>
+/// <summary>
+///   Total entries loaded from the catalog (excludes synthetic).
+/// </summary>
 function NRCCatalogCount: Integer;
 
 //------------------------------------------------------------------------------
@@ -168,7 +184,8 @@ end;
 // FORMAT NRC
 //------------------------------------------------------------------------------
 function FormatNRC(NRC: Byte): string;
-var Info: TOBDUDSNrcInfo;
+var
+  Info: TOBDUDSNrcInfo;
 begin
   Info := DescribeNRC(NRC);
   Result := Format('NRC 0x%.2x (%s: %s)', [NRC, Info.ShortName, Info.Description]);

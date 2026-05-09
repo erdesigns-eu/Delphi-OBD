@@ -22,14 +22,18 @@ uses
 // CONSTANTS — VIN ALPHABETS (spec-defined, not data; never user-editable)
 //------------------------------------------------------------------------------
 const
-  /// <summary>VIN-permitted characters (excludes I, O, Q, plus '0' wraps).</summary>
+  /// <summary>
+  ///   VIN-permitted characters (excludes I, O, Q, plus '0' wraps).
+  /// </summary>
   ALPHABET_CHARS: array[0..32] of Char = (
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7',
     '8', '9', '0'
   );
 
-  /// <summary>VIN year-character cycle (60-year window starting 1980).</summary>
+  /// <summary>
+  ///   VIN year-character cycle (60-year window starting 1980).
+  /// </summary>
   YEAR_CHARS: array[0..59] of Char = (
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R',
     'S', 'T', 'V', 'W', 'X', 'Y', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -41,22 +45,36 @@ const
 // LOOKUP TABLES — populated from JSON catalogs at unit init
 //------------------------------------------------------------------------------
 var
-  /// <summary>VIN region table. Loaded from catalogs/vin-regions.json.</summary>
+  /// <summary>
+  ///   VIN region table. Loaded from catalogs/vin-regions.json.
+  /// </summary>
   VINRegions: TArray<TVINRegion>;
-  /// <summary>VIN country table. Loaded from catalogs/vin-countries.json.</summary>
+  /// <summary>
+  ///   VIN country table. Loaded from catalogs/vin-countries.json.
+  /// </summary>
   VINCountries: TArray<TVINCountry>;
-  /// <summary>WMI-to-manufacturer table. Loaded from catalogs/vin-wmi-manufacturers.json.</summary>
+  /// <summary>
+  ///   WMI-to-manufacturer table. Loaded from catalogs/vin-wmi-manufacturers.json.
+  /// </summary>
   VINManufacturers: TArray<TVINManufacturer>;
 
-  /// <summary>WMI-prefix country lookup, computed from VINCountries +
-  /// ALPHABET_CHARS.</summary>
+  /// <summary>
+  ///   WMI-prefix country lookup, computed from VINCountries +
+  ///   ALPHABET_CHARS.
+  /// </summary>
   VINCountryMap: TDictionary<string, TVINCountry>;
-  /// <summary>3-char WMI manufacturer lookup, computed from VINManufacturers.</summary>
+  /// <summary>
+  ///   3-char WMI manufacturer lookup, computed from VINManufacturers.
+  /// </summary>
   VINManufacturerMap: TDictionary<string, TVINManufacturer>;
-  /// <summary>Year-character to model-year map.</summary>
+  /// <summary>
+  ///   Year-character to model-year map.
+  /// </summary>
   VINYearMap: TArray<TVINYear>;
-  /// <summary>WMI+plant-char to plant location map. Loaded from
-  /// catalogs/vin-plants.json.</summary>
+  /// <summary>
+  ///   WMI+plant-char to plant location map. Loaded from
+  ///   catalogs/vin-plants.json.
+  /// </summary>
   VINPlantLocationMap: TDictionary<string, TVINPlantLocation>;
 
 implementation
@@ -320,7 +338,8 @@ end;
 procedure InitializeYearMap;
 const
   StartYear: Integer = 1980;
-var I: Integer;
+var
+  I: Integer;
 begin
   // Allocate VINYearMap
   SetLength(VINYearMap, Length(YEAR_CHARS));

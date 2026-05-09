@@ -25,7 +25,9 @@ type
 
   TBMWImmoGeneration = (bmwgEWS, bmwgCAS, bmwgFEMBDC);
 
-  /// <summary>EWS key slot — 16 bytes per spec. Slot 0..9.</summary>
+  /// <summary>
+  ///   EWS key slot — 16 bytes per spec. Slot 0..9.
+  /// </summary>
   TBMWKeyDataE = record
     SlotIndex: Byte;        // 0..9
     KeyEnabled: Boolean;    // bit set in status flags
@@ -34,43 +36,65 @@ type
     Reserved: TBytes;       // padding to 16 bytes
   end;
 
-  /// <summary>CAS key slot — 16 bytes per spec. Slot 0..9.</summary>
+  /// <summary>
+  ///   CAS key slot — 16 bytes per spec. Slot 0..9.
+  /// </summary>
   TBMWKeyDataCas = record
-    /// <summary>Slot index.</summary>
+    /// <summary>
+    ///   Slot index.
+    /// </summary>
     SlotIndex: Byte;
-    /// <summary>Key enabled.</summary>
+    /// <summary>
+    ///   Key enabled.
+    /// </summary>
     KeyEnabled: Boolean;
     KeyCutCode: TBytes;     // 4 bytes
     RemoteId: UInt32;       // remote-control identifier
     KMReadingThousands: UInt16; // odometer captured by this key
-    /// <summary>Reserved.</summary>
+    /// <summary>
+    ///   Reserved.
+    /// </summary>
     Reserved: TBytes;
   end;
 
-  /// <summary>FEM-BDC key slot — 32 bytes (F/G-series). Slot 0..7.</summary>
+  /// <summary>
+  ///   FEM-BDC key slot — 32 bytes (F/G-series). Slot 0..7.
+  /// </summary>
   TBMWKeyDataFem = record
-    /// <summary>Slot index.</summary>
+    /// <summary>
+    ///   Slot index.
+    /// </summary>
     SlotIndex: Byte;
-    /// <summary>Key enabled.</summary>
+    /// <summary>
+    ///   Key enabled.
+    /// </summary>
     KeyEnabled: Boolean;
     PersonalSettingsBank: Byte;  // 1..4 (driver profile binding)
     KeyCutCode: TBytes;          // 4 bytes
     DigitalKeySerial: TBytes;    // 7 bytes (CD UWB key id, 0..) or zero
-    /// <summary>Usage counter.</summary>
+    /// <summary>
+    ///   Usage counter.
+    /// </summary>
     UsageCounter: UInt32;
-    /// <summary>Last km reading.</summary>
+    /// <summary>
+    ///   Last km reading.
+    /// </summary>
     LastKMReading: UInt32;
     Reserved: TBytes;            // padding to 32 bytes
   end;
 
-  /// <summary>Pluggable solver for the proprietary parts:
-  /// ISN derivation per ECU and the EWS/CAS challenge-response
-  /// encryption. Production code wires a dealer-portal client here.</summary>
+  /// <summary>
+  ///   Pluggable solver for the proprietary parts:
+  ///   ISN derivation per ECU and the EWS/CAS challenge-response
+  ///   encryption. Production code wires a dealer-portal client here.
+  /// </summary>
   IBMWKeyChallengeSolver = interface
     ['{F2DE8AB1-7DBA-4F1E-A5C0-0F9A2D0D3C50}']
     function ComputeISN(Generation: TBMWImmoGeneration;
       const ECUSerial: TBytes; const VIN: string): TBytes;
-    /// <summary>Solve challenge.</summary>
+    /// <summary>
+    ///   Solve challenge.
+    /// </summary>
     function SolveChallenge(Generation: TBMWImmoGeneration;
       const Challenge: TBytes): TBytes;
   end;
@@ -82,7 +106,9 @@ function DecodeKeyDataCas(const Bytes: TBytes): TBMWKeyDataCas;
 function EncodeKeyDataFem(const Key: TBMWKeyDataFem): TBytes;
 function DecodeKeyDataFem(const Bytes: TBytes): TBMWKeyDataFem;
 
-/// <summary>Validate the slot index for a given immobiliser generation.</summary>
+/// <summary>
+///   Validate the slot index for a given immobiliser generation.
+/// </summary>
 function ValidateSlotIndex(Gen: TBMWImmoGeneration; Slot: Byte): Boolean;
 
 //------------------------------------------------------------------------------

@@ -22,8 +22,10 @@ uses
 // TYPES
 //------------------------------------------------------------------------------
 type
-  /// <summary>Algorithm tag stored inside the envelope. Stable wire
-  /// values; never renumber.</summary>
+  /// <summary>
+  ///   Algorithm tag stored inside the envelope. Stable wire
+  ///   values; never renumber.
+  /// </summary>
   TOBDPQCAlgorithm = (
     pqcUnknown      = 0,
     pqcMlDsa44      = 1,  // FIPS 204 ML-DSA-44
@@ -36,45 +38,65 @@ type
   EOBDPQCSignature = class(Exception);
   EOBDPQCNotAvailable = class(EOBDPQCSignature);
 
-  /// <summary>Decoded envelope: algorithm + key-id + raw signature.</summary>
+  /// <summary>
+  ///   Decoded envelope: algorithm + key-id + raw signature.
+  /// </summary>
   TOBDPQCEnvelope = record
-    /// <summary>Algorithm.</summary>
+    /// <summary>
+    ///   Algorithm.
+    /// </summary>
     Algorithm: TOBDPQCAlgorithm;
     KeyId: TBytes;        // up to 32 bytes; opaque to this unit
-    /// <summary>Signature.</summary>
+    /// <summary>
+    ///   Signature.
+    /// </summary>
     Signature: TBytes;
   end;
 
-  /// <summary>Verifier scaffolding. The Verify implementation raises
-  /// EOBDPQCNotAvailable until the OpenSSL 3.x EVP binding is wired
-  /// (tracked in docs/DATA_GAPS.md). The envelope codec is fixed and
-  /// fully tested in this build.</summary>
+  /// <summary>
+  ///   Verifier scaffolding. The Verify implementation raises
+  ///   EOBDPQCNotAvailable until the OpenSSL 3.x EVP binding is wired
+  ///   (tracked in docs/DATA_GAPS.md). The envelope codec is fixed and
+  ///   fully tested in this build.
+  /// </summary>
   TOBDPQCSignatureVerifier = class(TInterfacedObject, IFirmwareSignatureVerifier)
   private
     FAlgorithm: TOBDPQCAlgorithm;
     FPublicKey: TBytes;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const AAlgorithm: TOBDPQCAlgorithm;
       const APublicKey: TBytes);
-    /// <summary>Algorithm name.</summary>
+    /// <summary>
+    ///   Algorithm name.
+    /// </summary>
     function AlgorithmName: string;
-    /// <summary>Verify.</summary>
+    /// <summary>
+    ///   Verify.
+    /// </summary>
     function Verify(const Firmware, Signature: TBytes): Boolean;
   end;
 
-/// <summary>Encode an envelope:
+/// <summary>
+///   Encode an envelope:
 ///   uint8  algorithm-tag
 ///   uint8  key-id-length (0..32)
 ///   bytes  key-id
 ///   uint32 signature-length (BE)
-///   bytes  signature</summary>
+///   bytes  signature
+/// </summary>
 function EncodePQCEnvelope(const Env: TOBDPQCEnvelope): TBytes;
 
-/// <summary>Decode an envelope. Raises on malformed input.</summary>
+/// <summary>
+///   Decode an envelope. Raises on malformed input.
+/// </summary>
 function DecodePQCEnvelope(const Bytes: TBytes): TOBDPQCEnvelope;
 
-/// <summary>Human-readable algorithm name.</summary>
+/// <summary>
+///   Human-readable algorithm name.
+/// </summary>
 function PQCAlgorithmName(const A: TOBDPQCAlgorithm): string;
 
 //------------------------------------------------------------------------------

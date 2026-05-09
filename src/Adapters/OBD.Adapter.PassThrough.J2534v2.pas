@@ -87,17 +87,24 @@ const
 type
   EOBDPassThroughJ2534v2 = class(Exception);
 
-  /// <summary>One (parameter, value) entry as understood by SET_CONFIG.</summary>
+  /// <summary>
+  ///   One (parameter, value) entry as understood by SET_CONFIG.
+  /// </summary>
   TJ2534ConfigEntry = record
-    /// <summary>Parameter.</summary>
+    /// <summary>
+    ///   Parameter.
+    /// </summary>
     Parameter: Cardinal;
-    /// <summary>Value.</summary>
+    /// <summary>
+    ///   Value.
+    /// </summary>
     Value: Cardinal;
   end;
 
-  /// <summary>Builder for the SCONFIG_LIST struct passed into
-  /// IOCTL_SET_CONFIG. Use Add(...) for each parameter; ToBytes
-  /// renders the buffer in the layout the J2534 spec defines:
+  /// <summary>
+  ///   Builder for the SCONFIG_LIST struct passed into
+  ///   IOCTL_SET_CONFIG. Use Add(...) for each parameter; ToBytes
+  ///   renders the buffer in the layout the J2534 spec defines:
   ///   uint32 NumOfParams
   ///   for each: uint32 Parameter, uint32 Value
   /// </summary>
@@ -105,11 +112,17 @@ type
   private
     FEntries: TArray<TJ2534ConfigEntry>;
   public
-    /// <summary>Add.</summary>
+    /// <summary>
+    ///   Add.
+    /// </summary>
     procedure Add(Parameter, Value: Cardinal);
-    /// <summary>Count.</summary>
+    /// <summary>
+    ///   Count.
+    /// </summary>
     function Count: Integer;
-    /// <summary>To bytes.</summary>
+    /// <summary>
+    ///   To bytes.
+    /// </summary>
     function ToBytes: TBytes;
   end;
 

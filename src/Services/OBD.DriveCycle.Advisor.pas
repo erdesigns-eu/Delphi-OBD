@@ -23,34 +23,48 @@ uses
 //------------------------------------------------------------------------------
 type
   TDriveCycleStep = record
-    /// <summary>Short-name of the monitor the step targets.</summary>
+    /// <summary>
+    ///   Short-name of the monitor the step targets.
+    /// </summary>
     Monitor: string;
-    /// <summary>One sentence the operator can act on.</summary>
+    /// <summary>
+    ///   One sentence the operator can act on.
+    /// </summary>
     Description: string;
-    /// <summary>Approx duration in seconds; 0 if not applicable.</summary>
+    /// <summary>
+    ///   Approx duration in seconds; 0 if not applicable.
+    /// </summary>
     DurationSeconds: Integer;
   end;
 
-  /// <summary>Per-OEM drive-cycle override hook. Implementers return
-  /// the per-monitor step the operator should perform; nil/empty
-  /// description means "use the ISO 15031-7 generic step".</summary>
+  /// <summary>
+  ///   Per-OEM drive-cycle override hook. Implementers return
+  ///   the per-monitor step the operator should perform; nil/empty
+  ///   description means "use the ISO 15031-7 generic step".
+  /// </summary>
   TDriveCycleResolver = reference to function(
     const MonitorName: string; const OEMKey: string): TDriveCycleStep;
 
-/// <summary>Build the list of drive-cycle steps from a readiness set.
-/// Every Supported-but-not-Complete monitor produces one step.
-/// OEMKey is optional; pass '' for the ISO 15031-7 generic cycle.</summary>
+/// <summary>
+///   Build the list of drive-cycle steps from a readiness set.
+///   Every Supported-but-not-Complete monitor produces one step.
+///   OEMKey is optional; pass '' for the ISO 15031-7 generic cycle.
+/// </summary>
 function BuildDriveCycle(const Readiness: TWWHOBDReadinessSet;
   const OEMKey: string = ''): TArray<TDriveCycleStep>;
 
-/// <summary>Register an OEM-specific resolver. Subsequent BuildDriveCycle
-/// calls with that OEMKey will consult it before falling back to the
-/// generic table.</summary>
+/// <summary>
+///   Register an OEM-specific resolver. Subsequent BuildDriveCycle
+///   calls with that OEMKey will consult it before falling back to the
+///   generic table.
+/// </summary>
 procedure RegisterDriveCycleResolver(const OEMKey: string;
   const Resolver: TDriveCycleResolver);
 
-/// <summary>Generic ISO 15031-7 step for a monitor name. Public so
-/// custom resolvers can compose with it.</summary>
+/// <summary>
+///   Generic ISO 15031-7 step for a monitor name. Public so
+///   custom resolvers can compose with it.
+/// </summary>
 function GenericStepFor(const MonitorName: string): TDriveCycleStep;
 
 //------------------------------------------------------------------------------

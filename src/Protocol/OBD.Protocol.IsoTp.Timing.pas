@@ -29,16 +29,24 @@ type
     iftFlowControl    // FC — flow control (sender -> receiver, BS + STmin)
   );
 
-  /// <summary>One observed frame on the bus or in a capture.</summary>
+  /// <summary>
+  ///   One observed frame on the bus or in a capture.
+  /// </summary>
   TIsoTpFrameObservation = record
-    /// <summary>Kind.</summary>
+    /// <summary>
+    ///   Kind.
+    /// </summary>
     Kind: TIsoTpFrameKind;
-    /// <summary>Wall-clock time of the frame in microseconds since
-    /// some arbitrary t0. Resolution must be at least 1 ms.</summary>
+    /// <summary>
+    ///   Wall-clock time of the frame in microseconds since
+    ///   some arbitrary t0. Resolution must be at least 1 ms.
+    /// </summary>
     TimestampMicros: Int64;
-    /// <summary>Direction. True = tester->ECU, False = ECU->tester.
-    /// STmin checks apply to the consecutive-frame stream from the
-    /// sender on whichever side the FC frame came from.</summary>
+    /// <summary>
+    ///   Direction. True = tester->ECU, False = ECU->tester.
+    ///   STmin checks apply to the consecutive-frame stream from the
+    ///   sender on whichever side the FC frame came from.
+    /// </summary>
     SenderIsTester: Boolean;
   end;
 
@@ -49,22 +57,36 @@ type
   );
 
   TIsoTpTimingViolation = record
-    /// <summary>Kind.</summary>
+    /// <summary>
+    ///   Kind.
+    /// </summary>
     Kind: TIsoTpTimingViolationKind;
-    /// <summary>Frame index.</summary>
+    /// <summary>
+    ///   Frame index.
+    /// </summary>
     FrameIndex: Integer;
-    /// <summary>Detail.</summary>
+    /// <summary>
+    ///   Detail.
+    /// </summary>
     Detail: string;
   end;
 
   TIsoTpTimingResult = record
-    /// <summary>Compliant.</summary>
+    /// <summary>
+    ///   Compliant.
+    /// </summary>
     Compliant: Boolean;
-    /// <summary>Declared stmin micros.</summary>
+    /// <summary>
+    ///   Declared stmin micros.
+    /// </summary>
     DeclaredStminMicros: Integer;
-    /// <summary>Declared block size.</summary>
+    /// <summary>
+    ///   Declared block size.
+    /// </summary>
     DeclaredBlockSize: Integer;
-    /// <summary>Violations.</summary>
+    /// <summary>
+    ///   Violations.
+    /// </summary>
     Violations: TArray<TIsoTpTimingViolation>;
   end;
 
@@ -73,33 +95,47 @@ type
     FStminMicros: Integer;
     FBlockSize: Integer;
     FToleranceMicros: Integer;
-    /// <summary>Note.</summary>
+    /// <summary>
+    ///   Note.
+    /// </summary>
     procedure Note(var Result: TIsoTpTimingResult;
       Kind: TIsoTpTimingViolationKind; FrameIndex: Integer;
       const Detail: string);
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create;
-    /// <summary>Configure the checker from the FC byte values
-    /// observed on the wire (STmin: 0x00..0x7F = ms; 0xF1..0xF9 =
-    /// 100..900 us; BS: 0x00 = unlimited else count).</summary>
+    /// <summary>
+    ///   Configure the checker from the FC byte values
+    ///   observed on the wire (STmin: 0x00..0x7F = ms; 0xF1..0xF9 =
+    ///   100..900 us; BS: 0x00 = unlimited else count).
+    /// </summary>
     procedure ApplyFlowControl(const StminByte, BlockSizeByte: Byte);
-    /// <summary>Allow up to this much under-shoot per inter-frame gap
-    /// before counting as a violation. Default 200 us — within scope
-    /// timer jitter on a typical adapter.</summary>
+    /// <summary>
+    ///   Allow up to this much under-shoot per inter-frame gap
+    ///   before counting as a violation. Default 200 us — within scope
+    ///   timer jitter on a typical adapter.
+    /// </summary>
     property ToleranceMicros: Integer read FToleranceMicros write FToleranceMicros;
 
-    /// <summary>Audit.</summary>
+    /// <summary>
+    ///   Audit.
+    /// </summary>
     function Audit(const Frames: TArray<TIsoTpFrameObservation>): TIsoTpTimingResult;
   end;
 
-/// <summary>Decode the STmin byte to microseconds. Raises on reserved
-/// values (0x80..0xF0 + 0xFA..0xFF).</summary>
+/// <summary>
+///   Decode the STmin byte to microseconds. Raises on reserved
+///   values (0x80..0xF0 + 0xFA..0xFF).
+/// </summary>
 function DecodeStminMicros(const StminByte: Byte): Integer;
 
-/// <summary>Encode microseconds back to the STmin byte. Quantises to
-/// the nearest representable value: 1 ms granularity in [0..127] ms,
-/// 100 us granularity in [100..900] us. Out-of-range raises.</summary>
+/// <summary>
+///   Encode microseconds back to the STmin byte. Quantises to
+///   the nearest representable value: 1 ms granularity in [0..127] ms,
+///   100 us granularity in [100..900] us. Out-of-range raises.
+/// </summary>
 function EncodeStminMicros(const Micros: Integer): Byte;
 
 //------------------------------------------------------------------------------

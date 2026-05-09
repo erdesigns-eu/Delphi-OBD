@@ -23,13 +23,17 @@ uses
 // TYPES
 //------------------------------------------------------------------------------
 type
-  /// <summary>Raised when a calculator is registered but its underlying
-  /// algorithm/database is not available in this build.</summary>
+  /// <summary>
+  ///   Raised when a calculator is registered but its underlying
+  ///   algorithm/database is not available in this build.
+  /// </summary>
   EOBDRadioCodeDataMissing = class(Exception);
 
   TOBDRadioCodeFactory = reference to function: IOBDRadioCode;
 
-  /// <summary>One brand entry in the registry.</summary>
+  /// <summary>
+  ///   One brand entry in the registry.
+  /// </summary>
   TOBDRadioCodeBrand = class
   private
     FBrandKey: string;
@@ -39,31 +43,49 @@ type
     FFactory: TOBDRadioCodeFactory;
     FVariants: TRadioCodeVariantManager;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const BrandKey, DisplayName: string;
       DataAvailable: Boolean; const DataNotes: string;
       const Factory: TOBDRadioCodeFactory);
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Lower-case brand identifier (e.g. 'pioneer', 'philips').</summary>
+    /// <summary>
+    ///   Lower-case brand identifier (e.g. 'pioneer', 'philips').
+    /// </summary>
     property BrandKey: string read FBrandKey;
-    /// <summary>Human-readable name shown in UIs.</summary>
+    /// <summary>
+    ///   Human-readable name shown in UIs.
+    /// </summary>
     property DisplayName: string read FDisplayName;
-    /// <summary>True when a real algorithm/database backs the calculator.
-    /// False indicates a data-pending stub that will raise on Calculate.</summary>
+    /// <summary>
+    ///   True when a real algorithm/database backs the calculator.
+    ///   False indicates a data-pending stub that will raise on Calculate.
+    /// </summary>
     property DataAvailable: Boolean read FDataAvailable;
-    /// <summary>For data-pending brands, describes what reference data
-    /// would unblock the calculator.</summary>
+    /// <summary>
+    ///   For data-pending brands, describes what reference data
+    ///   would unblock the calculator.
+    /// </summary>
     property DataNotes: string read FDataNotes;
-    /// <summary>Variant manager for region/year/security-version dispatch.</summary>
+    /// <summary>
+    ///   Variant manager for region/year/security-version dispatch.
+    /// </summary>
     property Variants: TRadioCodeVariantManager read FVariants;
 
-    /// <summary>Create calculator.</summary>
+    /// <summary>
+    ///   Create calculator.
+    /// </summary>
     function CreateCalculator: IOBDRadioCode;
   end;
 
-  /// <summary>Process-wide registry. Thread-safe; brands register at init.</summary>
+  /// <summary>
+  ///   Process-wide registry. Thread-safe; brands register at init.
+  /// </summary>
   TOBDRadioCodeRegistry = class
   private
     class var FInstance: TOBDRadioCodeRegistry;
@@ -71,23 +93,39 @@ type
     FBrands: TObjectList<TOBDRadioCodeBrand>;
     FByKey: TDictionary<string, TOBDRadioCodeBrand>;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create;
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Instance.</summary>
+    /// <summary>
+    ///   Instance.
+    /// </summary>
     class function Instance: TOBDRadioCodeRegistry;
-    /// <summary>Free instance.</summary>
+    /// <summary>
+    ///   Free instance.
+    /// </summary>
     class procedure FreeInstance; reintroduce;
 
-    /// <summary>Register.</summary>
+    /// <summary>
+    ///   Register.
+    /// </summary>
     procedure Register(Brand: TOBDRadioCodeBrand);
-    /// <summary>Find.</summary>
+    /// <summary>
+    ///   Find.
+    /// </summary>
     function Find(const BrandKey: string): TOBDRadioCodeBrand;
-    /// <summary>Get brand keys.</summary>
+    /// <summary>
+    ///   Get brand keys.
+    /// </summary>
     procedure GetBrandKeys(Keys: TStrings);
-    /// <summary>Count.</summary>
+    /// <summary>
+    ///   Count.
+    /// </summary>
     function Count: Integer;
   end;
 

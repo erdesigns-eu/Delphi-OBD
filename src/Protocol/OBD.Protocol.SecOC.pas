@@ -31,32 +31,44 @@ type
   );
 
   TSecOCContext = record
-    /// <summary>Profile.</summary>
+    /// <summary>
+    ///   Profile.
+    /// </summary>
     Profile: TSecOCProfile;
-    /// <summary>Key id.</summary>
+    /// <summary>
+    ///   Key id.
+    /// </summary>
     KeyId: Word;
     Key: TBytes;              // 16 bytes for CMAC-AES-128, any length for HMAC
-    /// <summary>Freshness value.</summary>
+    /// <summary>
+    ///   Freshness value.
+    /// </summary>
     FreshnessValue: UInt64;
     AuthenticatorBits: Integer; // typically 24 (Profile 1) or 32 / 64
   end;
 
-  /// <summary>Compute a SecOC authenticator over Payload bound to
-  /// FreshnessValue and KeyId. Length of the returned bytes is
-  /// Ctx.AuthenticatorBits / 8 (rounded up).</summary>
+  /// <summary>
+  ///   Compute a SecOC authenticator over Payload bound to
+  ///   FreshnessValue and KeyId. Length of the returned bytes is
+  ///   Ctx.AuthenticatorBits / 8 (rounded up).
+  /// </summary>
   function SecOCComputeAuthenticator(const Ctx: TSecOCContext;
     const Payload: TBytes): TBytes;
 
-  /// <summary>True iff Authenticator matches the expected value for
-  /// Payload + Ctx. Callers should treat False as a hard failure.</summary>
+  /// <summary>
+  ///   True iff Authenticator matches the expected value for
+  ///   Payload + Ctx. Callers should treat False as a hard failure.
+  /// </summary>
   function SecOCVerifyAuthenticator(const Ctx: TSecOCContext;
     const Payload, Authenticator: TBytes): Boolean;
 
-  /// <summary>Encode the SecOC PDU envelope:
+  /// <summary>
+  ///   Encode the SecOC PDU envelope:
   ///   uint16 KeyId
   ///   varbytes FreshnessValue (per-profile width)
   ///   bytes Payload
-  ///   bytes Authenticator</summary>
+  ///   bytes Authenticator
+  /// </summary>
   function SecOCEncodePDU(const Ctx: TSecOCContext;
     const Payload, Authenticator: TBytes): TBytes;
 

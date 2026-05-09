@@ -26,37 +26,61 @@ type
   strict private
     FBytes: TBytes;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const Length: Integer); overload;
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const Bytes: TBytes); overload;
-    /// <summary>Create from hex.</summary>
+    /// <summary>
+    ///   Create from hex.
+    /// </summary>
     constructor CreateFromHex(const HexString: string);
 
-    /// <summary>Byte count.</summary>
+    /// <summary>
+    ///   Byte count.
+    /// </summary>
     function ByteCount: Integer;
-    /// <summary>Get byte.</summary>
+    /// <summary>
+    ///   Get byte.
+    /// </summary>
     function GetByte(const Index: Integer): Byte;
-    /// <summary>Set byte.</summary>
+    /// <summary>
+    ///   Set byte.
+    /// </summary>
     procedure SetByte(const Index: Integer; const Value: Byte);
-    /// <summary>Get bit.</summary>
+    /// <summary>
+    ///   Get bit.
+    /// </summary>
     function GetBit(const ByteIndex, BitIndex: Integer): Boolean;
-    /// <summary>Set bit.</summary>
+    /// <summary>
+    ///   Set bit.
+    /// </summary>
     procedure SetBit(const ByteIndex, BitIndex: Integer; const Value: Boolean);
-    /// <summary>To bytes.</summary>
+    /// <summary>
+    ///   To bytes.
+    /// </summary>
     function ToBytes: TBytes;
-    /// <summary>To hex.</summary>
+    /// <summary>
+    ///   To hex.
+    /// </summary>
     function ToHex: string;
 
-    /// <summary>Compute the Proxi-CRC over the current bytes. The
-    /// polynomial used by FCA / Stellantis for Proxi is not publicly
-    /// documented; this method raises EOBDStellantisProxi until the
-    /// algorithm is supplied (see docs/DATA_GAPS.md).</summary>
+    /// <summary>
+    ///   Compute the Proxi-CRC over the current bytes. The
+    ///   polynomial used by FCA / Stellantis for Proxi is not publicly
+    ///   documented; this method raises EOBDStellantisProxi until the
+    ///   algorithm is supplied (see docs/DATA_GAPS.md).
+    /// </summary>
     function ComputeChecksum: Word;
 
-    /// <summary>Set the explicit CRC bytes (for callers that have an
-    /// independent verified value, e.g. captured from a wiTECH log).
-    /// Leaves the rest of the payload untouched.</summary>
+    /// <summary>
+    ///   Set the explicit CRC bytes (for callers that have an
+    ///   independent verified value, e.g. captured from a wiTECH log).
+    ///   Leaves the rest of the payload untouched.
+    /// </summary>
     procedure SetChecksum(const Crc: Word; const Offset: Integer);
   end;
 

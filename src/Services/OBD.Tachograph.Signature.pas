@@ -38,25 +38,39 @@ type
   );
 
   TDDDBlock = record
-    /// <summary>Kind.</summary>
+    /// <summary>
+    ///   Kind.
+    /// </summary>
     Kind: TDDDBlockKind;
     Tag: Word;             // raw 2-byte TLV tag from the file
-    /// <summary>Length.</summary>
+    /// <summary>
+    ///   Length.
+    /// </summary>
     Length: Integer;
     Offset: Integer;       // byte offset within the file
-    /// <summary>Data.</summary>
+    /// <summary>
+    ///   Data.
+    /// </summary>
     Data: TBytes;
   end;
 
   TDDDChainResult = record
-    /// <summary>Verified.</summary>
+    /// <summary>
+    ///   Verified.
+    /// </summary>
     Verified: Boolean;
-    /// <summary>Blocks parsed.</summary>
+    /// <summary>
+    ///   Blocks parsed.
+    /// </summary>
     BlocksParsed: Integer;
-    /// <summary>Signatures verified.</summary>
+    /// <summary>
+    ///   Signatures verified.
+    /// </summary>
     SignaturesVerified: Integer;
     FirstFailureBlockIndex: Integer; // -1 on success
-    /// <summary>Reason.</summary>
+    /// <summary>
+    ///   Reason.
+    /// </summary>
     Reason: string;
   end;
 
@@ -64,24 +78,34 @@ type
   private
     FVerifierForCard: IFirmwareSignatureVerifier;
     FVerifierForVU: IFirmwareSignatureVerifier;
-    /// <summary>Classify tag.</summary>
+    /// <summary>
+    ///   Classify tag.
+    /// </summary>
     function ClassifyTag(Tag: Word): TDDDBlockKind;
   public
-    /// <summary>Set the verifier used for the card-side signature
-    /// block. Production code wires an OpenSSL ECDSA verifier here;
-    /// unit tests can pass TOBDPermissiveSignatureVerifier.</summary>
+    /// <summary>
+    ///   Set the verifier used for the card-side signature
+    ///   block. Production code wires an OpenSSL ECDSA verifier here;
+    ///   unit tests can pass TOBDPermissiveSignatureVerifier.
+    /// </summary>
     procedure SetCardVerifier(const V: IFirmwareSignatureVerifier);
-    /// <summary>Set the verifier used for the vehicle-unit signature
-    /// block. Same wiring story as the card verifier.</summary>
+    /// <summary>
+    ///   Set the verifier used for the vehicle-unit signature
+    ///   block. Same wiring story as the card verifier.
+    /// </summary>
     procedure SetVUVerifier(const V: IFirmwareSignatureVerifier);
 
-    /// <summary>Parse a DDD file into its TLV blocks. Doesn't verify.</summary>
+    /// <summary>
+    ///   Parse a DDD file into its TLV blocks. Doesn't verify.
+    /// </summary>
     function ParseBlocks(const Bytes: TBytes): TArray<TDDDBlock>;
 
-    /// <summary>Verify the signature chain across the parsed blocks.
-    /// Each data block must be immediately followed by a signature
-    /// block whose body, when fed to the configured verifier
-    /// alongside the data block bytes, returns True.</summary>
+    /// <summary>
+    ///   Verify the signature chain across the parsed blocks.
+    ///   Each data block must be immediately followed by a signature
+    ///   block whose body, when fed to the configured verifier
+    ///   alongside the data block bytes, returns True.
+    /// </summary>
     function VerifyChain(const Bytes: TBytes): TDDDChainResult;
   end;
 

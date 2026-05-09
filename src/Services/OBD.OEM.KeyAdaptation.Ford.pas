@@ -26,34 +26,52 @@ type
 
   TFordPATSRequest = record
     VIN: string;          // 17 ASCII chars
-    /// <summary>Operation.</summary>
+    /// <summary>
+    ///   Operation.
+    /// </summary>
     Operation: TFordPATSOperation;
-    /// <summary>Programmer present byte; some platforms require a
-    /// captured value from a dealer programmer to authorise destructive
-    /// operations.</summary>
+    /// <summary>
+    ///   Programmer present byte; some platforms require a
+    ///   captured value from a dealer programmer to authorise destructive
+    ///   operations.
+    /// </summary>
     ProgrammerPresentByte: Byte;
   end;
 
   TFordPATSStatus = record
-    /// <summary>Key count.</summary>
+    /// <summary>
+    ///   Key count.
+    /// </summary>
     KeyCount: Byte;
-    /// <summary>Lockout active.</summary>
+    /// <summary>
+    ///   Lockout active.
+    /// </summary>
     LockoutActive: Boolean;
     SecondsRemaining: UInt16;   // when locked out
-    /// <summary>Pin code present.</summary>
+    /// <summary>
+    ///   Pin code present.
+    /// </summary>
     PinCodePresent: Boolean;
   end;
 
   TFordPlatformAccess = (fpaOpen, fpaPinRequired, fpaGatewayLocked);
 
   TFordPlatformInfo = record
-    /// <summary>Key.</summary>
+    /// <summary>
+    ///   Key.
+    /// </summary>
     Key: string;
-    /// <summary>Display name.</summary>
+    /// <summary>
+    ///   Display name.
+    /// </summary>
     DisplayName: string;
-    /// <summary>Access.</summary>
+    /// <summary>
+    ///   Access.
+    /// </summary>
     Access: TFordPlatformAccess;
-    /// <summary>Notes.</summary>
+    /// <summary>
+    ///   Notes.
+    /// </summary>
     Notes: string;
   end;
 
@@ -62,7 +80,9 @@ function DecodeFordPATSRequest(const Bytes: TBytes): TFordPATSRequest;
 function EncodeFordPATSStatus(const Status: TFordPATSStatus): TBytes;
 function DecodeFordPATSStatus(const Bytes: TBytes): TFordPATSStatus;
 
-/// <summary>Per-platform applicability lookup (chassis code keys).</summary>
+/// <summary>
+///   Per-platform applicability lookup (chassis code keys).
+/// </summary>
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
 
 //------------------------------------------------------------------------------
@@ -143,7 +163,8 @@ end;
 // ENCODE FORD PATSREQUEST
 //------------------------------------------------------------------------------
 function EncodeFordPATSRequest(const Req: TFordPATSRequest): TBytes;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Req.VIN) <> 17 then
     raise EOBDFordPATS.CreateFmt('VIN must be 17 chars (got %d)', [Length(Req.VIN)]);
@@ -158,7 +179,8 @@ end;
 // DECODE FORD PATSREQUEST
 //------------------------------------------------------------------------------
 function DecodeFordPATSRequest(const Bytes: TBytes): TFordPATSRequest;
-var I: Integer;
+var
+  I: Integer;
 begin
   if Length(Bytes) <> 19 then
     raise EOBDFordPATS.CreateFmt('Ford PATS request must be 19 bytes (got %d)',
@@ -202,7 +224,8 @@ end;
 // FIND FORD PLATFORM
 //------------------------------------------------------------------------------
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
-var Lookup: string;
+var
+  Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
   if (GFordPlatforms <> nil) and GFordPlatforms.TryGetValue(Lookup, Result) then Exit;

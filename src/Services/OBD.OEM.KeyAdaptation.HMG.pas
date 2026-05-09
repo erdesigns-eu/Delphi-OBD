@@ -26,16 +26,22 @@ type
 
   THMGKeyRegisterRequest = record
     VIN: string;          // 17 ASCII chars
-    /// <summary>Mode.</summary>
+    /// <summary>
+    ///   Mode.
+    /// </summary>
     Mode: THMGKeyMode;
     PIN: string;          // 4..6 ASCII digits, dealer-supplied
     KeyIndex: Byte;       // 0..7; ignored for EraseAll/ReadCount
   end;
 
   THMGKeyRegisterResponse = record
-    /// <summary>Mode.</summary>
+    /// <summary>
+    ///   Mode.
+    /// </summary>
     Mode: THMGKeyMode;
-    /// <summary>Success.</summary>
+    /// <summary>
+    ///   Success.
+    /// </summary>
     Success: Boolean;
     KeyCount: Byte;       // populated for ReadCount or after AddKey
     StatusCode: Byte;     // OEM-defined
@@ -45,13 +51,21 @@ type
                         hpaCertificateRequired);
 
   THMGPlatformInfo = record
-    /// <summary>Key.</summary>
+    /// <summary>
+    ///   Key.
+    /// </summary>
     Key: string;
-    /// <summary>Display name.</summary>
+    /// <summary>
+    ///   Display name.
+    /// </summary>
     DisplayName: string;
-    /// <summary>Access.</summary>
+    /// <summary>
+    ///   Access.
+    /// </summary>
     Access: THMGPlatformAccess;
-    /// <summary>Notes.</summary>
+    /// <summary>
+    ///   Notes.
+    /// </summary>
     Notes: string;
   end;
 
@@ -60,8 +74,10 @@ function DecodeHMGKeyRegisterRequest(const Bytes: TBytes): THMGKeyRegisterReques
 function EncodeHMGKeyRegisterResponse(const Resp: THMGKeyRegisterResponse): TBytes;
 function DecodeHMGKeyRegisterResponse(const Bytes: TBytes): THMGKeyRegisterResponse;
 
-/// <summary>Per-platform applicability. Returns hpaCertificateRequired
-/// for unknown platforms (fail-safe default).</summary>
+/// <summary>
+///   Per-platform applicability. Returns hpaCertificateRequired
+///   for unknown platforms (fail-safe default).
+/// </summary>
 function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 
 //------------------------------------------------------------------------------
@@ -217,7 +233,8 @@ end;
 // FIND HMGPLATFORM
 //------------------------------------------------------------------------------
 function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
-var Lookup: string;
+var
+  Lookup: string;
 begin
   Lookup := LowerCase(PlatformKey);
   if (GHMGPlatforms <> nil) and GHMGPlatforms.TryGetValue(Lookup, Result) then Exit;

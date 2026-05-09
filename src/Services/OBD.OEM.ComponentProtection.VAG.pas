@@ -24,34 +24,50 @@ type
   EOBDVAGCPNoSolver = class(EOBDVAGCP);
 
   TVAGCPRequest = record
-    /// <summary>Ecu type.</summary>
+    /// <summary>
+    ///   Ecu type.
+    /// </summary>
     ECUType: Word;
-    /// <summary>Component serial.</summary>
+    /// <summary>
+    ///   Component serial.
+    /// </summary>
     ComponentSerial: TBytes;
     VIN: string;              // 17 ASCII chars, validated
-    /// <summary>Nonce.</summary>
+    /// <summary>
+    ///   Nonce.
+    /// </summary>
     Nonce: TBytes;
   end;
 
   TVAGCPResponse = record
-    /// <summary>Response.</summary>
+    /// <summary>
+    ///   Response.
+    /// </summary>
     Response: TBytes;
-    /// <summary>Signature.</summary>
+    /// <summary>
+    ///   Signature.
+    /// </summary>
     Signature: TBytes;
   end;
 
   IVAGCPSolver = interface
     ['{72D7E9F1-6A8D-4D6A-9FBE-9A5B2B8E4C10}']
-    /// <summary>Forward the challenge envelope to the SVM portal and
-    /// return the activation envelope. Production hosts plug in their
-    /// dealer-portal client here.</summary>
+    /// <summary>
+    ///   Forward the challenge envelope to the SVM portal and
+    ///   return the activation envelope. Production hosts plug in their
+    ///   dealer-portal client here.
+    /// </summary>
     function Solve(const Request: TVAGCPRequest): TVAGCPResponse;
   end;
 
-  /// <summary>Default solver that fails closed.</summary>
+  /// <summary>
+  ///   Default solver that fails closed.
+  /// </summary>
   TVAGCPSolverNotAvailable = class(TInterfacedObject, IVAGCPSolver)
   public
-    /// <summary>Solve.</summary>
+    /// <summary>
+    ///   Solve.
+    /// </summary>
     function Solve(const Request: TVAGCPRequest): TVAGCPResponse;
   end;
 

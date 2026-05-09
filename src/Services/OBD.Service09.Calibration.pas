@@ -29,38 +29,60 @@ type
 
   TOBDCalibrationVerification = record
     CVN: UInt32;               // 4 raw bytes interpreted as big-endian
-    /// <summary>Source ecu.</summary>
+    /// <summary>
+    ///   Source ecu.
+    /// </summary>
     SourceECU: Word;
   end;
 
-  /// <summary>One ECU's pair after a sweep. CalID and CVN are
-  /// returned in the same order the ECU emitted them; ISO 15031-5
-  /// guarantees positional correspondence.</summary>
+  /// <summary>
+  ///   One ECU's pair after a sweep. CalID and CVN are
+  ///   returned in the same order the ECU emitted them; ISO 15031-5
+  ///   guarantees positional correspondence.
+  /// </summary>
   TOBDCalibrationPair = record
-    /// <summary>Source ecu.</summary>
+    /// <summary>
+    ///   Source ecu.
+    /// </summary>
     SourceECU: Word;
-    /// <summary>Cal id.</summary>
+    /// <summary>
+    ///   Cal id.
+    /// </summary>
     CalID: string;
-    /// <summary>Cvn.</summary>
+    /// <summary>
+    ///   Cvn.
+    /// </summary>
     CVN: UInt32;
   end;
 
-/// <summary>Build the request bytes for Service 09 PID $04.</summary>
+/// <summary>
+///   Build the request bytes for Service 09 PID $04.
+/// </summary>
 function EncodeCalIDRequest: TBytes;
-/// <summary>Build the request bytes for Service 09 PID $06.</summary>
+/// <summary>
+///   Build the request bytes for Service 09 PID $06.
+/// </summary>
 function EncodeCVNRequest: TBytes;
 
-/// <summary>Decode a 49 04 response into one or more CalIDs.</summary>
+/// <summary>
+///   Decode a 49 04 response into one or more CalIDs.
+/// </summary>
 function DecodeCalIDResponse(const Bytes: TBytes): TArray<TOBDCalibrationID>;
-/// <summary>Decode a 49 06 response into one or more CVNs.</summary>
+/// <summary>
+///   Decode a 49 06 response into one or more CVNs.
+/// </summary>
 function DecodeCVNResponse(const Bytes: TBytes): TArray<TOBDCalibrationVerification>;
 
-/// <summary>Format a CVN as the 8-character upper-case hex
-/// representation that every scan tool displays.</summary>
+/// <summary>
+///   Format a CVN as the 8-character upper-case hex
+///   representation that every scan tool displays.
+/// </summary>
 function FormatCVN(const CVN: UInt32): string;
 
-/// <summary>Pair a CalID array with a CVN array positionally.
-/// Lengths must match per ISO 15031-5 §8.6.6.</summary>
+/// <summary>
+///   Pair a CalID array with a CVN array positionally.
+///   Lengths must match per ISO 15031-5 §8.6.6.
+/// </summary>
 function PairCalIDsAndCVNs(const IDs: TArray<TOBDCalibrationID>;
   const VNs: TArray<TOBDCalibrationVerification>): TArray<TOBDCalibrationPair>;
 

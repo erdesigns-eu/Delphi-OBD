@@ -25,23 +25,35 @@ type
   TToyotaKeyMode = (tkmAddKey, tkmEraseAll, tkmReadCount);
 
   TToyotaKeyRegisterRequest = record
-    /// <summary>Vin.</summary>
+    /// <summary>
+    ///   Vin.
+    /// </summary>
     VIN: string;
-    /// <summary>Mode.</summary>
+    /// <summary>
+    ///   Mode.
+    /// </summary>
     Mode: TToyotaKeyMode;
-    /// <summary>True if a master (black-shell) key is in the slot —
-    /// most pre-2015 platforms require this; smart-key-only cars
-    /// from 2015+ replace the master-key requirement with a PIN.</summary>
+    /// <summary>
+    ///   True if a master (black-shell) key is in the slot —
+    ///   most pre-2015 platforms require this; smart-key-only cars
+    ///   from 2015+ replace the master-key requirement with a PIN.
+    /// </summary>
     MasterKeyPresent: Boolean;
     PIN: string;             // empty when MasterKeyPresent = True
   end;
 
   TToyotaKeyRegisterResponse = record
-    /// <summary>Mode.</summary>
+    /// <summary>
+    ///   Mode.
+    /// </summary>
     Mode: TToyotaKeyMode;
-    /// <summary>Success.</summary>
+    /// <summary>
+    ///   Success.
+    /// </summary>
     Success: Boolean;
-    /// <summary>Key count.</summary>
+    /// <summary>
+    ///   Key count.
+    /// </summary>
     KeyCount: Byte;
     AddedKeyId: TBytes;      // 4-byte transponder id of the new key
   end;
@@ -49,13 +61,21 @@ type
   TToyotaPlatformAccess = (tpaMasterKey, tpaPin, tpaCertificateRequired);
 
   TToyotaPlatformInfo = record
-    /// <summary>Key.</summary>
+    /// <summary>
+    ///   Key.
+    /// </summary>
     Key: string;
-    /// <summary>Display name.</summary>
+    /// <summary>
+    ///   Display name.
+    /// </summary>
     DisplayName: string;
-    /// <summary>Access.</summary>
+    /// <summary>
+    ///   Access.
+    /// </summary>
     Access: TToyotaPlatformAccess;
-    /// <summary>Notes.</summary>
+    /// <summary>
+    ///   Notes.
+    /// </summary>
     Notes: string;
   end;
 
@@ -198,7 +218,8 @@ end;
 // ENCODE TOYOTA KEY REGISTER RESPONSE
 //------------------------------------------------------------------------------
 function EncodeToyotaKeyRegisterResponse(const Resp: TToyotaKeyRegisterResponse): TBytes;
-var Cursor: Integer;
+var
+  Cursor: Integer;
 begin
   if Length(Resp.AddedKeyId) <> 4 then
     raise EOBDToyotaKey.Create('AddedKeyId must be 4 bytes');
@@ -231,7 +252,8 @@ end;
 // FIND TOYOTA PLATFORM
 //------------------------------------------------------------------------------
 function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
-var Lookup: string;
+var
+  Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
   if (GToyotaPlatforms <> nil) and GToyotaPlatforms.TryGetValue(Lookup, Result) then Exit;

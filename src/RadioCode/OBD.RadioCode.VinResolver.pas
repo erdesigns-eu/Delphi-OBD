@@ -23,22 +23,32 @@ uses
 // TYPES
 //------------------------------------------------------------------------------
 type
-  /// <summary>Optional metadata supplied alongside the VIN. Any field
-  /// left blank is filled from the VIN itself or from the brand's
-  /// default variant.</summary>
+  /// <summary>
+  ///   Optional metadata supplied alongside the VIN. Any field
+  ///   left blank is filled from the VIN itself or from the brand's
+  ///   default variant.
+  /// </summary>
   TRadioCodeResolveContext = record
-    /// <summary>Brand key.</summary>
+    /// <summary>
+    ///   Brand key.
+    /// </summary>
     BrandKey: string;
-    /// <summary>Vin.</summary>
+    /// <summary>
+    ///   Vin.
+    /// </summary>
     VIN: string;
     ModelYearOverride: Integer;  // 0 = use ModelYear from VIN
     ModelHint: string;           // optional radio-model name
     RegionOverride: TRadioCodeRegion; // rcrUnknown = derive from VIN
   end;
 
-  /// <summary>Outcome of a resolution attempt.</summary>
+  /// <summary>
+  ///   Outcome of a resolution attempt.
+  /// </summary>
   TRadioCodeResolveResult = record
-    /// <summary>Calculator.</summary>
+    /// <summary>
+    ///   Calculator.
+    /// </summary>
     Calculator: IOBDRadioCode;
     Brand: TOBDRadioCodeBrand;     // nil if not found
     Variant: TRadioCodeVariant;    // nil if no variant manager populated
@@ -46,13 +56,17 @@ type
     ResolutionNotes: string;       // e.g. 'fell back to default variant'
   end;
 
-/// <summary>Map a TVINRegion.Name into the TRadioCodeRegion enum.</summary>
+/// <summary>
+///   Map a TVINRegion.Name into the TRadioCodeRegion enum.
+/// </summary>
 function MapVINRegionToRadioCodeRegion(const VinRegionName: string): TRadioCodeRegion;
 
-/// <summary>Resolve a calculator for the given brand and VIN. Returns
-/// a result record that callers should inspect — Calculator may be nil
-/// when the brand isn't registered, or non-nil but with a stub when
-/// the brand is data-pending.</summary>
+/// <summary>
+///   Resolve a calculator for the given brand and VIN. Returns
+///   a result record that callers should inspect — Calculator may be nil
+///   when the brand isn't registered, or non-nil but with a stub when
+///   the brand is data-pending.
+/// </summary>
 function ResolveCalculator(const Ctx: TRadioCodeResolveContext): TRadioCodeResolveResult;
 
 //------------------------------------------------------------------------------

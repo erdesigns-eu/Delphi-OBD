@@ -16,13 +16,17 @@ interface
 uses
   System.SysUtils, System.IOUtils;
 
-/// <summary>Override the catalog search path. Pass empty to revert.</summary>
+/// <summary>
+///   Override the catalog search path. Pass empty to revert.
+/// </summary>
 procedure SetGlobalCatalogPath(const Path: string);
 
-/// <summary>Resolve a catalog file by name. Probes (in order):
+/// <summary>
+///   Resolve a catalog file by name. Probes (in order):
 ///   user override / exe-dir/catalogs/ / exe-dir/../catalogs/ / cwd/catalogs/
-/// and the four v3.77 vehicle-class subdirectories under each root.
-/// Returns '' if nothing matches.</summary>
+///   and the four v3.77 vehicle-class subdirectories under each root.
+///   Returns '' if nothing matches.
+/// </summary>
 function ResolveCatalogPath(const FileName: string): string;
 
 implementation

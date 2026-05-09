@@ -23,22 +23,32 @@ uses
 // TYPES
 //------------------------------------------------------------------------------
 type
-  /// <summary>Common base for data-pending calculator stubs. Validate
-  /// returns False with a clear message; Calculate raises
-  /// EOBDRadioCodeDataMissing.</summary>
+  /// <summary>
+  ///   Common base for data-pending calculator stubs. Validate
+  ///   returns False with a clear message; Calculate raises
+  ///   EOBDRadioCodeDataMissing.
+  /// </summary>
   TOBDRadioCodePending = class(TOBDRadioCode)
   private
     FBrandKey: string;
     FDisplayName: string;
     FDataNotes: string;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create(const BrandKey, DisplayName, DataNotes: string);
-    /// <summary>Get description.</summary>
+    /// <summary>
+    ///   Get description.
+    /// </summary>
     function GetDescription: string; override;
-    /// <summary>Validate.</summary>
+    /// <summary>
+    ///   Validate.
+    /// </summary>
     function Validate(const Input: string; var ErrorMessage: string): Boolean; override;
-    /// <summary>Calculate.</summary>
+    /// <summary>
+    ///   Calculate.
+    /// </summary>
     function Calculate(const Input: string; var Output: string;
       var ErrorMessage: string): Boolean; override;
   end;
@@ -77,7 +87,8 @@ end;
 // VALIDATE
 //------------------------------------------------------------------------------
 function TOBDRadioCodePending.Validate(const Input: string;
-  var ErrorMessage: string): Boolean;
+  var
+    ErrorMessage: string): Boolean;
 begin
   // Initialize result
   Result := False;

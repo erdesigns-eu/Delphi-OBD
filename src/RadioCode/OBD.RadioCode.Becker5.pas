@@ -22,16 +22,24 @@ uses
 // CLASSES
 //------------------------------------------------------------------------------
 type
-  /// <summary>OBD Becker RadioCode Calculator (5 Digits). The serial-to-code
-  /// table (10,000 entries) is loaded from catalogs/radiocode-becker5.json
-  /// at unit init so a corrected entry can be shipped without recompiling.</summary>
+  /// <summary>
+  ///   OBD Becker RadioCode Calculator (5 Digits). The serial-to-code
+  ///   table (10,000 entries) is loaded from catalogs/radiocode-becker5.json
+  ///   at unit init so a corrected entry can be shipped without recompiling.
+  /// </summary>
   TOBDRadioCodeBecker5 = class(TOBDRadioCode)
   public
-    /// <summary>Get description.</summary>
+    /// <summary>
+    ///   Get description.
+    /// </summary>
     function GetDescription: string; override;
-    /// <summary>Validate.</summary>
+    /// <summary>
+    ///   Validate.
+    /// </summary>
     function Validate(const Input: string; var ErrorMessage: string): Boolean; override;
-    /// <summary>Calculate.</summary>
+    /// <summary>
+    ///   Calculate.
+    /// </summary>
     function Calculate(const Input: string; var Output: string; var ErrorMessage: string): Boolean; override;
   end;
 
@@ -100,7 +108,8 @@ end;
 // VALIDATE
 //------------------------------------------------------------------------------
 function TOBDRadioCodeBecker5.Validate(const Input: string; var ErrorMessage: string): Boolean;
-var Sanitized: string;
+var
+  Sanitized: string;
 begin
   // Initialize result
   Result := True;

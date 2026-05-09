@@ -21,34 +21,56 @@ uses
 //------------------------------------------------------------------------------
 type
   TJ1939PGNDescriptor = record
-    /// <summary>Pgn.</summary>
+    /// <summary>
+    ///   Pgn.
+    /// </summary>
     PGN: UInt32;
-    /// <summary>Mnemonic.</summary>
+    /// <summary>
+    ///   Mnemonic.
+    /// </summary>
     Mnemonic: string;
-    /// <summary>Name.</summary>
+    /// <summary>
+    ///   Name.
+    /// </summary>
     Name: string;
-    /// <summary>Length bytes.</summary>
+    /// <summary>
+    ///   Length bytes.
+    /// </summary>
     LengthBytes: Integer;
-    /// <summary>Default priority.</summary>
+    /// <summary>
+    ///   Default priority.
+    /// </summary>
     DefaultPriority: Byte;
-    /// <summary>Tx rate ms.</summary>
+    /// <summary>
+    ///   Tx rate ms.
+    /// </summary>
     TxRateMs: Integer;
-    /// <summary>Spec section.</summary>
+    /// <summary>
+    ///   Spec section.
+    /// </summary>
     SpecSection: string;
   end;
 
-/// <summary>Look up a PGN by id. Returns a zero record when not found;
-/// callers can check Result.PGN &lt;&gt; 0.</summary>
+/// <summary>
+///   Look up a PGN by id. Returns a zero record when not found;
+///   callers can check Result.PGN &lt;&gt; 0.
+/// </summary>
 function FindPGN(const PGN: UInt32): TJ1939PGNDescriptor;
 
-/// <summary>Register a custom PGN (e.g. for OEM-specific extensions).
-/// Replaces an existing entry with the same id.</summary>
+/// <summary>
+///   Register a custom PGN (e.g. for OEM-specific extensions).
+///   Replaces an existing entry with the same id.
+/// </summary>
 procedure RegisterJ1939PGN(const Desc: TJ1939PGNDescriptor);
 
-/// <summary>Total entries in the registry (catalog + registered).</summary>
+/// <summary>
+///   Total entries in the registry (catalog + registered).
+/// </summary>
 function J1939PGNCount: Integer;
 
-/// <summary>Iterate all PGNs in ascending order.</summary>
+/// <summary>
+///   Iterate all PGNs in ascending order.
+/// </summary>
 function J1939PGNAll: TArray<TJ1939PGNDescriptor>;
 
 //------------------------------------------------------------------------------
@@ -174,7 +196,8 @@ end;
 // FIND PGN
 //------------------------------------------------------------------------------
 function FindPGN(const PGN: UInt32): TJ1939PGNDescriptor;
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   if FindPGNIndex(PGN, Idx) then Result := GPGNs[Idx]
   else Result := Default(TJ1939PGNDescriptor);
@@ -184,7 +207,8 @@ end;
 // REGISTER J1939 PGN
 //------------------------------------------------------------------------------
 procedure RegisterJ1939PGN(const Desc: TJ1939PGNDescriptor);
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   if FindPGNIndex(Desc.PGN, Idx) then GPGNs[Idx] := Desc
   else

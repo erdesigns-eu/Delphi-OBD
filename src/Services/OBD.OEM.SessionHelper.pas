@@ -26,9 +26,11 @@ uses
 type
   EOBDOEMSessionHelper = class(Exception);
 
-  /// <summary>Stage at which a routine execution finished or aborted.
-  /// On success, the helper reports reseSessionClose; on failure it
-  /// reports the stage that failed.</summary>
+  /// <summary>
+  ///   Stage at which a routine execution finished or aborted.
+  ///   On success, the helper reports reseSessionClose; on failure it
+  ///   reports the stage that failed.
+  /// </summary>
   TOBDRoutineExecutionStage = (
     reseNotStarted,
     reseSessionOpen,
@@ -40,11 +42,17 @@ type
   );
 
   TOBDRoutineExecutionResult = record
-    /// <summary>Success.</summary>
+    /// <summary>
+    ///   Success.
+    /// </summary>
     Success: Boolean;
-    /// <summary>Routine key.</summary>
+    /// <summary>
+    ///   Routine key.
+    /// </summary>
     RoutineKey: string;
-    /// <summary>Abort stage.</summary>
+    /// <summary>
+    ///   Abort stage.
+    /// </summary>
     AbortStage: TOBDRoutineExecutionStage;
     NRC: Byte;                  // 0 if no NRC was raised
     ErrorMessage: string;       // populated on failure
@@ -52,41 +60,61 @@ type
     ResultBytes: TBytes;        // ResultRead payload on success
   end;
 
-  /// <summary>Open the diagnostic session at the given session-type byte
-  /// (e.g. 0x03 = Extended). Return True on success; out-parameter NRC
-  /// carries the negative-response byte on failure (0 if non-NRC error).</summary>
+  /// <summary>
+  ///   Open the diagnostic session at the given session-type byte
+  ///   (e.g. 0x03 = Extended). Return True on success; out-parameter NRC
+  ///   carries the negative-response byte on failure (0 if non-NRC error).
+  /// </summary>
   TOBDSessionOpenCallback = reference to function(SessionType: Byte;
     out NRC: Byte): Boolean;
 
-  /// <summary>Send the UDS 0x31 RoutineControl frame for the given
-  /// routine. Frame is pre-built by BuildRoutineControlFrame. Return
-  /// True on positive response.</summary>
+  /// <summary>
+  ///   Send the UDS 0x31 RoutineControl frame for the given
+  ///   routine. Frame is pre-built by BuildRoutineControlFrame. Return
+  ///   True on positive response.
+  /// </summary>
   TOBDRoutineStartCallback = reference to function(const Frame: TBytes;
     out NRC: Byte): Boolean;
 
-  /// <summary>Read the routine result via UDS 0x31 sub-function 0x03.
-  /// Returns True + ResultBytes on positive response.</summary>
+  /// <summary>
+  ///   Read the routine result via UDS 0x31 sub-function 0x03.
+  ///   Returns True + ResultBytes on positive response.
+  /// </summary>
   TOBDRoutineResultCallback = reference to function(RID: Word;
     out ResultBytes: TBytes; out NRC: Byte): Boolean;
 
-  /// <summary>Close the diagnostic session (return to default).</summary>
+  /// <summary>
+  ///   Close the diagnostic session (return to default).
+  /// </summary>
   TOBDSessionCloseCallback = reference to function: Boolean;
 
-  /// <summary>Read the adapter battery voltage. Mirrors the
-  /// TOBDVoltageReader signature from OBD.ECU.Flashing.VoltageGate so
-  /// the gate can be reused as-is.</summary>
+  /// <summary>
+  ///   Read the adapter battery voltage. Mirrors the
+  ///   TOBDVoltageReader signature from OBD.ECU.Flashing.VoltageGate so
+  ///   the gate can be reused as-is.
+  /// </summary>
   TOBDOEMSessionVoltageReader = TOBDVoltageReader;
 
-  /// <summary>Bundle of callbacks the helper needs. Production callers
-  /// wire each to their TOBDDiagSession; tests inject lambdas.</summary>
+  /// <summary>
+  ///   Bundle of callbacks the helper needs. Production callers
+  ///   wire each to their TOBDDiagSession; tests inject lambdas.
+  /// </summary>
   TOBDOEMSessionCallbacks = record
-    /// <summary>Open session.</summary>
+    /// <summary>
+    ///   Open session.
+    /// </summary>
     OpenSession: TOBDSessionOpenCallback;
-    /// <summary>Start routine.</summary>
+    /// <summary>
+    ///   Start routine.
+    /// </summary>
     StartRoutine: TOBDRoutineStartCallback;
-    /// <summary>Read result.</summary>
+    /// <summary>
+    ///   Read result.
+    /// </summary>
     ReadResult: TOBDRoutineResultCallback;
-    /// <summary>Close session.</summary>
+    /// <summary>
+    ///   Close session.
+    /// </summary>
     CloseSession: TOBDSessionCloseCallback;
     ReadVoltage: TOBDOEMSessionVoltageReader;  // optional; only consulted
                                                // when Routine.Safety = srsBatteryMin12V5
@@ -96,27 +124,39 @@ type
   private
     FVoltageGate: TOBDProgrammingVoltageGate;
     FOwnsGate: Boolean;
-    /// <summary>Apply voltage gate.</summary>
+    /// <summary>
+    ///   Apply voltage gate.
+    /// </summary>
     function ApplyVoltageGate(const Routine: TOBDServiceRoutine;
       const ReadVoltage: TOBDOEMSessionVoltageReader;
-      var Res: TOBDRoutineExecutionResult): Boolean;
-    /// <summary>Set failure.</summary>
+      var
+        Res: TOBDRoutineExecutionResult): Boolean;
+    /// <summary>
+    ///   Set failure.
+    /// </summary>
     procedure SetFailure(var Res: TOBDRoutineExecutionResult;
       Stage: TOBDRoutineExecutionStage; NRC: Byte; const Msg: string);
   public
-    /// <summary>Construct with an optional pre-configured voltage gate.
-    /// Pass nil to let the helper own a default gate (12.5 V threshold).
+    /// <summary>
+    ///   Construct with an optional pre-configured voltage gate.
+    ///   Pass nil to let the helper own a default gate (12.5 V threshold).
     /// </summary>
     constructor Create(VoltageGate: TOBDProgrammingVoltageGate = nil);
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
 
-    /// <summary>Run service routine.</summary>
+    /// <summary>
+    ///   Run service routine.
+    /// </summary>
     function RunServiceRoutine(const Routine: TOBDServiceRoutine;
       const Callbacks: TOBDOEMSessionCallbacks): TOBDRoutineExecutionResult;
 
-    /// <summary>Direct access to the configured voltage gate so callers
-    /// can register OEM-specific thresholds (e.g. tesla -> 13.0 V).</summary>
+    /// <summary>
+    ///   Direct access to the configured voltage gate so callers
+    ///   can register OEM-specific thresholds (e.g. tesla -> 13.0 V).
+    /// </summary>
     property VoltageGate: TOBDProgrammingVoltageGate read FVoltageGate;
   end;
 
@@ -176,7 +216,8 @@ end;
 function TOBDOEMSessionHelper.ApplyVoltageGate(
   const Routine: TOBDServiceRoutine;
   const ReadVoltage: TOBDOEMSessionVoltageReader;
-  var Res: TOBDRoutineExecutionResult): Boolean;
+  var
+    Res: TOBDRoutineExecutionResult): Boolean;
 var
   GateResult: TOBDVoltageGateResult;
 begin

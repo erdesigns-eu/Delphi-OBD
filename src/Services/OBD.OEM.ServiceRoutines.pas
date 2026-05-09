@@ -42,67 +42,117 @@ type
     srsRequiresWorkshopLogin
   );
 
-  /// <summary>One workshop routine description.</summary>
+  /// <summary>
+  ///   One workshop routine description.
+  /// </summary>
   TOBDServiceRoutine = record
-    /// <summary>Key.</summary>
+    /// <summary>
+    ///   Key.
+    /// </summary>
     Key: string;
-    /// <summary>Display name.</summary>
+    /// <summary>
+    ///   Display name.
+    /// </summary>
     DisplayName: string;
-    /// <summary>Category.</summary>
+    /// <summary>
+    ///   Category.
+    /// </summary>
     Category: TOBDServiceRoutineCategory;
-    /// <summary>Applicability.</summary>
+    /// <summary>
+    ///   Applicability.
+    /// </summary>
     Applicability: string;
-    /// <summary>Routine identifier.</summary>
+    /// <summary>
+    ///   Routine identifier.
+    /// </summary>
     RoutineIdentifier: Word;
-    /// <summary>Sub function.</summary>
+    /// <summary>
+    ///   Sub function.
+    /// </summary>
     SubFunction: Byte;
-    /// <summary>Option record.</summary>
+    /// <summary>
+    ///   Option record.
+    /// </summary>
     OptionRecord: TBytes;
-    /// <summary>Required session type.</summary>
+    /// <summary>
+    ///   Required session type.
+    /// </summary>
     RequiredSessionType: Byte;
-    /// <summary>Safety.</summary>
+    /// <summary>
+    ///   Safety.
+    /// </summary>
     Safety: TOBDServiceRoutineSafety;
-    /// <summary>Pre conditions.</summary>
+    /// <summary>
+    ///   Pre conditions.
+    /// </summary>
     PreConditions: string;
-    /// <summary>Post conditions.</summary>
+    /// <summary>
+    ///   Post conditions.
+    /// </summary>
     PostConditions: string;
-    /// <summary>Citation.</summary>
+    /// <summary>
+    ///   Citation.
+    /// </summary>
     Citation: string;
   end;
 
-/// <summary>Build the UDS 0x31 RoutineControl request frame:
-///   31 SF RID-hi RID-lo [OptionRecord...]</summary>
+/// <summary>
+///   Build the UDS 0x31 RoutineControl request frame:
+///   31 SF RID-hi RID-lo [OptionRecord...]
+/// </summary>
 function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;
 
 type
-  /// <summary>Process-wide routine registry (read-only after init).</summary>
+  /// <summary>
+  ///   Process-wide routine registry (read-only after init).
+  /// </summary>
   TOBDServiceRoutineRegistry = class
   private
     class var FInstance: TOBDServiceRoutineRegistry;
     FRoutines: TList<TOBDServiceRoutine>;
     FByKey: TDictionary<string, Integer>;
-    /// <summary>Load from catalog.</summary>
+    /// <summary>
+    ///   Load from catalog.
+    /// </summary>
     procedure LoadFromCatalog;
   public
-    /// <summary>Create.</summary>
+    /// <summary>
+    ///   Create.
+    /// </summary>
     constructor Create;
-    /// <summary>Destroy.</summary>
+    /// <summary>
+    ///   Destroy.
+    /// </summary>
     destructor Destroy; override;
-    /// <summary>Instance.</summary>
+    /// <summary>
+    ///   Instance.
+    /// </summary>
     class function Instance: TOBDServiceRoutineRegistry;
-    /// <summary>Free instance.</summary>
+    /// <summary>
+    ///   Free instance.
+    /// </summary>
     class procedure FreeInstance; reintroduce;
 
-    /// <summary>Count.</summary>
+    /// <summary>
+    ///   Count.
+    /// </summary>
     function Count: Integer;
-    /// <summary>Get.</summary>
+    /// <summary>
+    ///   Get.
+    /// </summary>
     function Get(Index: Integer): TOBDServiceRoutine;
-    /// <summary>Find.</summary>
+    /// <summary>
+    ///   Find.
+    /// </summary>
     function Find(const Key: string; out Routine: TOBDServiceRoutine): Boolean;
-    /// <summary>Get by category.</summary>
+    /// <summary>
+    ///   Get by category.
+    /// </summary>
     procedure GetByCategory(Category: TOBDServiceRoutineCategory;
       out Routines: TArray<TOBDServiceRoutine>);
-    /// <summary>Get by oem.</summary>
+    /// <summary>
+    ///   Get by oem.
+    /// </summary>
     procedure GetByOEM(const OEMKey: string;
       out Routines: TArray<TOBDServiceRoutine>);
   end;
@@ -263,7 +313,8 @@ begin Result := FRoutines[Index]; end;
 
 function TOBDServiceRoutineRegistry.Find(const Key: string;
   out Routine: TOBDServiceRoutine): Boolean;
-var Idx: Integer;
+var
+  Idx: Integer;
 begin
   Result := FByKey.TryGetValue(LowerCase(Key), Idx);
   if Result then Routine := FRoutines[Idx];
