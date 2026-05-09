@@ -92,6 +92,12 @@ uses
   OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas',
   OBD.Coding.Uploader in '..\src\Coding\OBD.Coding.Uploader.pas',
   OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
+  OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
+  OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
+  OBD.Calibration.XCP in '..\src\Calibration\OBD.Calibration.XCP.pas',
+  OBD.Calibration.CCP in '..\src\Calibration\OBD.Calibration.CCP.pas',
+  OBD.Speciality.IsoBus in '..\src\Speciality\OBD.Speciality.IsoBus.pas',
+  OBD.Speciality.Tachograph in '..\src\Speciality\OBD.Speciality.Tachograph.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -124,7 +130,8 @@ uses
   Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas',
   Tests.OBD.Service in 'Tests.OBD.Service.pas',
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
-  Tests.OBD.Coding in 'Tests.OBD.Coding.pas';
+  Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
+  Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas';
 
 {$IFDEF CI}
 var

@@ -1939,3 +1939,202 @@ Hardware-loop verification stays the only standing deferral.
       property.
 - [x] All four components register on the **OBD Coding** palette
       tab.
+
+---
+
+## Phase 7 — Calibration & speciality buses
+
+### Code landed
+
+- `src/Calibration/OBD.Calibration.A2L.pas` — `TOBDA2L`. ASAM
+  MCD-2 MC parser covering MEASUREMENT, CHARACTERISTIC and
+  COMPU_METHOD blocks (the load-bearing types for measurement
+  and calibration). Tokenizer with line-tracked errors;
+  unknown blocks (`RECORD_LAYOUT`, `AXIS_PTS`, `FUNCTION`,
+  `GROUP`, …) are skipped cleanly with brace-balanced
+  `SkipBlock`. `Convert` evaluates `IDENTICAL` / `LINEAR` /
+  `RAT_FUNC` formulas.
+- `src/Calibration/OBD.Calibration.XCP.Transport.pas` —
+  `IOBDXCPTransport` contract. The XCP master never touches
+  CAN / Ethernet / FlexRay directly; hosts plug their driver
+  by implementing the four-method interface
+  (Connect / Disconnect / SendPacket / ReceivePacket).
+- `src/Calibration/OBD.Calibration.XCP.pas` — `TOBDXCP`. ASAM
+  MCD-1 XCP master. Standard set: CONNECT, DISCONNECT,
+  GET_STATUS, GET_ID, GET_SEED / UNLOCK, SET_MTA, UPLOAD,
+  SHORT_UPLOAD, DOWNLOAD, SHORT_DOWNLOAD, SET_CAL_PAGE,
+  GET_CAL_PAGE, START_STOP_DAQ_LIST, START_STOP_SYNCH.
+  Honours the slave-declared byte order on every address
+  field. Surfaces ERR responses as `EOBDProtocolErr`.
+- `src/Calibration/OBD.Calibration.CCP.pas` — `TOBDCCP`. ASAP1a
+  CCP v2.1 master. CCP rides on CAN only and uses an 8-byte
+  packet with PID + counter + 6 parameter bytes. Covers
+  CONNECT, DISCONNECT, GET_CCP_VERSION, EXCHANGE_ID,
+  GET_SEED / UNLOCK, SET_MTA, DNLOAD, UPLOAD, SELECT_CAL_PAGE,
+  START_STOP. Big-endian addresses per spec.
+- `src/Speciality/OBD.Speciality.IsoBus.pas` — `TOBDIsoBus`.
+  ISO 11783-5 base-protocol surface. 64-bit NAME encode /
+  decode (LSB-first per spec), priority comparison, address-
+  claim handler with conflict resolution, registry of claimed
+  addresses, PGN-request frame builder. Address-claim conflicts
+  go through `OnAddressLost` so the host knows when to re-claim.
+- `src/Speciality/OBD.Speciality.Tachograph.pas` —
+  `TOBDTachograph`. EU 2016/799 Annex IC record decoder.
+  TimeReal ↔ `TDateTime` conversion (1970-01-01 UTC epoch),
+  Activity, Event and Fault records, ASCII string field
+  unpadding. Stateless — every method is `class function`.
+- `tests/Tests.OBD.Calibration.pas` — five fixtures covering
+  the A2L parser (MEASUREMENT / CHARACTERISTIC / COMPU_METHOD,
+  formula vectors, unknown-block skipping), the XCP master
+  through a queue-backed stub transport (CONNECT response
+  decoding, SHORT_UPLOAD address byte order, UNLOCK key
+  layout, ERR response raises), CCP packet shape (station-
+  address LE encoding, counter increment, length validation),
+  IsoBus NAME round-trip + priority + claim conflict + PGN
+  request encoding, and Tachograph TimeReal round-trip + a
+  hand-derived event-record vector + ASCII-string padding
+  stripping.
+- Components registered on a new **OBD Calibration** palette
+  tab (`TOBDXCP`, `TOBDCCP`, `TOBDIsoBus`). `TOBDA2L` /
+  `TOBDTachograph` are stateless decoders; no palette entry
+  is meaningful.
+
+### Architecture highlights
+
+- **Transport contract instead of a built-in CAN driver.** XCP
+  and CCP both target the same `IOBDXCPTransport` interface.
+  Hosts wire it to Vector / PEAK / Kvaser / SocketCAN / a
+  TOBDProtocol-backed CAN bridge with ~100 lines of glue per
+  driver. The masters never touch a raw socket or DLL.
+- **Slave-declared byte order is honoured everywhere.** The
+  XCP master records `BigEndian` from the CONNECT response and
+  re-encodes every address / DAQ field accordingly. The same
+  bit decides UNLOCK / SHORT_UPLOAD / SHORT_DOWNLOAD address
+  layout.
+- **A2L parser is forward-compatible.** Unknown blocks are
+  skipped via `SkipBlock` with brace counting; the parser
+  walks until the matching `/end`, even if the inner content
+  uses keywords it doesn't recognise. A future revision adds
+  RECORD_LAYOUT or AXIS_PTS without breaking files that
+  already parse today.
+- **NAME priority through 64-bit comparison.** ISO 11783-5
+  defines NAME priority as the 64-bit numeric value (lower =
+  higher priority). The component packs the bit fields into
+  one `UInt64` and uses ordinary `<` — no hand-coded compare
+  ladder.
+- **Tachograph decoder is read-only and stateless.** The
+  workshop / authority side consumes large blobs from a card
+  reader or VU dump; coupling the decoder to a transport adds
+  noise without value. A future component layer (PC/SC card
+  reader integration, VU diagnostic surface) sits on top.
+
+### What's intentionally not in v1
+
+- **Built-in CAN driver implementation of `IOBDXCPTransport`.**
+  Every host has a different driver; shipping one would either
+  pick a winner or balloon the dependency surface. Sample
+  implementations are tracked.
+- **A2L `RECORD_LAYOUT`, `AXIS_PTS`, `FUNCTION`, `GROUP`,
+  `MOD_PAR`.** Skipped cleanly. They are needed for full
+  curve / map / cuboid materialisation and group hierarchy
+  display; a host that only measures + calibrates scalars
+  doesn't need them.
+- **XCP DAQ list configuration.** START_STOP / SYNCH ship;
+  `SET_DAQ_PTR`, `WRITE_DAQ`, `ALLOC_DAQ`, `ALLOC_ODT`,
+  `ALLOC_ODT_ENTRY` and event-channel programming are not
+  here. Tracked for a follow-up. Many XCP slaves ship with
+  static DAQ lists configured in the A2L; those work today.
+- **XCP ProgramFlash group** (PGM resource — `PROGRAM_START`,
+  `PROGRAM`, `PROGRAM_CLEAR`, `PROGRAM_RESET`). UDS is the
+  modern path; XCP-PGM survives in legacy / non-automotive
+  ECUs and is tracked.
+- **CCP DAQ programming** (SET_DAQ_PTR / WRITE_DAQ are
+  declared but not exposed in v1). Same reasoning as XCP.
+- **IsoBus VT (Virtual Terminal), TC (Task Controller), FS
+  (File Server) and GNSS** are layered protocols on top of
+  the base surface. Tracked for follow-ups; the agricultural-
+  market scope is large.
+- **PC/SC card-reader integration for Tachograph** — depends
+  on Windows SCardSvr or a cross-platform PC/SC binding.
+  Tracked.
+- **Tachograph CalibrationRecord decoder.** The record
+  structure carries variable-length workshop name / VIN /
+  card number fields whose offsets depend on Annex IC version
+  (Gen 1 vs Gen 2 vs Gen 2 V2). Activity / Event / Fault
+  records have fixed layouts and are decoded; the variable-
+  layout records ship as a future expansion.
+- **A2L Convert table interpolation** (`TAB_INTP`,
+  `TAB_NOINTP`, `TAB_VERB`). Linear / rational covers the
+  measurement formulas; tables live in
+  `COMPU_VTAB` / `COMPU_VTAB_RANGE` blocks that are currently
+  skipped.
+
+### Honest review
+
+1. **No real-bench XCP run.** The XCP test fixture uses a
+   queue-backed stub transport that records sent packets and
+   replays canned responses. Wire correctness is verified by
+   pinning the bytes that go out (CONNECT command, SHORT_UPLOAD
+   address layout, UNLOCK key field) and decoding canned
+   responses. A real Vector/PEAK loop is the next step and is
+   gated on hardware. Same convention as every prior phase.
+2. **A2L parser ignores `MOD_COMMON` and `MOD_PAR`.** Those
+   blocks carry global defaults (default deposit, byte order,
+   addressing mode). For files where the global defaults
+   differ from the per-entry values the parser silently picks
+   per-entry, which is the conservative reading. Tracked as a
+   follow-up.
+3. **CCP master uses static counter wrap.** ASAP1a §3.1.2
+   defines the counter as 8-bit with natural wrap; we
+   `Inc(FCounter)` and let it roll over. Some legacy slaves
+   reject counter 0 — they would then NACK the 256th command
+   in a session. None of the test vectors trigger it.
+4. **IsoBus base does not run the address-claim contention
+   timer.** ISO 11783-5 §4.5 requires a 250 ms wait after
+   sending an address claim before treating the address as
+   owned. The component exposes `BuildAddressClaim` and
+   `HandleAddressClaim`; the host's CAN-frame loop drives
+   the timing. Documented; could be wrapped in a future
+   `TOBDIsoBusClaimer` orchestrator.
+5. **Tachograph activity records expose only the in-day
+   minute offset.** Annex IC ActivityChangeInfo records the
+   minutes-since-midnight on top of a separate dailyStart
+   timestamp; the `BeginTime` field of `TOBDTachoActivity`
+   carries only the minute portion. Hosts compose the full
+   datetime by anchoring against the day's TimeReal. The
+   alternative — embedding the date in the decoder — would
+   require day-context state we don't hold.
+6. **No real-vehicle integration test.** Same hardware-loop
+   deferral.
+
+### Phase 7 follow-ups
+
+- Sample `IOBDXCPTransport` implementation backed by raw CAN
+  via the existing `TOBDProtocol` adapter (text-based ELM327
+  cannot carry XCP cleanly — the sample would target a
+  raw-CAN-capable adapter such as Vector XL or PEAK).
+- Full XCP DAQ programming (SET_DAQ_PTR, WRITE_DAQ,
+  ALLOC_DAQ / ODT / ODT_ENTRY).
+- XCP ProgramFlash group (PGM).
+- CCP DAQ programming (SET_DAQ_PTR / WRITE_DAQ).
+- A2L `MOD_COMMON` / `MOD_PAR` global-defaults handling.
+- A2L `COMPU_VTAB` / table interpolation.
+- IsoBus VT, TC, FS, GNSS.
+- Tachograph CalibrationRecord decoder + PC/SC card-reader
+  integration.
+
+### Quality bars met
+
+- [x] XMLDoc on every public symbol per the mandatory-tag table.
+- [x] File header with correct attribution on every new unit.
+- [x] No VCL / FMX in runtime units.
+- [x] No third-party crypto / driver dependencies.
+- [x] XCP and CCP encode-side behaviour pinned to test
+      vectors; ERR-response paths covered.
+- [x] A2L formula vectors covered for IDENTICAL and LINEAR;
+      RAT_FUNC parses without runtime panic.
+- [x] IsoBus NAME round-trip and priority covered.
+- [x] Tachograph TimeReal round-trip pinned to a published
+      timestamp (2024-01-01 = 1704067200).
+- [x] All three runtime components register on the
+      **OBD Calibration** palette tab.

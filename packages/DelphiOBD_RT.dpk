@@ -91,6 +91,12 @@ contains
   OBD.Coding.RoutineControl in '..\src\Coding\OBD.Coding.RoutineControl.pas',
   OBD.Coding.Flasher in '..\src\Coding\OBD.Coding.Flasher.pas',
   OBD.Coding.Uploader in '..\src\Coding\OBD.Coding.Uploader.pas',
-  OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas';
+  OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
+  OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
+  OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
+  OBD.Calibration.XCP in '..\src\Calibration\OBD.Calibration.XCP.pas',
+  OBD.Calibration.CCP in '..\src\Calibration\OBD.Calibration.CCP.pas',
+  OBD.Speciality.IsoBus in '..\src\Speciality\OBD.Speciality.IsoBus.pas',
+  OBD.Speciality.Tachograph in '..\src\Speciality\OBD.Speciality.Tachograph.pas';
 
 end.

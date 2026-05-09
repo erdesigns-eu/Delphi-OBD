@@ -58,7 +58,10 @@ uses
   OBD.Coding.RoutineControl,
   OBD.Coding.Flasher,
   OBD.Coding.Uploader,
-  OBD.Coding.FlashSession;
+  OBD.Coding.FlashSession,
+  OBD.Calibration.XCP,
+  OBD.Calibration.CCP,
+  OBD.Speciality.IsoBus;
 
 procedure Register;
 begin
@@ -93,6 +96,15 @@ begin
     TOBDFlasher,
     TOBDUploader,
     TOBDFlashSession
+  ]);
+
+  // Phase 7: calibration + speciality buses. XCP and CCP need a
+  // transport injected at runtime; IsoBus is component-friendly
+  // out of the box.
+  RegisterComponents('OBD Calibration', [
+    TOBDXCP,
+    TOBDCCP,
+    TOBDIsoBus
   ]);
 end;
 
