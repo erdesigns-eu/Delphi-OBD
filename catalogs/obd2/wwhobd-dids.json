@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "type": "uds-did",
+  "entries": [
+    {
+      "id": "0xF190",
+      "name": "Vin",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Vehicle Identification Number (17 ASCII)"
+    },
+    {
+      "id": "0xF197",
+      "name": "Vehiclefamilyid",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Emissions vehicle-family identifier"
+    },
+    {
+      "id": "0xF198",
+      "name": "Calibrationid",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Calibration ID per ISO 15031-5"
+    },
+    {
+      "id": "0xF199",
+      "name": "Cvn",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Calibration Verification Number"
+    },
+    {
+      "id": "0xF19A",
+      "name": "Ecuname",
+      "length": 1,
+      "decoder": "raw",
+      "description": "ECU name string"
+    },
+    {
+      "id": "0xF184",
+      "name": "Programmingdate",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Last reprogramming date"
+    },
+    {
+      "id": "0xF186",
+      "name": "Activediagnosticsession",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Currently active UDS session"
+    },
+    {
+      "id": "0xFD00",
+      "name": "Wwhobdprotocolversion",
+      "length": 1,
+      "decoder": "raw",
+      "description": "WWH-OBD protocol version"
+    },
+    {
+      "id": "0xFD01",
+      "name": "Obdrequirement",
+      "length": 1,
+      "decoder": "raw",
+      "description": "OBD certification requirement (e.g. EOBD, WWH-OBD)"
+    },
+    {
+      "id": "0xFD02",
+      "name": "Obdmidlist",
+      "length": 1,
+      "decoder": "raw",
+      "description": "List of supported OBDMIDs"
+    },
+    {
+      "id": "0xFD03",
+      "name": "Activedtcs",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Stream of active DTCs in J1939-FMI form"
+    },
+    {
+      "id": "0xFD04",
+      "name": "Permanentdtcs",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Permanent DTCs that survive cleared codes"
+    },
+    {
+      "id": "0xFD05",
+      "name": "Readinessstatus",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Monitor readiness bitmap"
+    },
+    {
+      "id": "0xFD06",
+      "name": "Livedata",
+      "length": 1,
+      "decoder": "raw",
+      "description": "WWH-OBD live data"
+    },
+    {
+      "id": "0xFD07",
+      "name": "Freezeframe",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Freeze frame for the DTC that triggered MIL"
+    },
+    {
+      "id": "0xFD08",
+      "name": "Vehiclemfrsoftwarename",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Manufacturer software identifier string"
+    },
+    {
+      "id": "0xFD09",
+      "name": "Vehiclemfrhardwarenumber",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Manufacturer hardware identifier string"
+    },
+    {
+      "id": "0xFD0A",
+      "name": "Distancewithmilon",
+      "length": 1,
+      "decoder": "raw",
+      "description": "km with MIL active"
+    },
+    {
+      "id": "0xFD0B",
+      "name": "Distancesincedtcclear",
+      "length": 1,
+      "decoder": "raw",
+      "description": "km since DTCs were cleared"
+    },
+    {
+      "id": "0xFD0C",
+      "name": "Timewithmilon",
+      "length": 1,
+      "decoder": "raw",
+      "description": "minutes with MIL active"
+    },
+    {
+      "id": "0xFD0D",
+      "name": "Timesincedtcclear",
+      "length": 1,
+      "decoder": "raw",
+      "description": "minutes since DTCs were cleared"
+    },
+    {
+      "id": "0xFD0E",
+      "name": "Numberofwarmups",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Warm-up cycles since DTC clear"
+    }
+  ]
+}

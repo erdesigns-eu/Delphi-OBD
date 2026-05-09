@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/obd2-pid.schema.json",
+  "title": "OBD-II PID catalogue (v2)",
+  "type": "object",
+  "required": ["version", "type", "entries"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": { "const": "obd2-pid" },
+    "mode": {
+      "type": "string",
+      "description": "OBD-II mode/service number as two hex digits (e.g. '01', '09')."
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pidEntry" }
+    }
+  },
+  "$defs": {
+    "pidEntry": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "PID identifier as hex without 0x prefix or with 0x prefix; case-insensitive."
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "length": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "unit": { "type": "string" },
+        "decoder": {
+          "type": "string",
+          "description": "Registry key for the decoder. Built-ins: linear, percentage, temperature, fueltrim, rpm, speed, maf, ascii, bitfield, raw."
+        },
+        "scale": { "type": "number" },
+        "offset": { "type": "number" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

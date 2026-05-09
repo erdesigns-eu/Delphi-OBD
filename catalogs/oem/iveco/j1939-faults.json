@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000BC4",
+      "text": "SPN0094-FMI4: Iveco — Engine fuel delivery pressure circuit voltage low (Cursor)"
+    },
+    {
+      "code": "0x000013A3",
+      "text": "SPN0157-FMI3: Iveco Cursor — High-pressure rail sensor voltage high"
+    },
+    {
+      "code": "0x00003364",
+      "text": "SPN0411-FMI4: Iveco — EGR differential pressure sensor low"
+    },
+    {
+      "code": "0x00019670",
+      "text": "SPN3251-FMI16: Iveco — DPF differential pressure high (regen needed)"
+    },
+    {
+      "code": "0x0001A423",
+      "text": "SPN3361-FMI3: Iveco ACM — DEF dosing valve circuit voltage high"
+    },
+    {
+      "code": "0x0001D0F0",
+      "text": "SPN3719-FMI16: Iveco — DPF soot load most severe (parked regen mandatory)"
+    },
+    {
+      "code": "0x00028FD0",
+      "text": "SPN5246-FMI16: Iveco SCR — system inducement (5 mph derate)"
+    },
+    {
+      "code": "0x0002A25F",
+      "text": "SPN5394-FMI31: Iveco — DEF dosing unit not responding"
+    },
+    {
+      "code": "0x0002B870",
+      "text": "SPN5571-FMI16: Iveco — DEF inducement engaged (engine power derate)"
+    },
+    {
+      "code": "0x0003473F",
+      "text": "SPN6713-FMI31: Iveco — Aftertreatment regeneration interrupted"
+    }
+  ]
+}

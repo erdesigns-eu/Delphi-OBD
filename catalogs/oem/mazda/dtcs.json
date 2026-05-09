@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9318",
+      "text": "Battery Voltage Low (Mazda BCM)"
+    },
+    {
+      "code": "0x0303",
+      "text": "Cylinder 3 Misfire Detected (Mazda — common SkyActiv-X)"
+    },
+    {
+      "code": "0x0327",
+      "text": "Knock Sensor Range/Performance (Skyactiv-X SPCCI)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Efficiency Below Threshold (Mazda Skyactiv)"
+    },
+    {
+      "code": "0x061B",
+      "text": "Internal Control Module Torque Calculation (Mazda)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Torque Converter Clutch Circuit Performance (Mazda 6-speed AT)"
+    },
+    {
+      "code": "0x2096",
+      "text": "Post Catalyst Fuel Trim System Too Lean Bank 1 (Mazda)"
+    },
+    {
+      "code": "0x2118",
+      "text": "Throttle Actuator Control Motor Current Range (Mazda)"
+    },
+    {
+      "code": "0x2127",
+      "text": "Throttle Position Sensor 'E' Circuit Low (Mazda)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Control Module Communication Bus 'A' Off (Mazda HS-CAN)"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9135",
+      "text": "Battery voltage low (Suzuki SDM)"
+    },
+    {
+      "code": "0x0335",
+      "text": "CKP Sensor 'A' Circuit (Suzuki)"
+    },
+    {
+      "code": "0x0351",
+      "text": "Ignition Coil A Primary/Secondary Circuit (Suzuki K-engine)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Efficiency Below Threshold (Suzuki)"
+    },
+    {
+      "code": "0x1450",
+      "text": "EVAP System Vent Solenoid Stuck Closed (Suzuki)"
+    },
+    {
+      "code": "0x1A0F",
+      "text": "Battery Replacement Not Registered (Suzuki SHVS)"
+    },
+    {
+      "code": "0x2138",
+      "text": "Throttle Pedal Position Sensor Correlation (Maruti / Suzuki ETC)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Control Module Communication Bus 'A' Off (Suzuki HS-CAN)"
+    }
+  ]
+}

@@ -28,7 +28,17 @@ uses
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
-  Tests.OBD.Version in 'Tests.OBD.Version.pas';
+  OBD.Version in '..\src\Core\OBD.Version.pas',
+  OBD.Types in '..\src\Core\OBD.Types.pas',
+  OBD.Errors in '..\src\Core\OBD.Errors.pas',
+  OBD.Decoders in '..\src\Core\OBD.Decoders.pas',
+  OBD.Catalog in '..\src\Core\OBD.Catalog.pas',
+  Tests.OBD.Version in 'Tests.OBD.Version.pas',
+  Tests.OBD.Types in 'Tests.OBD.Types.pas',
+  Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
+  Tests.OBD.Decoders in 'Tests.OBD.Decoders.pas',
+  Tests.OBD.Catalog in 'Tests.OBD.Catalog.pas',
+  Tests.OBD.Catalog.Inventory in 'Tests.OBD.Catalog.Inventory.pas';
 
 {$IFDEF CI}
 var

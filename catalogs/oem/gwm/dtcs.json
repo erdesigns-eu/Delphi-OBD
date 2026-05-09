@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900F",
+      "text": "GWM Coffee Pilot — front-camera obstructed"
+    },
+    {
+      "code": "0x0299",
+      "text": "Lemon DHT Turbo Underboost"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst System Efficiency Bank 1 (Haval / WEY)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Torque Converter Clutch Performance (GWM 9HAT)"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor Performance (Tank 700 / Wey Coffee)"
+    },
+    {
+      "code": "0x0A80",
+      "text": "Replace Hybrid Battery Pack (Hi4 / ORA)"
+    },
+    {
+      "code": "0xC293",
+      "text": "Lost Communication With BMS (ORA / Coffee EV)"
+    }
+  ]
+}

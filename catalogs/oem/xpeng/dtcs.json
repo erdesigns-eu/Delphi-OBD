@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x953F",
+      "text": "Xpeng XPILOT front-radar — performance degraded"
+    },
+    {
+      "code": "0x541C",
+      "text": "Xpeng — ESP / yaw-rate plausibility"
+    },
+    {
+      "code": "0x0A0F",
+      "text": "Engine fail to start (not applicable on EV — should never fire)"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor Inverter (XPeng 800V SiC)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "Drive Motor 'A' Temperature Sensor Circuit (Xpeng)"
+    },
+    {
+      "code": "0x0D38",
+      "text": "On-board charger DC/DC performance (Xpeng)"
+    },
+    {
+      "code": "0x3F01",
+      "text": "S5 Flash-Charge Handshake Failed"
+    },
+    {
+      "code": "0xC293",
+      "text": "Lost Communication With BMS (Xpeng)"
+    },
+    {
+      "code": "0xE018",
+      "text": "LeDar Lidar Calibration Required (XNGP)"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x5135",
+      "text": "Isuzu — Brake-pedal switch circuit (cruise interlock)"
+    },
+    {
+      "code": "0x003A",
+      "text": "Isuzu 4HK1/6HK1 — Turbocharger Vane Position Performance (VGT)"
+    },
+    {
+      "code": "0x0087",
+      "text": "Isuzu 4JJ1 / RZ4E — Fuel rail pressure too low"
+    },
+    {
+      "code": "0x0088",
+      "text": "Isuzu RZ4E — Fuel rail pressure too high"
+    },
+    {
+      "code": "0x0093",
+      "text": "Isuzu — Fuel system leak (large)"
+    },
+    {
+      "code": "0x0234",
+      "text": "Isuzu — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Isuzu — Turbocharger underboost"
+    },
+    {
+      "code": "0x0335",
+      "text": "Isuzu CKP — Crankshaft Position Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0420",
+      "text": "Isuzu — Catalyst System Efficiency Bank 1"
+    },
+    {
+      "code": "0x0700",
+      "text": "Isuzu MZW / Smoother — Transmission Control System Malfunction"
+    },
+    {
+      "code": "0x204F",
+      "text": "DEF / SCR Performance (Isuzu)"
+    },
+    {
+      "code": "0x244A",
+      "text": "DPF Differential Pressure Too Low (Isuzu DDi)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Isuzu — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Isuzu — Lost communication with body computer"
+    }
+  ]
+}

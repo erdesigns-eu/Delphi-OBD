@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9318",
+      "text": "Battery Voltage Low (Ford BCM)"
+    },
+    {
+      "code": "0x0660",
+      "text": "Intake Manifold Tuning Valve Control Circuit (Ford)"
+    },
+    {
+      "code": "0x0A09",
+      "text": "DC/DC Converter Status: Open Circuit (Ford Hybrid)"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "Hybrid Battery System Voltage Low (Ford)"
+    },
+    {
+      "code": "0x1000",
+      "text": "OBD Drive Cycle Not Complete (Ford)"
+    },
+    {
+      "code": "0x1131",
+      "text": "Lack of Upstream Heated Oxygen Sensor Switches — Indicates Lean (Ford)"
+    },
+    {
+      "code": "0x1336",
+      "text": "CKP/CMP Sensor Range/Performance"
+    },
+    {
+      "code": "0x1450",
+      "text": "Unable to Bleed Up Fuel Tank Vacuum (Ford EVAP)"
+    },
+    {
+      "code": "0x1518",
+      "text": "Intake Manifold Runner Control Stuck Open"
+    },
+    {
+      "code": "0x1633",
+      "text": "Keep-Alive Power Voltage Too Low (Ford KAM)"
+    },
+    {
+      "code": "0x2008",
+      "text": "Intake Manifold Runner Control Circuit / Open Bank 1"
+    },
+    {
+      "code": "0x2106",
+      "text": "Throttle Actuator Control System — Forced Limited Power (Ford)"
+    },
+    {
+      "code": "0x2110",
+      "text": "Throttle Actuator Control System — Forced Limited RPM"
+    },
+    {
+      "code": "0x218A",
+      "text": "Power Take-Off Engagement Switch: Range/Performance (Ford)"
+    },
+    {
+      "code": "0xC019",
+      "text": "Lost Communication With Medium Speed CAN (Ford MS-CAN)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Control Module Communication Bus 'A' Off (Ford HS-CAN)"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900D",
+      "text": "Porsche PCM front-camera obstructed"
+    },
+    {
+      "code": "0x905F",
+      "text": "Porsche PASM ride-height sensor open circuit"
+    },
+    {
+      "code": "0x5525",
+      "text": "PASM Damper Module: Internal Fault"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Porsche PCCB ceramic-brake controller fault"
+    },
+    {
+      "code": "0x0234",
+      "text": "Turbocharger Overboost (Porsche)"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (911 Turbo / Cayenne / Macan T)"
+    },
+    {
+      "code": "0x0301",
+      "text": "Cylinder 1 Misfire (Porsche common after coil failure)"
+    },
+    {
+      "code": "0x0302",
+      "text": "Cylinder 2 Misfire"
+    },
+    {
+      "code": "0x0303",
+      "text": "Cylinder 3 Misfire"
+    },
+    {
+      "code": "0x0304",
+      "text": "Cylinder 4 Misfire"
+    },
+    {
+      "code": "0x0305",
+      "text": "Cylinder 5 Misfire (flat-six 911 / 718 GTS 4.0)"
+    },
+    {
+      "code": "0x0306",
+      "text": "Cylinder 6 Misfire"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst System Efficiency Bank 1 (common 9X1 Cayman)"
+    },
+    {
+      "code": "0x0430",
+      "text": "Catalyst System Efficiency Bank 2 (Porsche M96/M97)"
+    },
+    {
+      "code": "0x0524",
+      "text": "Engine Oil Pressure Low (Porsche M96/M97 IMS-related)"
+    },
+    {
+      "code": "0x0A09",
+      "text": "800V DC/DC Converter Status (Taycan / Macan EV)"
+    },
+    {
+      "code": "0x0A0F",
+      "text": "Engine Failed To Start (Taycan range-extender / 918)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Hybrid Battery Voltage System Isolation Fault (Taycan / 911 hybrid)"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "Hybrid battery cell voltage delta out of range (Taycan)"
+    },
+    {
+      "code": "0x0AFE",
+      "text": "Hybrid battery cooling-system performance (Taycan)"
+    },
+    {
+      "code": "0x0D38",
+      "text": "On-board charger DC/DC performance (Taycan)"
+    },
+    {
+      "code": "0x10DF",
+      "text": "VarioCam Plus Solenoid Bank 1: Stuck (Porsche M9x flat-6)"
+    },
+    {
+      "code": "0x164A",
+      "text": "Camshaft phaser solenoid (Porsche 9A1 / MA1)"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Cell Imbalance (Taycan)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Porsche — Powertrain CAN bus 'A' off"
+    },
+    {
+      "code": "0xDA00",
+      "text": "Porsche CAN-FD Powertrain Bus performance fault"
+    },
+    {
+      "code": "0xE306",
+      "text": "Front Radar Calibration Required (InnoDrive)"
+    }
+  ]
+}

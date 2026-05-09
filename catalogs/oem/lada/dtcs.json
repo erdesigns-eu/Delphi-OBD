@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9318",
+      "text": "Lada BCM — Battery voltage low"
+    },
+    {
+      "code": "0x4040",
+      "text": "Lada — ABS wheel speed sensor front-left circuit"
+    },
+    {
+      "code": "0x0102",
+      "text": "Lada — Mass Air Flow Circuit Low Input"
+    },
+    {
+      "code": "0x0103",
+      "text": "MAF Sensor Out of Range (VAZ ECU)"
+    },
+    {
+      "code": "0x0117",
+      "text": "Lada — Engine Coolant Temp Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x0118",
+      "text": "Lada — Engine Coolant Temp Sensor Circuit High Input"
+    },
+    {
+      "code": "0x0122",
+      "text": "Lada — Throttle Position Sensor 'A' Circuit Low"
+    },
+    {
+      "code": "0x0123",
+      "text": "Lada — Throttle Position Sensor 'A' Circuit High"
+    },
+    {
+      "code": "0x0130",
+      "text": "Lada — O2 Sensor Bank 1 Sensor 1 Circuit"
+    },
+    {
+      "code": "0x0171",
+      "text": "Lada — System Too Lean Bank 1"
+    },
+    {
+      "code": "0x0172",
+      "text": "Lada — System Too Rich Bank 1"
+    },
+    {
+      "code": "0x0301",
+      "text": "Lada VAZ-21127 / 21179 — Cylinder 1 misfire detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "Lada — Cylinder 2 misfire detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "Lada — Cylinder 3 misfire detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "Lada — Cylinder 4 misfire detected"
+    },
+    {
+      "code": "0x0335",
+      "text": "Crankshaft Position Sensor 'A' Circuit (Lada)"
+    },
+    {
+      "code": "0x0340",
+      "text": "Lada — Camshaft Position Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0420",
+      "text": "Lada — Catalyst Bank 1 efficiency below threshold"
+    },
+    {
+      "code": "0x0444",
+      "text": "Lada — EVAP Purge Control Valve Circuit Open"
+    },
+    {
+      "code": "0x0500",
+      "text": "Lada — Vehicle Speed Sensor 'A' fault"
+    },
+    {
+      "code": "0x0628",
+      "text": "Lada — Fuel pump 'A' control circuit low"
+    },
+    {
+      "code": "0x0830",
+      "text": "Lada — Clutch pedal switch 'A' circuit (Granta 5MT)"
+    },
+    {
+      "code": "0x1336",
+      "text": "Lada VAZ — CKP self-learning incomplete"
+    },
+    {
+      "code": "0x1602",
+      "text": "Lada APS — Immobilizer code authentication error"
+    },
+    {
+      "code": "0xC073",
+      "text": "Lada — Control module communication bus 'A' off"
+    },
+    {
+      "code": "0xC100",
+      "text": "Lada — Lost Communication With ECM/PCM 'A'"
+    }
+  ]
+}

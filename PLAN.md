@@ -391,12 +391,25 @@ Each phase ships independently and ends with a green CI run. `[ ]` = open,
 - [x] Add `samples/00-Hello/` placeholder demonstrating package linkage
 
 ### Phase 1 — Core types & catalog loader (~1 week)
-- [ ] `OBD.Types.pas` — enums, exception hierarchy, `TOBDValue`, `TOBDPIDDescriptor`
-- [ ] `OBD.Errors.pas` — error code → message resolver
-- [ ] `OBD.Catalog.pas` — JSON schema, loader, in-memory store, lookup
-- [ ] `OBD.Decoders.pas` — shared scaling primitives (percent, temperature, fuel-trim, RPM, MAF, generic linear `A*X+B`)
-- [ ] Initial JSON catalogs: mode01 PIDs, DTC text, NRC text (port from existing repo's data)
-- [ ] Tests: catalog loader (round-trip, malformed JSON, missing fields), decoders (boundary values, sign extension, endianness)
+- [x] `OBD.Types.pas` — `TOBDTransport`, `TOBDAdapterFamily`, `TOBDProtocolID`, `TOBDErrorCode`, `TOBDValueKind`, `TOBDValue`, `TOBDPIDDescriptor`; exception hierarchy (`EOBDError`, `EOBDConfig`, `EOBDNotConnected`, `EOBDProtocol`, `EOBDUnsupported`, `EOBDInternal`); `MakeOBDValue`, `CanonicalDecoderName` helpers
+- [x] `OBD.Errors.pas` — `OBDErrorCodeToMessage`, `OBDErrorCodeToIdent`
+- [x] `OBD.Decoders.pas` — `TOBDDecoderRegistry` + 10 built-ins (`linear`, `percentage`, `temperature`, `fueltrim`, `rpm`, `speed`, `maf`, `ascii`, `bitfield`, `raw`); pluggable for OEM extensions
+- [x] `OBD.Catalog.pas` — `TOBDCatalog`, `TOBDCatalogStore`, schema-versioned JSON loader (kinds: `obd2-pid`, `obd2-dtc`, `uds-nrc`, `j1939-pgn/spn/fmi`, `uds-did`, `adapter-capabilities`); recursive `LoadDirectory`; typed `FindPID` / `FindText`
+- [x] **Comprehensive port of every relevant catalogue from `main`** — 1,550 entries across 55 files:
+  - `catalogs/obd2/pids-mode01.json` — 84 standard Mode 01 PIDs
+  - `catalogs/obd2/dtcs.json` — 528 generic ISO 15031 DTCs
+  - `catalogs/obd2/nrc.json` — 60 UDS NRCs (full ISO 14229 set)
+  - `catalogs/obd2/mids-mode06.json` — 34 Mode 06 OBDMIDs
+  - `catalogs/obd2/tids-mode06.json` — 22 Mode 06 TIDs
+  - `catalogs/obd2/wwhobd-dids.json` — 22 WWH-OBD DIDs
+  - `catalogs/obd2/adapter-capabilities.json` — adapter capability matrix
+  - `catalogs/uds/dids-generic.json` — 31 standard UDS DIDs
+  - `catalogs/j1939/pgns.json` — 55 J1939 PGNs
+  - `catalogs/oem/<vendor>/dtcs.json` — 658 OEM standard DTCs across 39 vendors
+  - `catalogs/oem/<vendor>/j1939-faults.json` — 51 J1939 SPN-FMI fault codes across 7 heavy-duty OEMs
+- [x] JSON schema files under `catalogs/_schema/`: `obd2-pid.schema.json`, `text-catalog.schema.json`
+- [x] Tests: `Tests.OBD.Types`, `Tests.OBD.Errors`, `Tests.OBD.Decoders` (16 assertions), `Tests.OBD.Catalog` (8 assertions), `Tests.OBD.Catalog.Inventory` (10 baseline-count regression checks so a future PR cannot silently drop catalogue data)
+- [x] Phase 1 review report: [`docs/phase-reviews.md`](docs/phase-reviews.md) — what landed, what was deliberately deferred, honest follow-ups
 
 ### Phase 2 — Connection layer (~2 weeks)
 - [ ] `OBD.Connection.pas` — `TOBDConnection` component, transport-agnostic public surface
@@ -781,3 +794,4 @@ Append entries here as work progresses.
 |---|---|---|
 | 2026-05-09 | — | Plan drafted and locked. v2 branch not yet cut. |
 | 2026-05-09 | 0 | v2 branch cut from main; old src/tests/examples/tools/docs/Packages/Resources wiped (catalogs preserved). Skeleton landed: LICENSE (MIT), README, CONTRIBUTING, STYLE guide, file-header template, RT+DT package skeletons, DUnitX runner with smoke test, hygiene CI workflow, issue/PR templates, samples/00-Hello, src/ subdir map, docs/flashing-safety.md. Coverage CI deferred until Windows runner is online. |
+| 2026-05-09 | 1 | Core layer landed: OBD.Types (enums, TOBDValue, exception hierarchy), OBD.Errors (code → message), OBD.Decoders (registry + 10 built-in scaling primitives), OBD.Catalog (JSON loader, in-memory store, typed lookup). **Full catalogue port from main: 1,550 entries across 55 files** — 84 Mode 01 PIDs, 528 generic DTCs, 60 UDS NRCs, 34 Mode 06 MIDs, 22 Mode 06 TIDs, 22 WWH-OBD DIDs, 31 UDS DIDs, 55 J1939 PGNs, 658 OEM standard DTCs across 39 vendors, 51 J1939 SPN-FMI fault codes across 7 heavy-duty OEMs. Inventory regression tests guard against silent data loss. Phase 1 review report at docs/phase-reviews.md. |

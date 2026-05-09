@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x916F",
+      "text": "Bentley — KESSY antenna circuit fault"
+    },
+    {
+      "code": "0x4A20",
+      "text": "Bentley — Dynamic Ride 48 V actuator drive fault"
+    },
+    {
+      "code": "0x50C0",
+      "text": "Bentley — Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x50C1",
+      "text": "Bentley — Air-suspension level sensor implausible"
+    },
+    {
+      "code": "0x5525",
+      "text": "Bentley Dynamic Ride: Pump Over-Time"
+    },
+    {
+      "code": "0x5A30",
+      "text": "Bentley Flying Spur Mulliner — Rear-wheel steering position implausible"
+    },
+    {
+      "code": "0x0234",
+      "text": "Bentley V8 TFSI / W12 — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Bentley V8 TFSI / W12 — Turbocharger underboost"
+    },
+    {
+      "code": "0x0301",
+      "text": "Bentley V8 TFSI / W12 TSI — Cylinder 1 misfire detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "Bentley V8 / W12 — Cylinder 2 misfire detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "Bentley V8 / W12 — Cylinder 3 misfire detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "Bentley V8 / W12 — Cylinder 4 misfire detected"
+    },
+    {
+      "code": "0x0305",
+      "text": "Bentley W12 — Cylinder 5 misfire detected"
+    },
+    {
+      "code": "0x0306",
+      "text": "Bentley W12 — Cylinder 6 misfire detected"
+    },
+    {
+      "code": "0x0420",
+      "text": "Bentley — Catalyst Bank 1 efficiency below threshold"
+    },
+    {
+      "code": "0x0430",
+      "text": "Bentley W12 — Catalyst Bank 2 efficiency below threshold"
+    },
+    {
+      "code": "0x0524",
+      "text": "Bentley — Engine oil pressure too low"
+    },
+    {
+      "code": "0x052E",
+      "text": "Bentley — Camshaft phasing performance (Valvelift / chain stretch)"
+    },
+    {
+      "code": "0x0A7A",
+      "text": "Bentley Hybrid — Hybrid battery pack deterioration"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Bentley Hybrid — HV battery isolation fault"
+    },
+    {
+      "code": "0x0D29",
+      "text": "Bentley Hybrid — AC charging coupler latch fault (Type 2)"
+    },
+    {
+      "code": "0x10DF",
+      "text": "VarioCam Solenoid Stuck (W12 / V8)"
+    },
+    {
+      "code": "0x2002",
+      "text": "Bentley diesel-equivalent / Mulsanne — DPF efficiency below threshold"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Cell Imbalance (Continental GT Speed PHEV)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Bentley — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Bentley — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "Bentley — Lost Communication With Bentley Rotating Display"
+    }
+  ]
+}

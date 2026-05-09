@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000BC4",
+      "text": "SPN0094-FMI4: Cummins — Engine fuel delivery pressure circuit voltage low (X15 / ISX15)"
+    },
+    {
+      "code": "0x000013A3",
+      "text": "SPN0157-FMI3: Cummins — Engine fuel injector metering rail #1 pressure circuit voltage high"
+    },
+    {
+      "code": "0x00003363",
+      "text": "SPN0411-FMI3: Cummins — EGR differential pressure sensor circuit voltage high"
+    },
+    {
+      "code": "0x00017DF2",
+      "text": "SPN3055-FMI18: Cummins — Aftertreatment 1 fuel pressure low (DOC fuel-doser)"
+    },
+    {
+      "code": "0x00019660",
+      "text": "SPN3251-FMI0: Cummins — DPF differential pressure data above normal (regen needed)"
+    },
+    {
+      "code": "0x0001A3C3",
+      "text": "SPN3358-FMI3: Cummins — EGR throttle position sensor voltage high"
+    },
+    {
+      "code": "0x0001D0F0",
+      "text": "SPN3719-FMI16: Cummins — Particulate trap soot load most severe"
+    },
+    {
+      "code": "0x00028FC0",
+      "text": "SPN5246-FMI0: Cummins — Aftertreatment SCR operator inducement severity (5 mph derate)"
+    }
+  ]
+}

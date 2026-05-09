@@ -32,6 +32,10 @@ requires
   rtl;
 
 contains
-  OBD.Version in '..\src\Core\OBD.Version.pas';
+  OBD.Version in '..\src\Core\OBD.Version.pas',
+  OBD.Types in '..\src\Core\OBD.Types.pas',
+  OBD.Errors in '..\src\Core\OBD.Errors.pas',
+  OBD.Decoders in '..\src\Core\OBD.Decoders.pas',
+  OBD.Catalog in '..\src\Core\OBD.Catalog.pas';
 
 end.

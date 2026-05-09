@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "type": "uds-nrc",
+  "entries": [
+    {
+      "code": "0x00",
+      "text": "positiveResponse"
+    },
+    {
+      "code": "0x10",
+      "text": "generalReject"
+    },
+    {
+      "code": "0x11",
+      "text": "serviceNotSupported"
+    },
+    {
+      "code": "0x12",
+      "text": "subFunctionNotSupported"
+    },
+    {
+      "code": "0x13",
+      "text": "incorrectMessageLengthOrInvalidFormat"
+    },
+    {
+      "code": "0x14",
+      "text": "responseTooLong"
+    },
+    {
+      "code": "0x21",
+      "text": "busyRepeatRequest"
+    },
+    {
+      "code": "0x22",
+      "text": "conditionsNotCorrect"
+    },
+    {
+      "code": "0x24",
+      "text": "requestSequenceError"
+    },
+    {
+      "code": "0x25",
+      "text": "noResponseFromSubnetComponent"
+    },
+    {
+      "code": "0x26",
+      "text": "failurePreventsExecutionOfRequestedAction"
+    },
+    {
+      "code": "0x31",
+      "text": "requestOutOfRange"
+    },
+    {
+      "code": "0x33",
+      "text": "securityAccessDenied"
+    },
+    {
+      "code": "0x34",
+      "text": "authenticationRequired"
+    },
+    {
+      "code": "0x35",
+      "text": "invalidKey"
+    },
+    {
+      "code": "0x36",
+      "text": "exceededNumberOfAttempts"
+    },
+    {
+      "code": "0x37",
+      "text": "requiredTimeDelayNotExpired"
+    },
+    {
+      "code": "0x38",
+      "text": "secureDataTransmissionRequired"
+    },
+    {
+      "code": "0x39",
+      "text": "secureDataTransmissionNotAllowed"
+    },
+    {
+      "code": "0x3A",
+      "text": "secureDataVerificationFailed"
+    },
+    {
+      "code": "0x50",
+      "text": "certificateVerificationFailed_InvalidTimePeriod"
+    },
+    {
+      "code": "0x51",
+      "text": "certificateVerificationFailed_InvalidSignature"
+    },
+    {
+      "code": "0x52",
+      "text": "certificateVerificationFailed_InvalidChainOfTrust"
+    },
+    {
+      "code": "0x53",
+      "text": "certificateVerificationFailed_InvalidType"
+    },
+    {
+      "code": "0x54",
+      "text": "certificateVerificationFailed_InvalidFormat"
+    },
+    {
+      "code": "0x55",
+      "text": "certificateVerificationFailed_InvalidContent"
+    },
+    {
+      "code": "0x56",
+      "text": "certificateVerificationFailed_InvalidScope"
+    },
+    {
+      "code": "0x57",
+      "text": "certificateVerificationFailed_InvalidCertificate"
+    },
+    {
+      "code": "0x58",
+      "text": "ownershipVerificationFailed"
+    },
+    {
+      "code": "0x59",
+      "text": "challengeCalculationFailed"
+    },
+    {
+      "code": "0x5A",
+      "text": "settingAccessRightsFailed"
+    },
+    {
+      "code": "0x5B",
+      "text": "sessionKeyCreation/DerivationFailed"
+    },
+    {
+      "code": "0x5C",
+      "text": "configurationDataUsageFailed"
+    },
+    {
+      "code": "0x5D",
+      "text": "deAuthenticationFailed"
+    },
+    {
+      "code": "0x70",
+      "text": "uploadDownloadNotAccepted"
+    },
+    {
+      "code": "0x71",
+      "text": "transferDataSuspended"
+    },
+    {
+      "code": "0x72",
+      "text": "generalProgrammingFailure"
+    },
+    {
+      "code": "0x73",
+      "text": "wrongBlockSequenceCounter"
+    },
+    {
+      "code": "0x78",
+      "text": "requestCorrectlyReceived-ResponsePending"
+    },
+    {
+      "code": "0x7E",
+      "text": "subFunctionNotSupportedInActiveSession"
+    },
+    {
+      "code": "0x7F",
+      "text": "serviceNotSupportedInActiveSession"
+    },
+    {
+      "code": "0x81",
+      "text": "rpmTooHigh"
+    },
+    {
+      "code": "0x82",
+      "text": "rpmTooLow"
+    },
+    {
+      "code": "0x83",
+      "text": "engineIsRunning"
+    },
+    {
+      "code": "0x84",
+      "text": "engineIsNotRunning"
+    },
+    {
+      "code": "0x85",
+      "text": "engineRunTimeTooLow"
+    },
+    {
+      "code": "0x86",
+      "text": "temperatureTooHigh"
+    },
+    {
+      "code": "0x87",
+      "text": "temperatureTooLow"
+    },
+    {
+      "code": "0x88",
+      "text": "vehicleSpeedTooHigh"
+    },
+    {
+      "code": "0x89",
+      "text": "vehicleSpeedTooLow"
+    },
+    {
+      "code": "0x8A",
+      "text": "throttle/PedalTooHigh"
+    },
+    {
+      "code": "0x8B",
+      "text": "throttle/PedalTooLow"
+    },
+    {
+      "code": "0x8C",
+      "text": "transmissionRangeNotInNeutral"
+    },
+    {
+      "code": "0x8D",
+      "text": "transmissionRangeNotInGear"
+    },
+    {
+      "code": "0x8F",
+      "text": "brakeSwitch(es)NotClosed (Brake Pedal not pressed or not applied)"
+    },
+    {
+      "code": "0x90",
+      "text": "shifterLeverNotInPark"
+    },
+    {
+      "code": "0x91",
+      "text": "torqueConverterClutchLocked"
+    },
+    {
+      "code": "0x92",
+      "text": "voltageTooHigh"
+    },
+    {
+      "code": "0x93",
+      "text": "voltageTooLow"
+    },
+    {
+      "code": "0x94",
+      "text": "resourceTemporarilyNotAvailable"
+    }
+  ]
+}

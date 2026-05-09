@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900D",
+      "text": "smart — Pilot Assist front camera obstructed"
+    },
+    {
+      "code": "0x900E",
+      "text": "smart #5 — Active suspension ride-height sensor open circuit"
+    },
+    {
+      "code": "0x9A20",
+      "text": "smart — Heat-pump compressor controller fault"
+    },
+    {
+      "code": "0x5A20",
+      "text": "smart — ESP / DSC controller fault"
+    },
+    {
+      "code": "0x5A21",
+      "text": "smart #5 — Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x0A09",
+      "text": "DC/DC Converter Status (smart EQ)"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor Inverter Performance (smart EQ ForTwo / #1)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "smart — Drive Motor 'A' Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0A3A",
+      "text": "smart AWD — Front motor temperature sensor circuit"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "smart #1 / #3 / #5 — HV battery isolation fault"
+    },
+    {
+      "code": "0x0AC0",
+      "text": "smart — HV battery temperature sensor circuit"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "smart — HV battery cell-voltage delta out of range"
+    },
+    {
+      "code": "0x0AFE",
+      "text": "smart — HV battery cooling-system performance"
+    },
+    {
+      "code": "0x0D29",
+      "text": "smart — AC charging coupler latch fault (Type 2 / GB-AC)"
+    },
+    {
+      "code": "0x0D2A",
+      "text": "smart — DC fast-charge coupler over-temperature"
+    },
+    {
+      "code": "0x0D38",
+      "text": "smart — On-board charger DC/DC performance"
+    },
+    {
+      "code": "0x3000",
+      "text": "smart — High-voltage battery system performance"
+    },
+    {
+      "code": "0x3055",
+      "text": "smart — On-board charger overheating (charge derate)"
+    },
+    {
+      "code": "0xC073",
+      "text": "smart — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "smart — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "smart — Lost Communication With central touchscreen"
+    },
+    {
+      "code": "0xC293",
+      "text": "smart — Lost Communication With BMS"
+    },
+    {
+      "code": "0xC316",
+      "text": "smart — Lost Communication With Pilot Assist (Mobileye)"
+    }
+  ]
+}

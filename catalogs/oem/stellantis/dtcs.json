@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9003",
+      "text": "PSA BSI — Battery Voltage Out Of Range"
+    },
+    {
+      "code": "0x0299",
+      "text": "Supercharger Underboost (Hemi 6.2L SC)"
+    },
+    {
+      "code": "0x0606",
+      "text": "PCM Processor Internal Performance Failure (Stellantis)"
+    },
+    {
+      "code": "0x0731",
+      "text": "Gear 1 Incorrect Ratio (ZF 8HP / wiTech)"
+    },
+    {
+      "code": "0x0884",
+      "text": "TCM Power Input Signal Intermittent"
+    },
+    {
+      "code": "0x0A78",
+      "text": "Drive Motor 'A' Inverter Performance (Wrangler 4xe / Pacifica Hybrid)"
+    },
+    {
+      "code": "0x0A93",
+      "text": "Inverter A Cooling System Performance"
+    },
+    {
+      "code": "0x1004",
+      "text": "Short Runner Valve Control — Performance (FCA)"
+    },
+    {
+      "code": "0x1294",
+      "text": "Target Idle Not Reached (FCA)"
+    },
+    {
+      "code": "0x1456",
+      "text": "Evaporative Emission System Leak Detected — Fuel Tank (FCA)"
+    },
+    {
+      "code": "0x2173",
+      "text": "High Air Flow / Vacuum Leak Detected — Slow Accumulation (FCA)"
+    },
+    {
+      "code": "0x3400",
+      "text": "Cylinder Deactivation System Bank 1 (Hemi MDS)"
+    },
+    {
+      "code": "0x3441",
+      "text": "Cylinder 1 Deactivation/Intake Valve Solenoid Performance"
+    },
+    {
+      "code": "0xC428",
+      "text": "Lost Communication With Active Aero Module (Charger Daytona)"
+    },
+    {
+      "code": "0xD100",
+      "text": "PSA — Lost Communication With BSI"
+    }
+  ]
+}

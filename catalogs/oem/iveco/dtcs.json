@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9318",
+      "text": "Iveco BCM — Battery voltage low"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (Iveco Cursor)"
+    },
+    {
+      "code": "0x157C",
+      "text": "Daily 3.0 — Diesel exhaust fluid heater performance"
+    },
+    {
+      "code": "0x204F",
+      "text": "Hi-SCR System Performance (Iveco no-EGR)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Iveco — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Iveco — Lost communication with gateway / VCM"
+    }
+  ]
+}

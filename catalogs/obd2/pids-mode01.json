@@ -1,0 +1,692 @@
+{
+  "version": 1,
+  "type": "obd2-pid",
+  "mode": "01",
+  "entries": [
+    {
+      "id": "01",
+      "name": "Monitor Status Since DTCs Cleared",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Monitor status since DTCs cleared (bitmap)"
+    },
+    {
+      "id": "02",
+      "name": "Freeze DTC",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "DTC that caused the freeze frame"
+    },
+    {
+      "id": "03",
+      "name": "Fuel System Status",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Fuel system 1 / 2 status (2 bytes)"
+    },
+    {
+      "id": "04",
+      "name": "Calculated Engine Load",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Calculated engine load (A/255 * 100)"
+    },
+    {
+      "id": "05",
+      "name": "Engine Coolant Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "Coolant temperature (A - 40)"
+    },
+    {
+      "id": "06",
+      "name": "Short Term Fuel Trim Bank 1",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "STFT bank 1 ((A/1.28) - 100)"
+    },
+    {
+      "id": "07",
+      "name": "Long Term Fuel Trim Bank 1",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "LTFT bank 1"
+    },
+    {
+      "id": "08",
+      "name": "Short Term Fuel Trim Bank 2",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "STFT bank 2"
+    },
+    {
+      "id": "09",
+      "name": "Long Term Fuel Trim Bank 2",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "LTFT bank 2"
+    },
+    {
+      "id": "0A",
+      "name": "Fuel Pressure kPa",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 3,
+      "description": "Fuel pressure (A * 3 kPa, gauge)"
+    },
+    {
+      "id": "0B",
+      "name": "Intake Manifold Pressure",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "description": "Intake manifold absolute pressure (A kPa)"
+    },
+    {
+      "id": "0C",
+      "name": "Engine RPM",
+      "length": 2,
+      "unit": "rpm",
+      "decoder": "rpm",
+      "description": "Engine RPM ((256*A + B) / 4)"
+    },
+    {
+      "id": "0D",
+      "name": "Vehicle Speed",
+      "length": 1,
+      "unit": "km/h",
+      "decoder": "speed",
+      "description": "Vehicle speed (A km/h)"
+    },
+    {
+      "id": "0E",
+      "name": "Timing Advance",
+      "length": 1,
+      "unit": "deg",
+      "decoder": "linear",
+      "scale": 0.5,
+      "offset": -64,
+      "description": "Timing advance ((A/2) - 64) deg before TDC"
+    },
+    {
+      "id": "0F",
+      "name": "Intake Air Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "Intake air temperature (A - 40)"
+    },
+    {
+      "id": "10",
+      "name": "Mass Air Flow",
+      "length": 2,
+      "unit": "g/s",
+      "decoder": "maf",
+      "description": "MAF rate ((256*A + B) / 100) g/s"
+    },
+    {
+      "id": "11",
+      "name": "Throttle Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Throttle position (A/255 * 100)"
+    },
+    {
+      "id": "12",
+      "name": "Commanded Secondary Air Status",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Commanded secondary air status"
+    },
+    {
+      "id": "13",
+      "name": "Oxygen Sensors Present 2 Bank",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "O2 sensors present (2-bank bitmap)"
+    },
+    {
+      "id": "14",
+      "name": "O2 Sensor Bank 1 Sensor 1",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 1 sensor 1 voltage / fuel-trim"
+    },
+    {
+      "id": "15",
+      "name": "O2 Sensor Bank 1 Sensor 2",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 1 sensor 2 voltage / fuel-trim"
+    },
+    {
+      "id": "16",
+      "name": "O2 Sensor Bank 1 Sensor 3",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 1 sensor 3 voltage / fuel-trim"
+    },
+    {
+      "id": "17",
+      "name": "O2 Sensor Bank 1 Sensor 4",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 1 sensor 4 voltage / fuel-trim"
+    },
+    {
+      "id": "18",
+      "name": "O2 Sensor Bank 2 Sensor 1",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 2 sensor 1 voltage / fuel-trim"
+    },
+    {
+      "id": "19",
+      "name": "O2 Sensor Bank 2 Sensor 2",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 2 sensor 2 voltage / fuel-trim"
+    },
+    {
+      "id": "1A",
+      "name": "O2 Sensor Bank 2 Sensor 3",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 2 sensor 3 voltage / fuel-trim"
+    },
+    {
+      "id": "1B",
+      "name": "O2 Sensor Bank 2 Sensor 4",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Bank 2 sensor 4 voltage / fuel-trim"
+    },
+    {
+      "id": "1C",
+      "name": "OBD Standard Supported",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "OBD standard the vehicle conforms to"
+    },
+    {
+      "id": "1D",
+      "name": "Oxygen Sensors Present 4 Bank",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "O2 sensors present (4-bank bitmap)"
+    },
+    {
+      "id": "1E",
+      "name": "Auxiliary Input Status",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Aux input status (PTO etc.)"
+    },
+    {
+      "id": "1F",
+      "name": "Run Time Since Engine Start",
+      "length": 2,
+      "unit": "s",
+      "decoder": "linear",
+      "description": "Run time since engine start (256*A + B) seconds"
+    },
+    {
+      "id": "21",
+      "name": "Distance With MIL On",
+      "length": 2,
+      "unit": "km",
+      "decoder": "linear",
+      "description": "Distance traveled with MIL on (256*A + B) km"
+    },
+    {
+      "id": "22",
+      "name": "Fuel Rail Pressure Relative Manifold",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 0.079,
+      "description": "Fuel rail pressure relative to manifold (((256*A + B) * 0.079)) kPa"
+    },
+    {
+      "id": "23",
+      "name": "Fuel Rail Gauge Pressure",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 10,
+      "description": "Fuel rail gauge pressure ((256*A + B) * 10) kPa"
+    },
+    {
+      "id": "2C",
+      "name": "Commanded EGR",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Commanded EGR (A/255 * 100)"
+    },
+    {
+      "id": "2D",
+      "name": "EGR Error",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "EGR error ((A/1.28) - 100)"
+    },
+    {
+      "id": "2E",
+      "name": "Commanded Evap Purge",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Commanded evap purge (A/255 * 100)"
+    },
+    {
+      "id": "2F",
+      "name": "Fuel Tank Level",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Fuel tank level (A/255 * 100)"
+    },
+    {
+      "id": "30",
+      "name": "Warm Ups Since DTC Cleared",
+      "length": 1,
+      "decoder": "linear",
+      "description": "Number of warm-ups since DTCs cleared"
+    },
+    {
+      "id": "31",
+      "name": "Distance Since DTC Cleared",
+      "length": 2,
+      "unit": "km",
+      "decoder": "linear",
+      "description": "Distance since DTCs cleared (256*A + B) km"
+    },
+    {
+      "id": "33",
+      "name": "Absolute Barometric Pressure",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "description": "Absolute barometric pressure (A kPa)"
+    },
+    {
+      "id": "3C",
+      "name": "Catalyst Temperature Bank 1 Sensor 1",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "Catalyst temperature B1S1 (((256*A + B) / 10) - 40)"
+    },
+    {
+      "id": "3D",
+      "name": "Catalyst Temperature Bank 2 Sensor 1",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "Catalyst temperature B2S1"
+    },
+    {
+      "id": "3E",
+      "name": "Catalyst Temperature Bank 1 Sensor 2",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "Catalyst temperature B1S2"
+    },
+    {
+      "id": "3F",
+      "name": "Catalyst Temperature Bank 2 Sensor 2",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "Catalyst temperature B2S2"
+    },
+    {
+      "id": "42",
+      "name": "Control Module Voltage",
+      "length": 2,
+      "unit": "V",
+      "decoder": "linear",
+      "scale": 0.001,
+      "description": "Control module voltage ((256*A + B) / 1000) V"
+    },
+    {
+      "id": "43",
+      "name": "Absolute Load Value",
+      "length": 2,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Absolute load value ((256*A + B) * 100/255)"
+    },
+    {
+      "id": "44",
+      "name": "Commanded Air Fuel Equivalence Ratio",
+      "length": 2,
+      "decoder": "linear",
+      "scale": 3.05e-05,
+      "description": "Commanded equivalence ratio ((256*A + B) * 0.0000305)"
+    },
+    {
+      "id": "45",
+      "name": "Relative Throttle Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Relative throttle position (A/255 * 100)"
+    },
+    {
+      "id": "46",
+      "name": "Ambient Air Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "Ambient air temperature (A - 40)"
+    },
+    {
+      "id": "4C",
+      "name": "Commanded Throttle Actuator",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Commanded throttle actuator (A/255 * 100)"
+    },
+    {
+      "id": "4D",
+      "name": "Time Run With MIL On",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "description": "Time run with MIL on (256*A + B) min"
+    },
+    {
+      "id": "4E",
+      "name": "Time Since DTC Cleared",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "description": "Time since DTCs cleared (256*A + B) min"
+    },
+    {
+      "id": "51",
+      "name": "Fuel Type",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Fuel type (enum byte per ISO 15031-6)"
+    },
+    {
+      "id": "52",
+      "name": "Ethanol Fuel Percentage",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Ethanol fuel percentage (A/255 * 100)"
+    },
+    {
+      "id": "5A",
+      "name": "Relative Accelerator Pedal Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Relative accelerator pedal position"
+    },
+    {
+      "id": "5B",
+      "name": "Hybrid Battery Pack Remaining Life",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "Hybrid battery pack remaining life (A/255 * 100)"
+    },
+    {
+      "id": "5C",
+      "name": "Engine Oil Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "Engine oil temperature (A - 40)"
+    },
+    {
+      "id": "5D",
+      "name": "Fuel Injection Timing",
+      "length": 2,
+      "unit": "deg",
+      "decoder": "linear",
+      "scale": 0.0078125,
+      "offset": -210,
+      "description": "Fuel injection timing (((256*A + B) / 128) - 210)"
+    },
+    {
+      "id": "5E",
+      "name": "Engine Fuel Rate",
+      "length": 2,
+      "unit": "L/h",
+      "decoder": "linear",
+      "scale": 0.05,
+      "description": "Engine fuel rate (((256*A + B) / 20)) L/h"
+    },
+    {
+      "id": "61",
+      "name": "Demanded Engine Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "Driver-demanded engine percent torque (A - 125)"
+    },
+    {
+      "id": "62",
+      "name": "Actual Engine Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "Actual engine percent torque (A - 125)"
+    },
+    {
+      "id": "63",
+      "name": "Engine Reference Torque",
+      "length": 2,
+      "unit": "Nm",
+      "decoder": "linear",
+      "description": "Engine reference torque (256*A + B) Nm"
+    },
+    {
+      "id": "64",
+      "name": "Engine Percent Torque Data",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Engine percent torque data (5 bytes: idle / point1..4)"
+    },
+    {
+      "id": "66",
+      "name": "Mass Air Flow Sensor B",
+      "length": 2,
+      "unit": "g/s",
+      "decoder": "linear",
+      "scale": 0.03125,
+      "description": "MAF sensor B / dual-MAF systems (g/s, 0.03125 scale)"
+    },
+    {
+      "id": "67",
+      "name": "Engine Coolant Temperature Alt",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Engine coolant temperature, sensor 1 / 2 (alt encoding)"
+    },
+    {
+      "id": "68",
+      "name": "Intake Air Temperature Sensor",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Intake air temperature, sensor 1 / 2"
+    },
+    {
+      "id": "6B",
+      "name": "Exhaust Gas Recirc Temperature",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Exhaust gas recirculation temperature"
+    },
+    {
+      "id": "70",
+      "name": "Boost Pressure Control",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Boost pressure control"
+    },
+    {
+      "id": "71",
+      "name": "Vgt Control",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Variable geometry turbo (VGT) control"
+    },
+    {
+      "id": "73",
+      "name": "Exhaust Pressure",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Exhaust pressure (sensor 1 / 2)"
+    },
+    {
+      "id": "78",
+      "name": "EGT Bank 1",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Exhaust gas temperature, bank 1 (4 sensors)"
+    },
+    {
+      "id": "79",
+      "name": "EGT Bank 2",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Exhaust gas temperature, bank 2 (4 sensors)"
+    },
+    {
+      "id": "7E",
+      "name": "Engine Run Time With MIL On",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "description": "Engine run time while MIL on (minutes)"
+    },
+    {
+      "id": "7F",
+      "name": "Engine Run Time",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Engine run time (5-byte block: total / total since codes cleared)"
+    },
+    {
+      "id": "83",
+      "name": "NOx Sensor",
+      "length": 2,
+      "unit": "ppm",
+      "decoder": "linear",
+      "description": "NOx sensor reading (256*A + B) ppm"
+    },
+    {
+      "id": "9A",
+      "name": "Hybrid EV Vehicle System Data",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Hybrid/EV vehicle system data (battery / voltage / temperature)"
+    },
+    {
+      "id": "9B",
+      "name": "Diesel Aftertreatment",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Diesel after-treatment status (DPF, urea)"
+    },
+    {
+      "id": "A6",
+      "name": "Odometer",
+      "length": 4,
+      "unit": "km",
+      "decoder": "linear",
+      "scale": 0.1,
+      "description": "Odometer (4 bytes / 0.1 km)"
+    },
+    {
+      "id": "A7",
+      "name": "NOx Sensor Corrected",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "NOx sensor corrected (4 sensors, ppm)"
+    },
+    {
+      "id": "AB",
+      "name": "NOx Sensor Alternative",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "NOx sensor (alternative encoding) ppm"
+    },
+    {
+      "id": "C3",
+      "name": "Supported Pids C1 E0",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "PIDs supported in 0xC1-0xE0 (4-byte bitmask)"
+    },
+    {
+      "id": "C4",
+      "name": "Fuel Cetane Rating",
+      "length": 1,
+      "decoder": "linear",
+      "description": "Fuel cetane rating (diesel)"
+    },
+    {
+      "id": "C8",
+      "name": "Engine Friction Percent Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "Engine friction — percent torque"
+    }
+  ]
+}

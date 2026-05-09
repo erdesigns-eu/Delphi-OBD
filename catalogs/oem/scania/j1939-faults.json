@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000CC3",
+      "text": "SPN0102-FMI3: Scania — Charge-air pressure sensor circuit voltage high"
+    },
+    {
+      "code": "0x00005165",
+      "text": "SPN0651-FMI5: Scania — Cylinder 1 injector circuit open"
+    },
+    {
+      "code": "0x00019670",
+      "text": "SPN3251-FMI16: Scania — DPF differential pressure high (regen needed)"
+    },
+    {
+      "code": "0x0001A424",
+      "text": "SPN3361-FMI4: Scania ACM — DEF dosing valve circuit voltage low"
+    },
+    {
+      "code": "0x00028FD0",
+      "text": "SPN5246-FMI16: Scania — SCR system inducement (5 mph derate)"
+    },
+    {
+      "code": "0x0002A25F",
+      "text": "SPN5394-FMI31: Scania — DEF dosing unit overheating"
+    }
+  ]
+}

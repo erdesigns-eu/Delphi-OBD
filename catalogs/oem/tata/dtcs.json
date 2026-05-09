@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x916F",
+      "text": "Tata — Push-button start / smart-key circuit"
+    },
+    {
+      "code": "0x9318",
+      "text": "Tata BCM — Battery voltage low"
+    },
+    {
+      "code": "0x5135",
+      "text": "Tata — Brake-pedal switch circuit (cruise interlock)"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Tata — ESP / EBA controller fault"
+    },
+    {
+      "code": "0x0087",
+      "text": "Tata Kryotec diesel — Fuel rail pressure too low"
+    },
+    {
+      "code": "0x0088",
+      "text": "Tata Kryotec diesel — Fuel rail pressure too high"
+    },
+    {
+      "code": "0x0234",
+      "text": "Tata Revotron T-GDi — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Tata Revotron T-GDi — Turbocharger underboost"
+    },
+    {
+      "code": "0x0335",
+      "text": "Tata — CKP Crankshaft Position Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0341",
+      "text": "Tata Revotron — Camshaft phasing performance"
+    },
+    {
+      "code": "0x0411",
+      "text": "Tata — Secondary air injection incorrect flow"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Bank 1 efficiency below threshold (Revotron 1.2T)"
+    },
+    {
+      "code": "0x0454",
+      "text": "Tata iCNG — CNG fuel pressure sensor intermittent"
+    },
+    {
+      "code": "0x0455",
+      "text": "Tata — EVAP large leak (loose fuel cap)"
+    },
+    {
+      "code": "0x0700",
+      "text": "Tata — Transmission Control System Malfunction (DCA)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Tata — Torque Converter Clutch Performance"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor Performance (Tata ACTI.EV)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "Tata Ziptron — Drive Motor Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "HV Battery Cooling System (Tata)"
+    },
+    {
+      "code": "0x0D38",
+      "text": "Tata Ziptron — On-board charger DC/DC performance"
+    },
+    {
+      "code": "0x2002",
+      "text": "Tata Kryotec BS-VI — DPF efficiency below threshold"
+    },
+    {
+      "code": "0x244A",
+      "text": "Tata Kryotec — DPF differential pressure too low"
+    },
+    {
+      "code": "0x3000",
+      "text": "Tata Ziptron — HV battery system performance"
+    },
+    {
+      "code": "0xC073",
+      "text": "Tata — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Tata — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "Tata — Lost Communication With Harman IVI / iRA"
+    },
+    {
+      "code": "0xC293",
+      "text": "Tata Ziptron — Lost Communication With BMS"
+    }
+  ]
+}

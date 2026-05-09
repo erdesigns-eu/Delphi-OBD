@@ -1,0 +1,2118 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x0100",
+      "text": "Mass Air Flow Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0101",
+      "text": "Mass Air Flow Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0102",
+      "text": "Mass Air Flow Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0103",
+      "text": "Mass Air Flow Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0104",
+      "text": "Mass Air Flow Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0105",
+      "text": "Manifold Absolute Pressure / Barometric Pressure Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0106",
+      "text": "Manifold Absolute Pressure / Barometric Pressure Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0107",
+      "text": "Manifold Absolute Pressure / Barometric Pressure Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0108",
+      "text": "Manifold Absolute Pressure / Barometric Pressure Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0109",
+      "text": "Manifold Absolute Pressure / Barometric Pressure Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0110",
+      "text": "Intake Air Temperature Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0111",
+      "text": "Intake Air Temperature Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0112",
+      "text": "Intake Air Temperature Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0113",
+      "text": "Intake Air Temperature Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0114",
+      "text": "Intake Air Temperature Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0115",
+      "text": "Engine Coolant Temperature Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0116",
+      "text": "Engine Coolant Temperature Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0117",
+      "text": "Engine Coolant Temperature Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0118",
+      "text": "Engine Coolant Temperature Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0119",
+      "text": "Engine Coolant Temperature Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0120",
+      "text": "Throttle/Pedal Position Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0121",
+      "text": "Throttle/Pedal Position Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0122",
+      "text": "Throttle/Pedal Position Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0123",
+      "text": "Throttle/Pedal Position Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0124",
+      "text": "Throttle/Pedal Position Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0125",
+      "text": "Insufficient Coolant Temperature for Closed Loop Fuel Control Malfunction"
+    },
+    {
+      "code": "0x0126",
+      "text": "Insufficient Coolant Temperature for Closed Loop Fuel Control Range/Performance"
+    },
+    {
+      "code": "0x0127",
+      "text": "Insufficient Coolant Temperature for Closed Loop Fuel Control Circuit Low"
+    },
+    {
+      "code": "0x0128",
+      "text": "Insufficient Coolant Temperature for Closed Loop Fuel Control Circuit High"
+    },
+    {
+      "code": "0x0129",
+      "text": "Insufficient Coolant Temperature for Closed Loop Fuel Control Circuit Intermittent"
+    },
+    {
+      "code": "0x0130",
+      "text": "O2 Sensor Bank 1 Sensor 1 Malfunction"
+    },
+    {
+      "code": "0x0131",
+      "text": "O2 Sensor Bank 1 Sensor 1 Range/Performance"
+    },
+    {
+      "code": "0x0132",
+      "text": "O2 Sensor Bank 1 Sensor 1 Circuit Low"
+    },
+    {
+      "code": "0x0133",
+      "text": "O2 Sensor Bank 1 Sensor 1 Circuit High"
+    },
+    {
+      "code": "0x0134",
+      "text": "O2 Sensor Bank 1 Sensor 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0136",
+      "text": "O2 Sensor Bank 1 Sensor 2 Malfunction"
+    },
+    {
+      "code": "0x0137",
+      "text": "O2 Sensor Bank 1 Sensor 2 Range/Performance"
+    },
+    {
+      "code": "0x0138",
+      "text": "O2 Sensor Bank 1 Sensor 2 Circuit Low"
+    },
+    {
+      "code": "0x0139",
+      "text": "O2 Sensor Bank 1 Sensor 2 Circuit High"
+    },
+    {
+      "code": "0x013A",
+      "text": "O2 Sensor Bank 1 Sensor 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x013C",
+      "text": "O2 Sensor Bank 1 Sensor 3 Malfunction"
+    },
+    {
+      "code": "0x013D",
+      "text": "O2 Sensor Bank 1 Sensor 3 Range/Performance"
+    },
+    {
+      "code": "0x013E",
+      "text": "O2 Sensor Bank 1 Sensor 3 Circuit Low"
+    },
+    {
+      "code": "0x013F",
+      "text": "O2 Sensor Bank 1 Sensor 3 Circuit High"
+    },
+    {
+      "code": "0x0140",
+      "text": "O2 Sensor Bank 1 Sensor 3 Circuit Intermittent"
+    },
+    {
+      "code": "0x0141",
+      "text": "Throttle/Pedal Position Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0142",
+      "text": "Throttle/Pedal Position Sensor 'B' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0143",
+      "text": "Throttle/Pedal Position Sensor 'B' Circuit Circuit High"
+    },
+    {
+      "code": "0x0144",
+      "text": "Throttle/Pedal Position Sensor 'B' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0145",
+      "text": "Throttle/Pedal Position Sensor 'C' Circuit Malfunction"
+    },
+    {
+      "code": "0x0146",
+      "text": "Throttle/Pedal Position Sensor 'C' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0147",
+      "text": "Throttle/Pedal Position Sensor 'C' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0148",
+      "text": "Throttle/Pedal Position Sensor 'C' Circuit Circuit High"
+    },
+    {
+      "code": "0x0149",
+      "text": "Throttle/Pedal Position Sensor 'C' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0150",
+      "text": "O2 Sensor Bank 2 Sensor 1 Malfunction"
+    },
+    {
+      "code": "0x0151",
+      "text": "O2 Sensor Bank 2 Sensor 1 Range/Performance"
+    },
+    {
+      "code": "0x0152",
+      "text": "O2 Sensor Bank 2 Sensor 1 Circuit Low"
+    },
+    {
+      "code": "0x0153",
+      "text": "O2 Sensor Bank 2 Sensor 1 Circuit High"
+    },
+    {
+      "code": "0x0154",
+      "text": "O2 Sensor Bank 2 Sensor 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0155",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 1 Malfunction"
+    },
+    {
+      "code": "0x0156",
+      "text": "O2 Sensor Bank 2 Sensor 2 Malfunction"
+    },
+    {
+      "code": "0x0157",
+      "text": "O2 Sensor Bank 2 Sensor 2 Range/Performance"
+    },
+    {
+      "code": "0x0158",
+      "text": "O2 Sensor Bank 2 Sensor 2 Circuit Low"
+    },
+    {
+      "code": "0x0159",
+      "text": "O2 Sensor Bank 2 Sensor 2 Circuit High"
+    },
+    {
+      "code": "0x015A",
+      "text": "O2 Sensor Bank 2 Sensor 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x015C",
+      "text": "O2 Sensor Bank 2 Sensor 3 Malfunction"
+    },
+    {
+      "code": "0x015D",
+      "text": "O2 Sensor Bank 2 Sensor 3 Range/Performance"
+    },
+    {
+      "code": "0x015E",
+      "text": "O2 Sensor Bank 2 Sensor 3 Circuit Low"
+    },
+    {
+      "code": "0x015F",
+      "text": "O2 Sensor Bank 2 Sensor 3 Circuit High"
+    },
+    {
+      "code": "0x0160",
+      "text": "O2 Sensor Bank 2 Sensor 3 Circuit Intermittent"
+    },
+    {
+      "code": "0x0161",
+      "text": "O2 Sensor Heater Circuit, Bank 2 Sensor 1 Range/Performance"
+    },
+    {
+      "code": "0x0162",
+      "text": "O2 Sensor Heater Circuit, Bank 2 Sensor 1 Circuit Low"
+    },
+    {
+      "code": "0x0163",
+      "text": "O2 Sensor Heater Circuit, Bank 2 Sensor 1 Circuit High"
+    },
+    {
+      "code": "0x0164",
+      "text": "O2 Sensor Heater Circuit, Bank 2 Sensor 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0165",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Malfunction"
+    },
+    {
+      "code": "0x0166",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Range/Performance"
+    },
+    {
+      "code": "0x0167",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Circuit Low"
+    },
+    {
+      "code": "0x0168",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Circuit High"
+    },
+    {
+      "code": "0x0169",
+      "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x0171",
+      "text": "System Too Lean (Bank 1)"
+    },
+    {
+      "code": "0x0172",
+      "text": "System Too Rich (Bank 1)"
+    },
+    {
+      "code": "0x0174",
+      "text": "System Too Lean (Bank 2)"
+    },
+    {
+      "code": "0x0175",
+      "text": "System Too Rich (Bank 2)"
+    },
+    {
+      "code": "0x0180",
+      "text": "Fuel Temperature Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0181",
+      "text": "Fuel Temperature Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0182",
+      "text": "Fuel Temperature Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0183",
+      "text": "Fuel Temperature Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0184",
+      "text": "Fuel Temperature Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0185",
+      "text": "Fuel Temperature Sensor 'B' Circuit Malfunction"
+    },
+    {
+      "code": "0x0186",
+      "text": "Fuel Temperature Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0187",
+      "text": "Fuel Temperature Sensor 'B' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0188",
+      "text": "Fuel Temperature Sensor 'B' Circuit Circuit High"
+    },
+    {
+      "code": "0x0189",
+      "text": "Fuel Temperature Sensor 'B' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0190",
+      "text": "Fuel Rail Pressure Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0191",
+      "text": "Fuel Rail Pressure Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0192",
+      "text": "Fuel Rail Pressure Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0193",
+      "text": "Fuel Rail Pressure Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0194",
+      "text": "Fuel Rail Pressure Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0195",
+      "text": "Engine Oil Temperature Sensor Malfunction"
+    },
+    {
+      "code": "0x0196",
+      "text": "Engine Oil Temperature Sensor Range/Performance"
+    },
+    {
+      "code": "0x0197",
+      "text": "Engine Oil Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0198",
+      "text": "Engine Oil Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0199",
+      "text": "Engine Oil Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0200",
+      "text": "Injector Circuit Open Malfunction"
+    },
+    {
+      "code": "0x0201",
+      "text": "Injector Circuit Open Range/Performance"
+    },
+    {
+      "code": "0x0202",
+      "text": "Injector Circuit Open Circuit Low"
+    },
+    {
+      "code": "0x0203",
+      "text": "Injector Circuit Open Circuit High"
+    },
+    {
+      "code": "0x0204",
+      "text": "Injector Circuit Open Circuit Intermittent"
+    },
+    {
+      "code": "0x0205",
+      "text": "Injector Circuit 'A' Malfunction"
+    },
+    {
+      "code": "0x0206",
+      "text": "Injector Circuit 'A' Range/Performance"
+    },
+    {
+      "code": "0x0207",
+      "text": "Injector Circuit 'A' Circuit Low"
+    },
+    {
+      "code": "0x0208",
+      "text": "Injector Circuit 'A' Circuit High"
+    },
+    {
+      "code": "0x0209",
+      "text": "Injector Circuit 'A' Circuit Intermittent"
+    },
+    {
+      "code": "0x020A",
+      "text": "Injector Circuit 'B' Malfunction"
+    },
+    {
+      "code": "0x020B",
+      "text": "Injector Circuit 'B' Range/Performance"
+    },
+    {
+      "code": "0x020C",
+      "text": "Injector Circuit 'B' Circuit Low"
+    },
+    {
+      "code": "0x020D",
+      "text": "Injector Circuit 'B' Circuit High"
+    },
+    {
+      "code": "0x020E",
+      "text": "Injector Circuit 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x020F",
+      "text": "Injector Driver Bank 'A' Malfunction"
+    },
+    {
+      "code": "0x0210",
+      "text": "Injector Driver Bank 'A' Range/Performance"
+    },
+    {
+      "code": "0x0211",
+      "text": "Injector Driver Bank 'A' Circuit Low"
+    },
+    {
+      "code": "0x0212",
+      "text": "Injector Driver Bank 'A' Circuit High"
+    },
+    {
+      "code": "0x0213",
+      "text": "Injector Driver Bank 'A' Circuit Intermittent"
+    },
+    {
+      "code": "0x0214",
+      "text": "Injector Driver Bank 'B' Malfunction"
+    },
+    {
+      "code": "0x0215",
+      "text": "Injector Driver Bank 'B' Range/Performance"
+    },
+    {
+      "code": "0x0216",
+      "text": "Injector Driver Bank 'B' Circuit Low"
+    },
+    {
+      "code": "0x0217",
+      "text": "Injector Driver Bank 'B' Circuit High"
+    },
+    {
+      "code": "0x0218",
+      "text": "Injector Driver Bank 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x0230",
+      "text": "Fuel Pump Primary Circuit Malfunction"
+    },
+    {
+      "code": "0x0231",
+      "text": "Fuel Pump Primary Circuit Range/Performance"
+    },
+    {
+      "code": "0x0232",
+      "text": "Fuel Pump Primary Circuit Circuit Low"
+    },
+    {
+      "code": "0x0233",
+      "text": "Fuel Pump Primary Circuit Circuit High"
+    },
+    {
+      "code": "0x0234",
+      "text": "Fuel Pump Primary Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0235",
+      "text": "Turbocharger Boost Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0236",
+      "text": "Turbocharger Boost Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0237",
+      "text": "Turbocharger Boost Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0238",
+      "text": "Turbocharger Boost Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0239",
+      "text": "Turbocharger Boost Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x023A",
+      "text": "Turbocharger Boost Sensor 'B' Circuit Malfunction"
+    },
+    {
+      "code": "0x023B",
+      "text": "Turbocharger Boost Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x023C",
+      "text": "Turbocharger Boost Sensor 'B' Circuit Circuit Low"
+    },
+    {
+      "code": "0x023D",
+      "text": "Turbocharger Boost Sensor 'B' Circuit Circuit High"
+    },
+    {
+      "code": "0x023E",
+      "text": "Turbocharger Boost Sensor 'B' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0240",
+      "text": "Turbocharger Boost Solenoid 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0241",
+      "text": "Turbocharger Boost Solenoid 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0242",
+      "text": "Turbocharger Boost Solenoid 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0243",
+      "text": "Turbocharger Boost Solenoid 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0244",
+      "text": "Turbocharger Boost Solenoid 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0245",
+      "text": "Turbocharger Wastegate Solenoid 'A' Malfunction"
+    },
+    {
+      "code": "0x0246",
+      "text": "Turbocharger Boost Sensor 'A' Performance Malfunction"
+    },
+    {
+      "code": "0x0247",
+      "text": "Turbocharger Boost Sensor 'A' Performance Range/Performance"
+    },
+    {
+      "code": "0x0248",
+      "text": "Turbocharger Boost Sensor 'A' Performance Circuit Low"
+    },
+    {
+      "code": "0x0249",
+      "text": "Turbocharger Boost Sensor 'A' Performance Circuit High"
+    },
+    {
+      "code": "0x024A",
+      "text": "Turbocharger Boost Sensor 'A' Performance Circuit Intermittent"
+    },
+    {
+      "code": "0x0250",
+      "text": "Turbocharger Boost Pressure Out-of-Range Malfunction"
+    },
+    {
+      "code": "0x0251",
+      "text": "Turbocharger Boost Pressure Out-of-Range Range/Performance"
+    },
+    {
+      "code": "0x0252",
+      "text": "Turbocharger Boost Pressure Out-of-Range Circuit Low"
+    },
+    {
+      "code": "0x0253",
+      "text": "Turbocharger Boost Pressure Out-of-Range Circuit High"
+    },
+    {
+      "code": "0x0254",
+      "text": "Turbocharger Boost Pressure Out-of-Range Circuit Intermittent"
+    },
+    {
+      "code": "0x0261",
+      "text": "Cylinder 1 Injector Circuit Low"
+    },
+    {
+      "code": "0x0262",
+      "text": "Cylinder 1 Injector Circuit High"
+    },
+    {
+      "code": "0x0263",
+      "text": "Cylinder 1 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0264",
+      "text": "Cylinder 2 Injector Circuit Low"
+    },
+    {
+      "code": "0x0265",
+      "text": "Cylinder 2 Injector Circuit High"
+    },
+    {
+      "code": "0x0266",
+      "text": "Cylinder 2 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0267",
+      "text": "Cylinder 3 Injector Circuit Low"
+    },
+    {
+      "code": "0x0268",
+      "text": "Cylinder 3 Injector Circuit High"
+    },
+    {
+      "code": "0x0269",
+      "text": "Cylinder 3 Injector Circuit Performance"
+    },
+    {
+      "code": "0x026A",
+      "text": "Cylinder 4 Injector Circuit Low"
+    },
+    {
+      "code": "0x026B",
+      "text": "Cylinder 4 Injector Circuit High"
+    },
+    {
+      "code": "0x026C",
+      "text": "Cylinder 4 Injector Circuit Performance"
+    },
+    {
+      "code": "0x026D",
+      "text": "Cylinder 5 Injector Circuit Low"
+    },
+    {
+      "code": "0x026E",
+      "text": "Cylinder 5 Injector Circuit High"
+    },
+    {
+      "code": "0x026F",
+      "text": "Cylinder 5 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0270",
+      "text": "Cylinder 6 Injector Circuit Low"
+    },
+    {
+      "code": "0x0271",
+      "text": "Cylinder 6 Injector Circuit High"
+    },
+    {
+      "code": "0x0272",
+      "text": "Cylinder 6 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0273",
+      "text": "Cylinder 7 Injector Circuit Low"
+    },
+    {
+      "code": "0x0274",
+      "text": "Cylinder 7 Injector Circuit High"
+    },
+    {
+      "code": "0x0275",
+      "text": "Cylinder 7 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0276",
+      "text": "Cylinder 8 Injector Circuit Low"
+    },
+    {
+      "code": "0x0277",
+      "text": "Cylinder 8 Injector Circuit High"
+    },
+    {
+      "code": "0x0278",
+      "text": "Cylinder 8 Injector Circuit Performance"
+    },
+    {
+      "code": "0x0300",
+      "text": "Random/Multiple Cylinder Misfire Detected"
+    },
+    {
+      "code": "0x0301",
+      "text": "Cylinder 1 Misfire Detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "Cylinder 2 Misfire Detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "Cylinder 3 Misfire Detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "Cylinder 4 Misfire Detected"
+    },
+    {
+      "code": "0x0305",
+      "text": "Cylinder 5 Misfire Detected"
+    },
+    {
+      "code": "0x0306",
+      "text": "Cylinder 6 Misfire Detected"
+    },
+    {
+      "code": "0x0307",
+      "text": "Cylinder 7 Misfire Detected"
+    },
+    {
+      "code": "0x0308",
+      "text": "Cylinder 8 Misfire Detected"
+    },
+    {
+      "code": "0x0309",
+      "text": "Cylinder 9 Misfire Detected"
+    },
+    {
+      "code": "0x030A",
+      "text": "Cylinder 10 Misfire Detected"
+    },
+    {
+      "code": "0x030B",
+      "text": "Cylinder 11 Misfire Detected"
+    },
+    {
+      "code": "0x030C",
+      "text": "Cylinder 12 Misfire Detected"
+    },
+    {
+      "code": "0x0325",
+      "text": "Knock Sensor 1 Circuit, Bank 1 Malfunction"
+    },
+    {
+      "code": "0x0326",
+      "text": "Knock Sensor 1 Circuit, Bank 1 Range/Performance"
+    },
+    {
+      "code": "0x0327",
+      "text": "Knock Sensor 1 Circuit, Bank 1 Circuit Low"
+    },
+    {
+      "code": "0x0328",
+      "text": "Knock Sensor 1 Circuit, Bank 1 Circuit High"
+    },
+    {
+      "code": "0x0329",
+      "text": "Knock Sensor 1 Circuit, Bank 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0330",
+      "text": "Knock Sensor 2 Circuit, Bank 2 Malfunction"
+    },
+    {
+      "code": "0x0331",
+      "text": "Knock Sensor 2 Circuit, Bank 2 Range/Performance"
+    },
+    {
+      "code": "0x0332",
+      "text": "Knock Sensor 2 Circuit, Bank 2 Circuit Low"
+    },
+    {
+      "code": "0x0333",
+      "text": "Knock Sensor 2 Circuit, Bank 2 Circuit High"
+    },
+    {
+      "code": "0x0334",
+      "text": "Knock Sensor 2 Circuit, Bank 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x0335",
+      "text": "Crankshaft Position Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0336",
+      "text": "Crankshaft Position Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0337",
+      "text": "Crankshaft Position Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0338",
+      "text": "Crankshaft Position Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0339",
+      "text": "Crankshaft Position Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0340",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 1 Malfunction"
+    },
+    {
+      "code": "0x0341",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 1 Range/Performance"
+    },
+    {
+      "code": "0x0342",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 1 Circuit Low"
+    },
+    {
+      "code": "0x0343",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 1 Circuit High"
+    },
+    {
+      "code": "0x0344",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0345",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 2 Malfunction"
+    },
+    {
+      "code": "0x0346",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 2 Range/Performance"
+    },
+    {
+      "code": "0x0347",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 2 Circuit Low"
+    },
+    {
+      "code": "0x0348",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 2 Circuit High"
+    },
+    {
+      "code": "0x0349",
+      "text": "Camshaft Position Sensor 'A' Circuit, Bank 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x0350",
+      "text": "Ignition Coil 'A' Primary/Secondary Circuit Malfunction"
+    },
+    {
+      "code": "0x0351",
+      "text": "Ignition Coil 'A' Primary/Secondary Circuit Range/Performance"
+    },
+    {
+      "code": "0x0352",
+      "text": "Ignition Coil 'A' Primary/Secondary Circuit Circuit Low"
+    },
+    {
+      "code": "0x0353",
+      "text": "Ignition Coil 'A' Primary/Secondary Circuit Circuit High"
+    },
+    {
+      "code": "0x0354",
+      "text": "Ignition Coil 'A' Primary/Secondary Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0400",
+      "text": "Exhaust Gas Recirculation 'A' Flow Malfunction"
+    },
+    {
+      "code": "0x0401",
+      "text": "Exhaust Gas Recirculation 'A' Flow Range/Performance"
+    },
+    {
+      "code": "0x0402",
+      "text": "Exhaust Gas Recirculation 'A' Flow Circuit Low"
+    },
+    {
+      "code": "0x0403",
+      "text": "Exhaust Gas Recirculation 'A' Flow Circuit High"
+    },
+    {
+      "code": "0x0404",
+      "text": "Exhaust Gas Recirculation 'A' Flow Circuit Intermittent"
+    },
+    {
+      "code": "0x0405",
+      "text": "Exhaust Gas Recirculation Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0406",
+      "text": "Exhaust Gas Recirculation Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0407",
+      "text": "Exhaust Gas Recirculation Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0408",
+      "text": "Exhaust Gas Recirculation Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0409",
+      "text": "Exhaust Gas Recirculation Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0410",
+      "text": "Secondary Air Injection System Malfunction"
+    },
+    {
+      "code": "0x0411",
+      "text": "Secondary Air Injection System Range/Performance"
+    },
+    {
+      "code": "0x0412",
+      "text": "Secondary Air Injection System Circuit Low"
+    },
+    {
+      "code": "0x0413",
+      "text": "Secondary Air Injection System Circuit High"
+    },
+    {
+      "code": "0x0414",
+      "text": "Secondary Air Injection System Circuit Intermittent"
+    },
+    {
+      "code": "0x0415",
+      "text": "Secondary Air Injection System Switching Valve 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0416",
+      "text": "Secondary Air Injection System Switching Valve 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0417",
+      "text": "Secondary Air Injection System Switching Valve 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0418",
+      "text": "Secondary Air Injection System Switching Valve 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0419",
+      "text": "Secondary Air Injection System Switching Valve 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst System Efficiency Below Threshold (Bank 1)"
+    },
+    {
+      "code": "0x0425",
+      "text": "Catalyst Temperature Sensor, Bank 1 Malfunction"
+    },
+    {
+      "code": "0x0426",
+      "text": "Catalyst Temperature Sensor, Bank 1 Range/Performance"
+    },
+    {
+      "code": "0x0427",
+      "text": "Catalyst Temperature Sensor, Bank 1 Circuit Low"
+    },
+    {
+      "code": "0x0428",
+      "text": "Catalyst Temperature Sensor, Bank 1 Circuit High"
+    },
+    {
+      "code": "0x0429",
+      "text": "Catalyst Temperature Sensor, Bank 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0430",
+      "text": "Catalyst System Efficiency Below Threshold (Bank 2)"
+    },
+    {
+      "code": "0x0431",
+      "text": "Catalyst Temperature Sensor, Bank 2 Range/Performance"
+    },
+    {
+      "code": "0x0432",
+      "text": "Catalyst Temperature Sensor, Bank 2 Circuit Low"
+    },
+    {
+      "code": "0x0433",
+      "text": "Catalyst Temperature Sensor, Bank 2 Circuit High"
+    },
+    {
+      "code": "0x0434",
+      "text": "Catalyst Temperature Sensor, Bank 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x0440",
+      "text": "Evaporative Emission System Malfunction"
+    },
+    {
+      "code": "0x0442",
+      "text": "Evaporative Emission System Leak Detected (Small Leak)"
+    },
+    {
+      "code": "0x0445",
+      "text": "Evaporative Emission System Purge Control Valve Malfunction"
+    },
+    {
+      "code": "0x0446",
+      "text": "Evaporative Emission System Purge Control Valve Range/Performance"
+    },
+    {
+      "code": "0x0447",
+      "text": "Evaporative Emission System Purge Control Valve Circuit Low"
+    },
+    {
+      "code": "0x0448",
+      "text": "Evaporative Emission System Purge Control Valve Circuit High"
+    },
+    {
+      "code": "0x0449",
+      "text": "Evaporative Emission System Purge Control Valve Circuit Intermittent"
+    },
+    {
+      "code": "0x0450",
+      "text": "Evaporative Emission System Pressure Sensor Malfunction"
+    },
+    {
+      "code": "0x0451",
+      "text": "Evaporative Emission System Pressure Sensor Range/Performance"
+    },
+    {
+      "code": "0x0452",
+      "text": "Evaporative Emission System Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x0453",
+      "text": "Evaporative Emission System Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x0454",
+      "text": "Evaporative Emission System Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0455",
+      "text": "Evaporative Emission System Leak Detected (Gross Leak)"
+    },
+    {
+      "code": "0x0500",
+      "text": "Vehicle Speed Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0501",
+      "text": "Vehicle Speed Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0502",
+      "text": "Vehicle Speed Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0503",
+      "text": "Vehicle Speed Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0504",
+      "text": "Vehicle Speed Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0510",
+      "text": "Closed Throttle Position Switch Malfunction"
+    },
+    {
+      "code": "0x0511",
+      "text": "Closed Throttle Position Switch Range/Performance"
+    },
+    {
+      "code": "0x0512",
+      "text": "Closed Throttle Position Switch Circuit Low"
+    },
+    {
+      "code": "0x0513",
+      "text": "Closed Throttle Position Switch Circuit High"
+    },
+    {
+      "code": "0x0514",
+      "text": "Closed Throttle Position Switch Circuit Intermittent"
+    },
+    {
+      "code": "0x0515",
+      "text": "Battery Temperature Sensor Circuit Malfunction"
+    },
+    {
+      "code": "0x0516",
+      "text": "Battery Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0517",
+      "text": "Battery Temperature Sensor Circuit Circuit Low"
+    },
+    {
+      "code": "0x0518",
+      "text": "Battery Temperature Sensor Circuit Circuit High"
+    },
+    {
+      "code": "0x0519",
+      "text": "Battery Temperature Sensor Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0520",
+      "text": "Engine Oil Pressure Sensor / Switch 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0521",
+      "text": "Engine Oil Pressure Sensor / Switch 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0522",
+      "text": "Engine Oil Pressure Sensor / Switch 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0523",
+      "text": "Engine Oil Pressure Sensor / Switch 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0524",
+      "text": "Engine Oil Pressure Sensor / Switch 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0525",
+      "text": "Cruise Control Servo Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0526",
+      "text": "Cruise Control Servo Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0527",
+      "text": "Cruise Control Servo Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0528",
+      "text": "Cruise Control Servo Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0529",
+      "text": "Cruise Control Servo Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0620",
+      "text": "Generator Lamp / L-Terminal Circuit Malfunction"
+    },
+    {
+      "code": "0x0621",
+      "text": "Generator Lamp / L-Terminal Circuit Range/Performance"
+    },
+    {
+      "code": "0x0622",
+      "text": "Generator Lamp / L-Terminal Circuit Circuit Low"
+    },
+    {
+      "code": "0x0623",
+      "text": "Generator Lamp / L-Terminal Circuit Circuit High"
+    },
+    {
+      "code": "0x0624",
+      "text": "Generator Lamp / L-Terminal Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0625",
+      "text": "Generator Field 'F' Terminal Circuit Malfunction"
+    },
+    {
+      "code": "0x0626",
+      "text": "Generator Field 'F' Terminal Circuit Range/Performance"
+    },
+    {
+      "code": "0x0627",
+      "text": "Generator Field 'F' Terminal Circuit Circuit Low"
+    },
+    {
+      "code": "0x0628",
+      "text": "Generator Field 'F' Terminal Circuit Circuit High"
+    },
+    {
+      "code": "0x0629",
+      "text": "Generator Field 'F' Terminal Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0630",
+      "text": "VIN Not Programmed or Mismatch — ECM/PCM Malfunction"
+    },
+    {
+      "code": "0x0631",
+      "text": "VIN Not Programmed or Mismatch — ECM/PCM Range/Performance"
+    },
+    {
+      "code": "0x0632",
+      "text": "VIN Not Programmed or Mismatch — ECM/PCM Circuit Low"
+    },
+    {
+      "code": "0x0633",
+      "text": "VIN Not Programmed or Mismatch — ECM/PCM Circuit High"
+    },
+    {
+      "code": "0x0634",
+      "text": "VIN Not Programmed or Mismatch — ECM/PCM Circuit Intermittent"
+    },
+    {
+      "code": "0x0635",
+      "text": "Power Steering Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0636",
+      "text": "Power Steering Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0637",
+      "text": "Power Steering Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0638",
+      "text": "Power Steering Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0639",
+      "text": "Power Steering Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0640",
+      "text": "Glow Plug 'A' Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0641",
+      "text": "Glow Plug 'A' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0642",
+      "text": "Glow Plug 'A' Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0643",
+      "text": "Glow Plug 'A' Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0644",
+      "text": "Glow Plug 'A' Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0645",
+      "text": "A/C Clutch Relay Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0646",
+      "text": "A/C Clutch Relay Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0647",
+      "text": "A/C Clutch Relay Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0648",
+      "text": "A/C Clutch Relay Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0649",
+      "text": "A/C Clutch Relay Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0650",
+      "text": "Malfunction Indicator Lamp (MIL) Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0651",
+      "text": "Malfunction Indicator Lamp (MIL) Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0652",
+      "text": "Malfunction Indicator Lamp (MIL) Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0653",
+      "text": "Malfunction Indicator Lamp (MIL) Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0654",
+      "text": "Malfunction Indicator Lamp (MIL) Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0660",
+      "text": "Intake Manifold Tuning Valve Control Circuit Malfunction"
+    },
+    {
+      "code": "0x0661",
+      "text": "Intake Manifold Tuning Valve Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0662",
+      "text": "Intake Manifold Tuning Valve Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x0663",
+      "text": "Intake Manifold Tuning Valve Control Circuit Circuit High"
+    },
+    {
+      "code": "0x0664",
+      "text": "Intake Manifold Tuning Valve Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0710",
+      "text": "Transmission Fluid Temperature Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0711",
+      "text": "Transmission Fluid Temperature Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0712",
+      "text": "Transmission Fluid Temperature Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0713",
+      "text": "Transmission Fluid Temperature Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0714",
+      "text": "Transmission Fluid Temperature Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0715",
+      "text": "Input/Turbine Speed Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0716",
+      "text": "Input/Turbine Speed Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0717",
+      "text": "Input/Turbine Speed Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0718",
+      "text": "Input/Turbine Speed Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0719",
+      "text": "Input/Turbine Speed Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0720",
+      "text": "Output Speed Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0721",
+      "text": "Output Speed Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0722",
+      "text": "Output Speed Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0723",
+      "text": "Output Speed Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0724",
+      "text": "Output Speed Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0725",
+      "text": "Engine Speed Input Circuit Malfunction"
+    },
+    {
+      "code": "0x0726",
+      "text": "Engine Speed Input Circuit Range/Performance"
+    },
+    {
+      "code": "0x0727",
+      "text": "Engine Speed Input Circuit Circuit Low"
+    },
+    {
+      "code": "0x0728",
+      "text": "Engine Speed Input Circuit Circuit High"
+    },
+    {
+      "code": "0x0729",
+      "text": "Engine Speed Input Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0730",
+      "text": "Incorrect Gear Ratio Malfunction"
+    },
+    {
+      "code": "0x0731",
+      "text": "Incorrect Gear Ratio Range/Performance"
+    },
+    {
+      "code": "0x0732",
+      "text": "Incorrect Gear Ratio Circuit Low"
+    },
+    {
+      "code": "0x0733",
+      "text": "Incorrect Gear Ratio Circuit High"
+    },
+    {
+      "code": "0x0734",
+      "text": "Incorrect Gear Ratio Circuit Intermittent"
+    },
+    {
+      "code": "0x0740",
+      "text": "Torque Converter Clutch Circuit Malfunction"
+    },
+    {
+      "code": "0x0741",
+      "text": "Torque Converter Clutch Circuit Range/Performance"
+    },
+    {
+      "code": "0x0742",
+      "text": "Torque Converter Clutch Circuit Circuit Low"
+    },
+    {
+      "code": "0x0743",
+      "text": "Torque Converter Clutch Circuit Circuit High"
+    },
+    {
+      "code": "0x0744",
+      "text": "Torque Converter Clutch Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0750",
+      "text": "Shift Solenoid 'A' Malfunction"
+    },
+    {
+      "code": "0x0751",
+      "text": "Shift Solenoid 'A' Range/Performance"
+    },
+    {
+      "code": "0x0752",
+      "text": "Shift Solenoid 'A' Circuit Low"
+    },
+    {
+      "code": "0x0753",
+      "text": "Shift Solenoid 'A' Circuit High"
+    },
+    {
+      "code": "0x0754",
+      "text": "Shift Solenoid 'A' Circuit Intermittent"
+    },
+    {
+      "code": "0x0755",
+      "text": "Shift Solenoid 'B' Malfunction"
+    },
+    {
+      "code": "0x0756",
+      "text": "Shift Solenoid 'B' Range/Performance"
+    },
+    {
+      "code": "0x0757",
+      "text": "Shift Solenoid 'B' Circuit Low"
+    },
+    {
+      "code": "0x0758",
+      "text": "Shift Solenoid 'B' Circuit High"
+    },
+    {
+      "code": "0x0759",
+      "text": "Shift Solenoid 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x075A",
+      "text": "Shift Solenoid 'C' Malfunction"
+    },
+    {
+      "code": "0x075B",
+      "text": "Shift Solenoid 'C' Range/Performance"
+    },
+    {
+      "code": "0x075C",
+      "text": "Shift Solenoid 'C' Circuit Low"
+    },
+    {
+      "code": "0x075D",
+      "text": "Shift Solenoid 'C' Circuit High"
+    },
+    {
+      "code": "0x075E",
+      "text": "Shift Solenoid 'C' Circuit Intermittent"
+    },
+    {
+      "code": "0x075F",
+      "text": "Shift Solenoid 'D' Malfunction"
+    },
+    {
+      "code": "0x0760",
+      "text": "Shift Solenoid 'D' Range/Performance"
+    },
+    {
+      "code": "0x0761",
+      "text": "Shift Solenoid 'D' Circuit Low"
+    },
+    {
+      "code": "0x0762",
+      "text": "Shift Solenoid 'D' Circuit High"
+    },
+    {
+      "code": "0x0763",
+      "text": "Shift Solenoid 'D' Circuit Intermittent"
+    },
+    {
+      "code": "0x0764",
+      "text": "Shift Solenoid 'E' Malfunction"
+    },
+    {
+      "code": "0x0765",
+      "text": "Shift Solenoid 'E' Range/Performance"
+    },
+    {
+      "code": "0x0766",
+      "text": "Shift Solenoid 'E' Circuit Low"
+    },
+    {
+      "code": "0x0767",
+      "text": "Shift Solenoid 'E' Circuit High"
+    },
+    {
+      "code": "0x0768",
+      "text": "Shift Solenoid 'E' Circuit Intermittent"
+    },
+    {
+      "code": "0x0769",
+      "text": "Shift Solenoid 'F' Malfunction"
+    },
+    {
+      "code": "0x076A",
+      "text": "Shift Solenoid 'F' Range/Performance"
+    },
+    {
+      "code": "0x076B",
+      "text": "Shift Solenoid 'F' Circuit Low"
+    },
+    {
+      "code": "0x076C",
+      "text": "Shift Solenoid 'F' Circuit High"
+    },
+    {
+      "code": "0x076D",
+      "text": "Shift Solenoid 'F' Circuit Intermittent"
+    },
+    {
+      "code": "0x0780",
+      "text": "Shift Malfunction Malfunction"
+    },
+    {
+      "code": "0x0781",
+      "text": "Shift Malfunction Range/Performance"
+    },
+    {
+      "code": "0x0782",
+      "text": "Shift Malfunction Circuit Low"
+    },
+    {
+      "code": "0x0783",
+      "text": "Shift Malfunction Circuit High"
+    },
+    {
+      "code": "0x0784",
+      "text": "Shift Malfunction Circuit Intermittent"
+    },
+    {
+      "code": "0x0790",
+      "text": "Normal/Performance Switch Circuit Malfunction"
+    },
+    {
+      "code": "0x0791",
+      "text": "Normal/Performance Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x0792",
+      "text": "Normal/Performance Switch Circuit Circuit Low"
+    },
+    {
+      "code": "0x0793",
+      "text": "Normal/Performance Switch Circuit Circuit High"
+    },
+    {
+      "code": "0x0794",
+      "text": "Normal/Performance Switch Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A00",
+      "text": "Motor Electronics Coolant Temperature Malfunction"
+    },
+    {
+      "code": "0x0A01",
+      "text": "Motor Electronics Coolant Temperature Range/Performance"
+    },
+    {
+      "code": "0x0A02",
+      "text": "Motor Electronics Coolant Temperature Circuit Low"
+    },
+    {
+      "code": "0x0A03",
+      "text": "Motor Electronics Coolant Temperature Circuit High"
+    },
+    {
+      "code": "0x0A04",
+      "text": "Motor Electronics Coolant Temperature Circuit Intermittent"
+    },
+    {
+      "code": "0x0A05",
+      "text": "Hybrid Battery System Cooling Fan 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x0A06",
+      "text": "Hybrid Battery System Cooling Fan 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A07",
+      "text": "Hybrid Battery System Cooling Fan 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A08",
+      "text": "Hybrid Battery System Cooling Fan 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x0A09",
+      "text": "Hybrid Battery System Cooling Fan 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A10",
+      "text": "Generator Phase 'U' Circuit Malfunction"
+    },
+    {
+      "code": "0x0A11",
+      "text": "Generator Phase 'U' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A12",
+      "text": "Generator Phase 'U' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A13",
+      "text": "Generator Phase 'U' Circuit Circuit High"
+    },
+    {
+      "code": "0x0A14",
+      "text": "Generator Phase 'U' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A15",
+      "text": "Generator Phase 'V' Circuit Malfunction"
+    },
+    {
+      "code": "0x0A16",
+      "text": "Generator Phase 'V' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A17",
+      "text": "Generator Phase 'V' Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A18",
+      "text": "Generator Phase 'V' Circuit Circuit High"
+    },
+    {
+      "code": "0x0A19",
+      "text": "Generator Phase 'V' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor 'A' Inverter Performance Malfunction"
+    },
+    {
+      "code": "0x0A20",
+      "text": "Drive Motor 'A' Inverter Performance Range/Performance"
+    },
+    {
+      "code": "0x0A21",
+      "text": "Drive Motor 'A' Inverter Performance Circuit Low"
+    },
+    {
+      "code": "0x0A22",
+      "text": "Drive Motor 'A' Inverter Performance Circuit High"
+    },
+    {
+      "code": "0x0A23",
+      "text": "Drive Motor 'A' Inverter Performance Circuit Intermittent"
+    },
+    {
+      "code": "0x0A30",
+      "text": "Hybrid Battery Voltage Sense Circuit Malfunction"
+    },
+    {
+      "code": "0x0A31",
+      "text": "Hybrid Battery Voltage Sense Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A32",
+      "text": "Hybrid Battery Voltage Sense Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A33",
+      "text": "Hybrid Battery Voltage Sense Circuit Circuit High"
+    },
+    {
+      "code": "0x0A34",
+      "text": "Hybrid Battery Voltage Sense Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A35",
+      "text": "Drive Motor 'A' Position Sensor Circuit Malfunction"
+    },
+    {
+      "code": "0x0A36",
+      "text": "Drive Motor 'A' Position Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A37",
+      "text": "Drive Motor 'A' Position Sensor Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A38",
+      "text": "Drive Motor 'A' Position Sensor Circuit Circuit High"
+    },
+    {
+      "code": "0x0A39",
+      "text": "Drive Motor 'A' Position Sensor Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0A40",
+      "text": "Drive Motor 'B' Position Sensor Circuit Malfunction"
+    },
+    {
+      "code": "0x0A41",
+      "text": "Drive Motor 'B' Position Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0A42",
+      "text": "Drive Motor 'B' Position Sensor Circuit Circuit Low"
+    },
+    {
+      "code": "0x0A43",
+      "text": "Drive Motor 'B' Position Sensor Circuit Circuit High"
+    },
+    {
+      "code": "0x0A44",
+      "text": "Drive Motor 'B' Position Sensor Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x1000",
+      "text": "OBD-II Monitor Testing Not Complete"
+    },
+    {
+      "code": "0x204F",
+      "text": "Reductant System Performance"
+    },
+    {
+      "code": "0x2100",
+      "text": "Throttle Actuator 'A' Control Motor Circuit Malfunction"
+    },
+    {
+      "code": "0x2101",
+      "text": "Throttle Actuator 'A' Control Motor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2102",
+      "text": "Throttle Actuator 'A' Control Motor Circuit Circuit Low"
+    },
+    {
+      "code": "0x2103",
+      "text": "Throttle Actuator 'A' Control Motor Circuit Circuit High"
+    },
+    {
+      "code": "0x2104",
+      "text": "Throttle Actuator 'A' Control Motor Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2110",
+      "text": "Throttle Actuator Control System — Forced Limited RPM Malfunction"
+    },
+    {
+      "code": "0x2111",
+      "text": "Throttle Actuator Control System — Forced Limited RPM Range/Performance"
+    },
+    {
+      "code": "0x2112",
+      "text": "Throttle Actuator Control System — Forced Limited RPM Circuit Low"
+    },
+    {
+      "code": "0x2113",
+      "text": "Throttle Actuator Control System — Forced Limited RPM Circuit High"
+    },
+    {
+      "code": "0x2114",
+      "text": "Throttle Actuator Control System — Forced Limited RPM Circuit Intermittent"
+    },
+    {
+      "code": "0x2115",
+      "text": "Throttle Actuator Control System — Forced Idle Malfunction"
+    },
+    {
+      "code": "0x2116",
+      "text": "Throttle Actuator Control System — Forced Idle Range/Performance"
+    },
+    {
+      "code": "0x2117",
+      "text": "Throttle Actuator Control System — Forced Idle Circuit Low"
+    },
+    {
+      "code": "0x2118",
+      "text": "Throttle Actuator Control System — Forced Idle Circuit High"
+    },
+    {
+      "code": "0x2119",
+      "text": "Throttle Actuator Control System — Forced Idle Circuit Intermittent"
+    },
+    {
+      "code": "0x2120",
+      "text": "Pedal Position Sensor / Switch 'D' Circuit Malfunction"
+    },
+    {
+      "code": "0x2121",
+      "text": "Pedal Position Sensor / Switch 'D' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2122",
+      "text": "Pedal Position Sensor / Switch 'D' Circuit Circuit Low"
+    },
+    {
+      "code": "0x2123",
+      "text": "Pedal Position Sensor / Switch 'D' Circuit Circuit High"
+    },
+    {
+      "code": "0x2124",
+      "text": "Pedal Position Sensor / Switch 'D' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2125",
+      "text": "Pedal Position Sensor / Switch 'E' Circuit Malfunction"
+    },
+    {
+      "code": "0x2126",
+      "text": "Pedal Position Sensor / Switch 'E' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2127",
+      "text": "Pedal Position Sensor / Switch 'E' Circuit Circuit Low"
+    },
+    {
+      "code": "0x2128",
+      "text": "Pedal Position Sensor / Switch 'E' Circuit Circuit High"
+    },
+    {
+      "code": "0x2129",
+      "text": "Pedal Position Sensor / Switch 'E' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2200",
+      "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Malfunction"
+    },
+    {
+      "code": "0x2201",
+      "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Range/Performance"
+    },
+    {
+      "code": "0x2202",
+      "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Circuit Low"
+    },
+    {
+      "code": "0x2203",
+      "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Circuit High"
+    },
+    {
+      "code": "0x2204",
+      "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x2205",
+      "text": "NOx Sensor Heater Circuit Malfunction"
+    },
+    {
+      "code": "0x2206",
+      "text": "NOx Sensor Heater Circuit Range/Performance"
+    },
+    {
+      "code": "0x2207",
+      "text": "NOx Sensor Heater Circuit Circuit Low"
+    },
+    {
+      "code": "0x2208",
+      "text": "NOx Sensor Heater Circuit Circuit High"
+    },
+    {
+      "code": "0x2209",
+      "text": "NOx Sensor Heater Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2400",
+      "text": "EVAP Leak Detection Pump Control Circuit Malfunction"
+    },
+    {
+      "code": "0x2401",
+      "text": "EVAP Leak Detection Pump Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2402",
+      "text": "EVAP Leak Detection Pump Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x2403",
+      "text": "EVAP Leak Detection Pump Control Circuit Circuit High"
+    },
+    {
+      "code": "0x2404",
+      "text": "EVAP Leak Detection Pump Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2410",
+      "text": "Catalyst Temperature Bank 2 Malfunction"
+    },
+    {
+      "code": "0x2411",
+      "text": "Catalyst Temperature Bank 2 Range/Performance"
+    },
+    {
+      "code": "0x2412",
+      "text": "Catalyst Temperature Bank 2 Circuit Low"
+    },
+    {
+      "code": "0x2413",
+      "text": "Catalyst Temperature Bank 2 Circuit High"
+    },
+    {
+      "code": "0x2414",
+      "text": "Catalyst Temperature Bank 2 Circuit Intermittent"
+    },
+    {
+      "code": "0x2425",
+      "text": "EGR Cooler Bypass Control Circuit Malfunction"
+    },
+    {
+      "code": "0x2426",
+      "text": "EGR Cooler Bypass Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2427",
+      "text": "EGR Cooler Bypass Control Circuit Circuit Low"
+    },
+    {
+      "code": "0x2428",
+      "text": "EGR Cooler Bypass Control Circuit Circuit High"
+    },
+    {
+      "code": "0x2429",
+      "text": "EGR Cooler Bypass Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2440",
+      "text": "DPF Pressure Sensor 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x2441",
+      "text": "DPF Pressure Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2442",
+      "text": "DPF Pressure Sensor 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x2443",
+      "text": "DPF Pressure Sensor 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x2444",
+      "text": "DPF Pressure Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x244A",
+      "text": "Diesel Particulate Filter Differential Pressure Too Low"
+    },
+    {
+      "code": "0x244B",
+      "text": "Diesel Particulate Filter Differential Pressure Too High"
+    },
+    {
+      "code": "0x2450",
+      "text": "Diesel Aftertreatment Glow Plug 'A' Circuit Malfunction"
+    },
+    {
+      "code": "0x2451",
+      "text": "Diesel Aftertreatment Glow Plug 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2452",
+      "text": "Diesel Aftertreatment Glow Plug 'A' Circuit Circuit Low"
+    },
+    {
+      "code": "0x2453",
+      "text": "Diesel Aftertreatment Glow Plug 'A' Circuit Circuit High"
+    },
+    {
+      "code": "0x2454",
+      "text": "Diesel Aftertreatment Glow Plug 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2459",
+      "text": "Diesel Particulate Filter Regeneration Frequency"
+    },
+    {
+      "code": "0xC001",
+      "text": "High Speed CAN Communication Bus"
+    },
+    {
+      "code": "0xC100",
+      "text": "Lost Communication With ECM/PCM 'A'"
+    },
+    {
+      "code": "0xC101",
+      "text": "Lost Communication With TCM"
+    },
+    {
+      "code": "0xC102",
+      "text": "Lost Communication With Cruise Control Module"
+    },
+    {
+      "code": "0xC103",
+      "text": "Lost Communication With Steering Wheel Module"
+    },
+    {
+      "code": "0xC104",
+      "text": "Lost Communication With Cruise Control Module"
+    },
+    {
+      "code": "0xC110",
+      "text": "Lost Communication With Generic Module 'A'"
+    },
+    {
+      "code": "0xC121",
+      "text": "Lost Communication With ABS Control Module"
+    },
+    {
+      "code": "0xC122",
+      "text": "Lost Communication With Vehicle Dynamics Control"
+    },
+    {
+      "code": "0xC125",
+      "text": "Lost Communication With Multi-axis Acceleration Sensor Module"
+    },
+    {
+      "code": "0xC140",
+      "text": "Lost Communication With Body Control Module"
+    },
+    {
+      "code": "0xC141",
+      "text": "Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC151",
+      "text": "Lost Communication With Restraint Control Module"
+    },
+    {
+      "code": "0xC155",
+      "text": "Lost Communication With Instrument Panel Cluster (IPC)"
+    },
+    {
+      "code": "0xC160",
+      "text": "Lost Communication With Audio Control Module"
+    },
+    {
+      "code": "0xC167",
+      "text": "Lost Communication With Headlamp Control Module"
+    },
+    {
+      "code": "0xC184",
+      "text": "Lost Communication With Telematics Module"
+    },
+    {
+      "code": "0xC19E",
+      "text": "Lost Communication With Steering Column Lock Module"
+    }
+  ]
+}

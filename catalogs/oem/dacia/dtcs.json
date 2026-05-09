@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9318",
+      "text": "Dacia UCH — Battery voltage low"
+    },
+    {
+      "code": "0x5135",
+      "text": "Dacia — Brake-pedal switch circuit (cruise interlock)"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Dacia Duster 4x4 — AWD coupling fault"
+    },
+    {
+      "code": "0x0102",
+      "text": "Dacia — Mass Air Flow Circuit Low Input"
+    },
+    {
+      "code": "0x0103",
+      "text": "Dacia — Mass Air Flow Circuit High Input"
+    },
+    {
+      "code": "0x0117",
+      "text": "Dacia — Coolant Temp Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x0118",
+      "text": "Dacia — Coolant Temp Sensor Circuit High Input"
+    },
+    {
+      "code": "0x0171",
+      "text": "Dacia TCe — System Too Lean Bank 1"
+    },
+    {
+      "code": "0x0172",
+      "text": "Dacia TCe — System Too Rich Bank 1"
+    },
+    {
+      "code": "0x0234",
+      "text": "Dacia TCe / Hybrid 140 — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Dacia TCe — Turbocharger underboost"
+    },
+    {
+      "code": "0x0301",
+      "text": "Dacia TCe / ECO-G — Cylinder 1 misfire detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "Dacia — Cylinder 2 misfire detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "Dacia — Cylinder 3 misfire detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "Dacia — Cylinder 4 misfire detected"
+    },
+    {
+      "code": "0x0420",
+      "text": "Dacia — Catalyst Bank 1 efficiency below threshold"
+    },
+    {
+      "code": "0x0455",
+      "text": "Dacia — EVAP system large leak (loose fuel cap)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Dacia JF016E CVT — Torque converter clutch performance"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "Dacia Spring EV — Drive motor temperature sensor circuit"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Dacia Spring EV / Bigster Hybrid — HV battery isolation fault"
+    },
+    {
+      "code": "0x0D29",
+      "text": "Dacia Spring EV — AC charging coupler latch fault (Type 2)"
+    },
+    {
+      "code": "0x1497",
+      "text": "Dacia ECO-G — LPG injector circuit fault"
+    },
+    {
+      "code": "0x1498",
+      "text": "Dacia ECO-G — LPG fuel pressure too low"
+    },
+    {
+      "code": "0xC073",
+      "text": "Dacia — Control module communication bus 'A' off"
+    },
+    {
+      "code": "0xC100",
+      "text": "Dacia — Lost Communication With ECM/PCM 'A'"
+    },
+    {
+      "code": "0xC146",
+      "text": "Dacia — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "Dacia — Lost Communication With Media Display IVI"
+    }
+  ]
+}

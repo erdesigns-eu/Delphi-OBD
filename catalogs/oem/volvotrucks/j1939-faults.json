@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x000017D0",
+      "text": "SPN0190-FMI16: Volvo Trucks — Engine speed above normal range"
+    },
+    {
+      "code": "0x00019660",
+      "text": "SPN3251-FMI0: Volvo Trucks — DPF differential pressure above normal"
+    },
+    {
+      "code": "0x0001A423",
+      "text": "SPN3361-FMI3: Volvo Trucks — DEF dosing valve circuit voltage high"
+    },
+    {
+      "code": "0x0001D0F0",
+      "text": "SPN3719-FMI16: Volvo Trucks — Particulate trap soot load most severe"
+    },
+    {
+      "code": "0x0002B871",
+      "text": "SPN5571-FMI17: Volvo Trucks — DEF inducement (forced derate)"
+    }
+  ]
+}

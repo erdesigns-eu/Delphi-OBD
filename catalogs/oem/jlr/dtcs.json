@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x916F",
+      "text": "JLR keyless-entry — pushbutton circuit"
+    },
+    {
+      "code": "0x91D0",
+      "text": "JLR Pivi Pro — touchscreen calibration drift"
+    },
+    {
+      "code": "0x5A1F",
+      "text": "Air Suspension Compressor Over-Temperature (Range Rover)"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Air-suspension compressor fault (Range Rover L405 / L460)"
+    },
+    {
+      "code": "0x5A21",
+      "text": "Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x5A22",
+      "text": "Air-suspension air-leak detected — front-left"
+    },
+    {
+      "code": "0x5A4F",
+      "text": "Air Suspension Vehicle-Height Sensor: Implausible (Land Rover)"
+    },
+    {
+      "code": "0x0011",
+      "text": "Camshaft Position 'A' Timing Over-Advanced (JLR Ingenium)"
+    },
+    {
+      "code": "0x008A",
+      "text": "Low-pressure fuel system pressure too low (JLR Ingenium GTDi)"
+    },
+    {
+      "code": "0x018C",
+      "text": "Fuel pressure sensor 'B' (high-pressure rail) JLR"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (JLR Ingenium V6)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Efficiency Bank 1 (JLR AJ-V8 / Ingenium)"
+    },
+    {
+      "code": "0x0430",
+      "text": "Catalyst Efficiency Bank 2 (JLR AJ-V8 / SVR 5.0 SC)"
+    },
+    {
+      "code": "0x0606",
+      "text": "Internal Control Module Performance (JLR EMS3155)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Torque Converter Clutch Performance (JLR ZF8HP)"
+    },
+    {
+      "code": "0x0A0F",
+      "text": "Range Rover EV — engine failed to start (range extender)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "I-Pace HV Battery Voltage System Isolation Fault"
+    },
+    {
+      "code": "0x0D38",
+      "text": "I-Pace on-board charger DC/DC performance"
+    },
+    {
+      "code": "0x10DC",
+      "text": "Fuel Rail Pressure: HPFP Performance (JLR Ingenium)"
+    },
+    {
+      "code": "0x244A",
+      "text": "DPF Differential Pressure Too Low (JLR Diesel)"
+    },
+    {
+      "code": "0xC146",
+      "text": "Lost Communication With Gateway 'A' (JLR JaguarDrive Control)"
+    },
+    {
+      "code": "0xC184",
+      "text": "Lost Communication With Audio Front Control (Pivi Pro)"
+    },
+    {
+      "code": "0xC316",
+      "text": "Lost Communication With Telematics Module (TCB)"
+    },
+    {
+      "code": "0xD02F",
+      "text": "Front Camera Module: Calibration Required (JLR)"
+    },
+    {
+      "code": "0xFFFE",
+      "text": "Lost Communication With Pivi Pro Head Unit"
+    }
+  ]
+}

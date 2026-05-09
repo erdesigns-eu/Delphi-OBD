@@ -1,0 +1,226 @@
+{
+  "version": 1,
+  "type": "j1939-pgn",
+  "entries": [
+    {
+      "code": "0xF004",
+      "text": "Electronic Engine Controller 1"
+    },
+    {
+      "code": "0xF003",
+      "text": "Electronic Engine Controller 2"
+    },
+    {
+      "code": "0xFEDF",
+      "text": "Electronic Engine Controller 3"
+    },
+    {
+      "code": "0xFE9E",
+      "text": "Electronic Engine Controller 4"
+    },
+    {
+      "code": "0xFEEE",
+      "text": "Engine Temperature 1"
+    },
+    {
+      "code": "0xFEEF",
+      "text": "Engine Fluid Level/Pressure 1"
+    },
+    {
+      "code": "0xFEF2",
+      "text": "Fuel Economy (Liquid)"
+    },
+    {
+      "code": "0xFEF1",
+      "text": "Cruise Control / Vehicle Speed"
+    },
+    {
+      "code": "0xFEF5",
+      "text": "Ambient Conditions"
+    },
+    {
+      "code": "0xFEF6",
+      "text": "Inlet/Exhaust Conditions 1"
+    },
+    {
+      "code": "0xFEF7",
+      "text": "Vehicle Electrical Power 1"
+    },
+    {
+      "code": "0xFEF8",
+      "text": "Transmission Fluids 1"
+    },
+    {
+      "code": "0xFEFC",
+      "text": "Dash Display"
+    },
+    {
+      "code": "0xFEFE",
+      "text": "Auxiliary Analog Information"
+    },
+    {
+      "code": "0xFEFF",
+      "text": "Water in Fuel Indicator"
+    },
+    {
+      "code": "0xFECA",
+      "text": "Active Diagnostic Trouble Codes"
+    },
+    {
+      "code": "0xFECB",
+      "text": "Previously Active DTCs"
+    },
+    {
+      "code": "0xFECC",
+      "text": "Diagnostic Data Clear (Previously Active)"
+    },
+    {
+      "code": "0xFECD",
+      "text": "Freeze Frame Parameters"
+    },
+    {
+      "code": "0xFECE",
+      "text": "Diagnostic Readiness 1"
+    },
+    {
+      "code": "0xFED3",
+      "text": "Diagnostic Data Clear (Active)"
+    },
+    {
+      "code": "0xFED5",
+      "text": "Emission-Related Active DTCs"
+    },
+    {
+      "code": "0xFECF",
+      "text": "Emission-Related Pending DTCs"
+    },
+    {
+      "code": "0xFE2A",
+      "text": "Test Results"
+    },
+    {
+      "code": "0xFE2B",
+      "text": "Test Results — broadcast"
+    },
+    {
+      "code": "0xFE2C",
+      "text": "Inactive DTCs Selected"
+    },
+    {
+      "code": "0xFDB0",
+      "text": "Emission-Related Previously Active DTCs"
+    },
+    {
+      "code": "0xFE6F",
+      "text": "Diagnostic Readiness 3"
+    },
+    {
+      "code": "0xFEAE",
+      "text": "Air Supply Pressure"
+    },
+    {
+      "code": "0xF001",
+      "text": "Electronic Brake Controller 1"
+    },
+    {
+      "code": "0xFEC1",
+      "text": "High Resolution Vehicle Distance"
+    },
+    {
+      "code": "0xFEC4",
+      "text": "Electronic Brake Stability"
+    },
+    {
+      "code": "0xF002",
+      "text": "Electronic Transmission Controller 1"
+    },
+    {
+      "code": "0xF005",
+      "text": "Electronic Transmission Controller 2"
+    },
+    {
+      "code": "0xFFEC",
+      "text": "Electronic Transmission Controller 3"
+    },
+    {
+      "code": "0xFF00",
+      "text": "Electronic Transmission Controller 7"
+    },
+    {
+      "code": "0xFEF0",
+      "text": "Power Takeoff Information"
+    },
+    {
+      "code": "0xFEF3",
+      "text": "Vehicle Position"
+    },
+    {
+      "code": "0xFEE9",
+      "text": "Time / Date"
+    },
+    {
+      "code": "0xFEEA",
+      "text": "Vehicle Weight"
+    },
+    {
+      "code": "0xFEEC",
+      "text": "Vehicle Identification (VIN)"
+    },
+    {
+      "code": "0xFEEB",
+      "text": "Component Identification"
+    },
+    {
+      "code": "0xFEE5",
+      "text": "Engine Hours / Revolutions"
+    },
+    {
+      "code": "0xFE56",
+      "text": "After-treatment 1 Diesel Exhaust Fluid Tank 1"
+    },
+    {
+      "code": "0xFD7C",
+      "text": "After-treatment 1 Status (DPF/SCR)"
+    },
+    {
+      "code": "0xFD7D",
+      "text": "Diesel Particulate Filter Control 1"
+    },
+    {
+      "code": "0xFE57",
+      "text": "After-treatment 1 DEF Quality"
+    },
+    {
+      "code": "0xFE5B",
+      "text": "After-treatment 1 Outlet Gas"
+    },
+    {
+      "code": "0xEE00",
+      "text": "Address Claimed / Cannot Claim"
+    },
+    {
+      "code": "0xEC00",
+      "text": "Transport Protocol Connection Management"
+    },
+    {
+      "code": "0xEB00",
+      "text": "Transport Protocol Data Transfer"
+    },
+    {
+      "code": "0xFFC9",
+      "text": "Genset Group"
+    },
+    {
+      "code": "0xFFC8",
+      "text": "Genset Average Power"
+    },
+    {
+      "code": "0xFFC7",
+      "text": "Genset Total Hours"
+    },
+    {
+      "code": "0xFFC6",
+      "text": "Genset Total Hours — Active"
+    }
+  ]
+}

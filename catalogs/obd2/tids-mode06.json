@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "type": "obd2-pid",
+  "mode": "06",
+  "entries": [
+    {
+      "id": "0x01",
+      "name": "Rich-To-Lean Sensor Threshold Voltage",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x02",
+      "name": "Lean-To-Rich Sensor Threshold Voltage",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x03",
+      "name": "Low Sensor Voltage For Switch Time Calculation",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x04",
+      "name": "High Sensor Voltage For Switch Time Calculation",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x05",
+      "name": "Rich-To-Lean Switch Time",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x06",
+      "name": "Lean-To-Rich Switch Time",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x07",
+      "name": "Minimum Sensor Voltage For Test",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x08",
+      "name": "Maximum Sensor Voltage For Test",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x09",
+      "name": "Time Between Sensor Transitions",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0A",
+      "name": "Sensor Period",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0B",
+      "name": "Ewma Misfire Counts For Last Ten Driving Cycles",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0C",
+      "name": "Misfire Counts For Last/Current Driving Cycle",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x81",
+      "name": "Catalyst Monitor — Bank 1, Sensor 1 (Test 1)",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x82",
+      "name": "Catalyst Monitor — Bank 1, Sensor 2 (Test 2)",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x83",
+      "name": "Catalyst Monitor — Bank 2, Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x84",
+      "name": "Catalyst Monitor — Bank 2, Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x85",
+      "name": "Evap Monitor (0.040)",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x86",
+      "name": "Evap Monitor (0.020)",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x87",
+      "name": "Evap Monitor (Cap Off)",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA1",
+      "name": "Egr Monitor",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA2",
+      "name": "Pcv Monitor",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xB1",
+      "name": "Cold-Start Emission Reduction Monitor",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    }
+  ]
+}

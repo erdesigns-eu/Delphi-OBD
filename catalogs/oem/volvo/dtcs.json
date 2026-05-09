@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x8100",
+      "text": "Volvo Driver Frontal Stage 1 (SRS)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst System Efficiency Below Threshold Bank 1 (Volvo SPA)"
+    },
+    {
+      "code": "0x0524",
+      "text": "Engine Oil Pressure Too Low (common Volvo D5 / D4 PCV)"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "HV Battery Voltage Low (Volvo Recharge / EX90)"
+    },
+    {
+      "code": "0x164A",
+      "text": "Camshaft Phaser Solenoid Bank 1 (Volvo VEA Drive-E)"
+    },
+    {
+      "code": "0xC10F",
+      "text": "Lost Communication With Intelli-Safe Module (Volvo)"
+    },
+    {
+      "code": "0xC184",
+      "text": "Lost Communication With Sensus / IHU"
+    }
+  ]
+}

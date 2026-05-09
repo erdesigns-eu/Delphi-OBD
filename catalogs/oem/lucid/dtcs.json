@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900D",
+      "text": "Lucid DreamDrive front-camera obstructed"
+    },
+    {
+      "code": "0x900E",
+      "text": "Lucid DreamDrive lidar obstructed (DreamDrive Pro)"
+    },
+    {
+      "code": "0x905F",
+      "text": "Lucid — Air-suspension ride-height sensor open circuit"
+    },
+    {
+      "code": "0x9A20",
+      "text": "Lucid — Glass Canopy sun-shade controller fault"
+    },
+    {
+      "code": "0x9A30",
+      "text": "Lucid Pixel cluster — backlight failure"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Lucid — Air-suspension compressor overheating"
+    },
+    {
+      "code": "0x5A21",
+      "text": "Lucid — Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x5B00",
+      "text": "Lucid — Tri-motor torque vectoring controller fault (Sapphire)"
+    },
+    {
+      "code": "0x5B01",
+      "text": "Lucid Sapphire — Rear-left motor torque-balance fault"
+    },
+    {
+      "code": "0x0A09",
+      "text": "Wunderbox DC/DC Converter Status (Lucid Air)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "Lucid — Drive Motor 'A' Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0A3A",
+      "text": "Lucid — Drive Motor 'B' Temperature Sensor Circuit (rear)"
+    },
+    {
+      "code": "0x0A4A",
+      "text": "Lucid Sapphire — Rear-right motor temperature sensor circuit"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "HV Battery Cooling System Performance (Lucid)"
+    },
+    {
+      "code": "0x0AC0",
+      "text": "Lucid — HV battery temperature sensor 'A' circuit"
+    },
+    {
+      "code": "0x0AC1",
+      "text": "Lucid — HV battery temperature sensor 'B' circuit"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "Lucid — HV battery cell-voltage delta out of range"
+    },
+    {
+      "code": "0x0AFE",
+      "text": "Lucid — HV battery cooling-system performance"
+    },
+    {
+      "code": "0x0D29",
+      "text": "Lucid — AC charging coupler latch fault (J1772 / Type 2)"
+    },
+    {
+      "code": "0x0D2A",
+      "text": "Lucid — DC fast-charge coupler over-temperature"
+    },
+    {
+      "code": "0x0D2B",
+      "text": "Lucid — Charge port lock motor stuck"
+    },
+    {
+      "code": "0x0D38",
+      "text": "Lucid — Wunderbox DC/DC converter performance"
+    },
+    {
+      "code": "0x3000",
+      "text": "Lucid — High-voltage battery system performance"
+    },
+    {
+      "code": "0x3055",
+      "text": "Lucid — Wunderbox internal temperature high (charge derate)"
+    },
+    {
+      "code": "0x31A0",
+      "text": "Lucid — Front motor inverter over-current"
+    },
+    {
+      "code": "0x31B0",
+      "text": "Lucid — Rear motor inverter over-current"
+    },
+    {
+      "code": "0xC073",
+      "text": "Lucid — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC10C",
+      "text": "Lucid — Lost Communication With Wunderbox"
+    },
+    {
+      "code": "0xC146",
+      "text": "Lucid — Lost Communication With central gateway"
+    },
+    {
+      "code": "0xC184",
+      "text": "Lucid — Lost Communication With IVI / touchscreen"
+    },
+    {
+      "code": "0xC293",
+      "text": "Lucid — Lost Communication With BMS"
+    },
+    {
+      "code": "0xC316",
+      "text": "Lucid — Lost Communication With DreamDrive ADAS"
+    },
+    {
+      "code": "0xE018",
+      "text": "DreamDrive Pro Camera Calibration Required"
+    }
+  ]
+}

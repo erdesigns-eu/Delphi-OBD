@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000BC4",
+      "text": "SPN0094-FMI4: MAN — Fuel delivery pressure circuit voltage low (D26 / D08)"
+    },
+    {
+      "code": "0x000013A3",
+      "text": "SPN0157-FMI3: MAN — High-pressure fuel rail sensor voltage high"
+    },
+    {
+      "code": "0x00004FF3",
+      "text": "SPN0639-FMI19: MAN — J1939 backbone communication abnormal update rate"
+    },
+    {
+      "code": "0x0000DC32",
+      "text": "SPN1761-FMI18: MAN — DEF tank level low (refill warning)"
+    },
+    {
+      "code": "0x00019670",
+      "text": "SPN3251-FMI16: MAN — DPF differential pressure high (regen needed)"
+    },
+    {
+      "code": "0x0001D0F0",
+      "text": "SPN3719-FMI16: MAN — DPF soot load most severe (parked regen mandatory)"
+    },
+    {
+      "code": "0x0002B870",
+      "text": "SPN5571-FMI16: MAN — DEF inducement engaged (engine power derate)"
+    }
+  ]
+}

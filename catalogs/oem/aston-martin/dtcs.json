@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900D",
+      "text": "Aston Martin — Front camera obstructed (DBX ADAS)"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Aston Martin DBX — Air-suspension compressor performance"
+    },
+    {
+      "code": "0x5A21",
+      "text": "Aston Martin DBX — Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x5B20",
+      "text": "Aston Martin — Bilstein DTX adaptive damper drive circuit"
+    },
+    {
+      "code": "0x0234",
+      "text": "Aston Martin V8 (M177 twin-turbo) — Turbocharger overboost condition"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (AMG M178 / AML V12)"
+    },
+    {
+      "code": "0x0301",
+      "text": "Aston Martin V8 / V12 — Cylinder 1 misfire detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "Aston Martin V8 / V12 — Cylinder 2 misfire detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "Aston Martin V8 / V12 — Cylinder 3 misfire detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "Aston Martin V8 / V12 — Cylinder 4 misfire detected"
+    },
+    {
+      "code": "0x0305",
+      "text": "Aston Martin V8 / V12 — Cylinder 5 misfire detected"
+    },
+    {
+      "code": "0x0306",
+      "text": "Aston Martin V8 / V12 — Cylinder 6 misfire detected"
+    },
+    {
+      "code": "0x0307",
+      "text": "Aston Martin V8 / V12 — Cylinder 7 misfire detected"
+    },
+    {
+      "code": "0x0308",
+      "text": "Aston Martin V8 / V12 — Cylinder 8 misfire detected"
+    },
+    {
+      "code": "0x0420",
+      "text": "Aston Martin — Catalyst Bank 1 efficiency below threshold"
+    },
+    {
+      "code": "0x0430",
+      "text": "Aston Martin — Catalyst Bank 2 efficiency below threshold"
+    },
+    {
+      "code": "0x0524",
+      "text": "Aston Martin — Engine oil pressure too low"
+    },
+    {
+      "code": "0x052E",
+      "text": "Aston Martin V12 — Camshaft phasing performance"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Aston Martin Valhalla — HV battery isolation fault"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Imbalance (Aston Martin Hybrid)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Aston Martin — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Aston Martin — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "Aston Martin — Lost Communication With AMi infotainment"
+    }
+  ]
+}
