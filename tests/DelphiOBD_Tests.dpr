@@ -117,6 +117,7 @@ uses
   OBD.Flash.VoltageGate in '..\src\Flashing\OBD.Flash.VoltageGate.pas',
   OBD.Flash.Checkpoint in '..\src\Flashing\OBD.Flash.Checkpoint.pas',
   OBD.Flash.Phases in '..\src\Flashing\OBD.Flash.Phases.pas',
+  OBD.Flash.Pipeline in '..\src\Flashing\OBD.Flash.Pipeline.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
   OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
@@ -166,7 +167,8 @@ uses
   Tests.OBD.Coding.Phase8 in 'Tests.OBD.Coding.Phase8.pas',
   Tests.OBD.Coding.Phase8b in 'Tests.OBD.Coding.Phase8b.pas',
   Tests.OBD.Flashing.Phase9a in 'Tests.OBD.Flashing.Phase9a.pas',
-  Tests.OBD.Flashing.Phase9b in 'Tests.OBD.Flashing.Phase9b.pas';
+  Tests.OBD.Flashing.Phase9b in 'Tests.OBD.Flashing.Phase9b.pas',
+  Tests.OBD.Flashing.Phase9c in 'Tests.OBD.Flashing.Phase9c.pas';
 
 {$IFDEF CI}
 var

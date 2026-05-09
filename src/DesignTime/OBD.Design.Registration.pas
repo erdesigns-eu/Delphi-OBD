@@ -69,7 +69,10 @@ uses
   OBD.OEM.ComponentProtection.VAG,
   OBD.OEM.ComponentProtection.BMW,
   OBD.OEM.ComponentProtection.Mercedes,
-  OBD.OEM.ComponentProtection.Stellantis;
+  OBD.OEM.ComponentProtection.Stellantis,
+  OBD.UDS.Transfer,
+  OBD.Flash.VoltageGate,
+  OBD.Flash.Pipeline;
 
 procedure Register;
 begin
@@ -126,6 +129,15 @@ begin
     TOBDComponentProtectionBMW,
     TOBDComponentProtectionMercedes,
     TOBDComponentProtectionStellantis
+  ]);
+
+  // Phase 9: flashing components. WARNING — drop on a form, wire
+  // OnConfirmExecute, leave AutoExecute = False until the host
+  // really means it. Read docs/flashing-safety.md.
+  RegisterComponents('OBD Flashing', [
+    TOBDUDSTransfer,
+    TOBDVoltageGate,
+    TOBDFlashPipeline
   ]);
 end;
 
