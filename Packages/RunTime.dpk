@@ -196,6 +196,7 @@ contains
   OBD.EV.BatteryHealth in '..\src\Services\OBD.EV.BatteryHealth.pas',
   OBD.Tachograph.Signature in '..\src\Services\OBD.Tachograph.Signature.pas',
   OBD.OEM.ServiceRoutines in '..\src\Services\OBD.OEM.ServiceRoutines.pas',
+  OBD.Tachograph.Workshop in '..\src\Services\OBD.Tachograph.Workshop.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',
