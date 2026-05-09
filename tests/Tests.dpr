@@ -44,6 +44,7 @@ uses
   Tests.Protocol.IsoTp.Timing in 'Tests.Protocol.IsoTp.Timing.pas',
   Tests.Adapter.PassThrough.J2534v2 in 'Tests.Adapter.PassThrough.J2534v2.pas',
   Tests.EV.BatteryHealth in 'Tests.EV.BatteryHealth.pas',
+  Tests.Tachograph.Signature in 'Tests.Tachograph.Signature.pas',
   Tests.Service.Encoders in 'Tests.Service.Encoders.pas',
   Tests.Service.Decoders in 'Tests.Service.Decoders.pas',
   Tests.Protocol.IsoTp in 'Tests.Protocol.IsoTp.pas',
