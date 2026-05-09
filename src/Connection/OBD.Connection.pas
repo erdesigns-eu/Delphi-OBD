@@ -82,6 +82,7 @@ type
     FOnConnect: TNotifyEvent;
     FOnDisconnect: TNotifyEvent;
     FOnDataReceived: TOBDBytesEvent;
+    FOnDataReceivedRaw: TOBDBytesEvent;
     FOnStateChanged: TOBDStateEvent;
     FOnProgress: TOBDProgressEvent;
     FOnError: TOBDConnectionErrorEvent;
@@ -243,8 +244,26 @@ type
     /// <summary>Fires after the transport has fully closed.</summary>
     property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
     /// <summary>Fires when bytes arrive from the wire (main thread).</summary>
+    /// <remarks>For UI consumers. Bytes are copied and queued via
+    /// <c>TThread.Queue</c> before this event fires.</remarks>
     property OnDataReceived: TOBDBytesEvent read FOnDataReceived
       write FOnDataReceived;
+
+    /// <summary>
+    ///   Fires when bytes arrive from the wire, on the transport's
+    ///   worker thread (no main-thread marshalling).
+    /// </summary>
+    /// <remarks>
+    ///   Internal hook for low-level consumers (e.g. <c>TOBDAdapter</c>'s
+    ///   response collector) that need bytes synchronously without
+    ///   waiting for the main loop to drain. Avoid in UI code — use
+    ///   <see cref="OnDataReceived"/> instead.
+    ///
+    ///   Both events fire from the same source; setting one does not
+    ///   replace the other.
+    /// </remarks>
+    property OnDataReceivedRaw: TOBDBytesEvent read FOnDataReceivedRaw
+      write FOnDataReceivedRaw;
     /// <summary>Fires on every state transition (main thread).</summary>
     property OnStateChanged: TOBDStateEvent read FOnStateChanged
       write FOnStateChanged;
@@ -672,9 +691,15 @@ procedure TOBDConnection.HandleTransportBytes(Sender: TObject;
 var
   Snapshot: TBytes;
 begin
-  // Marshal to main thread; copy because the transport may reuse its
-  // internal buffer.
+  // Copy because the transport may reuse its internal buffer.
   Snapshot := Copy(ABytes);
+
+  // Raw hook fires immediately on the worker thread for low-level
+  // consumers (TOBDAdapter response collector, etc.).
+  if Assigned(FOnDataReceivedRaw) then
+    FOnDataReceivedRaw(Self, Snapshot);
+
+  // Main-thread hook for UI consumers.
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnDataReceived) then

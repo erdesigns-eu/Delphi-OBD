@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "type": "adapter-capabilities",
+  "description": "Adapter capability registry. Add a new adapter row without recompiling.",
+  "entries": [
+    {
+      "adapter_key": "elm327",
+      "display_name": "ELM327",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "elm327_clone_v1_5",
+      "display_name": "ELM327 v1.5 clone",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_lx",
+      "display_name": "OBDLink LX",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "MessageFilters"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_mx",
+      "display_name": "OBDLink MX",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "MessageFilters", "AdapterMultiFrame"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_mx_plus",
+      "display_name": "OBDLink MX+",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "MessageFilters", "AdapterMultiFrame", "BluetoothLE"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_ex",
+      "display_name": "OBDLink EX",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "MessageFilters", "AdapterMultiFrame", "J1939"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "obdlink_cx",
+      "display_name": "OBDLink CX",
+      "capabilities": ["CAN", "CANFD", "ISO-TP", "ISO-TP-LF", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "MessageFilters", "AdapterMultiFrame", "J1939"],
+      "max_iso_tp_frame_bytes": 62
+    },
+    {
+      "adapter_key": "obdlink_sx",
+      "display_name": "OBDLink SX",
+      "capabilities": ["CAN", "ISO-TP", "K-Line", "VoltageMonitor", "ProgrammableHeaders", "STCommands", "AdapterMultiFrame"],
+      "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "j2534",
+      "display_name": "SAE J2534 PassThru",
+      "capabilities": ["CAN", "ISO-TP", "ISO-TP-LF", "J1939", "K-Line", "J2534", "MessageFilters", "AdapterMultiFrame"],
+      "max_iso_tp_frame_bytes": 62
+    },
+    {
+      "adapter_key": "j2534v2",
+      "display_name": "SAE J2534-2 PassThru",
+      "capabilities": ["CAN", "CANFD", "ISO-TP", "ISO-TP-LF", "J1939", "K-Line", "J2534", "J2534v2", "MessageFilters", "AdapterMultiFrame"],
+      "max_iso_tp_frame_bytes": 62
+    },
+    {
+      "adapter_key": "doip",
+      "display_name": "DoIP gateway",
+      "capabilities": ["DoIP", "ISO-TP-LF", "AdapterMultiFrame"],
+      "max_iso_tp_frame_bytes": 1500
+    },
+    {
+      "adapter_key": "doip_tls",
+      "display_name": "DoIP gateway (TLS)",
+      "capabilities": ["DoIP", "ISO-TP-LF", "AdapterMultiFrame", "SecureOnboard"],
+      "max_iso_tp_frame_bytes": 1500
+    }
+  ]
+}

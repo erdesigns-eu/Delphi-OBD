@@ -29,6 +29,43 @@ The previous v1 release line lives on the
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 3 (Adapter layer)
+- `OBD.Adapter.Types` — `TOBDAdapterCapability` (15-bit set),
+  `TOBDAdapterCapabilities` set type, `TOBDAdapterIdentity`,
+  `TOBDAdapterCommandKind`, `TOBDAdapterCommand`,
+  `TOBDAdapterResponse`, `EOBDAdapter`, `TryParseCapability`
+  synonym-tolerant parser.
+- `OBD.Adapter.Capabilities` — `TOBDAdapterCapabilityRegistry`
+  singleton + JSON loader; 12 built-in adapter rows.
+- `OBD.Adapter.Commands` — single `TOBDAdapterCommandCatalog`,
+  `FormatCommand` with `%d`/`%s`/`%x..xX..X` placeholders;
+  ~35 built-in AT commands and ~12 built-in ST commands.
+  Supersedes the v1 dual AT/ST modules (~1000 lines of duplication
+  removed).
+- `OBD.Adapter.Detection` — stateless `TOBDAdapterDetector`,
+  six-phase identification, `ParseInfoLine` regex,
+  `LooksLikeClone` heuristic, `IOBDAdapterCommandSender` test seam.
+- `OBD.Adapter.Init` — stateless `TOBDAdapterInitializer`, built-in
+  per-family sequences, required vs best-effort step semantics.
+- `OBD.Adapter` — `TOBDAdapter` component implementing
+  `IOBDAdapterCommandSender`; `Detect/Async`, `Init/Async`,
+  `WriteAT/ST/OBDCommand[Async]` per the dual-method rule;
+  response collector on `OnDataReceivedRaw` (worker thread) so
+  sync calls don't deadlock from the main thread; events
+  marshalled to main thread; `OnProgress` per phase.
+- `OBD.Connection.OnDataReceivedRaw` — new worker-thread byte hook
+  on `TOBDConnection` for low-level consumers.
+- `catalogs/adapter/capabilities.json` (12 rows) +
+  `catalogs/adapter/init-sequences.json` (per-family override).
+- DUnitX coverage: 32 new assertions across
+  `Tests.OBD.Adapter.{Commands, Capabilities, Detection}` and
+  `Tests.OBD.Adapter`.
+- Sample `02-DetectAdapter`.
+
+### Removed
+- `catalogs/obd2/adapter-capabilities.json` — superseded by the
+  v2-schema file under `catalogs/adapter/`.
+
 ### Added — Phase 2 follow-up #2 (Progress events + base-class extraction)
 - `TOBDProgressStep` record + `TOBDProgressEvent` — unified shape
   carrying step-style (`Index`/`Count`/`Name`/`Detail`) and

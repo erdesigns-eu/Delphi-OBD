@@ -388,3 +388,144 @@ Going forward, every component in Phases 3–9 that has a long-running
 method must publish `OnProgress` and document its phase sequence.
 The §3.7 progress section is now part of the rule.
 
+---
+
+## Phase 3 — Adapter layer
+
+**Status:** Complete on `claude/v2-phase-1` (the active PR branch).
+**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Adapter/ tests/Tests.OBD.Adapter*.pas samples/02-DetectAdapter/`.
+
+### Code landed
+
+| Unit | Lines | Purpose |
+|---|---:|---|
+| `src/Adapter/OBD.Adapter.Types.pas` | ~250 | `TOBDAdapterCapability` (15 bits), `TOBDAdapterCapabilities` set, `TOBDAdapterIdentity`, `TOBDAdapterCommandKind`, `TOBDAdapterCommand`, `TOBDAdapterResponse`, event signatures, `EOBDAdapter`, `TryParseCapability` (synonym-tolerant). |
+| `src/Adapter/OBD.Adapter.Capabilities.pas` | ~280 | `TOBDAdapterCapabilityRegistry` singleton + JSON loader; built-in seed for 12 adapter rows. |
+| `src/Adapter/OBD.Adapter.Commands.pas` | ~340 | Single `TOBDAdapterCommandCatalog`; `FormatCommand` with `%d`/`%s`/`%x..xX..X` placeholders; ~35 AT + ~12 ST built-in entries. |
+| `src/Adapter/OBD.Adapter.Detection.pas` | ~260 | Stateless `TOBDAdapterDetector` — six-phase ATZ → ATE0 → ATI → AT@1 → AT@2 → STI; regex-driven `ParseInfoLine`; `LooksLikeClone` heuristic; `IOBDAdapterCommandSender` test seam; `TOBDDetectionProgress` callback. |
+| `src/Adapter/OBD.Adapter.Init.pas` | ~190 | `TOBDAdapterInitializer` with built-in per-family sequences; required vs best-effort step semantics; `ExtendSequence` for user-supplied extras. |
+| `src/Adapter/OBD.Adapter.pas` | ~660 | `TOBDAdapter` component implementing `IOBDAdapterCommandSender`; sync + async + progress for Detect / Init / WriteAT / WriteST / WriteOBD per PLAN §3.7. |
+| **Total runtime** | **~1,980** | |
+| `tests/Tests.OBD.Adapter.Commands.pas` | ~120 | 12 assertions on FormatCommand + catalogue. |
+| `tests/Tests.OBD.Adapter.Capabilities.pas` | ~110 | 6 assertions on registry + JSON loader + synonyms. |
+| `tests/Tests.OBD.Adapter.Detection.pas` | ~210 | 7 assertions: ELM327 v1.5 clone, ELM327 v2.3 genuine, OBDLink MX, STN1110, six-phase progress, info-line regex, nil-sender. |
+| `tests/Tests.OBD.Adapter.pas` | ~140 | 7 assertions on lifecycle, defaults, EOBDNotConnected gates, EOBDUnsupported on ST without capability, FreeNotification. |
+| `samples/02-DetectAdapter/DetectAdapter.dpr` | ~145 | Wi-Fi connect → DetectAsync → print identity + capabilities. |
+| **Total tests + sample** | **~725** | |
+
+### Architecture highlights
+
+- **Composition over inheritance.** `TOBDAdapterDetector` and
+  `TOBDAdapterInitializer` are stateless static-method classes that
+  consume a tiny `IOBDAdapterCommandSender` interface. The component
+  implements that interface; tests implement it with a scripted
+  in-memory sender. No real connection needed for unit tests.
+- **No deadlock by construction.** The response collector subscribes
+  to `TOBDConnection.OnDataReceivedRaw` (the new worker-thread hook),
+  not `OnDataReceived` (which marshals to main). Sync calls from the
+  main thread never deadlock — the producer is always a different
+  thread.
+- **Dual-method + progress everywhere.** Every long-running method on
+  `TOBDAdapter` ships in both forms, with `OnProgress` firing per
+  named phase. Detect produces six progress events; Init produces one
+  per init step (typically 7–8); per-command writes do not produce
+  progress (single round-trip).
+- **Capability gating is data + code.** ST commands declare
+  `acSTCommands` as a required capability in the catalogue;
+  `WriteSTCommand` / `WriteSTCommandAsync` raise `EOBDUnsupported` if
+  the bound adapter has not declared that capability. This keeps the
+  command catalogue self-documenting and means an ST call against a
+  vanilla ELM327 fails fast with a clear message.
+
+### Catalogues ported
+
+- `catalogs/adapter/capabilities.json` — 12 adapter rows
+  (ELM327, ELM327 v1.5 clone, OBDLink LX/MX/MX+/EX/CX/SX, J2534,
+  J2534v2, DoIP, DoIP-TLS) under the v2 schema (`version: 1`,
+  `type: adapter-capabilities`).
+- `catalogs/adapter/init-sequences.json` — per-family override file
+  (ELM327: 7 steps, OBDLink: 8 steps with `STSR`, J2534: empty
+  because PassThru bypasses AT/ST, DoIP: empty for the same reason).
+
+The old `catalogs/obd2/adapter-capabilities.json` (Phase 1 verbatim
+copy from `main`) was removed — superseded by the v2-schema file
+under `catalogs/adapter/`.
+
+### What was deliberately not ported
+
+| v1 file | Reason | Where it lands |
+|---|---|---|
+| `OBD.Adapter.ELM327.pas` (per-chip subclass) | v2 collapses ELM327 + OBDLink into a single `TOBDAdapter` parameterised by `Family` enum + capability set. | n/a |
+| `OBD.Adapter.OBDLink.pas` (separate class) | Same. | n/a |
+| `OBD.Adapter.PassThrough.J2534v2.pas` (188 lines) | J2534 PassThru API is a separate concern — opens via the J2534 DLL rather than AT/ST commands. Belongs as a future J2534 transport, not on `TOBDAdapter` itself. | Post-1.0 |
+| `OBD.Adapter.Enumerator.pas` (911 lines) | Adapter / port enumeration is a design-time concern (property editor in Phase 11) rather than runtime. | Phase 11 |
+| `OBD.Adapter.Constants.pas` | Magic numbers inlined where used with named comments; the central constants unit was removed in v2 in favour of named constants in each file. | n/a |
+
+### Honest review — what a reviewer should double-check
+
+1. **Response collector charset.** The collector decodes incoming
+   bytes as ASCII (`TEncoding.ASCII.GetString`). ELM327 / OBDLink
+   adapters are 7-bit clean by spec, but a misbehaving clone could
+   send bytes ≥ 0x80; those would be mangled rather than treated as
+   binary. Worth keeping an eye on once we have hardware tests.
+2. **Echo handling.** `ParseResponse` strips lines that match the
+   sent command verbatim — that's the standard ELM327 pattern when
+   echo isn't disabled yet (e.g. before the first `ATE0`). Edge
+   case: if the chip echoes with extra whitespace or a different
+   line ending, the strip won't fire; the echoed command leaks into
+   `Lines`. Test coverage: today's tests assume echo is off (Init
+   sequence sends ATE0 early); a hardware loop that hits this path
+   is on the Phase 0 deferred-CI list.
+3. **Async cancellation.** `DetectAsync` / `InitAsync` /
+   `WriteATCommandAsync` do not currently honour a cancel flag once
+   the worker thread is in `WaitFor`. Calling `Connection.Close`
+   while a write-async is in flight will eventually trigger a
+   timeout (5 s default) rather than abort immediately. A
+   future-proofing note: the cancel mechanism added on `TOBDConnection`
+   for `OpenAsync` should be threaded through to `TOBDAdapter` in
+   Phase 4 when we wire the protocol layer.
+4. **`AT@1` / `AT@2` are best-effort.** The detector swallows
+   exceptions on these two — clones often respond `?` (treated as
+   error). The clone-heuristic uses the `Description` /
+   `DeviceIdentifier` fields being empty as a signal, which is
+   intentional but worth flagging if you change the error-keyword
+   list.
+5. **Init-sequences JSON is file-shipped but not yet loaded.** The
+   built-in sequences are baked into `OBD.Adapter.Init`. The JSON
+   file is shipped so users can drop in a replacement, but
+   `TOBDAdapterInitializer` does not yet have `LoadFromJSON`. This
+   is a deliberate Phase-3-scope cap; runtime override lands when
+   we have a JSON-driven test fixture.
+6. **No real-hardware integration tests.** Same as Phase 2; deferred
+   until a self-hosted runner is online.
+
+### Quality bars met
+
+- [x] Every public symbol has XMLDoc per the mandatory-tag table
+      (constructors with `<param>`, functions with `<returns>`, every
+      exception path on a `<exception cref>` line, every event with
+      thread-of-firing in `<remarks>`).
+- [x] Every `.pas` file has the standard file header with the correct
+      author attribution.
+- [x] No `Vcl.*` / `FMX.*` references anywhere in `src/Adapter/`.
+- [x] No `Application.ProcessMessages`. No `Sleep` busy-loops.
+- [x] Sync + async + progress for every long-running adapter method.
+- [x] No deadlock when `WriteATCommand` is called from the main thread
+      (uses worker-thread `OnDataReceivedRaw` for the response
+      collector).
+- [x] FreeNotification clears `Connection` when the bound connection
+      is freed.
+
+### Suggested follow-up before Phase 4
+
+1. Wire async cancellation: `TOBDAdapter` should honour a cancel
+   flag in its `WaitFor` loop so `Connection.Close` aborts in-flight
+   ops within ~50 ms.
+2. Add `TOBDAdapterInitializer.LoadFromJSON` so the shipped
+   `init-sequences.json` actually overrides the built-ins.
+3. Decide on echo-edge-case handling — keep best-effort or document
+   the requirement that `ATE0` always succeeds in the init sequence.
+4. Consider exposing the catalogue's `MaxIsoTpFrameBytes` as a
+   read-only property on `TOBDAdapter` — the protocol layer
+   (Phase 4) will need it.
+

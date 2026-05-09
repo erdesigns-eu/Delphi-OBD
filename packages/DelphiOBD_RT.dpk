@@ -48,6 +48,12 @@ contains
   OBD.Connection.UDP in '..\src\Connection\OBD.Connection.UDP.pas',
   OBD.Connection.Serial in '..\src\Connection\OBD.Connection.Serial.pas',
   OBD.Connection.FTDI in '..\src\Connection\OBD.Connection.FTDI.pas',
-  OBD.Connection in '..\src\Connection\OBD.Connection.pas';
+  OBD.Connection in '..\src\Connection\OBD.Connection.pas',
+  OBD.Adapter.Types in '..\src\Adapter\OBD.Adapter.Types.pas',
+  OBD.Adapter.Capabilities in '..\src\Adapter\OBD.Adapter.Capabilities.pas',
+  OBD.Adapter.Commands in '..\src\Adapter\OBD.Adapter.Commands.pas',
+  OBD.Adapter.Detection in '..\src\Adapter\OBD.Adapter.Detection.pas',
+  OBD.Adapter.Init in '..\src\Adapter\OBD.Adapter.Init.pas',
+  OBD.Adapter in '..\src\Adapter\OBD.Adapter.pas';
 
 end.

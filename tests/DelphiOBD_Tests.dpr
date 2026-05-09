@@ -49,6 +49,12 @@ uses
   OBD.Connection.FTDI in '..\src\Connection\OBD.Connection.FTDI.pas',
   {$ENDIF}
   OBD.Connection in '..\src\Connection\OBD.Connection.pas',
+  OBD.Adapter.Types in '..\src\Adapter\OBD.Adapter.Types.pas',
+  OBD.Adapter.Capabilities in '..\src\Adapter\OBD.Adapter.Capabilities.pas',
+  OBD.Adapter.Commands in '..\src\Adapter\OBD.Adapter.Commands.pas',
+  OBD.Adapter.Detection in '..\src\Adapter\OBD.Adapter.Detection.pas',
+  OBD.Adapter.Init in '..\src\Adapter\OBD.Adapter.Init.pas',
+  OBD.Adapter in '..\src\Adapter\OBD.Adapter.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
@@ -59,7 +65,11 @@ uses
   Tests.OBD.Connection.Retry in 'Tests.OBD.Connection.Retry.pas',
   Tests.OBD.Connection in 'Tests.OBD.Connection.pas',
   Tests.OBD.Connection.Async in 'Tests.OBD.Connection.Async.pas',
-  Tests.OBD.Connection.Progress in 'Tests.OBD.Connection.Progress.pas';
+  Tests.OBD.Connection.Progress in 'Tests.OBD.Connection.Progress.pas',
+  Tests.OBD.Adapter.Commands in 'Tests.OBD.Adapter.Commands.pas',
+  Tests.OBD.Adapter.Capabilities in 'Tests.OBD.Adapter.Capabilities.pas',
+  Tests.OBD.Adapter.Detection in 'Tests.OBD.Adapter.Detection.pas',
+  Tests.OBD.Adapter in 'Tests.OBD.Adapter.pas';
 
 {$IFDEF CI}
 var
