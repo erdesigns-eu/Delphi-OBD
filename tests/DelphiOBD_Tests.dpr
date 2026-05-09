@@ -112,6 +112,8 @@ uses
   OBD.Coding.OptionCatalog in '..\src\Coding\OBD.Coding.OptionCatalog.pas',
   OBD.Coding.DiffRLE in '..\src\Coding\OBD.Coding.DiffRLE.pas',
   OBD.Coding.LabelFile.VAG in '..\src\Coding\OBD.Coding.LabelFile.VAG.pas',
+  OBD.UDS.Transfer in '..\src\Flashing\OBD.UDS.Transfer.pas',
+  OBD.J1939.MemoryAccess in '..\src\Flashing\OBD.J1939.MemoryAccess.pas',
   OBD.Calibration.A2L in '..\src\Calibration\OBD.Calibration.A2L.pas',
   OBD.Calibration.XCP.Transport in '..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
   OBD.Calibration.XCP.Loopback in '..\src\Calibration\OBD.Calibration.XCP.Loopback.pas',
@@ -159,7 +161,8 @@ uses
   Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
   Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas',
   Tests.OBD.Coding.Phase8 in 'Tests.OBD.Coding.Phase8.pas',
-  Tests.OBD.Coding.Phase8b in 'Tests.OBD.Coding.Phase8b.pas';
+  Tests.OBD.Coding.Phase8b in 'Tests.OBD.Coding.Phase8b.pas',
+  Tests.OBD.Flashing.Phase9a in 'Tests.OBD.Flashing.Phase9a.pas';
 
 {$IFDEF CI}
 var
