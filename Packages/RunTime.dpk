@@ -206,6 +206,7 @@ contains
   OBD.DriveCycle.Advisor in '..\src\Services\OBD.DriveCycle.Advisor.pas',
   OBD.OEM.KeyAdaptation.BMW in '..\src\Services\OBD.OEM.KeyAdaptation.BMW.pas',
   OBD.OEM.ComponentProtection.VAG in '..\src\Services\OBD.OEM.ComponentProtection.VAG.pas',
+  OBD.OEM.SCN.Mercedes in '..\src\Services\OBD.OEM.SCN.Mercedes.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.Variants in '..\src\RadioCode\OBD.RadioCode.Variants.pas',
   OBD.RadioCode.Registry in '..\src\RadioCode\OBD.RadioCode.Registry.pas',

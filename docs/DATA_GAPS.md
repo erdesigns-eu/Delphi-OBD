@@ -100,6 +100,18 @@ What's needed to close the gap:
   Linux / iOS / Android). For Windows we'd reuse the existing
   `OBD.ECU.Signature.OpenSSL` library-load path.
 
+### v3.82 / B5 — Mercedes SCN central-server solver
+
+`OBD.OEM.SCN.Mercedes` ships the publicly documented version-fetch +
+coding request/response envelopes. The actual SCN computation runs
+on Daimler's central server; `IMBSCNSolver` decouples it. The
+default `TMBSCNSolverNotAvailable` raises `EOBDMBSCNNoSolver` so any
+caller without a wired solver fails closed.
+
+A real solver implementation either calls a dealer-portal client
+(XENTRY / Vediamo) or replays captured (request, response) pairs
+from a real bench session.
+
 ### v3.82 / B4 — VAG Component Protection (SVM) solver
 
 `OBD.OEM.ComponentProtection.VAG` ships the publicly documented
