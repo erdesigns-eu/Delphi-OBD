@@ -8,16 +8,20 @@
 //
 //  The base intentionally exposes BOTH ways of feeding values:
 //
-//    (a) Direct binding via LiveData + PID properties (host
-//        sets these and the visual subscribes itself). The
-//        plumbing for the subscriber side lands in a later
-//        sub-phase when the TOBDLiveData multi-subscriber API
-//        ships; right now the properties are stored but not
-//        yet wired. Setting LiveData has no runtime effect
-//        until that lands.
+//    (a) Direct binding via LiveData + PID properties. Setting
+//        both auto-subscribes via TOBDLiveData.Subscribe; the
+//        dispatch arrives on the main thread (FireValue queues
+//        through TThread.Queue) and HandleLiveValue writes
+//        Value. DFM streaming order is irrelevant — Loaded
+//        re-subscribes once both properties are streamed.
 //
 //    (b) Decoupled — host writes Gauge.Value from its own
-//        OnValue handler. This path is fully wired now.
+//        OnValue handler. Both paths coexist on the same
+//        component; pick whichever fits the form.
+//
+//  LiveBindings: SetValue calls TBindings.Notify(Self, 'Value')
+//  so any TLinkPropertyToField / TLinkObservableProperty bound
+//  to the Value property refreshes automatically.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

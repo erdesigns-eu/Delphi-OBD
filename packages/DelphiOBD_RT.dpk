@@ -200,6 +200,9 @@ contains
   OBD.UI.Gauges.Types  in '..\src\UI\OBD.UI.Gauges.Types.pas',
   OBD.UI.Gauges.Base   in '..\src\UI\OBD.UI.Gauges.Base.pas',
   OBD.UI.Gauges.Dial   in '..\src\UI\OBD.UI.Gauges.Dial.pas',
-  OBD.UI.Gauges.Linear in '..\src\UI\OBD.UI.Gauges.Linear.pas';
+  OBD.UI.Gauges.Linear in '..\src\UI\OBD.UI.Gauges.Linear.pas',
+  OBD.UI.Gauges.Variants     in '..\src\UI\OBD.UI.Gauges.Variants.pas',
+  OBD.UI.Gauges.Sparkline    in '..\src\UI\OBD.UI.Gauges.Sparkline.pas',
+  OBD.UI.Gauges.DialExtended in '..\src\UI\OBD.UI.Gauges.DialExtended.pas';
 
 end.
