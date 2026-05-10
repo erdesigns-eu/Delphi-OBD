@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  OBD.Design.Starters.DataModules
 //
-//  P-A7 commit 2: pre-wired TDataModule starters for the
-//  common quick-start scenarios. Each one drops a coherent
-//  bundle of components into a TDataModule the host can use
-//  as the central plumbing for a multi-form app.
+//  Pre-wired TDataModule starters for the common quick-start
+//  scenarios. Each one drops a coherent bundle of components
+//  into a TDataModule the host can use as the central plumbing
+//  for a multi-form app.
 //
 //  Seven datamodules ship:
 //    DM_OBDConnection     bare connection chain

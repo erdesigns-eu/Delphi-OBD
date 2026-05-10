@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.RadioCode.EEPROM
 //
-//  Pinned-vector tests for the EEPROM-dump extractor family
-//  (P-A1.X). Each vendor test builds a synthetic dump in memory,
-//  writes it to a temp file, points the component at it, and
-//  asserts the parsed code matches the documented offset.
+//  Pinned-vector tests for the EEPROM-dump extractor family.
+//  Each vendor test builds a synthetic dump in memory, writes
+//  it to a temp file, points the component at it, and asserts
+//  the parsed code matches the documented offset.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.RadioCode.EEPROM;

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  OBD.Service.EVBattery.Types
 //
-//  Value types for the EV battery health reader (P-A5).
+//  Value types for the EV battery health reader.
 //
 //  TOBDEVBatteryField enumerates the data points we know how
 //  to decode across the supported BEV / PHEV platforms.

@@ -1,11 +1,12 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.RadioCode
 //
-//  DUnitX coverage for the radio-code foundation (P-A1.1):
+//  DUnitX coverage for the radio-code foundation:
 //  TOBDRadioCode base validators, Calculate flow, registry
 //  round-trip. A tiny in-test calculator
 //  (TFakeRadioCodeCalculator) exercises the contract without
-//  pulling in a real vendor — those land in P-A1.2..A1.8.
+//  pulling in a real vendor — vendor coverage lives in the
+//  per-region test units.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

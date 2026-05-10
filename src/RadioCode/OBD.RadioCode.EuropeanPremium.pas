@@ -2,7 +2,7 @@
 //  OBD.RadioCode.EuropeanPremium
 //
 //  Vendor radio-code calculator components for the German /
-//  European premium brands (P-A1.2):
+//  European premium brands:
 //
 //    TOBDRadioCodeVW            Volkswagen group radios
 //                               (Gamma / Beta / Alpha / RCD / RNS)

@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------------
 //  OBD.RadioCode.Volvo
 //
-//  P-A1.8: Volvo factory radios. The HU / SC-7xx code lives in
-//  the head-unit's 24C01 EEPROM (no algorithm — must be read off
+//  Volvo factory radios. The HU / SC-7xx code lives in the
+//  head-unit's 24C01 EEPROM (no algorithm — must be read off
 //  the chip). Component validates the 7-digit serial format and
 //  fires <c>OnCalculate</c> for the host to wire its own EEPROM-
 //  read flow or licensed code-service call.

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Service.EVBattery
 //
-//  Coverage for the EV battery framework (P-A5). The component
+//  Coverage for the EV battery framework. The component
 //  itself needs a connected protocol; we test the catalogue
 //  loader, the field-name parser, and the configuration-error
 //  paths on the component.

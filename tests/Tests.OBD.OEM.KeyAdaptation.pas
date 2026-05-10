@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.OEM.KeyAdaptation
 //
-//  Coverage for the key-adaptation safety scaffold (P-A6).
+//  Coverage for the key-adaptation safety scaffold.
 //  Per-vendor protocol exchanges need a real ECU and are out
 //  of unit-test scope; we test that destructive ops are
 //  refused unless AutoExecute + OnConfirmExecute are wired,

@@ -318,7 +318,7 @@ begin
   // Radio-code calculators (one component per vendor). Each
   // validates the input shape; production algorithms are
   // proprietary / licensed and supplied by the host via the
-  // OnCalculate event. See docs/v2-port-backlog.md (P-A1).
+  // OnCalculate event.
   RegisterComponents('OBD Radio', [
     TOBDRadioCodeVW,
     TOBDRadioCodeAudiConcert,
@@ -417,9 +417,9 @@ begin
     // Swallow — wizard is ergonomic only.
   end;
 
-  // Per-category wizards (P-A7). Adds one entry per palette
-  // tab so File > New > Other > Delphi-OBD lists the surface
-  // area the same way the component palette does.
+  // Per-category wizards. One entry per palette tab so
+  // File > New > Other > Delphi-OBD lists the surface area
+  // the same way the component palette does.
   try
     RegisterPerCategoryWizards;
   except

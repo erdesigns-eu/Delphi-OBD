@@ -2,7 +2,7 @@
 //  OBD.OEM.KeyAdaptation.Types
 //
 //  Value types shared across the per-vendor key-adaptation
-//  components (P-A6).
+//  components.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

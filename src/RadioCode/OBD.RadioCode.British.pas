@@ -1,8 +1,7 @@
 //------------------------------------------------------------------------------
 //  OBD.RadioCode.British
 //
-//  Vendor radio-code calculator components for British brands
-//  (P-A1.4):
+//  Vendor radio-code calculator components for British brands:
 //
 //    TOBDRadioCodeJaguar     Jaguar factory radios (Alpine-supplied)
 //    TOBDRadioCodeLandRover  Land Rover (Alpine / Visteon-supplied)

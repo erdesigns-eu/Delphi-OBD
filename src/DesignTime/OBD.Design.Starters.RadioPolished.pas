@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  OBD.Design.Starters.RadioPolished
 //
-//  P-A7 commit 3: polished radio-calculator form template.
+//  Polished radio-calculator form template.
 //
 //  Layout matches the canonical ERDesigns standalone calculator
 //  shape (logo header / serial input row / radio-code output

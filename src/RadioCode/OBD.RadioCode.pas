@@ -15,7 +15,7 @@
 //      a calculator without a hard-coded list.
 //
 //  Per-vendor calculators live in <c>OBD.RadioCode.&lt;Vendor&gt;.pas</c>
-//  and each is its own palette component (sub-phases P-A1.2 .. A1.8).
+//  and each is its own palette component.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

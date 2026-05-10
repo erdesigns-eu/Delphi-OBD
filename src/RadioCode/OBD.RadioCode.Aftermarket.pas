@@ -2,7 +2,7 @@
 //  OBD.RadioCode.Aftermarket
 //
 //  Vendor radio-code calculator components for aftermarket head
-//  units (P-A1.7):
+//  units:
 //
 //    TOBDRadioCodeAlpine     Alpine head units (6 digits)
 //    TOBDRadioCodeBlaupunkt  Blaupunkt head units (1 letter + 6 digits)

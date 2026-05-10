@@ -2,7 +2,7 @@
 //  OBD.RadioCode.American
 //
 //  Vendor radio-code calculator components for North-American
-//  brands (P-A1.6):
+//  brands:
 //
 //    TOBDRadioCodeChrysler  Chrysler / Jeep / Dodge (4 digits)
 //    TOBDRadioCodeFordM     Ford "M-prefix" series (6 digits;

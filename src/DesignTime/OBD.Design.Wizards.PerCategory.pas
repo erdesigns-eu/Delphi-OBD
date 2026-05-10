@@ -1,14 +1,14 @@
 //------------------------------------------------------------------------------
 //  OBD.Design.Wizards.PerCategory
 //
-//  P-A7 commit 1: per-category Tools-API wizards. One
-//  IOTARepositoryWizard per palette tab so users browsing
-//  File > New > Other > Delphi-OBD see the surface area
-//  organised the same way the IDE component palette is.
+//  Per-category Tools-API wizards. One IOTARepositoryWizard
+//  per palette tab so users browsing File > New > Other >
+//  Delphi-OBD see the surface area organised the same way the
+//  IDE component palette is.
 //
-//  The existing "Delphi-OBD project starter" (P-13) stays as
-//  the all-categories entry; these new wizards are filtered
-//  views on the same starter registry.
+//  The existing "Delphi-OBD project starter" stays as the
+//  all-categories entry; these wizards are filtered views on
+//  the same starter registry.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

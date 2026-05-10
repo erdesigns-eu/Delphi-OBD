@@ -1,8 +1,7 @@
 //------------------------------------------------------------------------------
 //  OBD.RadioCode.Asian
 //
-//  Vendor radio-code calculator components for Asian brands
-//  (P-A1.5):
+//  Vendor radio-code calculator components for Asian brands:
 //
 //    TOBDRadioCodeAcura       Honda group (1 letter + 7 digits)
 //    TOBDRadioCodeHonda       Honda factory radios (1 letter + 7 digits)

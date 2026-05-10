@@ -2,7 +2,7 @@
 //  Tests.OBD.RadioCode.Asian
 //
 //  Pinned-vector test for the Hyundai algorithm (the only Asian
-//  vendor in P-A1.5 that ships a real bundled algorithm).
+//  vendor that ships a real bundled algorithm).
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.RadioCode.Asian;

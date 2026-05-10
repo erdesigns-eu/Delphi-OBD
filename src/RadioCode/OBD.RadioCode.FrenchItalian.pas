@@ -2,7 +2,7 @@
 //  OBD.RadioCode.FrenchItalian
 //
 //  Vendor radio-code calculator components for French + Italian
-//  brands (P-A1.3):
+//  brands:
 //
 //    TOBDRadioCodeCitroen        Citroen radios (4 digits)
 //    TOBDRadioCodePeugeot        Peugeot radios (4 digits)

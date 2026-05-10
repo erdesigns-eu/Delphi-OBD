@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  OBD.Service.DriveCycle.Types
 //
-//  Value types used by the drive-cycle advisor (P-A4).
+//  Value types used by the drive-cycle advisor.
 //
 //  TOBDMonitor mirrors the readiness-monitor set defined by
 //  SAE J1979 / ISO 15031-5 Mode 01 PID 01 plus the

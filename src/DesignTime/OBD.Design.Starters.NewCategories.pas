@@ -12,7 +12,7 @@
 //  Each one is intentionally small (one form + a couple of
 //  components) so users see the canonical wiring for the
 //  category and can extend from there. The per-category IDE
-//  wizards (P-A7 commit 1) filter to these categories.
+//  wizards filter to these categories.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

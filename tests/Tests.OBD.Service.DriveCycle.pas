@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Service.DriveCycle
 //
-//  Coverage for the drive-cycle catalogue + advisor (P-A4).
+//  Coverage for the drive-cycle catalogue + advisor.
 //  Live mode (polling thread) needs a connected protocol and
 //  is excluded from unit-testing scope; we test the catalogue
 //  loader, the static GetCycle lookup, and the monitor-name
