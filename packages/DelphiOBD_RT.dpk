@@ -60,6 +60,8 @@ contains
   OBD.Protocol.UDS in '..\src\Protocol\OBD.Protocol.UDS.pas',
   OBD.Protocol.KWP2000 in '..\src\Protocol\OBD.Protocol.KWP2000.pas',
   OBD.Protocol.KWP1281 in '..\src\Protocol\OBD.Protocol.KWP1281.pas',
+  OBD.Protocol.KWP1281.Transport.Serial in '..\src\Protocol\OBD.Protocol.KWP1281.Transport.Serial.pas',
+  OBD.Protocol.KWP1281.Transport.ELM in '..\src\Protocol\OBD.Protocol.KWP1281.Transport.ELM.pas',
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',

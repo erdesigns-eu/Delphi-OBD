@@ -114,6 +114,20 @@ type
     /// <returns>Number of bytes accepted by the OS.</returns>
     /// <exception cref="EOBDNotConnected">Port is not open.</exception>
     function WriteBytes(const ABytes: TBytes): Integer; override;
+
+    /// <summary>Drives the TX line to the break (low) state.
+    /// Wraps <c>SetCommBreak</c>. Used by KWP1281 5-baud init
+    /// to bit-bang the start bit and the address bits at
+    /// 200 ms each. Has no effect on the read thread - bytes
+    /// arriving while in break are dropped by the UART.</summary>
+    /// <exception cref="EOBDNotConnected">Port is not open.</exception>
+    procedure SetBreak;
+
+    /// <summary>Releases the break and returns the TX line to
+    /// the mark (high / idle) state. Wraps
+    /// <c>ClearCommBreak</c>.</summary>
+    /// <exception cref="EOBDNotConnected">Port is not open.</exception>
+    procedure ClearBreak;
   end;
 
 implementation
@@ -344,6 +358,22 @@ begin
     Exit(0);
   end;
   Result := Integer(Written);
+end;
+
+procedure TOBDSerialTransport.SetBreak;
+begin
+  if not IsOpen then
+    raise EOBDNotConnected.Create('Serial transport is not open');
+  if not Winapi.Windows.SetCommBreak(FHandle) then
+    FireError(oeIO, SysErrorMessage(GetLastError));
+end;
+
+procedure TOBDSerialTransport.ClearBreak;
+begin
+  if not IsOpen then
+    raise EOBDNotConnected.Create('Serial transport is not open');
+  if not Winapi.Windows.ClearCommBreak(FHandle) then
+    FireError(oeIO, SysErrorMessage(GetLastError));
 end;
 
 end.

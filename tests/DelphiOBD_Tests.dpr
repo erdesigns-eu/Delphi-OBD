@@ -60,6 +60,10 @@ uses
   OBD.Protocol.UDS in '..\src\Protocol\OBD.Protocol.UDS.pas',
   OBD.Protocol.KWP2000 in '..\src\Protocol\OBD.Protocol.KWP2000.pas',
   OBD.Protocol.KWP1281 in '..\src\Protocol\OBD.Protocol.KWP1281.pas',
+  {$IFDEF MSWINDOWS}
+  OBD.Protocol.KWP1281.Transport.Serial in '..\src\Protocol\OBD.Protocol.KWP1281.Transport.Serial.pas',
+  {$ENDIF}
+  OBD.Protocol.KWP1281.Transport.ELM in '..\src\Protocol\OBD.Protocol.KWP1281.Transport.ELM.pas',
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
@@ -207,6 +211,7 @@ uses
   Tests.OBD.RadioCode.EEPROM in 'Tests.OBD.RadioCode.EEPROM.pas',
   Tests.OBD.Service.VWRadioSAFE in 'Tests.OBD.Service.VWRadioSAFE.pas',
   Tests.OBD.Protocol.KWP1281 in 'Tests.OBD.Protocol.KWP1281.pas',
+  Tests.OBD.Protocol.KWP1281.TransportELM in 'Tests.OBD.Protocol.KWP1281.TransportELM.pas',
   Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
   Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
   Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas',
