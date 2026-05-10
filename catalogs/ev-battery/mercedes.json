@@ -1,0 +1,10 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "mercedes",
+  "label": "Mercedes-Benz EQC / EQA / EQB / EQE / EQS",
+  "ecu": { "request_id_hex": "unknown-public", "response_id_hex": "unknown-public" },
+  "applicable_models": ["Mercedes-Benz EQC", "Mercedes-Benz EQA", "Mercedes-Benz EQB", "Mercedes-Benz EQE", "Mercedes-Benz EQS"],
+  "fields": [],
+  "notes": "Mercedes EQ vehicles use UDS Mode 22 against the BMS but the diagnostic session is gateway-authenticated (encrypted) on most chassis. SOH is exposed via Xentry as 'Battery capacity high-voltage-battery' in Amp-seconds. No open public repo publishes the request CAN ID, DID list, byte offsets, or scaling for these vehicles.",
+  "unavailable_fields": { "all": "Field not documented for this vendor in any open public source." }
+}

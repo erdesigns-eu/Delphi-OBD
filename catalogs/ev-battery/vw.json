@@ -1,0 +1,39 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "vw",
+  "label": "VW Group e-Up (NSF/MEB-light) - authoritative byte-level table. ID.3/ID.4/ID.5/Q4 e-tron use the same UDS service and similar DID structure but the per-byte cell map for MEB-77/82 kWh packs is not in a single redistributable source.",
+  "ecu": {
+    "request_id_hex": "0x7E5",
+    "response_id_hex": "0x7ED",
+    "notes": "VWUP_BAT_MGMT TX=0x7E5 RX=0x7ED (BMS). VWUP_CHG_MGMT TX=0x744 RX=0x7C4. VWUP_MOT_ELEC TX=0x7E0 RX=0x7E8. VWUP_MFD TX=0x714 RX=0x77E."
+  },
+  "applicable_models": [
+    "VW e-Up (2013-2016 Gen1 / 2020+ Gen2)",
+    "Skoda Citigo-e iV",
+    "Seat Mii Electric",
+    "Reference for VW ID.3/ID.4/ID.5, Skoda Enyaq, Audi Q4 e-tron (DIDs verified, scaling identical)"
+  ],
+  "fields": [
+    { "field": "pack_voltage",    "service_hex": "0x22", "did_hex": "0xF190", "offset": 0, "length": 2, "scale": 0.25,    "offset_value": 0, "unit": "V",   "notes": "uint16 / 4.0.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "pack_current",    "service_hex": "0x22", "did_hex": "0xF191", "offset": 0, "length": 2, "scale": -0.25,   "offset_value": 511, "unit": "A", "notes": "(raw - 2044) / 4 * -1; positive after sign-flip = discharge.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "soc_bms",         "service_hex": "0x22", "did_hex": "0xF192", "offset": 0, "length": 1, "scale": 0.4,     "offset_value": 0, "unit": "%",   "notes": "Absolute SOC; raw / 2.5.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "soc_motor_normalized","service_hex": "0x22","did_hex": "0xF176", "offset": 0, "length": 1, "scale": 0.01, "offset_value": 0, "unit": "%",   "notes": "Normalized (display) SOC reported by motor electronics ECU 0x7E0/0x7E8. raw/100.", "ecu_request_id_hex": "0x7E0", "ecu_response_id_hex": "0x7E8", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "soc_charger_display","service_hex": "0x22","did_hex": "0xF1A5", "offset": 0, "length": 1, "scale": 0.5,   "offset_value": 0, "unit": "%",   "notes": "Polled from charger ECU 0x744/0x7C4.", "ecu_request_id_hex": "0x744", "ecu_response_id_hex": "0x7C4", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "battery_temperature","service_hex": "0x22","did_hex": "0xF193", "offset": 0, "length": 2, "scale": 0.015625, "offset_value": 0, "unit": "C", "signed": true, "notes": "int16 / 64.0.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "max_cell_voltage","service_hex": "0x22","did_hex": "0xF1A9", "offset": 0, "length": 2, "scale": 0.000244140625, "offset_value": 0, "unit": "V", "notes": "uint16 / 4096.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "min_cell_voltage","service_hex": "0x22","did_hex": "0xF1AA", "offset": 0, "length": 2, "scale": 0.000244140625, "offset_value": 0, "unit": "V", "notes": "uint16 / 4096.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "soh_capacity",    "service_hex": "0x22","did_hex": "0xF1A2", "offset": 0, "length": 2, "scale": 0.01,    "offset_value": 0, "unit": "%",   "notes": "CAC SOH; Gen2 raw / 120, Gen1 raw / 50. Use Gen2 unless model year < 2020.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "soh_history",     "service_hex": "0x22","did_hex": "0xF1A3", "offset": 0, "length": 2, "scale": 0.00417, "offset_value": 0, "unit": "%",   "notes": "Per-module SOH history; Gen2 / 240, Gen1 / 125.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "energy_counters", "service_hex": "0x22","did_hex": "0xF1A1", "offset": 0, "length": 8, "scale": 0.0001165, "offset_value": 0, "unit": "kWh", "notes": "Coulomb factor 0.0018204 / energy factor 0.0001165 across multi-byte counters; see source for byte slicing.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "ccs_charging_status","service_hex": "0x22","did_hex": "0xF1A6", "offset": 0, "length": 4, "scale": 0.1,  "offset_value": 0, "unit": "mixed", "notes": "Voltage and current of CCS session; voltage/10 V, current/10 A.", "ecu_request_id_hex": "0x744", "ecu_response_id_hex": "0x7C4", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "odometer_km",     "service_hex": "0x22","did_hex": "0xF194", "offset": 1, "length": 3, "scale": 1, "offset_value": 0, "unit": "km", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "range_km_mfd",    "service_hex": "0x22","did_hex": "0xF18E", "offset": 0, "length": 2, "scale": 0.1, "offset_value": 0, "unit": "kWh", "notes": "Reported by MFD as remaining usable energy /10; range derives from this and Wh/km.", "ecu_request_id_hex": "0x714", "ecu_response_id_hex": "0x77E", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "service_range",   "service_hex": "0x22","did_hex": "0xF18F", "offset": 0, "length": 2, "scale": 1, "offset_value": 0, "unit": "km", "ecu_request_id_hex": "0x714", "ecu_response_id_hex": "0x77E", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "cell_voltages",   "service_hex": "0x22","did_hex": "VWUP_BAT_MGMT_CELL_VBASE+i", "offset": 0, "length": 2, "scale": 0.000244140625, "offset_value": 0, "unit": "V[]", "notes": "Cells iterated by adding index to a base DID (Gen1: 17 modules x 6 cells = 102; Gen2: 14 modules x 6 cells = 84). Exact base DID withheld in source; see vweup_obd.cpp for VWUP_BAT_MGMT_CELL_VBASE.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" },
+    { "field": "cell_module_temps","service_hex": "0x22","did_hex": "VWUP_BAT_MGMT_CELL_TBASE+m", "offset": 0, "length": 2, "scale": 0.015625, "offset_value": 0, "unit": "C[]", "signed": true, "notes": "Per-module thermistors. 14 modules (Gen2) or 17 (Gen1).", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp" }
+  ],
+  "unavailable_fields": {
+    "charge_port_temperature": "Exposed by VW MEB charger ECU but DID not in any published list. Do not invent.",
+    "ID3_ID4_specific_request_ids": "MEB BMS uses request 0x17FC0076 / response 0x17FE0076 (29-bit). DID set is similar but several DIDs (cell array base, SOH-MEC) are not in any open repo at byte resolution; community apps (Car Scanner) include them but are commercial."
+  }
+}

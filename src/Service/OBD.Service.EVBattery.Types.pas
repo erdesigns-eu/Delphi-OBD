@@ -56,7 +56,15 @@ type
     efkOdometerKm,           // km
     efkChargeState,          // enum-ish string
     efkChargePortTemp,       // C
-    efkChargingPowerKw       // kW (positive = charging)
+    efkChargingPowerKw,      // kW (positive = charging)
+
+    // Auxiliary / extended (added when vendor catalogues
+    // expose them - not all platforms do).
+    efkAuxBatteryVoltage,    // V (12V starter battery)
+    efkAvailableChargePowerKw,
+    efkAvailableDischargePowerKw,
+    efkCumulativeEnergyChargedKwh,
+    efkCumulativeEnergyDischargedKwh
   );
 
   TOBDEVChargeState = (
@@ -108,6 +116,13 @@ type
     HasChargeState:      Boolean;  ChargeState:       TOBDEVChargeState;
     HasChargePortTemp:   Boolean;  ChargePortTempC:   Single;
     HasChargingPower:    Boolean;  ChargingPowerKw:   Single;
+
+    // Auxiliary / extended
+    HasAuxBatteryVoltage:        Boolean; AuxBatteryVoltage:        Single;
+    HasAvailableChargePower:     Boolean; AvailableChargePowerKw:   Single;
+    HasAvailableDischargePower:  Boolean; AvailableDischargePowerKw:Single;
+    HasCumulativeChargedKwh:     Boolean; CumulativeChargedKwh:     Single;
+    HasCumulativeDischargedKwh:  Boolean; CumulativeDischargedKwh:  Single;
 
     /// <summary>Per-field error messages for fields the
     /// catalogue declared but the read failed on. Keys are the
@@ -183,27 +198,65 @@ function FieldKindFromName(const AName: string): TOBDEVBatteryField;
 var L: string;
 begin
   L := LowerCase(AName);
-  if L = 'soc'                    then Exit(efkSOC);
-  if L = 'soh'                    then Exit(efkSOH);
-  if L = 'pack_voltage'           then Exit(efkPackVoltage);
-  if L = 'pack_current'           then Exit(efkPackCurrent);
-  if L = 'pack_power'             then Exit(efkPackPower);
-  if L = 'capacity_remaining_kwh' then Exit(efkCapacityRemainingKwh);
-  if L = 'capacity_nominal_kwh'   then Exit(efkCapacityNominalKwh);
-  if L = 'cell_voltage_min'       then Exit(efkCellVoltageMin);
-  if L = 'cell_voltage_max'       then Exit(efkCellVoltageMax);
-  if L = 'cell_voltage_avg'       then Exit(efkCellVoltageAvg);
-  if L = 'cell_voltages'          then Exit(efkCellVoltagesArray);
-  if L = 'pack_temp_min'          then Exit(efkPackTempMin);
-  if L = 'pack_temp_max'          then Exit(efkPackTempMax);
-  if L = 'module_temps'           then Exit(efkModuleTempArray);
-  if L = 'inlet_coolant_temp'     then Exit(efkInletCoolantTemp);
-  if L = 'outlet_coolant_temp'    then Exit(efkOutletCoolantTemp);
-  if L = 'range_km'               then Exit(efkRangeKm);
-  if L = 'odometer_km'            then Exit(efkOdometerKm);
-  if L = 'charge_state'           then Exit(efkChargeState);
-  if L = 'charge_port_temp'       then Exit(efkChargePortTemp);
-  if L = 'charging_power_kw'      then Exit(efkChargingPowerKw);
+  // Canonical names + the aliases each vendor's catalogue
+  // tends to use. Cells_1_32 / 33_64 / etc. all funnel into
+  // efkCellVoltagesArray; ApplyDecoded appends rather than
+  // overwrites for that field. Module_temp_N / pack_temp_N
+  // funnel into efkModuleTempArray (one element each).
+
+  // SOC variants
+  if (L = 'soc') or (L = 'soc_bms') or
+     (L = 'soc_display') or (L = 'soc_displayed') then Exit(efkSOC);
+  // SOH variants
+  if (L = 'soh') or (L = 'soh_pct') or
+     (L = 'soh_capacity') or (L = 'soh_factory') then Exit(efkSOH);
+
+  if (L = 'pack_voltage') or (L = 'bus_voltage') then Exit(efkPackVoltage);
+  if  L = 'pack_current'           then Exit(efkPackCurrent);
+  if  L = 'pack_power'             then Exit(efkPackPower);
+  if  L = 'capacity_remaining_kwh' then Exit(efkCapacityRemainingKwh);
+  if  L = 'capacity_nominal_kwh'   then Exit(efkCapacityNominalKwh);
+
+  // Cell V min / max / avg
+  if (L = 'cell_voltage_min') or (L = 'min_cell_voltage') then Exit(efkCellVoltageMin);
+  if (L = 'cell_voltage_max') or (L = 'max_cell_voltage') then Exit(efkCellVoltageMax);
+  if  L = 'cell_voltage_avg'       then Exit(efkCellVoltageAvg);
+  // Cell V arrays (HMG splits across 4 DIDs)
+  if (L = 'cell_voltages') or
+     (L = 'cell_voltages_1_32') or (L = 'cell_voltages_33_64') or
+     (L = 'cell_voltages_65_96') or (L = 'cell_voltages_97_98') then
+    Exit(efkCellVoltagesArray);
+
+  // Thermal
+  if (L = 'pack_temp_min') or (L = 'battery_min_temp') or
+     (L = 'battery_temp_min')                              then Exit(efkPackTempMin);
+  if (L = 'pack_temp_max') or (L = 'battery_max_temp') or
+     (L = 'battery_temp_max')                              then Exit(efkPackTempMax);
+  if  L = 'module_temps'                                   then Exit(efkModuleTempArray);
+  // Per-module / per-pack scalar temps -> append into
+  // ModuleTempsC.
+  if (L = 'module_temp_1') or (L = 'module_temp_2') or
+     (L = 'module_temp_3') or (L = 'module_temp_4') or
+     (L = 'pack_temp_1')   or (L = 'pack_temp_2')   or
+     (L = 'pack_temp_3')   or (L = 'pack_temp_4')          then Exit(efkModuleTempArray);
+  if (L = 'inlet_coolant_temp') or
+     (L = 'battery_inlet_temp')                            then Exit(efkInletCoolantTemp);
+  if  L = 'outlet_coolant_temp'                            then Exit(efkOutletCoolantTemp);
+
+  // Driving
+  if  L = 'range_km'               then Exit(efkRangeKm);
+  if  L = 'odometer_km'            then Exit(efkOdometerKm);
+  if (L = 'charge_state') or (L = 'charging_state_bits') then Exit(efkChargeState);
+  if  L = 'charge_port_temp'       then Exit(efkChargePortTemp);
+  if  L = 'charging_power_kw'      then Exit(efkChargingPowerKw);
+
+  // Auxiliary / extended
+  if  L = 'aux_battery_voltage'             then Exit(efkAuxBatteryVoltage);
+  if  L = 'available_charge_power'          then Exit(efkAvailableChargePowerKw);
+  if  L = 'available_discharge_power'       then Exit(efkAvailableDischargePowerKw);
+  if  L = 'cumulative_energy_charged_kwh'   then Exit(efkCumulativeEnergyChargedKwh);
+  if  L = 'cumulative_energy_discharged_kwh' then Exit(efkCumulativeEnergyDischargedKwh);
+
   Result := efkUnknown;
 end;
 
@@ -230,7 +283,12 @@ begin
     efkOdometerKm:            Result := 'odometer_km';
     efkChargeState:           Result := 'charge_state';
     efkChargePortTemp:        Result := 'charge_port_temp';
-    efkChargingPowerKw:       Result := 'charging_power_kw';
+    efkChargingPowerKw:               Result := 'charging_power_kw';
+    efkAuxBatteryVoltage:             Result := 'aux_battery_voltage';
+    efkAvailableChargePowerKw:        Result := 'available_charge_power';
+    efkAvailableDischargePowerKw:     Result := 'available_discharge_power';
+    efkCumulativeEnergyChargedKwh:    Result := 'cumulative_energy_charged_kwh';
+    efkCumulativeEnergyDischargedKwh: Result := 'cumulative_energy_discharged_kwh';
   else                        Result := 'unknown';
   end;
 end;

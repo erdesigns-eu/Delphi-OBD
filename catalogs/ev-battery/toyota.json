@@ -1,0 +1,10 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "toyota",
+  "label": "Toyota bZ4X / Subaru Solterra / Lexus RZ450e (e-TNGA BEV platform - co-developed with Subaru)",
+  "ecu": { "request_id_hex": "0x7E2", "response_id_hex": "0x7EA", "notes": "BMS ECU header observed by Car Scanner; specific DIDs not publicly published." },
+  "applicable_models": ["Toyota bZ4X", "Subaru Solterra", "Lexus RZ450e"],
+  "fields": [],
+  "notes": "Car Scanner exposes %SOC BMS, max regen, max power, pack capacity. ABRP added bZ4X/Solterra OBD support (early 2023). Per-DID byte map is in proprietary app profiles; not republished. See https://www.solterraforum.com/threads/pids-obd-commands.1172/",
+  "unavailable_fields": { "all": "Field not documented for this vendor in any open public source." }
+}

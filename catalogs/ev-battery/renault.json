@@ -1,0 +1,35 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "renault",
+  "label": "Renault Zoe (Phase 1 Q210/R240/Q90/R90 22-41 kWh; Phase 2 ZE50 R110/R135 52 kWh). Phase 1 uses Mode 21; Phase 2 uses 29-bit UDS Mode 22.",
+  "ecu": {
+    "request_id_hex": "0x792",
+    "response_id_hex": "0x793",
+    "notes": "Phase 1 LBC 11-bit. Phase 2 LBC uses 29-bit ISO-TP: TX 0x18DADBF1, RX 0x18DAF1DB."
+  },
+  "applicable_models": [
+    "Renault Zoe Q210 (2013-2016)",
+    "Renault Zoe R240 (2015-2017)",
+    "Renault Zoe Q90 / R90 (2017-2019, 41 kWh)",
+    "Renault Zoe ZE50 R110 / R135 (2019+, 52 kWh) - Phase 2"
+  ],
+  "fields": [
+    { "field": "soc",             "service_hex": "0x22", "did_hex": "0x9001", "offset": 0, "length": 2, "scale": 0.01,  "offset_value": 0, "unit": "%",   "notes": "Phase 2 LBC. uint16 / 100.", "source": "https://canze.fisch.lu/" },
+    { "field": "soh",             "service_hex": "0x22", "did_hex": "0x9002", "offset": 0, "length": 1, "scale": 1,     "offset_value": 0, "unit": "%",   "notes": "Phase 2; SOH is a single byte 0-100.", "source": "https://canze.fisch.lu/battery-health-status/" },
+    { "field": "pack_voltage",    "service_hex": "0x22", "did_hex": "0x9005", "offset": 0, "length": 2, "scale": 0.5,   "offset_value": 0, "unit": "V",   "notes": "Phase 2 - confirmed by CanZE field DC volts.", "source": "https://canze.fisch.lu/" },
+    { "field": "pack_current",    "service_hex": "0x22", "did_hex": "0x9006", "offset": 0, "length": 2, "scale": 0.0625,"offset_value": 0, "unit": "A", "signed": true, "source": "https://canze.fisch.lu/" },
+    { "field": "min_cell_voltage","service_hex": "0x22", "did_hex": "0x9015", "offset": 0, "length": 2, "scale": 0.001, "offset_value": 0, "unit": "V",   "source": "https://canze.fisch.lu/" },
+    { "field": "max_cell_voltage","service_hex": "0x22", "did_hex": "0x9016", "offset": 0, "length": 2, "scale": 0.001, "offset_value": 0, "unit": "V",   "source": "https://canze.fisch.lu/" },
+    { "field": "min_pack_temp",   "service_hex": "0x22", "did_hex": "0x9018", "offset": 0, "length": 1, "scale": 1,     "offset_value": -40, "unit": "C", "source": "https://canze.fisch.lu/" },
+    { "field": "max_pack_temp",   "service_hex": "0x22", "did_hex": "0x9017", "offset": 0, "length": 1, "scale": 1,     "offset_value": -40, "unit": "C", "source": "https://canze.fisch.lu/" }
+  ],
+  "phase1_fields": [
+    { "field": "soc_p1",          "service_hex": "0x21", "did_hex": "0x01", "offset": 4, "length": 2, "scale": 0.025, "offset_value": 0, "unit": "%", "notes": "Phase 1 LBC, Mode 21 group 0x01.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/tree/master/vehicle/OVMS.V3/components/vehicle_renaultzoe" },
+    { "field": "soh_p1",          "service_hex": "0x21", "did_hex": "0x61", "offset": 0, "length": 1, "scale": 1, "offset_value": 0, "unit": "%", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/tree/master/vehicle/OVMS.V3/components/vehicle_renaultzoe" }
+  ],
+  "unavailable_fields": {
+    "per_cell_voltage_array_byte_map": "CanZE polls each cell with a separate DID 0x9021..0x907C; per-cell DID lookup table is in CanZE source (https://github.com/fluffyfreak/CANZE) but offsets vary per cell. Implement by enumerating that range and reading each as uint16 mV.",
+    "charge_port_temperature": "Not documented.",
+    "odometer_km": "Read from cluster ECU (UCH) at request 0x743 / response 0x763 DID 0x2006; not in LBC."
+  }
+}

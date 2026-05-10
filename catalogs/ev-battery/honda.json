@@ -1,0 +1,10 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "honda",
+  "label": "Honda e (and Honda Prologue / e:Ny1)",
+  "ecu": { "request_id_hex": "unknown-public", "response_id_hex": "unknown-public" },
+  "applicable_models": ["Honda e", "Honda e:Ny1", "Honda Prologue"],
+  "fields": [],
+  "notes": "No public byte-level UDS decode table found for any Honda BEV BMS. Honda e and e:Ny1 expose SOC and SOH via Honda HDS but no community-published PID list exists.",
+  "unavailable_fields": { "all": "No public decode table found." }
+}

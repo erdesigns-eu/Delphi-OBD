@@ -244,26 +244,36 @@ begin
     case ARule.Field of
       efkCellVoltagesArray:
         begin
+          // APPEND mode: HMG splits the per-cell array across
+          // four DIDs (1..32 / 33..64 / 65..96 / 97..98). The
+          // catalogue lists each as a separate rule with
+          // IsArray=True; we extend the existing snapshot
+          // array rather than overwriting it.
           ASnapshot.HasCellVoltages := True;
-          ASnapshot.CellVoltages    := Arr;
-          // Auto-derive min/max/avg if the catalogue didn't
+          N := Length(ASnapshot.CellVoltages);
+          SetLength(ASnapshot.CellVoltages, N + Length(Arr));
+          for I := 0 to High(Arr) do
+            ASnapshot.CellVoltages[N + I] := Arr[I];
+          // Re-derive min/max/avg if the catalogue didn't
           // provide them explicitly.
           if not ASnapshot.HasCellVoltageMin then
           begin
-            N := Length(Arr);
+            N := Length(ASnapshot.CellVoltages);
             if N > 0 then
             begin
               ASnapshot.HasCellVoltageMin := True;
               ASnapshot.HasCellVoltageMax := True;
               ASnapshot.HasCellVoltageAvg := True;
-              ASnapshot.CellVoltageMin := Arr[0];
-              ASnapshot.CellVoltageMax := Arr[0];
+              ASnapshot.CellVoltageMin := ASnapshot.CellVoltages[0];
+              ASnapshot.CellVoltageMax := ASnapshot.CellVoltages[0];
               Phys := 0;
               for I := 0 to N - 1 do
               begin
-                if Arr[I] < ASnapshot.CellVoltageMin then ASnapshot.CellVoltageMin := Arr[I];
-                if Arr[I] > ASnapshot.CellVoltageMax then ASnapshot.CellVoltageMax := Arr[I];
-                Phys := Phys + Arr[I];
+                if ASnapshot.CellVoltages[I] < ASnapshot.CellVoltageMin then
+                  ASnapshot.CellVoltageMin := ASnapshot.CellVoltages[I];
+                if ASnapshot.CellVoltages[I] > ASnapshot.CellVoltageMax then
+                  ASnapshot.CellVoltageMax := ASnapshot.CellVoltages[I];
+                Phys := Phys + ASnapshot.CellVoltages[I];
               end;
               ASnapshot.CellVoltageAvg := Phys / N;
             end;
@@ -271,8 +281,12 @@ begin
         end;
       efkModuleTempArray:
         begin
+          // APPEND mode same as cell voltages.
           ASnapshot.HasModuleTemps := True;
-          ASnapshot.ModuleTempsC   := Arr;
+          N := Length(ASnapshot.ModuleTempsC);
+          SetLength(ASnapshot.ModuleTempsC, N + Length(Arr));
+          for I := 0 to High(Arr) do
+            ASnapshot.ModuleTempsC[N + I] := Arr[I];
         end;
     end;
     Exit;
@@ -317,6 +331,24 @@ begin
       end;
     efkChargePortTemp:       begin ASnapshot.HasChargePortTemp := True;    ASnapshot.ChargePortTempC := Phys; end;
     efkChargingPowerKw:      begin ASnapshot.HasChargingPower := True;     ASnapshot.ChargingPowerKw := Phys; end;
+
+    // Per-module / per-pack scalar temps land here when the
+    // catalogue ships them as one rule per module rather than
+    // as a single array. Append into ModuleTempsC.
+    efkModuleTempArray:
+      begin
+        ASnapshot.HasModuleTemps := True;
+        N := Length(ASnapshot.ModuleTempsC);
+        SetLength(ASnapshot.ModuleTempsC, N + 1);
+        ASnapshot.ModuleTempsC[N] := Phys;
+      end;
+
+    // Auxiliary / extended fields.
+    efkAuxBatteryVoltage:             begin ASnapshot.HasAuxBatteryVoltage       := True; ASnapshot.AuxBatteryVoltage        := Phys; end;
+    efkAvailableChargePowerKw:        begin ASnapshot.HasAvailableChargePower    := True; ASnapshot.AvailableChargePowerKw   := Phys; end;
+    efkAvailableDischargePowerKw:     begin ASnapshot.HasAvailableDischargePower := True; ASnapshot.AvailableDischargePowerKw:= Phys; end;
+    efkCumulativeEnergyChargedKwh:    begin ASnapshot.HasCumulativeChargedKwh    := True; ASnapshot.CumulativeChargedKwh     := Phys; end;
+    efkCumulativeEnergyDischargedKwh: begin ASnapshot.HasCumulativeDischargedKwh := True; ASnapshot.CumulativeDischargedKwh  := Phys; end;
   end;
 end;
 

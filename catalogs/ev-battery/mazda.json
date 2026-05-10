@@ -1,0 +1,10 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "mazda",
+  "label": "Mazda MX-30 BEV",
+  "ecu": { "request_id_hex": "0x7E4", "response_id_hex": "0x7EC", "notes": "ISO-15765-4 11-bit/500k confirmed by Car Scanner. Specific BMS DIDs not published." },
+  "applicable_models": ["Mazda MX-30 EV"],
+  "fields": [],
+  "notes": "Forum reports: standard OBD-II returns very limited data; SOC missing from generic responses. No public decode table found that exposes BMS SOC/SOH/cell voltages on MX-30 at byte level.",
+  "unavailable_fields": { "all": "Field not documented for this vendor in any open public source." }
+}

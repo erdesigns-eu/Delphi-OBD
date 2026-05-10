@@ -1,0 +1,38 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "nissan",
+  "label": "Nissan Leaf (Gen 1 ZE0/AZE0 24-30 kWh; Gen 2 ZE1 40/62 kWh)",
+  "ecu": {
+    "request_id_hex": "0x79B",
+    "response_id_hex": "0x7BB"
+  },
+  "applicable_models": [
+    "Nissan Leaf ZE0 (2011-2012, 24 kWh)",
+    "Nissan Leaf AZE0 (2013-2017, 24/30 kWh)",
+    "Nissan Leaf ZE1 (2018+, 40/62 kWh)"
+  ],
+  "notes": "Uses legacy Mode 21 'Read Data by Group' rather than Mode 22 DIDs. Group ID is 1 byte (0x01-0x06, 0x61). Multi-frame ISO-TP responses; flow control 0x30 0x00 0x00 must be sent. Byte offsets below are zero-indexed into the CONCATENATED multi-frame payload (after stripping the 0x61 GG echo header).",
+  "fields": [
+    { "field": "soc",             "service_hex": "0x21", "did_hex": "0x01", "offset": 31, "length": 3, "scale": 0.0001,  "offset_value": 0, "unit": "%",   "notes": "ZE1 only. (data[31]<<16 | data[32]<<8 | data[33]) / 10000.", "source": "https://mynissanleaf.com/threads/leaf-canbus-decoding-open-discussion.4131/page-23" },
+    { "field": "soh_pct",         "service_hex": "0x21", "did_hex": "0x01", "offset": 26, "length": 2, "scale": 0.01,    "offset_value": 0, "unit": "%",   "notes": "Hx/SOH percentage; AZE0 offset 26-27, ZE1 offset 28-29. ZE1 also exposes 0x61 group with full SOH at offset 2-3 ÷100.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "ahr_remaining",   "service_hex": "0x21", "did_hex": "0x01", "offset": 33, "length": 3, "scale": 0.0001,  "offset_value": 0, "unit": "Ah",  "notes": "AZE0 offset 33-35; ZE1 offset 35-37. Ah ÷ 10000.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "pack_voltage",    "service_hex": "0x21", "did_hex": "0x02", "offset": 192, "length": 2, "scale": 0.01,   "offset_value": 0, "unit": "V",   "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "bus_voltage",     "service_hex": "0x21", "did_hex": "0x02", "offset": 194, "length": 2, "scale": 0.01,   "offset_value": 0, "unit": "V",   "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "cell_voltages",   "service_hex": "0x21", "did_hex": "0x02", "offset": 0,  "length": 192, "scale": 0.001, "offset_value": 0, "unit": "V[]", "notes": "96 big-endian uint16 in millivolts (cells 1-96).", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "pack_temp_1",     "service_hex": "0x21", "did_hex": "0x04", "offset": 2,  "length": 1,  "scale": 1,      "offset_value": 0, "unit": "C", "signed": true, "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "pack_temp_2",     "service_hex": "0x21", "did_hex": "0x04", "offset": 5,  "length": 1,  "scale": 1,      "offset_value": 0, "unit": "C", "signed": true, "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "pack_temp_3",     "service_hex": "0x21", "did_hex": "0x04", "offset": 8,  "length": 1,  "scale": 1,      "offset_value": 0, "unit": "C", "signed": true, "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "pack_temp_4",     "service_hex": "0x21", "did_hex": "0x04", "offset": 11, "length": 1,  "scale": 1,      "offset_value": 0, "unit": "C", "signed": true, "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "soh_factory",     "service_hex": "0x21", "did_hex": "0x61", "offset": 2,  "length": 2,  "scale": 0.01,   "offset_value": 0, "unit": "%",   "notes": "ZE1 only.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" },
+    { "field": "shunt_balancing", "service_hex": "0x21", "did_hex": "0x06", "offset": 0,  "length": 24, "scale": 1,      "offset_value": 0, "unit": "bitfield[]", "notes": "Each byte encodes 4 cells, bits 3..0 = cell+0..+3. Inverted logic.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_nissanleaf/src/vehicle_nissanleaf.cpp" }
+  ],
+  "passive_can_fields": [
+    { "field": "pack_current",    "can_id_hex": "0x1DB", "offset": 0, "length": 11, "bit": true, "scale": 0.5, "offset_value": 0, "unit": "A", "signed": true, "notes": "Broadcast on EV-CAN; not via OBD poll.", "source": "https://github.com/dalathegreat/leaf_can_bus_messages" },
+    { "field": "soc_dash",        "can_id_hex": "0x55B", "offset": 0, "length": 10, "bit": true, "scale": 0.1, "offset_value": 0, "unit": "%", "notes": "Dashboard %SOC; broadcast on EV-CAN.", "source": "https://github.com/dalathegreat/leaf_can_bus_messages" }
+  ],
+  "unavailable_fields": {
+    "range_km": "Range estimate is broadcast on EV-CAN by the Combo Meter (not via Mode 21 from LBC). See dalathegreat/leaf_can_bus_messages.",
+    "odometer_km": "Same as range; broadcast frame, not LBC poll.",
+    "charge_port_temperature": "Not documented as an LBC group field."
+  }
+}
