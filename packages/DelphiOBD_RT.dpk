@@ -211,6 +211,7 @@ contains
   OBD.UI.Gauges.Specialised  in '..\src\UI\OBD.UI.Gauges.Specialised.pas',
   OBD.UI.LivePanels          in '..\src\UI\OBD.UI.LivePanels.pas',
   OBD.UI.LiveGrids           in '..\src\UI\OBD.UI.LiveGrids.pas',
-  OBD.UI.Info                in '..\src\UI\OBD.UI.Info.pas';
+  OBD.UI.Info                in '..\src\UI\OBD.UI.Info.pas',
+  OBD.UI.MonitorEV           in '..\src\UI\OBD.UI.MonitorEV.pas';
 
 end.
