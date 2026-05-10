@@ -93,6 +93,17 @@ type
     /// <summary>Helper: input must be all hex digits.</summary>
     function ValidateHex(const AInput: string;
       out AReason: string): Boolean;
+    /// <summary>Helper: input must start with <c>APrefix</c>.</summary>
+    function ValidatePrefix(const AInput, APrefix: string;
+      out AReason: string): Boolean;
+    /// <summary>Helper: characters in the closed range
+    /// <c>AStart..AEnd</c> must all be alphanumeric.</summary>
+    function ValidateAlphanumericRange(const AInput: string;
+      AStart, AEnd: Integer; out AReason: string): Boolean;
+    /// <summary>Helper: characters in the closed range
+    /// <c>AStart..AEnd</c> must all be decimal digits.</summary>
+    function ValidateDigitRange(const AInput: string;
+      AStart, AEnd: Integer; out AReason: string): Boolean;
 
     /// <summary>Vendor-supplied input check. Default: accept any
     /// non-empty string.</summary>
@@ -277,6 +288,45 @@ begin
   Result := Trim(AInput) <> '';
   if not Result then
     AReason := 'Input is empty';
+end;
+
+function TOBDRadioCode.ValidatePrefix(const AInput, APrefix: string;
+  out AReason: string): Boolean;
+begin
+  AReason := '';
+  Result := Copy(AInput, 1, Length(APrefix)) = APrefix;
+  if not Result then
+    AReason := Format('Serial must start with %s', [APrefix]);
+end;
+
+function TOBDRadioCode.ValidateAlphanumericRange(const AInput: string;
+  AStart, AEnd: Integer; out AReason: string): Boolean;
+var
+  I: Integer;
+begin
+  AReason := '';
+  for I := AStart to AEnd do
+    if not CharInSet(AInput[I], ['0'..'9', 'A'..'Z']) then
+    begin
+      AReason := Format('Character %d must be alphanumeric', [I]);
+      Exit(False);
+    end;
+  Result := True;
+end;
+
+function TOBDRadioCode.ValidateDigitRange(const AInput: string;
+  AStart, AEnd: Integer; out AReason: string): Boolean;
+var
+  I: Integer;
+begin
+  AReason := '';
+  for I := AStart to AEnd do
+    if not CharInSet(AInput[I], ['0'..'9']) then
+    begin
+      AReason := Format('Character %d must be a digit', [I]);
+      Exit(False);
+    end;
+  Result := True;
 end;
 
 function TOBDRadioCode.Validate(const AInput: string;

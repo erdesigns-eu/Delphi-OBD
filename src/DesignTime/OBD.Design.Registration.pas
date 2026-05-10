@@ -84,6 +84,7 @@ uses
   OBD.Replayer,
   OBD.RadioCode,
   OBD.RadioCode.EuropeanPremium,
+  OBD.RadioCode.FrenchItalian,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -264,7 +265,14 @@ begin
     TOBDRadioCodePorsche,
     TOBDRadioCodeSEAT,
     TOBDRadioCodeSkoda,
-    TOBDRadioCodeSmart
+    TOBDRadioCodeSmart,
+    TOBDRadioCodeCitroen,
+    TOBDRadioCodePeugeot,
+    TOBDRadioCodeRenault,
+    TOBDRadioCodeFiatDaiichi,
+    TOBDRadioCodeFiatVP,
+    TOBDRadioCodeAlfaRomeo,
+    TOBDRadioCodeMaserati
   ]);
 
   // Register the splash-screen plugin entry and the About-box
