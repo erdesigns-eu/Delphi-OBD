@@ -60,6 +60,7 @@ uses
   OBD.Service.FreezeFrame,
   OBD.Service.OnBoardMonitor,
   OBD.Service.VehicleHealth,
+  OBD.Service.DriveCycle,
   OBD.Service.Actuator,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
@@ -209,7 +210,8 @@ begin
     TOBDFreezeFrame,
     TOBDOnBoardMonitor,
     TOBDActuator,
-    TOBDVehicleHealth
+    TOBDVehicleHealth,
+    TOBDDriveCycleAdvisor
   ]);
 
   // Coding & flashing: write-side UDS components. On their own
