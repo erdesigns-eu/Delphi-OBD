@@ -87,6 +87,7 @@ uses
   OBD.RadioCode.FrenchItalian,
   OBD.RadioCode.British,
   OBD.RadioCode.Asian,
+  OBD.RadioCode.American,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -289,7 +290,11 @@ begin
     TOBDRadioCodeNissan,
     TOBDRadioCodeSubaru,
     TOBDRadioCodeSuzuki,
-    TOBDRadioCodeToyota
+    TOBDRadioCodeToyota,
+    TOBDRadioCodeChrysler,
+    TOBDRadioCodeFordM,
+    TOBDRadioCodeGM,
+    TOBDRadioCodeVisteon
   ]);
 
   // Register the splash-screen plugin entry and the About-box
