@@ -27,9 +27,12 @@
     "    greens, no other accents.",
     "  - Let the model decide which colour goes where; the",
     "    reference logo is the canonical guide.",
-    "  - Subtle metallic gradients in the silver / charcoal areas",
-    "    are allowed when they match the reference logo. No",
-    "    cartoonish 3D, no bevel, no glow, no drop shadows.",
+    "  - Subtle metallic gradients are allowed on LARGE shapes",
+    "    (body, cable, frame) when they match the reference",
+    "    logo. SMALL details — pins, dots, text-like marks,",
+    "    indicators — must be solid flat colour. Gradients on",
+    "    small details mush at 16/24 px after downscaling.",
+    "  - No cartoonish 3D, no bevel, no glow, no drop shadows.",
     "  - Centered subject, even padding, no text."
   ],
   "reference_images": [
@@ -40,7 +43,7 @@
       "id": "icon-connection-dryrun",
       "kind": "component-icon",
       "out": "assets/designtime/dryrun/TOBDConnection.png",
-      "prompt": "Modern 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon depicts a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Match the visual style and exact colour palette of the attached reference logo: charcoal black, metallic silver, vivid orange. Subtle metallic gradients in the silver / charcoal areas are welcome where they match the reference. Absolutely no other colours — no blue, no red, no green. Pure white background. Centered composition, generous padding, bold even strokes. No text, no drop shadows, no glow, no cartoon 3D, no bevel. Clean enough to read at 16 by 16 pixels after downscaling.",
+      "prompt": "Modern 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon depicts a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Match the visual style and exact colour palette of the attached reference logo: charcoal black, metallic silver, vivid orange. Subtle metallic gradients are welcome on LARGE shapes (the connector body, the cable) when they match the reference logo. The pins must be SOLID flat colour, no gradients — they will be downscaled to ~16 pixels and gradients on small details mush. Absolutely no other colours — no blue, no red, no green. Pure white background. Centered composition, generous padding, bold even strokes. No text, no drop shadows, no glow, no cartoon 3D, no bevel. Clean enough to read at 16 by 16 pixels after downscaling.",
       "size": "1024x1024",
       "final_size": 256,
       "transparent_background": true
