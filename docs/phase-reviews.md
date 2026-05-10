@@ -2826,3 +2826,235 @@ plus the `MaxGapMsDefault` test on `TReplayerTests`).
       a missing IDE service / resource never breaks installation.
 - [x] Build pipeline is reproducible and cross-platform (no
       `brcc32` requirement).
+
+## Phase 12 — Tier-A backlog port (P-A1, P-A3..A7)
+
+Tier-A items from `docs/v2-port-backlog.md` ported on
+`claude/v2-phase-1`. P-A2 (visual UI components) is intentionally
+deferred — the package is headless until that phase opens.
+Per-sub-phase summary follows; each one shipped its own
+commits (see `git log --oneline`).
+
+### P-A1 — Radio-code calculators
+
+**Shipped:** 47 vendor radio-code components on the **OBD Radio**
+palette tab. One `TOBDRadioCode<Vendor>` per vendor, all
+inheriting from a shared `TOBDRadioCode` base with
+`Calculate(Input, Context) → TOBDRadioCodeResult`. Validators
+are baked in; algorithms are bundled where a public-domain one
+exists (Peugeot, Renault, Fiat-Daiichi, Fiat-VP, Hyundai 2002+,
+Ford-M, plus 10K-entry Becker4 / Becker5 databases and a
+999K-entry Ford-V database). Vendors with proprietary algorithms
+ship as `OnCalculate` stubs.
+
+Bonus shipped under the same umbrella:
+- `OBD.RadioCode.EEPROM` — three EEPROM-dump extractors
+  (Volvo HU, Opel CD30, Mercedes Becker) on the **OBD EEPROM**
+  palette tab.
+- `OBD.Service.VWRadioSAFE` — VW SAFE-code recovery component.
+- Full `KWP1281` codec stack: protocol unit + 5 transport
+  implementations (Serial bit-bang, ELM327, TP2.0, ISO-TP,
+  J2534 PassThru) + `OBD.J2534` host-stack unit.
+
+**Tests:** `Tests.OBD.RadioCode.{French,Asian,American,EEPROM,
+DBBacked,StubVendors}` plus the protocol-side
+`Tests.OBD.Protocol.KWP1281`.
+
+**Honest review:**
+1. Vendor JSON catalogues (Becker4 / Becker5 / Ford-V) live
+   under `catalogs/radio-code/` and are loaded relative to the
+   exe. Tests skip-with-Pass when the file isn't reachable from
+   the test working directory.
+2. ELM327 transport documents an honest reliability gap:
+   per-byte complement-ACK at the AT-command latency floor is
+   marginal for real radios. Serial bit-bang is the
+   recommended path; ELM is "best effort".
+3. KWP1281 over TP2.0 / ISO-TP layers a byte-shaped contract
+   on top of message-shaped transports — by buffering until
+   the codec emits the 0x03 block-end marker. Documented but
+   reviewers should follow the buffer-release path carefully.
+
+### P-A3 — VIN decoder (full WMI / VDS / VIS)
+
+**Shipped:** `OBD.Service.VINDecoder` — full ISO 3779/3780/J853
+breakdown into `TOBDVINInfo` (region, country, manufacturer,
+plant, year candidates, check digit, serial, features). Catalogs
+under `catalogs/vin/` (regions, countries, WMI, plants) plus
+`vds-rules.json` — 24,160 vPIC schemas / 398,676 unique pattern
+rows generated via `tools/etl-vpic/etl_vpic.py` from NHTSA's
+public-domain bulk dump. WMI index built at load time so a VDS
+decode is O(1) on WMI lookup. Companion `TOBDVINInspector`
+non-visual component on **OBD Services** for drop-on-form usage.
+
+**Tests:** `Tests.OBD.Service.VINDecoder` plus
+`Tests.OBD.Service.VINInspector`.
+
+**Honest review:**
+1. The 29 MB `vds-rules.json` is committed as deterministic
+   build output — same vPIC dump → same JSON. Refresh
+   monthly when NHTSA updates.
+2. VIN decoder is the only catalogue that loads catalogues
+   eagerly on first use. Other catalogues (drive-cycle, EV
+   battery) wrap the static loaders in component shells with
+   `AutoLoad` published.
+
+### P-A4 — Drive-cycle advisor
+
+**Shipped:** `OBD.Service.DriveCycle` —
+`TOBDDriveCycleAdvisor` on **OBD Services**. Live-poll mode
+walks the driver through cycle steps from
+`catalogs/drive-cycle-generic.json` (ISO 15031-7) plus any
+`drive-cycle-<oem>.json` overlays. Decodes Mode 01 PID 01
+readiness bytes for both SI and CI engines via the public
+class function `DecodePID01` (extracted in punch-list audit
+work for direct testability).
+
+**Tests:** `Tests.OBD.Service.DriveCycle` covers types,
+catalogue, advisor config, and the readiness decoder
+end-to-end. Live poll thread tested via the decoder split;
+fully end-to-end live mode needs a hardware loop.
+
+**Honest review:**
+1. Drive-cycle steps are estimates. The authoritative
+   completion signal is the readiness bit flipping; the
+   `OnStep` event is wall-clock advice for the driver, not
+   a real-time progress measurement.
+2. ACRefrigerant monitor is in the SI bit layout but rarely
+   supported on modern cars (R134a / R1234yf phase-out). Kept
+   for Table A2 fidelity.
+
+### P-A5 — EV battery health
+
+**Shipped:** `OBD.Service.EVBattery` —
+`TOBDEVBattery` on **OBD Services**. Polls high-voltage
+battery management systems via per-vendor decode rules
+loaded from `catalogs/ev-battery/<vendor>.json`. Snapshot
+record carries 21+ fields across core / cell / thermal /
+driving / extended groups, with `HasXxx` flags so hosts can
+distinguish "not present" from "raw zero".
+
+Vendor catalogues shipped (15): hmg, nissan, vw, bmw,
+renault, polestar, ford, gm, plus minimal-or-empty placeholder
+files for porsche / mercedes / honda / mazda / stellantis /
+toyota / tesla. `_manifest.json` documents per-vendor coverage
+status (`full` / `partial` / `minimal` / `none` /
+`not-applicable`).
+
+**Tests:** `Tests.OBD.Service.EVBattery` covers types,
+catalogue, and component config-error paths. Live poll is
+hardware-only.
+
+**Honest review:**
+1. Vendor coverage is uneven. HMG and Nissan Leaf are nearly
+   complete; the rest range from "basic SOC/SOH" to
+   "placeholder only". The component handles either gracefully
+   — fields the catalogue doesn't define stay at `Has* = False`.
+2. Tesla is intentionally `not-applicable`: Tesla's HV CAN is
+   not addressable from the standard OBD-II port.
+3. Most vendor data sourced from `JejuSoul/OBD-PIDs-for-HKMC-EVs`
+   and `openvehicles/Open-Vehicle-Monitoring-System-3`. Sources
+   cited per-rule in the JSON.
+
+### P-A6 — Key adaptation (BMW / Ford / HMG / Toyota)
+
+**Shipped:** `OBD.OEM.KeyAdaptation.{BMW,Ford,HMG,Toyota}`
+under `src/OEM/`. Four palette components on **OBD Coding**.
+Every destructive entry point (`AddKey` / `ClearOneSlot` /
+`ClearAllKeys`) ships with `AutoExecute = False` and refuses
+to run unless the host wires `OnConfirmExecute` first — same
+safety pattern as the flashing components.
+
+**Tests:** `Tests.OBD.OEM.KeyAdaptation` covers the safety
+gate (refuses without AutoExecute), ChassisCode validation,
+and PIN-format validation per vendor.
+
+**Honest review:**
+1. Key adaptation reprograms the immobilizer — destructive,
+   unsafe, and legally fraught in some jurisdictions. The
+   safety gate is the bare minimum; hosts publishing this
+   functionality should also surface a clear consent dialog.
+2. Vendor-specific protocol exchanges (UDS routine IDs,
+   security-access keys) are not exercised in unit tests —
+   need a real ECU.
+
+### P-A7 — Per-category IDE wizards + DataModule presets +
+            polished radio-calc form template
+
+**Shipped:** Eleven IDE wizards under
+**File > New > Other > Delphi-OBD**:
+
+  - Connection & Diagnostics
+  - Service-mode (live data / DTCs / VIN / ...)
+  - Coding & UDS write-side
+  - Calibration (XCP / CCP / IsoBus)
+  - Flashing & UDS transfer
+  - Radio code calculator (polished + minimal)
+  - EEPROM extractor
+  - Catalogue manager DataModule
+  - KWP1281 / TP2.0 / J2534 session
+  - Full kitchen-sink suite
+  - Pre-wired DataModules (7 quick-starts)
+
+Plus the new "OBD Catalogs" palette tab carrying
+`TOBDVINCatalog` / `TOBDDriveCycleCatalogComp` /
+`TOBDEVBatteryCatalogComp` (component shells around the
+static catalogue classes; `AutoLoad` published).
+
+Polished radio-calc form template ports the canonical
+ERDesigns standalone-calculator DFM layout (verified against
+`erdesigns-eu/Peugeot-Calculator/untMain.dfm`) with all
+vendor-specific text resolved from `Calc.DisplayName /
+Description` at runtime, so swapping the Calc class
+auto-rebrands the form.
+
+**Tests:** wizard registrations + form generators are
+design-time and not unit-tested; the build-time check is the
+package install in RAD Studio.
+
+**Honest review:**
+1. Wizards reuse the existing 26-starter framework via a
+   category filter, not a new dialog. Cleaner; avoids the
+   "two kinds of wizard UI" trap.
+2. Polished radio template ships an empty `imgLogo` — hosts
+   wire `Picture.LoadFromFile` per vendor. A future revision
+   could ship a per-vendor logo bundle keyed by `BrandKey`.
+3. Splash + About registration is best-effort; missing
+   `SplashScreenServices` / `IOTAAboutBoxServices` doesn't
+   break package install. Consistent with the safety pattern
+   in `RegisterDelphiOBDStarterWizard`.
+
+### Closing audit pass
+
+Before pivoting to P-A2 (visuals), an audit pass cleaned up:
+- Phase-id mentions in code comments (24 occurrences)
+- Top-level `catalogs/vin-*.json` duplicates
+- Empty `src/Signature/` and `src/Services/` placeholders
+- Stale "POSIX support coming" claim in
+  `OBD.Signature.PQC.pas` (Windows-only by current
+  implementation)
+- User-visible `// TODO` comments in wizard-generated starter
+  code
+- Mismatched unit name `OBD.RadioCode.FordVDatabase` →
+  renamed to `OBD.RadioCode.FordV` to match the class
+- Test gaps: service-component lifecycle, radio-code
+  DB-backed pinned vectors, stub-vendor smokes, Speciality
+  smokes, drive-cycle decoder
+- Doc drift in `docs/v2-port-backlog.md` and
+  `docs/v1-vs-v2-gaps.md` (shipped status, source-file count)
+
+### Quality bars met
+
+- [x] Every shipped phase has at least one test fixture
+      registered.
+- [x] Destructive surfaces (Actuator, Flasher, KeyAdaptation,
+      VoltageGate, FlashPipeline) ship with `AutoExecute =
+      False` and a documented `OnConfirmExecute` gate.
+- [x] Catalogue-driven components fail gracefully when the
+      catalogue file is missing (component still creates,
+      Calculate / ReadSnapshot returns explanatory message).
+- [x] Cross-platform compile guards are honest — units that
+      need Windows say so via `{$MESSAGE FATAL}` or runtime
+      `IsAvailable = False`; no silent feature loss.
+- [x] No phase-id leakage in code comments.
+- [x] Branch builds; tests register; package + design-time
+      package contain the new units.
