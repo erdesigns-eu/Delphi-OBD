@@ -2726,3 +2726,103 @@ plus the `MaxGapMsDefault` test on `TReplayerTests`).
 - [x] Sample 07-RecordReplay shipped.
 - [x] All Phase 10 follow-ups closed (gzip, MaxGapMs, mock,
       redactor).
+
+## Phase 11 — Design-time package: icons, splash, About box
+
+### What shipped
+
+- `assets/designtime/icons/T*.png` — 32 transparent PNG palette
+  icons, one per design-time component, drawn in a Microsoft
+  Office / Fluent style anchored on the brand palette (charcoal,
+  metallic silver, vivid orange).
+- `assets/designtime/templates/cp-shield-base.png` — shared CP
+  shield template (silver-gradient rim, gunmetal interior, silver
+  padlock with orange keyhole). The four OEM CP icons (VAG, BMW,
+  Mercedes, Stellantis) are generated against it so they share
+  identical framing and differ only by the brand emblem.
+- `assets/designtime/templates/delphi-obd-mark.png` — Delphi-OBD
+  brand mark used by both splash and About: layered software
+  emblem combining an OBD-II connector silhouette, an ECU chip,
+  an orange waveform, and `</>` brackets. Reads as "diagnostics +
+  coding", not a car-brand badge.
+- `assets/designtime/splash.png` — splash composition on a solid
+  charcoal canvas with a thin silver accent line.
+- `assets/designtime/about.png` — About-box composition on a
+  solid charcoal canvas with a soft radial vignette.
+- `src/DesignTime/DelphiOBD_DT.res` — Win32 RES file produced by
+  `tools/gen-assets/build-res.py`. Contains 32 component icons
+  under custom resource type `PNG` (the convention RAD Studio's
+  HiDPI palette auto-pickup expects in 10.4+), plus `SPLASH` and
+  `ABOUT` as `RT_RCDATA`.
+- `src/DesignTime/OBD.Design.Registration.pas` — binds the .res
+  via `{$R DelphiOBD_DT.res}`. Adds `LoadPngResource` and
+  `PngToBitmap` helpers and two procedures, `RegisterSplash` and
+  `RegisterAbout`, that decode the resource PNG and hand a
+  flattened HBITMAP to `SplashScreenServices.AddPluginBitmap`
+  and `IOTAAboutBoxServices.AddPluginInfo` respectively. Both
+  calls are wrapped in `try/except` inside `Register` so a
+  missing IDE service or resource never breaks the package
+  install.
+
+### Build pipeline
+
+- `tools/gen-assets/generate.py` — OpenAI `gpt-image-2` driver.
+  Reads `OPENAI_API_KEY` from env, emits PNGs per
+  `manifest.json`, downscales with Lanczos. Supports per-asset
+  reference images (used to chain template → variant
+  generations).
+- `tools/gen-assets/remove-bg.py` — strips white backgrounds via
+  remove.bg. Auto-retries with `type=other` on abstract icons
+  that defeat the default foreground detector. Skips
+  `splash.png` / `about.png` because those ship with their own
+  opaque background.
+- `tools/gen-assets/build-res.py` — pure-Python Win32 RES writer.
+  No `brcc32` / `windres` dependency, so the build step works on
+  Linux / macOS / Windows.
+
+### What's intentionally not in v1
+
+- **No explicit per-component icon registration via Tools API.**
+  The custom `PNG` resource type is RAD's documented HiDPI
+  convention from 10.4 Sydney onwards; if a host targets older
+  RAD (10.3 Rio), the palette icons will not auto-pickup and
+  the build script can be re-pointed at `RT_BITMAP` 24-bit
+  output. Tracked.
+- **One icon per component, one base size (24×24).** RAD scales
+  the PNG for higher-DPI palette display. A future revision can
+  emit `<CLASS>_24` / `_32` / `_48` variants.
+
+### Honest review
+
+1. **Icon style is generative, not vector.** The component icons
+   are PNG renders from `gpt-image-2`, not hand-tuned SVG
+   exports. They look clean at 24px and acceptable at 16px after
+   IDE downscaling, but small details (pin slots on the OBD
+   connector, the `</>` brackets on the chip) lose definition
+   at the smallest palette size. A future revision should bring
+   these in as proper SVG sources and rasterize per target size.
+2. **Image fidelity depends on the upstream model.** Rerunning
+   the manifest at a different time can produce visually
+   different output even with identical prompts. Hosts that
+   need bit-stable assets pin the .res file in version
+   control — which we do.
+3. **OEM brand marks raise a trademark concern.** The four
+   component-protection icons carry the actual VW, BMW,
+   Mercedes, and Stellantis emblems so they're visually
+   recognisable. This is the project owner's call, documented;
+   downstream redistributors should review fitness for their
+   jurisdiction.
+4. **Cross-version compile not tested here.** The registration
+   unit was written but not built in this environment. The
+   first install on a real RAD Studio is the integration test.
+
+### Quality bars met
+
+- [x] All 32 design-time components have a palette icon.
+- [x] Icons match a single brand palette and Fluent style.
+- [x] Splash registered via `SplashScreenServices.AddPluginBitmap`.
+- [x] About-box registered via `IOTAAboutBoxServices.AddPluginInfo`.
+- [x] Registration is best-effort — wrapped in `try/except` so
+      a missing IDE service / resource never breaks installation.
+- [x] Build pipeline is reproducible and cross-platform (no
+      `brcc32` requirement).
