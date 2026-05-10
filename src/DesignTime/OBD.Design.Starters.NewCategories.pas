@@ -77,7 +77,7 @@ const
     'end.'#13#10;
   DFM_TPL =
     'object {FORMVAR}: {FORM}'#13#10 +
-    '  Caption = ''{PROJ} - Radio code (Peugeot)'''#13#10 +
+    '  Caption = ''{PROJ} - Radio code'''#13#10 +
     '  ClientHeight = 200  ClientWidth = 360  Position = poScreenCenter'#13#10 +
     '  object Calc: TOBDRadioCodePeugeot Left = 16 Top = 16 end'#13#10 +
     '  object edtSerial: TEdit Left = 80 Top = 24 Width = 250 Text = '''' end'#13#10 +
@@ -134,7 +134,7 @@ const
     'end.'#13#10;
   DFM_TPL =
     'object {FORMVAR}: {FORM}'#13#10 +
-    '  Caption = ''{PROJ} - EEPROM extractor (Volvo HU)'''#13#10 +
+    '  Caption = ''{PROJ} - EEPROM extractor'''#13#10 +
     '  ClientHeight = 180  ClientWidth = 420  Position = poScreenCenter'#13#10 +
     '  object Extractor: TOBDRadioCodeEEPROM_VolvoHU Left = 16 Top = 16 end'#13#10 +
     '  object OpenDlg: TOpenDialog Filter = ''EEPROM dump|*.bin;*.eep|All|*.*'' Left = 64 Top = 16 end'#13#10 +
@@ -252,23 +252,25 @@ procedure RegisterAll;
 var S: TOBDStarter;
 begin
   S := Default(TOBDStarter);
-  S.Id := 'radio-peugeot';
-  S.Title := 'Radio-code calculator (Peugeot)';
+  S.Id := 'radio-calculator';
+  S.Title := 'Radio-code calculator';
   S.Description :=
-    'Single-vendor radio-code calculator form: TOBDRadioCodePeugeot ' +
-    '+ serial input + Calculate button + result label. Swap the ' +
-    'component for any of the 47 vendor calculators.';
+    'Single-vendor radio-code calculator form: serial input + ' +
+    'Calculate button + result label. The form ships with one of ' +
+    'the 47 bundled vendor components dropped in - swap to your ' +
+    'target vendor after generation.';
   S.Category := 'Radio';
   S.Generate := GenerateRadioForm;
   TOBDStarterRegistry.Default.Register(S);
 
   S := Default(TOBDStarter);
-  S.Id := 'eeprom-volvo';
-  S.Title := 'EEPROM extractor (Volvo HU)';
+  S.Id := 'eeprom-extractor';
+  S.Title := 'EEPROM extractor';
   S.Description :=
     'Loads a .bin / .eep dump and extracts the unlock code at ' +
-    'the documented offset. Swap the extractor for any of the ' +
-    'three EEPROM components shipped under "OBD EEPROM".';
+    'the documented offset. The form ships with one of the three ' +
+    'bundled extractors dropped in - swap if your radio uses a ' +
+    'different chip / offset.';
   S.Category := 'EEPROM';
   S.Generate := GenerateEEPROMForm;
   TOBDStarterRegistry.Default.Register(S);

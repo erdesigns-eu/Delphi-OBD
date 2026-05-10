@@ -178,15 +178,16 @@ begin
 
   Add('Radio',
       'Delphi-OBD: Radio code calculator',
-      'Single-vendor radio-code calculator form (Peugeot template; ' +
-      'swap to any of the 47 bundled vendors after generation).',
+      'Single-vendor radio-code calculator form. Ships with one of ' +
+      'the 47 bundled vendor components dropped in - swap to your ' +
+      'target vendor after generation.',
       ['Radio']);
 
   Add('EEPROM',
       'Delphi-OBD: EEPROM extractor',
       'Form that loads a .bin / .eep dump and extracts the unlock ' +
-      'code at the documented offset. Three vendor extractors ship ' +
-      '(Volvo HU, Opel CD30, Mercedes Becker).',
+      'code at the documented offset. Ships with one of the three ' +
+      'bundled extractors dropped in.',
       ['EEPROM']);
 
   Add('Catalogs',
