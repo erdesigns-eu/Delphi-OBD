@@ -110,6 +110,7 @@ uses
   OBD.Design.Wizards.Starters,
   OBD.Design.Starters.NewCategories,
   OBD.Design.Starters.DataModules,
+  OBD.Design.Starters.RadioPolished,
   OBD.Design.Wizards.PerCategory;
 
 /// <summary>Loads a PNG (kept transparent) from an RCDATA

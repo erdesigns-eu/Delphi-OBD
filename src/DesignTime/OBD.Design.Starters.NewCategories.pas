@@ -252,13 +252,12 @@ procedure RegisterAll;
 var S: TOBDStarter;
 begin
   S := Default(TOBDStarter);
-  S.Id := 'radio-calculator';
-  S.Title := 'Radio-code calculator';
+  S.Id := 'radio-calculator-minimal';
+  S.Title := 'Radio-code calculator (minimal)';
   S.Description :=
-    'Single-vendor radio-code calculator form: serial input + ' +
-    'Calculate button + result label. The form ships with one of ' +
-    'the 47 bundled vendor components dropped in - swap to your ' +
-    'target vendor after generation.';
+    'Bare radio-code calculator form: serial input + Calculate ' +
+    'button + result label. Use this when you don''t want the ' +
+    'logo / About / status-bar chrome from the polished template.';
   S.Category := 'Radio';
   S.Generate := GenerateRadioForm;
   TOBDStarterRegistry.Default.Register(S);
