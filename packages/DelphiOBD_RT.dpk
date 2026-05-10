@@ -94,6 +94,7 @@ contains
   OBD.Service.VIN in '..\src\Service\OBD.Service.VIN.pas',
   OBD.Service.VINDecoder.Types in '..\src\Service\OBD.Service.VINDecoder.Types.pas',
   OBD.Service.VINDecoder in '..\src\Service\OBD.Service.VINDecoder.pas',
+  OBD.Service.VINInspector in '..\src\Service\OBD.Service.VINInspector.pas',
   OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas',
   OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
   OBD.Service.VehicleHealth in '..\src\Service\OBD.Service.VehicleHealth.pas',
