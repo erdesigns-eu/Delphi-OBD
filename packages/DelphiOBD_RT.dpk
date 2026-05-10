@@ -59,6 +59,7 @@ contains
   OBD.Protocol.ISO15765 in '..\src\Protocol\OBD.Protocol.ISO15765.pas',
   OBD.Protocol.UDS in '..\src\Protocol\OBD.Protocol.UDS.pas',
   OBD.Protocol.KWP2000 in '..\src\Protocol\OBD.Protocol.KWP2000.pas',
+  OBD.Protocol.KWP1281 in '..\src\Protocol\OBD.Protocol.KWP1281.pas',
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',
