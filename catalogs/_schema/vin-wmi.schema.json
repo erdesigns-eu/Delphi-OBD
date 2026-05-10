@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/delphi-obd/schemas/vin-wmi.schema.json",
+  "title": "VIN World Manufacturer Identifiers",
+  "description": "Three-character WMI prefix to manufacturer name (ISO 3780).",
+  "type": "object",
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "spec":           { "type": "string" },
+    "description":    { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["wmi", "name"],
+        "properties": {
+          "wmi":  { "type": "string", "minLength": 3, "maxLength": 3 },
+          "name": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

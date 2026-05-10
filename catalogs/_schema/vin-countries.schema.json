@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/delphi-obd/schemas/vin-countries.schema.json",
+  "title": "VIN countries",
+  "description": "ISO 3779 / SAE J853 VIN country ranges keyed by the first two WMI characters.",
+  "type": "object",
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "spec":           { "type": "string" },
+    "description":    { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["range_start", "range_end", "name"],
+        "properties": {
+          "range_start": { "type": "string", "minLength": 2, "maxLength": 2 },
+          "range_end":   { "type": "string", "minLength": 2, "maxLength": 2 },
+          "name":        { "type": "string", "minLength": 1 },
+          "iso_code":    { "type": "string", "minLength": 2, "maxLength": 3 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

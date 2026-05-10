@@ -347,7 +347,7 @@ new `P-C*` task here.
 ```
 [ ] P-A1   Radio-code calculators (split A1.1..A1.8)
 [ ] P-A2   Visual UI components VCL + FMX (split A2.1..A2.7)
-[ ] P-A3   VIN decoder
+[x] P-A3   VIN decoder                              (shipped)
 [ ] P-A4   Drive-cycle advisor
 [ ] P-A5   EV battery health
 [ ] P-A6   Key adaptation (BMW / Ford / HMG / Toyota)

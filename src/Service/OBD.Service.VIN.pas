@@ -37,7 +37,9 @@ uses
   OBD.Protocol.Types,
   OBD.Protocol.UDS,
   OBD.Protocol.VIN,
-  OBD.Protocol;
+  OBD.Protocol,
+  OBD.Service.VINDecoder.Types,
+  OBD.Service.VINDecoder;
 
 const
   /// <summary>OBD-II Service 09 — Request Vehicle Information.</summary>
@@ -100,6 +102,12 @@ type
     function Read(ASource: TOBDVINSource = vsOBDII): TOBDVINResult;
     /// <summary>Non-blocking <see cref="Read"/>.</summary>
     procedure ReadAsync(ASource: TOBDVINSource = vsOBDII);
+    /// <summary>Reads the VIN and immediately runs it through
+    /// <see cref="OBD.Service.VINDecoder.TOBDVINDecoder.Decode"/>.
+    /// Convenience wrapper for hosts that want the full WMI / VDS
+    /// / VIS breakdown alongside the raw read.</summary>
+    function ReadAndDecode(
+      ASource: TOBDVINSource = vsOBDII): TOBDVINInfo;
   published
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     /// <summary>Fires for each successful read (main thread).</summary>
@@ -222,6 +230,14 @@ begin
     Result := ReadOBDII;
   end;
   FireVIN(Result);
+end;
+
+function TOBDVIN.ReadAndDecode(ASource: TOBDVINSource): TOBDVINInfo;
+var
+  Raw: TOBDVINResult;
+begin
+  Raw := Read(ASource);
+  Result := TOBDVINDecoder.Decode(Raw.RawVIN);
 end;
 
 procedure TOBDVIN.ReadAsync(ASource: TOBDVINSource);

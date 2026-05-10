@@ -83,6 +83,8 @@ contains
   OBD.Service.LiveData in '..\src\Service\OBD.Service.LiveData.pas',
   OBD.Service.DTCs in '..\src\Service\OBD.Service.DTCs.pas',
   OBD.Service.VIN in '..\src\Service\OBD.Service.VIN.pas',
+  OBD.Service.VINDecoder.Types in '..\src\Service\OBD.Service.VINDecoder.Types.pas',
+  OBD.Service.VINDecoder in '..\src\Service\OBD.Service.VINDecoder.pas',
   OBD.Service.FreezeFrame in '..\src\Service\OBD.Service.FreezeFrame.pas',
   OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
   OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas',
