@@ -109,7 +109,21 @@ type
     /// ownership of the dictionary) and <c>AStarter</c> and
     /// returns <c>True</c>.</summary>
     class function Pick(out AContext: TOBDStarterContext;
-      out AStarter: TOBDStarter): Boolean; static;
+      out AStarter: TOBDStarter): Boolean; overload; static;
+
+    /// <summary>Same as <see cref="Pick"/> but only shows
+    /// starters whose Category is in <c>AOnlyCategories</c>
+    /// (case-insensitive). Empty array = unfiltered (same as
+    /// the no-arg overload).</summary>
+    class function Pick(out AContext: TOBDStarterContext;
+      out AStarter: TOBDStarter;
+      const AOnlyCategories: TArray<string>): Boolean; overload; static;
+
+    /// <summary>Per-instance filter applied at FormCreate.
+    /// Public so the per-category wizard can set it after
+    /// instantiation; Pick(category) is the easier path for
+    /// new code.</summary>
+    class var FilterCategories: TArray<string>;
   end;
 
 implementation
@@ -146,6 +160,16 @@ begin
     CurrentCategory := '';
     for I := 0 to High(All) do
     begin
+      // Skip starters whose category isn't in the active
+      // filter (when one is set). Filter is class-var so the
+      // per-category wizard can install it before ShowModal.
+      if Length(FilterCategories) > 0 then
+      begin
+        var Hit: Boolean := False;
+        for var FCat in FilterCategories do
+          if SameText(FCat, All[I].Category) then begin Hit := True; Break; end;
+        if not Hit then Continue;
+      end;
       if (CategoryNode = nil) or (All[I].Category <> CurrentCategory) then
       begin
         CategoryNode := tvStarters.Items.AddChild(nil, All[I].Category);
@@ -470,6 +494,19 @@ begin
   if Trim(edtUnit.Text) = '' then
     edtUnit.Text := 'MainForm';
   ModalResult := mrOk;
+end;
+
+class function TOBDStarterPickerDlg.Pick(
+  out AContext: TOBDStarterContext;
+  out AStarter: TOBDStarter;
+  const AOnlyCategories: TArray<string>): Boolean;
+begin
+  FilterCategories := AOnlyCategories;
+  try
+    Result := Pick(AContext, AStarter);
+  finally
+    FilterCategories := nil;
+  end;
 end;
 
 class function TOBDStarterPickerDlg.Pick(

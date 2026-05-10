@@ -107,7 +107,9 @@ uses
   OBD.RadioCode.FordVDatabase,
   OBD.RadioCode.EEPROM,
   OBD.Design.Editors,
-  OBD.Design.Wizards.Starters;
+  OBD.Design.Wizards.Starters,
+  OBD.Design.Starters.NewCategories,
+  OBD.Design.Wizards.PerCategory;
 
 /// <summary>Loads a PNG (kept transparent) from an RCDATA
 /// resource into a fresh <c>TPngImage</c>. Returns nil when the
@@ -399,6 +401,15 @@ begin
     RegisterDelphiOBDStarterWizard;
   except
     // Swallow — wizard is ergonomic only.
+  end;
+
+  // Per-category wizards (P-A7). Adds one entry per palette
+  // tab so File > New > Other > Delphi-OBD lists the surface
+  // area the same way the component palette does.
+  try
+    RegisterPerCategoryWizards;
+  except
+    // Swallow.
   end;
 end;
 

@@ -47,6 +47,8 @@ contains
   OBD.Design.Starters.Flashing in '..\src\DesignTime\OBD.Design.Starters.Flashing.pas',
   OBD.Design.Starters.Advanced in '..\src\DesignTime\OBD.Design.Starters.Advanced.pas',
   OBD.Design.Forms.StarterPicker in '..\src\DesignTime\OBD.Design.Forms.StarterPicker.pas' {OBDStarterPickerDlg},
-  OBD.Design.Wizards.Starters in '..\src\DesignTime\OBD.Design.Wizards.Starters.pas';
+  OBD.Design.Wizards.Starters in '..\src\DesignTime\OBD.Design.Wizards.Starters.pas',
+  OBD.Design.Starters.NewCategories in '..\src\DesignTime\OBD.Design.Starters.NewCategories.pas',
+  OBD.Design.Wizards.PerCategory in '..\src\DesignTime\OBD.Design.Wizards.PerCategory.pas';
 
 end.
