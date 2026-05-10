@@ -162,8 +162,8 @@ begin
         'Delphi-OBD',
         Bmp.Handle,
         False,
-        'MIT licensed — diagnostics, coding, flashing.',
-        'v2 by ERDesigns');
+        'MIT - diagnostics / coding / flashing / radio / EV battery.',
+        'v2 by ERDesigns - 11 IDE wizards under File > New > Other');
     finally
       Bmp.Free;
     end;
@@ -189,9 +189,21 @@ begin
     try
       Svc.AddPluginInfo(
         'Delphi-OBD',
-        'Vehicle diagnostics, coding, and ECU flashing — MIT licensed.' +
-          sLineBreak +
-          '(c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors.',
+        'Vehicle diagnostics, coding, and ECU flashing - MIT licensed.'    + sLineBreak +
+        '(c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors.' + sLineBreak +
+        sLineBreak +
+        'IDE wizards under File > New > Other > Delphi-OBD:'               + sLineBreak +
+        '  - Connection & Diagnostics    (Foundation / Network / Tooling)' + sLineBreak +
+        '  - Service-mode (live data, DTCs, VIN, ...)'                     + sLineBreak +
+        '  - Coding & UDS write-side'                                      + sLineBreak +
+        '  - Calibration (XCP / CCP / IsoBus)'                             + sLineBreak +
+        '  - Flashing & UDS transfer'                                      + sLineBreak +
+        '  - Radio code calculator (polished + minimal)'                   + sLineBreak +
+        '  - EEPROM extractor'                                             + sLineBreak +
+        '  - Catalogue manager DataModule'                                 + sLineBreak +
+        '  - KWP1281 / TP2.0 / J2534 session'                              + sLineBreak +
+        '  - Full kitchen-sink suite'                                      + sLineBreak +
+        '  - Pre-wired DataModules (7 quick-starts)',
         Bmp.Handle,
         False,
         '');
