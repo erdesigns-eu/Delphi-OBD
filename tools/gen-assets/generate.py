@@ -34,33 +34,51 @@ import requests
 from PIL import Image
 from io import BytesIO
 
-API_URL = "https://api.openai.com/v1/images/generations"
+API_URL_GEN = "https://api.openai.com/v1/images/generations"
+API_URL_EDIT = "https://api.openai.com/v1/images/edits"
 MODEL = "gpt-image-2"
 
 
-def load_manifest(path: Path) -> list[dict]:
+def load_manifest(path: Path) -> tuple[list[dict], list[str]]:
     with path.open("r", encoding="utf-8") as f:
         doc = json.load(f)
-    return doc["assets"]
+    return doc["assets"], doc.get("reference_images", [])
 
 
-def call_api(api_key: str, asset: dict) -> bytes:
-    """Call /v1/images/generations and return raw PNG bytes."""
-    payload = {
-        "model": MODEL,
-        "prompt": asset["prompt"],
-        "size": asset["size"],
-        "n": 1,
-    }
-    if asset.get("transparent_background"):
-        payload["background"] = "transparent"
-    payload["output_format"] = "png"
+def call_api(api_key: str, asset: dict, reference_paths: list[Path]) -> bytes:
+    """Call the OpenAI image API and return raw PNG bytes.
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    resp = requests.post(API_URL, headers=headers, json=payload, timeout=120)
+    When 'reference_paths' is non-empty we use /v1/images/edits with
+    the references attached as multipart 'image[]' fields so
+    gpt-image-2 anchors its style on the brand. Otherwise we use the
+    plain /v1/images/generations endpoint."""
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    if reference_paths:
+        data = {
+            "model": MODEL,
+            "prompt": asset["prompt"],
+            "size": asset["size"],
+            "n": "1",
+        }
+        files = []
+        for p in reference_paths:
+            files.append(
+                ("image[]", (p.name, p.read_bytes(), "image/png"))
+            )
+        resp = requests.post(API_URL_EDIT, headers=headers,
+                             data=data, files=files, timeout=180)
+    else:
+        payload = {
+            "model": MODEL,
+            "prompt": asset["prompt"],
+            "size": asset["size"],
+            "n": 1,
+        }
+        headers["Content-Type"] = "application/json"
+        resp = requests.post(API_URL_GEN, headers=headers,
+                             json=payload, timeout=180)
+
     if resp.status_code != 200:
         raise RuntimeError(
             f"OpenAI API error {resp.status_code}: {resp.text[:500]}"
@@ -106,7 +124,19 @@ def main() -> int:
         print("       export OPENAI_API_KEY=sk-... and re-run.", file=sys.stderr)
         return 2
 
-    assets = load_manifest(args.manifest)
+    assets, refs = load_manifest(args.manifest)
+
+    # Resolve reference image paths up front and warn if missing.
+    ref_paths: list[Path] = []
+    for r in refs:
+        rp = (args.root / r).resolve()
+        if not rp.exists():
+            print(f"warning: reference image missing: {rp} "
+                  f"(falling back to plain generation)",
+                  file=sys.stderr)
+            continue
+        ref_paths.append(rp)
+
     if args.only:
         wanted = set(args.only)
         assets = [a for a in assets if a["id"] in wanted]
@@ -127,7 +157,7 @@ def main() -> int:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"gen    {asset['id']:<40s}  -> {asset['out']}")
         try:
-            raw = call_api(api_key, asset)
+            raw = call_api(api_key, asset, ref_paths)
             final = downscale(raw, int(asset["final_size"]))
             out_path.write_bytes(final)
             generated += 1

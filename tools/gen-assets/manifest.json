@@ -22,16 +22,21 @@
     "",
     "Style guide for prompts (keep consistent across icons):",
     "  - Flat 2D vector look, thick clean strokes, high contrast.",
-    "  - Restricted palette: deep blue (#1F3A93), red accent",
-    "    (#C0392B), white. No gradients, no 3D shading.",
+    "  - Brand palette only: charcoal (#1F1F1F), metallic silver",
+    "    (#A8A8A8), orange accent (#F08000), white background.",
+    "    No blues, no reds, no other accents. No gradients, no",
+    "    3D shading, no bevel, no metallic effects.",
     "  - Centered subject, even padding, no text, no shadows."
+  ],
+  "reference_images": [
+    ".secrets/brand-logo.png"
   ],
   "assets": [
     {
       "id": "icon-connection-dryrun",
       "kind": "component-icon",
       "out": "assets/designtime/dryrun/TOBDConnection.png",
-      "prompt": "A flat 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon shows a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Flat colours only: deep blue (#1F3A93) connector body, red accent (#C0392B) on the cable, white background. Bold even strokes, centered composition, generous padding around the subject. No text, no shadows, no gradients, no 3D effects. Clean enough to read at 16 by 16 pixels after downscaling.",
+      "prompt": "A flat 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. Match the EXACT colour palette of the attached reference logo: charcoal black, metallic silver, vivid orange. No blues, no reds, no greens, no other accents. The icon shows a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Use charcoal for the connector body, metallic silver for the pins, vivid orange for the cable, pure white background. Bold even strokes, centered composition, generous padding around the subject. No text, no shadows, no gradients, no 3D effects, no bevel, no glow. Clean enough to read at 16 by 16 pixels after downscaling.",
       "size": "1024x1024",
       "final_size": 256,
       "transparent_background": true
