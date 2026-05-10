@@ -195,6 +195,107 @@ main (BMW, Ford, HMG, Toyota).
 
 ---
 
+### P-A7 — Per-category IDE wizards + DataModule defaults + radio-calc form template
+
+**Why a separate phase:** P-A1..P-A6 shipped a lot of new
+components (9 palette tabs in total: OBD, OBD Services, OBD
+Coding, OBD Calibration, OBD Flashing, OBD Radio, OBD EEPROM,
+OBD Catalogs, plus the session / transport wrappers). The
+single 26-starter wizard from P-13 doesn't surface them well —
+users have to know the starter id. P-A7 extends the IDE
+integration so every category has its own discoverable entry
+under **File > New > Other > Delphi-OBD** plus pre-wired
+DataModules + a polished radio-calculator form template.
+
+**v2 build target:**
+
+1. **Per-category wizards.** Split
+   `OBD.Design.Wizards.Starters.pas` into a multi-wizard
+   surface, registering one `IOTARepositoryWizard` per palette
+   category:
+
+     - **OBD — Connection & Diagnostics** (TOBDConnection /
+       TOBDAdapter / TOBDProtocol / TOBDDoIPClient /
+       TOBDSecOCCodec / TOBDRecorder / TOBDReplayer)
+     - **OBD Services** (LiveData / DTCs / VIN / VINInspector /
+       FreezeFrame / OnBoardMonitor / VehicleHealth /
+       Actuator / DriveCycleAdvisor / EVBattery)
+     - **OBD Coding** (SecurityAccess / DataIdentifierIO /
+       RoutineControl / Flasher / Uploader / FlashSession /
+       UDS.WriteMemory / KWP.WriteID / Coding.AuditLog /
+       CodingSession / Component-Protection (4) /
+       KeyAdaptation (4))
+     - **OBD Calibration** (XCP / CCP / IsoBus)
+     - **OBD Flashing** (UDSTransfer / VoltageGate / FlashPipeline)
+     - **OBD Radio** (47 vendor calculators + VWRadioSAFE)
+     - **OBD EEPROM** (3 EEPROM extractors)
+     - **OBD Catalogs** (VINCatalog / DriveCycleCatalogComp /
+       EVBatteryCatalogComp)
+     - **OBD Sessions / Transports** (KWP1281Session /
+       TP20Session / J2534Device / J2534Channel)
+
+   Each wizard surfaces its category's components on a
+   multi-step picker (re-using the existing wizard pages
+   framework from P-13). Selecting one drops the matching
+   starter onto a fresh form / data module.
+
+2. **Default DataModules per category.** New custom
+   `IOTAModuleCreator` implementations that produce a
+   pre-wired `TDataModule` for common quick-start scenarios:
+
+     - **TDM_OBDConnection** — Connection + Adapter + Protocol
+       wired together; exposed as published.
+     - **TDM_OBDDiagnostics** — DM_OBDConnection + LiveData +
+       DTCs + VIN + VINInspector + VehicleHealth.
+     - **TDM_OBDCoding** — DM_OBDConnection + Security Access +
+       DID/RC + Flasher + Audit-Log + Coding Session.
+     - **TDM_OBDFlashing** — DM_OBDConnection + UDS.Transfer +
+       VoltageGate + FlashPipeline (with safety defaults: all
+       AutoExecute = False).
+     - **TDM_OBDRadio** — Connection + the picked vendor
+       calculator + a VINInspector for ResolveByVIN.
+     - **TDM_OBDEVBattery** — Connection + EVBattery +
+       EVBatteryCatalogComp.
+     - **TDM_OBDKeyAdaptation** — Connection + the picked
+       vendor key-adaptation component.
+
+3. **Radio calculator form template.** A polished default
+   form for radio-code calculators that mirrors the DFM shape
+   of the user's existing standalone calculators (e.g.
+   `erdesigns-eu/Peugeot-Calculator`,
+   `erdesigns-eu/Renault-Calculator`,
+   `erdesigns-eu/Fiat-Daiichi-Calculator`,
+   `erdesigns-eu/Fiat-VP1-VP2-Calculator`):
+
+     - Title bar / vendor logo header
+     - Serial-input edit + paste-clean
+     - "Calculate" button
+     - Result label + copy-to-clipboard button
+     - Status bar with vendor brand + algorithm version
+     - Wire `OnCalculate` event for stub vendors
+
+   The template ships as a registered `IOTAFormWizard` plus a
+   matching `.dfm` file template. One template parameterised
+   over vendor (so picking "Peugeot" vs "Renault" produces a
+   form with the right component dropped in).
+
+4. **Wizard discovery polish.** Splash-screen entry for each
+   wizard on the IDE startup; About-box updated to list the
+   complete wizard inventory.
+
+**Effort:** Medium-large (wizards × ~9 categories +
+DataModule creators × ~7 + radio-calc form template). Most of
+the heavy lifting is repetitive `IOTARepositoryWizard` boiler-
+plate; the per-category content is a registry walk over the
+already-shipped components.
+
+**Dependencies:** P-A1..P-A6 (the components the wizards
+expose). Subsumes / supersedes the earlier P-B6 (P-B6 was a
+narrower "form / DM / MainForm wizard" task; P-A7 is the
+broader per-category surface).
+
+---
+
 ## Tier B — port if users ask
 
 ### P-B1 — Wider OEM coverage

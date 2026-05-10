@@ -88,6 +88,9 @@ uses
   OBD.Protocol.KWP1281.Session,
   OBD.Protocol.TP20.Session,
   OBD.J2534.Components,
+  OBD.Service.VINDecoder.Catalog.Component,
+  OBD.Service.DriveCycle.Catalog.Component,
+  OBD.Service.EVBattery.Catalog.Component,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -285,6 +288,15 @@ begin
     TOBDTP20Session,
     TOBDJ2534Device,
     TOBDJ2534Channel
+  ]);
+
+  // Catalogue manager components. Wrap the static catalogs so
+  // hosts can configure CatalogDir / AutoLoad in the Object
+  // Inspector instead of doing it in code.
+  RegisterComponents('OBD Catalogs', [
+    TOBDVINCatalog,
+    TOBDDriveCycleCatalogComp,
+    TOBDEVBatteryCatalogComp
   ]);
 
   // Radio-code calculators (one component per vendor). Each
