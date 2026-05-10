@@ -43,7 +43,7 @@
       "id": "icon-adapter",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDAdapter.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDAdapter'. Subject: a small ELM327-style USB / Bluetooth diagnostic dongle adapter — rectangular module with a short tail cable and a round status LED. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDAdapter'. Subject: a small ELM327-style USB / Bluetooth diagnostic dongle adapter — rectangular module with a short tail cable and a round status LED. The adapter casing must be COMPLETELY BLANK — no logo, no brand mark, no emblem, no text, no decals printed on the body. The reference image is provided ONLY as a colour palette source; do not copy or place any element from it onto the adapter. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px after downscaling.",
       "size": "1024x1024",
       "final_size": 256
     },
