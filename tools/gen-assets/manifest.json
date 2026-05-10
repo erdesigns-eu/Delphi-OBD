@@ -21,12 +21,16 @@
     "  - 'force' on the CLI re-runs even if 'out' exists.",
     "",
     "Style guide for prompts (keep consistent across icons):",
-    "  - Flat 2D vector look, thick clean strokes, high contrast.",
-    "  - Brand palette only: charcoal (#1F1F1F), metallic silver",
-    "    (#A8A8A8), orange accent (#F08000), white background.",
-    "    No blues, no reds, no other accents. No gradients, no",
-    "    3D shading, no bevel, no metallic effects.",
-    "  - Centered subject, even padding, no text, no shadows."
+    "  - Modern 2D vector look, thick clean strokes, high contrast.",
+    "  - Brand palette only: charcoal black, metallic silver,",
+    "    vivid orange, white background. No blues, no reds, no",
+    "    greens, no other accents.",
+    "  - Let the model decide which colour goes where; the",
+    "    reference logo is the canonical guide.",
+    "  - Subtle metallic gradients in the silver / charcoal areas",
+    "    are allowed when they match the reference logo. No",
+    "    cartoonish 3D, no bevel, no glow, no drop shadows.",
+    "  - Centered subject, even padding, no text."
   ],
   "reference_images": [
     ".secrets/brand-logo.png"
@@ -36,7 +40,7 @@
       "id": "icon-connection-dryrun",
       "kind": "component-icon",
       "out": "assets/designtime/dryrun/TOBDConnection.png",
-      "prompt": "A flat 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. Match the EXACT colour palette of the attached reference logo: charcoal black, metallic silver, vivid orange. No blues, no reds, no greens, no other accents. The icon shows a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Use charcoal for the connector body, metallic silver for the pins, vivid orange for the cable, pure white background. Bold even strokes, centered composition, generous padding around the subject. No text, no shadows, no gradients, no 3D effects, no bevel, no glow. Clean enough to read at 16 by 16 pixels after downscaling.",
+      "prompt": "Modern 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon depicts a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Match the visual style and exact colour palette of the attached reference logo: charcoal black, metallic silver, vivid orange. Subtle metallic gradients in the silver / charcoal areas are welcome where they match the reference. Absolutely no other colours — no blue, no red, no green. Pure white background. Centered composition, generous padding, bold even strokes. No text, no drop shadows, no glow, no cartoon 3D, no bevel. Clean enough to read at 16 by 16 pixels after downscaling.",
       "size": "1024x1024",
       "final_size": 256,
       "transparent_background": true
