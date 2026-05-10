@@ -104,6 +104,7 @@ uses
   OBD.UI.Gauges.Specialised,
   OBD.UI.LivePanels,
   OBD.UI.LiveGrids,
+  OBD.UI.Info,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -365,7 +366,11 @@ begin
     TOBDPidPanel,
     TOBDFuelTrimDisplay,
     TOBDMultiPidGrid,
-    TOBDFreezeFrameTable
+    TOBDFreezeFrameTable,
+    TOBDVINCard,
+    TOBDAdapterPanel,
+    TOBDOdometer,
+    TOBDClock
   ]);
 
   // Radio-code calculators (one component per vendor). Each
