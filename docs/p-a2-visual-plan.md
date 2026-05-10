@@ -14,6 +14,124 @@ project's policy on transient planning docs).
   direct (`LiveData` property) and decoupled (`Value :=`)
   binding paths.
 
+## Universal quality bar (every component, no exceptions)
+
+These are the acceptance criteria that **every** component in
+the inventory must satisfy. Sub-phase reviews check against
+this list. A component that doesn't meet the bar doesn't ship.
+
+### Theme-aware (mandatory)
+
+- [ ] Auto-binds the first `TOBDTheme` found on the owning
+      form / data-module ancestry at runtime (no host code
+      required).
+- [ ] Allows an explicit `Theme` property to override the
+      auto-binding.
+- [ ] Allows per-component colour / font overrides via
+      `Style: TOBDVisualStyle` (sub-record). Empty entries fall
+      through to the Theme.
+- [ ] When neither Theme nor Style is set, pulls defaults from
+      the active VCL Style via
+      `TStyleManager.ActiveStyle.GetStyleColor` /
+      `GetStyleFontColor`. Never reads `clBtnFace`-style
+      constants directly.
+- [ ] Repaints automatically when the parent form's
+      `OnAfterMonitorDpiChanged` / `Stylefies` /
+      `OnStyleChange` fires.
+- [ ] Resolution chain (highest to lowest priority):
+      `Style` (per-component) → `Theme` (component-bound) →
+      `Theme` (auto-found) → active VCL Style → built-in
+      brand default.
+
+### High-DPI aware (mandatory)
+
+- [ ] All geometry expressed in `MulDiv(N, FCurrentPPI,
+      DesignPPI)` form (use the `ScaleValue` helper inherited
+      from the base class — never hard-code pixel constants in
+      `Paint`).
+- [ ] Honours `Scaled = True`. Resizes on
+      `ChangeScale(M, D, IsDpiChange)`.
+- [ ] Survives a cross-monitor drag (HiDPI → standard and
+      back). Smoke test: drag the demo dashboard between two
+      monitors with different DPI settings — no visible
+      distortion / clipping.
+- [ ] Glyph / icon assets ship in HiDPI variants (1×, 1.5×, 2×)
+      via the PNG resource convention already established by
+      the design-time package.
+- [ ] Fonts use `MessageFont` / `IconFont` default sizes; never
+      hard-code `Font.Height := -11`.
+
+### OS-native control faces (mandatory where applicable)
+
+- [ ] Lists, grids, edits, combo-boxes, buttons descend from
+      the matching VCL stock control (`TListView`,
+      `TCustomEdit`, `TCustomComboBox`, etc.) so they pick up
+      Windows visual styles + VCL Styles for free.
+- [ ] Custom-painted controls (gauges, telltales, charts)
+      respect VCL Styles for background / text / accent
+      colours — the paint code reads from `TStyleManager`
+      rather than hard-coding palette constants.
+- [ ] Where a stock VCL control exists with the same semantics
+      (e.g. `TProgressBar` for the flash-progress strip),
+      consider extending it instead of custom-painting. Custom
+      paint only when the stock control can't carry the
+      semantics (multi-phase progress, dyno chart, …).
+
+### Production quality (mandatory)
+
+- [ ] **Double-buffered.** No flicker on resize, redraw, or
+      live-value updates.
+- [ ] **Thread-safe `Value` setter.** Background-thread writers
+      route through `TThread.Queue` automatically. Host
+      doesn't have to think about it.
+- [ ] **No memory leaks.** Reports clean under FastMM4 /
+      Madshi report-runner on a 1000-iteration create + free
+      loop.
+- [ ] **No invalid state.** Out-of-range values clamp; bad
+      property assignments raise `EOBDConfig` with a
+      diagnostic message.
+- [ ] **XMLDoc on every public symbol.** Source IS the
+      documentation. Sub-phase reviews check this.
+- [ ] **DUnitX coverage.** Every component has at least one
+      test fixture exercising the non-visual contract (value
+      clamp, range scaling, formatter output, theme
+      resolution).
+- [ ] **Survives `csDesigning`.** Drops on a form in the IDE
+      Designer without exceptions; renders a placeholder
+      preview.
+- [ ] **Survives `csLoading`.** Streaming order independence —
+      a `.dfm` setting `LiveData` before `Protocol` doesn't
+      crash.
+- [ ] **Component icon.** 24 × 24 PNG on the palette via the
+      existing brand-asset pipeline (`tools/gen-assets`).
+- [ ] **Notification cleanup.** Wires `FreeNotification` on
+      every component property reference; `Notification`
+      clears the property when the bound component is freed.
+- [ ] **Design-time stable.** No timers fire at design time;
+      no protocol I/O at design time; placeholder values shown
+      so the form designer is useful without a connection.
+
+### Best-in-class (target, not gate)
+
+- [ ] **Default looks production-ready out of the box.** No
+      "demo styling" — the brand-default palette ships as a
+      finished design language.
+- [ ] **Animations are tasteful.** Needle sweeps use spring
+      easing, not linear. Charts auto-throttle to 30 / 60 fps
+      based on data rate. No frame drops under continuous PID
+      polling.
+- [ ] **Keyboard accessibility.** Where appropriate (lists,
+      edits, pickers), full keyboard nav with focus rings.
+- [ ] **Right-to-left aware.** Layout uses `AlignWithMargins` /
+      `Align` rather than absolute coordinates so RTL flips
+      cleanly.
+- [ ] **Localizable.** Caption / unit strings exposed as
+      published properties; localizable via `dxgettext` or
+      stock VCL resources.
+- [ ] **No external runtime dependencies** beyond what already
+      ships (RTL, VCL, FastMM, FireDAC where used elsewhere).
+      No third-party gauge libraries.
+
 ## Final inventory
 
 ### Foundation (4)
