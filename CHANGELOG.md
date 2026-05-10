@@ -10,6 +10,173 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+(no changes since `2.0.0-beta.1`)
+
+## [2.0.0-beta.1] — 2026-05-10
+
+First public beta of the v2 rewrite. Component-first RAD package
+covering diagnostics, coding, calibration and ECU flashing across
+modern automotive protocols.
+
+**Highlights:**
+
+- 32 design-time components on five palette tabs (`OBD`,
+  `OBD Services`, `OBD Coding`, `OBD Calibration`, `OBD Flashing`).
+- 26 IDE starter templates under File → New → Other → **Delphi-OBD**,
+  with multi-step wizard and option groups (multi-OEM component
+  protection, multi-tab full diagnostics, transport choice for XCP,
+  TLS / audit extras for DoIP, …).
+- Full UDS / KWP2000 / J1939 / DoIP / SecOC / LIN / FlexRay / MOST
+  surfaces. AutoExecute = False default on every destructive
+  component, OnConfirmExecute pattern enforced.
+- Production-grade flash pipeline (`TOBDFlashPipeline`) with
+  voltage gate, image applicability, signature verification
+  (BCrypt / OpenSSL / PKCS#11 HSM / post-quantum), atomic
+  checkpoint, audit log.
+- Recorder / replayer / protocol mock / log redactor for
+  capture-driven testing.
+- Component editors (file pickers, COM-port enumerator, init-script
+  editor with AT / ST palette) and live-test verbs (Test connection,
+  Detect adapter, Send ATI, Validate flash configuration).
+- Fluent / Office-style PNG palette icons, splash bitmap,
+  About-box graphic.
+- Full documentation suite: architecture, components reference,
+  catalog schemas, migration cookbook, coding cookbook, flashing
+  safety guide, honest phase-by-phase reviews.
+- 10 standalone sample projects (smoke tests, dry-runs, real
+  hardware demos).
+
+**Pre-1.0 disclaimer:** API surface may shift between
+`2.0.0-beta.1` and `2.0.0`. Pin to a specific tag in production
+work. Bug reports + feedback during the beta window:
+[GitHub Issues](https://github.com/erdesigns-eu/Delphi-OBD/issues).
+
+### Added — service-mode components
+- `TOBDLiveData` — PID polling with `OnValue` (decoded `TOBDValue`)
+  and `OnRaw` (raw bytes). Mode 01 + 02. `SupportedPIDs` walks the
+  support bitmap (0x00 → 0x20 → 0x40 → 0x60 → 0x80 → 0xA0).
+- `TOBDDTCs` — Mode 03 / 04 read & clear, returning a
+  `TArray<string>` of human-readable codes.
+- `TOBDVIN` — Service 09 PID 02 + UDS DID 0xF190, with ISO 3779
+  validation.
+- `TOBDFreezeFrame` — Mode 02 freeze-frame snapshot.
+- `TOBDOnBoardMonitor` — Mode 06 readiness flags + test results.
+- `TOBDActuator` — Mode 08 actuator drive.
+- JSON-driven service catalogues (`catalogs/obd-pids.json`,
+  `obd-dtcs.json`, `uds-nrcs.json`).
+
+### Added — coding & flashing components
+- UDS coding: `TOBDSecurityAccess`, `TOBDDataIdentifierIO`,
+  `TOBDRoutineControl`, `TOBDFlasher`, `TOBDUploader`,
+  `TOBDFlashSession`, `TOBDUDSWriteMemory`. KWP coding:
+  `TOBDKWPWriteID`. All destructive components default
+  `AutoExecute = False`.
+- `TOBDCodingAuditLog` — HMAC-chained JSONL audit log.
+- `TOBDCodingSession` — scoped session orchestrator
+  (security access → write → release → audit envelope).
+- Vendor-specific component-protection:
+  `TOBDComponentProtectionVAG / BMW / Mercedes / Stellantis`.
+- Per-OEM coding helpers under `OBD.OEM.*` (Honda, Toyota, Ford,
+  HMG, plus the four CP vendors above).
+- Schema-validated OEM coding option catalogues
+  (`data/schemas/oem-coding-catalog.schema.json`).
+
+### Added — flash pipeline
+- `TOBDUDSTransfer` — production-grade ISO 14229-1 §14 state
+  machine with BSC counter, NRC 0x78 retransmit, per-chunk retry
+  budget, resumable via `TOBDFlashCheckpoint`.
+- `TOBDJ1939MemoryAccess` — DM14 / DM15 / DM16 / DM17 / DM18
+  framing helpers.
+- `TOBDVoltageGate` — battery monitor with `HoldTimeMs` latch.
+- `TOBDFlashCheckpoint` — atomic checkpoint write
+  (Windows `ReplaceFile`, POSIX `rename(2)`) with image-hash
+  guard against resuming with a different binary.
+- `TOBDFlashPhase` enum + `TOBDFlashCheckList` collection.
+- `TOBDFlashPipeline` — full safe-by-default reflash orchestrator
+  walking pre-flight → verify → enter-programming → transfer →
+  verify → reset → finalise.
+- Signature backends: `TOBDSignatureBCrypt`,
+  `TOBDSignatureOpenSSL`, `TOBDSignatureHSM` (PKCS#11 v3.0
+  vendor shim), `TOBDSignaturePQC` (Dilithium / Falcon /
+  SPHINCS+ via liboqs).
+- `TOBDFlashImageApplicability` — sidecar JSON descriptor + live
+  ECU verification.
+- `TOBDFlashOEMCatalog` — per-platform handshake overrides.
+- OEM bootloader handshakes (`TOBDFlashHandshakeVAG / BMW /
+  Mercedes / Stellantis / Ford / HMG / Toyota`).
+
+### Added — calibration & speciality
+- `TOBDXCP` — ASAM MCD-1 XCP master (CONNECT, DAQ, DOWNLOAD,
+  UPLOAD, SET/GET_CAL_PAGE, START_STOP_DAQ).
+- `TOBDCCP` — ASAP1a CCP master.
+- `TA2LDocument` — ASAM MCD-2 MC parser
+  (MOD_COMMON / MOD_PAR / COMPU_VTAB / COMPU_TAB).
+- `TOBDIsoBus` — ISO 11783 implement node + VT / TC / FS / GNSS
+  sub-protocols.
+- `TOBDTachograph` — EU 165/2014 digital tachograph card reader
+  (PC/SC dynamic-loaded).
+
+### Added — recorder / replayer
+- `TOBDRecorder` — append-only JSONL capture, optional gzip
+  via `.obdlog.gz` extension.
+- `TOBDReplayer` — `rmAsFastAsPossible` and `rmRealTime` modes,
+  configurable `MaxGapMs`. Public `LoadLines` / `ParseLine` for
+  reuse.
+- `TOBDProtocolMock` — drop-in `TOBDProtocol` replacement that
+  drives events from a recording.
+- `TOBDLogRedactor` — streaming filter for sharing captures
+  (drop / mutate per record), with a service-ID payload
+  wiper convenience factory.
+
+### Added — design-time package
+- 32 component palette icons (Fluent / Office style), splash
+  bitmap, About-box graphic. PNG resources via
+  `src/DesignTime/DelphiOBD_DT.res`. Asset generator under
+  `tools/gen-assets/` (OpenAI `gpt-image-2` driver,
+  remove.bg background stripper, pure-Python Win32 RES writer).
+- Property editors: file pickers (replay log, checkpoint),
+  COM-port enumerator with paValueList drop-down,
+  init-script editor with AT / ST command palette.
+- Component editors: live-test verbs (Test connection,
+  Detect adapter, Send ATI, Send AT@1), destructive-component
+  safety reminder, flash-pipeline configuration validator.
+- IDE starter wizard registered under File → New → Other →
+  **Delphi-OBD**: multi-step wizard with Back / Next / Finish /
+  Cancel, dynamic option groups, summary page.
+- 26 starter templates across 8 categories (Foundation,
+  Service-mode, Coding, Calibration, Flashing, Network,
+  Tooling, Suite). Adding a starter is a single
+  `TOBDStarterRegistry.Default.Register` call.
+
+### Added — documentation
+- `docs/architecture.md` — component map, threading model,
+  data-flow walkthrough.
+- `docs/components.md` — one-paragraph reference for every
+  shipped component.
+- `docs/catalogs.md` — JSON-Schema reference + how to
+  contribute a PID / DTC / DID entry.
+- `docs/coding-cookbook.md` — per-vendor coding walkthroughs.
+- `docs/migration-from-v1.md` — v1 class → v2 component
+  cookbook.
+- `docs/flashing-safety.md` — pre-conditions, voltage
+  requirements, recovery, bricked-ECU playbook.
+- `docs/phase-reviews.md` — honest review of every
+  implementation phase (project history).
+- README rewrite with working quick-start, hardware-safety
+  banner, full doc index.
+
+### Changed — source hygiene
+- All `Phase N` / `PLAN.md` references removed from runtime,
+  tests, samples and packages source. Project history retained
+  in `docs/phase-reviews.md` only.
+- Phase-named test units renamed by subsystem
+  (`Tests.OBD.Flashing.Phase9a` → `Tests.OBD.Flashing.Transfer`,
+  etc.).
+- Inline gap markers (`TODO`, `deferred`, `tracked`)
+  triaged: real gaps closed, stale notes removed.
+- New `signed` decoder in `OBD.Decoders` for two's-complement
+  big-endian DIDs (1 / 2 / 4 byte widths).
+
 ### Added — Phase 2 (Connection layer)
 - `OBD.Connection.Types` — `IOBDConnectionTransport` contract and
   shared enums (state, baud, parity, stop-bits, flow-control).
