@@ -90,6 +90,7 @@ uses
   OBD.RadioCode.American,
   OBD.RadioCode.Aftermarket,
   OBD.RadioCode.Volvo,
+  OBD.RadioCode.FordVDatabase,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -302,7 +303,8 @@ begin
     TOBDRadioCodeClarion,
     TOBDRadioCodeBecker4,
     TOBDRadioCodeBecker5,
-    TOBDRadioCodeVolvo
+    TOBDRadioCodeVolvo,
+    TOBDRadioCodeFordV
   ]);
 
   // Register the splash-screen plugin entry and the About-box
