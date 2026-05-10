@@ -1,4 +1,5 @@
 {
+  "$schema": "../_schema/vin-plants.schema.json",
   "schema_version": 1,
   "description": "VIN plant-location map. Key = WMI(3) + plant character.",
   "entries": [

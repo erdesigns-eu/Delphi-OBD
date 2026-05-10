@@ -1,4 +1,5 @@
 {
+  "$schema": "../_schema/vin-regions.schema.json",
   "schema_version": 1,
   "spec": "ISO 3779",
   "description": "VIN region ranges keyed by first WMI character.",

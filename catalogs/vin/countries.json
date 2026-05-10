@@ -1,4 +1,5 @@
 {
+  "$schema": "../_schema/vin-countries.schema.json",
   "schema_version": 1,
   "spec": "ISO 3779 / SAE J853",
   "description": "VIN country ranges keyed by first two WMI characters.",

@@ -446,17 +446,20 @@ new `P-C*` task here.
 ## Quick-pick list
 
 ```
-[x] P-A1   Radio-code calculators                  (shipped)
+[x] P-A1   Radio-code calculators (47 vendors)      (shipped)
+[x]   + KWP1281 stack + VW SAFE + 3 EEPROM extractors (shipped)
            A1.1 foundation, A1.2..A1.8 vendor packs.
            Real algorithms: Peugeot, Renault, FiatDaiichi,
            FiatVP, Hyundai, Becker4 (DB), Becker5 (DB).
            Other vendors: OnCalculate stubs.
            See docs/radio-code-algorithms.md.
 [ ] P-A2   Visual UI components VCL + FMX (split A2.1..A2.7)
-[x] P-A3   VIN decoder                              (shipped)
-[ ] P-A4   Drive-cycle advisor
-[ ] P-A5   EV battery health
-[ ] P-A6   Key adaptation (BMW / Ford / HMG / Toyota)
+[x] P-A3   VIN decoder (vPIC + VINInspector)        (shipped)
+[x] P-A4   Drive-cycle advisor                      (shipped)
+[x] P-A5   EV battery health (15 vendors)           (shipped)
+[x] P-A6   Key adaptation (BMW / Ford / HMG / Toyota) (shipped)
+[x] P-A7   Per-category IDE wizards + DM presets +
+              polished radio-calc form template     (shipped)
 [ ] P-B1   Wider OEM coverage (split B1.1..B1.8)
 [ ] P-B2   Mode 07 / 0A pending + permanent DTC components
 [x] P-B3   VehicleHealth roll-up component          (shipped)

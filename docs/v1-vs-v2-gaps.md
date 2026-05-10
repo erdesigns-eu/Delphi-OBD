@@ -6,15 +6,19 @@ v2 component matrix.
 
 | Stat | v1 (main) | v2 (current) |
 |---|---|---|
-| `src/` source files | ~284 | ~139 |
-| Source dirs | 11 | 11 (different layout) |
-| Vendor radio-code calculators | 47 | 0 |
+| `src/` source files | ~284 | 181 |
+| Source dirs | 11 | 13 (different layout) |
+| Vendor radio-code calculators | 47 | 47 (shipped) |
 | OEM coding modules | 8 | 8 (different set) |
-| OEM "service" modules | ~50 | 0 |
-| Visual UI components | ~25 (VCL + FMX) | 0 |
-| Custom-control framework | yes | no |
-| VIN decoder | yes (full WMI/VDS/VIS) | no (validator only) |
-| Project / form / data-module wizards | 4 | 1 (project starter) |
+| OEM "service" modules | ~50 | 4 key-adaptation (BMW/Ford/HMG/Toyota); rest deferred |
+| EV battery decoders | 0 | 15 vendors (shipped) |
+| Visual UI components | ~25 (VCL + FMX) | 0 (deferred — P-A2) |
+| Custom-control framework | yes | no (deferred with P-A2) |
+| VIN decoder | yes (full WMI/VDS/VIS) | yes (vPIC-driven, ~24K rules) |
+| Drive-cycle advisor | yes | yes (shipped) |
+| KWP1281 stack | no (covered for VAG only) | yes (full + 5 transports) |
+| EEPROM extractors | no | 3 (Volvo HU / Opel CD30 / Mercedes Becker) |
+| Project / form / data-module wizards | 4 | 11 (9 per-category + 7 DM presets + all-in-one) |
 | Examples | ~24 | 10 |
 
 The bullets below group v1 surface that **v2 does not have**, ranked
@@ -23,6 +27,12 @@ this list to triage what to port (with a v2 rewrite — not a
 copy-paste).
 
 ## Tier A — likely rewrite-and-port
+
+> **Status update (May 2026):** A1, A3, A4, A5, A6, A7 all
+> shipped on `claude/v2-phase-1`. Only A2 (visual UI) is still
+> open. Tier-A sections below are kept for reference but most
+> are now historical — see `docs/v2-port-backlog.md` for the
+> live roadmap.
 
 ### A1. Radio-code calculators (47 vendor units)
 

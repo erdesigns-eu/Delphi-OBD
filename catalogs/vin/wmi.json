@@ -1,4 +1,5 @@
 {
+  "$schema": "../_schema/vin-wmi.schema.json",
   "schema_version": 1,
   "spec": "ISO 3780 (WMI)",
   "description": "World Manufacturer Identifier (3-char) to manufacturer name map.",
@@ -649,7 +650,7 @@
     },
     {
       "wmi": "NM4",
-      "name": "Tofaş"
+      "name": "Tofa\u015f"
     },
     {
       "wmi": "NMT",
@@ -849,7 +850,7 @@
     },
     {
       "wmi": "TMB",
-      "name": "Škoda)"
+      "name": "\u0160koda)"
     },
     {
       "wmi": "TMK",
@@ -857,7 +858,7 @@
     },
     {
       "wmi": "TMP",
-      "name": "Škoda"
+      "name": "\u0160koda"
     },
     {
       "wmi": "TMT",
@@ -865,7 +866,7 @@
     },
     {
       "wmi": "TM9",
-      "name": "Škoda"
+      "name": "\u0160koda"
     },
     {
       "wmi": "TNE",
@@ -989,7 +990,7 @@
     },
     {
       "wmi": "VF7",
-      "name": "Citroën"
+      "name": "Citro\u00ebn"
     },
     {
       "wmi": "VF8",
@@ -1049,7 +1050,7 @@
     },
     {
       "wmi": "VS7",
-      "name": "Citroën"
+      "name": "Citro\u00ebn"
     },
     {
       "wmi": "VS9",
@@ -1153,7 +1154,7 @@
     },
     {
       "wmi": "WKK",
-      "name": "Kässbohrer/Setra"
+      "name": "K\u00e4ssbohrer/Setra"
     },
     {
       "wmi": "WMA",
@@ -2149,7 +2150,7 @@
     },
     {
       "wmi": "935",
-      "name": "Citroën"
+      "name": "Citro\u00ebn"
     },
     {
       "wmi": "936",
