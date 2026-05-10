@@ -37,6 +37,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  Data.Bind.Components,
   OBD.Errors,
   OBD.Types,
   OBD.Connection.Types,
@@ -347,6 +348,10 @@ function TOBDDriveCycleAdvisor.ReadReadiness:
 var Err: string;
 begin
   Result := ReadReadinessRaw(Err);
+  // LiveBindings refresh — readiness snapshots are state that
+  // hosts often bind to a UI grid. Notify even on partial reads
+  // so the grid shows whatever could be parsed.
+  try TBindings.Notify(Self, ''); except end;
   if (Err <> '') and Assigned(FOnError) then
     FOnError(Self, oeIO, Err);
 end;
@@ -403,11 +408,12 @@ end;
 procedure TOBDDriveCyclePollThread.FireReadinessSync(
   const A: TArray<TOBDMonitorReadiness>);
 begin
-  if Assigned(FAdvisor.FOnReadiness) then
-    Synchronize(procedure
-    begin
+  Synchronize(procedure
+  begin
+    try TBindings.Notify(FAdvisor, ''); except end;
+    if Assigned(FAdvisor.FOnReadiness) then
       FAdvisor.FOnReadiness(FAdvisor, A);
-    end);
+  end);
 end;
 
 procedure TOBDDriveCyclePollThread.FireReadySync(M: TOBDMonitor);

@@ -34,6 +34,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  Data.Bind.Components,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol;
@@ -226,12 +227,15 @@ var
   MID: Byte;
   Snap: TArray<TOBDMonitorResult>;
 begin
-  if not Assigned(FOnResults) then Exit;
   Self_ := Self; MID := AMID; Snap := Copy(AResults, 0, Length(AResults));
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnResults(Self_, MID, Snap)
+  begin
+    try TBindings.Notify(Self_, ''); except end;
+    if Assigned(FOnResults) then FOnResults(Self_, MID, Snap);
+  end
   else
     TThread.Queue(nil, procedure begin
+      try TBindings.Notify(Self_, ''); except end;
       if Assigned(Self_.FOnResults) then
         Self_.FOnResults(Self_, MID, Snap);
     end);

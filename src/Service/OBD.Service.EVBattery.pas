@@ -26,6 +26,7 @@ uses
   System.Classes,
   System.SyncObjs,
   System.Generics.Collections,
+  Data.Bind.Components,
   OBD.Errors,
   OBD.Types,
   OBD.Connection.Types,
@@ -386,6 +387,11 @@ begin
   finally
     Errs.Free;
   end;
+  // LiveBindings refresh — the synchronous Read path doesn't go
+  // through FOnSnapshot (that's for the poll thread), so notify
+  // here so a TLinkPropertyToField bound to one of the snapshot
+  // fields picks up the new state.
+  try TBindings.Notify(Self, ''); except end;
 end;
 
 procedure TOBDEVBattery.Start;
@@ -437,11 +443,12 @@ end;
 procedure TOBDEVBatteryPollThread.FireSnapshotSync(
   const A: TOBDEVBatterySnapshot);
 begin
-  if Assigned(FOwner.FOnSnapshot) then
-    Synchronize(procedure
-    begin
+  Synchronize(procedure
+  begin
+    try TBindings.Notify(FOwner, ''); except end;
+    if Assigned(FOwner.FOnSnapshot) then
       FOwner.FOnSnapshot(FOwner, A);
-    end);
+  end);
 end;
 
 procedure TOBDEVBatteryPollThread.FireErrorSync(C: TOBDErrorCode;

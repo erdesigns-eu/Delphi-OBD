@@ -33,6 +33,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  Data.Bind.Components,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol.UDS,
@@ -275,12 +276,15 @@ var
   Self_: TOBDVIN;
   Snap: TOBDVINResult;
 begin
-  if not Assigned(FOnVIN) then Exit;
   Self_ := Self; Snap := AResult;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnVIN(Self_, Snap)
+  begin
+    try TBindings.Notify(Self_, ''); except end;
+    if Assigned(FOnVIN) then FOnVIN(Self_, Snap);
+  end
   else
     TThread.Queue(nil, procedure begin
+      try TBindings.Notify(Self_, ''); except end;
       if Assigned(Self_.FOnVIN) then Self_.FOnVIN(Self_, Snap);
     end);
 end;

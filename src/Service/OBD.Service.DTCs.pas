@@ -35,6 +35,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  Data.Bind.Components,
   OBD.Types,
   OBD.Catalog,
   OBD.Protocol.Types,
@@ -447,6 +448,10 @@ begin
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
       'Clear DTCs negative: %s', [Resp.NRCText]);
+  // Clear is a state-changing operation even though it returns
+  // no DTC list — notify any host-bound observers so they can
+  // refresh whatever they show next to "DTCs cleared".
+  try TBindings.Notify(Self, ''); except end;
 end;
 
 procedure TOBDDTCs.FireDTCs(AKind: TOBDDtcKind;
@@ -456,12 +461,19 @@ var
   Kind: TOBDDtcKind;
   Snap: TArray<TOBDDtcEntry>;
 begin
-  if not Assigned(FOnDTCs) then Exit;
   Self_ := Self; Kind := AKind; Snap := Copy(AEntries, 0, Length(AEntries));
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnDTCs(Self_, Kind, Snap)
+  begin
+    // LiveBindings refresh runs alongside the event dispatch so
+    // bound TLinkPropertyToField / TLinkObservableProperty pick
+    // up the new DTC list even when the host has no OnDTCs
+    // handler wired.
+    try TBindings.Notify(Self_, ''); except end;
+    if Assigned(FOnDTCs) then FOnDTCs(Self_, Kind, Snap);
+  end
   else
     TThread.Queue(nil, procedure begin
+      try TBindings.Notify(Self_, ''); except end;
       if Assigned(Self_.FOnDTCs) then Self_.FOnDTCs(Self_, Kind, Snap);
     end);
 end;

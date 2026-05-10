@@ -25,6 +25,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  Data.Bind.Components,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol,
@@ -201,12 +202,15 @@ var
   Frame: Byte;
   Snap: TOBDPIDValue;
 begin
-  if not Assigned(FOnValue) then Exit;
   Self_ := Self; Frame := AFrameIndex; Snap := AValue;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnValue(Self_, Frame, Snap)
+  begin
+    try TBindings.Notify(Self_, ''); except end;
+    if Assigned(FOnValue) then FOnValue(Self_, Frame, Snap);
+  end
   else
     TThread.Queue(nil, procedure begin
+      try TBindings.Notify(Self_, ''); except end;
       if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Frame, Snap);
     end);
 end;

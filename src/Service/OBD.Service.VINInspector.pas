@@ -29,6 +29,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  Data.Bind.Components,
   OBD.Service.VINDecoder,
   OBD.Service.VINDecoder.Types;
 
@@ -193,7 +194,12 @@ procedure TOBDVINInspector.SetVIN(const AValue: string);
 begin
   if FVIN = AValue then Exit;
   FVIN := AValue;
-  if FAutoDecode and not (csLoading in ComponentState) then
+  // Skip the auto-decode at design-time too — the IDE would
+  // otherwise hit the catalog files every time the property is
+  // touched in the Object Inspector.
+  if FAutoDecode and
+     not (csLoading   in ComponentState) and
+     not (csDesigning in ComponentState) then
     DecodeNow;
 end;
 
@@ -246,6 +252,11 @@ begin
   if FCatalogDir <> '' then
     TOBDVINDecoder.LoadCatalogs(FCatalogDir);
   FInfo := TOBDVINDecoder.Decode(FVIN);
+  // LiveBindings refresh — fires before the event handlers so a
+  // bound TLinkPropertyToField sees the new FInfo even if the
+  // host handler shows a dialog (which would block the refresh
+  // until dismissed).
+  try TBindings.Notify(Self, ''); except end;
   if FInfo.Valid then
   begin
     if Assigned(FOnDecoded) then FOnDecoded(Self, FInfo);
