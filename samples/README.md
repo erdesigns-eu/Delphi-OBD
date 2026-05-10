@@ -23,6 +23,16 @@ demonstrating one component or one workflow.
 | 04 | [`04-LIN-LDF-Parse`](04-LIN-LDF-Parse/) | Standalone LDF parser. No bus / hardware needed. |
 | 05 | [`05-SecOC-WrapUnwrap`](05-SecOC-WrapUnwrap/) | End-to-end SecOC demo without any bus. AES-128 CMAC wrap + tamper / replay detection. |
 | 07 | [`07-RecordReplay`](07-RecordReplay/) | Recorder → `.obdlog` → Replayer round-trip. |
+| 08 | [`08-DecodeVIN`](08-DecodeVIN/) | Offline VIN decoder demo against ~24K vPIC schemas. No vehicle needed. |
+| 09 | [`09-RadioCodeMulti`](09-RadioCodeMulti/) | Three radio-code calculators (Peugeot algorithm, Hyundai algorithm, Becker4 DB lookup). |
+| 10 | [`10-EEPROMExtractor`](10-EEPROMExtractor/) | EEPROM-dump extractor — synthetic Volvo HU dump → unlock code. |
+| 11 | [`11-DriveCycleAdvise`](11-DriveCycleAdvise/) | Drive-cycle catalogue dump + Mode 01 PID 01 readiness decoder. |
+| 12 | [`12-VINInspectorComponent`](12-VINInspectorComponent/) | `TOBDVINInspector` drop-on-form pattern (per-field shortcut properties). |
+| 13 | [`13-VWRadioSAFE`](13-VWRadioSAFE/) | VW SAFE-code recovery via `TOBDVWRadioSAFE` (synthetic OnReadEEPROM). |
+| 14 | [`14-EVBatteryDecode`](14-EVBatteryDecode/) | EV battery catalogue inventory — what's decodable per platform. |
+| 15 | [`15-IsoBusCodecs`](15-IsoBusCodecs/) | ISO 11783 (ISOBUS) NAME / VT / TC / FS / GNSS codec helpers. |
+| 16 | [`16-TachographDecode`](16-TachographDecode/) | Digital tachograph (EU 165/2014) record decoder helpers. |
+| 17 | [`17-CatalogBundleDM`](17-CatalogBundleDM/) | The three OBD-Catalogs components — VIN / drive-cycle / EV battery, AutoLoad=True. |
 | 27 | [`27-FlashDryRun`](27-FlashDryRun/) | Walks the entire `TOBDFlashPipeline` phase chain without touching the wire. "Review before commit" tool for flash configs. |
 | 28 | [`28-FlashSignedFirmware`](28-FlashSignedFirmware/) | ⚠️ brick risk — signature-verified flash against a real ECU. Requires hardware + signed image + voltage source. |
 | 29 | [`29-J1939Flash`](29-J1939Flash/) | DM14 / DM15 / DM16 memory access on a heavy-duty J1939 bus. |
