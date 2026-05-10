@@ -95,6 +95,14 @@ type
     function ReadReadinessRaw(out AError: string):
       TArray<TOBDMonitorReadiness>;
   public
+    /// <summary>Pure decoder for a Mode 01 PID 01 response
+    /// payload. Hosts that already have the 4 bytes (e.g. from
+    /// a recorder replay) call this directly without going
+    /// through the live protocol. <c>AError</c> populated when
+    /// the payload is too short.</summary>
+    class function DecodePID01(const AData: TBytes;
+      out AError: string): TArray<TOBDMonitorReadiness>; static;
+  public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
 
@@ -226,8 +234,8 @@ begin
     FProtocol := nil;
 end;
 
-function TOBDDriveCycleAdvisor.ReadReadinessRaw(out AError: string):
-  TArray<TOBDMonitorReadiness>;
+class function TOBDDriveCycleAdvisor.DecodePID01(const AData: TBytes;
+  out AError: string): TArray<TOBDMonitorReadiness>;
 
   procedure Add(var ARes: TArray<TOBDMonitorReadiness>;
     AMon: TOBDMonitor; ASup, ACom: Boolean);
@@ -241,40 +249,21 @@ function TOBDDriveCycleAdvisor.ReadReadinessRaw(out AError: string):
   end;
 
 var
-  Req:  TOBDRequest;
-  Resp: TOBDResponse;
-  A, B, C, D: Byte;
+  B, C, D:  Byte;
   IsDiesel: Boolean;
 begin
   Result := nil;
   AError := '';
-  if FProtocol = nil then
+  if Length(AData) < 4 then
   begin
-    AError := 'TOBDDriveCycleAdvisor: Protocol not assigned';
+    AError := Format('PID 01 response too short (%d bytes)',
+      [Length(AData)]);
     Exit;
   end;
-  try
-    // Mode 01 PID 01 = MonitorStatusSinceCodesCleared.
-    Req := MakeOBDRequest;
-    Req.ServiceID := $01;
-    Req.Data := TBytes.Create($01);
-    Resp := FProtocol.Send(Req);
-    if Resp.IsNegative then
-    begin
-      AError := Format('NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
-      Exit;
-    end;
-    if Length(Resp.Data) < 4 then
-    begin
-      AError := Format('PID 01 response too short (%d bytes)',
-        [Length(Resp.Data)]);
-      Exit;
-    end;
-    A := Resp.Data[0];
-    B := Resp.Data[1];
-    C := Resp.Data[2];
-    D := Resp.Data[3];
-    IsDiesel := (B and $08) <> 0;
+  B := AData[1];
+  C := AData[2];
+  D := AData[3];
+  IsDiesel := (B and $08) <> 0;
 
     // Continuous monitors. "complete" = bit clear.
     Add(Result, omMisfire,
@@ -321,6 +310,32 @@ begin
       Add(Result, omEGRSystem,
           (C and $80) <> 0, (D and $80) = 0);
     end;
+end;
+
+function TOBDDriveCycleAdvisor.ReadReadinessRaw(out AError: string):
+  TArray<TOBDMonitorReadiness>;
+var
+  Req:  TOBDRequest;
+  Resp: TOBDResponse;
+begin
+  Result := nil;
+  AError := '';
+  if FProtocol = nil then
+  begin
+    AError := 'TOBDDriveCycleAdvisor: Protocol not assigned';
+    Exit;
+  end;
+  try
+    Req := MakeOBDRequest;
+    Req.ServiceID := $01;
+    Req.Data := TBytes.Create($01);
+    Resp := FProtocol.Send(Req);
+    if Resp.IsNegative then
+    begin
+      AError := Format('NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
+      Exit;
+    end;
+    Result := DecodePID01(Resp.Data, AError);
   except
     on E: Exception do
       AError := E.ClassName + ': ' + E.Message;

@@ -229,6 +229,7 @@ uses
   Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas',
   Tests.OBD.Service in 'Tests.OBD.Service.pas',
   Tests.OBD.Service.ComponentLifecycle in 'Tests.OBD.Service.ComponentLifecycle.pas',
+  Tests.OBD.Speciality in 'Tests.OBD.Speciality.pas',
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
   Tests.OBD.Service.VINDecoder in 'Tests.OBD.Service.VINDecoder.pas',
   Tests.OBD.Service.VINInspector in 'Tests.OBD.Service.VINInspector.pas',

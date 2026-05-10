@@ -45,6 +45,22 @@ type
     [Test] procedure GetCycleDelegatesToCatalog;
   end;
 
+  /// <summary>Coverage for the readiness-payload decoder
+  /// (DecodePID01). Exercises the bit-layout decode for both
+  /// SI and CI engines without needing a connected protocol.</summary>
+  [TestFixture]
+  TDriveCyclePID01DecoderTests = class
+  strict private
+    function FindMonitor(const A: TArray<TOBDMonitorReadiness>;
+      M: TOBDMonitor; out R: TOBDMonitorReadiness): Boolean;
+  public
+    [Test] procedure ShortPayloadFailsCleanly;
+    [Test] procedure SI_AllSupportedAllComplete;
+    [Test] procedure SI_CatalystSupportedNotComplete;
+    [Test] procedure CI_DieselFlagPicksDieselMonitorSet;
+    [Test] procedure CI_PMFilterSupportedNotComplete;
+  end;
+
 implementation
 
 uses
@@ -186,9 +202,98 @@ begin
   end;
 end;
 
+{ ---- TDriveCyclePID01DecoderTests ----------------------------------------- }
+
+function TDriveCyclePID01DecoderTests.FindMonitor(
+  const A: TArray<TOBDMonitorReadiness>;
+  M: TOBDMonitor; out R: TOBDMonitorReadiness): Boolean;
+var I: Integer;
+begin
+  for I := 0 to High(A) do
+    if A[I].Monitor = M then
+    begin
+      R := A[I];
+      Exit(True);
+    end;
+  Result := False;
+end;
+
+procedure TDriveCyclePID01DecoderTests.ShortPayloadFailsCleanly;
+var Err: string; A: TArray<TOBDMonitorReadiness>;
+begin
+  A := TOBDDriveCycleAdvisor.DecodePID01(TBytes.Create($00, $00), Err);
+  Assert.AreEqual(0, Length(A));
+  Assert.IsNotEmpty(Err);
+end;
+
+procedure TDriveCyclePID01DecoderTests.SI_AllSupportedAllComplete;
+var
+  // B = supported continuous=$07, complete-bits cleared=$00,
+  //     diesel bit cleared. C = $FF (all SI mons supported),
+  //     D = $00 (all complete = bit clear).
+  Bytes: TBytes;
+  Err: string;
+  A: TArray<TOBDMonitorReadiness>;
+  R: TOBDMonitorReadiness;
+begin
+  Bytes := TBytes.Create($00, $07, $FF, $00);
+  A := TOBDDriveCycleAdvisor.DecodePID01(Bytes, Err);
+  Assert.AreEqual('', Err);
+  Assert.IsTrue(FindMonitor(A, omMisfire, R));
+  Assert.IsTrue(R.Supported);
+  Assert.IsTrue(R.Complete);
+  Assert.IsTrue(FindMonitor(A, omCatalyst, R));
+  Assert.IsTrue(R.Supported);
+  Assert.IsTrue(R.Complete);
+end;
+
+procedure TDriveCyclePID01DecoderTests.SI_CatalystSupportedNotComplete;
+var Bytes: TBytes; Err: string; A: TArray<TOBDMonitorReadiness>;
+    R: TOBDMonitorReadiness;
+begin
+  // SI engine; only catalyst (bit 0 of C) supported, and bit
+  // 0 of D set means "not complete".
+  Bytes := TBytes.Create($00, $00, $01, $01);
+  A := TOBDDriveCycleAdvisor.DecodePID01(Bytes, Err);
+  Assert.AreEqual('', Err);
+  Assert.IsTrue(FindMonitor(A, omCatalyst, R));
+  Assert.IsTrue(R.Supported);
+  Assert.IsFalse(R.Complete);
+end;
+
+procedure TDriveCyclePID01DecoderTests.CI_DieselFlagPicksDieselMonitorSet;
+var Bytes: TBytes; Err: string; A: TArray<TOBDMonitorReadiness>;
+    R: TOBDMonitorReadiness;
+begin
+  // B bit 3 = diesel flag. Diesel branch must produce
+  // omNMHCCatalyst etc., NOT omCatalyst.
+  Bytes := TBytes.Create($00, $08, $00, $00);
+  A := TOBDDriveCycleAdvisor.DecodePID01(Bytes, Err);
+  Assert.AreEqual('', Err);
+  Assert.IsTrue(FindMonitor(A, omNMHCCatalyst, R),
+    'Diesel decode must produce omNMHCCatalyst');
+  Assert.IsFalse(FindMonitor(A, omCatalyst, R),
+    'Diesel decode must NOT include omCatalyst (SI-only)');
+end;
+
+procedure TDriveCyclePID01DecoderTests.CI_PMFilterSupportedNotComplete;
+var Bytes: TBytes; Err: string; A: TArray<TOBDMonitorReadiness>;
+    R: TOBDMonitorReadiness;
+begin
+  // Diesel + PM filter (bit 6 in C) supported and bit 6 in D
+  // set = not complete.
+  Bytes := TBytes.Create($00, $08, $40, $40);
+  A := TOBDDriveCycleAdvisor.DecodePID01(Bytes, Err);
+  Assert.AreEqual('', Err);
+  Assert.IsTrue(FindMonitor(A, omPMFilter, R));
+  Assert.IsTrue(R.Supported);
+  Assert.IsFalse(R.Complete);
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TDriveCycleTypesTests);
   TDUnitX.RegisterTestFixture(TDriveCycleCatalogTests);
   TDUnitX.RegisterTestFixture(TDriveCycleAdvisorTests);
+  TDUnitX.RegisterTestFixture(TDriveCyclePID01DecoderTests);
 
 end.
