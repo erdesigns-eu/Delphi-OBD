@@ -265,7 +265,7 @@
       "reference_images": [
         "assets/designtime/templates/cp-shield-base.png"
       ],
-      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the iconic 'A' from the official Stellantis corporate logo centered on the shield's empty face — rendered as the polished chrome / brushed-silver badge treatment, the same finish as the Mercedes-Benz silver three-pointed star on the matching Mercedes shield in this icon set. The Stellantis 'A' is very specific and must be drawn faithfully, not as a plain block letter: a tall modern sans-serif uppercase A with two slightly converging legs and a FLAT top apex (legs do not meet at a sharp point); the right-hand leg curves softly inward near the top so the apex looks subtly tilted; no crossbar. Render the letter as a 3D chromed badge with reflective highlights, polished bevels, and a soft drop-shadow so it reads as a metallic emblem with real depth — like the Stellantis 'A' would appear if it were a chromed car badge. Sized to fill most of the shield's interior height. NO other letters, no S-T-E-L-L-N-T-I-S wordmark. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference. Output 1024x1024 PNG.",
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the iconic 'A' from the official Stellantis corporate logo centered on the shield's empty face — rendered as the polished chrome / brushed-silver badge treatment, the same finish as the Mercedes-Benz silver three-pointed star on the matching Mercedes shield in this icon set. The Stellantis 'A' is very specific and must be drawn faithfully, not as a plain block letter: a tall modern sans-serif uppercase A with two slightly converging legs and a FLAT top apex (legs do not meet at a sharp point); the right-hand leg curves softly inward near the top so the apex looks subtly tilted; no crossbar. Render the letter as a 3D chromed badge with reflective highlights, polished bevels, and a soft drop-shadow so it reads as a metallic emblem with real depth — like the Stellantis 'A' would appear if it were a chromed car badge. Size the 'A' to occupy roughly the central 50% of the shield's interior height — clearly smaller than the shield itself, leaving comfortable margin all around (about the same proportion as the Mercedes star inside its shield). NO other letters, no S-T-E-L-L-N-T-I-S wordmark. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -321,10 +321,21 @@
     },
 
     {
+      "id": "delphi-obd-mark",
+      "kind": "template",
+      "out": "assets/designtime/templates/delphi-obd-mark.png",
+      "prompt": "Design a clean, modern brand mark / emblem for a software product called 'Delphi-OBD' that performs automotive diagnostics, ECU coding, and flashing over OBD-II / UDS / CAN protocols. The mark must be IMMEDIATELY recognisable as automotive-diagnostics related — a viewer should think 'cars, ECUs, OBD' the moment they see it. Design concept: a polished circular badge (like an automotive grille emblem) containing the iconic OBD-II 16-pin trapezoidal diagnostic connector silhouette as the main focal point, with a subtle CAN-bus / waveform signal line flowing through or behind the connector, and a small bold solid orange status LED dot on the connector body. Rendered in polished chrome / brushed silver with subtle reflective highlights and soft shadows for real depth — premium automotive badge feel. The orange LED dot is the ONLY warm-coloured element. IMPORTANT: do NOT depict the attached reference image — it is provided ONLY as a colour palette source (charcoal, silver, orange). Pure white background. Centered emblem, generous breathing space. No text — text is composited at runtime. Output 1024x1024 PNG.",
+      "size": "1024x1024",
+      "final_size": 1024
+    },
+    {
       "id": "splash",
       "kind": "splash",
       "out": "assets/designtime/splash.png",
-      "prompt": "A clean RAD Studio IDE splash-screen graphic for the 'Delphi-OBD' design-time package. Subject: the attached reference logo, sized prominently and centered, with a thin horizontal accent line beneath it. Modern Microsoft Office / Fluent UI style — 2D with subtle depth, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Generous breathing space around the logo. No text — text is composited at runtime by the package. Sharp at the size used by RAD Studio's splash-screen plugin slot.",
+      "reference_images": [
+        "assets/designtime/templates/delphi-obd-mark.png"
+      ],
+      "prompt": "Take the attached Delphi-OBD brand mark (chrome circular emblem with OBD-II connector and orange status dot) and place it centered as the focal element of a clean RAD Studio IDE splash-screen graphic. Keep the mark unchanged. Add only minimal breathing space around it and a subtle thin horizontal silver accent line directly beneath the mark. Pure white background. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -332,9 +343,12 @@
       "id": "about",
       "kind": "about",
       "out": "assets/designtime/about.png",
-      "prompt": "A clean About-box brand graphic for the 'Delphi-OBD' design-time package. Subject: the attached reference logo, large and centered, with a subtle radial vignette behind it that uses only colours from the reference logo. Modern Microsoft Office / Fluent UI style — 2D with subtle depth, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background outside the vignette. Generous breathing space. No text — text is composited at runtime by the package.",
+      "reference_images": [
+        "assets/designtime/templates/delphi-obd-mark.png"
+      ],
+      "prompt": "Take the attached Delphi-OBD brand mark (chrome circular emblem with OBD-II connector and orange status dot) and place it large, centered, as the focal element of a clean About-box brand graphic. Keep the mark unchanged. Add a very subtle soft radial vignette behind the mark using charcoal / silver tones, fading into pure white at the edges. Generous breathing space. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
       "size": "1024x1024",
-      "final_size": 512
+      "final_size": 1024
     }
   ]
 }
