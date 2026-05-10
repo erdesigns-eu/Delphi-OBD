@@ -159,6 +159,7 @@ contains
   OBD.RadioCode.FrenchItalian in '..\src\RadioCode\OBD.RadioCode.FrenchItalian.pas',
   OBD.RadioCode.British in '..\src\RadioCode\OBD.RadioCode.British.pas',
   OBD.RadioCode.Asian in '..\src\RadioCode\OBD.RadioCode.Asian.pas',
-  OBD.RadioCode.American in '..\src\RadioCode\OBD.RadioCode.American.pas';
+  OBD.RadioCode.American in '..\src\RadioCode\OBD.RadioCode.American.pas',
+  OBD.RadioCode.Aftermarket in '..\src\RadioCode\OBD.RadioCode.Aftermarket.pas';
 
 end.

@@ -88,6 +88,7 @@ uses
   OBD.RadioCode.British,
   OBD.RadioCode.Asian,
   OBD.RadioCode.American,
+  OBD.RadioCode.Aftermarket,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -294,7 +295,12 @@ begin
     TOBDRadioCodeChrysler,
     TOBDRadioCodeFordM,
     TOBDRadioCodeGM,
-    TOBDRadioCodeVisteon
+    TOBDRadioCodeVisteon,
+    TOBDRadioCodeAlpine,
+    TOBDRadioCodeBlaupunkt,
+    TOBDRadioCodeClarion,
+    TOBDRadioCodeBecker4,
+    TOBDRadioCodeBecker5
   ]);
 
   // Register the splash-screen plugin entry and the About-box

@@ -160,6 +160,7 @@ uses
   OBD.RadioCode.British in '..\src\RadioCode\OBD.RadioCode.British.pas',
   OBD.RadioCode.Asian in '..\src\RadioCode\OBD.RadioCode.Asian.pas',
   OBD.RadioCode.American in '..\src\RadioCode\OBD.RadioCode.American.pas',
+  OBD.RadioCode.Aftermarket in '..\src\RadioCode\OBD.RadioCode.Aftermarket.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
