@@ -42,6 +42,7 @@ uses
   System.DateUtils,
   System.JSON,
   System.NetEncoding,
+  System.ZLib,
   OBD.Types,
   OBD.Protocol.Types,
   OBD.Protocol;
@@ -76,12 +77,18 @@ type
   /// <summary>Recorder component. Drop on a form, point
   /// <c>Protocol</c> at a configured <see cref="TOBDProtocol"/>,
   /// call <c>Open(filename)</c>, then exercise the protocol —
-  /// every event from the protocol is logged.</summary>
+  /// every event from the protocol is logged. When
+  /// <c>filename</c> ends in <c>.gz</c> the recorder wraps the
+  /// output stream with gzip compression (typical 5-10x size
+  /// saving for diagnostic captures).</summary>
   TOBDRecorder = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
-    FStream: TFileStream;
+    FFileStream: TFileStream;
+    FStream: TStream;             // = FFileStream OR a gzip wrapper
+    FOwnsStream: Boolean;
     FFileName: string;
+    FCompressed: Boolean;
     FLock: TCriticalSection;
     FActive: Boolean;
     procedure SetProtocol(AValue: TOBDProtocol);
@@ -118,6 +125,9 @@ type
     property Active: Boolean read FActive;
     /// <summary>Currently-open file (empty when closed).</summary>
     property FileName: string read FFileName;
+    /// <summary>True when the active log is gzip-compressed
+    /// (file name ended in <c>.gz</c>).</summary>
+    property Compressed: Boolean read FCompressed;
   published
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
   end;
@@ -212,18 +222,39 @@ begin
 end;
 
 procedure TOBDRecorder.Open(const AFileName: string);
+const
+  GZIP_WINDOW_BITS = 15 + 16; // System.ZLib magic — gzip wrapper
 begin
   FLock.Enter;
   try
     Close;
     FFileName := AFileName;
-    if FileExists(AFileName) then
-      FStream := TFileStream.Create(AFileName,
-        fmOpenReadWrite or fmShareDenyWrite)
-    else
-      FStream := TFileStream.Create(AFileName,
+    FCompressed := SameText(ExtractFileExt(AFileName), '.gz');
+
+    if FCompressed then
+    begin
+      // Compressed: always create-truncate. Appending to a gzip
+      // stream is technically valid (concatenated members) but
+      // most readers don't expect it; keep the contract simple
+      // and overwrite.
+      FFileStream := TFileStream.Create(AFileName,
         fmCreate or fmShareDenyWrite);
-    FStream.Seek(0, soEnd);
+      FStream := TZCompressionStream.Create(FFileStream,
+        TZCompressionLevel.zcDefault, GZIP_WINDOW_BITS);
+      FOwnsStream := True;
+    end
+    else
+    begin
+      if FileExists(AFileName) then
+        FFileStream := TFileStream.Create(AFileName,
+          fmOpenReadWrite or fmShareDenyWrite)
+      else
+        FFileStream := TFileStream.Create(AFileName,
+          fmCreate or fmShareDenyWrite);
+      FFileStream.Seek(0, soEnd);
+      FStream := FFileStream;
+      FOwnsStream := False;
+    end;
     FActive := True;
   finally
     FLock.Leave;
@@ -236,13 +267,19 @@ begin
   Unsubscribe;
   FLock.Enter;
   try
-    if FStream <> nil then
+    // Free the wrapper first (if any) so the gzip footer flushes
+    // before we close the underlying file.
+    if FOwnsStream and (FStream <> nil) then FStream.Free;
+    FStream := nil;
+    if FFileStream <> nil then
     begin
-      FStream.Free;
-      FStream := nil;
+      FFileStream.Free;
+      FFileStream := nil;
     end;
+    FOwnsStream := False;
     FActive := False;
     FFileName := '';
+    FCompressed := False;
   finally
     FLock.Leave;
   end;

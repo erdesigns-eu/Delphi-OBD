@@ -2628,29 +2628,23 @@ verification, per existing convention.
   (function pointer identity check) so a host's pre-existing
   handlers survive.
 - **Replay timing capped.** `rmRealTime` honours timestamp
-  gaps but caps any single gap at one minute — a captured
-  session with a long pause doesn't make a unit test sit
-  there for an hour.
+  gaps but caps any single gap at `MaxGapMs` (default 60 s) —
+  a captured session with a long pause doesn't make a unit
+  test sit there for an hour. The cap is now configurable
+  via the `MaxGapMs` published property.
 - **Both components are stateless w.r.t. the recorded data.**
   Once the file is written, recorder/replayer instances can
   be freed; the file is the source of truth.
 
 ### What's intentionally not in v1
 
-- **Recorder doesn't filter / mask sensitive fields.** A flash
-  capture writes the full firmware bytes; a coding capture
-  writes the full DID payloads. Hosts that need redaction
-  wrap the recorder or post-process the file. Tracked.
-- **Replayer doesn't drive a protocol mock.** It surfaces
-  entries through `OnEntry`; the host wires what to do with
-  them. A `TOBDProtocolMock` that consumes a recording and
-  exposes the same surface as a live `TOBDProtocol` would
-  let host integration tests run against captures end-to-end
-  — useful follow-up.
-- **No compression.** JSONL with base64-encoded bytes is
-  ~2x larger than raw. For typical diagnostic captures this
-  is fine; for multi-megabyte flash captures hosts gzip the
-  file post-session. Tracked.
+- ~~Recorder doesn't filter / mask sensitive fields~~ —
+  closed by `TOBDLogRedactor` (Phase 10 follow-ups).
+- ~~Replayer doesn't drive a protocol mock~~ — closed by
+  `TOBDProtocolMock` (Phase 10 follow-ups).
+- ~~No compression~~ — closed by `.gz` support on
+  `TOBDRecorder.Open` / `TOBDReplayer.LoadLines`
+  (Phase 10 follow-ups).
 
 ### Honest review
 
@@ -2666,7 +2660,9 @@ verification, per existing convention.
    their own `OnError` before assigning `Protocol` to the
    recorder will lose that handler. Same documented contract
    as flag 1.
-3. **Real-time playback gap cap is fixed at 60 s.** Hard-
+3. ~~Real-time playback gap cap is fixed at 60 s.~~ Closed —
+   exposed as `MaxGapMs` (default 60000). Original note kept
+   for history: Hard-
    coded; not a property. The cap exists so a captured pause
    doesn't make a UI replay sit silent for an hour. A future
    revision could expose it as a property.
@@ -2676,14 +2672,48 @@ verification, per existing convention.
 5. **No real-vehicle integration.** Same hardware-loop
    deferral as every prior phase.
 
-### Phase 10 follow-ups (small)
+### Phase 10 follow-ups
 
-- `TOBDProtocolMock` that consumes a recording and exposes
-  the live-protocol surface for end-to-end integration tests
-  against captures.
-- Optional gzip compression on `Recorder.Open(filename + '.gz')`.
-- Property exposing the real-time gap cap.
-- Sensitive-field redaction helper (host-side filter wrapper).
+All four follow-ups closed inline (2026-05-10):
+
+- [x] **`TOBDProtocolMock`** —
+  `src/Recorder/OBD.Recorder.ProtocolMock.pas`. Wraps a
+  `TOBDReplayer` and exposes the same `OnFrame` /
+  `OnResponse` / `OnNRC` / `OnError` surface as
+  `TOBDProtocol`. Hosts wire integration tests against the
+  mock identically; flip the binding and the test runs
+  against a captured `.obdlog`. Test-only helper — not
+  registered on the palette.
+- [x] **Gzip recorder + replayer.** `TOBDRecorder.Open` detects
+  the `.gz` extension and wraps the file stream with
+  `TZCompressionStream(WindowBits=31)`; `Close` frees the
+  wrapper before the file so the gzip footer flushes.
+  `TOBDReplayer.LoadLines` does the inverse. Round-trip test
+  in `Tests.OBD.Recorder.TGzipRoundTripTests`. The
+  `Compressed` property reports the active mode. Compressed
+  mode is create-truncate (no append) — appended gzip members
+  read fine in CLI tools but break some library readers.
+- [x] **`MaxGapMs` property.** Replaces the hard-coded one-minute
+  gap cap with a published `Cardinal` (default 60000). Hosts
+  that want fast UI demos can drop it to a few hundred ms.
+- [x] **`TOBDLogRedactor`.**
+  `src/Recorder/OBD.Recorder.Redactor.pas`. Streams a
+  `.obdlog` (plain or `.gz`) through a host-supplied filter
+  and writes a redacted copy. The filter can drop entries
+  (`AKeep := False`) or mutate them in place. Ships a
+  convenience factory `MakeServiceIDPayloadWiper` that
+  blanks the raw bytes of every entry whose service-ID
+  matches a list — useful for stripping VIN reads, key
+  material, etc. without losing the call/response pair.
+  Output is itself a valid `.obdlog` and replays cleanly.
+
+To make the redactor reuse the gzip-aware loader and the
+JSONL parser without a private back door, `LoadLines` and
+`ParseLine` were promoted from strict-private to public on
+`TOBDReplayer`. Tests cover all four follow-ups in
+`tests/Tests.OBD.Recorder.pas` (fixtures
+`TGzipRoundTripTests`, `TProtocolMockTests`, `TRedactorTests`,
+plus the `MaxGapMsDefault` test on `TReplayerTests`).
 
 ### Quality bars met
 
@@ -2694,3 +2724,5 @@ verification, per existing convention.
 - [x] Cancel honoured at the next entry boundary.
 - [x] Both components register on the **OBD** palette tab.
 - [x] Sample 07-RecordReplay shipped.
+- [x] All Phase 10 follow-ups closed (gzip, MaxGapMs, mock,
+      redactor).

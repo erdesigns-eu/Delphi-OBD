@@ -38,6 +38,7 @@ uses
   System.JSON,
   System.NetEncoding,
   System.Generics.Collections,
+  System.ZLib,
   OBD.Types,
   OBD.Recorder;
 
@@ -58,6 +59,7 @@ type
     FFileName: string;
     FMode: TOBDReplayMode;
     FStop: Boolean;
+    FMaxGapMs: Cardinal;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnEntry: TOBDReplayEntryEvent;
@@ -68,8 +70,6 @@ type
     procedure FireEntry(const AEntry: TOBDLogEntry);
     procedure FireComplete;
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
-    function ParseLine(const ALine: string;
-      out AEntry: TOBDLogEntry): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -89,12 +89,30 @@ type
     /// offline analysis without going through the event
     /// interface.</summary>
     class function LoadAll(const AFileName: string): TArray<TOBDLogEntry>; static;
+
+    /// <summary>Reads a `.obdlog` (plain or `.gz`) into a
+    /// <c>TStringList</c>. Caller owns the returned list.
+    /// Public so test fixtures and the redactor can reuse the
+    /// gzip-aware loader without a private back door.</summary>
+    function LoadLines(const APath: string): TStringList;
+    /// <summary>Parses a single JSONL line into a
+    /// <c>TOBDLogEntry</c>. Returns False on blank lines or
+    /// malformed JSON. Public for the same reason as
+    /// <c>LoadLines</c>.</summary>
+    function ParseLine(const ALine: string;
+      out AEntry: TOBDLogEntry): Boolean;
   published
     property FileName: string read FFileName write FFileName;
     /// <summary>Playback mode. Default
     /// <c>rmAsFastAsPossible</c>.</summary>
     property Mode: TOBDReplayMode read FMode write FMode
       default rmAsFastAsPossible;
+    /// <summary>Maximum sleep between entries during
+    /// <c>rmRealTime</c> playback, in ms. A captured pause longer
+    /// than this is collapsed to the cap so a UI replay never
+    /// stalls. Default 60000 (one minute).</summary>
+    property MaxGapMs: Cardinal read FMaxGapMs write FMaxGapMs
+      default 60000;
     /// <summary>Fires per replayed entry on the main thread.</summary>
     property OnEntry: TOBDReplayEntryEvent read FOnEntry write FOnEntry;
     /// <summary>Fires when playback finishes (main thread).</summary>
@@ -109,6 +127,7 @@ constructor TOBDReplayer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FMaxGapMs := 60000;
 end;
 
 destructor TOBDReplayer.Destroy;
@@ -149,6 +168,58 @@ begin
     Result := StrToInt64('$' + Copy(S, 3, MaxInt))
   else
     Result := StrToInt64(S);
+end;
+
+function TOBDReplayer.LoadLines(const APath: string): TStringList;
+const
+  GZIP_WINDOW_BITS = 15 + 16;
+var
+  FileStream: TFileStream;
+  Decomp: TZDecompressionStream;
+  Buf: TBytes;
+  N: Integer;
+  Reader: TStringStream;
+begin
+  Result := TStringList.Create;
+  if SameText(ExtractFileExt(APath), '.gz') then
+  begin
+    FileStream := TFileStream.Create(APath, fmOpenRead or fmShareDenyWrite);
+    try
+      Decomp := TZDecompressionStream.Create(FileStream, GZIP_WINDOW_BITS);
+      try
+        // Drain into a memory buffer, then load as text — simpler
+        // and correct than feeding TStringList.LoadFromStream a
+        // decompression stream (which expects Seek support).
+        SetLength(Buf, 0);
+        var Chunk: TBytes;
+        SetLength(Chunk, 16 * 1024);
+        repeat
+          N := Decomp.Read(Chunk[0], Length(Chunk));
+          if N > 0 then
+          begin
+            var Old: Integer := Length(Buf);
+            SetLength(Buf, Old + N);
+            Move(Chunk[0], Buf[Old], N);
+          end;
+        until N <= 0;
+        Reader := TStringStream.Create('', TEncoding.UTF8);
+        try
+          if Length(Buf) > 0 then
+            Reader.WriteBuffer(Buf[0], Length(Buf));
+          Reader.Position := 0;
+          Result.LoadFromStream(Reader);
+        finally
+          Reader.Free;
+        end;
+      finally
+        Decomp.Free;
+      end;
+    finally
+      FileStream.Free;
+    end;
+  end
+  else
+    Result.LoadFromFile(APath, TEncoding.UTF8);
 end;
 
 function TOBDReplayer.ParseLine(const ALine: string;
@@ -241,9 +312,8 @@ begin
       [FFileName]);
   FStop := False;
   HasPrev := False;
-  Lines := TStringList.Create;
+  Lines := LoadLines(FFileName);
   try
-    Lines.LoadFromFile(FFileName, TEncoding.UTF8);
     for I := 0 to Lines.Count - 1 do
     begin
       if FStop then Break;
@@ -252,7 +322,7 @@ begin
       begin
         Gap := MilliSecondsBetween(Entry.Timestamp, Prev.Timestamp);
         if Gap < 0 then Gap := 0;
-        if Gap > 60000 then Gap := 60000; // cap one-minute gaps
+        if Gap > Int64(FMaxGapMs) then Gap := FMaxGapMs;
         if Gap > 0 then Sleep(Gap);
       end;
       FireEntry(Entry);
@@ -296,10 +366,9 @@ var
   Entry: TOBDLogEntry;
 begin
   Replayer := TOBDReplayer.Create(nil);
-  Lines := TStringList.Create;
+  Lines := Replayer.LoadLines(AFileName);
   Acc := TList<TOBDLogEntry>.Create;
   try
-    Lines.LoadFromFile(AFileName, TEncoding.UTF8);
     for I := 0 to Lines.Count - 1 do
       if Replayer.ParseLine(Lines[I], Entry) then
         Acc.Add(Entry);

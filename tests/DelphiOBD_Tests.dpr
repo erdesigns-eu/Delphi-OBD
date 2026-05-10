@@ -148,6 +148,8 @@ uses
   OBD.Speciality.Tachograph.PCSC in '..\src\Speciality\OBD.Speciality.Tachograph.PCSC.pas',
   OBD.Recorder in '..\src\Recorder\OBD.Recorder.pas',
   OBD.Replayer in '..\src\Recorder\OBD.Replayer.pas',
+  OBD.Recorder.ProtocolMock in '..\src\Recorder\OBD.Recorder.ProtocolMock.pas',
+  OBD.Recorder.Redactor in '..\src\Recorder\OBD.Recorder.Redactor.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
