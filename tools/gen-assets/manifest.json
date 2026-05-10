@@ -232,7 +232,7 @@
       "reference_images": [
         "assets/designtime/templates/cp-shield-base.png"
       ],
-      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place a recognizable Volkswagen 'VW' circular monogram (V above W inside a ring) centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the VW monogram centered on the shield. The VW monogram may use its standard colours so it stays recognizable. No text outside the monogram. Output 1024x1024 PNG.",
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the official Volkswagen logo centered on the shield's empty face. The Volkswagen logo is very specific: two clean sans-serif letters — a 'V' stacked directly above a 'W' so they share their middle vertical strokes, both letters are bold, geometric, and rendered in flat white inside a perfect blue circular ring with a thin white outer border. The V's tip points down to meet the W's centre tip; the top of the V touches the inner ring. Render the logo crisply and accurately — it must be unmistakably the real Volkswagen mark, not a generic V-over-W. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the Volkswagen logo centered on the shield. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -265,7 +265,7 @@
       "reference_images": [
         "assets/designtime/templates/cp-shield-base.png"
       ],
-      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the recognizable Stellantis corporate logo (the elongated horizontal Stellantis wordmark or its stylised emblem) centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the Stellantis emblem centered on the shield. The emblem may use its standard colours (deep blue / gold) so it stays recognizable. No additional text. Output 1024x1024 PNG.",
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the iconic letter 'A' from the official Stellantis corporate logo centered on the shield's empty face — rendered EXACTLY as it appears in the real Stellantis wordmark. The Stellantis 'A' is unmistakable: a tall, modern, sans-serif uppercase letter with two converging legs that DO NOT meet at a sharp point — instead the apex is flat, and the right leg has a soft inward slant near the top creating a subtle curve / tilt at the very top of the letter. No crossbar. Rendered in the official Stellantis deep navy blue. DO NOT include any other letters, NO S-T-E-L-L-N-T-I-S wordmark, no other characters — only the single iconic Stellantis 'A' as it actually appears in the brand's logo, sized to fill most of the shield's interior height. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
