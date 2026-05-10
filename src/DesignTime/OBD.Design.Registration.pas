@@ -99,6 +99,9 @@ uses
   OBD.UI.Gauges.DialExtended,
   OBD.UI.Indicators,
   OBD.UI.Telltales,
+  OBD.UI.Shift,
+  OBD.UI.Timing,
+  OBD.UI.Gauges.Specialised,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -346,7 +349,17 @@ begin
     TOBDMILLamp,
     TOBDDTCBadge,
     TOBDReadinessLamp,
-    TOBDDashLamp
+    TOBDDashLamp,
+    TOBDShiftLight,
+    TOBDShiftLightBar,
+    TOBDGearIndicator,
+    TOBDDragTimer,
+    TOBDLapTimer,
+    TOBDAccelGraph,
+    TOBDBoostGauge,
+    TOBDAFRGauge,
+    TOBDStateOfChargeBar,
+    TOBDRegenIndicator
   ]);
 
   // Radio-code calculators (one component per vendor). Each
