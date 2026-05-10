@@ -91,6 +91,7 @@ uses
   OBD.Service.VINDecoder.Catalog.Component,
   OBD.Service.DriveCycle.Catalog.Component,
   OBD.Service.EVBattery.Catalog.Component,
+  OBD.UI.Theme,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -313,6 +314,15 @@ begin
     TOBDVINCatalog,
     TOBDDriveCycleCatalogComp,
     TOBDEVBatteryCatalogComp
+  ]);
+
+  // Visual UI foundation. The TOBDTheme controller is the
+  // anchor: drop one on a form / data-module and every
+  // Delphi-OBD visual on the form auto-binds to it (the
+  // visuals walk Owner ancestry at runtime). Sub-phases A2.2+
+  // add the gauges / telltales / lists that consume the theme.
+  RegisterComponents('OBD Visual', [
+    TOBDTheme
   ]);
 
   // Radio-code calculators (one component per vendor). Each

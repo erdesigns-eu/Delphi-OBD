@@ -192,6 +192,10 @@ contains
   OBD.RadioCode.Aftermarket in '..\src\RadioCode\OBD.RadioCode.Aftermarket.pas',
   OBD.RadioCode.Volvo in '..\src\RadioCode\OBD.RadioCode.Volvo.pas',
   OBD.RadioCode.FordV in '..\src\RadioCode\OBD.RadioCode.FordV.pas',
-  OBD.RadioCode.EEPROM in '..\src\RadioCode\OBD.RadioCode.EEPROM.pas';
+  OBD.RadioCode.EEPROM in '..\src\RadioCode\OBD.RadioCode.EEPROM.pas',
+  OBD.UI.Types   in '..\src\UI\OBD.UI.Types.pas',
+  OBD.UI.Theme   in '..\src\UI\OBD.UI.Theme.pas',
+  OBD.UI.Control in '..\src\UI\OBD.UI.Control.pas',
+  OBD.UI.Anim    in '..\src\UI\OBD.UI.Anim.pas';
 
 end.
