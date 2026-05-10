@@ -40,8 +40,15 @@ procedure Register;
 
 implementation
 
+{$R DelphiOBD_DT.res}
+
 uses
   System.Classes,
+  System.SysUtils,
+  Winapi.Windows,
+  Vcl.Graphics,
+  Vcl.Imaging.PngImage,
+  ToolsAPI,
   OBD.Connection,
   OBD.Adapter,
   OBD.Protocol,
@@ -75,6 +82,99 @@ uses
   OBD.Flash.Pipeline,
   OBD.Recorder,
   OBD.Replayer;
+
+/// <summary>Loads a PNG (kept transparent) from an RCDATA
+/// resource into a fresh <c>TPngImage</c>. Returns nil when the
+/// resource is missing.</summary>
+function LoadPngResource(const AResName: string): TPngImage;
+var
+  Stream: TResourceStream;
+begin
+  Result := nil;
+  if FindResource(HInstance, PChar(AResName), RT_RCDATA) = 0 then
+    Exit;
+  Stream := TResourceStream.Create(HInstance, AResName, RT_RCDATA);
+  try
+    Result := TPngImage.Create;
+    Result.LoadFromStream(Stream);
+  finally
+    Stream.Free;
+  end;
+end;
+
+/// <summary>The IDE's splash and About-box services accept an
+/// <c>HBITMAP</c>, not a PNG, so we flatten the transparent
+/// resource onto a <c>TBitmap</c> with the IDE's button-face
+/// colour right before handing it over. The PNG resource itself
+/// stays a PNG; only this transient bitmap is bitmap-typed.</summary>
+function FlattenPngForToolsApi(APng: TPngImage): Vcl.Graphics.TBitmap;
+begin
+  Result := Vcl.Graphics.TBitmap.Create;
+  Result.PixelFormat := pf32bit;
+  Result.SetSize(APng.Width, APng.Height);
+  Result.Canvas.Brush.Color := clBtnFace;
+  Result.Canvas.FillRect(Rect(0, 0, APng.Width, APng.Height));
+  Result.Canvas.Draw(0, 0, APng);
+end;
+
+/// <summary>Registers the Delphi-OBD splash entry on the RAD
+/// Studio splash screen. No-op when the IDE doesn't expose
+/// <c>SplashScreenServices</c>.</summary>
+procedure RegisterSplash;
+var
+  Png: TPngImage;
+  Bmp: Vcl.Graphics.TBitmap;
+begin
+  if SplashScreenServices = nil then Exit;
+  Png := LoadPngResource('SPLASH');
+  if Png = nil then Exit;
+  try
+    Bmp := FlattenPngForToolsApi(Png);
+    try
+      SplashScreenServices.AddPluginBitmap(
+        'Delphi-OBD',
+        Bmp.Handle,
+        False,
+        'MIT licensed — diagnostics, coding, flashing.',
+        'v2 by ERDesigns');
+    finally
+      Bmp.Free;
+    end;
+  finally
+    Png.Free;
+  end;
+end;
+
+/// <summary>Registers the Delphi-OBD About-box entry. No-op
+/// when <c>IOTAAboutBoxServices</c> is unavailable (older IDE
+/// builds or stripped Tools API).</summary>
+procedure RegisterAbout;
+var
+  Png: TPngImage;
+  Bmp: Vcl.Graphics.TBitmap;
+  Svc: IOTAAboutBoxServices;
+begin
+  if not Supports(BorlandIDEServices, IOTAAboutBoxServices, Svc) then Exit;
+  Png := LoadPngResource('ABOUT');
+  if Png = nil then Exit;
+  try
+    Bmp := FlattenPngForToolsApi(Png);
+    try
+      Svc.AddPluginInfo(
+        'Delphi-OBD',
+        'Vehicle diagnostics, coding, and ECU flashing — MIT licensed.' +
+          sLineBreak +
+          '(c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors.',
+        Bmp.Handle,
+        False,
+        '');
+    finally
+      Bmp.Free;
+    end;
+  finally
+    Png.Free;
+  end;
+end;
 
 procedure Register;
 begin
@@ -149,6 +249,21 @@ begin
     TOBDRecorder,
     TOBDReplayer
   ]);
+
+  // Phase 11: register the splash-screen plugin entry and the
+  // About-box plugin info. Both are best-effort — wrapped so a
+  // missing IDE service or a missing resource never breaks the
+  // package install.
+  try
+    RegisterSplash;
+  except
+    // Swallow — splash registration is decoration only.
+  end;
+  try
+    RegisterAbout;
+  except
+    // Swallow — About-box registration is decoration only.
+  end;
 end;
 
 end.
