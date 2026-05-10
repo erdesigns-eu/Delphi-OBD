@@ -213,7 +213,15 @@
       "id": "icon-coding-session",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDCodingSession.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDCodingSession'. Subject: two interlocking chain links forming a session, with a small chip / microcontroller shape inset between them. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDCodingSession' — represents an active diagnostic coding session in a software development tool. IMPORTANT: the attached reference image is provided ONLY as a colour palette source. DO NOT depict, copy, or include any element of the reference logo in the output. Subject: a stylised laptop or rounded display window opened to show a few horizontal lines of code, with a small green/orange play indicator dot in the corner suggesting an active session. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-cp-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/cp-shield-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a heraldic shield with a small closed padlock overlapping the lower-right corner. Shield outlined in metallic silver with a charcoal interior. EMPTY SHIELD CENTRE — leave the central area completely blank, so it can be overlaid with a brand emblem in a follow-up step. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. No glyph in the shield centre. Clean Fluent style.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -221,7 +229,10 @@
       "id": "icon-cp-vag",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDComponentProtectionVAG.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionVAG' (component protection / coding for German VW-group ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract diamond / rhombus glyph inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "reference_images": [
+        "assets/designtime/templates/cp-shield-base.png"
+      ],
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place a recognizable Volkswagen 'VW' circular monogram (V above W inside a ring) centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the VW monogram centered on the shield. The VW monogram may use its standard colours so it stays recognizable. No text outside the monogram. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -229,7 +240,10 @@
       "id": "icon-cp-bmw",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDComponentProtectionBMW.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionBMW' (component protection / coding for German Munich-built ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract quartered radial pattern inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "reference_images": [
+        "assets/designtime/templates/cp-shield-base.png"
+      ],
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place a recognizable BMW circular roundel logo (quartered blue and white inside a black ring) centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the BMW roundel centered on the shield. The roundel may use its standard colours so it stays recognizable. No text outside the roundel. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -237,7 +251,10 @@
       "id": "icon-cp-mercedes",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDComponentProtectionMercedes.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionMercedes' (component protection / coding for German Stuttgart-built ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract centered four-rayed star inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "reference_images": [
+        "assets/designtime/templates/cp-shield-base.png"
+      ],
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place a recognizable Mercedes-Benz three-pointed-star logo inside a circular ring centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the Mercedes star-in-ring centered on the shield. The star may use its standard silver / chrome colours so it stays recognizable. No text. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -245,7 +262,10 @@
       "id": "icon-cp-stellantis",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDComponentProtectionStellantis.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionStellantis' (component protection / coding for European multi-brand ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract rotated cross / X glyph inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "reference_images": [
+        "assets/designtime/templates/cp-shield-base.png"
+      ],
+      "prompt": "Take the attached shield-with-padlock icon (silver shield, charcoal interior, lower-right padlock, white background, Fluent / Office style) and place the recognizable Stellantis corporate logo (the elongated horizontal Stellantis wordmark or its stylised emblem) centered on the shield's empty face. Keep the shield, padlock, framing, perspective, shading, and white background EXACTLY as in the attached reference — only add the Stellantis emblem centered on the shield. The emblem may use its standard colours (deep blue / gold) so it stays recognizable. No additional text. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },

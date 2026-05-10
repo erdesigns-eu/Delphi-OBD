@@ -124,18 +124,20 @@ def main() -> int:
         print("       export OPENAI_API_KEY=sk-... and re-run.", file=sys.stderr)
         return 2
 
-    assets, refs = load_manifest(args.manifest)
+    assets, default_refs = load_manifest(args.manifest)
 
-    # Resolve reference image paths up front and warn if missing.
-    ref_paths: list[Path] = []
-    for r in refs:
-        rp = (args.root / r).resolve()
-        if not rp.exists():
-            print(f"warning: reference image missing: {rp} "
-                  f"(falling back to plain generation)",
-                  file=sys.stderr)
-            continue
-        ref_paths.append(rp)
+    def resolve_refs(paths: list[str]) -> list[Path]:
+        out: list[Path] = []
+        for r in paths:
+            rp = (args.root / r).resolve()
+            if not rp.exists():
+                print(f"warning: reference image missing: {rp} "
+                      f"(skipped)", file=sys.stderr)
+                continue
+            out.append(rp)
+        return out
+
+    default_ref_paths = resolve_refs(default_refs)
 
     if args.only:
         wanted = set(args.only)
@@ -157,6 +159,12 @@ def main() -> int:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"gen    {asset['id']:<40s}  -> {asset['out']}")
         try:
+            # Per-asset reference_images, when present, replace
+            # the manifest-level defaults outright.
+            if "reference_images" in asset:
+                ref_paths = resolve_refs(asset["reference_images"])
+            else:
+                ref_paths = default_ref_paths
             raw = call_api(api_key, asset, ref_paths)
             final = downscale(raw, int(asset["final_size"]))
             out_path.write_bytes(final)
