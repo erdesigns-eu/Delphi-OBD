@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Flashing.Phase9b
+//  Tests.OBD.Flashing.SafetyGates
 //
-//  Phase 9b coverage: TOBDVoltageGate latch behaviour,
+//  Coverage for the flash safety gates: TOBDVoltageGate latch behaviour,
 //  TOBDFlashCheckpoint round-trip + image hash mismatch detection,
 //  TOBDFlashCheckList phase-runner ordering + abort-on-error.
 //
@@ -13,7 +13,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Flashing.Phase9b;
+unit Tests.OBD.Flashing.SafetyGates;
 
 interface
 

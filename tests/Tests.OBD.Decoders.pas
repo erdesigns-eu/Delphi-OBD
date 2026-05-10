@@ -8,7 +8,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 coverage: linear, percentage,
+//    2026-05-09  ERD  Initial coverage: linear, percentage,
 //                     temperature, fueltrim, rpm, speed, maf, ascii,
 //                     bitfield, raw — including under-length payloads
 //                     and clamping.

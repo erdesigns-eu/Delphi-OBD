@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Recorder
 //
-//  Phase 10 coverage: TOBDRecorder Append + file-format
+//  Coverage for the recorder / replayer: TOBDRecorder Append + file-format
 //  round-trip; TOBDReplayer parse / play / cancel.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Flashing.Phase9d
+//  Tests.OBD.Flashing.Signature
 //
-//  Phase 9d coverage: signature registry routing + per-backend
+//  Coverage for the signature backends: registry routing + per-backend
 //  Supports / IsAvailable surfaces. Real verification needs the
 //  underlying library installed; we cover the configuration
 //  surface and the per-algorithm routing logic, which is what
@@ -15,7 +15,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Flashing.Phase9d;
+unit Tests.OBD.Flashing.Signature;
 
 interface
 

@@ -1,17 +1,17 @@
 //------------------------------------------------------------------------------
-//  Hello — Phase 0 placeholder sample
+//  Hello — placeholder sample
 //
 //  Smoke-test sample that prints the package version. Exists to verify
 //  the runtime package can be linked against by an external program; will
 //  be replaced by real samples (01-ConnectAndPing onwards) starting in
-//  Phase 2.
+//  the connection layer.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 0 placeholder.
+//    2026-05-09  ERD  Initial placeholder.
 //------------------------------------------------------------------------------
 
 program Hello;

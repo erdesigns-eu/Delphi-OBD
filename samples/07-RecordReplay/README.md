@@ -4,7 +4,7 @@ Records three synthetic protocol events with `TOBDRecorder` to a
 JSONL `.obdlog` file, then replays the file through `TOBDReplayer`.
 No bus / hardware needed.
 
-Demonstrates the **Phase 10** Recorder/Replayer pair.
+Demonstrates the Recorder/Replayer pair.
 
 ## Build
 

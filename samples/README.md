@@ -44,4 +44,3 @@ One sample per concept. Each sample is a self-contained `.dpr` (or
 | 36 | `LINSchedule` | 4 |
 | 37 | `FlexRaySlot` | 4 |
 
-See [`../PLAN.md`](../PLAN.md) for phase definitions.

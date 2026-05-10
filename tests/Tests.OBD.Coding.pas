@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Coding
 //
-//  Phase 6 coverage. Like Tests.OBD.Service.Catalog, the safety
+//  Coverage for the coding components. Like Tests.OBD.Service.Catalog, the safety
 //  gates fire before any wire access, so a Protocol-less component
 //  is sufficient to verify the gate. The wire-encode of UDS frames
 //  is verified separately through unit-level vectors.
@@ -83,7 +83,7 @@ type
   /// <summary>Strict-mode multi-DID + zero-seed-detection
   /// validation paths.</summary>
   [TestFixture]
-  TFollowUpClosureTests = class
+  TStrictReadAndKeyEdgeTests = class
   public
     [Test] procedure ReadStrictRaisesOnLengthMismatch;
     [Test] procedure SecurityAccessHandlesAllZeroSeed;
@@ -406,9 +406,9 @@ begin
   end;
 end;
 
-{ ---- Follow-up closures ----------------------------------------------------- }
+{ ---- Strict read + key-edge cases -------------------------------------------- }
 
-procedure TFollowUpClosureTests.ReadStrictRaisesOnLengthMismatch;
+procedure TStrictReadAndKeyEdgeTests.ReadStrictRaisesOnLengthMismatch;
 var
   D: TOBDDataIdentifierIO;
 begin
@@ -422,7 +422,7 @@ begin
   end;
 end;
 
-procedure TFollowUpClosureTests.SecurityAccessHandlesAllZeroSeed;
+procedure TStrictReadAndKeyEdgeTests.SecurityAccessHandlesAllZeroSeed;
 var
   S: TOBDSecurityAccess;
   TransformCalled: Boolean;
@@ -459,6 +459,6 @@ initialization
   TDUnitX.RegisterTestFixture(TRoutineControlTests);
   TDUnitX.RegisterTestFixture(TFlasherTests);
   TDUnitX.RegisterTestFixture(TUploaderAndSessionTests);
-  TDUnitX.RegisterTestFixture(TFollowUpClosureTests);
+  TDUnitX.RegisterTestFixture(TStrictReadAndKeyEdgeTests);
 
 end.

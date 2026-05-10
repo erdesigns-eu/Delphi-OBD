@@ -99,7 +99,7 @@ type
     EDCCounter: Byte;
     /// <summary>EDC parameter (operation-specific).</summary>
     EDCParameter: Cardinal;
-    /// <summary>Seed / key follow-up.</summary>
+    /// <summary>Seed value for the seed-and-key challenge.</summary>
     Seed: Word;
   end;
 

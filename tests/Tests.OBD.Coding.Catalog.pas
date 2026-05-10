@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Coding.Phase8b
+//  Tests.OBD.Coding.Catalog
 //
 //  Follow-up coverage: schema-validated option catalogue,
 //  TOBDCodingSession dry-run mode, RLE diff round-trip, BMW /
@@ -14,7 +14,7 @@
 //    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Coding.Phase8b;
+unit Tests.OBD.Coding.Catalog;
 
 interface
 

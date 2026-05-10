@@ -4,7 +4,7 @@
 //  Smoke test for the OBD.Version unit.
 //
 //  Verifies the version constants are populated and consistent. Exists
-//  primarily to give CI something to run during Phase 0 before real
+//  primarily to give CI something to run early on before real
 //  components land.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -12,7 +12,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 0 placeholder.
+//    2026-05-09  ERD  Initial placeholder.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Version;

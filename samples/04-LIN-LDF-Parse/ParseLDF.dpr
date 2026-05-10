@@ -9,7 +9,7 @@
 //  Usage:
 //    ParseLDF <path-to-ldf>
 //
-//  Demonstrates the Phase 4f LDF parser. No bus / hardware needed.
+//  Demonstrates the LDF parser. No bus / hardware needed.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

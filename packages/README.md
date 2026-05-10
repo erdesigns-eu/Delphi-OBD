@@ -21,8 +21,8 @@ To build:
 3. Open `DelphiOBD_DT.dpk`.
 4. **Build**, then **Install**.
 
-The **OBD** category will appear in the component palette once Phase 11
-of the build sequence lands (see [`../PLAN.md`](../PLAN.md)).
+The **OBD** category appears in the component palette when the
+design-time package (`DelphiOBD_DT.bpl`) is installed.
 
 ## Multi-version support
 

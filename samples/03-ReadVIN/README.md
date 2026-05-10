@@ -1,6 +1,6 @@
 # 03-ReadVIN
 
-End-to-end demo of the Phase 0 → 4b stack: connect → detect chip →
+End-to-end demo of the connection → adapter → protocol stack:
 init → request VIN via **OBD-II Service 09 PID 02**.
 
 ## Build & run
@@ -46,7 +46,7 @@ Round-trip: 187 ms
   `TOBDProtocol`.
 - Both layers' progress events bound to a single console printer
   via `TOBDProgressStep.Percent` / `Index` / `Count` / `Name`.
-- `MaxIsoTpFrameBytes` (Phase 3 follow-up #4) populated from the
+- `MaxIsoTpFrameBytes` populated from the
   capability registry on `Detect`.
 - Synchronous `TOBDProtocol.Request` with a per-call timeout,
   returning a fully decoded `TOBDResponse`.
@@ -55,9 +55,9 @@ Round-trip: 187 ms
 
 - VIN is parsed leniently (printable ASCII filter + 17-char trim).
   A proper VIN decoder (WMI / VDS / VIS, region, year) lands in
-  Phase 12 if added.
+  v2.x if added.
 - For modes that return data via multi-frame ISO-TP, the chip
   reassembles the stream when `ATAL` is on; the protocol layer
   receives a single concatenated text response. The raw-CAN
   reassembler (`TOBDIso15765Reassembler`) is also available for
-  J2534 / DoIP paths in Phase 4c+.
+  J2534 / DoIP paths.

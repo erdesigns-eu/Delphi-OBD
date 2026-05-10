@@ -12,7 +12,7 @@ that:
   to the previous valid one, because the receiver's freshness
   counter has moved on.
 
-Demonstrates the **Phase 4e** SecOC stack:
+Demonstrates the SecOC stack:
 
 - `OBD.Protocol.SecOC.AES` — constant-time AES-128
 - `OBD.Protocol.SecOC.CMAC` — RFC 4493 / NIST SP 800-38B

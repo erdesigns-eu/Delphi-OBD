@@ -2,8 +2,8 @@
 //  Tests.OBD.Connection
 //
 //  Lifecycle and configuration tests for TOBDConnection that do not
-//  require real hardware. Real-I/O coverage lives in the hardware-loop
-//  CI job (Phase 0 deferred).
+//  require real hardware. Real-I/O coverage runs on a bench against
+//  a live adapter; that suite is out of scope for unit tests.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

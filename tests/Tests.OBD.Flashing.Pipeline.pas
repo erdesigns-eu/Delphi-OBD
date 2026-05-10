@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Flashing.Phase9c
+//  Tests.OBD.Flashing.Pipeline
 //
-//  Phase 9c coverage: TOBDFlashPipeline safety surface. Without
+//  Coverage for TOBDFlashPipeline's safety surface. Without
 //  a real ECU we cover the gates and the configuration-side
 //  rejections; the wire-level happy path runs against a real
-//  bench in the Phase 9f sample, gated behind the standing
+//  bench in the matching sample, gated behind the standing
 //  hardware-loop deferral.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -15,7 +15,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Flashing.Phase9c;
+unit Tests.OBD.Flashing.Pipeline;
 
 interface
 

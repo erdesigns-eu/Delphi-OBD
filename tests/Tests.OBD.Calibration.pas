@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Calibration
 //
-//  Phase 7 calibration coverage: A2L parser, XCP master encode-side
+//  Coverage for the calibration components: A2L parser, XCP master encode-side
 //  through a stub transport, CCP packet build, IsoBus NAME round-
 //  trip, Tachograph record decoding.
 //

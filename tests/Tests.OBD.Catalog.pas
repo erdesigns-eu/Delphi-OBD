@@ -13,7 +13,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 coverage: PID round-trip, text
+//    2026-05-09  ERD  Initial coverage: PID round-trip, text
 //                     round-trip, malformed JSON, missing fields,
 //                     directory walk, FindPID, FindText.
 //------------------------------------------------------------------------------

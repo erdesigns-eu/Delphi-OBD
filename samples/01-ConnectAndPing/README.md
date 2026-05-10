@@ -46,6 +46,6 @@ ELM327 v1.5
 
 ## Out of scope
 
-- Adapter detection / chip-family identification → Phase 3 (`TOBDAdapter`)
+- Adapter detection / chip-family identification → `TOBDAdapter`
 - AT-command framing with terminator-aware response collection →
-  Phase 3 / 4 (`TOBDProtocol`)
+  `TOBDAdapter` + `TOBDProtocol`

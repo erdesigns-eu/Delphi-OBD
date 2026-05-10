@@ -6,10 +6,10 @@
 //  thread that reads in non-overlapped 256-byte chunks and pushes them
 //  to the receive callback.
 //
-//  Cross-platform note: this unit is Windows-only. POSIX transport
-//  (termios via /dev/tty*) is a follow-up; the IOBDConnectionTransport
-//  contract is platform-neutral so a POSIX implementation slots in
-//  later without changing the public API.
+//  Cross-platform note: this unit is Windows-only. A POSIX
+//  transport (termios via /dev/tty*) is out of scope for v1; the
+//  IOBDConnectionTransport contract is platform-neutral so a POSIX
+//  implementation slots in later without changing the public API.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -20,9 +20,9 @@
 //      (https://learn.microsoft.com/windows/win32/devio/communications-resources)
 //
 //  History     :
-//    2026-05-09  ERD  Initial implementation Win32 implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
-//                     and instrumented with step-progress events.
+//    2026-05-09  ERD  Initial Win32 implementation.
+//    2026-05-09  ERD  Rebase onto TOBDBaseTransport and add
+//                     step-progress events.
 //
 //  Future work :
 //    - POSIX backend (Linux / macOS) using termios.

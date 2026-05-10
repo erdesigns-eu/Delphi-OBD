@@ -4,7 +4,7 @@ Loads a LIN Description File and prints the structural contents
 (protocol version, bus speed, master / slave nodes, signals, frames
 with signal placement, schedule tables with microsecond delays).
 
-Demonstrates **Phase 4f**: the standalone LDF parser
+Demonstrates the standalone LDF parser
 (`OBD.Protocol.LIN.LDF`). No hardware or bus access required.
 
 ## Build

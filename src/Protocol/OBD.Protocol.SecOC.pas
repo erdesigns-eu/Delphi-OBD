@@ -13,8 +13,8 @@
 //  This v1 codec restricts both the truncated-MAC and truncated-FV
 //  lengths to multiples of 8 bits. Sub-byte truncation (e.g. 4-bit
 //  FV on a 64-bit CAN frame) requires bit-packing on the wire and
-//  is tracked as a Follow-up — every production OBD use
-//  case (UDS, J1939, DoIP) carries 8/16/24/64-bit lengths.
+//  is out of scope for v1 — every production OBD use case
+//  (UDS, J1939, DoIP) carries 8/16/24/64-bit lengths.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

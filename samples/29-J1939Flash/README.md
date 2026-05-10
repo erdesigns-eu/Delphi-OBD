@@ -11,7 +11,7 @@ Walks the SAE J1939-73 memory-access trio (DM14 / DM15 / DM16):
 2. Wait for the matching DM15 *MemoryAccessResponse* (status =
    PROCEED, otherwise abort)
 3. Send the binary image as DM16 *BinaryDataTransfer* chunks
-   over the J1939 transport (Phase 4c)
+   over the J1939 transport
 4. Wait for the final DM15 with status = OPERATION_COMPLETE
 5. Send DM14 with command = OPERATION_COMPLETED to leave the
    memory-access mode
@@ -32,7 +32,7 @@ Like sample 28, the heavy-duty flash sample is a **template** —
 the host wires:
 
 - The J1939 transport (raw CAN driver)
-- The session manager (`TOBDJ1939SessionManager` from Phase 4c)
+- The session manager (`TOBDJ1939SessionManager`)
 - The OEM-specific seed → key for DM14 security
 - The pre-flash routine (vendor-specific)
 

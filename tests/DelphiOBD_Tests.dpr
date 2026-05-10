@@ -11,9 +11,9 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 0 skeleton with one trivial test.
-//    2026-05-09  ERD  Phase 1 added types / errors / decoders / catalog tests.
-//    2026-05-09  ERD  Phase 2 added connection mock / retry / lifecycle tests.
+//    2026-05-09  ERD  Initial skeleton with one trivial test.
+//    2026-05-09  ERD  Add types / errors / decoders / catalog tests.
+//    2026-05-09  ERD  Add connection mock / retry / lifecycle tests.
 //------------------------------------------------------------------------------
 
 program DelphiOBD_Tests;
@@ -185,13 +185,13 @@ uses
   Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
   Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
   Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas',
-  Tests.OBD.Coding.Phase8 in 'Tests.OBD.Coding.Phase8.pas',
-  Tests.OBD.Coding.Phase8b in 'Tests.OBD.Coding.Phase8b.pas',
-  Tests.OBD.Flashing.Phase9a in 'Tests.OBD.Flashing.Phase9a.pas',
-  Tests.OBD.Flashing.Phase9b in 'Tests.OBD.Flashing.Phase9b.pas',
-  Tests.OBD.Flashing.Phase9c in 'Tests.OBD.Flashing.Phase9c.pas',
-  Tests.OBD.Flashing.Phase9d in 'Tests.OBD.Flashing.Phase9d.pas',
-  Tests.OBD.Flashing.Phase9e in 'Tests.OBD.Flashing.Phase9e.pas',
+  Tests.OBD.Coding.Advanced in 'Tests.OBD.Coding.Advanced.pas',
+  Tests.OBD.Coding.Catalog in 'Tests.OBD.Coding.Catalog.pas',
+  Tests.OBD.Flashing.Transfer in 'Tests.OBD.Flashing.Transfer.pas',
+  Tests.OBD.Flashing.SafetyGates in 'Tests.OBD.Flashing.SafetyGates.pas',
+  Tests.OBD.Flashing.Pipeline in 'Tests.OBD.Flashing.Pipeline.pas',
+  Tests.OBD.Flashing.Signature in 'Tests.OBD.Flashing.Signature.pas',
+  Tests.OBD.Flashing.OEMHandshakes in 'Tests.OBD.Flashing.OEMHandshakes.pas',
   Tests.OBD.Flashing.Followups in 'Tests.OBD.Flashing.Followups.pas',
   Tests.OBD.Recorder in 'Tests.OBD.Recorder.pas';
 

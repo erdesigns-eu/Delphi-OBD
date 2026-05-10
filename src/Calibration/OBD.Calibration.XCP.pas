@@ -15,9 +15,9 @@
 //    - SET_CAL_PAGE / GET_CAL_PAGE
 //    - START_STOP_DAQ_LIST  (begin / stop streamed measurement)
 //
-//  Sync only: each XCP command is one packet round-trip. A future
-//  follow-up adds an async wrapper for hosts that don't want to
-//  block.
+//  Sync only: each XCP command is one packet round-trip. An async
+//  wrapper for hosts that don't want to block is out of scope for
+//  v1.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

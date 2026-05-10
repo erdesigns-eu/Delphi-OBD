@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Adapter.Followups
 //
-//  Coverage for the five Phase 3 honest-review follow-ups:
+//  Coverage for the five adapter-layer honest-review follow-ups:
 //    1. Response collector preserves bytes >= 0x80 (no ASCII mangling).
 //    2. Echo stripping handles whitespace / line-ending variants.
 //    3. Cancellation: Adapter.Close interrupts an in-flight WaitFor
@@ -16,7 +16,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 3 follow-ups: charset / echo / cancel /
+//    2026-05-09  ERD  Adapter follow-ups: charset / echo / cancel /
 //                     AT@x docs / JSON init loader.
 //------------------------------------------------------------------------------
 
@@ -216,8 +216,8 @@ begin
     A.Connection := Conn;
     // We bypass the real connection by setting the state via the mock
     // to csOpen indirectly. Instead, exercise the mid-buffer dedup
-    // path using the response parser through SendCommand — covered
-    // by integration tests at a future hardware loop. Here we just
+    // path using the response parser through SendCommand — that
+    // path needs a real adapter on a real bench. Here we just
     // assert that the stripping helper at the head doesn't lose
     // valid OK content.
     Resp := Default(TOBDAdapterResponse);

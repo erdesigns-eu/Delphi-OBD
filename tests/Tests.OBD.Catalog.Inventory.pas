@@ -2,7 +2,7 @@
 //  Tests.OBD.Catalog.Inventory
 //
 //  Regression test that the shipped catalogue files contain at least
-//  the baseline entry counts ported in Phase 1. A future PR that
+//  the baseline entry counts captured at v2 launch. A future PR that
 //  silently drops a PID, DTC, NRC or DID entry will fail this test.
 //
 //  Counts here are minimum thresholds, not exact numbers. New entries
@@ -13,7 +13,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial baseline (Phase 1 port: 84 PIDs, 528
+//    2026-05-09  ERD  Initial baseline (84 PIDs, 528
 //                     DTCs, 60 NRCs, 31 UDS DIDs, 55 J1939 PGNs, 34
 //                     Mode 06 MIDs, 22 Mode 06 TIDs, 22 WWH-OBD DIDs).
 //------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ type
   ///   End-to-end regression test for the shipped catalogue tree.
   ///
   ///   Loads every <c>.json</c> file under <c>catalogs/</c> and asserts
-  ///   that the cumulative entry counts meet the Phase 1 baseline.
+  ///   that the cumulative entry counts meet the launch baseline.
   /// </summary>
   /// <remarks>
   ///   The catalogue root is located by walking up from the test

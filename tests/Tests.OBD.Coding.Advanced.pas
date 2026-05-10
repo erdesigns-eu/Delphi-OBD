@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Coding.Phase8
+//  Tests.OBD.Coding.Advanced
 //
-//  Phase 8 coverage: WriteMemory + KWP WriteID safety gates,
-//  diff/patch/revert round-trips, audit-log HMAC chain integrity,
-//  and the seven OEM coder primitives.
+//  Coverage for the advanced-coding write components: WriteMemory
+//  + KWP WriteID safety gates, diff/patch/revert round-trips,
+//  audit-log HMAC chain integrity, and the seven OEM coder primitives.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -13,7 +13,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Coding.Phase8;
+unit Tests.OBD.Coding.Advanced;
 
 interface
 
@@ -41,7 +41,7 @@ uses
 type
   /// <summary>WriteMemory + KWP WriteID safety-gate coverage.</summary>
   [TestFixture]
-  TPhase8WriteSafetyTests = class
+  TWriteSafetyTests = class
   public
     [Test] procedure UDSWriteMemoryRaisesWhenAutoExecuteFalse;
     [Test] procedure UDSWriteMemoryRaisesOnEmptyData;
@@ -88,7 +88,7 @@ implementation
 
 { ---- Write safety ---------------------------------------------------------- }
 
-procedure TPhase8WriteSafetyTests.UDSWriteMemoryRaisesWhenAutoExecuteFalse;
+procedure TWriteSafetyTests.UDSWriteMemoryRaisesWhenAutoExecuteFalse;
 var
   W: TOBDUDSWriteMemory;
 begin
@@ -103,7 +103,7 @@ begin
   end;
 end;
 
-procedure TPhase8WriteSafetyTests.UDSWriteMemoryRaisesOnEmptyData;
+procedure TWriteSafetyTests.UDSWriteMemoryRaisesOnEmptyData;
 var
   W: TOBDUDSWriteMemory;
 begin
@@ -118,7 +118,7 @@ begin
   end;
 end;
 
-procedure TPhase8WriteSafetyTests.KWPWriteIDRaisesWhenAutoExecuteFalse;
+procedure TWriteSafetyTests.KWPWriteIDRaisesWhenAutoExecuteFalse;
 var
   W: TOBDKWPWriteID;
 begin
@@ -441,7 +441,7 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TPhase8WriteSafetyTests);
+  TDUnitX.RegisterTestFixture(TWriteSafetyTests);
   TDUnitX.RegisterTestFixture(TCodingDiffTests);
   TDUnitX.RegisterTestFixture(TAuditLogTests);
   TDUnitX.RegisterTestFixture(TOEMCodingTests);

@@ -6,10 +6,8 @@
 //  responds with a multi-line answer that the protocol layer
 //  reassembles into a 17-character VIN string.
 //
-//  Demonstrates the full Phase 0 -> 4b stack end-to-end:
-//    TOBDConnection (Phase 2)
-//      -> TOBDAdapter (Phase 3)
-//      -> TOBDProtocol (Phase 4b)
+//  Demonstrates the full connection → adapter → protocol stack end-to-end:
+//    TOBDConnection -> TOBDAdapter -> TOBDProtocol
 //
 //  Override host / port via the first two command-line arguments.
 //

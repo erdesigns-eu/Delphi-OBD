@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Service
 //
-//  Coverage for the Phase 5 service-mode components. Tests focus on
+//  Coverage for the service-mode components. Tests focus on
 //  the decoder logic and response-shape parsing — the protocol
-//  layer (Phase 4b) is exercised separately, and these fixtures
+//  layer is exercised separately, and these fixtures
 //  use a stub protocol that replays canned responses.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

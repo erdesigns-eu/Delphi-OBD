@@ -2,7 +2,7 @@
 //  Tests.OBD.Protocol.Integration
 //
 //  Cross-cutting integration tests that exercise more than one
-//  Phase 4 subsystem at the same time. Close-out.
+//  protocol-layer subsystem at the same time.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -36,7 +36,7 @@ type
   /// SecOC, transported via DoIP, decoded back through the
   /// reverse path.</summary>
   [TestFixture]
-  TPhase4IntegrationTests = class
+  TProtocolIntegrationTests = class
   public
     /// <summary>UDS ReadDataByIdentifier wrapped with SecOC and
     /// then encapsulated as the DoIP DiagnosticMessage payload.
@@ -53,7 +53,7 @@ type
 
 implementation
 
-procedure TPhase4IntegrationTests.UDSOverSecOCOverDoIP;
+procedure TProtocolIntegrationTests.UDSOverSecOCOverDoIP;
 const
   DataID = $0E80;
   TesterAddr = $0E80;
@@ -123,7 +123,7 @@ begin
   end;
 end;
 
-procedure TPhase4IntegrationTests.ISO15765MultiFrameDecodesViaUDS;
+procedure TProtocolIntegrationTests.ISO15765MultiFrameDecodesViaUDS;
 var
   Reasm: TOBDIso15765Reassembler;
   FF, CF1, CF2: TBytes;
@@ -191,6 +191,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TPhase4IntegrationTests);
+  TDUnitX.RegisterTestFixture(TProtocolIntegrationTests);
 
 end.

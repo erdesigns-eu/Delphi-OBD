@@ -9,7 +9,7 @@
 //  tamper trips the MAC check and that a replayed buffer trips the
 //  freshness check.
 //
-//  Demonstrates the Phase 4e SecOC stack:
+//  Demonstrates the SecOC stack:
 //    OBD.Protocol.SecOC.AES        (constant-time AES-128)
 //    OBD.Protocol.SecOC.CMAC       (RFC 4493 / NIST SP 800-38B)
 //    OBD.Protocol.SecOC.Keys       (in-memory key store)

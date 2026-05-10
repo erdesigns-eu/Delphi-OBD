@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Flashing.Phase9e
+//  Tests.OBD.Flashing.OEMHandshakes
 //
-//  Phase 9e coverage: per-OEM handshake safety surface +
+//  Coverage for the per-OEM bootloader handshakes: safety surface +
 //  vendor-default sub-function / security-level / RID values.
 //  Wire-side coverage is gated on hardware (the standing
 //  deferral); the configuration surface is what hosts depend on.
@@ -14,7 +14,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Flashing.Phase9e;
+unit Tests.OBD.Flashing.OEMHandshakes;
 
 interface
 

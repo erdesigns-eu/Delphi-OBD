@@ -47,5 +47,5 @@ Capabilities :
 ## Out of scope
 
 - Running the post-detect init sequence → `Adapter.Init` /
-  `Adapter.InitAsync` (also Phase 3, see PLAN §3.7 dual-method rule)
-- Actual OBD reads → Phase 5 (`TOBDLiveData`)
+  `Adapter.InitAsync` (sync + async dual-method rule)
+- Actual OBD reads → `TOBDLiveData`

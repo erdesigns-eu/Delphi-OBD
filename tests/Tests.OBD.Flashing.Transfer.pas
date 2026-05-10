@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Flashing.Phase9a
+//  Tests.OBD.Flashing.Transfer
 //
-//  Phase 9a coverage: TOBDUDSTransfer safety gates + state machine
+//  Coverage for the UDS transfer engine: TOBDUDSTransfer safety gates + state machine
 //  shape + cursor encoding for resume; TOBDJ1939MemoryAccess
 //  encode / decode round-trips for DM14 / DM15 / DM16.
 //
@@ -13,7 +13,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Flashing.Phase9a;
+unit Tests.OBD.Flashing.Transfer;
 
 interface
 
