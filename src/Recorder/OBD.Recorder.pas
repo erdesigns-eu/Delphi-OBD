@@ -91,6 +91,7 @@ type
     FCompressed: Boolean;
     FLock: TCriticalSection;
     FActive: Boolean;
+    FListenerId: Integer;         // 0 = not subscribed
     procedure SetProtocol(AValue: TOBDProtocol);
     procedure Subscribe;
     procedure Unsubscribe;
@@ -100,7 +101,7 @@ type
     procedure HandleNRC(Sender: TObject; const ARequest: TOBDRequest;
       ANRC: Byte; const AText: string);
     procedure HandleError(Sender: TObject; ACode: TOBDErrorCode;
-      const AMessage: string; var AHandled: Boolean);
+      const AMessage: string);
     procedure WriteLine(const ALine: string);
     function FormatTimestamp(ADt: TDateTime): string;
     function KindToText(AKind: TOBDLogEntryKind): string;
@@ -172,24 +173,26 @@ begin
 end;
 
 procedure TOBDRecorder.Subscribe;
+var
+  Listener: TOBDProtocolListener;
 begin
-  if (FProtocol = nil) or not FActive then Exit;
-  FProtocol.OnFrame    := HandleFrame;
-  FProtocol.OnResponse := HandleResponse;
-  FProtocol.OnNRC      := HandleNRC;
-  FProtocol.OnError    := HandleError;
+  if (FProtocol = nil) or not FActive or (FListenerId <> 0) then Exit;
+  // Multi-cast registration via TOBDProtocol.AddListener. Co-
+  // exists with any single-cast OnXxx handler the host has
+  // wired, so attaching a recorder no longer clobbers the
+  // host's plumbing.
+  Listener.OnFrame    := HandleFrame;
+  Listener.OnResponse := HandleResponse;
+  Listener.OnNRC      := HandleNRC;
+  Listener.OnError    := HandleError;
+  FListenerId := FProtocol.AddListener(Listener);
 end;
 
 procedure TOBDRecorder.Unsubscribe;
 begin
-  if FProtocol = nil then Exit;
-  // Best-effort: only clear handlers we own. Hosts that wired
-  // their own handlers before connecting the recorder will need
-  // to re-wire after Close.
-  if @FProtocol.OnFrame    = @HandleFrame    then FProtocol.OnFrame    := nil;
-  if @FProtocol.OnResponse = @HandleResponse then FProtocol.OnResponse := nil;
-  if @FProtocol.OnNRC      = @HandleNRC      then FProtocol.OnNRC      := nil;
-  if @FProtocol.OnError    = @HandleError    then FProtocol.OnError    := nil;
+  if (FProtocol = nil) or (FListenerId = 0) then Exit;
+  FProtocol.RemoveListener(FListenerId);
+  FListenerId := 0;
 end;
 
 function TOBDRecorder.FormatTimestamp(ADt: TDateTime): string;
@@ -374,8 +377,7 @@ begin
 end;
 
 procedure TOBDRecorder.HandleError(Sender: TObject;
-  ACode: TOBDErrorCode; const AMessage: string;
-  var AHandled: Boolean);
+  ACode: TOBDErrorCode; const AMessage: string);
 var
   Entry: TOBDLogEntry;
 begin
@@ -385,7 +387,6 @@ begin
   Entry.Message := Format('[%s] %s',
     [GetEnumName(TypeInfo(TOBDErrorCode), Ord(ACode)), AMessage]);
   Append(Entry);
-  AHandled := False;
 end;
 
 end.

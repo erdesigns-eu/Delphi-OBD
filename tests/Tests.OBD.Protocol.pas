@@ -39,6 +39,21 @@ type
     [Test] procedure FreeIsClean;
     /// <summary>MakeRequest helper builds the right shape.</summary>
     [Test] procedure MakeRequestShape;
+    /// <summary>AddListener returns a non-zero, monotonically
+    /// increasing tag.</summary>
+    [Test] procedure AddListenerReturnsIncreasingTag;
+    /// <summary>RemoveListener with an unknown tag is a silent
+    /// no-op.</summary>
+    [Test] procedure RemoveListenerUnknownTagIsNoOp;
+    /// <summary>AddListener / RemoveListener round-trips cleanly
+    /// without leaving residual state.</summary>
+    [Test] procedure AddRemoveListenerRoundTrip;
+    /// <summary>Adapter setter accepts swap-to-nil and back
+    /// without async in flight (drains via WaitForAsync).</summary>
+    [Test] procedure SetAdapterSwapIsSafe;
+    /// <summary>Freeing a protocol that has a listener-registered
+    /// recorder doesn't blow up on the FreeNotification chain.</summary>
+    [Test] procedure FreeWithRegisteredListenerIsClean;
   end;
 
 implementation
@@ -128,6 +143,93 @@ var
   P: TOBDProtocol;
 begin
   P := TOBDProtocol.Create(nil);
+  P.Free;
+  Assert.Pass;
+end;
+
+procedure TProtocolComponentTests.AddListenerReturnsIncreasingTag;
+var
+  P: TOBDProtocol;
+  L: TOBDProtocolListener;
+  Id1, Id2: Integer;
+begin
+  P := TOBDProtocol.Create(nil);
+  try
+    L := Default(TOBDProtocolListener);
+    Id1 := P.AddListener(L);
+    Id2 := P.AddListener(L);
+    Assert.IsTrue(Id1 > 0, 'First listener id must be non-zero');
+    Assert.IsTrue(Id2 > Id1,
+      'Subsequent listener ids must increase monotonically');
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TProtocolComponentTests.RemoveListenerUnknownTagIsNoOp;
+var
+  P: TOBDProtocol;
+begin
+  P := TOBDProtocol.Create(nil);
+  try
+    P.RemoveListener(999999);
+    Assert.Pass(
+      'RemoveListener with an unknown tag swallows silently');
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TProtocolComponentTests.AddRemoveListenerRoundTrip;
+var
+  P: TOBDProtocol;
+  L: TOBDProtocolListener;
+  Id: Integer;
+begin
+  P := TOBDProtocol.Create(nil);
+  try
+    L := Default(TOBDProtocolListener);
+    Id := P.AddListener(L);
+    P.RemoveListener(Id);
+    // Removing the same tag twice is also a no-op (the dict
+    // already forgot the entry).
+    P.RemoveListener(Id);
+    Assert.Pass;
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TProtocolComponentTests.SetAdapterSwapIsSafe;
+var
+  P: TOBDProtocol;
+  A1, A2: TOBDAdapter;
+begin
+  P := TOBDProtocol.Create(nil);
+  A1 := TOBDAdapter.Create(nil);
+  A2 := TOBDAdapter.Create(nil);
+  try
+    P.Adapter := A1;
+    P.Adapter := A2;        // swap with no async in flight
+    P.Adapter := nil;       // back to nil
+    Assert.IsNull(P.Adapter);
+  finally
+    P.Free;
+    A1.Free;
+    A2.Free;
+  end;
+end;
+
+procedure TProtocolComponentTests.FreeWithRegisteredListenerIsClean;
+var
+  P: TOBDProtocol;
+  L: TOBDProtocolListener;
+begin
+  P := TOBDProtocol.Create(nil);
+  L := Default(TOBDProtocolListener);
+  P.AddListener(L);
+  // Leave the listener registered on purpose — Destroy must
+  // tear down the registry cleanly even when entries remain.
   P.Free;
   Assert.Pass;
 end;

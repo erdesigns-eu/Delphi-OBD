@@ -176,6 +176,30 @@ type
     const ARequest: TOBDRequest; ANRC: Byte;
     const AText: string) of object;
 
+  /// <summary>Multi-listener variant of the protocol error event.
+  /// Listeners observe transient errors; they cannot absorb them
+  /// (the <c>var AHandled</c> contract belongs to the single
+  /// <c>OnError</c> handler).</summary>
+  TOBDProtocolErrorListenerEvent = procedure(Sender: TObject;
+    ACode: TOBDErrorCode; const AMessage: string) of object;
+
+  /// <summary>
+  ///   Multi-cast listener record for
+  ///   <c>TOBDProtocol.AddListener</c>. Set the fields you care
+  ///   about; leave the rest <c>nil</c>. The protocol fans every
+  ///   event out to all registered listeners on the main thread,
+  ///   alongside (not instead of) the single-cast OnXxx
+  ///   properties — so a host can wire its own OnFrame handler
+  ///   AND drop in a TOBDRecorder without either clobbering the
+  ///   other.
+  /// </summary>
+  TOBDProtocolListener = record
+    OnFrame:    TOBDProtocolFrameEvent;
+    OnResponse: TOBDProtocolResponseEvent;
+    OnNRC:      TOBDProtocolNRCEvent;
+    OnError:    TOBDProtocolErrorListenerEvent;
+  end;
+
   /// <summary>
   ///   Programmer / configuration error raised by the protocol layer.
   /// </summary>

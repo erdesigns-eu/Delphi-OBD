@@ -29,6 +29,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
+  System.Generics.Collections,
   OBD.Types,
   OBD.Catalog,
   OBD.Adapter.Types,
@@ -90,8 +91,24 @@ type
     FOnError: TOBDConnectionErrorEvent;
     FOnProgress: TOBDProgressEvent;
 
+    // Multi-cast listener registry. Hosts wire their own OnXxx
+    // handlers AND service-component glue (Recorder, Replayer,
+    // bus loggers) registers as listeners — neither path clobbers
+    // the other.
+    FListeners:       TDictionary<Integer, TOBDProtocolListener>;
+    FListenerLock:    TCriticalSection;
+    FNextListenerId:  Integer;
+
     procedure SetAdapter(AValue: TOBDAdapter);
     procedure WaitForAsync;
+
+    procedure DispatchFrameListeners(const AFrame: TOBDFrame);
+    procedure DispatchResponseListeners(const AResponse: TOBDResponse);
+    procedure DispatchNRCListeners(const ARequest: TOBDRequest;
+      ANRC: Byte; const AText: string);
+    procedure DispatchErrorListeners(ACode: TOBDErrorCode;
+      const AMessage: string);
+    function  SnapshotListeners: TArray<TOBDProtocolListener>;
 
     function EncodeRequest(const ARequest: TOBDRequest): string;
     function DecodeResponse(const ARequest: TOBDRequest;
@@ -163,6 +180,22 @@ type
 
     /// <summary>Cancels any in-flight async op, joining its worker.</summary>
     procedure Close;
+
+    /// <summary>Registers a multi-cast listener for the
+    /// frame / response / NRC / error stream. Unlike the
+    /// single-cast <c>OnFrame</c>..<c>OnError</c> properties, this
+    /// path supports any number of registered observers — the
+    /// host can keep its own handlers and still drop in a
+    /// <c>TOBDRecorder</c> or custom bus logger. Returns an
+    /// integer tag the caller passes to
+    /// <see cref="RemoveListener"/> later. Thread-safe.</summary>
+    function AddListener(
+      const AListener: TOBDProtocolListener): Integer;
+    /// <summary>Removes the listener registered under
+    /// <paramref name="AListenerId"/>. Silently ignored when the
+    /// tag isn't found (already removed / never registered).
+    /// Thread-safe.</summary>
+    procedure RemoveListener(AListenerId: Integer);
   published
     /// <summary>Bound adapter. Required.</summary>
     property Adapter: TOBDAdapter read FAdapter write SetAdapter;
@@ -234,13 +267,23 @@ begin
   FApplication := apOBD2;
   FDefaultTimeoutMs := 5000;
   FAsyncLock := TCriticalSection.Create;
+  FListenerLock := TCriticalSection.Create;
+  FListeners := TDictionary<Integer, TOBDProtocolListener>.Create;
+  FNextListenerId := 0;
 end;
 
 destructor TOBDProtocol.Destroy;
 begin
   WaitForAsync;
-  FAsyncLock.Free;
+  // inherited Destroy fires opRemove notifications on every
+  // component that registered FreeNotification — including
+  // TOBDRecorder, which will call back into RemoveListener.
+  // Run that BEFORE freeing the listener registry so the
+  // callback finds a valid lock + dictionary.
   inherited;
+  FListeners.Free;
+  FListenerLock.Free;
+  FAsyncLock.Free;
 end;
 
 procedure TOBDProtocol.Notification(AComponent: TComponent;
@@ -254,11 +297,109 @@ end;
 procedure TOBDProtocol.SetAdapter(AValue: TOBDAdapter);
 begin
   if FAdapter = AValue then Exit;
+  // Drain any in-flight async worker before swapping the adapter
+  // — the worker reads FAdapter without locking, so swapping it
+  // mid-flight would race. WaitForAsync is a no-op when no
+  // worker is active, so the common (design-time / setup) path
+  // pays nothing.
+  WaitForAsync;
   if FAdapter <> nil then
     FAdapter.RemoveFreeNotification(Self);
   FAdapter := AValue;
   if FAdapter <> nil then
     FAdapter.FreeNotification(Self);
+end;
+
+function TOBDProtocol.AddListener(
+  const AListener: TOBDProtocolListener): Integer;
+begin
+  FListenerLock.Enter;
+  try
+    Inc(FNextListenerId);
+    Result := FNextListenerId;
+    FListeners.Add(Result, AListener);
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+procedure TOBDProtocol.RemoveListener(AListenerId: Integer);
+begin
+  FListenerLock.Enter;
+  try
+    FListeners.Remove(AListenerId);
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+function TOBDProtocol.SnapshotListeners: TArray<TOBDProtocolListener>;
+var
+  L: TOBDProtocolListener;
+  I: Integer;
+begin
+  // Snapshot under the lock so dispatch can iterate without
+  // holding it (handlers may call back into Add/RemoveListener,
+  // which would deadlock if dispatch held the lock).
+  FListenerLock.Enter;
+  try
+    SetLength(Result, FListeners.Count);
+    I := 0;
+    for L in FListeners.Values do
+    begin
+      Result[I] := L;
+      Inc(I);
+    end;
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+procedure TOBDProtocol.DispatchFrameListeners(const AFrame: TOBDFrame);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnFrame) then
+      try L.OnFrame(Self, AFrame); except end;
+end;
+
+procedure TOBDProtocol.DispatchResponseListeners(
+  const AResponse: TOBDResponse);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnResponse) then
+      try L.OnResponse(Self, AResponse); except end;
+end;
+
+procedure TOBDProtocol.DispatchNRCListeners(const ARequest: TOBDRequest;
+  ANRC: Byte; const AText: string);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnNRC) then
+      try L.OnNRC(Self, ARequest, ANRC, AText); except end;
+end;
+
+procedure TOBDProtocol.DispatchErrorListeners(ACode: TOBDErrorCode;
+  const AMessage: string);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnError) then
+      try L.OnError(Self, ACode, AMessage); except end;
 end;
 
 procedure TOBDProtocol.WaitForAsync;
@@ -311,15 +452,18 @@ var
   Snapshot: TOBDResponse;
 begin
   Snapshot := AResponse;
-  if not Assigned(FOnResponse) then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnResponse(Self, Snapshot)
+  begin
+    if Assigned(FOnResponse) then FOnResponse(Self, Snapshot);
+    DispatchResponseListeners(Snapshot);
+  end
   else
     TThread.Queue(nil,
       procedure
       begin
         if Assigned(FOnResponse) then
           FOnResponse(Self, Snapshot);
+        DispatchResponseListeners(Snapshot);
       end);
 end;
 
@@ -333,15 +477,18 @@ begin
   ReqCopy := ARequest;
   TextCopy := AText;
   NRCCopy := ANRC;
-  if not Assigned(FOnNRC) then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnNRC(Self, ReqCopy, NRCCopy, TextCopy)
+  begin
+    if Assigned(FOnNRC) then FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
+    DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
+  end
   else
     TThread.Queue(nil,
       procedure
       begin
         if Assigned(FOnNRC) then
           FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
+        DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
       end);
 end;
 
@@ -353,21 +500,27 @@ var
 begin
   Code := ACode;
   Msg := AMessage;
-  if not Assigned(FOnError) then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    var Handled: Boolean;
-    Handled := False;
-    FOnError(Self, Code, Msg, Handled);
+    if Assigned(FOnError) then
+    begin
+      var Handled: Boolean;
+      Handled := False;
+      FOnError(Self, Code, Msg, Handled);
+    end;
+    DispatchErrorListeners(Code, Msg);
   end
   else
     TThread.Queue(nil,
       procedure
       var Handled: Boolean;
       begin
-        Handled := False;
         if Assigned(FOnError) then
+        begin
+          Handled := False;
           FOnError(Self, Code, Msg, Handled);
+        end;
+        DispatchErrorListeners(Code, Msg);
       end);
 end;
 
@@ -393,16 +546,19 @@ procedure TOBDProtocol.FireOnFrame(const AFrame: TOBDFrame);
 var
   Snapshot: TOBDFrame;
 begin
-  if not Assigned(FOnFrame) then Exit;
   Snapshot := AFrame;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnFrame(Self, Snapshot)
+  begin
+    if Assigned(FOnFrame) then FOnFrame(Self, Snapshot);
+    DispatchFrameListeners(Snapshot);
+  end
   else
     TThread.Queue(nil,
       procedure
       begin
         if Assigned(FOnFrame) then
           FOnFrame(Self, Snapshot);
+        DispatchFrameListeners(Snapshot);
       end);
 end;
 
@@ -414,7 +570,9 @@ var
   Frame: TOBDFrame;
   IdValue: Int64;
 begin
-  if not Assigned(FOnFrame) then Exit;
+  // No early-exit on FOnFrame here — multi-cast listeners
+  // (TOBDRecorder, custom bus loggers) need frames even when
+  // the host doesn't wire a single-cast OnFrame.
   Lines := SplitString(ARawHex, #13#10);
   if Length(Lines) = 0 then
     Lines := SplitString(ARawHex, #13);
