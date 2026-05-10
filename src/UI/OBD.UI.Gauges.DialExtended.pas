@@ -181,7 +181,9 @@ begin
   Pen.SetEndCap(LineCapRound);
   try
     AGraphics.DrawLine(Pen, Cx, Cy, NX, NY);
-  finally Pen.Free; end;
+  finally
+    Pen.Free;
+  end;
 end;
 
 { ---- TOBDMinMaxGauge ------------------------------------------------------ }
@@ -262,7 +264,9 @@ var
     Pen.SetEndCap(LineCapRound);
     try
       AGraphics.DrawLine(Pen, X1, Y1, X2, Y2);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
   end;
 
 begin

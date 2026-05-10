@@ -279,13 +279,17 @@ begin
     StripBrush := TGPSolidBrush.Create(ColorToARGB(EffectiveBorder));
     try
       Graphics.FillRectangle(StripBrush, StripRect);
-    finally StripBrush.Free; end;
+    finally
+      StripBrush.Free;
+    end;
     Norm := Single(NormalisedDisplay);
     StripRect.Width := StripRect.Width * Norm;
     StripBrush := TGPSolidBrush.Create(ColorToARGB(EffectiveAccent));
     try
       Graphics.FillRectangle(StripBrush, StripRect);
-    finally StripBrush.Free; end;
+    finally
+      StripBrush.Free;
+    end;
     Pen := nil; Pen.Free;  // silence
   finally
     Graphics.Free;
@@ -388,7 +392,9 @@ begin
         Brush := TGPSolidBrush.Create(ColorToARGB(SegColor));
         try
           Graphics.FillRectangle(Brush, SegRect);
-        finally Brush.Free; end;
+        finally
+          Brush.Free;
+        end;
       end;
     end
     else
@@ -407,7 +413,9 @@ begin
         Brush := TGPSolidBrush.Create(ColorToARGB(SegColor));
         try
           Graphics.FillRectangle(Brush, SegRect);
-        finally Brush.Free; end;
+        finally
+          Brush.Free;
+        end;
       end;
     end;
   finally
@@ -465,7 +473,10 @@ begin
     try
       Graphics.FillRectangle(Brush, TrackRect);
       Graphics.DrawRectangle(Pen, TrackRect);
-    finally Pen.Free; Brush.Free; end;
+    finally
+      Pen.Free;
+      Brush.Free;
+    end;
 
     // Zone overlays (signed-aware).
     for Z in Zones do
@@ -482,7 +493,9 @@ begin
       ZoneRect.Height := TrackRect.Height;
       Brush := TGPSolidBrush.Create(ColorToARGB(Z.Color, 96));
       try Graphics.FillRectangle(Brush, ZoneRect);
-      finally Brush.Free; end;
+      finally
+        Brush.Free;
+      end;
     end;
 
     // Centre-zero fill — from CenterX outward.
@@ -509,14 +522,18 @@ begin
     end;
     Brush := TGPSolidBrush.Create(ColorToARGB(ColorVal));
     try Graphics.FillRectangle(Brush, FillRect);
-    finally Brush.Free; end;
+    finally
+      Brush.Free;
+    end;
 
     // Centre-zero line.
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(2));
     try
       Graphics.DrawLine(Pen, Single(CenterX), TrackRect.Y - 2,
                               Single(CenterX), TrackRect.Y + TrackRect.Height + 2);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
 
     // Silence unused-var hint.
     Norm := Norm;

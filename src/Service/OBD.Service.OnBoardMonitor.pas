@@ -138,14 +138,18 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDOnBoardMonitor: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDOnBoardMonitor.ReleaseAsync;
 begin
   FAsyncLock.Enter;
   try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDOnBoardMonitor.DoRead(AMID: Byte): TArray<TOBDMonitorResult>;
@@ -230,12 +234,18 @@ begin
   Self_ := Self; MID := AMID; Snap := Copy(AResults, 0, Length(AResults));
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    try TBindings.Notify(Self_, ''); except end;
+    try
+      TBindings.Notify(Self_, '');
+    except
+    end;
     if Assigned(FOnResults) then FOnResults(Self_, MID, Snap);
   end
   else
     TThread.Queue(nil, procedure begin
-      try TBindings.Notify(Self_, ''); except end;
+      try
+        TBindings.Notify(Self_, '');
+      except
+      end;
       if Assigned(Self_.FOnResults) then
         Self_.FOnResults(Self_, MID, Snap);
     end);

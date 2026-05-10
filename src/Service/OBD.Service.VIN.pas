@@ -138,14 +138,18 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDVIN: async read already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDVIN.ReleaseAsync;
 begin
   FAsyncLock.Enter;
   try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDVIN.SetProtocol(AValue: TOBDProtocol);
@@ -279,12 +283,18 @@ begin
   Self_ := Self; Snap := AResult;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    try TBindings.Notify(Self_, ''); except end;
+    try
+      TBindings.Notify(Self_, '');
+    except
+    end;
     if Assigned(FOnVIN) then FOnVIN(Self_, Snap);
   end
   else
     TThread.Queue(nil, procedure begin
-      try TBindings.Notify(Self_, ''); except end;
+      try
+        TBindings.Notify(Self_, '');
+      except
+      end;
       if Assigned(Self_.FOnVIN) then Self_.FOnVIN(Self_, Snap);
     end);
 end;

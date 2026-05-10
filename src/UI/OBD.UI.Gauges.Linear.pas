@@ -158,7 +158,9 @@ begin
         var ZBrush := TGPSolidBrush.Create(
           ColorToARGB(Z.Color, 96));
         try Graphics.FillRectangle(ZBrush, ZRect);
-        finally ZBrush.Free; end;
+        finally
+          ZBrush.Free;
+        end;
       end;
 
       // Filled portion = current display value.
@@ -169,7 +171,9 @@ begin
       if ColorVal = clNone then ColorVal := Palette.Accent;
       FillBrush := TGPSolidBrush.Create(ColorToARGB(ColorVal));
       try Graphics.FillRectangle(FillBrush, Fill);
-      finally FillBrush.Free; end;
+      finally
+        FillBrush.Free;
+      end;
 
       // Numeric value to the right of the bar.
       if FShowValueText then
@@ -223,7 +227,9 @@ begin
         ZRect.Height := (TopNorm - BotNorm) * Track.Height;
         var ZBrush := TGPSolidBrush.Create(ColorToARGB(Z.Color, 96));
         try Graphics.FillRectangle(ZBrush, ZRect);
-        finally ZBrush.Free; end;
+        finally
+          ZBrush.Free;
+        end;
       end;
 
       // Fill from bottom up.
@@ -235,7 +241,9 @@ begin
       if ColorVal = clNone then ColorVal := Palette.Accent;
       FillBrush := TGPSolidBrush.Create(ColorToARGB(ColorVal));
       try Graphics.FillRectangle(FillBrush, Fill);
-      finally FillBrush.Free; end;
+      finally
+        FillBrush.Free;
+      end;
 
       // Numeric value below the bar.
       if FShowValueText then

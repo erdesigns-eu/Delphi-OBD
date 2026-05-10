@@ -178,7 +178,10 @@ end;
 
 procedure TOBDLED.NotifyBindings;
 begin
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDLED.SetState(AValue: TOBDLEDState);
@@ -280,14 +283,18 @@ begin
         Halo.Width  := Halo.Width  + ScaleValue(6);
         Halo.Height := Halo.Height + ScaleValue(6);
         Graphics.FillEllipse(Brush, Halo);
-      finally Brush.Free; end;
+      finally
+        Brush.Free;
+      end;
     end;
 
     // Body.
     Brush := TGPSolidBrush.Create(ColorToARGB(Color));
     try
       Graphics.FillEllipse(Brush, R);
-    finally Brush.Free; end;
+    finally
+      Brush.Free;
+    end;
 
     // Specular highlight.
     if Lit then
@@ -300,14 +307,18 @@ begin
         Hi.Width  := Hi.Width  * 0.40;
         Hi.Height := Hi.Height * 0.28;
         Graphics.FillEllipse(Brush, Hi);
-      finally Brush.Free; end;
+      finally
+        Brush.Free;
+      end;
     end;
 
     // Bezel.
     Pen := TGPPen.Create(ColorToARGB(BorderCol), ScaleValue(1));
     try
       Graphics.DrawEllipse(Pen, R);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
   finally
     Graphics.Free;
   end;
@@ -459,7 +470,10 @@ end;
 
 procedure TOBDMatrixDisplay.NotifyBindings;
 begin
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDMatrixDisplay.SetText(const AValue: string);

@@ -264,7 +264,10 @@ procedure TOBDTheme.Refresh;
 begin
   NotifyAttached;
   if Assigned(FOnChange) then
-    try FOnChange(Self); except end;
+    try
+      FOnChange(Self);
+    except
+    end;
 end;
 
 class procedure TOBDTheme.RegisterDefault(ATheme: TOBDTheme);

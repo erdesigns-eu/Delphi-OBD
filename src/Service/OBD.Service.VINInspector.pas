@@ -256,7 +256,10 @@ begin
   // bound TLinkPropertyToField sees the new FInfo even if the
   // host handler shows a dialog (which would block the refresh
   // until dismissed).
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
   if FInfo.Valid then
   begin
     if Assigned(FOnDecoded) then FOnDecoded(Self, FInfo);

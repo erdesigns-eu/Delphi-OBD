@@ -285,7 +285,10 @@ end;
 
 procedure TOBDTelltaleBase.NotifyBindings;
 begin
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDTelltaleBase.SetState(AValue: TOBDTelltaleState);
@@ -388,13 +391,17 @@ begin
     Brush := TGPSolidBrush.Create(ColorToARGB(BodyCol));
     try
       Graphics.FillEllipse(Brush, Body);
-    finally Brush.Free; end;
+    finally
+      Brush.Free;
+    end;
 
     // Bezel.
     Pen := TGPPen.Create(ColorToARGB(BorderCol), ScaleValue(1));
     try
       Graphics.DrawEllipse(Pen, Body);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
 
     // Glyph paint area — inset slightly so the symbol doesn't
     // clip the bezel.
@@ -498,7 +505,10 @@ end;
 
 procedure TOBDDTCBadge.NotifyBindings;
 begin
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDDTCBadge.SetCount(AValue: Integer);
@@ -595,14 +605,18 @@ begin
         Halo.Width  := Body.Width  * Scale;
         Halo.Height := Body.Height * Scale;
         Graphics.FillEllipse(Brush, Halo);
-      finally Brush.Free; end;
+      finally
+        Brush.Free;
+      end;
     end;
 
     // Body fill.
     Brush := TGPSolidBrush.Create(ColorToARGB(Col));
     try
       Graphics.FillEllipse(Brush, Body);
-    finally Brush.Free; end;
+    finally
+      Brush.Free;
+    end;
   finally
     Graphics.Free;
   end;
@@ -630,7 +644,10 @@ end;
 
 procedure TOBDReadinessLamp.NotifyBindings;
 begin
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDReadinessLamp.SetState(AValue: TOBDReadinessState);
@@ -671,12 +688,16 @@ begin
     Brush := TGPSolidBrush.Create(ColorToARGB(Col));
     try
       Graphics.FillEllipse(Brush, Body);
-    finally Brush.Free; end;
+    finally
+      Brush.Free;
+    end;
 
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
     try
       Graphics.DrawEllipse(Pen, Body);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
 
     // Inner mark: a tick for Complete, a dash for Incomplete,
     // an X for NotSupported.
@@ -705,7 +726,9 @@ begin
               Body.X + Body.Width  * 0.30, Body.Y + Body.Height * 0.70);
           end;
       end;
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
   finally
     Graphics.Free;
   end;

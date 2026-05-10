@@ -229,7 +229,9 @@ begin
         Graphics.DrawLine(Pen,
           Single(Pad), Single(Pad + H - 1),
           Single(Pad + W), Single(Pad + H - 1));
-      finally Pen.Free; end;
+      finally
+        Pen.Free;
+      end;
     end;
 
     // Polyline.
@@ -246,7 +248,9 @@ begin
     Pen.SetLineJoin(LineJoinRound);
     try
       Graphics.DrawLines(Pen, PGPPointF(@Points[0]), FFilled);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
 
     // Current-sample dot.
     if FShowCurrent then
@@ -258,7 +262,9 @@ begin
       Brush := TGPSolidBrush.Create(ColorToARGB(AccentCol));
       try
         Graphics.FillEllipse(Brush, R);
-      finally Brush.Free; end;
+      finally
+        Brush.Free;
+      end;
     end;
   finally
     Graphics.Free;

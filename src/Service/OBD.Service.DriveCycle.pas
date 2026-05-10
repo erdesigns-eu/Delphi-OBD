@@ -351,7 +351,10 @@ begin
   // LiveBindings refresh — readiness snapshots are state that
   // hosts often bind to a UI grid. Notify even on partial reads
   // so the grid shows whatever could be parsed.
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
   if (Err <> '') and Assigned(FOnError) then
     FOnError(Self, oeIO, Err);
 end;
@@ -410,7 +413,10 @@ procedure TOBDDriveCyclePollThread.FireReadinessSync(
 begin
   Synchronize(procedure
   begin
-    try TBindings.Notify(FAdvisor, ''); except end;
+    try
+      TBindings.Notify(FAdvisor, '');
+    except
+    end;
     if Assigned(FAdvisor.FOnReadiness) then
       FAdvisor.FOnReadiness(FAdvisor, A);
   end);

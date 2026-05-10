@@ -238,13 +238,17 @@ begin
     Inner.Width  := ABounds.Width;
     Inner.Height := ABounds.Height;
     AGraphics.FillEllipse(Brush, Inner);
-  finally Brush.Free; end;
+  finally
+    Brush.Free;
+  end;
 
   // Border ring.
   Pen := TGPPen.Create(ColorToARGB(BorderCol), ScaleValue(2));
   try
     AGraphics.DrawEllipse(Pen, Inner);
-  finally Pen.Free; end;
+  finally
+    Pen.Free;
+  end;
 end;
 
 procedure TOBDDialBase.DrawZones(AGraphics: TGPGraphics;
@@ -272,7 +276,9 @@ begin
     Pen := TGPPen.Create(ColorToARGB(Z.Color), ScaleValue(6));
     try
       AGraphics.DrawArc(Pen, Rect, StartA, SweepA);
-    finally Pen.Free; end;
+    finally
+      Pen.Free;
+    end;
   end;
 end;
 
@@ -386,7 +392,9 @@ begin
   Pen.SetEndCap(LineCapTriangle);
   try
     AGraphics.DrawLine(Pen, Cx, Cy, NX, NY);
-  finally Pen.Free; end;
+  finally
+    Pen.Free;
+  end;
 
   // Hub.
   HubR := ScaleValue(8);
@@ -397,7 +405,9 @@ begin
     Hub.Width := HubR * 2;
     Hub.Height := HubR * 2;
     AGraphics.FillEllipse(Brush, Hub);
-  finally Brush.Free; end;
+  finally
+    Brush.Free;
+  end;
 end;
 
 procedure TOBDDialBase.DrawCaption(ACanvas: TCanvas;

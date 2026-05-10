@@ -271,7 +271,10 @@ begin
     Repaint;
   end;
   if Assigned(FOnValueChanged) then
-    try FOnValueChanged(Self, FValue); except end;
+    try
+      FOnValueChanged(Self, FValue);
+    except
+    end;
   // LiveBindings refresh - notifies any TLinkPropertyToField /
   // TLinkObservableProperty bound to 'Value' on this gauge.
   // Best-effort; the call is a no-op when no binding is wired.

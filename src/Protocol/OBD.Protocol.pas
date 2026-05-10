@@ -363,7 +363,10 @@ begin
   Snap := SnapshotListeners;
   for L in Snap do
     if Assigned(L.OnFrame) then
-      try L.OnFrame(Self, AFrame); except end;
+      try
+        L.OnFrame(Self, AFrame);
+      except
+      end;
 end;
 
 procedure TOBDProtocol.DispatchResponseListeners(
@@ -375,7 +378,10 @@ begin
   Snap := SnapshotListeners;
   for L in Snap do
     if Assigned(L.OnResponse) then
-      try L.OnResponse(Self, AResponse); except end;
+      try
+        L.OnResponse(Self, AResponse);
+      except
+      end;
 end;
 
 procedure TOBDProtocol.DispatchNRCListeners(const ARequest: TOBDRequest;
@@ -387,7 +393,10 @@ begin
   Snap := SnapshotListeners;
   for L in Snap do
     if Assigned(L.OnNRC) then
-      try L.OnNRC(Self, ARequest, ANRC, AText); except end;
+      try
+        L.OnNRC(Self, ARequest, ANRC, AText);
+      except
+      end;
 end;
 
 procedure TOBDProtocol.DispatchErrorListeners(ACode: TOBDErrorCode;
@@ -399,7 +408,10 @@ begin
   Snap := SnapshotListeners;
   for L in Snap do
     if Assigned(L.OnError) then
-      try L.OnError(Self, ACode, AMessage); except end;
+      try
+        L.OnError(Self, ACode, AMessage);
+      except
+      end;
 end;
 
 procedure TOBDProtocol.WaitForAsync;

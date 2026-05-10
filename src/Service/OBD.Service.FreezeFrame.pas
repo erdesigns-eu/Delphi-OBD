@@ -99,14 +99,18 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDFreezeFrame: async read already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFreezeFrame.ReleaseAsync;
 begin
   FAsyncLock.Enter;
   try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFreezeFrame.SetProtocol(AValue: TOBDProtocol);
@@ -205,12 +209,18 @@ begin
   Self_ := Self; Frame := AFrameIndex; Snap := AValue;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    try TBindings.Notify(Self_, ''); except end;
+    try
+      TBindings.Notify(Self_, '');
+    except
+    end;
     if Assigned(FOnValue) then FOnValue(Self_, Frame, Snap);
   end
   else
     TThread.Queue(nil, procedure begin
-      try TBindings.Notify(Self_, ''); except end;
+      try
+        TBindings.Notify(Self_, '');
+      except
+      end;
       if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Frame, Snap);
     end);
 end;

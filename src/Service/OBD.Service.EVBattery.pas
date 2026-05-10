@@ -391,7 +391,10 @@ begin
   // through FOnSnapshot (that's for the poll thread), so notify
   // here so a TLinkPropertyToField bound to one of the snapshot
   // fields picks up the new state.
-  try TBindings.Notify(Self, ''); except end;
+  try
+    TBindings.Notify(Self, '');
+  except
+  end;
 end;
 
 procedure TOBDEVBattery.Start;
@@ -445,7 +448,10 @@ procedure TOBDEVBatteryPollThread.FireSnapshotSync(
 begin
   Synchronize(procedure
   begin
-    try TBindings.Notify(FOwner, ''); except end;
+    try
+      TBindings.Notify(FOwner, '');
+    except
+    end;
     if Assigned(FOwner.FOnSnapshot) then
       FOwner.FOnSnapshot(FOwner, A);
   end);

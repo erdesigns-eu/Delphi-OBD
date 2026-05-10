@@ -206,7 +206,10 @@ begin
   V := FFrom + (FTo - FFrom) * EasedT;
   FCurrent := V;
   if Assigned(FOnFrame) then
-    try FOnFrame(Self, V); except end;
+    try
+      FOnFrame(Self, V);
+    except
+    end;
 end;
 
 end.
