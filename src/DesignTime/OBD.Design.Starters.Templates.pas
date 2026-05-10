@@ -35,39 +35,19 @@ uses
   System.Classes,
   OBD.Design.Starters;
 
-{ ---- helpers ---------------------------------------------------------------- }
+{ ---- helpers ----------------------------------------------------------------
+  Expand and MakeDpr are now public on OBD.Design.Starters; the
+  shorthand aliases below keep this unit's bodies short. }
 
 function Expand(const ATemplate: string;
-  const AContext: TOBDStarterContext): string;
+  const AContext: TOBDStarterContext): string; inline;
 begin
-  Result := ATemplate;
-  Result := StringReplace(Result, '{PROJ}',     AContext.ProjectName,      [rfReplaceAll]);
-  Result := StringReplace(Result, '{UNIT}',     AContext.UnitName,         [rfReplaceAll]);
-  Result := StringReplace(Result, '{FORM}',     AContext.FormClassName,    [rfReplaceAll]);
-  Result := StringReplace(Result, '{FORMVAR}',  AContext.FormInstanceName, [rfReplaceAll]);
+  Result := ExpandTemplate(ATemplate, AContext);
 end;
 
-function MakeDpr(const AContext: TOBDStarterContext): TOBDStarterArtifact;
-const
-  TPL =
-    'program {PROJ};'#13#10 +
-    ''#13#10 +
-    'uses'#13#10 +
-    '  Vcl.Forms,'#13#10 +
-    '  {UNIT} in ''{UNIT}.pas'' {{FORM};'#13#10 +
-    ''#13#10 +
-    '{$R *.res}'#13#10 +
-    ''#13#10 +
-    'begin'#13#10 +
-    '  Application.Initialize;'#13#10 +
-    '  Application.MainFormOnTaskbar := True;'#13#10 +
-    '  Application.CreateForm({FORM}, {FORMVAR});'#13#10 +
-    '  Application.Run;'#13#10 +
-    'end.'#13#10;
+function MakeDpr(const AContext: TOBDStarterContext): TOBDStarterArtifact; inline;
 begin
-  Result.RelativePath  := AContext.ProjectName + '.dpr';
-  Result.Content       := Expand(TPL, AContext);
-  Result.IsProjectFile := True;
+  Result := MakeDprArtifact(AContext);
 end;
 
 { ---- 01 — Empty (connection chain only) -------------------------------------- }

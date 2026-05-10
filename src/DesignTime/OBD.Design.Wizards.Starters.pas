@@ -108,27 +108,30 @@ var
   Action: IOTAActionServices;
 begin
   if not TOBDStarterPickerDlg.Pick(Context, Starter) then Exit;
+  try
+    if not TDirectory.Exists(Context.TargetDir) then
+      TDirectory.CreateDirectory(Context.TargetDir);
 
-  // Make the target dir on demand.
-  if not TDirectory.Exists(Context.TargetDir) then
-    TDirectory.CreateDirectory(Context.TargetDir);
+    Artifacts := Starter.Generate(Context);
+    ProjectPath := '';
+    for A in Artifacts do
+    begin
+      TFile.WriteAllText(
+        TPath.Combine(Context.TargetDir, A.RelativePath),
+        A.Content,
+        TEncoding.UTF8);
+      if A.IsProjectFile then
+        ProjectPath := TPath.Combine(Context.TargetDir, A.RelativePath);
+    end;
 
-  Artifacts := Starter.Generate(Context);
-  ProjectPath := '';
-  for A in Artifacts do
-  begin
-    TFile.WriteAllText(
-      TPath.Combine(Context.TargetDir, A.RelativePath),
-      A.Content,
-      TEncoding.UTF8);
-    if A.IsProjectFile then
-      ProjectPath := TPath.Combine(Context.TargetDir, A.RelativePath);
+    // Open the new project so RAD regenerates the .dproj.
+    if (ProjectPath <> '') and
+       Supports(BorlandIDEServices, IOTAActionServices, Action) then
+      Action.OpenProject(ProjectPath, True);
+  finally
+    // Pick() handed ownership of the Choices map to us.
+    Context.Choices.Free;
   end;
-
-  // Open the new project so RAD regenerates the .dproj.
-  if (ProjectPath <> '') and
-     Supports(BorlandIDEServices, IOTAActionServices, Action) then
-    Action.OpenProject(ProjectPath, True);
 end;
 
 procedure RegisterDelphiOBDStarterWizard;
