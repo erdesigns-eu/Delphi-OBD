@@ -71,7 +71,10 @@ uses
   {$IFDEF MSWINDOWS}
   OBD.J2534 in '..\src\Protocol\OBD.J2534.pas',
   OBD.Protocol.KWP1281.Transport.J2534 in '..\src\Protocol\OBD.Protocol.KWP1281.Transport.J2534.pas',
+  OBD.J2534.Components in '..\src\Protocol\OBD.J2534.Components.pas',
   {$ENDIF}
+  OBD.Protocol.KWP1281.Session in '..\src\Protocol\OBD.Protocol.KWP1281.Session.pas',
+  OBD.Protocol.TP20.Session in '..\src\Protocol\OBD.Protocol.TP20.Session.pas',
   OBD.Protocol.ISO9141 in '..\src\Protocol\OBD.Protocol.ISO9141.pas',
   OBD.Protocol.J1850 in '..\src\Protocol\OBD.Protocol.J1850.pas',
   OBD.Protocol.J1939 in '..\src\Protocol\OBD.Protocol.J1939.pas',

@@ -85,6 +85,9 @@ uses
   OBD.OEM.KeyAdaptation.HMG,
   OBD.OEM.KeyAdaptation.BMW,
   OBD.OEM.KeyAdaptation.Toyota,
+  OBD.Protocol.KWP1281.Session,
+  OBD.Protocol.TP20.Session,
+  OBD.J2534.Components,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -272,6 +275,16 @@ begin
   RegisterComponents('OBD', [
     TOBDRecorder,
     TOBDReplayer
+  ]);
+
+  // Session / transport components. Foundation for KWP1281,
+  // TP2.0 and J2534 work without going through a higher-level
+  // facade like TOBDVWRadioSAFE. Drop, wire, call.
+  RegisterComponents('OBD', [
+    TOBDKWP1281Session,
+    TOBDTP20Session,
+    TOBDJ2534Device,
+    TOBDJ2534Channel
   ]);
 
   // Radio-code calculators (one component per vendor). Each
