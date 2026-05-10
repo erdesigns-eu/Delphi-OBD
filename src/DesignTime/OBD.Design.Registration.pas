@@ -86,6 +86,7 @@ uses
   OBD.RadioCode.EuropeanPremium,
   OBD.RadioCode.FrenchItalian,
   OBD.RadioCode.British,
+  OBD.RadioCode.Asian,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -277,7 +278,18 @@ begin
     TOBDRadioCodeJaguar,
     TOBDRadioCodeLandRover,
     TOBDRadioCodeSaab,
-    TOBDRadioCodeOpel
+    TOBDRadioCodeOpel,
+    TOBDRadioCodeAcura,
+    TOBDRadioCodeHonda,
+    TOBDRadioCodeHyundai,
+    TOBDRadioCodeInfiniti,
+    TOBDRadioCodeLexus,
+    TOBDRadioCodeMazda,
+    TOBDRadioCodeMitsubishi,
+    TOBDRadioCodeNissan,
+    TOBDRadioCodeSubaru,
+    TOBDRadioCodeSuzuki,
+    TOBDRadioCodeToyota
   ]);
 
   // Register the splash-screen plugin entry and the About-box
