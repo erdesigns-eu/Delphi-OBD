@@ -89,6 +89,7 @@ uses
   OBD.RadioCode.Asian,
   OBD.RadioCode.American,
   OBD.RadioCode.Aftermarket,
+  OBD.RadioCode.Volvo,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -300,7 +301,8 @@ begin
     TOBDRadioCodeBlaupunkt,
     TOBDRadioCodeClarion,
     TOBDRadioCodeBecker4,
-    TOBDRadioCodeBecker5
+    TOBDRadioCodeBecker5,
+    TOBDRadioCodeVolvo
   ]);
 
   // Register the splash-screen plugin entry and the About-box
