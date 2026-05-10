@@ -97,6 +97,8 @@ uses
   OBD.UI.Gauges.Variants,
   OBD.UI.Gauges.Sparkline,
   OBD.UI.Gauges.DialExtended,
+  OBD.UI.Indicators,
+  OBD.UI.Telltales,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -338,7 +340,13 @@ begin
     TOBDDeltaGauge,
     TOBDSparkline,
     TOBDDualNeedleGauge,
-    TOBDMinMaxGauge
+    TOBDMinMaxGauge,
+    TOBDLED,
+    TOBDMatrixDisplay,
+    TOBDMILLamp,
+    TOBDDTCBadge,
+    TOBDReadinessLamp,
+    TOBDDashLamp
   ]);
 
   // Radio-code calculators (one component per vendor). Each
