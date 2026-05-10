@@ -61,6 +61,7 @@ uses
   OBD.Service.OnBoardMonitor,
   OBD.Service.VehicleHealth,
   OBD.Service.DriveCycle,
+  OBD.Service.EVBattery,
   OBD.Service.Actuator,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
@@ -211,7 +212,8 @@ begin
     TOBDOnBoardMonitor,
     TOBDActuator,
     TOBDVehicleHealth,
-    TOBDDriveCycleAdvisor
+    TOBDDriveCycleAdvisor,
+    TOBDEVBattery
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

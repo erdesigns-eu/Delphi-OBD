@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://delphi-obd.example/schema/ev-battery.json",
+  "title": "EV battery BMS decode catalogue (per vendor)",
+  "type": "object",
+  "required": ["vendor", "ecu", "fields"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "vendor":  { "type": "string", "description": "Lowercase vendor key (e.g. \"hmg\", \"nissan-leaf\")." },
+    "label":   { "type": "string", "description": "Human-readable name for UI display." },
+    "ecu": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id_hex":  { "type": "string" },
+        "response_id_hex": { "type": "string" },
+        "request_id":      { "type": "integer" },
+        "response_id":     { "type": "integer" }
+      }
+    },
+    "applicable_models": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field"],
+        "additionalProperties": false,
+        "properties": {
+          "field":         { "type": "string", "description": "Snake-case field name; matched by FieldKindFromName." },
+          "service_hex":   { "type": "string", "description": "UDS service id, e.g. \"0x22\". Falls back to \"service\" decimal if absent." },
+          "service":       { "type": "integer" },
+          "did_hex":       { "type": "string" },
+          "did":           { "type": "integer" },
+          "pid_hex":       { "type": "string" },
+          "pid":           { "type": "integer" },
+          "offset":        { "type": "integer", "description": "0-based byte offset within the response data payload (post-header)." },
+          "length":        { "type": "integer", "description": "Byte length of the slice. Default 1." },
+          "signed":        { "type": "boolean" },
+          "scale":         { "type": "number" },
+          "offset_value":  { "type": "number" },
+          "unit":          { "type": "string" },
+          "source":        { "type": "string", "description": "Citation URL or doc reference." },
+          "array":         { "type": "boolean", "description": "True for repeating arrays (cells / module temps)." },
+          "element_size":  { "type": "integer" }
+        }
+      }
+    }
+  }
+}
