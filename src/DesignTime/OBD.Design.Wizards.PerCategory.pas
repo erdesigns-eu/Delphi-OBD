@@ -200,8 +200,9 @@ begin
   Add('Sessions',
       'Delphi-OBD: KWP1281 / TP2.0 / J2534 session',
       'Form with a TOBDKWP1281Session pre-configured for VW radios. ' +
-      'TODO comments show where to wire the K-line / CAN / J2534 ' +
-      'transport.',
+      'FormCreate is the wire-up point for the transport (Serial / ' +
+      'ELM / TP2.0 / ISO-TP / J2534) - the generated code lists ' +
+      'each option in a comment block.',
       ['Sessions']);
 
   Add('Suite',

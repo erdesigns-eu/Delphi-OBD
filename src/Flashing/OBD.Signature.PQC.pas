@@ -5,10 +5,12 @@
 //  Safe) — the reference C library that exposes the NIST PQC
 //  finalists Dilithium / Falcon / SPHINCS+ behind a uniform API.
 //
-//  Dynamic-loads liboqs at first use (oqs.dll on Windows,
-//  liboqs.so.0 on Linux). When the library isn't present the
-//  backend reports IsAvailable = False so the registry can fall
-//  through to the BCrypt / OpenSSL backends for classical
+//  Dynamic-loads liboqs at first use (oqs.dll on Windows;
+//  POSIX dlopen-based loading is a follow-up — current build
+//  is Windows-only and reports IsAvailable = False on non-
+//  Windows platforms). When the library isn't present the
+//  backend reports IsAvailable = False so the registry can
+//  fall through to the BCrypt / OpenSSL backends for classical
 //  algorithms.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

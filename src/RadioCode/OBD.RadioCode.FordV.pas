@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  OBD.RadioCode.FordVDatabase
+//  OBD.RadioCode.FordV
 //
 //  TOBDRadioCodeFordV — Ford V-series factory radios. Bundled
 //  serial->code database (999,999 entries) loaded from
@@ -19,7 +19,7 @@
 //                     calculator (8.6 MB Pascal source -> 7 MB JSON).
 //------------------------------------------------------------------------------
 
-unit OBD.RadioCode.FordVDatabase;
+unit OBD.RadioCode.FordV;
 
 interface
 

@@ -153,8 +153,6 @@ const
     '  object imgLogo: TImage'#13#10 +
     '    Left = 0  Top = 0  Width = 388  Height = 136'#13#10 +
     '    Align = alTop  Center = True'#13#10 +
-    '    // TODO: assign Picture.LoadFromFile(...) at design'#13#10 +
-    '    // time to brand the form with your vendor logo.'#13#10 +
     '  end'#13#10 +
     '  object pnlBottom: TPanel'#13#10 +
     '    Left = 0  Top = 219  Width = 388  Height = 43'#13#10 +

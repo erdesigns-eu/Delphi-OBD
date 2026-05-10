@@ -195,7 +195,7 @@ uses
   OBD.RadioCode.American in '..\src\RadioCode\OBD.RadioCode.American.pas',
   OBD.RadioCode.Aftermarket in '..\src\RadioCode\OBD.RadioCode.Aftermarket.pas',
   OBD.RadioCode.Volvo in '..\src\RadioCode\OBD.RadioCode.Volvo.pas',
-  OBD.RadioCode.FordVDatabase in '..\src\RadioCode\OBD.RadioCode.FordVDatabase.pas',
+  OBD.RadioCode.FordV in '..\src\RadioCode\OBD.RadioCode.FordV.pas',
   OBD.RadioCode.EEPROM in '..\src\RadioCode\OBD.RadioCode.EEPROM.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',

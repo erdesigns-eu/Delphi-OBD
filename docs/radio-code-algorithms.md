@@ -83,7 +83,7 @@ for sources if you need to wire your own.
 | Component | Status | Notes |
 |---|---|---|
 | `TOBDRadioCodeChrysler`     | 🔌 | TM9 / Panasonic-built. |
-| `TOBDRadioCodeFordM`        | 💡 | Ford "M-prefix" series; full pre-computed serial→code lookup at [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes), Flipper Zero impl at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). Will ship as `TOBDRadioCodeFordV` (`TOBDRadioCode.FordVDatabase`) once the database is extracted to JSON. |
+| `TOBDRadioCodeFordM`        | 💡 | Ford "M-prefix" series; full pre-computed serial→code lookup at [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes), Flipper Zero impl at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). Will ship as `TOBDRadioCodeFordV` (`OBD.RadioCode.FordV`) once the database is extracted to JSON. |
 | `TOBDRadioCodeGM`           | 💡 | Delco Theftlock — dealer-call procedure, not a calculation. See [Diesel Place thread](https://www.dieselplace.com/threads/here-is-how-to-unlock-delco-theftlock-radio-that-displays-loc.40705/). |
 | `TOBDRadioCodeVisteon`      | 🔌 | Fiat Stilo / Bravo Visteon — commercial only. |
 

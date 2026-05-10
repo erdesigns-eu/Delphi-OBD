@@ -8,7 +8,7 @@
 //    TOBDRadioCodeFordM     Ford "M-prefix" series (6 digits;
 //                            optional leading M). Database lookup
 //                            ships separately (TOBDRadioCodeFordV
-//                            in OBD.RadioCode.FordVDatabase).
+//                            in OBD.RadioCode.FordV).
 //    TOBDRadioCodeGM        GM Delco Theftlock (4-digit pre-code).
 //                            Real codes are dealer-issued; no
 //                            public algorithm.
@@ -17,7 +17,7 @@
 //
 //  All four ship as OnCalculate stubs. The Ford "V-series" with
 //  the bundled 100,000-entry serial->code database lives in the
-//  separate <c>OBD.RadioCode.FordVDatabase</c> unit so a host
+//  separate <c>OBD.RadioCode.FordV</c> unit so a host
 //  that doesn't need it doesn't drag the database in.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

@@ -104,7 +104,7 @@ uses
   OBD.RadioCode.American,
   OBD.RadioCode.Aftermarket,
   OBD.RadioCode.Volvo,
-  OBD.RadioCode.FordVDatabase,
+  OBD.RadioCode.FordV,
   OBD.RadioCode.EEPROM,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters,

@@ -221,10 +221,15 @@ const
     '{$R *.dfm}'#13#10#13#10 +
     'procedure {FORM}.FormCreate(Sender: TObject);'#13#10 +
     'begin'#13#10 +
-    '  // TODO: build a transport (Serial / ELM / TP2.0 / J2534)'#13#10 +
-    '  // and hand it to the session before Connect:'#13#10 +
-    '  //   Session.SetTransport(MyTransport);'#13#10 +
-    '  //   Session.Connect;'#13#10 +
+    '  // Hand a transport to the session before calling Connect.'#13#10 +
+    '  // Pick the implementation that matches your hardware:'#13#10 +
+    '  //   * TKWP1281SerialTransport  - USB-K-line (FTDI / PL2303)'#13#10 +
+    '  //   * TKWP1281ELMTransport     - ELM327 in slow-init mode'#13#10 +
+    '  //   * TKWP1281TP20Transport    - TP2.0 over CAN (2003+ VAG)'#13#10 +
+    '  //   * TKWP1281ISOTPTransport   - ISO-TP gateway'#13#10 +
+    '  //   * TKWP1281J2534Transport   - J2534 PassThru DLL'#13#10 +
+    '  // Session.SetTransport(MyTransport);'#13#10 +
+    '  // Session.Connect;'#13#10 +
     'end;'#13#10#13#10 +
     'end.'#13#10;
   DFM_TPL =
@@ -290,8 +295,9 @@ begin
   S.Title := 'KWP1281 session form';
   S.Description :=
     'Form with a TOBDKWP1281Session pre-configured for VW radios ' +
-    '(address $56). FormCreate has TODO comments showing where to ' +
-    'wire the K-line / TP2.0 / J2534 transport.';
+    '(address $56). FormCreate is the wire-up point for the ' +
+    'transport (Serial / ELM / TP2.0 / ISO-TP / J2534) - the ' +
+    'generated code lists each option in a comment block.';
   S.Category := 'Sessions';
   S.Generate := GenerateSessionsForm;
   TOBDStarterRegistry.Default.Register(S);
