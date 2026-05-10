@@ -35,7 +35,7 @@
 //    - SAE J1939-73 § 5.7.1.1 (DM15 / DM16 / DM17 / DM18)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9a initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.J1939.MemoryAccess;

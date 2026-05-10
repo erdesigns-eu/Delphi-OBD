@@ -18,8 +18,8 @@
 //    - FTDI D2XX Programmer's Guide (FT_000071)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial.
-//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//    2026-05-09  ERD  Initial implementation.
+//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
 //
 //  Future work :

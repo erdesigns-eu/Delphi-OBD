@@ -18,7 +18,7 @@
 //    - ISO 17987-1:2016 Annex B
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4f initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.LIN.LDF;

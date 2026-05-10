@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Coding.Phase8b
 //
-//  Phase 8 follow-up coverage: schema-validated option catalogue,
+//  Follow-up coverage: schema-validated option catalogue,
 //  TOBDCodingSession dry-run mode, RLE diff round-trip, BMW /
 //  Mercedes / Stellantis component-protection safety surface, and
 //  the VAG .lbl label-file parser.
@@ -11,7 +11,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 8 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Coding.Phase8b;

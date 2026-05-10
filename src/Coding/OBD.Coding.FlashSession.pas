@@ -30,7 +30,7 @@
 //    - ISO 14229-1:2020 § 14.2 (RequestDownload)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 6 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Coding.FlashSession;

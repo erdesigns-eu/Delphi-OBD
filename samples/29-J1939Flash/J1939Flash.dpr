@@ -11,7 +11,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9f initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 program J1939Flash;

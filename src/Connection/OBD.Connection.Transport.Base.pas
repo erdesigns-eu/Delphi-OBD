@@ -15,7 +15,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 follow-up: extract common transport
+//    2026-05-09  ERD  Follow-up: extract common transport
 //                     boilerplate so Phase 2 net runtime drops by
 //                     ~480 lines and progress wiring is centralised.
 //------------------------------------------------------------------------------

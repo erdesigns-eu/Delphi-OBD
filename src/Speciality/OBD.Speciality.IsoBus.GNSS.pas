@@ -22,7 +22,7 @@
 //    - NMEA 2000 (ISO 11783-7)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Speciality.IsoBus.GNSS;

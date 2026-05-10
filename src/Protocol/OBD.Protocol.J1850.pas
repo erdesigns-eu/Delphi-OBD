@@ -15,7 +15,7 @@
 //    - SAE J1850-2015 (Class B Data Communications Network Interface)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial: header build + CRC8 +
+//    2026-05-09  ERD  Initial implementation: header build + CRC8 +
 //                     encode helper.
 //------------------------------------------------------------------------------
 

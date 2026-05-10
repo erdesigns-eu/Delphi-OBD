@@ -23,7 +23,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-10  ERD  Phase 10 follow-up: end-to-end capture replay.
+//    2026-05-10  ERD  Follow-up: end-to-end capture replay.
 //------------------------------------------------------------------------------
 
 unit OBD.Recorder.ProtocolMock;

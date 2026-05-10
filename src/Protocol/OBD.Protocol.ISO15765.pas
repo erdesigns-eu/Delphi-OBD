@@ -17,7 +17,7 @@
 //    - ELM327 datasheet rev 2.3 §6 (auto-formatting / multi-frame)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial: SF / FF / CF / FC encoders +
+//    2026-05-09  ERD  Initial implementation: SF / FF / CF / FC encoders +
 //                     decoders + multi-frame reassembler.
 //------------------------------------------------------------------------------
 

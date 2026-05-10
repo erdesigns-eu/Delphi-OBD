@@ -21,7 +21,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 3 initial: TOBDAdapter component, sync +
+//    2026-05-09  ERD  Initial implementation: TOBDAdapter component, sync +
 //                     async + progress for Detect / Init /
 //                     WriteATCommand / WriteSTCommand /
 //                     WriteOBDCommand.

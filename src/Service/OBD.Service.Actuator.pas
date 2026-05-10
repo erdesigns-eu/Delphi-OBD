@@ -32,7 +32,7 @@
 //    - SAE J1979 Mode 08 — Request Control of On-Board Systems
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 follow-up — close-out deferrals.
+//    2026-05-09  ERD  Follow-up — close-out deferrals.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.Actuator;

@@ -24,7 +24,7 @@
 //    - ISO 13400-2:2019 §7.1.5 (Generic header NACK codes)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4d initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.DoIP.Header;

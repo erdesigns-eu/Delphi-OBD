@@ -29,7 +29,7 @@
 //    - Commission Implementing Regulation (EU) 2016/799 Annex IC §3
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Speciality.Tachograph.PCSC;

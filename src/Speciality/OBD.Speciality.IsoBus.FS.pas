@@ -25,7 +25,7 @@
 //    - ISO 11783-13:2011 (File Server)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Speciality.IsoBus.FS;

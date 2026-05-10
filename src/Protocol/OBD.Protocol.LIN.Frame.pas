@@ -23,7 +23,7 @@
 //    - SAE J2602 (LIN for North-American OEMs)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4f initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.LIN.Frame;

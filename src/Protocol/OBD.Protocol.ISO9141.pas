@@ -18,7 +18,7 @@
 //      requirements for interchange of digital information.
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial: header build + checksum +
+//    2026-05-09  ERD  Initial implementation: header build + checksum +
 //                     parse helpers. Adapter handles the wire init.
 //------------------------------------------------------------------------------
 

@@ -21,7 +21,7 @@
 //    - ISO 14230-3:1999 § 6.7 (writeDataByLocalIdentifier)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 8 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.KWP.WriteID;

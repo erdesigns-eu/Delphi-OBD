@@ -24,7 +24,7 @@
 //    - ISO 14229-1:2020 § 11.7 (WriteMemoryByAddress)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 8 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.UDS.WriteMemory;

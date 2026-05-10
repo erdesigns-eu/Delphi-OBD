@@ -17,7 +17,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial: TPersistent policy + delay
+//    2026-05-09  ERD  Initial implementation: TPersistent policy + delay
 //                     calculator + tests-friendly seedable jitter.
 //------------------------------------------------------------------------------
 

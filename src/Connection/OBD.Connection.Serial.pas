@@ -20,8 +20,8 @@
 //      (https://learn.microsoft.com/windows/win32/devio/communications-resources)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial Win32 implementation.
-//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport
+//    2026-05-09  ERD  Initial implementation Win32 implementation.
+//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
 //
 //  Future work :

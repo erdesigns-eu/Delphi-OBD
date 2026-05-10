@@ -14,7 +14,7 @@
 //    - SAE J1979 Mode 02 (Freeze frame data)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.FreezeFrame;

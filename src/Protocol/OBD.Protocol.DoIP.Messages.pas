@@ -14,7 +14,7 @@
 //    - ISO 13400-2:2019 Tables 19..40 (per-payload field layouts)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4d initial. All 15 standard payload
+//    2026-05-09  ERD  Initial implementation. All 15 standard payload
 //                     types covered.
 //------------------------------------------------------------------------------
 

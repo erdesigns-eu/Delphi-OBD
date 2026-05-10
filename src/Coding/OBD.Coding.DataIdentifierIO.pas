@@ -22,7 +22,7 @@
 //    - ISO 14229-1:2020 § 11.6 (WriteDataByIdentifier)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 6 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Coding.DataIdentifierIO;

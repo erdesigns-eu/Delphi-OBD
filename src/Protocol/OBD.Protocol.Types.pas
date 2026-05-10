@@ -16,7 +16,7 @@
 //    - SAE J1939-73 (Diagnostics Messages)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.Types;

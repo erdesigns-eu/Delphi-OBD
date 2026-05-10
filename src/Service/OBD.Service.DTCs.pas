@@ -24,7 +24,7 @@
 //    - ISO 14229-1 § 11.3.5 (UDS ReadDTCInformation)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.DTCs;

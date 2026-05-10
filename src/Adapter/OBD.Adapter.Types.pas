@@ -19,7 +19,7 @@
 //    - SAE J2534 PassThru spec
 //
 //  History     :
-//    2026-05-09  ERD  Phase 3 initial: capability set, identity record,
+//    2026-05-09  ERD  Initial implementation: capability set, identity record,
 //                     command kind enum, command record, AT/OBD-frame
 //                     events.
 //------------------------------------------------------------------------------

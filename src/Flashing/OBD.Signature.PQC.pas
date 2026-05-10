@@ -21,7 +21,7 @@
 //    - https://github.com/open-quantum-safe/liboqs
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9d initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Signature.PQC;

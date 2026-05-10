@@ -34,7 +34,7 @@
 //    - SAE J1939-21 Appendix B (state diagrams)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4c initial: full TP / ETP implementation
+//    2026-05-09  ERD  Initial implementation: full TP / ETP implementation
 //                     with concurrent session manager.
 //------------------------------------------------------------------------------
 

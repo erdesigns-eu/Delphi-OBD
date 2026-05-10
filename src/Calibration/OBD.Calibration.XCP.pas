@@ -27,7 +27,7 @@
 //    - ASAM MCD-1 XCP v1.7 § 4 (Protocol Layer)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Calibration.XCP;

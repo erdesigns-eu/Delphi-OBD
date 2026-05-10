@@ -19,7 +19,7 @@
 //    - OBDLink ST command reference (ScanTool / OBDSolutions)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 3 initial: ~30 built-in AT commands, ~12 ST
+//    2026-05-09  ERD  Initial implementation: ~30 built-in AT commands, ~12 ST
 //                     commands, FormatCommand with %s/%d/%x/%xx
 //                     placeholders + capability gating.
 //------------------------------------------------------------------------------

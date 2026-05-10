@@ -2,14 +2,14 @@
 //  Tests.OBD.Protocol.Integration
 //
 //  Cross-cutting integration tests that exercise more than one
-//  Phase 4 subsystem at the same time. Phase 4g close-out.
+//  Phase 4 subsystem at the same time. Close-out.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4g initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Protocol.Integration;

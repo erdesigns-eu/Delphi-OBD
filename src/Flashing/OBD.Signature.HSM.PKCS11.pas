@@ -28,7 +28,7 @@
 //    - PKCS#11 v3.0 (OASIS)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Signature.HSM.PKCS11;

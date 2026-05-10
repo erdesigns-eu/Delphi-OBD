@@ -13,7 +13,7 @@
 //    - NIST SP 800-38B
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4e initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.SecOC.CMAC;

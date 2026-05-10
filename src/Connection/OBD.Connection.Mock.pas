@@ -12,8 +12,8 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial.
-//    2026-05-09  ERD  Phase 2 follow-up: rebased onto TOBDBaseTransport.
+//    2026-05-09  ERD  Initial implementation.
+//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.Mock;

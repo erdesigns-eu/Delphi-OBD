@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Flashing.Followups
 //
-//  Phase 9 follow-up coverage: atomic checkpoint write,
+//  Follow-up coverage: atomic checkpoint write,
 //  image-applicability cross-check, PKCS#11 vendor-shim
 //  configuration surface, OEM-handshake catalogue loader +
 //  ApplyTo overlays.
@@ -11,7 +11,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Flashing.Followups;

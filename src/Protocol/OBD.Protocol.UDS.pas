@@ -23,7 +23,7 @@
 //    - ISO 14229-1:2020 §8.7 (negative response codes)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial codec.
+//    2026-05-09  ERD  Initial implementation codec.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.UDS;

@@ -26,7 +26,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-10  ERD  Phase 10 follow-up: shareable captures.
+//    2026-05-10  ERD  Follow-up: shareable captures.
 //------------------------------------------------------------------------------
 
 unit OBD.Recorder.Redactor;

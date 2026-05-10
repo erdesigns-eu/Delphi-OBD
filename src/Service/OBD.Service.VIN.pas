@@ -22,7 +22,7 @@
 //    - ISO 3779 (VIN check-digit)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.VIN;

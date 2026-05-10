@@ -19,7 +19,7 @@
 //    - ISO 14230-2 (Data link layer)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4 initial codec.
+//    2026-05-09  ERD  Initial implementation codec.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.KWP2000;

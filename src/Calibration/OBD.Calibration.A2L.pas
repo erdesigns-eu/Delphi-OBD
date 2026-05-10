@@ -35,7 +35,7 @@
 //    - ASAM MCD-2 MC v1.7 (A2L specification)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Calibration.A2L;

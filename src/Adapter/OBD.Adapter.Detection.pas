@@ -15,7 +15,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 3 initial: ATZ → ATE0 → ATI → AT@1 → AT@2
+//    2026-05-09  ERD  Initial implementation: ATZ → ATE0 → ATI → AT@1 → AT@2
 //                     → optional STI sequence with clone-signature
 //                     heuristic.
 //------------------------------------------------------------------------------

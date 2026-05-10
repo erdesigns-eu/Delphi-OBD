@@ -22,7 +22,7 @@
 //    - AUTOSAR SecOC SWS §7.5 (Freshness handling)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4e initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.SecOC.Freshness;

@@ -24,7 +24,7 @@
 //    - ISO 15031-5 (OBD-II diagnostic services)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.LiveData;

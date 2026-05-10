@@ -13,7 +13,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 follow-up: progress event coverage.
+//    2026-05-09  ERD  Follow-up: progress event coverage.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Connection.Progress;

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Calibration.Followups
 //
-//  Coverage for the Phase 7 close-out work: XCP DAQ programming,
+//  Coverage for the Close-out work: XCP DAQ programming,
 //  XCP PGM, CCP DAQ, A2L MOD_COMMON / MOD_PAR / COMPU_VTAB / TAB,
 //  Tachograph CalibrationRecord, IsoBus VT / TC / FS / GNSS,
 //  and the loopback transport.
@@ -11,7 +11,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 7 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Calibration.Followups;

@@ -23,7 +23,7 @@
 //    - SAE J1979-2 Annex B (CAN-specific Mode 06 layout)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 5 follow-up — close-out deferrals.
+//    2026-05-09  ERD  Follow-up — close-out deferrals.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.OnBoardMonitor;

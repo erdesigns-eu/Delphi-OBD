@@ -16,7 +16,7 @@
 //    - OBD.Types (TOBDTransport, TOBDErrorCode)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial: contract for transports, byte
+//    2026-05-09  ERD  Initial implementation: contract for transports, byte
 //                     events, state enum, baud rate / handshake / parity
 //                     enums.
 //

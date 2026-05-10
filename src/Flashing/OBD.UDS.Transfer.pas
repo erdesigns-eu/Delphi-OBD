@@ -22,7 +22,7 @@
 //      RequestingExit → Completed (or → Aborted on any failure).
 //    - Chunked TransferData with BSC counter (1..255 then wraps to
 //      1) and the per-chunk retry budget the user pulled forward
-//      in the Phase 6 close-out.
+//      in the Close-out.
 //    - NRC 0x78 (responsePending) auto-retransmit with budget.
 //    - Resumable: hosts pass an optional <see cref="TOBDFlashCheckpoint"/>
 //      shape (offset + BSC) to resume an interrupted transfer
@@ -43,7 +43,7 @@
 //    - ISO 14229-1:2020 § 7.5  (Pending response NRC 0x78)
 //
 //  History     :
-//    2026-05-09  ERD  Phase 9a initial.
+//    2026-05-09  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.UDS.Transfer;

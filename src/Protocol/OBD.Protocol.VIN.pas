@@ -31,7 +31,7 @@
 //    - ISO 3780:2009 Road vehicles — World manufacturer identifier
 //
 //  History     :
-//    2026-05-09  ERD  Phase 4b follow-up: strict ISO 3779 validator
+//    2026-05-09  ERD  Follow-up: strict ISO 3779 validator
 //                     replacing the lenient sample-only parser.
 //------------------------------------------------------------------------------
 

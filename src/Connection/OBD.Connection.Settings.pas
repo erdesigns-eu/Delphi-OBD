@@ -10,7 +10,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Phase 2 initial: Serial, Bluetooth, BLE, Wi-Fi,
+//    2026-05-09  ERD  Initial implementation: Serial, Bluetooth, BLE, Wi-Fi,
 //                     UDP, FTDI settings.
 //------------------------------------------------------------------------------
 

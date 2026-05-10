@@ -32,7 +32,7 @@
 //    - Ross-Tech "VAG-COM Label File Format" technical note
 //
 //  History     :
-//    2026-05-09  ERD  Phase 8 follow-up.
+//    2026-05-09  ERD  Follow-up.
 //------------------------------------------------------------------------------
 
 unit OBD.Coding.LabelFile.VAG;
