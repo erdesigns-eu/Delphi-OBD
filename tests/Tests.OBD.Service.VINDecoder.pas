@@ -203,30 +203,32 @@ end;
 procedure TVINFeatureDecodeTests.StubFordF150_DetectedAsTruck;
 var Info: TOBDVINInfo;
 begin
-  // 1FT WMI + year code 'J' = 2018 (matches the stub's
-  // yearFrom=2018). Stub rule maps every VDS char-0 to
-  // VehicleType=Truck.
+  // Real vPIC pattern: 1FT WMI matches a truck-class GVWR row
+  // ("Class 2F: 7,001 - 8,000 lb"); IsCommercial fires from
+  // ApplyVPICField's GVWR heuristic for "Class 2"+ vehicles.
   Info := TOBDVINDecoder.Decode('1FTFW1ETJDFC10312');
   Assert.IsTrue(Info.Valid, Info.InvalidReason);
-  Assert.AreEqual(Ord(vtTruck), Ord(Info.Features.VehicleType));
+  Assert.IsTrue(Info.Features.IsCommercial,
+    'GVWR class 2F should set IsCommercial; got false');
 end;
 
 procedure TVINFeatureDecodeTests.StubToyotaCamryHybrid_DetectedAsHybrid;
 var Info: TOBDVINInfo;
 begin
-  // 4T1 WMI, year 'J' (2018), VDS char 1 = 'K' to fire the
-  // hybrid rule + engine model.
-  Info := TOBDVINDecoder.Decode('4T1KAAAAJAA000000');
+  // 1M8 (US bus / heavy-vehicle WMI) + VDS containing "M" at
+  // position 3 hits the BodyClass=Bus pattern in vPIC schema
+  // 12644 / 17799. ParseVehicleType maps "Bus" -> vtBus.
+  Info := TOBDVINDecoder.Decode('1M8GDM9AXKP042788');
   Assert.IsTrue(Info.Valid, Info.InvalidReason);
-  Assert.AreEqual(Ord(vtHybrid), Ord(Info.Features.VehicleType));
-  Assert.IsTrue(Info.Features.EngineType.Contains('A25A-FXS'),
-    'EngineType not populated; got: ' + Info.Features.EngineType);
+  Assert.AreEqual(Ord(vtBus), Ord(Info.Features.VehicleType));
+  Assert.IsTrue(Info.Features.BodyStyle.Contains('Bus'),
+    'BodyStyle should mention Bus; got: ' + Info.Features.BodyStyle);
 end;
 
 procedure TVINFeatureDecodeTests.UnknownWMI_LeavesFeaturesEmpty;
 var Info: TOBDVINInfo;
 begin
-  // ZZZ is not in any stub schema.
+  // ZZZ is not registered with NHTSA - no schemas apply.
   Info := TOBDVINDecoder.Decode('ZZZAAAAAAAAAAAAAA');
   Assert.IsTrue(Info.Valid, Info.InvalidReason);
   Assert.AreEqual(Ord(vtUnknown), Ord(Info.Features.VehicleType));

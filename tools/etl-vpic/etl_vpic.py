@@ -1,50 +1,52 @@
 #!/usr/bin/env python3
 """
-etl_vpic.py - Build catalogs/vin/vds-rules.json from the NHTSA
-vPIC bulk Postgres dump.
+etl_vpic.py - Build catalogs/vin/vds-rules.json from a restored
+NHTSA vPIC PostgreSQL bulk dump.
 
 Usage:
 
     # 1. Download the vPIC PostgreSQL custom dump from
-    #    https://vpic.nhtsa.dot.gov/Downloads (file looks like
-    #    "vPICList_lite_<YYYY>_<MM>.custom.zip"). Unzip.
-    #
-    # 2. Restore into a fresh local database:
-    #
-    #      createdb vpic
-    #      pg_restore --no-owner --no-privileges -d vpic vPICList_lite_*.custom
-    #
-    # 3. Run this script:
-    #
-    #      python3 tools/etl-vpic/etl_vpic.py \\
-    #          --dsn 'postgresql://localhost/vpic' \\
-    #          --out catalogs/vin/vds-rules.json
-    #
-    # The output file follows catalogs/_schema/vin-vds-rules.schema.json
-    # and is consumed by OBD.Service.VINDecoder.LoadVDSRules.
+    #    https://vpic.nhtsa.dot.gov/downloads/
+    #    File looks like vPICList_lite_<YYYY>_<MM>.custom.zip
+    #    (or .backup after unzip).
+    unzip vPICList_lite_2026_04.custom.zip
+
+    # 2. Restore into a fresh database (PostgreSQL 17+ - the
+    #    dump uses transaction_timeout introduced in PG17).
+    sudo -u postgres createdb vpic
+    sudo -u postgres pg_restore --no-owner --no-privileges \\
+        -d vpic vPICList_lite_2026_04.backup
+
+    # 3. Run this script.
+    pip install psycopg2-binary
+    python3 tools/etl-vpic/etl_vpic.py \\
+        --dsn 'postgresql://postgres@/vpic' \\
+        --out catalogs/vin/vds-rules.json \\
+        --version-tag 'vPIC_2026_04'
 
 What this ETL extracts:
 
-    Wmi -> Wmi_VinSchema -> Pattern -> Element
+    vpic.wmi -> vpic.wmi_vinschema -> vpic.pattern -> vpic.element
 
-  Filtered to the Element rows we map onto TOBDVINFeatures
-  (BodyClass, VehicleType, DisplacementL, DisplacementCC,
-   EngineModel, EngineConfiguration, DriveType,
-   TransmissionStyle, FuelTypePrimary, ElectrificationLevel,
-   AirBagLocFront, AirBagLocSide, GVWR).
+  Filtered to the elements we map onto TOBDVINFeatures
+  (BodyClass, VehicleType, DisplacementL, EngineModel,
+   DriveType, TransmissionStyle, FuelTypePrimary,
+   ElectrificationLevel, AirBagLocFront, GVWR).
 
-  Each (VinSchemaId) becomes one entry in the output schemas
-  map. WMIs and year ranges come from Wmi_VinSchema. Patterns
-  come from the Pattern table; vPIC stores Pattern.Keys as
-  short regex-like strings ("A", "[ABC]", ".") - we pass them
-  through to the Delphi matcher unchanged.
+  Each pattern.attributeid is resolved to text via
+  element.lookuptable when set; otherwise the attributeid is
+  used verbatim.
+
+  Output schema matches catalogs/_schema/vin-vds-rules.schema.json:
+
+    schemas.<vinSchemaId>.wmis     = [{wmi, yearFrom, yearTo}, ...]
+    schemas.<vinSchemaId>.patterns = [{keys, field, value}, ...]
 
 License of generated data:
 
-    NHTSA vPIC is a US Government dataset, public domain.
-    The output JSON is therefore redistributable under any
-    licence; we ship it under the same MIT licence as the rest
-    of Delphi-OBD.
+    NHTSA vPIC is a US Government dataset, public-domain. The
+    output JSON ships under the same MIT licence as the rest of
+    Delphi-OBD.
 """
 
 import argparse
@@ -53,49 +55,24 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-# Element ids in vPIC that we care about. The id list below is
-# stable across vPIC monthly refreshes (it's been the same set
-# since at least 2015) but we still resolve at runtime by name
-# so the script keeps working if NHTSA renumbers.
-WANTED_ELEMENT_NAMES = {
-    "Body Class",
-    "Vehicle Type",
-    "Displacement (L)",
-    "Displacement (CC)",
-    "Engine Model",
-    "Engine Configuration",
-    "Drive Type",
-    "Transmission Style",
-    "Transmission Speeds",
-    "Fuel Type - Primary",
-    "Electrification Level",
-    "Air Bag Loc Front",
-    "Air Bag Loc Side",
-    "Air Bag Loc Curtain",
-    "Air Bag Loc Knee",
-    "Seat Belt Type",
-    "Gross Vehicle Weight Rating From",
-}
-
-# Map vPIC element name -> field name we emit in vds-rules.json.
-# Mirrors the keys ApplyVPICField looks for in the Delphi side.
+# vPIC element names we extract -> Delphi feature field key.
 ELEMENT_FIELD_MAP = {
-    "Body Class":                    "BodyClass",
-    "Vehicle Type":                  "VehicleType",
-    "Displacement (L)":              "DisplacementL",
-    "Displacement (CC)":             "DisplacementCC",
-    "Engine Model":                  "EngineModel",
-    "Engine Configuration":          "EngineConfiguration",
-    "Drive Type":                    "DriveType",
-    "Transmission Style":            "TransmissionStyle",
-    "Transmission Speeds":           "TransmissionSpeeds",
-    "Fuel Type - Primary":           "FuelTypePrimary",
-    "Electrification Level":         "ElectrificationLevel",
-    "Air Bag Loc Front":             "AirBagLocFront",
-    "Air Bag Loc Side":              "AirBagLocSide",
-    "Air Bag Loc Curtain":           "AirBagLocSide",   # rolls up
-    "Air Bag Loc Knee":              "AirBagLocSide",
-    "Seat Belt Type":                "Restraint",
+    "Body Class":                       "BodyClass",
+    "Vehicle Type":                     "VehicleType",
+    "Displacement (L)":                 "DisplacementL",
+    "Displacement (CC)":                "DisplacementCC",
+    "Engine Model":                     "EngineModel",
+    "Engine Configuration":             "EngineConfiguration",
+    "Drive Type":                       "DriveType",
+    "Transmission Style":               "TransmissionStyle",
+    "Transmission Speeds":              "TransmissionSpeeds",
+    "Fuel Type - Primary":              "FuelTypePrimary",
+    "Electrification Level":            "ElectrificationLevel",
+    "Front Air Bag Locations":          "AirBagLocFront",
+    "Side Air Bag Locations":           "AirBagLocSide",
+    "Curtain Air Bag Locations":        "AirBagLocSide",
+    "Knee Air Bag Locations":           "AirBagLocSide",
+    "Seat Belt Type":                   "Restraint",
     "Gross Vehicle Weight Rating From": "GVWR",
 }
 
@@ -104,14 +81,13 @@ def parse_args(argv):
     p = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--dsn", required=True,
-        help="PostgreSQL DSN, e.g. postgresql://localhost/vpic")
+        help="PostgreSQL DSN, e.g. postgresql://postgres@/vpic")
     p.add_argument("--out", required=True,
         help="Output JSON path (typically catalogs/vin/vds-rules.json)")
     p.add_argument("--limit-schemas", type=int, default=None,
-        help="Cap the number of schemas extracted (debugging only)")
-    p.add_argument("--version-tag", default=None,
-        help="Build identifier embedded in the output (e.g. 'vPIC_2026_05'). "
-             "Defaults to the most recent vPIC version row in the DB.")
+        help="Cap the number of schemas (debugging only)")
+    p.add_argument("--version-tag", default="vPIC-unknown",
+        help="Build identifier embedded in output (e.g. 'vPIC_2026_04')")
     return p.parse_args(argv)
 
 
@@ -125,173 +101,137 @@ def main(argv=None):
 
     args = parse_args(argv or sys.argv[1:])
     conn = psycopg2.connect(args.dsn)
-    cur = conn.cursor()
+    cur  = conn.cursor()
 
-    # 1) Resolve element-id list.
+    # 1) Resolve element ids + lookup-table names.
     cur.execute(
-        "SELECT \"Id\", \"Name\" FROM \"Element\" "
-        "WHERE \"Name\" = ANY(%s)",
-        (list(WANTED_ELEMENT_NAMES),))
-    elements = {row[0]: row[1] for row in cur.fetchall()}
+        "SELECT id, name, lookuptable FROM vpic.element "
+        "WHERE name = ANY(%s)",
+        (list(ELEMENT_FIELD_MAP.keys()),))
+    elements = {}        # id -> (name, lookuptable)
+    for eid, name, lt in cur.fetchall():
+        elements[eid] = (name, lt)
     if not elements:
-        sys.stderr.write("No matching Element rows in vPIC DB.\n")
+        sys.stderr.write("No matching Element rows in vPIC.\n")
         return 3
-    element_ids = list(elements.keys())
 
-    # 2) Pull the joined WMI -> VinSchema -> Pattern view,
-    # restricted to the wanted elements.
-    cur.execute(
-        """
-        SELECT
-            ws."VinSchemaId",
-            w."Wmi",
-            ws."YearFrom",
-            ws."YearTo",
-            p."Keys",
-            p."ElementId",
-            p."AttributeId"
-        FROM "Wmi_VinSchema" ws
-        JOIN "Wmi" w ON w."Id" = ws."WmiId"
-        JOIN "Pattern" p ON p."VinSchemaId" = ws."VinSchemaId"
-        WHERE p."ElementId" = ANY(%s)
-        ORDER BY ws."VinSchemaId", w."Wmi", p."ElementId", p."Keys"
-        """,
-        (element_ids,))
-
-    # 3) Resolve attribute ids to text values via the
-    # appropriate lookup tables. vPIC stores them inconsistently:
-    # for some elements the AttributeId IS the value (e.g. for
-    # "Body Class" it indexes into "BodyClass"), for others it's
-    # a free-form string in Pattern.AttributeId itself (cast as
-    # text). We handle both via a per-element lookup table.
-    LOOKUP_TABLES = {
-        "Body Class":            ("BodyStyle", "Name"),
-        "Vehicle Type":          ("VehicleType", "Name"),
-        "Drive Type":            ("DriveType", "Name"),
-        "Transmission Style":    ("TransmissionStyle", "Name"),
-        "Fuel Type - Primary":   ("FuelType", "Name"),
-        "Electrification Level": ("ElectrificationLevel", "Name"),
+    # 2) Pre-resolve every (lookuptable, id) -> text we'll need.
+    # vPIC stores the value either inline (when lookuptable is
+    # NULL) or as an integer key into the named table. The lookup
+    # tables share a common shape: id PK + name column.
+    LOOKUP_NAME_COLUMN = {
+        "BodyStyle":            "name",
+        "VehicleType":          "name",
+        "DriveType":            "name",
+        "TransmissionStyle":    "name",
+        "FuelType":             "name",
+        "ElectrificationLevel": "name",
+        "AirBagLocFront":       "name",
+        "AirBagLocations":      "name",
+        "SeatBeltType":         "name",
     }
-    attr_cache = {}  # (element_name, attr_id) -> resolved text
+    lookup_cache = {}    # (table, id) -> text
 
-    def resolve_attr(elt_name, attr_id):
-        if attr_id is None:
+    def resolve(table, attrid):
+        if attrid is None or attrid == "":
             return None
-        key = (elt_name, attr_id)
-        if key in attr_cache:
-            return attr_cache[key]
-        # Try the lookup table; otherwise use the id verbatim.
-        table = LOOKUP_TABLES.get(elt_name)
-        text = None
-        if table:
-            try:
-                cur2 = conn.cursor()
-                cur2.execute(
-                    f'SELECT "{table[1]}" FROM "{table[0]}" WHERE "Id" = %s',
-                    (attr_id,))
-                row = cur2.fetchone()
-                if row:
-                    text = row[0]
-                cur2.close()
-            except Exception:
-                text = None
-        if text is None:
-            # vPIC sometimes stores the value inline in AttributeId
-            # as a string when no lookup table applies.
-            text = str(attr_id)
-        attr_cache[key] = text
-        return text
-
-    # 4) Group rows by VinSchemaId.
-    schemas = defaultdict(lambda: {"wmis": {}, "patterns": []})
-
-    for row in cur.fetchall():
-        vsid, wmi, year_from, year_to, keys, elt_id, attr_id = row
-        elt_name = elements[elt_id]
-        field    = ELEMENT_FIELD_MAP[elt_name]
-        value    = resolve_attr(elt_name, attr_id) or ""
-
-        s = schemas[vsid]
-        s["wmis"][(wmi, year_from, year_to)] = True
-
-        # Patterns store offset implicitly via the Keys string
-        # length and position - vPIC keys are positional within
-        # the VDS, but the table doesn't carry an explicit
-        # offset column on every row. Newer vPIC dumps include
-        # a "Pattern.Offset" column; older ones encode it in
-        # Keys itself (e.g. "...A.." with dots for "any").
-        # We try Pattern.Offset first (if the column exists);
-        # if not we fall back to scanning the Keys string for
-        # the first non-"." character.
+        if not table:
+            # Inline value (free-form text in attributeid).
+            return str(attrid)
+        try:
+            iid = int(attrid)
+        except (TypeError, ValueError):
+            return str(attrid)
+        key = (table, iid)
+        if key in lookup_cache:
+            return lookup_cache[key]
+        col = LOOKUP_NAME_COLUMN.get(table, "name")
         try:
             cur2 = conn.cursor()
             cur2.execute(
-                'SELECT "Offset" FROM "Pattern" WHERE "Id" = '
-                '(SELECT "Id" FROM "Pattern" WHERE "VinSchemaId"=%s '
-                'AND "ElementId"=%s AND "Keys"=%s LIMIT 1)',
-                (vsid, elt_id, keys))
-            offset_row = cur2.fetchone()
+                f'SELECT "{col}" FROM vpic."{table.lower()}" '
+                f'WHERE id = %s', (iid,))
+            row = cur2.fetchone()
             cur2.close()
-            offset = offset_row[0] if offset_row else None
+            text = row[0] if row else str(attrid)
         except Exception:
-            offset = None
+            text = str(attrid)
+        lookup_cache[key] = text
+        return text
 
-        if offset is None:
-            # Decode offset from the Keys string: position of
-            # first non-"." character.
-            offset = 0
-            if keys:
-                for i, ch in enumerate(keys):
-                    if ch != ".":
-                        offset = i
-                        break
+    # 3) Pull the joined view.
+    sys.stderr.write("Querying vPIC ...\n")
+    cur.execute(
+        """
+        SELECT
+            ws.vinschemaid,
+            w.wmi,
+            ws.yearfrom,
+            ws.yearto,
+            p.keys,
+            p.elementid,
+            p.attributeid
+        FROM vpic.wmi_vinschema ws
+        JOIN vpic.wmi w     ON w.id = ws.wmiid
+        JOIN vpic.pattern p ON p.vinschemaid = ws.vinschemaid
+        WHERE p.elementid = ANY(%s)
+        ORDER BY ws.vinschemaid, w.wmi
+        """,
+        (list(elements.keys()),))
 
-        # Trim Keys to the matching character or class at offset.
-        if keys and len(keys) > offset:
-            match = keys[offset]
-            # Bracketed class can span multiple characters.
-            if match == "[":
-                close = keys.find("]", offset)
-                if close > offset:
-                    match = keys[offset:close + 1]
-        else:
-            match = "."
+    schemas = defaultdict(lambda: {"wmis": {}, "patterns": []})
+    seen_pattern = set()  # dedupe (vsid, keys, field, value)
+    rowcount = 0
+    for row in cur.fetchall():
+        vsid, wmi, year_from, year_to, keys, eid, attrid = row
+        elt_name, lt = elements[eid]
+        field = ELEMENT_FIELD_MAP[elt_name]
+        value = resolve(lt, attrid) or ""
+        if value == "":
+            continue
+        s = schemas[vsid]
+        s["wmis"][(wmi, year_from, year_to)] = True
+        sig = (vsid, keys, field, value)
+        if sig in seen_pattern:
+            continue
+        seen_pattern.add(sig)
+        s["patterns"].append({"keys": keys, "field": field, "value": value})
+        rowcount += 1
+        if rowcount % 100000 == 0:
+            sys.stderr.write(f"  {rowcount} pattern rows ...\n")
 
-        s["patterns"].append({
-            "offset": int(offset),
-            "match":  match,
-            "field":  field,
-            "value":  value,
-        })
+    sys.stderr.write(
+        f"Joined view returned {rowcount} unique (schema,keys,field,value) "
+        f"rows across {len(schemas)} schemas.\n")
 
-    # 5) Convert to JSON-friendly shape and write.
+    # 4) Emit JSON.
     out_schemas = {}
     iterator = list(schemas.items())
     if args.limit_schemas:
         iterator = iterator[:args.limit_schemas]
     for vsid, s in iterator:
         wmis_out = []
-        for (wmi, yf, yt) in s["wmis"]:
+        for (wmi, yf, yt) in sorted(s["wmis"].keys()):
             entry = {"wmi": wmi}
-            if yf is not None:
-                entry["yearFrom"] = int(yf)
-            if yt is not None:
-                entry["yearTo"]   = int(yt)
+            if yf is not None: entry["yearFrom"] = int(yf)
+            if yt is not None: entry["yearTo"]   = int(yt)
             wmis_out.append(entry)
         out_schemas[f"vPIC.VinSchema.{vsid}"] = {
             "wmis":     wmis_out,
-            "patterns": s["patterns"],
+            "patterns": sorted(s["patterns"],
+                               key=lambda p: (p["field"], p["keys"], p["value"])),
         }
 
     out = {
         "$schema": "../_schema/vin-vds-rules.schema.json",
-        "version": args.version_tag or "vPIC-unknown",
-        "source":  "Generated from NHTSA vPIC bulk dump via tools/etl-vpic/etl_vpic.py",
+        "version": args.version_tag,
+        "source":  "Generated from NHTSA vPIC bulk dump via "
+                   "tools/etl-vpic/etl_vpic.py",
         "schemas": out_schemas,
     }
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2, sort_keys=True)
+        json.dump(out, f, indent=1, sort_keys=True)
     sys.stderr.write(
         f"Wrote {len(out_schemas)} schemas -> {args.out}\n")
     return 0

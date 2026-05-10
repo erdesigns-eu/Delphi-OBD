@@ -98,33 +98,37 @@ type
     vtHybrid
   );
 
-  /// <summary>One vPIC-style VDS pattern. Decodes a single
-  /// VDS character (or character class) at a fixed offset into
-  /// one VIN feature element. Loaded from
-  /// <c>catalogs/vin/vds-rules.json</c> via the
-  /// <see cref="TOBDVINVDSSchema"/> records.
-  /// <para>The <c>Match</c> field is a regex character class:
-  /// <c>"A"</c> matches the literal A; <c>"[ABC]"</c> matches
-  /// any of A, B, C; <c>"."</c> or <c>""</c> matches any
-  /// character. Multi-char literals are matched verbatim.</para>
+  /// <summary>One vPIC-style VDS pattern. Each pattern carries
+  /// a SQL-wildcard <c>Keys</c> string that matches against the
+  /// 6-char VDS character-by-character; if every position in
+  /// <c>Keys</c> matches the corresponding VDS char, the rule
+  /// fires and <c>Value</c> is applied to <c>Field</c>.
+  /// <para>Keys position semantics (per vPIC):</para>
+  /// <list type="bullet">
+  /// <item><c>*</c> or <c>.</c> = wildcard (any VIN-alphabet char)</item>
+  /// <item>single char = literal match</item>
+  /// <item><c>[ABC]</c> = character class</item>
+  /// <item><c>[A-Z]</c> = range</item>
+  /// <item><c>[^X]</c> = negated class</item>
+  /// </list>
+  /// <para>Keys shorter than 6 chars match only the leading
+  /// positions (the remaining VDS chars are unconstrained, as
+  /// per vPIC's <c>keys_regex = ^...x...*</c> convention).</para>
   /// </summary>
   TOBDVINVDSPattern = record
-    /// <summary>0-based offset within the 6-char VDS (positions
-    /// 4..9 of the full VIN -> offsets 0..5 here).</summary>
-    Offset: Byte;
-    /// <summary>Regex character class to match at <c>Offset</c>.
-    /// Empty / "." / "*" all mean "any".</summary>
-    Match:  string;
+    /// <summary>Pattern keys verbatim from vPIC
+    /// (e.g. <c>"**B[AC]"</c>).</summary>
+    Keys:  string;
     /// <summary>Element name from the vPIC dictionary (e.g.
     /// <c>"BodyClass"</c>, <c>"DisplacementL"</c>,
     /// <c>"EngineModel"</c>, <c>"DriveType"</c>,
     /// <c>"TransmissionStyle"</c>, <c>"FuelTypePrimary"</c>,
     /// <c>"ElectrificationLevel"</c>, <c>"AirBagLocFront"</c>,
     /// <c>"GVWR"</c>).</summary>
-    Field:  string;
+    Field: string;
     /// <summary>Decoded value for this match (e.g.
     /// <c>"Sedan/Saloon"</c>, <c>"2.0"</c>, <c>"FWD"</c>).</summary>
-    Value:  string;
+    Value: string;
   end;
 
   /// <summary>WMI + year-range entry inside a

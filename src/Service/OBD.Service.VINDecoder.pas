@@ -63,6 +63,10 @@ type
     class var FManufacturers: TDictionary<string, TOBDVINManufacturer>;
     class var FPlants:        TDictionary<string, TOBDVINPlantLocation>;
     class var FVDSSchemas:    TArray<TOBDVINVDSSchema>;
+    /// <summary>WMI -> indexes into FVDSSchemas. Built at load
+    /// time so DetectFeatures doesn't have to scan all 24K
+    /// vPIC schemas per VIN.</summary>
+    class var FVDSWMIIndex:   TDictionary<string, TList<Integer>>;
     class var FCatalogsLoaded: Boolean;
     class var FCatalogLock:    TObject;
 
@@ -75,6 +79,7 @@ type
     class procedure LoadVDSRules(const ABaseDir: string); static;
     class function  CharMatchesClass(AChar: Char;
       const AClass: string): Boolean; static;
+    class function  KeysMatchVDS(const AKeys, AVDS: string): Boolean; static;
     class function  SchemaApplies(const ASchema: TOBDVINVDSSchema;
       const AWMI: string; AYear: Word): Boolean; static;
     class function  ParseVehicleType(const AText: string): TOBDVINVehicleType; static;
@@ -161,6 +166,7 @@ implementation
 uses
   System.IOUtils,
   System.JSON,
+  System.StrUtils,
   Winapi.Windows;
 
 const
@@ -208,9 +214,15 @@ begin
 end;
 
 class destructor TOBDVINDecoder.Destroy;
+var L: TList<Integer>;
 begin
   FreeAndNil(FManufacturers);
   FreeAndNil(FPlants);
+  if FVDSWMIIndex <> nil then
+  begin
+    for L in FVDSWMIIndex.Values do L.Free;
+    FreeAndNil(FVDSWMIIndex);
+  end;
   FreeAndNil(FCatalogLock);
 end;
 
@@ -408,6 +420,47 @@ begin
   Result := False;
 end;
 
+class function TOBDVINDecoder.KeysMatchVDS(
+  const AKeys, AVDS: string): Boolean;
+var
+  KeyIdx, VdsIdx: Integer;
+  ClassEnd: Integer;
+  Cls: string;
+begin
+  // Walk the vPIC keys string position-by-position against the
+  // 6-char VDS. "*" / "." = wildcard. "[..]" = char class
+  // (consumes one VDS char). Any other char = literal.
+  // Keys shorter than the VDS just leaves trailing positions
+  // unconstrained (matches vPIC's "^...x.*" anchored regex).
+  KeyIdx := 1;
+  VdsIdx := 1;
+  while (KeyIdx <= Length(AKeys)) and (VdsIdx <= Length(AVDS)) do
+  begin
+    if (AKeys[KeyIdx] = '*') or (AKeys[KeyIdx] = '.') then
+    begin
+      Inc(KeyIdx);
+      Inc(VdsIdx);
+      Continue;
+    end;
+    if AKeys[KeyIdx] = '[' then
+    begin
+      ClassEnd := PosEx(']', AKeys, KeyIdx + 1);
+      if ClassEnd <= 0 then Exit(False);
+      Cls := Copy(AKeys, KeyIdx, ClassEnd - KeyIdx + 1);
+      if not CharMatchesClass(AVDS[VdsIdx], Cls) then Exit(False);
+      KeyIdx := ClassEnd + 1;
+      Inc(VdsIdx);
+      Continue;
+    end;
+    if AKeys[KeyIdx] <> AVDS[VdsIdx] then Exit(False);
+    Inc(KeyIdx);
+    Inc(VdsIdx);
+  end;
+  // Reached end of keys with all chars matching - trailing
+  // VDS chars are unconstrained.
+  Result := KeyIdx > Length(AKeys);
+end;
+
 class function TOBDVINDecoder.SchemaApplies(
   const ASchema: TOBDVINVDSSchema;
   const AWMI: string; AYear: Word): Boolean;
@@ -545,26 +598,28 @@ var
   Schema:   TOBDVINVDSSchema;
   Pat:      TOBDVINVDSPattern;
   Year:     Word;
-  Idx:      Integer;
+  Bucket:   TList<Integer>;
+  Si:       Integer;
 begin
   Result := Default(TOBDVINFeatures);
   Result.VehicleType := vtUnknown;
   if Length(AVIN) < 11 then Exit;
   EnsureCatalogsLoaded;
-  if Length(FVDSSchemas) = 0 then Exit;
+  if (Length(FVDSSchemas) = 0) or (FVDSWMIIndex = nil) then Exit;
 
   WMI  := UpperCase(Copy(AVIN, 1, 3));
   VDS  := UpperCase(Copy(AVIN, 4, 6));
   Year := MostLikelyYear(AVIN[10]);
 
-  for Schema in FVDSSchemas do
+  if not FVDSWMIIndex.TryGetValue(WMI, Bucket) then Exit;
+
+  for Si in Bucket do
   begin
+    Schema := FVDSSchemas[Si];
     if not SchemaApplies(Schema, WMI, Year) then Continue;
     for Pat in Schema.Patterns do
     begin
-      Idx := Pat.Offset + 1;          // 1-based into VDS
-      if (Idx < 1) or (Idx > Length(VDS)) then Continue;
-      if not CharMatchesClass(VDS[Idx], Pat.Match) then Continue;
+      if not KeysMatchVDS(Pat.Keys, VDS) then Continue;
       ApplyVPICField(Pat.Field, Pat.Value, Result);
     end;
   end;
@@ -856,15 +911,13 @@ begin
           begin
             PatObj := PatArr.Items[J] as TJSONObject;
             Pat := Default(TOBDVINVDSPattern);
-            V := PatObj.GetValue('offset');
-            if V <> nil then Pat.Offset := StrToIntDef(V.Value, 0);
-            V := PatObj.GetValue('match');
-            if V <> nil then Pat.Match := V.Value;
+            V := PatObj.GetValue('keys');
+            if V <> nil then Pat.Keys := V.Value;
             V := PatObj.GetValue('field');
             if V <> nil then Pat.Field := V.Value;
             V := PatObj.GetValue('value');
             if V <> nil then Pat.Value := V.Value;
-            if (Pat.Field <> '') and (Pat.Offset <= 5) then
+            if (Pat.Field <> '') and (Pat.Keys <> '') then
               PatList.Add(Pat);
           end;
         Schema.Patterns := PatList.ToArray;
@@ -876,6 +929,27 @@ begin
         Acc.Add(Schema);
     end;
     FVDSSchemas := Acc.ToArray;
+
+    // Rebuild the WMI -> schema-index dictionary.
+    if FVDSWMIIndex <> nil then
+    begin
+      for var L in FVDSWMIIndex.Values do L.Free;
+      FVDSWMIIndex.Free;
+    end;
+    FVDSWMIIndex := TDictionary<string, TList<Integer>>.Create;
+    for var Si := 0 to High(FVDSSchemas) do
+      for var Wi := 0 to High(FVDSSchemas[Si].WMIs) do
+      begin
+        var Key := FVDSSchemas[Si].WMIs[Wi].WMI;
+        var Bucket: TList<Integer>;
+        if not FVDSWMIIndex.TryGetValue(Key, Bucket) then
+        begin
+          Bucket := TList<Integer>.Create;
+          FVDSWMIIndex.Add(Key, Bucket);
+        end;
+        if (Bucket.Count = 0) or (Bucket.Last <> Si) then
+          Bucket.Add(Si);
+      end;
   finally
     Acc.Free;
     Doc.Free;

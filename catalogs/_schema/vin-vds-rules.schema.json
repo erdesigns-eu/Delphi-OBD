@@ -37,17 +37,15 @@
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["offset", "field"],
+              "required": ["keys", "field"],
               "additionalProperties": false,
               "properties": {
-                "offset": { "type": "integer", "minimum": 0, "maximum": 5,
-                            "description": "0-based offset within the 6-char VDS (VIN positions 4..9)." },
-                "match":  { "type": "string",
-                            "description": "Regex character class matched against VDS[offset]. Empty / \".\" / \"*\" mean any. Bare single char is a literal. \"[ABC]\" is a class. \"[^X]\" is a negated class. \"X-Z\" inside a class is a range." },
+                "keys":   { "type": "string",
+                            "description": "vPIC SQL-wildcard pattern matched against the 6-char VDS char-by-char. \"*\" / \".\" = wildcard, single char = literal, \"[ABC]\" / \"[A-Z]\" / \"[^X]\" = char class. Strings shorter than 6 leave trailing positions unconstrained." },
                 "field":  { "type": "string",
                             "description": "vPIC element name (BodyClass, DisplacementL, EngineModel, DriveType, TransmissionStyle, FuelTypePrimary, ElectrificationLevel, AirBagLocFront, GVWR, ...)." },
                 "value":  { "type": "string",
-                            "description": "Decoded value applied to the feature field when match holds." }
+                            "description": "Decoded value applied to the feature field when keys match." }
               }
             }
           }
