@@ -81,7 +81,8 @@ uses
   OBD.Flash.Pipeline,
   OBD.Recorder,
   OBD.Replayer,
-  OBD.Design.Editors;
+  OBD.Design.Editors,
+  OBD.Design.Wizards.Starters;
 
 /// <summary>Loads a PNG (kept transparent) from an RCDATA
 /// resource into a fresh <c>TPngImage</c>. Returns nil when the
@@ -268,6 +269,15 @@ begin
     RegisterDelphiOBDEditors;
   except
     // Swallow — editors are ergonomic only.
+  end;
+
+  // Project starter wizard (File > New > Other > Delphi-OBD).
+  // Best-effort — the IDE service might be missing in custom
+  // builds.
+  try
+    RegisterDelphiOBDStarterWizard;
+  except
+    // Swallow — wizard is ergonomic only.
   end;
 end;
 

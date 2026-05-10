@@ -39,6 +39,10 @@ contains
   OBD.Design.Forms.FlashSafety in '..\src\DesignTime\OBD.Design.Forms.FlashSafety.pas' {OBDFlashSafetyDlg},
   OBD.Design.Forms.InitCommands in '..\src\DesignTime\OBD.Design.Forms.InitCommands.pas' {OBDInitCommandsDlg},
   OBD.Design.Forms.PipelineValidate in '..\src\DesignTime\OBD.Design.Forms.PipelineValidate.pas' {OBDPipelineValidateDlg},
-  OBD.Design.Forms.LiveTest in '..\src\DesignTime\OBD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg};
+  OBD.Design.Forms.LiveTest in '..\src\DesignTime\OBD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg},
+  OBD.Design.Starters in '..\src\DesignTime\OBD.Design.Starters.pas',
+  OBD.Design.Starters.Templates in '..\src\DesignTime\OBD.Design.Starters.Templates.pas',
+  OBD.Design.Forms.StarterPicker in '..\src\DesignTime\OBD.Design.Forms.StarterPicker.pas' {OBDStarterPickerDlg},
+  OBD.Design.Wizards.Starters in '..\src\DesignTime\OBD.Design.Wizards.Starters.pas';
 
 end.
