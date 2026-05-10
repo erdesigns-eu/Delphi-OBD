@@ -105,6 +105,13 @@ type
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
 
+    /// <summary>Per-PID subscriber lists used by visuals (gauges,
+    /// digital readouts, charts) that bind directly to a PID via
+    /// SetLiveData + SetPID. Independent of <c>OnValue</c> — both
+    /// fire for every dispatched value.</summary>
+    FSubscribers: TDictionary<Byte, TList<TMethod>>;
+    FSubscribersLock: TCriticalSection;
+
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     function DoRead(APID: Byte): TOBDPIDValue;
@@ -113,6 +120,8 @@ type
     procedure FireValue(const AValue: TOBDPIDValue);
     procedure FireRaw(APID: Byte; const ARaw: TBytes);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
+    procedure DispatchSubscribers(APID: Byte;
+      const AValue: TOBDPIDValue);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
     procedure Notification(AComponent: TComponent;
@@ -159,6 +168,20 @@ type
 
     /// <summary>True when a poll is running.</summary>
     function IsPolling: Boolean;
+
+    /// <summary>Subscribe <c>AHandler</c> to value updates for
+    /// <c>APID</c>. Multiple subscribers per PID are supported;
+    /// each runs after the legacy <c>OnValue</c> event on the
+    /// main thread. Visuals (gauges, digital readouts, sparkline
+    /// charts) use this when bound directly via the
+    /// <c>LiveData</c> + <c>PID</c> properties — no host code
+    /// required. Calling Subscribe with the same (APID, AHandler)
+    /// pair twice is a no-op.</summary>
+    procedure Subscribe(APID: Byte; AHandler: TOBDPIDValueEvent);
+
+    /// <summary>Reverse of <see cref="Subscribe"/>. Safe to call
+    /// for a handler that was never subscribed (no-op).</summary>
+    procedure Unsubscribe(APID: Byte; AHandler: TOBDPIDValueEvent);
   published
     /// <summary>Bound protocol component.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
@@ -311,11 +334,19 @@ begin
   inherited Create(AOwner);
   FPollLock := TCriticalSection.Create;
   FAsyncLock := TCriticalSection.Create;
+  FSubscribersLock := TCriticalSection.Create;
 end;
 
 destructor TOBDLiveData.Destroy;
+var L: TList<TMethod>;
 begin
   PollStop;
+  if FSubscribers <> nil then
+  begin
+    for L in FSubscribers.Values do L.Free;
+    FSubscribers.Free;
+  end;
+  FSubscribersLock.Free;
   FAsyncLock.Free;
   FPollLock.Free;
   inherited;
@@ -568,17 +599,97 @@ end;
 
 procedure TOBDLiveData.FireValue(const AValue: TOBDPIDValue);
 var
-  Self_: TOBDLiveData;
-  Snap: TOBDPIDValue;
+  Self_:   TOBDLiveData;
+  Snap:    TOBDPIDValue;
+  PIDByte: Byte;
 begin
-  if not Assigned(FOnValue) then Exit;
-  Self_ := Self; Snap := AValue;
+  // Always run the fan-out on the main thread so subscribers
+  // (and OnValue) can touch the VCL without TThread.Synchronize
+  // boilerplate. FOnValue may not be wired, but subscribers may
+  // be - hence the unconditional dispatch path.
+  Self_   := Self;
+  Snap    := AValue;
+  PIDByte := AValue.PID;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnValue(Self_, Snap)
+  begin
+    if Assigned(FOnValue) then FOnValue(Self_, Snap);
+    DispatchSubscribers(PIDByte, Snap);
+  end
   else
-    TThread.Queue(nil, procedure begin
+    TThread.Queue(nil, procedure
+    begin
       if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Snap);
+      Self_.DispatchSubscribers(PIDByte, Snap);
     end);
+end;
+
+procedure TOBDLiveData.DispatchSubscribers(APID: Byte;
+  const AValue: TOBDPIDValue);
+var
+  L: TList<TMethod>;
+  M: TMethod;
+  Cb: TOBDPIDValueEvent;
+  Snapshot: TArray<TMethod>;
+begin
+  if FSubscribers = nil then Exit;
+  // Snapshot the list under the lock so subscribers that
+  // re-entrantly subscribe / unsubscribe during dispatch
+  // don't corrupt iteration.
+  FSubscribersLock.Enter;
+  try
+    if not FSubscribers.TryGetValue(APID, L) then Exit;
+    Snapshot := L.ToArray;
+  finally
+    FSubscribersLock.Leave;
+  end;
+  for M in Snapshot do
+  begin
+    Cb := TOBDPIDValueEvent(M);
+    try
+      Cb(Self, AValue);
+    except
+      // Don't let one bad subscriber take the rest down.
+    end;
+  end;
+end;
+
+procedure TOBDLiveData.Subscribe(APID: Byte;
+  AHandler: TOBDPIDValueEvent);
+var
+  L: TList<TMethod>;
+  M: TMethod;
+begin
+  if not Assigned(AHandler) then Exit;
+  M := TMethod(AHandler);
+  FSubscribersLock.Enter;
+  try
+    if FSubscribers = nil then
+      FSubscribers := TDictionary<Byte, TList<TMethod>>.Create;
+    if not FSubscribers.TryGetValue(APID, L) then
+    begin
+      L := TList<TMethod>.Create;
+      FSubscribers.Add(APID, L);
+    end;
+    if L.IndexOf(M) < 0 then
+      L.Add(M);
+  finally
+    FSubscribersLock.Leave;
+  end;
+end;
+
+procedure TOBDLiveData.Unsubscribe(APID: Byte;
+  AHandler: TOBDPIDValueEvent);
+var
+  L: TList<TMethod>;
+begin
+  FSubscribersLock.Enter;
+  try
+    if FSubscribers = nil then Exit;
+    if FSubscribers.TryGetValue(APID, L) then
+      L.Remove(TMethod(AHandler));
+  finally
+    FSubscribersLock.Leave;
+  end;
 end;
 
 procedure TOBDLiveData.FireRaw(APID: Byte; const ARaw: TBytes);

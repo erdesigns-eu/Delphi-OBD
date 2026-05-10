@@ -92,6 +92,8 @@ uses
   OBD.Service.DriveCycle.Catalog.Component,
   OBD.Service.EVBattery.Catalog.Component,
   OBD.UI.Theme,
+  OBD.UI.Gauges.Dial,
+  OBD.UI.Gauges.Linear,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -322,7 +324,12 @@ begin
   // visuals walk Owner ancestry at runtime). Sub-phases A2.2+
   // add the gauges / telltales / lists that consume the theme.
   RegisterComponents('OBD Visual', [
-    TOBDTheme
+    TOBDTheme,
+    TOBDCircularGauge,
+    TOBDLinearGauge,
+    TOBDTachometer,
+    TOBDArcGauge,
+    TOBDComboGauge
   ]);
 
   // Radio-code calculators (one component per vendor). Each
