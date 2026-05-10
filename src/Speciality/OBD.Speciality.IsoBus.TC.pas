@@ -19,7 +19,7 @@
 //  Each method returns the 8-byte payload the host wires onto a
 //  J1939 PGN 0xCB00 (TC-to-implement) / 0xCC00 (implement-to-TC)
 //  frame. The host is free to fragment longer data with the J1939
-//  TP / ETP transport from Phase 4c.
+//  TP / ETP transport.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

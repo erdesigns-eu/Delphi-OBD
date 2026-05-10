@@ -2,7 +2,7 @@
 //  OBD.Flash.OEM.Catalog
 //
 //  TOBDFlashOEMCatalog — loader for per-platform overrides on
-//  the Phase 9e bootloader handshakes. Schema lives in
+//  the OEM bootloader handshakes. Schema lives in
 //  <c>data/schemas/oem-flash-handshake-catalog.schema.json</c>.
 //
 //  Hosts populate the catalogue from their own ground-truth

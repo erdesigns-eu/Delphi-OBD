@@ -2,10 +2,10 @@
 //  OBD.UDS.Transfer
 //
 //  TOBDUDSTransfer — full ISO 14229-1 data-transfer state machine.
-//  This is the production transfer engine that the Phase 9 flash
-//  pipeline drives; the Phase 6 TOBDFlasher (in OBD.Coding.Flasher)
-//  remains as a simple one-shot helper and is internally a thin
-//  wrapper over the same UDS sub-services.
+//  This is the production transfer engine that the flash pipeline
+//  (<see cref="TOBDFlashPipeline"/>) drives; the simpler
+//  <see cref="TOBDFlasher"/> (in OBD.Coding.Flasher) remains as a
+//  one-shot helper that wraps the same UDS sub-services.
 //
 //  SAFETY — BRICK RISK ----------------------------------------------------
 //  This unit talks to RequestDownload (0x34), TransferData (0x36)
@@ -21,14 +21,13 @@
 //      §14 lifecycle: Idle → RequestingDownload → Transferring →
 //      RequestingExit → Completed (or → Aborted on any failure).
 //    - Chunked TransferData with BSC counter (1..255 then wraps to
-//      1) and the per-chunk retry budget the user pulled forward
-//      in the Close-out.
+//      1) and a per-chunk retry budget.
 //    - NRC 0x78 (responsePending) auto-retransmit with budget.
 //    - Resumable: hosts pass an optional <see cref="TOBDFlashCheckpoint"/>
 //      shape (offset + BSC) to resume an interrupted transfer
-//      without re-doing the bytes already accepted by the ECU. The
-//      checkpoint persistence layer ships in 9b; this unit just
-//      consumes the shape.
+//      without re-doing the bytes already accepted by the ECU.
+//      The checkpoint persistence layer lives in
+//      OBD.Flash.Checkpoint; this unit just consumes the shape.
 //    - Per-chunk OnProgress with the BSC + byte offset + total.
 //    - OnStateChange so a host UI can render the current phase.
 //

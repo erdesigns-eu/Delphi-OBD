@@ -23,9 +23,9 @@
 //                     and instrumented with step-progress events.
 //
 //  Future work :
-//    - 64-bit FTDI EEPROM reading helper (Phase 3 detection)
-//    - FT_SetEventNotification to replace the 2 ms idle in the read
-//      loop.
+//    - 64-bit FTDI EEPROM reading helper for adapter detection.
+//    - FT_SetEventNotification to replace the 2 ms idle in the
+//      read loop.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.FTDI;

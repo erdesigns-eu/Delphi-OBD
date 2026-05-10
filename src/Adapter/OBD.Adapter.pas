@@ -259,8 +259,8 @@ type
     /// <remarks>
     ///   Populated from the capability registry alongside
     ///   <c>Capabilities</c> on a successful <c>Detect</c>. <c>0</c>
-    ///   when not yet detected. The protocol layer (Phase 4b)
-    ///   reads this to decide whether long-frame ISO-TP is available.
+    ///   when not yet detected. The protocol layer reads this to
+    ///   decide whether long-frame ISO-TP is available.
     /// </remarks>
     property MaxIsoTpFrameBytes: Cardinal read FMaxIsoTpFrameBytes;
   published

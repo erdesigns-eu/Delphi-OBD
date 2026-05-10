@@ -2,8 +2,8 @@
 //  OBD.Flash.Phases
 //
 //  Flash-pipeline phase enum + pre-condition / post-condition
-//  check primitives. The orchestrator (Phase 9c) walks the phases
-//  in order and runs the checks attached to each gate.
+//  check primitives. <see cref="TOBDFlashPipeline"/> walks the
+//  phases in order and runs the checks attached to each gate.
 //
 //  Pre-conditions before a flash:
 //    - Engine off
@@ -11,7 +11,7 @@
 //    - Ambient temperature within range
 //    - Ignition on (key in Run, engine not cranking)
 //    - Voltage stable (TOBDVoltageGate already running)
-//    - Image signature verified (Phase 9d)
+//    - Image signature verified
 //    - User confirmed the destructive action
 //
 //  Post-conditions after a flash:

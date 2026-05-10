@@ -28,7 +28,7 @@
 //    - ../catalogs/_schema/  (machine-readable JSON Schema)
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 loader: PID descriptors, DTC text,
+//    2026-05-09  ERD  Initial loader: PID descriptors, DTC text,
 //                     NRC text, in-memory store with case-insensitive
 //                     type lookup.
 //

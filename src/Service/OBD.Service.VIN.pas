@@ -7,8 +7,8 @@
 //    - OBD-II Service 09 PID 02 (legacy / OBD-II path)
 //    - UDS Service 22 DID 0xF190 (UDS / KWP path)
 //
-//  Validates the result with the Phase 4b
-//  <c>TOBDVINValidator</c> (ISO 3779 check digit). Hosts that
+//  Validates the result with <c>TOBDVINValidator</c> (ISO 3779
+//  check digit). Hosts that
 //  prefer to disable the check digit (older / non-NA vehicles)
 //  can read <c>RawVIN</c> instead of <c>VIN</c>.
 //

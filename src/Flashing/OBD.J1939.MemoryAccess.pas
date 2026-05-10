@@ -23,8 +23,8 @@
 //
 //  This unit ships the PGN catalogue + the request / response
 //  framing helpers. The actual CAN-frame TX / RX runs through the
-//  Phase 4c J1939 transport (TOBDJ1939SessionManager); the host
-//  wires the PGN frames onto the bus.
+//  J1939 transport (<see cref="TOBDJ1939SessionManager"/>); the
+//  host wires the PGN frames onto the bus.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -123,7 +123,7 @@ type
       out AResponse: TOBDJ1939DM15Response): Boolean; static;
     /// <summary>Encodes a DM16 Binary Data Transfer payload. The
     /// host calls this to wrap one chunk; multi-frame DM16 spans
-    /// the J1939 TP / ETP transport from Phase 4c.</summary>
+    /// the J1939 TP / ETP transport.</summary>
     class function EncodeDM16(const AData: TBytes): TBytes; static;
     /// <summary>Decodes a DM16 payload back to its data bytes.</summary>
     class function DecodeDM16(const APayload: TBytes): TBytes; static;

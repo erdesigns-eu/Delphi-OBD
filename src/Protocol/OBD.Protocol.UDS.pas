@@ -11,7 +11,7 @@
 //  TOBDProtocol component, which runs the encoded request through
 //  TOBDAdapter.WriteOBDCommand.
 //
-//  Phase 6's high-level UDS components (TOBDUDS, TOBDUDSReadDID, …)
+//  The high-level UDS components (TOBDUDS, TOBDUDSReadDID, …)
 //  build on this codec.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

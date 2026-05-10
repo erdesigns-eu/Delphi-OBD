@@ -2,17 +2,16 @@
 //  OBD.Flash.Pipeline
 //
 //  TOBDFlashPipeline — production-grade ECU reflash orchestrator.
-//  Composes every Phase 9 building block into one safe-by-default
+//  Composes the flashing building blocks into one safe-by-default
 //  end-to-end run:
 //
 //    1. fpPreflight        — host-supplied checks (engine off,
 //                            voltage floor, ambient temp, ignition,
 //                            user confirmation)
 //    2. fpVerifyImage      — image hash / signature verification
-//                            (signature shipped in 9d)
 //    3. fpEnterProgramming — host-supplied entry routine (session
 //                            switch + security-access + erase)
-//    4. fpTransfer         — TOBDUDSTransfer (Phase 9a)
+//    4. fpTransfer         — TOBDUDSTransfer
 //    5. fpVerify           — host-supplied verify routine
 //    6. fpReset            — ECUReset hardReset
 //    7. fpFinalise         — close audit log
@@ -24,9 +23,10 @@
 //  flash with <c>EOBDConfig</c>.
 //
 //  A pipeline with no <c>VoltageGate</c> assigned logs a WARN-
-//  severity audit-log entry at start-of-flash but proceeds (per
-//  PLAN.md §785: developer-choice). Wire one. Read
-//  docs/flashing-safety.md before integrating.
+//  severity audit-log entry at start-of-flash but proceeds — by
+//  design, the package surfaces the safety primitive but does
+//  not force it on you. Wire one. Read docs/flashing-safety.md
+//  before integrating.
 //  ------------------------------------------------------------------------
 //
 //  Author      : Ernst Reidinga (ERDesigns)

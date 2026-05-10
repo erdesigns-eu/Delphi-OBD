@@ -9,9 +9,9 @@
 //  matching IOBDConnectionTransport implementation, wires its callbacks
 //  to the component, and marshals events to the main thread.
 //
-//  Bound consumers (TOBDAdapter — Phase 3) read bytes via OnDataReceived
-//  and write via WriteBytes / WriteString. They do not see the transport
-//  layer directly.
+//  Bound consumers (<see cref="TOBDAdapter"/>) read bytes via
+//  OnDataReceived and write via WriteBytes / WriteString. They do
+//  not see the transport layer directly.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors

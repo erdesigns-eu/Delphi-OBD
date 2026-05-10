@@ -20,9 +20,6 @@
 //                     events, state enum, baud rate / handshake / parity
 //                     enums.
 //
-//  Future work :
-//    - SecOC freshness hook (Phase 4) needs an authenticated-frame
-//      callback shape; revisit when SecOC lands.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.Types;

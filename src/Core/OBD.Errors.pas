@@ -13,7 +13,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 mapping for the TOBDErrorCode enum.
+//    2026-05-09  ERD  Initial mapping for the TOBDErrorCode enum.
 //
 //  Future work :
 //    - Localisable text (resource string) once we settle on a translation

@@ -19,8 +19,8 @@
 //      lenient extractor used by samples; finds the rightmost
 //      17-character VIN-shaped substring.
 //
-//  Used by sample 03-ReadVIN. Phase 12 may add a richer VIN decoder
-//  (WMI / VDS / VIS / model-year decoding) but that is beyond v1.
+//  Used by sample 03-ReadVIN. A richer VIN decoder
+//  (WMI / VDS / VIS / model-year decoding) is out of scope for v1.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

@@ -4,9 +4,9 @@
 //  Transport abstraction for the DoIP client. Two implementations
 //  ship in v1:
 //
-//    TOBDDoIPPlainTransport  — wraps a TOBDConnection (TCP via the
-//                              Wi-Fi transport from Phase 2). Used
-//                              for unencrypted DoIP-on-port-13400.
+//    TOBDDoIPPlainTransport  — wraps a TOBDConnection (TCP, the
+//                              Wi-Fi transport). Used for
+//                              unencrypted DoIP-on-port-13400.
 //
 //    TOBDDoIPOpenSSLTransport — drop-in OpenSSL 3.x plug. Lives in
 //                              OBD.Protocol.DoIP.TLS.OpenSSL. Same
@@ -81,8 +81,8 @@ type
   end;
 
   /// <summary>
-  ///   Plain (unencrypted) DoIP transport built on the Phase 2
-  ///   Wi-Fi connection. Suitable for port 13400 on a trusted LAN.
+  ///   Plain (unencrypted) DoIP transport built on the Wi-Fi
+  ///   connection. Suitable for port 13400 on a trusted LAN.
   /// </summary>
   TOBDDoIPPlainTransport = class(TInterfacedObject, IOBDDoIPTransport)
   strict private

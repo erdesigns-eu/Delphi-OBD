@@ -10,7 +10,7 @@
 //     delay(n) = min(MaxDelay, InitialDelay * (Multiplier ^ n))
 //
 //  Adapter / detection retry (the AT-level handshake) is a separate
-//  concern and lives on TOBDAdapter (Phase 3).
+//  concern and lives on <see cref="TOBDAdapter"/>.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors

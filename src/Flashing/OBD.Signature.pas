@@ -2,7 +2,7 @@
 //  OBD.Signature
 //
 //  Abstract base + interface for firmware-signature verification.
-//  Phase 9d ships four concrete backends:
+//  Ships four concrete backends:
 //
 //    OBD.Signature.BCrypt   — Windows Cryptography Next Generation
 //    OBD.Signature.OpenSSL  — OpenSSL 3.x (Posix + Windows)
@@ -18,12 +18,12 @@
 //
 //  SAFETY — BRICK RISK ----------------------------------------------------
 //  A pipeline that flashes an UNSIGNED image is one cosmic ray
-//  away from bricking the ECU. PLAN.md §785 + docs/flashing-
-//  safety.md require image-signature verification before
-//  fpTransfer for production flows. The Phase 9c pipeline
-//  exposes Checks for fpVerifyImage; hosts wire a check that
-//  calls TOBDSignatureRegistry.Verify and fails the phase on
-//  signature mismatch.
+//  away from bricking the ECU. <c>docs/flashing-safety.md</c>
+//  requires image-signature verification before <c>fpTransfer</c>
+//  for production flows. <see cref="TOBDFlashPipeline"/> exposes
+//  checks for <c>fpVerifyImage</c>; hosts wire a check that calls
+//  <see cref="TOBDSignatureRegistry.Verify"/> and fails the phase
+//  on signature mismatch.
 //  ------------------------------------------------------------------------
 //
 //  Author      : Ernst Reidinga (ERDesigns)

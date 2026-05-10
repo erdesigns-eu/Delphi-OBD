@@ -15,7 +15,7 @@
 //    - https://semver.org/
 //
 //  History     :
-//    2026-05-09  ERD  Initial version, Phase 0 skeleton.
+//    2026-05-09  ERD  Initial version constants.
 //------------------------------------------------------------------------------
 
 unit OBD.Version;

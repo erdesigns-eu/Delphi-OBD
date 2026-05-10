@@ -2,13 +2,13 @@
 //  OBD.Protocol
 //
 //  TOBDProtocol — non-visual component that sits between TOBDAdapter
-//  and the application code (Phase 5 service-mode components, Phase 6
-//  UDS/KWP/J1939, etc.). Encodes a TOBDRequest via the right codec
-//  (4a foundation), pushes it to the adapter via WriteOBDCommand,
-//  parses the textual hex response back into a TOBDResponse, and
-//  fires events on the main thread.
+//  and the application code (service-mode components, UDS / KWP /
+//  J1939 helpers, etc.). Encodes a TOBDRequest via the right codec,
+//  pushes it to the adapter via WriteOBDCommand, parses the textual
+//  hex response back into a TOBDResponse, and fires events on the
+//  main thread.
 //
-//  Honours the dual-method + main-thread + progress rule (PLAN §3.7):
+//  Honours the dual-method + main-thread + progress rule:
 //  Send / SendAsync, Request / RequestAsync. Only one async op of the
 //  same kind may be in flight per instance; cancellation flows through
 //  Close on the bound adapter.
@@ -59,7 +59,7 @@ type
   ///   Drop on a form, point <c>Adapter</c> at a configured
   ///   <c>TOBDAdapter</c>, optionally set <c>Mode := pmManual</c> and
   ///   <c>Manual := pidISO15765_4_CAN_11_500</c>, then call
-  ///   <c>Send</c> / <c>Request</c> from code (or use a Phase 5
+  ///   <c>Send</c> / <c>Request</c> from code (or use a
   ///   service-mode component like <c>TOBDLiveData</c> that drives
   ///   the protocol behind the scenes).
   ///

@@ -11,7 +11,7 @@
 //    - DM (Diagnostic Message) PGN constants for DM1..DM32,
 //    - TP.CM / TP.DT framing constants and small parsers.
 //
-//  Phase 6's TOBDJ1939DM component uses these helpers to build the
+//  <see cref="TOBDJ1939DM"/> uses these helpers to build the
 //  high-level DM1..DM32 surface.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

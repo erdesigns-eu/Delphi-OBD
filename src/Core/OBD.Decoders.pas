@@ -21,12 +21,15 @@
 //    - SAE J1979 Appendix A (formula reference)
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 set: linear, percentage, temperature,
+//    2026-05-09  ERD  Initial set: linear, percentage, temperature,
 //                     fueltrim, rpm, speed, maf, ascii, bitfield, raw.
-//
-//  Future work :
-//    - Add big-endian-3, signed-2 helpers for UDS DIDs in Phase 6.
-//    - Add CCP/XCP scalar decoders driven by A2L conversions in Phase 7.
+//    2026-05-10  ERD  Add signed two's-complement decoder (signed)
+//                     for UDS DIDs that ship 1 / 2 / 4-byte signed BE.
+//                     Big-endian-3 unsigned is already covered by
+//                     <c>linear</c> with <c>Length = 3</c>.
+//                     CCP / XCP scalar decoding is handled by
+//                     <see cref="TA2LDocument"/> conversion records
+//                     in OBD.Calibration.A2L.
 //------------------------------------------------------------------------------
 
 unit OBD.Decoders;
@@ -179,6 +182,16 @@ function DecodeBitField(const ARaw: TBytes;
 ///   copies <c>Raw</c>.
 /// </summary>
 function DecodeRaw(const ARaw: TBytes;
+  const ADescriptor: TOBDPIDDescriptor): TOBDValue;
+
+/// <summary>
+///   Signed big-endian decoder for UDS DIDs that ship signed
+///   integers in 1, 2 or 4 bytes (interprets the high bit as the
+///   sign and applies two's-complement). <c>Length</c> selects the
+///   width; <c>Scale</c> / <c>Offset</c> apply as usual. Bytes
+///   beyond <c>Length</c> are ignored.
+/// </summary>
+function DecodeSigned(const ARaw: TBytes;
   const ADescriptor: TOBDPIDDescriptor): TOBDValue;
 
 implementation
@@ -351,6 +364,39 @@ begin
   Result.Kind := vkRawOnly;
 end;
 
+function DecodeSigned(const ARaw: TBytes;
+  const ADescriptor: TOBDPIDDescriptor): TOBDValue;
+var
+  Width: Integer;
+  RawBE: UInt64;
+  SignBit: UInt64;
+  Mask: UInt64;
+  Signed: Int64;
+  Scale: Double;
+begin
+  Result := FillCommon(ARaw, ADescriptor);
+  Width := ADescriptor.Length;
+  if Width = 0 then
+    Width := 2;
+  if (Width <> 1) and (Width <> 2) and (Width <> 4) then
+    Exit;  // unsupported width — leave as vkEmpty
+  if Length(ARaw) < Width then
+    Exit;
+  RawBE := ReadBE(ARaw, 0, Width);
+  SignBit := UInt64(1) shl (Width * 8 - 1);
+  Mask := (SignBit shl 1) - 1;
+  RawBE := RawBE and Mask;
+  if (RawBE and SignBit) <> 0 then
+    Signed := Int64(RawBE) - Int64(SignBit shl 1)
+  else
+    Signed := Int64(RawBE);
+  Scale := ADescriptor.Scale;
+  if Scale = 0 then
+    Scale := 1;
+  Result.Kind := vkFloat;
+  Result.AsFloat := ApplyClamp(Signed * Scale + ADescriptor.Offset, ADescriptor);
+end;
+
 { ---- TOBDDecoderRegistry ----------------------------------------------------- }
 
 constructor TOBDDecoderRegistry.Create;
@@ -434,6 +480,7 @@ begin
   R.Register('ascii',       DecodeASCII);
   R.Register('bitfield',    DecodeBitField);
   R.Register('raw',         DecodeRaw);
+  R.Register('signed',      DecodeSigned);
 end;
 
 initialization

@@ -9,10 +9,9 @@
 //  (exact / any-of / regex / hex-prefix), and refuses the flash
 //  on any mismatch.
 //
-//  This closes Phase 9 honest-review flag 5: "no image-sanity
-//  check beyond signature." A signed image with the wrong target
-//  ECU type would otherwise pass signature verification and
-//  proceed.
+//  Without this, a signed image with the wrong target ECU type
+//  would pass signature verification and proceed straight into
+//  the transfer — the sidecar descriptor closes that gap.
 //
 //  Schema lives in <c>data/schemas/flash-image-applicability.schema.json</c>.
 //

@@ -10,9 +10,9 @@
 //    - Source-address ↔ NAME registry for the application layer
 //
 //  IsoBus is layered on top of J1939, which is already covered by
-//  the Phase 4c TOBDJ1939SessionManager. This component sits above
-//  that layer and consumes raw J1939 PGN frames; hosts wire it to
-//  their CAN driver via a small adapter.
+//  <see cref="TOBDJ1939SessionManager"/>. This component sits
+//  above that layer and consumes raw J1939 PGN frames; hosts wire
+//  it to their CAN driver via a small adapter.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

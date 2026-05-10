@@ -2,9 +2,9 @@
 //  OBD.Coding.DiffRLE
 //
 //  TOBDCodingDiffRLE — run-length-encoded diff for firmware-scale
-//  buffers. The Phase 8 byte-level <see cref="TOBDCodingDiff"/>
-//  emits one record per changed byte, which is fine for sub-100-
-//  byte coding payloads but explodes for 64KB+ flash images.
+//  buffers. The byte-level <see cref="TOBDCodingDiff"/> emits one
+//  record per changed byte, which is fine for sub-100-byte coding
+//  payloads but explodes for 64KB+ flash images.
 //
 //  This unit emits one record per *contiguous run* of changed
 //  bytes:

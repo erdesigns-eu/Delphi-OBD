@@ -3,9 +3,9 @@
 //
 //  TOBDRecorder — captures every protocol-level frame + response
 //  + error to an append-only `.obdlog` file. Hosts use this both
-//  as a forensic / audit trail and as the input for the Phase 10
-//  TOBDReplayer (run a captured session against a stub protocol
-//  stack for offline analysis).
+//  as a forensic / audit trail and as the input for
+//  <see cref="TOBDReplayer"/> (run a captured session against a
+//  stub protocol stack for offline analysis).
 //
 //  File format (one entry per line, JSONL):
 //

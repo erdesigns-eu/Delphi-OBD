@@ -8,7 +8,7 @@
 //  KWP2000 supports two physical layer flavours: K-line with 5-baud
 //  init (legacy) and CAN with fast init. The codec produces the same
 //  hex command bytes either way; the wire-init dance is the adapter's
-//  responsibility (Phase 3).
+//  responsibility (see <see cref="TOBDAdapter"/>).
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

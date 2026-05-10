@@ -19,12 +19,16 @@
 //    - ISO 13400   (DoIP)
 //
 //  History     :
-//    2026-05-09  ERD  Initial Phase 1 types: enums, TOBDValue, exception
+//    2026-05-09  ERD  Initial types: enums, TOBDValue, exception
 //                     hierarchy.
 //
-//  Future work :
-//    - Extend TOBDProtocolID once Phase 4 lands FlexRay / MOST flavours.
-//    - Add SecOC freshness types when Phase 4 wires SecOC.
+//  Notes :
+//    - <c>TOBDProtocolID</c> covers only the adapter-selectable
+//      OBD-II protocols. LIN, FlexRay and MOST live in their own
+//      units (<c>OBD.Protocol.LIN.*</c>, <c>OBD.Protocol.FlexRay.*</c>,
+//      <c>OBD.Protocol.MOST.*</c>) and do not appear in this enum.
+//    - SecOC freshness types live in
+//      <c>OBD.Protocol.SecOC.Freshness</c>, not here.
 //------------------------------------------------------------------------------
 
 unit OBD.Types;

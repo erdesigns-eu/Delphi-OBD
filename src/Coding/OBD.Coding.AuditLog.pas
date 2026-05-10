@@ -17,8 +17,10 @@
 //  the JSON-without-hmac plus the previous line's HMAC. Verifying
 //  the chain catches tampering with any historical entry.
 //
-//  HMAC is built on the AES-128 / CMAC primitives shipped in
-//  Phase 4e — same dependency surface, no new crypto.
+//  HMAC is built on the AES-128 / CMAC primitives that already
+//  ship in <c>OBD.Protocol.SecOC.AES</c> /
+//  <c>OBD.Protocol.SecOC.CMAC</c> — same dependency surface, no
+//  new crypto.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

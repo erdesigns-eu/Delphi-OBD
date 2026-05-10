@@ -26,8 +26,8 @@
 //
 //  Future work :
 //    - POSIX backend (Linux / macOS) using termios.
-//    - Dynamic enumeration of available ports for design-time
-//      property editor (Phase 11).
+//    - Dynamic enumeration of available ports for the design-time
+//      property editor.
 //------------------------------------------------------------------------------
 
 unit OBD.Connection.Serial;

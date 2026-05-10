@@ -18,14 +18,13 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-09  ERD  Initial empty registration, Phase 0 skeleton.
-//    2026-05-09  ERD  Phase 4g — register TOBDConnection, TOBDAdapter,
-//                     TOBDProtocol, TOBDDoIPClient, TOBDSecOCCodec.
+//    2026-05-09  ERD  Initial empty registration.
+//    2026-05-09  ERD  Register the Connection / Adapter / Protocol
+//                     / DoIP / SecOC components.
+//    2026-05-10  ERD  Add splash + About-box registration via Tools API.
 //
 //  Future work :
-//    - Component icons (16 / 24 / 32 px) once design assets land.
 //    - Property editors for adapter init scripts and SecOC keys.
-//    - Splash bitmap + About box.
 //------------------------------------------------------------------------------
 
 unit OBD.Design.Registration;
@@ -185,8 +184,8 @@ begin
     TOBDSecOCCodec
   ]);
 
-  // Service-mode (Phase 5): higher-level diagnostics that sit on
-  // top of TOBDProtocol.
+  // Service-mode: higher-level diagnostics that sit on top of
+  // TOBDProtocol.
   RegisterComponents('OBD Services', [
     TOBDLiveData,
     TOBDDTCs,
@@ -196,9 +195,9 @@ begin
     TOBDActuator
   ]);
 
-  // Coding & flashing (Phase 6): write-side UDS components. Live
-  // on their own tab so a host can keep them visually separated
-  // from the read-only service-mode components.
+  // Coding & flashing: write-side UDS components. On their own
+  // tab so a host can keep them visually separated from the
+  // read-only service-mode components.
   RegisterComponents('OBD Coding', [
     TOBDSecurityAccess,
     TOBDDataIdentifierIO,
@@ -208,17 +207,16 @@ begin
     TOBDFlashSession
   ]);
 
-  // Phase 7: calibration + speciality buses. XCP and CCP need a
-  // transport injected at runtime; IsoBus is component-friendly
-  // out of the box.
+  // Calibration + speciality buses. XCP and CCP need a transport
+  // injected at runtime; IsoBus is component-friendly out of the
+  // box.
   RegisterComponents('OBD Calibration', [
     TOBDXCP,
     TOBDCCP,
     TOBDIsoBus
   ]);
 
-  // Phase 8 additions: extra write-side components and the
-  // session orchestrator.
+  // Extra write-side components and the session orchestrator.
   RegisterComponents('OBD Coding', [
     TOBDUDSWriteMemory,
     TOBDKWPWriteID,
@@ -230,7 +228,7 @@ begin
     TOBDComponentProtectionStellantis
   ]);
 
-  // Phase 9: flashing components. WARNING — drop on a form, wire
+  // Flashing components. WARNING — drop on a form, wire
   // OnConfirmExecute, leave AutoExecute = False until the host
   // really means it. Read docs/flashing-safety.md.
   RegisterComponents('OBD Flashing', [
@@ -239,18 +237,18 @@ begin
     TOBDFlashPipeline
   ]);
 
-  // Phase 10: recorder / replayer pair. Drop on a form, point at
-  // a TOBDProtocol, capture the entire session for forensic /
+  // Recorder / replayer pair. Drop on a form, point at a
+  // TOBDProtocol, capture the entire session for forensic /
   // offline analysis or replay for tests.
   RegisterComponents('OBD', [
     TOBDRecorder,
     TOBDReplayer
   ]);
 
-  // Phase 11: register the splash-screen plugin entry and the
-  // About-box plugin info. Both are best-effort — wrapped so a
-  // missing IDE service or a missing resource never breaks the
-  // package install.
+  // Register the splash-screen plugin entry and the About-box
+  // plugin info. Both are best-effort — wrapped so a missing IDE
+  // service or a missing resource never breaks the package
+  // install.
   try
     RegisterSplash;
   except
