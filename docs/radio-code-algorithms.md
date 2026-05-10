@@ -34,7 +34,7 @@ for sources if you need to wire your own.
 | `TOBDRadioCodeVW`           | 🔌 | VW Gamma / Beta / Alpha / RCD / RNS — licensed. See "VW SAFE extraction" below for an over-the-bus alternative. |
 | `TOBDRadioCodeAudiConcert`  | 🔌 | Audi Concert / Symphony — licensed. |
 | `TOBDRadioCodeBMW`          | 🔌 | BMW Business CD / Professional / Navigation / Modern — licensed. |
-| `TOBDRadioCodeMercedes`     | 🔌 | Mercedes-Benz factory radios (Becker BE2xxx+) — codes live in EEPROM (24C02 at known offset); see [slomkowski tutorial](https://slomkowski.eu/tutorials/extracting-security-codes-from-car-radios/). |
+| `TOBDRadioCodeMercedes`     | 🔌 | Mercedes-Benz factory radios (Becker BE2xxx+) — codes live in EEPROM (24C02 at known offset); see [slomkowski tutorial](https://slomkowski.eu/tutorials/extracting-security-codes-from-car-radios/). For dump-based recovery use `TOBDRadioCodeEEPROM_MercedesBecker` (see "EEPROM extractors" below). |
 | `TOBDRadioCodeMini`         | 🔌 | BMW group; same as BMW. |
 | `TOBDRadioCodePorsche`      | 🔌 | Porsche PCM (Becker-built); private community algorithm exists on RennTech. |
 | `TOBDRadioCodeSEAT`         | 🔌 | VW group. |
@@ -60,7 +60,7 @@ for sources if you need to wire your own.
 | `TOBDRadioCodeJaguar`       | 🔌 | Alpine-supplied; commercial only. |
 | `TOBDRadioCodeLandRover`    | 🔌 | Alpine / Visteon-supplied; commercial only. |
 | `TOBDRadioCodeSaab`         | 🔌 | YS / PH-series; commercial only. |
-| `TOBDRadioCodeOpel`         | 💡 | CD30 / CD70 codes live in 24C32 / 95640 EEPROM at fixed offset; see [vauxhallownersnetwork thread](https://www.vauxhallownersnetwork.co.uk/threads/how-to-find-the-security-code-of-your-cd30-or-cd70-without-a-car-pass.839407/). |
+| `TOBDRadioCodeOpel`         | 💡 | CD30 / CD70 codes live in 24C32 / 95640 EEPROM at fixed offset; see [vauxhallownersnetwork thread](https://www.vauxhallownersnetwork.co.uk/threads/how-to-find-the-security-code-of-your-cd30-or-cd70-without-a-car-pass.839407/). For dump-based recovery use `TOBDRadioCodeEEPROM_OpelCD30` (see "EEPROM extractors" below). |
 
 ### Asian
 
@@ -101,7 +101,40 @@ for sources if you need to wire your own.
 
 | Component | Status | Notes |
 |---|---|---|
-| `TOBDRadioCodeVolvo`        | 💡 | Code lives in 24C01 EEPROM. See [HU-601 dump gist](https://gist.github.com/klalle/1ae1bfec5e2506918a3f89492180565e). |
+| `TOBDRadioCodeVolvo`        | 💡 | Code lives in 24C01 EEPROM. See [HU-601 dump gist](https://gist.github.com/klalle/1ae1bfec5e2506918a3f89492180565e). For dump-based recovery use `TOBDRadioCodeEEPROM_VolvoHU` (see "EEPROM extractors" below). |
+
+## EEPROM extractors
+
+Several factory radios store their unlock code as a fixed byte
+sequence at a documented offset inside the radio's serial-EEPROM.
+For these the host pulls the chip with a programmer (CH341A,
+TL866, Willem, …), saves the dump as a binary file, and feeds it
+to the matching extractor component on the **OBD EEPROM** palette
+tab. No algorithm, no licensed service.
+
+| Component | EEPROM | Offset | Encoding | Notes |
+|---|---|---|---|---|
+| `TOBDRadioCodeEEPROM_VolvoHU`        | 24C01 (128 B)  | `0x90`  | 4 ASCII digits | Volvo HU / SC-7xx series. HU-601 reference. |
+| `TOBDRadioCodeEEPROM_OpelCD30`       | 24C32 / 95640  | `0x2B7` | 2 BCD bytes (4 digits) | Opel CD30 / CD70 (Grundig / Blaupunkt-built). |
+| `TOBDRadioCodeEEPROM_MercedesBecker` | 24C02 (256 B)  | `0x76`  | 5 ASCII digits | Mercedes-Benz Becker BE2xxx+. |
+
+Every extractor exposes a `DumpFile` published property and an
+`OnExtract` event for variants that store the code at a different
+offset.
+
+```pascal
+procedure TForm1.btnReadCodeClick(Sender: TObject);
+var
+  R: TOBDRadioCodeEEPROMResult;
+begin
+  VolvoExtractor.DumpFile := 'C:\dumps\hu801.bin';
+  R := VolvoExtractor.Extract;
+  if R.Success then
+    edtCode.Text := R.Code
+  else
+    ShowMessage(R.Message);
+end;
+```
 
 ## Wiring `OnCalculate`
 

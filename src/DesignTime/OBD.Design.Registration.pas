@@ -91,6 +91,7 @@ uses
   OBD.RadioCode.Aftermarket,
   OBD.RadioCode.Volvo,
   OBD.RadioCode.FordVDatabase,
+  OBD.RadioCode.EEPROM,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -305,6 +306,17 @@ begin
     TOBDRadioCodeBecker5,
     TOBDRadioCodeVolvo,
     TOBDRadioCodeFordV
+  ]);
+
+  // EEPROM-dump extractors. Different beast from the calculator
+  // family above: the host pulls the radio's serial-EEPROM with
+  // a chip programmer, hands the .bin to the matching component,
+  // and the component reads the code out at a fixed offset. No
+  // algorithm, no licensed service.
+  RegisterComponents('OBD EEPROM', [
+    TOBDRadioCodeEEPROM_VolvoHU,
+    TOBDRadioCodeEEPROM_OpelCD30,
+    TOBDRadioCodeEEPROM_MercedesBecker
   ]);
 
   // Register the splash-screen plugin entry and the About-box
