@@ -156,6 +156,7 @@ contains
   OBD.RadioCode.Types in '..\src\RadioCode\OBD.RadioCode.Types.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.EuropeanPremium in '..\src\RadioCode\OBD.RadioCode.EuropeanPremium.pas',
-  OBD.RadioCode.FrenchItalian in '..\src\RadioCode\OBD.RadioCode.FrenchItalian.pas';
+  OBD.RadioCode.FrenchItalian in '..\src\RadioCode\OBD.RadioCode.FrenchItalian.pas',
+  OBD.RadioCode.British in '..\src\RadioCode\OBD.RadioCode.British.pas';
 
 end.

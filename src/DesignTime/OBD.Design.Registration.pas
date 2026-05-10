@@ -85,6 +85,7 @@ uses
   OBD.RadioCode,
   OBD.RadioCode.EuropeanPremium,
   OBD.RadioCode.FrenchItalian,
+  OBD.RadioCode.British,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -272,7 +273,11 @@ begin
     TOBDRadioCodeFiatDaiichi,
     TOBDRadioCodeFiatVP,
     TOBDRadioCodeAlfaRomeo,
-    TOBDRadioCodeMaserati
+    TOBDRadioCodeMaserati,
+    TOBDRadioCodeJaguar,
+    TOBDRadioCodeLandRover,
+    TOBDRadioCodeSaab,
+    TOBDRadioCodeOpel
   ]);
 
   // Register the splash-screen plugin entry and the About-box

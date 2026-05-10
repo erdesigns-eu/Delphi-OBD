@@ -157,6 +157,7 @@ uses
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
   OBD.RadioCode.EuropeanPremium in '..\src\RadioCode\OBD.RadioCode.EuropeanPremium.pas',
   OBD.RadioCode.FrenchItalian in '..\src\RadioCode\OBD.RadioCode.FrenchItalian.pas',
+  OBD.RadioCode.British in '..\src\RadioCode\OBD.RadioCode.British.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',
