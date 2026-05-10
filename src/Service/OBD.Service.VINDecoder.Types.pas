@@ -98,6 +98,61 @@ type
     vtHybrid
   );
 
+  /// <summary>One vPIC-style VDS pattern. Decodes a single
+  /// VDS character (or character class) at a fixed offset into
+  /// one VIN feature element. Loaded from
+  /// <c>catalogs/vin/vds-rules.json</c> via the
+  /// <see cref="TOBDVINVDSSchema"/> records.
+  /// <para>The <c>Match</c> field is a regex character class:
+  /// <c>"A"</c> matches the literal A; <c>"[ABC]"</c> matches
+  /// any of A, B, C; <c>"."</c> or <c>""</c> matches any
+  /// character. Multi-char literals are matched verbatim.</para>
+  /// </summary>
+  TOBDVINVDSPattern = record
+    /// <summary>0-based offset within the 6-char VDS (positions
+    /// 4..9 of the full VIN -> offsets 0..5 here).</summary>
+    Offset: Byte;
+    /// <summary>Regex character class to match at <c>Offset</c>.
+    /// Empty / "." / "*" all mean "any".</summary>
+    Match:  string;
+    /// <summary>Element name from the vPIC dictionary (e.g.
+    /// <c>"BodyClass"</c>, <c>"DisplacementL"</c>,
+    /// <c>"EngineModel"</c>, <c>"DriveType"</c>,
+    /// <c>"TransmissionStyle"</c>, <c>"FuelTypePrimary"</c>,
+    /// <c>"ElectrificationLevel"</c>, <c>"AirBagLocFront"</c>,
+    /// <c>"GVWR"</c>).</summary>
+    Field:  string;
+    /// <summary>Decoded value for this match (e.g.
+    /// <c>"Sedan/Saloon"</c>, <c>"2.0"</c>, <c>"FWD"</c>).</summary>
+    Value:  string;
+  end;
+
+  /// <summary>WMI + year-range entry inside a
+  /// <see cref="TOBDVINVDSSchema"/>. A schema applies when one
+  /// of its WMIs matches AND (when present) the model year is
+  /// inside the range.</summary>
+  TOBDVINVDSSchemaWMI = record
+    WMI:      string;   // 3-char prefix (no wildcards)
+    YearFrom: Word;     // 0 = no lower bound
+    YearTo:   Word;     // 0 = no upper bound
+  end;
+
+  /// <summary>One VinSchema from the vPIC model. Owns a list of
+  /// applicable WMIs (with optional year ranges) and a list of
+  /// patterns; multiple patterns inside one schema are
+  /// AND-combined when matching a VIN.</summary>
+  TOBDVINVDSSchema = record
+    /// <summary>Free-text id from the source; useful for logs
+    /// and citations (e.g. <c>"vPIC.VinSchemaId 12345"</c>).</summary>
+    Id:       string;
+    /// <summary>WMI + year-range entries this schema applies
+    /// to.</summary>
+    WMIs:     TArray<TOBDVINVDSSchemaWMI>;
+    /// <summary>One-or-more pattern entries; each adds one
+    /// decoded field to the result when matched.</summary>
+    Patterns: TArray<TOBDVINVDSPattern>;
+  end;
+
   /// <summary>Best-effort feature decode from the VDS section.
   /// Empty fields mean "not detected", not "absent".</summary>
   TOBDVINFeatures = record

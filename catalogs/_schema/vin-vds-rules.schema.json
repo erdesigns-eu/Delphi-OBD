@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://delphi-obd.example/schema/vin-vds-rules.json",
+  "title": "VIN VDS rules",
+  "description": "Per-WMI VDS-decoding rules in NHTSA vPIC shape: each schema lists applicable WMIs (with optional year ranges) and the per-offset patterns that decode the VDS into named feature fields. AND-combined within one schema; OR-combined across schemas (multiple schemas can apply to the same VIN, contributions are merged).",
+  "type": "object",
+  "required": ["schemas"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version":  { "type": "string", "description": "Source build identifier (e.g. \"vPICList_lite_2026_04\")." },
+    "source":   { "type": "string", "description": "Free-text source citation; helpful for audit trails." },
+    "schemas": {
+      "type": "object",
+      "description": "Map of schema-id -> schema definition. Schema id is opaque (e.g. the vPIC VinSchemaId).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["wmis", "patterns"],
+        "additionalProperties": false,
+        "properties": {
+          "wmis": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["wmi"],
+              "additionalProperties": false,
+              "properties": {
+                "wmi":      { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{3}$" },
+                "yearFrom": { "type": "integer", "minimum": 1980, "maximum": 2099 },
+                "yearTo":   { "type": ["integer", "null"], "minimum": 1980, "maximum": 2099 }
+              }
+            }
+          },
+          "patterns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["offset", "field"],
+              "additionalProperties": false,
+              "properties": {
+                "offset": { "type": "integer", "minimum": 0, "maximum": 5,
+                            "description": "0-based offset within the 6-char VDS (VIN positions 4..9)." },
+                "match":  { "type": "string",
+                            "description": "Regex character class matched against VDS[offset]. Empty / \".\" / \"*\" mean any. Bare single char is a literal. \"[ABC]\" is a class. \"[^X]\" is a negated class. \"X-Z\" inside a class is a range." },
+                "field":  { "type": "string",
+                            "description": "vPIC element name (BodyClass, DisplacementL, EngineModel, DriveType, TransmissionStyle, FuelTypePrimary, ElectrificationLevel, AirBagLocFront, GVWR, ...)." },
+                "value":  { "type": "string",
+                            "description": "Decoded value applied to the feature field when match holds." }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

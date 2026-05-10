@@ -1,0 +1,37 @@
+{
+  "$schema": "../_schema/vin-vds-rules.schema.json",
+  "version": "placeholder-2026.05",
+  "source": "Hand-curated stub with one canonical sample per region. Run tools/etl-vpic to regenerate from the NHTSA vPIC bulk dump for full coverage.",
+  "schemas": {
+    "stub.VW.MQB.2015plus": {
+      "wmis": [
+        { "wmi": "WVW", "yearFrom": 2015 }
+      ],
+      "patterns": [
+        { "offset": 0, "match": "Z",       "field": "BodyClass",        "value": "Sedan/Saloon" },
+        { "offset": 0, "match": "[AB]",    "field": "BodyClass",        "value": "Hatchback" },
+        { "offset": 1, "match": "Z",       "field": "TransmissionStyle","value": "Automatic" }
+      ]
+    },
+    "stub.Ford.F150.2018plus": {
+      "wmis": [
+        { "wmi": "1FT", "yearFrom": 2018 }
+      ],
+      "patterns": [
+        { "offset": 0, "match": ".",       "field": "BodyClass",        "value": "Pickup" },
+        { "offset": 0, "match": ".",       "field": "VehicleType",      "value": "Truck" }
+      ]
+    },
+    "stub.Toyota.Camry.2018plus": {
+      "wmis": [
+        { "wmi": "JTD", "yearFrom": 2018 },
+        { "wmi": "4T1", "yearFrom": 2018 }
+      ],
+      "patterns": [
+        { "offset": 0, "match": ".",       "field": "BodyClass",        "value": "Sedan/Saloon" },
+        { "offset": 1, "match": "K",       "field": "EngineModel",      "value": "A25A-FXS Hybrid" },
+        { "offset": 1, "match": "K",       "field": "ElectrificationLevel","value": "HEV" }
+      ]
+    }
+  }
+}

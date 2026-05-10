@@ -59,6 +59,15 @@ type
     [Test]     procedure InvalidVINPopulatesReason;
   end;
 
+  [TestFixture]
+  TVINFeatureDecodeTests = class
+  public
+    [Setup] procedure Setup;
+    [Test] procedure StubFordF150_DetectedAsTruck;
+    [Test] procedure StubToyotaCamryHybrid_DetectedAsHybrid;
+    [Test] procedure UnknownWMI_LeavesFeaturesEmpty;
+  end;
+
 implementation
 
 { ---- TVINShapeTests --------------------------------------------------------- }
@@ -182,10 +191,53 @@ begin
   Assert.IsNotEmpty(Info.InvalidReason);
 end;
 
+{ ---- TVINFeatureDecodeTests ------------------------------------------------ }
+
+procedure TVINFeatureDecodeTests.Setup;
+begin
+  TOBDVINDecoder.CatalogDir :=
+    TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..\catalogs');
+  TOBDVINDecoder.LoadCatalogs(TOBDVINDecoder.CatalogDir);
+end;
+
+procedure TVINFeatureDecodeTests.StubFordF150_DetectedAsTruck;
+var Info: TOBDVINInfo;
+begin
+  // 1FT WMI + year code 'J' = 2018 (matches the stub's
+  // yearFrom=2018). Stub rule maps every VDS char-0 to
+  // VehicleType=Truck.
+  Info := TOBDVINDecoder.Decode('1FTFW1ETJDFC10312');
+  Assert.IsTrue(Info.Valid, Info.InvalidReason);
+  Assert.AreEqual(Ord(vtTruck), Ord(Info.Features.VehicleType));
+end;
+
+procedure TVINFeatureDecodeTests.StubToyotaCamryHybrid_DetectedAsHybrid;
+var Info: TOBDVINInfo;
+begin
+  // 4T1 WMI, year 'J' (2018), VDS char 1 = 'K' to fire the
+  // hybrid rule + engine model.
+  Info := TOBDVINDecoder.Decode('4T1KAAAAJAA000000');
+  Assert.IsTrue(Info.Valid, Info.InvalidReason);
+  Assert.AreEqual(Ord(vtHybrid), Ord(Info.Features.VehicleType));
+  Assert.IsTrue(Info.Features.EngineType.Contains('A25A-FXS'),
+    'EngineType not populated; got: ' + Info.Features.EngineType);
+end;
+
+procedure TVINFeatureDecodeTests.UnknownWMI_LeavesFeaturesEmpty;
+var Info: TOBDVINInfo;
+begin
+  // ZZZ is not in any stub schema.
+  Info := TOBDVINDecoder.Decode('ZZZAAAAAAAAAAAAAA');
+  Assert.IsTrue(Info.Valid, Info.InvalidReason);
+  Assert.AreEqual(Ord(vtUnknown), Ord(Info.Features.VehicleType));
+  Assert.AreEqual('', Info.Features.EngineType);
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TVINShapeTests);
   TDUnitX.RegisterTestFixture(TVINCheckDigitTests);
   TDUnitX.RegisterTestFixture(TVINYearTests);
   TDUnitX.RegisterTestFixture(TVINDecoderEndToEndTests);
+  TDUnitX.RegisterTestFixture(TVINFeatureDecodeTests);
 
 end.
