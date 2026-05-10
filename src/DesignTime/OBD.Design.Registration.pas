@@ -58,6 +58,7 @@ uses
   OBD.Service.VIN,
   OBD.Service.FreezeFrame,
   OBD.Service.OnBoardMonitor,
+  OBD.Service.VehicleHealth,
   OBD.Service.Actuator,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -194,7 +195,8 @@ begin
     TOBDVIN,
     TOBDFreezeFrame,
     TOBDOnBoardMonitor,
-    TOBDActuator
+    TOBDActuator,
+    TOBDVehicleHealth
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

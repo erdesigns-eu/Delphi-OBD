@@ -353,7 +353,7 @@ new `P-C*` task here.
 [ ] P-A6   Key adaptation (BMW / Ford / HMG / Toyota)
 [ ] P-B1   Wider OEM coverage (split B1.1..B1.8)
 [ ] P-B2   Mode 07 / 0A pending + permanent DTC components
-[ ] P-B3   VehicleHealth roll-up component
+[x] P-B3   VehicleHealth roll-up component          (shipped)
 [ ] P-B4   Tachograph signature + workshop
 [ ] P-B5   Utilities (logger / secure settings / security helpers)
 [ ] P-B6   Form / DataModule / MainForm IDE wizards
