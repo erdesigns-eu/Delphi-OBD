@@ -42,6 +42,10 @@ contains
   OBD.Design.Forms.LiveTest in '..\src\DesignTime\OBD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg},
   OBD.Design.Starters in '..\src\DesignTime\OBD.Design.Starters.pas',
   OBD.Design.Starters.Templates in '..\src\DesignTime\OBD.Design.Starters.Templates.pas',
+  OBD.Design.Starters.ServiceMode in '..\src\DesignTime\OBD.Design.Starters.ServiceMode.pas',
+  OBD.Design.Starters.Coding in '..\src\DesignTime\OBD.Design.Starters.Coding.pas',
+  OBD.Design.Starters.Flashing in '..\src\DesignTime\OBD.Design.Starters.Flashing.pas',
+  OBD.Design.Starters.Advanced in '..\src\DesignTime\OBD.Design.Starters.Advanced.pas',
   OBD.Design.Forms.StarterPicker in '..\src\DesignTime\OBD.Design.Forms.StarterPicker.pas' {OBDStarterPickerDlg},
   OBD.Design.Wizards.Starters in '..\src\DesignTime\OBD.Design.Wizards.Starters.pas';
 
