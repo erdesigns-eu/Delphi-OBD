@@ -10,15 +10,11 @@
     "  - 'kind' is informational; the script doesn't branch on it.",
     "  - 'size' is whatever gpt-image-2 supports natively (square",
     "    sizes only). The script downscales to 'final_size' with",
-    "    Lanczos resampling. Component icons end at 16/24/32 px;",
-    "    asking the model for that small produces mush, so we",
-    "    generate at 1024 and downscale.",
-    "  - 'transparent_background' = true makes the script add the",
-    "    'background: transparent' parameter (gpt-image-2 supports",
-    "    it natively for PNG). Set to false + put 'pure white",
-    "    background' in the prompt when you want to chroma-key",
-    "    later in a graphics tool.",
-    "  - 'force' on the CLI re-runs even if 'out' exists.",
+    "    Lanczos resampling. Component icons end at 256 px; RAD",
+    "    Studio downscales to 16/24/32 itself for the palette.",
+    "  - References (top-level) are POSTed to /v1/images/edits as",
+    "    multipart 'image[]' fields so gpt-image-2 anchors style",
+    "    on the brand logo.",
     "",
     "Style guide for prompts (keep consistent across icons):",
     "  - Modern Microsoft Office / Fluent UI icon style: 2D",
@@ -36,13 +32,289 @@
   ],
   "assets": [
     {
-      "id": "icon-connection-dryrun",
+      "id": "icon-connection",
       "kind": "component-icon",
-      "out": "assets/designtime/dryrun/TOBDConnection.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon depicts a stylised OBD-II 16-pin trapezoidal diagnostic connector with a short cable. Render in the same modern Fluent icon style as Microsoft Office app icons: 2D with subtle depth, slight isometric or dimetric perspective, soft layered shading, clean geometric shapes — modern and recognisable, not flat-flat and not photoreal. Use ONLY colours from the attached reference logo; lift the palette directly from the reference. Pure white background. Centered composition, generous padding. No text. Clean enough to read at 16 by 16 pixels after downscaling.",
+      "out": "assets/designtime/icons/TOBDConnection.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for a vehicle diagnostics software component named 'TOBDConnection'. Subject: a stylised OBD-II 16-pin trapezoidal diagnostic connector with a short cable curling out the back. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo. Pure white background. Centered composition, generous padding. No text. Clean enough to read at 16x16 px after downscaling.",
       "size": "1024x1024",
-      "final_size": 256,
-      "transparent_background": true
+      "final_size": 256
+    },
+    {
+      "id": "icon-adapter",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAdapter.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDAdapter'. Subject: a small ELM327-style USB / Bluetooth diagnostic dongle adapter — rectangular module with a short tail cable and a round status LED. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-protocol",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDProtocol.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDProtocol'. Subject: three or four stacked horizontal layers (a protocol stack) connected by short vertical bidirectional arrows on the side, suggesting layered communication. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometry. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-doip-client",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDoIPClient.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDDoIPClient' (Diagnostics over IP). Subject: an Ethernet RJ45 plug with a short cable, paired with a small abstract car silhouette or vehicle outline behind it, suggesting network diagnostics. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-secoc-codec",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSecOCCodec.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDSecOCCodec' (Secure Onboard Communication). Subject: a closed padlock superimposed on a CAN bus wave or hex byte block, suggesting authenticated messages. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-recorder",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRecorder.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDRecorder'. Subject: a prominent solid record dot (filled circle) inside a rounded rectangular bezel, optionally paired with a tiny cassette / storage tile, suggesting capture-to-disk. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-replayer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDReplayer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDReplayer'. Subject: a prominent play triangle inside a rounded rectangular bezel, optionally paired with a tiny stack of frames suggesting timeline replay. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+
+    {
+      "id": "icon-livedata",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLiveData.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDLiveData'. Subject: a circular speedometer / gauge with a needle pointing roughly upper-right and a small graduation arc, suggesting live telemetry. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-dtcs",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDTCs.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDDTCs' (Diagnostic Trouble Codes). Subject: a stylised engine warning triangle with a centered exclamation mark, evoking the dashboard MIL light. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-vin",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVIN.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDVIN' (Vehicle Identification Number). Subject: a small barcode / serial-tag plate fixed to the corner of a stylised car silhouette, suggesting a VIN plate. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-freezeframe",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFreezeFrame.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDFreezeFrame'. Subject: a single picture frame with a snowflake icon overlaid in the corner, suggesting a frozen snapshot. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-onboardmonitor",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDOnBoardMonitor.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDOnBoardMonitor'. Subject: a small dashboard cluster with two side-by-side gauges and a status indicator strip, suggesting onboard monitor readiness. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-actuator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDActuator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDActuator'. Subject: a stylised hydraulic / mechanical actuator piston with a base flange and an extending rod, suggesting an actuated component test. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+
+    {
+      "id": "icon-securityaccess",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSecurityAccess.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDSecurityAccess'. Subject: a heraldic shield with a centered key that has just turned, suggesting authenticated security access. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-dataidentifier-io",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDataIdentifierIO.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDDataIdentifierIO'. Subject: a single document / form with a left-pointing read arrow and a right-pointing write arrow on either side, suggesting bidirectional Data Identifier I/O. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-routinecontrol",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRoutineControl.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDRoutineControl'. Subject: two interlocking gears with a small play / start triangle inset on one of them, suggesting a controlled routine starting. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-flasher",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlasher.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDFlasher'. Subject: a microcontroller / chip square with visible pin legs and a stylised lightning bolt overlaid, suggesting firmware flashing. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-uploader",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDUploader.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDUploader'. Subject: a microcontroller / chip square with an upward arrow rising from it into a small cloud or folder, suggesting reading firmware out of an ECU. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-flashsession",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashSession.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDFlashSession'. Subject: a microcontroller / chip square framed by a circular arrow / refresh ring, suggesting an active programming session. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-uds-writememory",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDUDSWriteMemory.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDUDSWriteMemory'. Subject: a stick of RAM / memory module on its side with a small pencil / pen tip pointing into one of its cells, suggesting writing to memory. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-kwp-writeid",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKWPWriteID.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDKWPWriteID'. Subject: an identification tag / luggage tag with a small pen tip resting on it, suggesting writing identifier blocks via KWP2000. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-coding-auditlog",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCodingAuditLog.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDCodingAuditLog'. Subject: a clipboard with a stack of horizontal log lines and a small chain link in the corner, suggesting a chained audit log. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-coding-session",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCodingSession.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDCodingSession'. Subject: two interlocking chain links forming a session, with a small chip / microcontroller shape inset between them. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-cp-vag",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDComponentProtectionVAG.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionVAG' (component protection / coding for German VW-group ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract diamond / rhombus glyph inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-cp-bmw",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDComponentProtectionBMW.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionBMW' (component protection / coding for German Munich-built ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract quartered radial pattern inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-cp-mercedes",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDComponentProtectionMercedes.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionMercedes' (component protection / coding for German Stuttgart-built ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract centered four-rayed star inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-cp-stellantis",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDComponentProtectionStellantis.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDComponentProtectionStellantis' (component protection / coding for European multi-brand ECUs — do not use any real automotive trademark). Subject: a heraldic shield with a stylised abstract rotated cross / X glyph inside, paired with a small closed padlock at one corner. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+
+    {
+      "id": "icon-xcp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDXCP.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDXCP' (Universal Measurement and Calibration Protocol). Subject: an oscilloscope-style waveform inside a small framed display, with a small calibration knob on the side. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-ccp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCCP.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDCCP' (CAN Calibration Protocol — older sibling of XCP). Subject: a stylised CAN bus dual-line connector with a small waveform overlay and a calibration knob accent. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-isobus",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDIsoBus.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDIsoBus' (ISO 11783 agricultural bus). Subject: a small abstract tractor silhouette paired with a 9-pin bus connector or bus pictogram. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+
+    {
+      "id": "icon-uds-transfer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDUDSTransfer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDUDSTransfer'. Subject: two stacked blocks / chunks moving along a horizontal arrow into a microcontroller silhouette, suggesting block transfer. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-voltagegate",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVoltageGate.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDVoltageGate'. Subject: a stylised car battery with two terminals and a centered open / closed gate symbol overlay, suggesting a voltage threshold gate. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-flashpipeline",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashPipeline.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for 'TOBDFlashPipeline'. Subject: three connected horizontal pipeline stages (rounded blocks) with arrows between them, ending in a chip / microcontroller, suggesting a multi-stage flash pipeline. 2D with subtle depth, slight isometric perspective, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Centered, generous padding. No text. Reads at 16x16 px.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+
+    {
+      "id": "splash",
+      "kind": "splash",
+      "out": "assets/designtime/splash.png",
+      "prompt": "A clean RAD Studio IDE splash-screen graphic for the 'Delphi-OBD' design-time package. Subject: the attached reference logo, sized prominently and centered, with a thin horizontal accent line beneath it. Modern Microsoft Office / Fluent UI style — 2D with subtle depth, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background. Generous breathing space around the logo. No text — text is composited at runtime by the package. Sharp at the size used by RAD Studio's splash-screen plugin slot.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "about",
+      "kind": "about",
+      "out": "assets/designtime/about.png",
+      "prompt": "A clean About-box brand graphic for the 'Delphi-OBD' design-time package. Subject: the attached reference logo, large and centered, with a subtle radial vignette behind it that uses only colours from the reference logo. Modern Microsoft Office / Fluent UI style — 2D with subtle depth, soft layered shading. Use ONLY colours from the attached reference logo. Pure white background outside the vignette. Generous breathing space. No text — text is composited at runtime by the package.",
+      "size": "1024x1024",
+      "final_size": 512
     }
   ]
 }
