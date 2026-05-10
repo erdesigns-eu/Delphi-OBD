@@ -152,6 +152,8 @@ contains
   OBD.Recorder in '..\src\Recorder\OBD.Recorder.pas',
   OBD.Replayer in '..\src\Recorder\OBD.Replayer.pas',
   OBD.Recorder.ProtocolMock in '..\src\Recorder\OBD.Recorder.ProtocolMock.pas',
-  OBD.Recorder.Redactor in '..\src\Recorder\OBD.Recorder.Redactor.pas';
+  OBD.Recorder.Redactor in '..\src\Recorder\OBD.Recorder.Redactor.pas',
+  OBD.RadioCode.Types in '..\src\RadioCode\OBD.RadioCode.Types.pas',
+  OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas';
 
 end.

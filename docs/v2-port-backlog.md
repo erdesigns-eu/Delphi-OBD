@@ -345,7 +345,8 @@ new `P-C*` task here.
 ## Quick-pick list
 
 ```
-[ ] P-A1   Radio-code calculators (split A1.1..A1.8)
+[~] P-A1   Radio-code calculators (split A1.1..A1.8)
+           P-A1.1 foundation shipped; A1.2..A1.8 pending
 [ ] P-A2   Visual UI components VCL + FMX (split A2.1..A2.7)
 [x] P-A3   VIN decoder                              (shipped)
 [ ] P-A4   Drive-cycle advisor
