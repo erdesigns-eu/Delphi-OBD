@@ -209,6 +209,14 @@ begin
       'Multi-tab project with live data + DTCs + VIN + freeze-frame ' +
       '+ coding + flashing pre-wired against a shared connection.',
       ['Suite']);
+
+  Add('DataModules',
+      'Delphi-OBD: Pre-wired DataModules',
+      'Quick-start TDataModule presets - bare connection chain, ' +
+      'diagnostics roll-up, coding session, flash pipeline, radio ' +
+      'calculator, EV battery, key adaptation. All destructive ' +
+      'components ship with AutoExecute = False.',
+      ['DataModule']);
 end;
 
 end.

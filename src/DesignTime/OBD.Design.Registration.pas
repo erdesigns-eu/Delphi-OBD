@@ -109,6 +109,7 @@ uses
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters,
   OBD.Design.Starters.NewCategories,
+  OBD.Design.Starters.DataModules,
   OBD.Design.Wizards.PerCategory;
 
 /// <summary>Loads a PNG (kept transparent) from an RCDATA
