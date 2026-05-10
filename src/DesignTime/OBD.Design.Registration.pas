@@ -102,6 +102,8 @@ uses
   OBD.UI.Shift,
   OBD.UI.Timing,
   OBD.UI.Gauges.Specialised,
+  OBD.UI.LivePanels,
+  OBD.UI.LiveGrids,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -359,7 +361,11 @@ begin
     TOBDBoostGauge,
     TOBDAFRGauge,
     TOBDStateOfChargeBar,
-    TOBDRegenIndicator
+    TOBDRegenIndicator,
+    TOBDPidPanel,
+    TOBDFuelTrimDisplay,
+    TOBDMultiPidGrid,
+    TOBDFreezeFrameTable
   ]);
 
   // Radio-code calculators (one component per vendor). Each

@@ -208,6 +208,8 @@ contains
   OBD.UI.Telltales           in '..\src\UI\OBD.UI.Telltales.pas',
   OBD.UI.Shift               in '..\src\UI\OBD.UI.Shift.pas',
   OBD.UI.Timing              in '..\src\UI\OBD.UI.Timing.pas',
-  OBD.UI.Gauges.Specialised  in '..\src\UI\OBD.UI.Gauges.Specialised.pas';
+  OBD.UI.Gauges.Specialised  in '..\src\UI\OBD.UI.Gauges.Specialised.pas',
+  OBD.UI.LivePanels          in '..\src\UI\OBD.UI.LivePanels.pas',
+  OBD.UI.LiveGrids           in '..\src\UI\OBD.UI.LiveGrids.pas';
 
 end.
