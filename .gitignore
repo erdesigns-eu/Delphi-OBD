@@ -58,3 +58,13 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+
+# Secrets — never commit API keys, .env files, or credentials.
+# The asset-generator script reads OPENAI_API_KEY from the
+# environment, never from disk.
+.env
+.env.*
+.secrets/
+*.key
+*.pem
+openai.key

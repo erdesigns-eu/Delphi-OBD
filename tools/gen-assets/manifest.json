@@ -1,0 +1,40 @@
+{
+  "$comment": [
+    "Asset manifest for the Delphi-OBD design-time package.",
+    "",
+    "Each entry produces one PNG under assets/designtime/. The",
+    "generator script (generate.py) calls OpenAI's image API with",
+    "model 'gpt-image-2' and writes the result to <out>.",
+    "",
+    "Conventions:",
+    "  - 'kind' is informational; the script doesn't branch on it.",
+    "  - 'size' is whatever gpt-image-2 supports natively (square",
+    "    sizes only). The script downscales to 'final_size' with",
+    "    Lanczos resampling. Component icons end at 16/24/32 px;",
+    "    asking the model for that small produces mush, so we",
+    "    generate at 1024 and downscale.",
+    "  - 'transparent_background' = true makes the script add the",
+    "    'background: transparent' parameter (gpt-image-2 supports",
+    "    it natively for PNG). Set to false + put 'pure white",
+    "    background' in the prompt when you want to chroma-key",
+    "    later in a graphics tool.",
+    "  - 'force' on the CLI re-runs even if 'out' exists.",
+    "",
+    "Style guide for prompts (keep consistent across icons):",
+    "  - Flat 2D vector look, thick clean strokes, high contrast.",
+    "  - Restricted palette: deep blue (#1F3A93), red accent",
+    "    (#C0392B), white. No gradients, no 3D shading.",
+    "  - Centered subject, even padding, no text, no shadows."
+  ],
+  "assets": [
+    {
+      "id": "icon-connection-dryrun",
+      "kind": "component-icon",
+      "out": "assets/designtime/dryrun/TOBDConnection.png",
+      "prompt": "A flat 2D vector icon for a vehicle diagnostics software component named 'TOBDConnection'. The icon shows a stylised OBD-II 16-pin trapezoidal connector seen face-on, with a short cable curling out the back. Flat colours only: deep blue (#1F3A93) connector body, red accent (#C0392B) on the cable, white background. Bold even strokes, centered composition, generous padding around the subject. No text, no shadows, no gradients, no 3D effects. Clean enough to read at 16 by 16 pixels after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "transparent_background": true
+    }
+  ]
+}
