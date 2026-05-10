@@ -200,6 +200,7 @@ uses
   Tests.OBD.RadioCode in 'Tests.OBD.RadioCode.pas',
   Tests.OBD.RadioCode.FrenchItalian in 'Tests.OBD.RadioCode.FrenchItalian.pas',
   Tests.OBD.RadioCode.Asian in 'Tests.OBD.RadioCode.Asian.pas',
+  Tests.OBD.RadioCode.American in 'Tests.OBD.RadioCode.American.pas',
   Tests.OBD.Coding in 'Tests.OBD.Coding.pas',
   Tests.OBD.Calibration in 'Tests.OBD.Calibration.pas',
   Tests.OBD.Calibration.Followups in 'Tests.OBD.Calibration.Followups.pas',

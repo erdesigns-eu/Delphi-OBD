@@ -48,9 +48,15 @@ type
     function Description: string; override;
   end;
 
+  /// <summary>Ford "M-prefix" series factory radios (M-radio
+  /// 1996+). Input: 6-digit serial, optionally with a leading M
+  /// (which is stripped). Algorithm <b>bundled</b> — re-derived
+  /// from OlegSmelov/ford-radio-codes.</summary>
   TOBDRadioCodeFordM = class(TOBDRadioCode)
   protected
     function DoValidate(const AInput: string; out AReason: string): Boolean; override;
+    function DoCalculate(const AInput: string;
+      const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult; override;
   public
     function BrandKey: string; override;
     function DisplayName: string; override;
@@ -98,11 +104,10 @@ function TOBDRadioCodeFordM.DisplayName: string; begin Result := 'Ford M-series'
 function TOBDRadioCodeFordM.Description: string;
 begin
   Result :=
-    'Ford "M-prefix" series factory radios. Input: 6 digits, ' +
-    'optionally with a leading M (which is stripped before lookup). ' +
-    'Algorithm not bundled — wire OnCalculate. A bundled-database ' +
-    'variant (Ford V-series, 100,000 serial->code entries) ships as ' +
-    'TOBDRadioCodeFordV in OBD.RadioCode.FordVDatabase.';
+    'Ford "M-prefix" series factory radios (M-radio 1996+). Input: ' +
+    '6-digit serial, optionally with a leading M (stripped). ' +
+    'Algorithm bundled — substitution-table transform sourced from ' +
+    'OlegSmelov/ford-radio-codes.';
 end;
 function TOBDRadioCodeFordM.DoValidate(const AInput: string; out AReason: string): Boolean;
 var
@@ -114,6 +119,84 @@ begin
     Stripped := AInput;
   Result := ValidateLength(Stripped, 6, AReason)
        and  ValidateAllDigits(Stripped, AReason);
+end;
+function TOBDRadioCodeFordM.DoCalculate(const AInput: string;
+  const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult;
+const
+  // 10x10 substitution table from OlegSmelov/ford-radio-codes.
+  LOOKUP: array[0..9, 0..9] of Byte = (
+    (9, 5, 3, 4, 8, 7, 2, 6, 1, 0),
+    (2, 1, 5, 6, 9, 3, 7, 0, 4, 8),
+    (0, 4, 7, 3, 1, 9, 6, 5, 8, 2),
+    (5, 6, 4, 1, 2, 8, 0, 9, 3, 7),
+    (6, 3, 1, 2, 0, 5, 4, 8, 7, 9),
+    (4, 0, 8, 7, 6, 1, 9, 3, 2, 5),
+    (7, 8, 0, 5, 3, 2, 1, 4, 9, 6),
+    (1, 9, 6, 8, 7, 4, 5, 2, 0, 3),
+    (3, 2, 9, 0, 4, 6, 8, 7, 5, 1),
+    (8, 7, 2, 9, 5, 0, 3, 1, 6, 4)
+  );
+var
+  Stripped: string;
+  N: array[0..6] of Byte;
+  R: array[1..7] of Byte;
+  Res: array[1..4] of Byte;
+  XRes: array[1..4] of Integer;
+  XRes1, XRes0: Integer;
+  Code: array[0..3] of Byte;
+  I: Integer;
+begin
+  Result := Default(TOBDRadioCodeResult);
+  Result.BrandKey := BrandKey;
+  Result.Variant  := 'M-prefix substitution-table';
+
+  // Strip leading M.
+  if (Length(AInput) > 0) and (AInput[1] = 'M') then
+    Stripped := Copy(AInput, 2, Length(AInput) - 1)
+  else
+    Stripped := AInput;
+
+  // Reverse the 6 digits into N[0..5]; N[6] is fixed at 0.
+  for I := 0 to 5 do
+    N[I] := Ord(Stripped[6 - I]) - Ord('0');
+  N[6] := 0;
+
+  R[1] := LOOKUP[N[0], 5];
+  R[2] := LOOKUP[N[1], 3];
+  R[3] := LOOKUP[N[2], 8];
+  R[4] := LOOKUP[N[3], 2];
+  R[5] := LOOKUP[N[4], 1];
+  R[6] := LOOKUP[N[5], 6];
+  R[7] := LOOKUP[N[6], 9];
+
+  Res[1] := ((LOOKUP[R[2], R[1]] + 1) * (LOOKUP[R[6], R[2]] + 1)
+           + (LOOKUP[R[4], R[3]] + 1) * (LOOKUP[R[7], R[5]] + 1)
+           +  LOOKUP[R[1], R[4]]) mod 10;
+  Res[2] := ((LOOKUP[R[2], R[1]] + 1) * (LOOKUP[R[5], R[4]] + 1)
+           + (LOOKUP[R[5], R[2]] + 1) * (LOOKUP[R[7], R[3]] + 1)
+           +  LOOKUP[R[1], R[6]]) mod 10;
+  Res[3] := ((LOOKUP[R[2], R[1]] + 1) * (LOOKUP[R[4], R[2]] + 1)
+           + (LOOKUP[R[3], R[6]] + 1) * (LOOKUP[R[7], R[4]] + 1)
+           +  LOOKUP[R[1], R[5]]) mod 10;
+  Res[4] := ((LOOKUP[R[2], R[1]] + 1) * (LOOKUP[R[6], R[3]] + 1)
+           + (LOOKUP[R[3], R[7]] + 1) * (LOOKUP[R[2], R[5]] + 1)
+           +  LOOKUP[R[4], R[1]]) mod 10;
+
+  XRes[1] := (LOOKUP[Res[1], 5] + 1) * (LOOKUP[Res[2], 1] + 1) + 105;
+  XRes[2] := (LOOKUP[Res[2], 1] + 1) * (LOOKUP[Res[4], 0] + 1) + 102;
+  XRes[3] := (LOOKUP[Res[1], 5] + 1) * (LOOKUP[Res[3], 8] + 1) + 103;
+  XRes[4] := (LOOKUP[Res[3], 8] + 1) * (LOOKUP[Res[4], 0] + 1) + 108;
+
+  // Code digits: position 3 from XRes[1], 2 from XRes[2], etc.
+  for I := 1 to 4 do
+  begin
+    XRes1 := (XRes[I] div 10) mod 10;
+    XRes0 :=  XRes[I] mod 10;
+    Code[4 - I] := (XRes1 + XRes0 + R[1]) mod 10;
+  end;
+  Result.Code    := Format('%d%d%d%d',
+    [Code[0], Code[1], Code[2], Code[3]]);
+  Result.Success := True;
 end;
 
 { ---- GM ------------------------------------------------------------------- }
