@@ -110,6 +110,47 @@ type
     procedure Edit; override;
   end;
 
+  /// <summary>Drop-down editor for <c>TOBDSerialSettings.Port</c>
+  /// that enumerates live COM ports from the
+  /// <c>HKLM\HARDWARE\DEVICEMAP\SERIALCOMM</c> registry key.
+  /// Hosts can still type a value the IDE doesn't list.</summary>
+  TOBDSerialPortProperty = class(TStringProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure GetValues(Proc: TGetStrProc); override;
+  end;
+
+  /// <summary>Component editor that adds a "Test connection…"
+  /// verb to <see cref="TOBDConnection"/>. The verb opens the
+  /// configured transport at design-time with a short timeout
+  /// and reports success / failure.</summary>
+  TOBDConnectionComponentEditor = class(TComponentEditor)
+  public
+    function GetVerb(Index: Integer): string; override;
+    function GetVerbCount: Integer; override;
+    procedure ExecuteVerb(Index: Integer); override;
+  end;
+
+  /// <summary>Component editor that adds a "Detect adapter…"
+  /// verb to <see cref="TOBDAdapter"/>. Runs the AT detection
+  /// sequence and reports the chip family + capabilities.</summary>
+  TOBDAdapterComponentEditor = class(TComponentEditor)
+  public
+    function GetVerb(Index: Integer): string; override;
+    function GetVerbCount: Integer; override;
+    procedure ExecuteVerb(Index: Integer); override;
+  end;
+
+  /// <summary>Component editor that adds "Send ATI…" and
+  /// "Send AT@1…" verbs to <see cref="TOBDProtocol"/>. Useful
+  /// to round-trip the adapter without leaving the IDE.</summary>
+  TOBDProtocolComponentEditor = class(TComponentEditor)
+  public
+    function GetVerb(Index: Integer): string; override;
+    function GetVerbCount: Integer; override;
+    procedure ExecuteVerb(Index: Integer); override;
+  end;
+
   /// <summary>Component editor that adds a "Flashing safety"
   /// reminder verb to every destructive component (Flasher,
   /// UDSTransfer, FlashPipeline). Clicking the verb shows a
@@ -141,10 +182,15 @@ implementation
 
 uses
   Winapi.Windows,
+  System.TypInfo,
+  System.Win.Registry,
   System.Generics.Collections,
   Vcl.Forms,
   Vcl.Controls,
+  OBD.Connection,
   OBD.Adapter,
+  OBD.Adapter.Types,
+  OBD.Protocol,
   OBD.Recorder,
   OBD.Replayer,
   OBD.Coding.Flasher,
@@ -152,7 +198,8 @@ uses
   OBD.Flash.Pipeline,
   OBD.Design.Forms.FlashSafety,
   OBD.Design.Forms.InitCommands,
-  OBD.Design.Forms.PipelineValidate;
+  OBD.Design.Forms.PipelineValidate,
+  OBD.Design.Forms.LiveTest;
 
 { ---- shared helpers ---------------------------------------------------------- }
 
@@ -381,6 +428,223 @@ begin
   end;
 end;
 
+{ ---- TOBDSerialPortProperty -------------------------------------------------- }
+
+function TOBDSerialPortProperty.GetAttributes: TPropertyAttributes;
+begin
+  // paValueList puts the property into a drop-down combo. The
+  // user can still type any value the IDE doesn't list — useful
+  // for ports that aren't currently plugged in.
+  Result := inherited GetAttributes + [paValueList];
+end;
+
+procedure TOBDSerialPortProperty.GetValues(Proc: TGetStrProc);
+var
+  Reg: TRegistry;
+  Names: TStringList;
+  I: Integer;
+  Port: string;
+begin
+  Reg := TRegistry.Create(KEY_READ);
+  Names := TStringList.Create;
+  try
+    Reg.RootKey := HKEY_LOCAL_MACHINE;
+    if not Reg.OpenKeyReadOnly('HARDWARE\DEVICEMAP\SERIALCOMM') then
+      Exit;
+    try
+      Reg.GetValueNames(Names);
+      for I := 0 to Names.Count - 1 do
+      begin
+        Port := Reg.ReadString(Names[I]);
+        if Port <> '' then
+          Proc(Port);
+      end;
+    finally
+      Reg.CloseKey;
+    end;
+  finally
+    Names.Free;
+    Reg.Free;
+  end;
+end;
+
+{ ---- TOBDConnectionComponentEditor ------------------------------------------ }
+
+function TOBDConnectionComponentEditor.GetVerbCount: Integer;
+begin
+  Result := 1;
+end;
+
+function TOBDConnectionComponentEditor.GetVerb(Index: Integer): string;
+begin
+  case Index of
+    0: Result := 'Test connection…';
+  else
+    Result := '';
+  end;
+end;
+
+procedure TOBDConnectionComponentEditor.ExecuteVerb(Index: Integer);
+var
+  Conn: TOBDConnection;
+begin
+  if Index <> 0 then Exit;
+  Conn := Component as TOBDConnection;
+  TOBDLiveTestDlg.Show(
+    'Test ' + Conn.Name,
+    'Opens the configured transport with a short timeout.',
+    procedure(const AWriteLine: TProc<string>;
+      const ASetStatus: TProc<TOBDLiveTestStatus>)
+    begin
+      AWriteLine('Opening connection…');
+      try
+        Conn.Open;
+        try
+          AWriteLine('Connection opened.');
+          ASetStatus(ltsOK);
+        finally
+          Conn.Close;
+          AWriteLine('Connection closed.');
+        end;
+      except
+        on E: Exception do
+        begin
+          AWriteLine('FAILED: ' + E.ClassName + ' — ' + E.Message);
+          ASetStatus(ltsFail);
+        end;
+      end;
+    end);
+end;
+
+{ ---- TOBDAdapterComponentEditor --------------------------------------------- }
+
+function TOBDAdapterComponentEditor.GetVerbCount: Integer;
+begin
+  Result := 1;
+end;
+
+function TOBDAdapterComponentEditor.GetVerb(Index: Integer): string;
+begin
+  case Index of
+    0: Result := 'Detect adapter…';
+  else
+    Result := '';
+  end;
+end;
+
+procedure TOBDAdapterComponentEditor.ExecuteVerb(Index: Integer);
+var
+  Adapter: TOBDAdapter;
+begin
+  if Index <> 0 then Exit;
+  Adapter := Component as TOBDAdapter;
+  TOBDLiveTestDlg.Show(
+    'Detect ' + Adapter.Name,
+    'Runs the AT detection sequence and reports chip identity.',
+    procedure(const AWriteLine: TProc<string>;
+      const ASetStatus: TProc<TOBDLiveTestStatus>)
+    begin
+      if Adapter.Connection = nil then
+      begin
+        AWriteLine('FAILED: Connection not assigned.');
+        ASetStatus(ltsFail);
+        Exit;
+      end;
+      AWriteLine('Opening connection…');
+      try
+        Adapter.Connection.Open;
+        try
+          AWriteLine('Running detection…');
+          Adapter.Detect;
+          AWriteLine(Format('Family       : %s',
+            [GetEnumName(TypeInfo(TOBDAdapterFamily), Ord(Adapter.Family))]));
+          AWriteLine(Format('MaxIsoTpFrame: %d', [Adapter.MaxIsoTpFrameBytes]));
+          AWriteLine('Capabilities :');
+          for var Cap := Low(TOBDAdapterCapability)
+                      to High(TOBDAdapterCapability) do
+            if Cap in Adapter.Capabilities then
+              AWriteLine('  • ' + GetEnumName(TypeInfo(TOBDAdapterCapability),
+                Ord(Cap)));
+          ASetStatus(ltsOK);
+        finally
+          Adapter.Connection.Close;
+        end;
+      except
+        on E: Exception do
+        begin
+          AWriteLine('FAILED: ' + E.ClassName + ' — ' + E.Message);
+          ASetStatus(ltsFail);
+        end;
+      end;
+    end);
+end;
+
+{ ---- TOBDProtocolComponentEditor -------------------------------------------- }
+
+function TOBDProtocolComponentEditor.GetVerbCount: Integer;
+begin
+  Result := 2;
+end;
+
+function TOBDProtocolComponentEditor.GetVerb(Index: Integer): string;
+begin
+  case Index of
+    0: Result := 'Send ATI…';
+    1: Result := 'Send AT@1…';
+  else
+    Result := '';
+  end;
+end;
+
+procedure TOBDProtocolComponentEditor.ExecuteVerb(Index: Integer);
+var
+  Proto: TOBDProtocol;
+  ATCommand: string;
+begin
+  if (Index < 0) or (Index > 1) then Exit;
+  if Index = 0 then ATCommand := 'ATI' else ATCommand := 'AT@1';
+  Proto := Component as TOBDProtocol;
+  TOBDLiveTestDlg.Show(
+    Format('%s — send %s', [Proto.Name, ATCommand]),
+    'Round-trips one AT command through the bound adapter.',
+    procedure(const AWriteLine: TProc<string>;
+      const ASetStatus: TProc<TOBDLiveTestStatus>)
+    var
+      Reply: string;
+    begin
+      if Proto.Adapter = nil then
+      begin
+        AWriteLine('FAILED: Adapter not assigned.');
+        ASetStatus(ltsFail);
+        Exit;
+      end;
+      if Proto.Adapter.Connection = nil then
+      begin
+        AWriteLine('FAILED: Adapter.Connection not assigned.');
+        ASetStatus(ltsFail);
+        Exit;
+      end;
+      AWriteLine('Opening connection…');
+      try
+        Proto.Adapter.Connection.Open;
+        try
+          AWriteLine('Sending ' + ATCommand + '…');
+          Reply := Proto.Adapter.SendCommand(ATCommand).Raw;
+          AWriteLine('Reply        : ' + Reply);
+          ASetStatus(ltsOK);
+        finally
+          Proto.Adapter.Connection.Close;
+        end;
+      except
+        on E: Exception do
+        begin
+          AWriteLine('FAILED: ' + E.ClassName + ' — ' + E.Message);
+          ASetStatus(ltsFail);
+        end;
+      end;
+    end);
+end;
+
 { ---- registration ----------------------------------------------------------- }
 
 procedure RegisterDelphiOBDEditors;
@@ -391,9 +655,19 @@ begin
   RegisterPropertyEditor(TypeInfo(string), TOBDFlashPipeline, 'CheckpointFile',
     TOBDCheckpointFileProperty);
 
+  // COM port picker (registered globally for the 'Port' property
+  // on any TOBDSerialSettings sub-object the IDE walks into).
+  RegisterPropertyEditor(TypeInfo(string), nil, 'Port',
+    TOBDSerialPortProperty);
+
   // TStrings init-script enhancement
   RegisterPropertyEditor(TypeInfo(TStrings), TOBDAdapter, 'InitCommands',
     TOBDAdapterInitCommandsProperty);
+
+  // Component editors — live-test verbs
+  RegisterComponentEditor(TOBDConnection, TOBDConnectionComponentEditor);
+  RegisterComponentEditor(TOBDAdapter, TOBDAdapterComponentEditor);
+  RegisterComponentEditor(TOBDProtocol, TOBDProtocolComponentEditor);
 
   // Component editors for destructive components
   RegisterComponentEditor(TOBDFlasher, TOBDDestructiveComponentEditor);
