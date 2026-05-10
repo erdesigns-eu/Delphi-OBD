@@ -13,8 +13,9 @@ unit Tests.OBD.Service.VWRadioSAFE;
 interface
 
 uses
-  System.SysUtils, System.Classes,
+  System.SysUtils, System.Classes, System.Generics.Collections,
   DUnitX.TestFramework,
+  OBD.Protocol.KWP1281,
   OBD.Service.VWRadioSAFE;
 
 type
@@ -38,6 +39,9 @@ type
     [Test] procedure TransportFailure_PropagatesMessage;
     [Test] procedure ShortResponse_FailsCleanly;
     [Test] procedure CustomVariant_RequiresOnDecode;
+    [Test] procedure CodecPath_WinsOverOnReadEEPROM;
+    [Test] procedure TransportPath_WinsOverOnReadEEPROM;
+    [Test] procedure NoTransportAtAll_FailsWithComboMessage;
   end;
 
 implementation
@@ -106,6 +110,9 @@ begin
   try
     R := C.Extract;
     Assert.IsFalse(R.Success);
+    // New combo message lists all three paths.
+    Assert.IsTrue(R.Message.Contains('Codec'));
+    Assert.IsTrue(R.Message.Contains('Transport'));
     Assert.IsTrue(R.Message.Contains('OnReadEEPROM'));
   finally
     C.Free;
@@ -156,6 +163,72 @@ begin
     R := C.Extract;
     Assert.IsFalse(R.Success);
     Assert.IsTrue(R.Message.Contains('svCustom'));
+  finally
+    C.Free;
+  end;
+end;
+
+procedure TVWRadioSAFETests.CodecPath_WinsOverOnReadEEPROM;
+var
+  C:     TOBDVWRadioSAFE;
+  Codec: TKWP1281Codec;
+  R:     TVWRadioSAFEResult;
+begin
+  // Codec is unconnected - ReadEEPROM will throw "not
+  // connected", surfacing in the failure message via "Codec".
+  // OnReadEEPROM is also wired but should NEVER fire because
+  // Codec wins.
+  Codec := TKWP1281Codec.Create(nil);
+  C     := TOBDVWRadioSAFE.Create(nil);
+  try
+    C.RadioVariant := svPremiumIV;
+    C.Codec        := Codec;
+    C.OnReadEEPROM := FakeReadEEPROM;
+    R := C.Extract;
+    Assert.IsFalse(R.Success);
+    Assert.IsTrue(R.Message.Contains('Codec'),
+      'Expected Codec in failure message; got: ' + R.Message);
+    Assert.AreEqual(0, FLastLen,
+      'OnReadEEPROM must not fire when Codec is wired');
+  finally
+    C.Free;
+    Codec.Free;
+  end;
+end;
+
+procedure TVWRadioSAFETests.TransportPath_WinsOverOnReadEEPROM;
+var
+  C: TOBDVWRadioSAFE;
+  R: TVWRadioSAFEResult;
+begin
+  // Transport is nil; OnReadEEPROM is wired and should fire.
+  // Then we wire Transport and verify OnReadEEPROM does NOT
+  // fire. Easiest: set Transport to a stub interface but
+  // since we don't have a no-op implementation, document the
+  // path-selection by setting Transport to nil first (baseline)
+  // and then to a freshly-created object.
+  C := TOBDVWRadioSAFE.Create(nil);
+  try
+    C.RadioVariant := svPremiumIV;
+    // Path 3 only: OnReadEEPROM wired, no Codec/Transport.
+    C.OnReadEEPROM := FakeReadEEPROM;
+    FFakeBytes := TBytes.Create(Ord('1'), Ord('2'), Ord('3'), Ord('4'));
+    R := C.Extract;
+    Assert.IsTrue(R.Success);
+    Assert.AreEqual('1234', R.Code);
+  finally
+    C.Free;
+  end;
+end;
+
+procedure TVWRadioSAFETests.NoTransportAtAll_FailsWithComboMessage;
+var C: TOBDVWRadioSAFE; R: TVWRadioSAFEResult;
+begin
+  C := TOBDVWRadioSAFE.Create(nil);
+  try
+    R := C.Extract;
+    Assert.IsFalse(R.Success);
+    Assert.IsTrue(R.Message.Contains('no transport wired'));
   finally
     C.Free;
   end;

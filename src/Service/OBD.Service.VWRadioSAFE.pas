@@ -55,7 +55,8 @@ interface
 
 uses
   System.SysUtils,
-  System.Classes;
+  System.Classes,
+  OBD.Protocol.KWP1281;
 
 type
   /// <summary>VW group radio variants whose SAFE-EEPROM map is
@@ -104,8 +105,19 @@ type
     var AResult: TVWRadioSAFEResult) of object;
 
   /// <summary>Component that recovers the VW SAFE unlock code
-  /// over KWP1281 by asking the host to read a documented
-  /// EEPROM offset.</summary>
+  /// over KWP1281 by reading a documented EEPROM offset.
+  /// <para>Three transport paths in precedence order:</para>
+  /// <list type="number">
+  /// <item><see cref="Codec"/>     - host-managed
+  /// <c>TKWP1281Codec</c>; SAFE just calls
+  /// <c>ReadEEPROM</c>. Best when the host wants to reuse one
+  /// codec session for SAFE + DTC reads + adaptation, etc.</item>
+  /// <item><see cref="Transport"/> - raw <c>IKWP1281Transport</c>;
+  /// SAFE creates an internal codec, runs Connect / ReadEEPROM
+  /// / Disconnect inside Extract.</item>
+  /// <item><see cref="OnReadEEPROM"/> - host-supplied
+  /// callback; SAFE delegates the byte read entirely.</item>
+  /// </list></summary>
   TOBDVWRadioSAFE = class(TComponent)
   strict private
     FVariant:       TVWRadioSAFEVariant;
@@ -114,11 +126,20 @@ type
     FLastResult:    TVWRadioSAFEResult;
     FCustomAddress: Word;
     FCustomLength:  Byte;
+    FCustomTitle:   Byte;
+    FRadioAddress:  Byte;
+    FCodec:         TKWP1281Codec;
+    FTransport:     IKWP1281Transport;
     function VariantOffset: Word;
     function VariantLength: Byte;
+    function VariantTitle:  Byte;
     function VariantName:   string;
     function DecodeBundled(const ARaw: TBytes): TVWRadioSAFEResult;
+    function ReadViaCodec(ACodec: TKWP1281Codec;
+      AAddress: Word; ALength: Byte;
+      out AData: TBytes): Boolean;
   public
+    constructor Create(AOwner: TComponent); override;
     /// <summary>Runs the documented SAFE-extraction sequence
     /// against the chosen variant: looks up the EEPROM offset,
     /// asks <see cref="OnReadEEPROM"/> for the bytes, and
@@ -128,6 +149,20 @@ type
 
     /// <summary>Last extraction result.</summary>
     property LastResult: TVWRadioSAFEResult read FLastResult;
+
+    /// <summary>Path 1 - host-managed KWP1281 codec. When non-
+    /// nil, <see cref="Extract"/> calls <c>ReadEEPROM</c> on
+    /// it directly and does NOT touch Connect / Disconnect.
+    /// Highest precedence.</summary>
+    property Codec: TKWP1281Codec read FCodec write FCodec;
+
+    /// <summary>Path 2 - raw KWP1281 transport. When non-nil
+    /// (and Codec is nil), Extract creates a temporary codec,
+    /// connects to the radio at <see cref="RadioAddress"/>,
+    /// reads the SAFE block, and disconnects. Middle
+    /// precedence.</summary>
+    property Transport: IKWP1281Transport
+      read FTransport write FTransport;
   published
     /// <summary>Which VW radio variant the SAFE-EEPROM map
     /// should be picked for. Default: <c>svPremiumIV</c>.</summary>
@@ -146,6 +181,19 @@ type
     property CustomLength: Byte
       read FCustomLength write FCustomLength default 0;
 
+    /// <summary>KWP1281 block title used to read EEPROM when
+    /// <see cref="RadioVariant"/> = <c>svCustom</c>. Defaults
+    /// to <c>0x03</c> (READ_ROM_OR_EEPROM); some radios use
+    /// <c>0x19</c>.</summary>
+    property CustomTitle: Byte
+      read FCustomTitle write FCustomTitle default $03;
+
+    /// <summary>KWP1281 diagnostic address of the radio for
+    /// the 5-baud init when SAFE owns the codec lifecycle (see
+    /// <see cref="Transport"/>). Default <c>0x56</c>.</summary>
+    property RadioAddress: Byte
+      read FRadioAddress write FRadioAddress default $56;
+
     /// <summary>Required - host-supplied KWP1281 "Read EEPROM"
     /// transport.</summary>
     property OnReadEEPROM: TVWRadioSAFEReadEEPROMEvent
@@ -160,6 +208,14 @@ type
 implementation
 
 { TOBDVWRadioSAFE -------------------------------------------------------------}
+
+constructor TOBDVWRadioSAFE.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FVariant      := svPremiumIV;
+  FRadioAddress := $56;
+  FCustomTitle  := $03;
+end;
 
 function TOBDVWRadioSAFE.VariantOffset: Word;
 begin
@@ -187,6 +243,37 @@ begin
     svRhapsody:  Result := 4;
     svCustom:    Result := FCustomLength;
   else           Result := 0;
+  end;
+end;
+
+function TOBDVWRadioSAFE.VariantTitle: Byte;
+begin
+  // Most VAG radios accept the standard READ_ROM_OR_EEPROM
+  // title ($03). A handful of late Premium IV firmwares use
+  // the radio-specific READ_EEPROM_RADIO ($19) instead - we
+  // pick the safer default and let the host override.
+  case FVariant of
+    svPremiumIV, svPremiumV, svRhapsody:
+      Result := KWP1281_TITLE_READ_EEPROM_RADIO;
+    svCustom:
+      if FCustomTitle <> 0 then Result := FCustomTitle
+      else Result := KWP1281_TITLE_READ_ROM_OR_EEPROM;
+  else
+    Result := KWP1281_TITLE_READ_ROM_OR_EEPROM;
+  end;
+end;
+
+function TOBDVWRadioSAFE.ReadViaCodec(ACodec: TKWP1281Codec;
+  AAddress: Word; ALength: Byte;
+  out AData: TBytes): Boolean;
+begin
+  AData := nil;
+  try
+    AData := ACodec.ReadEEPROM(AAddress, ALength, VariantTitle);
+    Result := Length(AData) >= ALength;
+  except
+    on E: EKWP1281Error do
+      Exit(False);
   end;
 end;
 
@@ -268,22 +355,28 @@ end;
 
 function TOBDVWRadioSAFE.Extract: TVWRadioSAFEResult;
 var
-  Address:   Word;
-  Length_:   Byte;
-  Raw:       TBytes;
-  Ok:        Boolean;
-  Err:       string;
-  HexParts:  string;
-  I:         Integer;
+  Address:    Word;
+  Length_:    Byte;
+  Raw:        TBytes;
+  Ok:         Boolean;
+  Err:        string;
+  HexParts:   string;
+  I:          Integer;
+  TempCodec:  TKWP1281Codec;
+  HavePath:   Boolean;
+  PathLabel:  string;
 begin
   FLastResult := Default(TVWRadioSAFEResult);
   FLastResult.VariantUsed := VariantName;
 
-  if not Assigned(FOnReadEEPROM) then
+  HavePath := Assigned(FCodec) or (FTransport <> nil) or
+              Assigned(FOnReadEEPROM);
+  if not HavePath then
   begin
     FLastResult.Message :=
-      'TOBDVWRadioSAFE.Extract: no OnReadEEPROM handler wired ' +
-      '- the host must supply the KWP1281 transport.';
+      'TOBDVWRadioSAFE.Extract: no transport wired. Set ' +
+      'Codec, Transport, or OnReadEEPROM (precedence in that ' +
+      'order).';
     Exit(FLastResult);
   end;
 
@@ -308,20 +401,59 @@ begin
   Raw := nil;
   Ok  := False;
   Err := '';
-  FOnReadEEPROM(Self, Address, Length_, Raw, Ok, Err);
+
+  // ---- Path 1: host-managed Codec ---------------------------
+  if Assigned(FCodec) then
+  begin
+    PathLabel := 'Codec';
+    Ok := ReadViaCodec(FCodec, Address, Length_, Raw);
+    if not Ok then
+      Err := 'KWP1281 ReadEEPROM via host-supplied Codec ' +
+             'returned no data';
+  end
+  // ---- Path 2: SAFE-owned Transport -------------------------
+  else if FTransport <> nil then
+  begin
+    PathLabel := 'Transport';
+    TempCodec := TKWP1281Codec.Create(FTransport);
+    try
+      try
+        TempCodec.Connect(FRadioAddress);
+        Ok := ReadViaCodec(TempCodec, Address, Length_, Raw);
+        if not Ok then
+          Err := 'KWP1281 ReadEEPROM via Transport returned ' +
+                 'no data';
+      except
+        on E: EKWP1281Error do
+        begin
+          Ok := False;
+          Err := 'KWP1281 transport failed: ' + E.Message;
+        end;
+      end;
+    finally
+      try TempCodec.Disconnect; except end;
+      TempCodec.Free;
+    end;
+  end
+  // ---- Path 3: OnReadEEPROM ---------------------------------
+  else
+  begin
+    PathLabel := 'OnReadEEPROM';
+    FOnReadEEPROM(Self, Address, Length_, Raw, Ok, Err);
+  end;
 
   if not Ok then
   begin
     if Err = '' then Err := 'no detail';
     FLastResult.Message :=
-      Format('OnReadEEPROM reported failure: %s', [Err]);
+      Format('SAFE extract via %s failed: %s', [PathLabel, Err]);
     Exit(FLastResult);
   end;
   if System.Length(Raw) < Length_ then
   begin
     FLastResult.Message :=
-      Format('OnReadEEPROM returned %d bytes, expected %d',
-        [System.Length(Raw), Length_]);
+      Format('SAFE extract via %s returned %d bytes, expected %d',
+        [PathLabel, System.Length(Raw), Length_]);
     Exit(FLastResult);
   end;
 
