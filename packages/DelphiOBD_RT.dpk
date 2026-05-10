@@ -89,6 +89,7 @@ contains
   OBD.Service.OnBoardMonitor in '..\src\Service\OBD.Service.OnBoardMonitor.pas',
   OBD.Service.VehicleHealth in '..\src\Service\OBD.Service.VehicleHealth.pas',
   OBD.Service.Actuator in '..\src\Service\OBD.Service.Actuator.pas',
+  OBD.Service.VWRadioSAFE in '..\src\Service\OBD.Service.VWRadioSAFE.pas',
   OBD.Coding.SecurityAccess in '..\src\Coding\OBD.Coding.SecurityAccess.pas',
   OBD.Coding.DataIdentifierIO in '..\src\Coding\OBD.Coding.DataIdentifierIO.pas',
   OBD.Coding.RoutineControl in '..\src\Coding\OBD.Coding.RoutineControl.pas',

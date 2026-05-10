@@ -176,10 +176,12 @@ a documented KWP1281 backdoor that lets the host extract the SAFE
 code from the radio's EEPROM over the diagnostic bus — no
 calculation, no database, no paid service.
 
-`TOBDVWRadioSAFE` (separate component, in
-`OBD.Service.VWRadioSAFE.pas` once the KWP1281 codec lands) wraps
-the documented sequence. Reference C source:
-[`mnaberez/vwradio`](https://github.com/mnaberez/vwradio).
+`TOBDVWRadioSAFE` (in `OBD.Service.VWRadioSAFE.pas`) wraps the
+documented sequence. The component owns the per-variant
+EEPROM-offset map (Gamma 5 / Premium IV / Premium V / Rhapsody)
+and the byte-decode rule (BCD vs ASCII). Until the bundled
+KWP1281 codec lands, the host must wire `OnReadEEPROM` and run
+the block exchange itself. Reference: [`mnaberez/vwradio`](https://github.com/mnaberez/vwradio).
 
 ## Adding your own algorithm
 

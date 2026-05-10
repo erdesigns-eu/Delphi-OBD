@@ -60,6 +60,7 @@ uses
   OBD.Service.OnBoardMonitor,
   OBD.Service.VehicleHealth,
   OBD.Service.Actuator,
+  OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
   OBD.Coding.RoutineControl,
@@ -317,6 +318,15 @@ begin
     TOBDRadioCodeEEPROM_VolvoHU,
     TOBDRadioCodeEEPROM_OpelCD30,
     TOBDRadioCodeEEPROM_MercedesBecker
+  ]);
+
+  // VW group SAFE-code recovery over the diagnostic bus
+  // (KWP1281). Goes on the OBD Radio tab because the host-facing
+  // shape is "give me the unlock code" - even though under the
+  // hood it talks to the radio rather than running an algorithm
+  // or reading a chip dump.
+  RegisterComponents('OBD Radio', [
+    TOBDVWRadioSAFE
   ]);
 
   // Register the splash-screen plugin entry and the About-box
