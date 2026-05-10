@@ -43,14 +43,26 @@ def already_transparent(path: Path) -> bool:
 
 
 def strip_bg(api_key: str, path: Path) -> None:
-    with path.open("rb") as f:
-        resp = requests.post(
-            API_URL,
-            headers={"X-Api-Key": api_key},
-            files={"image_file": (path.name, f, "image/png")},
-            data={"size": "auto", "format": "png"},
-            timeout=60,
-        )
+    """POST to remove.bg with a fallback: try the default
+    foreground detector first, then retry with type=other when
+    remove.bg fails to identify a foreground (which happens on
+    abstract icons with no person / product / car subject)."""
+    def _post(extra: dict) -> requests.Response:
+        with path.open("rb") as f:
+            return requests.post(
+                API_URL,
+                headers={"X-Api-Key": api_key},
+                files={"image_file": (path.name, f, "image/png")},
+                data={"size": "auto", "format": "png", **extra},
+                timeout=60,
+            )
+
+    resp = _post({})
+    if resp.status_code == 400 and "unknown_foreground" in resp.text:
+        # Abstract icon — re-try with a permissive type hint that
+        # doesn't expect a recognisable subject.
+        resp = _post({"type": "other"})
+
     if resp.status_code != 200:
         raise RuntimeError(
             f"remove.bg error {resp.status_code}: {resp.text[:300]}"
