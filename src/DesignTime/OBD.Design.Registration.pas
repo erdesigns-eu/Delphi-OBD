@@ -80,7 +80,8 @@ uses
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
   OBD.Recorder,
-  OBD.Replayer;
+  OBD.Replayer,
+  OBD.Design.Editors;
 
 /// <summary>Loads a PNG (kept transparent) from an RCDATA
 /// resource into a fresh <c>TPngImage</c>. Returns nil when the
@@ -258,6 +259,15 @@ begin
     RegisterAbout;
   except
     // Swallow — About-box registration is decoration only.
+  end;
+
+  // Property + component editors. Best-effort for the same
+  // reason — if a host's RAD strips DesignEditors / DesignIntf
+  // unexpectedly, the package install still succeeds.
+  try
+    RegisterDelphiOBDEditors;
+  except
+    // Swallow — editors are ergonomic only.
   end;
 end;
 
