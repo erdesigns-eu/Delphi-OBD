@@ -81,6 +81,10 @@ uses
   OBD.OEM.ComponentProtection.BMW,
   OBD.OEM.ComponentProtection.Mercedes,
   OBD.OEM.ComponentProtection.Stellantis,
+  OBD.OEM.KeyAdaptation.Ford,
+  OBD.OEM.KeyAdaptation.HMG,
+  OBD.OEM.KeyAdaptation.BMW,
+  OBD.OEM.KeyAdaptation.Toyota,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -246,7 +250,11 @@ begin
     TOBDComponentProtectionVAG,
     TOBDComponentProtectionBMW,
     TOBDComponentProtectionMercedes,
-    TOBDComponentProtectionStellantis
+    TOBDComponentProtectionStellantis,
+    TOBDKeyAdaptationFord,
+    TOBDKeyAdaptationHMG,
+    TOBDKeyAdaptationBMW,
+    TOBDKeyAdaptationToyota
   ]);
 
   // Flashing components. WARNING — drop on a form, wire
