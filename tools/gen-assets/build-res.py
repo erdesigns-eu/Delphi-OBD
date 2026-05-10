@@ -63,14 +63,20 @@ def encode_name(name: str) -> bytes:
     return name.upper().encode("utf-16-le") + b"\x00\x00"
 
 
-def encode_type(type_id: int) -> bytes:
-    """Win32 RES type field — 0xFFFF prefix + WORD numeric ID."""
-    return struct.pack("<HH", 0xFFFF, type_id)
+def encode_type(type_id_or_name) -> bytes:
+    """Win32 RES type field — 0xFFFF prefix + WORD for numeric
+    types, or null-terminated UTF-16-LE for string types."""
+    if isinstance(type_id_or_name, int):
+        return struct.pack("<HH", 0xFFFF, type_id_or_name)
+    return type_id_or_name.upper().encode("utf-16-le") + b"\x00\x00"
 
 
-def res_entry(type_id: int, name: str, data: bytes) -> bytes:
-    """One Win32 RES resource record (header + padded data)."""
-    type_field = encode_type(type_id)
+def res_entry(type_id_or_name, name: str, data: bytes) -> bytes:
+    """One Win32 RES resource record (header + padded data).
+    `type_id_or_name` may be an int (numeric type) or a string
+    (custom type — used for the modern HiDPI 'PNG' type that
+    RAD Studio's component-palette auto-pickup understands)."""
+    type_field = encode_type(type_id_or_name)
     name_field = encode_name(name)
     var = type_field + name_field
     if len(var) % 4:
@@ -116,11 +122,15 @@ def main() -> int:
 
     print(f"Building {OUT_RES.relative_to(ROOT)}")
 
+    # Component icons: emit under custom type "PNG" with name =
+    # uppercase class name. RAD Studio 10.4+ HiDPI palette
+    # auto-locates icons via this exact convention (it's what the
+    # Project > Resources and Images dialog generates).
     for png in COMPONENT_PNGS:
-        class_name = png.stem  # e.g. 'TOBDConnection'
+        class_name = png.stem
         png_bytes = downscale_png(png, 24)
-        entries.append(res_entry(RT_RCDATA, class_name, png_bytes))
-        print(f"  RCDATA  {class_name.upper():40s} (PNG, 24x24)")
+        entries.append(res_entry("PNG", class_name, png_bytes))
+        print(f"  PNG     {class_name.upper():40s} (24x24)")
 
     if SPLASH_PNG.exists():
         entries.append(res_entry(RT_RCDATA, "SPLASH",

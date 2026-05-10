@@ -103,17 +103,14 @@ begin
 end;
 
 /// <summary>The IDE's splash and About-box services accept an
-/// <c>HBITMAP</c>, not a PNG, so we flatten the transparent
-/// resource onto a <c>TBitmap</c> with the IDE's button-face
-/// colour right before handing it over. The PNG resource itself
-/// stays a PNG; only this transient bitmap is bitmap-typed.</summary>
-function FlattenPngForToolsApi(APng: TPngImage): Vcl.Graphics.TBitmap;
+/// <c>HBITMAP</c>, not a PNG. The splash and About PNGs ship
+/// with their own opaque charcoal backgrounds so we just blit
+/// them onto a fresh <c>TBitmap</c> — no fill required.</summary>
+function PngToBitmap(APng: TPngImage): Vcl.Graphics.TBitmap;
 begin
   Result := Vcl.Graphics.TBitmap.Create;
   Result.PixelFormat := pf32bit;
   Result.SetSize(APng.Width, APng.Height);
-  Result.Canvas.Brush.Color := clBtnFace;
-  Result.Canvas.FillRect(Rect(0, 0, APng.Width, APng.Height));
   Result.Canvas.Draw(0, 0, APng);
 end;
 
@@ -129,7 +126,7 @@ begin
   Png := LoadPngResource('SPLASH');
   if Png = nil then Exit;
   try
-    Bmp := FlattenPngForToolsApi(Png);
+    Bmp := PngToBitmap(Png);
     try
       SplashScreenServices.AddPluginBitmap(
         'Delphi-OBD',
@@ -158,7 +155,7 @@ begin
   Png := LoadPngResource('ABOUT');
   if Png = nil then Exit;
   try
-    Bmp := FlattenPngForToolsApi(Png);
+    Bmp := PngToBitmap(Png);
     try
       Svc.AddPluginInfo(
         'Delphi-OBD',

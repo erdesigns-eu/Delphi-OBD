@@ -73,11 +73,18 @@ def strip_bg(api_key: str, path: Path) -> None:
     img.save(path, format="PNG", optimize=True)
 
 
+# Splash and About-box compositions ship with their own solid
+# charcoal backgrounds, so they must NOT be stripped — the IDE's
+# splash and About-box bitmap slots want opaque pixels.
+SKIP_NAMES = {"splash.png", "about.png"}
+
+
 def collect_targets(root: Path, only: list[str]) -> list[Path]:
     if only:
         return [(root / p).resolve() for p in only]
     base = root / "assets" / "designtime"
-    return sorted(base.rglob("*.png"))
+    return sorted(p for p in base.rglob("*.png")
+                  if p.name.lower() not in SKIP_NAMES)
 
 
 def main() -> int:

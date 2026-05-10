@@ -330,7 +330,7 @@
       "reference_images": [
         "assets/designtime/templates/delphi-obd-mark.png"
       ],
-      "prompt": "Take the attached Delphi-OBD brand mark (a layered software-style emblem combining an OBD-II 16-pin trapezoidal connector silhouette, an ECU microcontroller chip with visible pin legs, and an orange waveform with stylised </> code brackets) and place it centered as the focal element of a clean RAD Studio IDE splash-screen graphic. Keep the mark UNCHANGED — same composition, same orange-and-charcoal palette, same Fluent illustration style. Add only minimal breathing space around it and a subtle thin horizontal silver accent line directly beneath the mark. Pure white background. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
+      "prompt": "Take the attached Delphi-OBD brand mark (a layered software-style emblem combining an OBD-II 16-pin trapezoidal connector silhouette, an ECU microcontroller chip with visible pin legs, and an orange waveform with stylised </> code brackets) and place it centered as the focal element of a clean RAD Studio IDE splash-screen graphic. Keep the mark UNCHANGED — same composition, same orange-and-charcoal palette, same Fluent illustration style. Add a thin horizontal silver accent line directly beneath the mark. BACKGROUND: a solid deep charcoal canvas with a very subtle dark vertical gradient (slightly lighter at the top fading darker toward the bottom) — NOT white, NOT transparent. The charcoal background fills the entire square and gives the mark something to sit on cleanly inside the IDE splash slot without needing a host fill. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 256
     },
@@ -341,7 +341,7 @@
       "reference_images": [
         "assets/designtime/templates/delphi-obd-mark.png"
       ],
-      "prompt": "Take the attached Delphi-OBD brand mark (a layered software-style emblem combining an OBD-II 16-pin trapezoidal connector silhouette, an ECU microcontroller chip with visible pin legs, and an orange waveform with stylised </> code brackets) and place it large, centered, as the focal element of a clean About-box brand graphic. Keep the mark UNCHANGED — same composition, same orange-and-charcoal palette, same Fluent illustration style. Add a very subtle soft radial vignette behind the mark using charcoal / silver tones, fading into pure white at the edges. Generous breathing space. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
+      "prompt": "Take the attached Delphi-OBD brand mark (a layered software-style emblem combining an OBD-II 16-pin trapezoidal connector silhouette, an ECU microcontroller chip with visible pin legs, and an orange waveform with stylised </> code brackets) and place it large, centered, as the focal element of a clean About-box brand graphic. Keep the mark UNCHANGED — same composition, same orange-and-charcoal palette, same Fluent illustration style. BACKGROUND: a solid deep charcoal canvas with a soft radial gradient — slightly lighter charcoal directly behind the mark, fading to a darker charcoal toward the edges. NOT white, NOT transparent — the charcoal fills the entire square so the IDE's About-box renders the bitmap without needing a host fill. Generous breathing space around the mark. No text — text is composited at runtime by the package. Output 1024x1024 PNG.",
       "size": "1024x1024",
       "final_size": 1024
     }
