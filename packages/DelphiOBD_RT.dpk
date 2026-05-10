@@ -154,6 +154,7 @@ contains
   OBD.Recorder.ProtocolMock in '..\src\Recorder\OBD.Recorder.ProtocolMock.pas',
   OBD.Recorder.Redactor in '..\src\Recorder\OBD.Recorder.Redactor.pas',
   OBD.RadioCode.Types in '..\src\RadioCode\OBD.RadioCode.Types.pas',
-  OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas';
+  OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
+  OBD.RadioCode.EuropeanPremium in '..\src\RadioCode\OBD.RadioCode.EuropeanPremium.pas';
 
 end.

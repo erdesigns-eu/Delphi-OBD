@@ -155,6 +155,7 @@ uses
   OBD.Recorder.Redactor in '..\src\Recorder\OBD.Recorder.Redactor.pas',
   OBD.RadioCode.Types in '..\src\RadioCode\OBD.RadioCode.Types.pas',
   OBD.RadioCode in '..\src\RadioCode\OBD.RadioCode.pas',
+  OBD.RadioCode.EuropeanPremium in '..\src\RadioCode\OBD.RadioCode.EuropeanPremium.pas',
   Tests.OBD.Version in 'Tests.OBD.Version.pas',
   Tests.OBD.Types in 'Tests.OBD.Types.pas',
   Tests.OBD.Errors in 'Tests.OBD.Errors.pas',

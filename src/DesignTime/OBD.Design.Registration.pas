@@ -82,6 +82,8 @@ uses
   OBD.Flash.Pipeline,
   OBD.Recorder,
   OBD.Replayer,
+  OBD.RadioCode,
+  OBD.RadioCode.EuropeanPremium,
   OBD.Design.Editors,
   OBD.Design.Wizards.Starters;
 
@@ -247,6 +249,22 @@ begin
   RegisterComponents('OBD', [
     TOBDRecorder,
     TOBDReplayer
+  ]);
+
+  // Radio-code calculators (one component per vendor). Each
+  // validates the input shape; production algorithms are
+  // proprietary / licensed and supplied by the host via the
+  // OnCalculate event. See docs/v2-port-backlog.md (P-A1).
+  RegisterComponents('OBD Radio', [
+    TOBDRadioCodeVW,
+    TOBDRadioCodeAudiConcert,
+    TOBDRadioCodeBMW,
+    TOBDRadioCodeMercedes,
+    TOBDRadioCodeMini,
+    TOBDRadioCodePorsche,
+    TOBDRadioCodeSEAT,
+    TOBDRadioCodeSkoda,
+    TOBDRadioCodeSmart
   ]);
 
   // Register the splash-screen plugin entry and the About-box

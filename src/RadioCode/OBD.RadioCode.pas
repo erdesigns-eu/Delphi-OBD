@@ -43,19 +43,37 @@ uses
   OBD.RadioCode.Types;
 
 type
+  /// <summary>Fires from <c>DoCalculate</c> for vendor components
+  /// whose proprietary algorithm is not bundled in this
+  /// distribution. The host supplies the calculation.</summary>
+  TOBDRadioCodeCalcEvent = procedure(Sender: TObject;
+    const AInput: string; const AContext: TOBDRadioCodeContext;
+    var AResult: TOBDRadioCodeResult) of object;
+
   /// <summary>Abstract base for every vendor radio-code
   /// calculator component. Vendors inherit, override
-  /// <c>BrandKey</c> / <c>DisplayName</c> / <c>Description</c>
-  /// + <c>DoCalculate</c>, and call
+  /// <c>BrandKey</c> / <c>DisplayName</c> / <c>Description</c>,
+  /// optionally override <c>DoCalculate</c> (when a real
+  /// algorithm is available), and call
   /// <c>TOBDRadioCodeRegistry.Default.RegisterClass</c> at unit
-  /// initialization.</summary>
+  /// initialization.
+  ///
+  /// <para>Many production radio-code algorithms are
+  /// proprietary / licensed and are NOT bundled with this
+  /// open-source distribution. For those vendors, the default
+  /// <c>DoCalculate</c> fires the <c>OnCalculate</c> event so the
+  /// host can supply the algorithm (their own implementation, a
+  /// licensed code-service call, or a network round-trip). If
+  /// no handler is wired, the result reports a clear
+  /// "algorithm not bundled" message.</para></summary>
   TOBDRadioCode = class abstract(TComponent)
   strict private
-    FInput:      string;
-    FVIN:        string;
-    FModelHint:  string;
-    FRegion:     TOBDRadioCodeRegion;
-    FResult:     TOBDRadioCodeResult;
+    FInput:       string;
+    FVIN:         string;
+    FModelHint:   string;
+    FRegion:      TOBDRadioCodeRegion;
+    FResult:      TOBDRadioCodeResult;
+    FOnCalculate: TOBDRadioCodeCalcEvent;
   protected
     /// <summary>Trim + uppercase. Vendors override for
     /// vendor-specific normalisation (some need the original
@@ -82,13 +100,16 @@ type
       out AReason: string): Boolean; virtual;
 
     /// <summary>Vendor-supplied calculation. <c>AInput</c> has
-    /// already been sanitised and validated. Vendors fill the
-    /// returned record; the base class wires
-    /// <c>BrandKey</c> + <c>Variant</c> from the
-    /// component-level overrides.</summary>
+    /// already been sanitised and validated. Default
+    /// implementation fires <c>OnCalculate</c> when a host has
+    /// wired one; otherwise returns a result whose
+    /// <c>Success</c> is False and <c>Message</c> reports that
+    /// the bundled distribution does not include this vendor's
+    /// algorithm. Vendors that do ship a real algorithm
+    /// (database lookup, public spec) override this method.</summary>
     function DoCalculate(const AInput: string;
       const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult;
-      virtual; abstract;
+      virtual;
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -128,6 +149,15 @@ type
     /// <summary>Optional region override.</summary>
     property Region: TOBDRadioCodeRegion read FRegion write FRegion
       default rcrUnknown;
+    /// <summary>Host-supplied calculation. Fired by the default
+    /// <c>DoCalculate</c> for every vendor whose proprietary
+    /// algorithm is not bundled. The handler fills <c>AResult</c>
+    /// (set <c>Success</c>, <c>Code</c>, optionally
+    /// <c>Variant</c>); leave <c>BrandKey</c> alone — the base
+    /// fills it. Vendors with a built-in algorithm (database
+    /// lookup, public spec) ignore this event.</summary>
+    property OnCalculate: TOBDRadioCodeCalcEvent
+      read FOnCalculate write FOnCalculate;
   end;
 
   /// <summary>Metaclass for runtime instantiation by
@@ -253,6 +283,29 @@ function TOBDRadioCode.Validate(const AInput: string;
   out AReason: string): Boolean;
 begin
   Result := DoValidate(SanitizeInput(AInput), AReason);
+end;
+
+function TOBDRadioCode.DoCalculate(const AInput: string;
+  const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult;
+begin
+  Result := Default(TOBDRadioCodeResult);
+  Result.BrandKey := BrandKey;
+  if Assigned(FOnCalculate) then
+  begin
+    FOnCalculate(Self, AInput, AContext, Result);
+    if Result.BrandKey = '' then
+      Result.BrandKey := BrandKey;
+  end
+  else
+  begin
+    Result.Success := False;
+    Result.Message :=
+      Format('Algorithm for "%s" is not bundled in this open-source ' +
+             'distribution. Wire OnCalculate to supply your own ' +
+             '(reverse-engineered, licensed, or network-service) ' +
+             'implementation.',
+             [DisplayName]);
+  end;
 end;
 
 function TOBDRadioCode.Calculate: TOBDRadioCodeResult;
