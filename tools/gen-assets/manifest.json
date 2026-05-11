@@ -757,7 +757,7 @@
       "id": "icon-obdlaptimer",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDLapTimer.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLapTimer'. Subject: a stopwatch with a checkered flag stamp in the corner. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLapTimer'. Subject: a single, clearly defined, opaque pocket stopwatch — round dial with a top crown, a single sweep hand pointing roughly at the 11 o'clock position, and a small checkered-flag stamp tucked behind the dial in the upper-right corner. The stopwatch body must be SOLID and OPAQUE with a clean coloured fill (not transparent, not a wireframe) so an automated foreground-detection pass can identify it against the white background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Pure white background. Centered, generous padding. No text on the dial. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
       "size": "1024x1024",
       "final_size": 256
     },
