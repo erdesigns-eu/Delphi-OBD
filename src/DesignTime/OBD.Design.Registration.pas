@@ -68,6 +68,10 @@ uses
   OBD.DataSource,
   OBD.WWHOBD,
   OBD.WWHOBD.Readiness,
+  OBD.Diagnostics.UDS,
+  OBD.Diagnostics.UDS.Reset,
+  OBD.Diagnostics.UDS.ReadMemory,
+  OBD.Diagnostics.UDS.IOControl,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -282,6 +286,14 @@ begin
     TOBDDataSource,
     TOBDWWHOBD,
     TOBDWWHReadiness
+  ]);
+
+  // Phase 6 advanced UDS-diagnostic components.
+  RegisterComponents('OBD Diagnostics', [
+    TOBDUDS,
+    TOBDUDSReset,
+    TOBDUDSReadMemory,
+    TOBDUDSIOControl
   ]);
 
   // Coding & flashing: write-side UDS components. On their own
