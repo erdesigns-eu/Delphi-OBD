@@ -216,6 +216,18 @@ contains
   OBD.UI.Session             in '..\src\UI\OBD.UI.Session.pas',
   OBD.UI.Connection          in '..\src\UI\OBD.UI.Connection.pas',
   OBD.UI.Pickers             in '..\src\UI\OBD.UI.Pickers.pas',
-  OBD.UI.FlashDashboards     in '..\src\UI\OBD.UI.FlashDashboards.pas';
+  OBD.UI.FlashDashboards     in '..\src\UI\OBD.UI.FlashDashboards.pas',
+  OBD.UI.Dyno                in '..\src\UI\OBD.UI.Dyno.pas',
+  OBD.UI.Charts              in '..\src\UI\OBD.UI.Charts.pas',
+  OBD.UI.Tuning              in '..\src\UI\OBD.UI.Tuning.pas',
+  OBD.UI.Motorsport          in '..\src\UI\OBD.UI.Motorsport.pas',
+  OBD.UI.Commercial          in '..\src\UI\OBD.UI.Commercial.pas',
+  OBD.UI.Replay              in '..\src\UI\OBD.UI.Replay.pas',
+  OBD.UI.Branding            in '..\src\UI\OBD.UI.Branding.pas',
+  OBD.UI.CodingEditors       in '..\src\UI\OBD.UI.CodingEditors.pas',
+  OBD.UI.Diag                in '..\src\UI\OBD.UI.Diag.pas',
+  OBD.UI.SessionInspect      in '..\src\UI\OBD.UI.SessionInspect.pas',
+  OBD.UI.Insights            in '..\src\UI\OBD.UI.Insights.pas',
+  OBD.UI.Logger              in '..\src\UI\OBD.UI.Logger.pas';
 
 end.
