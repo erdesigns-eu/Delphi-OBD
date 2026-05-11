@@ -109,6 +109,7 @@ uses
   OBD.UI.Session,
   OBD.UI.Connection,
   OBD.UI.Pickers,
+  OBD.UI.FlashDashboards,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -390,7 +391,10 @@ begin
     TOBDVINEdit,
     TOBDPidPicker,
     TOBDOEMPicker,
-    TOBDCANIdEdit
+    TOBDCANIdEdit,
+    TOBDFlashSafetyDashboard,
+    TOBDFlashCheckpointTimeline,
+    TOBDFlashAuditTail
   ]);
 
   // Radio-code calculators (one component per vendor). Each

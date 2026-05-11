@@ -215,6 +215,7 @@ contains
   OBD.UI.MonitorEV           in '..\src\UI\OBD.UI.MonitorEV.pas',
   OBD.UI.Session             in '..\src\UI\OBD.UI.Session.pas',
   OBD.UI.Connection          in '..\src\UI\OBD.UI.Connection.pas',
-  OBD.UI.Pickers             in '..\src\UI\OBD.UI.Pickers.pas';
+  OBD.UI.Pickers             in '..\src\UI\OBD.UI.Pickers.pas',
+  OBD.UI.FlashDashboards     in '..\src\UI\OBD.UI.FlashDashboards.pas';
 
 end.
