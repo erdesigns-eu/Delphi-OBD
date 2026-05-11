@@ -219,17 +219,23 @@
       "id": "icon-obdafrgauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDAFRGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAFRGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly straight up at the 12 o'clock position (stoichiometric), with a short orange arc on the right side of the tick ring (lean) and a short red arc on the left side (rich). This is the icon for the Delphi-OBD component 'TOBDAFRGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdaccelgraph",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDAccelGraph.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAccelGraph'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single bright orange line trace shaped like an acceleration curve — starting near the bottom-left and rising steeply to the upper-right of the grid, with a small dot marker at its rightmost end. This is the icon for the Delphi-OBD component 'TOBDAccelGraph'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/chart-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdactuatortestpanel",
@@ -270,17 +276,23 @@
       "id": "icon-obdarcgauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDArcGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDArcGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at the 2 o'clock position, and replace the full tick ring with a partial-arc tick ring that only covers the top half of the dial (a 180-degree arc of ticks from 9 o'clock through 12 to 3 o'clock). This is the icon for the Delphi-OBD component 'TOBDArcGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdbarsegmentgauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDBarSegmentGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDBarSegmentGauge'. Subject: a horizontal bar gauge with a fill level and tick marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a SEGMENTED orange fill — render the fill as five or six discrete bright-orange rectangular segments separated by thin dark gaps, covering roughly the left two-thirds of the track. This is the icon for the Delphi-OBD component 'TOBDBarSegmentGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/bar-gauge-base.png"
+      ]
     },
     {
       "id": "icon-obdbluetoothsignal",
@@ -294,9 +306,12 @@
       "id": "icon-obdboostgauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDBoostGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDBoostGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at the 1 o'clock position, with a short BLUE arc on the LEFT half of the tick ring (vacuum) and a short ORANGE-to-RED arc on the RIGHT half of the tick ring (boost) — clearly suggesting a centre-zero turbo boost gauge. This is the icon for the Delphi-OBD component 'TOBDBoostGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdcanidedit",
@@ -310,9 +325,12 @@
       "id": "icon-obdcellvoltageheatmap",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDCellVoltageHeatmap.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCellVoltageHeatmap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: tint the bottom-row tiles of the grid bright orange (low cell voltage = hot warning), middle rows neutral, top-row tiles untinted — clearly suggesting per-cell voltage colour-coding. This is the icon for the Delphi-OBD component 'TOBDCellVoltageHeatmap'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/heatmap-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdchargeportindicator",
@@ -337,9 +355,12 @@
       "id": "icon-obdcirculargauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDCircularGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCircularGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single bright orange needle pointing roughly at the 3 o'clock position, plus a short orange arc highlighting the right half of the tick ring. This is the icon for the Delphi-OBD component 'TOBDCircularGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdclock",
@@ -369,9 +390,12 @@
       "id": "icon-obdcombogauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDComboGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDComboGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at 3 o'clock, AND a small rectangular dark-charcoal digital readout panel placed in the lower-centre of the dial face with three faint orange digital digits inside it (no specific number, just the look of a digital readout). This is the icon for the Delphi-OBD component 'TOBDComboGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdconnectionstatelamp",
@@ -412,9 +436,12 @@
       "id": "icon-obddeltagauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDDeltaGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDeltaGauge'. Subject: a centre-zero horizontal bar with a fill extending left or right of the centre line. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a CENTRE-ZERO orange fill — a thin silver tick at the exact horizontal centre of the track, with an orange fill extending from the centre tick toward the RIGHT (positive direction) filling roughly 40% of the right half. This is the icon for the Delphi-OBD component 'TOBDDeltaGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/bar-gauge-base.png"
+      ]
     },
     {
       "id": "icon-obddigitalcluster",
@@ -468,17 +495,23 @@
       "id": "icon-obddrivecycleadvisor",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDDriveCycleAdvisor.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriveCycleAdvisor'. Subject: a stylised steering wheel with arrows around it, suggesting a drive cycle. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: two large curving orange arrows wrapping around the OUTSIDE of the steering wheel rim — one arrow on the upper-left, one on the lower-right, suggesting a continuous rotation / drive cycle around the wheel. This is the icon for the Delphi-OBD component 'TOBDDriveCycleAdvisor'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/steering-wheel-base.png"
+      ]
     },
     {
       "id": "icon-obddrivecyclecatalogcomp",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDDriveCycleCatalogComp.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriveCycleCatalogComp'. Subject: a steering wheel paired with a small catalogue book icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a small orange catalogue book icon tucked at the bottom-right of the steering wheel, half-overlapping the rim — suggesting the catalogue companion to the drive-cycle advisor. This is the icon for the Delphi-OBD component 'TOBDDriveCycleCatalogComp'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/steering-wheel-base.png"
+      ]
     },
     {
       "id": "icon-obddrivecycleprogress",
@@ -500,9 +533,12 @@
       "id": "icon-obddualneedlegauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDDualNeedleGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDualNeedleGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: TWO needles overlaid on the dial: one bright orange needle pointing at the 3 o'clock position, and a second thinner cyan / light-silver needle pointing at the 1 o'clock position, both anchored at the central hub. Clearly two needles, not one. This is the icon for the Delphi-OBD component 'TOBDDualNeedleGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obddynocalculator",
@@ -516,9 +552,12 @@
       "id": "icon-obddynochart",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDDynoChart.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDynoChart'. Subject: a power-curve graph with two line traces (HP + torque) on a grid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: TWO smooth curving line traces drawn across the grid — one bright orange (horsepower) and one silver (torque) — and a thin red vertical dashed line at the right-hand edge of the grid (redline marker). This is the icon for the Delphi-OBD component 'TOBDDynoChart'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/chart-grid-base.png"
+      ]
     },
     {
       "id": "icon-obddynoconditions",
@@ -709,41 +748,56 @@
       "id": "icon-obdkeyadaptationbmw",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDKeyAdaptationBMW.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationBMW'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"BMW\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a small BMW circular roundel (quartered blue and white inside a dark chrome ring) centered on the empty silver badge disc on the key bow. This is the icon for the Delphi-OBD component 'TOBDKeyAdaptationBMW'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/key-adapt-base.png"
+      ]
     },
     {
       "id": "icon-obdkeyadaptationford",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDKeyAdaptationFord.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationFord'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"Ford\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a small Ford blue-on-chrome oval wordmark badge centered on the empty silver badge disc on the key bow. This is the icon for the Delphi-OBD component 'TOBDKeyAdaptationFord'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/key-adapt-base.png"
+      ]
     },
     {
       "id": "icon-obdkeyadaptationhmg",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDKeyAdaptationHMG.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationHMG'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"HMG\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a small Hyundai-style slanted-H chrome oval badge centered on the empty silver badge disc on the key bow (Hyundai-Motor-Group / Kia). This is the icon for the Delphi-OBD component 'TOBDKeyAdaptationHMG'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/key-adapt-base.png"
+      ]
     },
     {
       "id": "icon-obdkeyadaptationtoyota",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDKeyAdaptationToyota.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationToyota'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"Toyota\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a small Toyota three-overlapping-oval chrome badge centered on the empty silver badge disc on the key bow. This is the icon for the Delphi-OBD component 'TOBDKeyAdaptationToyota'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/key-adapt-base.png"
+      ]
     },
     {
       "id": "icon-obdled",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDLED.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLED'. Subject: a small round LED indicator lamp glowing. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single bright orange glossy dome filling the inner well — smooth glass-like surface with a soft highlight near the top. This is the icon for the Delphi-OBD component 'TOBDLED'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/lamp-bezel-base.png"
+      ]
     },
     {
       "id": "icon-obdlabelfileeditor",
@@ -773,17 +827,23 @@
       "id": "icon-obdlineargauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDLinearGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLinearGauge'. Subject: a horizontal bar gauge with a fill level and tick marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single smooth orange fill stretching from the left edge of the track to roughly the 70% mark, with a small silver edge between the filled and empty halves. This is the icon for the Delphi-OBD component 'TOBDLinearGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/bar-gauge-base.png"
+      ]
     },
     {
       "id": "icon-obdlivegridchart",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDLiveGridChart.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLiveGridChart'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: THREE distinct line traces drawn across the grid in different colours — one bright orange, one silver / light grey, one darker red — with small round markers along each trace. This is the icon for the Delphi-OBD component 'TOBDLiveGridChart'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/chart-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdloggercontrol",
@@ -829,9 +889,12 @@
       "id": "icon-obdmarinetach",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDMarineTach.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMarineTach'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at the 1 o'clock position, AND a small marine anchor silhouette tucked in the lower-centre of the dial face below the hub. This is the icon for the Delphi-OBD component 'TOBDMarineTach'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdmatrixdisplay",
@@ -845,9 +908,12 @@
       "id": "icon-obdminmaxgauge",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDMinMaxGauge.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMinMaxGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at 3 o'clock, PLUS two small bright orange ticks on the tick ring — one at the 11 o'clock position (min marker) and one at the 4 o'clock position (max marker), clearly different from the regular silver ticks. This is the icon for the Delphi-OBD component 'TOBDMinMaxGauge'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdmode04confirm",
@@ -917,9 +983,12 @@
       "id": "icon-obdptometer",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDPTOMeter.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPTOMeter'. Subject: a round dial with \"540\" and \"1000\" RPM marks highlighted. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at the 12 o'clock position, PLUS two highlighted-orange tick marks on the tick ring labelled with tiny orange digits — '540' at roughly 8 o'clock and '1000' at roughly 2 o'clock. This is the icon for the Delphi-OBD component 'TOBDPTOMeter'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdpidpanel",
@@ -965,9 +1034,12 @@
       "id": "icon-obdpowercurvegraph",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDPowerCurveGraph.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPowerCurveGraph'. Subject: a power-curve graph with two line traces (HP + torque) on a grid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: TWO smooth bell-curve line traces drawn across the grid — one bright orange (HP) and one silver (torque) — both rising to a peak in the middle of the grid then falling toward the right edge, suggesting a power-curve sweep. This is the icon for the Delphi-OBD component 'TOBDPowerCurveGraph'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/chart-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdpredictivelap",
@@ -1484,9 +1556,12 @@
       "id": "icon-obdreadinesslamp",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDReadinessLamp.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDReadinessLamp'. Subject: a single round indicator lamp with a tick in the centre. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a bold orange checkmark symbol centered inside the inner well, filling most of the well's interior. This is the icon for the Delphi-OBD component 'TOBDReadinessLamp'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/lamp-bezel-base.png"
+      ]
     },
     {
       "id": "icon-obdrecordertoolbar",
@@ -1500,9 +1575,12 @@
       "id": "icon-obdregenindicator",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDRegenIndicator.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRegenIndicator'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRegenIndicator'. Subject: a TALL VERTICAL rectangular gauge bar (clearly portrait-oriented, taller than wide) with a thin silver bezel frame. A thin horizontal tick at the EXACT vertical middle of the bar marks zero. ABOVE the zero tick, the bar is filled bright orange about 40% of the way to the top with an arrow icon pointing UP near the top (regen = positive). BELOW the zero tick, the bar is filled a cooler blue / silver about 20% of the way down with an arrow icon pointing DOWN near the bottom (discharge = negative). 2D with subtle depth, slight isometric perspective, soft layered shading. Pure white background. Centered, generous padding. No text. Reads at 16x16 px. DO NOT render this as a round lamp, a dome, a status indicator, or a horizontal bar — it must be unmistakably a vertical centre-zero power flow gauge. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
     },
     {
       "id": "icon-obdroutinecontrollauncher",
@@ -1524,17 +1602,23 @@
       "id": "icon-obdsecocstatuslamp",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDSecOCStatusLamp.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSecOCStatusLamp'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: TWO smaller round lit domes side-by-side inside the inner well — left dome bright green (freshness status), right dome bright orange (key health) — clearly two distinct lamps fitted into one bezel. This is the icon for the Delphi-OBD component 'TOBDSecOCStatusLamp'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/lamp-bezel-base.png"
+      ]
     },
     {
       "id": "icon-obdsecurityaccesslamp",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDSecurityAccessLamp.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSecurityAccessLamp'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a closed silver padlock symbol centered inside the inner well, with a small orange accent on the keyhole. This is the icon for the Delphi-OBD component 'TOBDSecurityAccessLamp'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/lamp-bezel-base.png"
+      ]
     },
     {
       "id": "icon-obdseedkeydebugger",
@@ -1556,9 +1640,12 @@
       "id": "icon-obdshiftlight",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDShiftLight.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDShiftLight'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a bright orange glossy dome filling the inner well, AND a small darker orange upward-pointing chevron / arrow centered inside the dome surface. This is the icon for the Delphi-OBD component 'TOBDShiftLight'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/lamp-bezel-base.png"
+      ]
     },
     {
       "id": "icon-obdshiftlightbar",
@@ -1588,9 +1675,12 @@
       "id": "icon-obdstripchart",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDStripChart.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDStripChart'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single bright orange line trace sweeping left-to-right across the grid, with a small orange dot marker at its rightmost point. This is the icon for the Delphi-OBD component 'TOBDStripChart'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/chart-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdtp20channelpanel",
@@ -1612,9 +1702,12 @@
       "id": "icon-obdtachometer",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDTachometer.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTachometer'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: a single orange needle pointing roughly at the 2 o'clock position, AND a short red redline arc covering the upper-right quadrant of the tick ring (from roughly 3 o'clock to 5 o'clock). This is the icon for the Delphi-OBD component 'TOBDTachometer'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/gauge-dial-base.png"
+      ]
     },
     {
       "id": "icon-obdtheme",
@@ -1636,9 +1729,12 @@
       "id": "icon-obdtorquerpmmap",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDTorqueRPMMap.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTorqueRPMMap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: tint a horizontal RIDGE of tiles across the middle row bright orange — orange brightest in the centre tile, fading to softer orange on either side — suggesting an RPM × load → torque map with a peak band. This is the icon for the Delphi-OBD component 'TOBDTorqueRPMMap'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/heatmap-grid-base.png"
+      ]
     },
     {
       "id": "icon-obdtripsummarycard",
@@ -1722,9 +1818,89 @@
       "id": "icon-obdxyheatmap",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDXYHeatmap.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDXYHeatmap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Take the attached neutral base icon (do not modify its body, frame, perspective, shading, or white background) and add the following: tint the centre 3×3 tiles of the grid bright orange in a diamond / concentric pattern — innermost tile brightest, outer ring slightly cooler orange — leaving the outer two tile rings neutral grey. This is the icon for the Delphi-OBD component 'TOBDXYHeatmap'. Modern Microsoft Office / Fluent UI style; 2D with subtle depth, soft layered shading. The ONLY change vs the attached reference is the added overlay described above — everything else (bezel / frame / white background / silver rim / overall layout) must remain EXACTLY as in the attached image. Output 1024x1024 PNG. No text on or beside the icon.",
       "size": "1024x1024",
-      "final_size": 256
+      "final_size": 256,
+      "reference_images": [
+        "assets/designtime/templates/heatmap-grid-base.png"
+      ]
+    },
+    {
+      "id": "gauge-dial-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/gauge-dial-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean, neutral round automotive dial gauge for use as a base layer in many gauge-variant icons. EXACT REQUIREMENTS: (1) outer BEZEL: thick rim with a smooth silver-to-grey metallic gradient (light brushed silver on the upper edges, darker grey on the lower edges), like a real metal gauge frame. (2) FACE: a perfectly round dark charcoal dial face filling the interior, with a faint silver tick ring evenly distributed around the edge (8–10 even ticks, no labels). (3) HUB: a small centred silver hub. (4) NEEDLE: NO needle in this base template — leave the face needle-free so variants can overlay their own needle and zone elements. (5) BACKGROUND outside the bezel: pure clean white. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "lamp-bezel-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/lamp-bezel-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean round status-lamp bezel for use as a base layer in many lamp-variant icons. EXACT REQUIREMENTS: (1) outer BEZEL: thick rim with a smooth silver-to-grey metallic gradient (light brushed silver on top, darker grey on the bottom), like a real bezel frame. (2) INNER WELL: a deep dark recess inside the bezel — a flat dark charcoal disc with a soft inner shadow at its rim, ready to host a central dome or glyph. (3) NO DOME, NO GLYPH — the well must be empty so variants can place their distinguishing lit dome or symbol later. (4) BACKGROUND outside the bezel: pure clean white. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "chart-grid-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/chart-grid-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean rectangular chart panel for use as a base layer in line-chart variant icons. EXACT REQUIREMENTS: (1) outer FRAME: a horizontal rounded rectangle with a thin silver metallic bevel rim — like a real instrument display frame. (2) PANEL: charcoal-dark interior filling the frame, with a faint silver square grid drawn across the whole interior (approx 6 columns × 4 rows of faint lines). (3) NO TRACE LINES — leave the panel free of any plotted lines or data points so variants can overlay their own traces later. (4) BACKGROUND outside the frame: pure clean white. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "bar-gauge-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/bar-gauge-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean horizontal bar-gauge track for use as a base layer in bar-gauge variant icons. EXACT REQUIREMENTS: (1) outer FRAME: a long horizontal rounded rectangle with a thin silver metallic bevel rim — like a level-indicator housing. (2) INNER TRACK: charcoal-dark interior filling the frame, with five or six faint silver tick marks evenly distributed along the top edge inside the frame. (3) NO FILL — leave the track empty so variants can overlay their own fill (single-bar / segmented / centre-zero). (4) BACKGROUND outside the frame: pure clean white. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "key-adapt-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/key-adapt-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean black-and-silver automotive transponder key paired with a small ECU chip silhouette, for use as a base layer in vendor-key variant icons. EXACT REQUIREMENTS: (1) KEY: a stylised car key with a rounded black plastic bow at the top (containing one small orange transponder dot in its centre) and a silver metal blade pointing down-right. (2) BADGE PLATE on the bow: leave a clean EMPTY circular silver / brushed-chrome disc at the centre of the black bow, large enough to host a small manufacturer logo. Show this disc clearly but do NOT place any text, emblem, or glyph on it. (3) ECU CHIP: a small square silicon chip silhouette tucked behind the bottom-right of the key blade, with visible pin legs along its left and right edges. (4) BACKGROUND: pure clean white. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "heatmap-grid-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/heatmap-grid-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean isometric tile-grid heatmap base for use as a base layer in heatmap-variant icons. EXACT REQUIREMENTS: (1) GRID: a 5×5 isometric / dimetric tile grid filling most of the icon, every tile a small rounded rectangle with a subtle silver-to-dark-grey gradient. (2) ALL TILES NEUTRAL — render every tile in the same neutral grey shade so the heatmap is empty / unactivated. Variants will tint specific tiles orange later. (3) Soft drop shadow beneath the tile grid to give it lift. (4) BACKGROUND: pure clean white. 2D with subtle depth, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
+    },
+    {
+      "id": "steering-wheel-base",
+      "kind": "template",
+      "out": "assets/designtime/templates/steering-wheel-base.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style template icon — a clean front-on view of a generic automotive steering wheel for use as a base layer in drive-cycle variant icons. EXACT REQUIREMENTS: (1) RIM: a thick circular silver / brushed-chrome rim. (2) HUB: a central round dark hub with a small orange centre dot (no manufacturer logo, no text). (3) SPOKES: three spokes (one vertical top, two angled bottom-left and bottom-right) connecting hub to rim, rendered in matching chrome / dark grey. (4) BACKGROUND: pure clean white. Leave generous empty space around the wheel so variants can overlay surrounding rotation arrows or catalogue books. 2D with subtle depth, slight isometric perspective, soft layered shading. Centered, generous padding. No text. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
+      "size": "1024x1024",
+      "final_size": 256,
+      "reference_images": [
+        ".secrets/brand-logo.png"
+      ]
     },
     {
       "id": "radio-base",
