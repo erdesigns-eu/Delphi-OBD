@@ -560,75 +560,75 @@ subphase is committed and reviewed independently; nothing carries
 with production-ready code on its scope.
 
 #### Phase 4a — Wire codecs (the foundation)
-- [ ] `OBD.Protocol.Types.pas` — request / response / frame records, application-protocol enum, hex helpers, NRC catalogue lookup hook
-- [ ] `OBD.Protocol.ISO15765.pas` — full ISO-TP SF / FF / CF / FC encoders + decoders + multi-frame reassembler (classic CAN; CAN-FD long-frame variant lands in 4c when J1939 transport gives us a tested broadcast/peer-to-peer chassis)
-- [ ] `OBD.Protocol.UDS.pas` — full encode + decode + NRC catalogue resolution; `0x7F sid nrc` shape detected and dispatched via `OnNRC`
-- [ ] `OBD.Protocol.KWP2000.pas` — full encode + delegated decode (response shape identical to UDS)
-- [ ] `OBD.Protocol.ISO9141.pas` — header + ISO 9141 checksum + encode (wire init owned by the adapter)
-- [ ] `OBD.Protocol.J1850.pas` — header + CRC-8 (poly 0x1D) + encode for PWM and VPW
-- [ ] `OBD.Protocol.J1939.pas` — 29-bit CAN ID encode / decode, PGN / DA / SA / PDU1 helpers, full DM1..DM32 PGN catalogue, IsDMPGN/IsPDU1 predicates
-- [ ] DUnitX coverage per codec (≥ 5 assertions each)
+- [x] `OBD.Protocol.Types.pas` — request / response / frame records, application-protocol enum, hex helpers, NRC catalogue lookup hook
+- [x] `OBD.Protocol.ISO15765.pas` — full ISO-TP SF / FF / CF / FC encoders + decoders + multi-frame reassembler (classic CAN; CAN-FD long-frame variant lands in 4c when J1939 transport gives us a tested broadcast/peer-to-peer chassis)
+- [x] `OBD.Protocol.UDS.pas` — full encode + decode + NRC catalogue resolution; `0x7F sid nrc` shape detected and dispatched via `OnNRC`
+- [x] `OBD.Protocol.KWP2000.pas` — full encode + delegated decode (response shape identical to UDS)
+- [x] `OBD.Protocol.ISO9141.pas` — header + ISO 9141 checksum + encode (wire init owned by the adapter)
+- [x] `OBD.Protocol.J1850.pas` — header + CRC-8 (poly 0x1D) + encode for PWM and VPW
+- [x] `OBD.Protocol.J1939.pas` — 29-bit CAN ID encode / decode, PGN / DA / SA / PDU1 helpers, full DM1..DM32 PGN catalogue, IsDMPGN/IsPDU1 predicates
+- [x] DUnitX coverage per codec (≥ 5 assertions each)
 
 #### Phase 4b — TOBDProtocol component + sample 03-ReadVIN
-- [ ] `OBD.Protocol.pas` — `TOBDProtocol` component bound to `TOBDAdapter`; `Mode = pmAuto / pmManual`; sync + async + progress for `Send` / `Request`; OnFrame routing; OnNRC; OnError
-- [ ] `MaxIsoTpFrameBytes` exposed on `TOBDAdapter` (Phase 3 follow-up #4 closeout)
-- [ ] DUnitX coverage of the request → encode → adapter → decode → response round-trip via mock adapter
-- [ ] Sample `03-ReadVIN` — Wi-Fi → Adapter.DetectAsync → Adapter.InitAsync → Protocol.RequestAsync(0x09, [0x02]) → printed VIN
+- [x] `OBD.Protocol.pas` — `TOBDProtocol` component bound to `TOBDAdapter`; `Mode = pmAuto / pmManual`; sync + async + progress for `Send` / `Request`; OnFrame routing; OnNRC; OnError
+- [x] `MaxIsoTpFrameBytes` exposed on `TOBDAdapter` (Phase 3 follow-up #4 closeout)
+- [x] DUnitX coverage of the request → encode → adapter → decode → response round-trip via mock adapter
+- [x] Sample `03-ReadVIN` — Wi-Fi → Adapter.DetectAsync → Adapter.InitAsync → Protocol.RequestAsync(0x09, [0x02]) → printed VIN
 
 #### Phase 4c — J1939 transport state machine
-- [ ] TP.CM (RTS / CTS / EndOfMsgAck / BAM / Abort) framing constants + parsers
-- [ ] TP.DT framing
-- [ ] ETP variants for messages > 1785 bytes
-- [ ] `TOBDJ1939Session` (TX side) — split, send, await CTS, send DT chunks, retry on missing CTS
-- [ ] `TOBDJ1939SessionManager` (RX side) — track concurrent sessions per `(SA, DA, PGN)` key
-- [ ] Broadcast (BAM) send + receive
-- [ ] DUnitX coverage with captured wire traces
+- [x] TP.CM (RTS / CTS / EndOfMsgAck / BAM / Abort) framing constants + parsers
+- [x] TP.DT framing
+- [x] ETP variants for messages > 1785 bytes
+- [x] `TOBDJ1939Session` (TX side) — split, send, await CTS, send DT chunks, retry on missing CTS
+- [x] `TOBDJ1939SessionManager` (RX side) — track concurrent sessions per `(SA, DA, PGN)` key
+- [x] Broadcast (BAM) send + receive
+- [x] DUnitX coverage with captured wire traces
 
 #### Phase 4d — DoIP (ISO 13400)
-- [ ] `OBD.Protocol.DoIP.Header.pas` — header decode (0x02 0xFD signature, payload type, length)
-- [ ] Routing activation request / response (0x0005 / 0x0006)
-- [ ] Diagnostic message (0x8001) + ACK / NACK (0x8002 / 0x8003)
-- [ ] Alive check request / response (0x0007 / 0x0008)
-- [ ] Vehicle identification request / response (0x0001 / 0x0004)
-- [ ] Power mode info request / response (0x4003 / 0x4004)
-- [ ] Entity status request / response (0x4001 / 0x4002)
-- [ ] TCP transport (uses `TOBDConnection` Wi-Fi)
-- [ ] UDP discovery (uses `TOBDConnection` UDP)
-- [ ] TLS 1.2 / 1.3 wrapper for the TCP side
-- [ ] DUnitX coverage with captured DoIP frames
+- [x] `OBD.Protocol.DoIP.Header.pas` — header decode (0x02 0xFD signature, payload type, length)
+- [x] Routing activation request / response (0x0005 / 0x0006)
+- [x] Diagnostic message (0x8001) + ACK / NACK (0x8002 / 0x8003)
+- [x] Alive check request / response (0x0007 / 0x0008)
+- [x] Vehicle identification request / response (0x0001 / 0x0004)
+- [x] Power mode info request / response (0x4003 / 0x4004)
+- [x] Entity status request / response (0x4001 / 0x4002)
+- [x] TCP transport (uses `TOBDConnection` Wi-Fi)
+- [x] UDP discovery (uses `TOBDConnection` UDP)
+- [x] TLS 1.2 / 1.3 wrapper for the TCP side
+- [x] DUnitX coverage with captured DoIP frames
 
 #### Phase 4e — SecOC (AUTOSAR Secure On-Board Communication)
-- [ ] CMAC-AES128 implementation
-- [ ] Freshness value tracker (rolling counter + truncated MAC convention)
-- [ ] `IOBDSecOCKeyStore` interface + in-memory implementation
-- [ ] `TOBDSecOC` wrapper that authenticates outgoing frames and verifies inbound ones
-- [ ] Test vectors from NIST SP 800-38B (CMAC-AES128) + AUTOSAR specification
+- [x] CMAC-AES128 implementation
+- [x] Freshness value tracker (rolling counter + truncated MAC convention)
+- [x] `IOBDSecOCKeyStore` interface + in-memory implementation
+- [x] `TOBDSecOC` wrapper that authenticates outgoing frames and verifies inbound ones
+- [x] Test vectors from NIST SP 800-38B (CMAC-AES128) + AUTOSAR specification
 
 #### Phase 4f — Side buses
-- [ ] `OBD.Protocol.LIN.pas` — LDF parser, master schedule executor, slave responder, signal pack/unpack (LIN 1.x / 2.x), classic 0x55 break + sync
-- [ ] `OBD.Protocol.FlexRay.pas` — static / dynamic segment frame format, header CRC, payload CRC, slot / cycle indexing, controller-host interface
-- [ ] `OBD.Protocol.MOST.pas` — MOST25 / MOST50 / MOST150 control / async / streaming channel framing
-- [ ] DUnitX coverage from sample LDFs / FlexRay clusters
+- [x] `OBD.Protocol.LIN.pas` — LDF parser, master schedule executor, slave responder, signal pack/unpack (LIN 1.x / 2.x), classic 0x55 break + sync
+- [x] `OBD.Protocol.FlexRay.pas` — static / dynamic segment frame format, header CRC, payload CRC, slot / cycle indexing, controller-host interface
+- [x] `OBD.Protocol.MOST.pas` — MOST25 / MOST50 / MOST150 control / async / streaming channel framing
+- [x] DUnitX coverage from sample LDFs / FlexRay clusters
 
 #### Phase 4g — Phase 4 close-out
-- [ ] End-to-end integration tests using captured `.obdlog` fixtures
+- [x] End-to-end integration tests using captured `.obdlog` fixtures
 - [ ] Phase 4 review report (consolidates 4a..4f honest reviews)
 - [ ] Confirm CHANGELOG covers every subphase
-- [ ] Confirm sample 03-ReadVIN works end-to-end
+- [x] Confirm sample 03-ReadVIN works end-to-end
 
 ### Phase 5 — Service-mode components (~4 weeks)
 
 All ten OBD-II service modes (01–0A) covered by dedicated components.
 
-- [ ] `OBD.LiveData.pas` — `TOBDLiveData` (Mode 01), batched PID requests (≤6/frame on CAN), polling timer, supported-PID handling
+- [x] `OBD.LiveData.pas` — `TOBDLiveData` (Mode 01), batched PID requests (≤6/frame on CAN), polling timer, supported-PID handling
 - [ ] `OBD.PIDList.pas` — `TOBDPIDList` collection + `TOBDPIDItem` (shared by LiveData, FreezeFrame)
-- [ ] `OBD.FreezeFrame.pas` — `TOBDFreezeFrame` (Mode 02), frame-number-aware decoder
-- [ ] `OBD.DTC.pas` — `TOBDDTC` (Modes 03/07/0A), single canonical DTC decoder per ISO 15031-5
+- [x] `OBD.FreezeFrame.pas` — `TOBDFreezeFrame` (Mode 02), frame-number-aware decoder
+- [x] `OBD.DTC.pas` — `TOBDDTC` (Modes 03/07/0A), single canonical DTC decoder per ISO 15031-5
 - [ ] `OBD.ClearDTC.pas` — `TOBDClearDTC` (Mode 04)
 - [ ] `OBD.OxygenMonitor.pas` — `TOBDOxygenMonitor` (Mode 05), test-ID structured, non-CAN
-- [ ] `OBD.MonitorResults.pas` — `TOBDMonitorResults` (Mode 06), MID/TID/UASID structured with min/max/value ranges; catalog-driven via `catalogs/obd2/monitors.json`
-- [ ] `OBD.SystemControl.pas` — `TOBDSystemControl` (Mode 08), bidirectional control / actuator tests
-- [ ] `OBD.VehicleInfo.pas` — `TOBDVehicleInfo` (Mode 09) covering full PID set:
+- [x] `OBD.MonitorResults.pas` — `TOBDMonitorResults` (Mode 06), MID/TID/UASID structured with min/max/value ranges; catalog-driven via `catalogs/obd2/monitors.json`
+- [x] `OBD.SystemControl.pas` — `TOBDSystemControl` (Mode 08), bidirectional control / actuator tests
+- [x] `OBD.VehicleInfo.pas` — `TOBDVehicleInfo` (Mode 09) covering full PID set:
   - [ ] PID 02 — VIN
   - [ ] PID 04 — Calibration ID(s)
   - [ ] PID 06 — Calibration Verification Number(s)
@@ -678,11 +678,11 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 - [ ] `OBD.DoIP.Discovery.pas` — `TOBDDoIPDiscovery` (UDP vehicle announcement / identification)
 
 **Catalogues & OEM extension**
-- [ ] `catalogs/uds/dids-generic.json` — common UDS DIDs (FA10 active session, F186 active diag session, F187 spare-part number, F188 ECU SW number, F189 ECU SW version, F18A system supplier, F18B ECU manufacturing date, F18C serial number, F190 VIN, F191 VehManECUHW number, F192 SW version, F195 diagnostic spec, F197 system name, F198 repair shop code, F199 programming date, F19D programming repair shop, F19E programming session, F1A0 alf-protected, …)
+- [x] `catalogs/uds/dids-generic.json` — common UDS DIDs (FA10 active session, F186 active diag session, F187 spare-part number, F188 ECU SW number, F189 ECU SW version, F18A system supplier, F18B ECU manufacturing date, F18C serial number, F190 VIN, F191 VehManECUHW number, F192 SW version, F195 diagnostic spec, F197 system name, F198 repair shop code, F199 programming date, F19D programming repair shop, F19E programming session, F1A0 alf-protected, …)
 - [ ] `catalogs/uds/nrc.json` — full NRC code → message map
 - [ ] `catalogs/uds/routines-generic.json` — common routine IDs
 - [ ] `catalogs/kwp/common-ids.json`
-- [ ] `catalogs/j1939/pgns.json` — PGNs incl. DM message PGNs
+- [x] `catalogs/j1939/pgns.json` — PGNs incl. DM message PGNs
 - [ ] `catalogs/j1939/spns.json` — SPN definitions for DM1/DM2/DM12 decoding
 - [ ] `catalogs/j1939/fmis.json` — Failure Mode Identifiers
 - [ ] `OBD.OEM.Registry.pas` — extension registry (DID/PID/DTC overlay hooks)
@@ -726,24 +726,24 @@ Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable 
 
 **Generic coding**
 - [ ] `OBD.UDS.WriteDID.pas` — `TOBDUDSWriteDID` (0x2E)
-- [ ] `OBD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory` (0x3D, used by Flasher in Phase 8 too)
-- [ ] `OBD.Coding.Session.pas` — `TOBDCodingSession` orchestrator (snapshot → write → verify → rollback-on-fail)
-- [ ] `OBD.Coding.Diff.pas` — `TOBDCodingDiff`
-- [ ] `OBD.Coding.AuditLog.pas` — `TOBDCodingAuditLog` (tamper-evident JSONL with optional signature)
+- [x] `OBD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory` (0x3D, used by Flasher in Phase 8 too)
+- [x] `OBD.Coding.Session.pas` — `TOBDCodingSession` orchestrator (snapshot → write → verify → rollback-on-fail)
+- [x] `OBD.Coding.Diff.pas` — `TOBDCodingDiff`
+- [x] `OBD.Coding.AuditLog.pas` — `TOBDCodingAuditLog` (tamper-evident JSONL with optional signature)
 
 **Per-OEM helpers** (carry vendor logic across from existing `OBD.OEM.Coding.*` for reference only — full clean-room implementation)
-- [ ] `OBD.Coding.VAG.pas` — `TOBDCodingVAG` (long coding strings, adaptation channels, byte/bit coding)
-- [ ] `OBD.Coding.BMW.pas` — `TOBDCodingBMW` (NCS encoded coding data, CAFD/SWE handling)
-- [ ] `OBD.Coding.Ford.pas` — `TOBDCodingFord` (AsBuilt sections)
-- [ ] `OBD.Coding.HMG.pas` — `TOBDCodingHMG` (Hyundai/Kia/Genesis configuration words)
-- [ ] `OBD.Coding.Honda.pas` — `TOBDCodingHonda`
-- [ ] `OBD.Coding.Mercedes.pas` — `TOBDCodingMercedes` (variant coding, SCN coding)
-- [ ] `OBD.Coding.Stellantis.pas` — `TOBDCodingStellantis` (FCA proxi-alignment)
-- [ ] `OBD.Coding.Toyota.pas` — `TOBDCodingToyota` (customisation menu)
-- [ ] `OBD.OEM.ComponentProtection.VAG.pas` — Component Protection unlock helpers
+- [x] `OBD.Coding.VAG.pas` — `TOBDCodingVAG` (long coding strings, adaptation channels, byte/bit coding)
+- [x] `OBD.Coding.BMW.pas` — `TOBDCodingBMW` (NCS encoded coding data, CAFD/SWE handling)
+- [x] `OBD.Coding.Ford.pas` — `TOBDCodingFord` (AsBuilt sections)
+- [x] `OBD.Coding.HMG.pas` — `TOBDCodingHMG` (Hyundai/Kia/Genesis configuration words)
+- [x] `OBD.Coding.Honda.pas` — `TOBDCodingHonda`
+- [x] `OBD.Coding.Mercedes.pas` — `TOBDCodingMercedes` (variant coding, SCN coding)
+- [x] `OBD.Coding.Stellantis.pas` — `TOBDCodingStellantis` (FCA proxi-alignment)
+- [x] `OBD.Coding.Toyota.pas` — `TOBDCodingToyota` (customisation menu)
+- [x] `OBD.OEM.ComponentProtection.VAG.pas` — Component Protection unlock helpers
 
 **KWP coding** (for older European cars)
-- [ ] `OBD.KWP.WriteID.pas` — write counterpart of ReadID
+- [x] `OBD.KWP.WriteID.pas` — write counterpart of ReadID
 
 **Tests & samples**
 - [ ] DUnitX coverage: snapshot/write/verify round-trip, rollback on NRC, audit log integrity, diff correctness
@@ -754,52 +754,52 @@ Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable 
 Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash window mandatory before any 1.0 release.
 
 **Transfer & memory**
-- [ ] `OBD.UDS.Transfer.pas` — `TOBDUDSTransfer` (0x34/35/36/37 state machine, chunked, resumable)
-- [ ] `OBD.J1939.MemoryAccess.pas` — `TOBDJ1939MemoryAccess` (DM14/15/16/17/18)
+- [x] `OBD.UDS.Transfer.pas` — `TOBDUDSTransfer` (0x34/35/36/37 state machine, chunked, resumable)
+- [x] `OBD.J1939.MemoryAccess.pas` — `TOBDJ1939MemoryAccess` (DM14/15/16/17/18)
 
 **Pipeline**
-- [ ] `OBD.Flasher.pas` — `TOBDFlasher` orchestrator
-- [ ] `OBD.Flash.VoltageGate.pas` — `TOBDVoltageGate`
-- [ ] `OBD.Flash.Checkpoint.pas` — `TOBDFlashCheckpoint` (resume support)
-- [ ] `OBD.Flash.Phases.pas` — phase enum, pre-condition checks (engine off, battery support, ambient temp, ignition), post-condition checks
+- [x] `OBD.Flasher.pas` — `TOBDFlasher` orchestrator
+- [x] `OBD.Flash.VoltageGate.pas` — `TOBDVoltageGate`
+- [x] `OBD.Flash.Checkpoint.pas` — `TOBDFlashCheckpoint` (resume support)
+- [x] `OBD.Flash.Phases.pas` — phase enum, pre-condition checks (engine off, battery support, ambient temp, ignition), post-condition checks
 
 **Signature verification** (firmware integrity)
-- [ ] `OBD.Signature.pas` — abstract `TOBDSignatureVerifier`
-- [ ] `OBD.Signature.BCrypt.pas` — Windows BCrypt backend
-- [ ] `OBD.Signature.OpenSSL.pas` — OpenSSL backend
-- [ ] `OBD.Signature.HSM.pas` — PKCS#11 HSM backend
-- [ ] `OBD.Signature.PQC.pas` — post-quantum backend (Dilithium / Falcon / SPHINCS+)
-- [ ] Algorithm selection via property; runtime backend availability detection
+- [x] `OBD.Signature.pas` — abstract `TOBDSignatureVerifier`
+- [x] `OBD.Signature.BCrypt.pas` — Windows BCrypt backend
+- [x] `OBD.Signature.OpenSSL.pas` — OpenSSL backend
+- [x] `OBD.Signature.HSM.pas` — PKCS#11 HSM backend
+- [x] `OBD.Signature.PQC.pas` — post-quantum backend (Dilithium / Falcon / SPHINCS+)
+- [x] Algorithm selection via property; runtime backend availability detection
 
 **OEM bootloader handshakes** (each OEM has its own seed-key + pre-flash routine sequence)
-- [ ] `OBD.Flash.OEM.VAG.pas`
-- [ ] `OBD.Flash.OEM.BMW.pas`
-- [ ] `OBD.Flash.OEM.Ford.pas`
-- [ ] `OBD.Flash.OEM.HMG.pas`
-- [ ] `OBD.Flash.OEM.Mercedes.pas`
-- [ ] `OBD.Flash.OEM.Stellantis.pas`
-- [ ] `OBD.Flash.OEM.Toyota.pas`
+- [x] `OBD.Flash.OEM.VAG.pas`
+- [x] `OBD.Flash.OEM.BMW.pas`
+- [x] `OBD.Flash.OEM.Ford.pas`
+- [x] `OBD.Flash.OEM.HMG.pas`
+- [x] `OBD.Flash.OEM.Mercedes.pas`
+- [x] `OBD.Flash.OEM.Stellantis.pas`
+- [x] `OBD.Flash.OEM.Toyota.pas`
 
 **Audit & safety**
-- [ ] `TOBDFlasher` writes a full audit log via `TOBDCodingAuditLog` for every flash
-- [ ] Confirmation gate: `AutoExecute: Boolean` defaults **False** on every destructive component. When False, the component fires `OnConfirmExecute(Sender; var Allow: Boolean)` and waits; if no handler is wired and `AutoExecute = False`, the operation aborts with `EOBDConfig`. Developer either wires the event to their UI (button/dialog/voice/whatever) or sets `AutoExecute := True` to take responsibility silently.
-- [ ] Voltage-source warning: a `TOBDFlasher` with no `VoltageGate` assigned logs a `WARN` event at start of flash but proceeds (developer choice)
-- [ ] Loud documentation: every flashing component's XMLDoc opens with a brick-risk warning; `docs/flashing-safety.md` is a required read
+- [x] `TOBDFlasher` writes a full audit log via `TOBDCodingAuditLog` for every flash
+- [x] Confirmation gate: `AutoExecute: Boolean` defaults **False** on every destructive component. When False, the component fires `OnConfirmExecute(Sender; var Allow: Boolean)` and waits; if no handler is wired and `AutoExecute = False`, the operation aborts with `EOBDConfig`. Developer either wires the event to their UI (button/dialog/voice/whatever) or sets `AutoExecute := True` to take responsibility silently.
+- [x] Voltage-source warning: a `TOBDFlasher` with no `VoltageGate` assigned logs a `WARN` event at start of flash but proceeds (developer choice)
+- [x] Loud documentation: every flashing component's XMLDoc opens with a brick-risk warning; `docs/flashing-safety.md` is a required read
 
 **Tests & samples**
 - [ ] DUnitX coverage: transfer state machine on captured fixtures (no real ECU), checkpoint resume, voltage-gate abort, signature pass/fail, audit-log signing
-- [ ] Bench-test playbook: documented manual procedure with bricked-ECU recovery (separate `docs/flashing-safety.md`)
-- [ ] Samples: `27-FlashDryRun` (computes everything, never sends 0x36), `28-FlashSignedFirmware` (real flash; opens with safety banner), `29-J1939Flash`
+- [x] Bench-test playbook: documented manual procedure with bricked-ECU recovery (separate `docs/flashing-safety.md`)
+- [x] Samples: `27-FlashDryRun` (computes everything, never sends 0x36), `28-FlashSignedFirmware` (real flash; opens with safety banner), `29-J1939Flash`
 
 ### Phase 10 — Recorder/Replayer (~1 week)
-- [ ] `OBD.Recorder.pas`
-- [ ] `OBD.Replayer.pas`
-- [ ] Carry over `.obdlog` format from v1 (already clean)
-- [ ] Tests
-- [ ] Sample `07-RecordReplay`
+- [x] `OBD.Recorder.pas`
+- [x] `OBD.Replayer.pas`
+- [x] Carry over `.obdlog` format from v1 (already clean)
+- [x] Tests
+- [x] Sample `07-RecordReplay`
 
 ### Phase 11 — Design-time package (~2 weeks)
-- [ ] Component icons (16/24/32 px, dark + light)
+- [x] Component icons (16/24/32 px, dark + light)
 - [ ] Property editors:
   - [ ] `TOBDPortProperty` — live COM port enum at design time
   - [ ] `TOBDBluetoothDeviceProperty`
@@ -813,18 +813,18 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
   - [ ] `TOBDAdapter`: "Detect Chip…"
   - [ ] `TOBDLiveData`: "Add Standard PIDs…", "Live Test PID…"
   - [ ] `TOBDDTC`: "Read DTCs…", "Clear DTCs…"
-- [ ] Splash bitmap + About box
+- [x] Splash bitmap + About box
 - [ ] Help keyword registration
 - [ ] Manual install test on a clean RAD Studio 12 and 10.3
 
 ### Phase 12 — Documentation & samples (~3 weeks)
-- [ ] `docs/architecture.md` — component diagram, data flow, threading model
+- [x] `docs/architecture.md` — component diagram, data flow, threading model
 - [ ] `docs/components/<Component>.md` — one per component, properties + events + methods + sample snippet
-- [ ] `docs/catalogs.md` — JSON schemas + how to contribute a PID/DTC/DID
-- [ ] `docs/coding-cookbook.md` — vendor-by-vendor coding walkthroughs
-- [ ] `docs/flashing-safety.md` — pre-conditions, voltage requirements, recovery procedures, bricked-ECU playbook, legal disclaimer
-- [ ] `docs/migration-from-v1.md` — class → component cookbook
-- [ ] Top-level `README.md` with the 10-line quick-start + safety warning for flashing
+- [x] `docs/catalogs.md` — JSON schemas + how to contribute a PID/DTC/DID
+- [x] `docs/coding-cookbook.md` — vendor-by-vendor coding walkthroughs
+- [x] `docs/flashing-safety.md` — pre-conditions, voltage requirements, recovery procedures, bricked-ECU playbook, legal disclaimer
+- [x] `docs/migration-from-v1.md` — class → component cookbook
+- [x] Top-level `README.md` with the 10-line quick-start + safety warning for flashing
 - [ ] All ~30 sample projects build green in CI
 - [ ] At least one full screenshot per sample in its README
 
