@@ -1549,7 +1549,7 @@
       "id": "icon-obdvwradiosafe",
       "kind": "component-icon",
       "out": "assets/designtime/icons/TOBDVWRadioSAFE.png",
-      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVWRadioSAFE'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVWRadioSAFE'. Subject: a stylised VW-era 2-DIN car radio faceplate with a small four-digit numeric SAFE-code display and a closed padlock glyph beside it, suggesting unlock-code recovery over the diagnostic bus. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Pure white background. Centered, generous padding. No text on the radio body. Reads at 16x16 px after downscaling. IMPORTANT — the attached reference image is provided ONLY as a colour palette source. Lift the colour palette from it, but DO NOT copy, embed, depict, or take any shape inspiration from the reference image. No element of the reference must appear in this icon. This icon's shape comes entirely from the subject description above.",
       "size": "1024x1024",
       "final_size": 256
     },
