@@ -698,27 +698,27 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 XCP/CCP, IsoBus, Tachograph. Built on the Phase 4 protocol layer (SecOC, LIN, FlexRay, MOST already covered there).
 
 **XCP / CCP / A2L**
-- [ ] `OBD.A2L.pas` — `TOBDA2L` parser/loader (variable name → address/size/conversion/limits/group)
-- [ ] `OBD.XCP.pas` — `TOBDXCP` master; transports: CAN, CAN-FD, Ethernet (TCP/UDP), FlexRay, USB
-- [ ] `OBD.XCP.Measurement.pas` — `TOBDXCPMeasurement` (DAQ list, streamed samples)
-- [ ] `OBD.XCP.Calibration.pas` — `TOBDXCPCalibration` (online parameter editing, A2L-driven)
-- [ ] `OBD.CCP.pas` — `TOBDCCP` legacy CAN-only master
+- [x] `OBD.A2L.pas` — `TOBDA2L` parser/loader (variable name → address/size/conversion/limits/group) *(implemented as `src/Calibration/OBD.Calibration.A2L.pas`)*
+- [x] `OBD.XCP.pas` — `TOBDXCP` master; transports: CAN, CAN-FD, Ethernet (TCP/UDP), FlexRay, USB *(implemented as `src/Calibration/OBD.Calibration.XCP.pas` with the `IOBDXCPTransport` interface in `OBD.Calibration.XCP.Transport.pas` for transport pluggability)*
+- [x] `OBD.XCP.Measurement.pas` — `TOBDXCPMeasurement` (DAQ list, streamed samples) *(covered by `TOBDXCP`'s DAQ surface — FreeDAQ / AllocDAQ / AllocODT / AllocODTEntry / SetDAQPtr / WriteDAQ / SetDAQListMode / StartStopDAQList; no separate measurement component)*
+- [x] `OBD.XCP.Calibration.pas` — `TOBDXCPCalibration` (online parameter editing, A2L-driven) *(covered by `TOBDXCP`'s SetCalPage / GetCalPage / SetMTA / Download / ShortDownload methods)*
+- [x] `OBD.CCP.pas` — `TOBDCCP` legacy CAN-only master *(implemented as `src/Calibration/OBD.Calibration.CCP.pas`)*
 
 **ISO 11783 (IsoBus)**
-- [ ] `OBD.IsoBus.pas` — `TOBDIsoBus` (NAME, address claim, TP/ETP)
-- [ ] `OBD.IsoBus.VT.pas` — `TOBDIsoBusVT` Virtual Terminal (object pool, soft keys, masks, input)
-- [ ] `OBD.IsoBus.TC.pas` — `TOBDIsoBusTC` Task Controller (DDOP, process data, TASKDATA.XML)
-- [ ] `OBD.IsoBus.FS.pas` — `TOBDIsoBusFS` File Server
-- [ ] `OBD.IsoBus.GNSS.pas` — `TOBDIsoBusGNSS` (NMEA2000 position fixes)
+- [x] `OBD.IsoBus.pas` — `TOBDIsoBus` (NAME, address claim, TP/ETP) *(implemented as `src/Speciality/OBD.Speciality.IsoBus.pas`)*
+- [x] `OBD.IsoBus.VT.pas` — `TOBDIsoBusVT` Virtual Terminal (object pool, soft keys, masks, input) *(implemented as `src/Speciality/OBD.Speciality.IsoBus.VT.pas`)*
+- [x] `OBD.IsoBus.TC.pas` — `TOBDIsoBusTC` Task Controller (DDOP, process data, TASKDATA.XML) *(implemented as `src/Speciality/OBD.Speciality.IsoBus.TC.pas`)*
+- [x] `OBD.IsoBus.FS.pas` — `TOBDIsoBusFS` File Server *(implemented as `src/Speciality/OBD.Speciality.IsoBus.FS.pas`)*
+- [x] `OBD.IsoBus.GNSS.pas` — `TOBDIsoBusGNSS` (NMEA2000 position fixes) *(implemented as `src/Speciality/OBD.Speciality.IsoBus.GNSS.pas`)*
 
 **Digital Tachograph (EU 165/2014)**
-- [ ] `OBD.Tachograph.pas` — `TOBDTachograph` (VU diagnostic surface, card hierarchy: Workshop/Control/Company/Driver, activity/event/fault/calibration records)
-- [ ] Card-reader integration (PC/SC) for driver/workshop card authentication
-- [ ] Catalogue: `catalogs/tacho/data-types.json` (ASN.1-derived field schemas)
+- [x] `OBD.Tachograph.pas` — `TOBDTachograph` (VU diagnostic surface, card hierarchy: Workshop/Control/Company/Driver, activity/event/fault/calibration records) *(implemented as `src/Speciality/OBD.Speciality.Tachograph.pas`)*
+- [x] Card-reader integration (PC/SC) for driver/workshop card authentication *(implemented as `TOBDTachoPCSC` in `src/Speciality/OBD.Speciality.Tachograph.PCSC.pas`)*
+- [x] Catalogue: `catalogs/tacho/data-types.json` (ASN.1-derived field schemas)
 
 **Tests & samples**
-- [ ] DUnitX coverage: A2L round-trip on common fragments; XCP DAQ list lifecycle; SecOC MAC vectors (Phase 4 dependency); IsoBus VT object-pool upload; Tachograph activity-record decode against published vectors
-- [ ] Samples: `31-XCPMeasurement`, `32-XCPCalibration`, `33-IsoBusVT`, `34-IsoBusTaskController`, `35-Tachograph`, `36-LINSchedule`, `37-FlexRaySlot`
+- [x] DUnitX coverage: A2L round-trip on common fragments; XCP DAQ list lifecycle; SecOC MAC vectors (Phase 4 dependency); IsoBus VT object-pool upload; Tachograph activity-record decode against published vectors *(covered by `Tests.OBD.Calibration`, `Tests.OBD.Calibration.Followups`, `Tests.OBD.Speciality`; SecOC by the Phase 4e fixtures)*
+- [x] Samples: `31-XCPMeasurement`, `32-XCPCalibration`, `33-IsoBusVT`, `34-IsoBusTaskController`, `35-Tachograph`, `36-LINSchedule`, `37-FlexRaySlot` *(shipped without the numeric phase-prefix per the no-numbering convention: `samples/XCPMeasurement`, `samples/XCPCalibration`, `samples/IsoBusVT`, `samples/IsoBusTaskController`, `samples/Tachograph`, `samples/LINSchedule`, `samples/FlexRaySlot`)*
 
 ### Phase 8 — Coding (~3 weeks)
 

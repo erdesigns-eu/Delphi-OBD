@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "description": "EU 165/2014 Digital Tachograph (smart tacho gen-2) data-type catalogue. Covers the ASN.1-derived field schemas used to decode VU and driver-card transfer records (activity, event, fault, calibration). Sourced from Commission Implementing Regulation (EU) 2016/799 Annex 1C Appendix 1.",
+  "kind": "tacho-data-types",
+  "source": "EU 2016/799 Annex 1C Appendix 1 (2024 consolidated)",
+  "records": {
+    "ActivityChangeInfo": {
+      "tag": "0x60",
+      "size": 2,
+      "encoding": "bit-packed",
+      "fields": [
+        { "name": "Slot",      "bits": "15",   "values": { "0": "Driver", "1": "Co-driver" } },
+        { "name": "DrivingStatus","bits": "14","values": { "0": "Single", "1": "Crew" } },
+        { "name": "CardStatus","bits": "13",   "values": { "0": "Inserted", "1": "Not inserted" } },
+        { "name": "Activity",  "bits": "12..11","values": { "0": "Break/Rest", "1": "Availability", "2": "Work", "3": "Driving" } },
+        { "name": "Time",      "bits": "10..0", "unit": "minutes-since-midnight" }
+      ]
+    },
+    "EventFaultType": {
+      "tag": "0x05",
+      "size": 1,
+      "encoding": "enum",
+      "values": {
+        "0x00": "No event/fault",
+        "0x01": "Insertion of a non-valid card",
+        "0x02": "Card conflict",
+        "0x03": "Time overlap",
+        "0x04": "Driving without an appropriate card",
+        "0x05": "Card insertion while driving",
+        "0x06": "Last card session not correctly closed",
+        "0x07": "Over speeding",
+        "0x08": "Power supply interruption",
+        "0x09": "Motion data error",
+        "0x0A": "Vehicle motion conflict",
+        "0x0B": "Time conflict (GNSS vs VU)",
+        "0x0C": "Communication error with the remote communication facility"
+      }
+    },
+    "CalibrationPurpose": {
+      "tag": "0x06",
+      "size": 1,
+      "encoding": "enum",
+      "values": {
+        "0x00": "Reserved",
+        "0x01": "Activation",
+        "0x02": "First installation after activation",
+        "0x03": "Installation",
+        "0x04": "Periodic inspection",
+        "0x05": "Reason entry of VRN",
+        "0x06": "Time adjustment without calibration"
+      }
+    },
+    "GeoCoordinates": {
+      "tag": "0x82",
+      "size": 8,
+      "encoding": "fixed-point",
+      "fields": [
+        { "name": "Latitude",   "bytes": "0..3", "unit": "min/10000",
+          "notes": "Signed int32 — north positive." },
+        { "name": "Longitude",  "bytes": "4..7", "unit": "min/10000",
+          "notes": "Signed int32 — east positive." }
+      ]
+    },
+    "VuOverviewBlock": {
+      "tag": "0x76",
+      "size": "variable",
+      "encoding": "structured",
+      "fields": [
+        { "name": "MemberStateCertificate" },
+        { "name": "VUCertificate" },
+        { "name": "VehicleIdentificationNumber", "size": 17 },
+        { "name": "VehicleRegistrationIdentification" },
+        { "name": "CurrentDateTime",  "size": 4 },
+        { "name": "VuDownloadablePeriod",  "size": 8 },
+        { "name": "CardSlotStatus", "size": 1 },
+        { "name": "VuDownloadActivityData" }
+      ]
+    },
+    "CardActivityDailyRecord": {
+      "tag": "0x70",
+      "size": "variable",
+      "encoding": "TLV",
+      "fields": [
+        { "name": "ActivityPreviousRecordLength", "size": 2 },
+        { "name": "ActivityRecordLength",          "size": 2 },
+        { "name": "ActivityRecordDate",            "size": 4 },
+        { "name": "ActivityDailyPresenceCounter",  "size": 2 },
+        { "name": "ActivityDayDistance",           "size": 2 },
+        { "name": "ActivityChangeInfo",            "size": "variable" }
+      ]
+    }
+  }
+}
