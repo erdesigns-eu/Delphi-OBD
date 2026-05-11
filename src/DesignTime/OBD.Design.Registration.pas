@@ -106,6 +106,8 @@ uses
   OBD.UI.LiveGrids,
   OBD.UI.Info,
   OBD.UI.MonitorEV,
+  OBD.UI.Session,
+  OBD.UI.Connection,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -375,7 +377,15 @@ begin
     TOBDReadinessGrid,
     TOBDDriveCycleProgress,
     TOBDCellVoltageHeatmap,
-    TOBDChargingFlow
+    TOBDChargingFlow,
+    TOBDFlashProgress,
+    TOBDCodingSessionPanel,
+    TOBDXCPProgressBar,
+    TOBDRecorderToolbar,
+    TOBDConnectionStateLamp,
+    TOBDDoIPStatusPanel,
+    TOBDSecurityAccessLamp,
+    TOBDSecOCStatusLamp
   ]);
 
   // Radio-code calculators (one component per vendor). Each

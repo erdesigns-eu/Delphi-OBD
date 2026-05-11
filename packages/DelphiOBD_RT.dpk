@@ -212,6 +212,8 @@ contains
   OBD.UI.LivePanels          in '..\src\UI\OBD.UI.LivePanels.pas',
   OBD.UI.LiveGrids           in '..\src\UI\OBD.UI.LiveGrids.pas',
   OBD.UI.Info                in '..\src\UI\OBD.UI.Info.pas',
-  OBD.UI.MonitorEV           in '..\src\UI\OBD.UI.MonitorEV.pas';
+  OBD.UI.MonitorEV           in '..\src\UI\OBD.UI.MonitorEV.pas',
+  OBD.UI.Session             in '..\src\UI\OBD.UI.Session.pas',
+  OBD.UI.Connection          in '..\src\UI\OBD.UI.Connection.pas';
 
 end.
