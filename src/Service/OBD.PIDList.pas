@@ -27,7 +27,14 @@ uses
   System.Classes;
 
 type
-  /// <summary>One PID entry in a <see cref="TOBDPIDList"/>.</summary>
+  /// <summary>
+  ///   One PID entry in a <see cref="TOBDPIDList"/>.
+  /// </summary>
+  /// <remarks>
+  ///   Owned by the parent <see cref="TOBDPIDList"/>; the host does
+  ///   not free items directly. Editable from the Object Inspector
+  ///   on the parent collection.
+  /// </remarks>
   TOBDPIDItem = class(TCollectionItem)
   strict private
     FMode: Byte;
@@ -38,37 +45,85 @@ type
   protected
     function GetDisplayName: string; override;
   public
+    /// <summary>Constructs a new item with sane defaults.</summary>
+    /// <param name="ACollection">Owning collection.</param>
     constructor Create(ACollection: TCollection); override;
+    /// <summary>Copies field values from <c>ASource</c>.</summary>
+    /// <param name="ASource">Another <c>TOBDPIDItem</c> or the
+    /// inherited fallback for unsupported types.</param>
     procedure Assign(ASource: TPersistent); override;
   published
-    /// <summary>OBD service / mode. Default <c>0x01</c> (current
-    /// data).</summary>
+    /// <summary>
+    ///   OBD service / mode byte. Default <c>0x01</c> (current
+    ///   data).
+    /// </summary>
     property Mode: Byte read FMode write FMode default $01;
-    /// <summary>PID byte.</summary>
+
+    /// <summary>PID byte for the chosen <c>Mode</c>.</summary>
     property PID: Byte read FPID write FPID default $00;
-    /// <summary>Display name. Optional — informational only.</summary>
+
+    /// <summary>
+    ///   Optional human-readable display name. Informational only;
+    ///   consumed by the Object-Inspector display name and any
+    ///   host-supplied UI.
+    /// </summary>
     property Name: string read FName write FName;
-    /// <summary>Skip this entry on the polling loop when
-    /// <c>False</c>. Default <c>True</c>.</summary>
+
+    /// <summary>
+    ///   Whether the consumer should include this entry. Default
+    ///   <c>True</c>. Disabled entries are returned by
+    ///   <see cref="TOBDPIDList.Find"/> but skipped by
+    ///   <see cref="TOBDPIDList.EnabledFor"/>.
+    /// </summary>
     property Enabled: Boolean read FEnabled write FEnabled default True;
-    /// <summary>Override the host's default poll interval for
-    /// just this PID. <c>0</c> uses the host default.</summary>
+
+    /// <summary>
+    ///   Per-PID poll-interval override in milliseconds.
+    ///   <c>0</c> (the default) means "use the host component's
+    ///   default poll interval".
+    /// </summary>
     property PollIntervalMs: Cardinal read FPollIntervalMs
       write FPollIntervalMs default 0;
   end;
 
-  /// <summary>Owned collection of PIDs.</summary>
+  /// <summary>
+  ///   Owned collection of <see cref="TOBDPIDItem"/>.
+  /// </summary>
+  /// <remarks>
+  ///   Owned by a parent component (typically a
+  ///   <c>TOBDLiveData</c>); freed alongside the parent.
+  /// </remarks>
   TOBDPIDList = class(TOwnedCollection)
   public
+    /// <summary>Constructs an empty list.</summary>
+    /// <param name="AOwner">Parent component.</param>
     constructor Create(AOwner: TPersistent);
-    /// <summary>Adds a PID and returns the new item.</summary>
-    function Add(AMode, APID: Byte; const AName: string = '';
+
+    /// <summary>
+    ///   Adds a PID and returns the new item.
+    /// </summary>
+    /// <param name="AMode">OBD mode byte.</param>
+    /// <param name="APID">PID byte.</param>
+    /// <param name="AName">Optional display name.</param>
+    /// <param name="AEnabled">Initial <c>Enabled</c> flag. Default
+    /// <c>True</c>.</param>
+    /// <returns>The newly-added item, owned by the collection.</returns>
+    function Add(AMode: Byte; APID: Byte; const AName: string = '';
       AEnabled: Boolean = True): TOBDPIDItem; reintroduce;
-    /// <summary>Finds the item with (<c>AMode</c>, <c>APID</c>).
-    /// Returns <c>nil</c> when not present.</summary>
-    function Find(AMode, APID: Byte): TOBDPIDItem;
-    /// <summary>Convenience: every enabled PID byte for
-    /// <c>AMode</c>.</summary>
+
+    /// <summary>
+    ///   Finds the item with (<c>AMode</c>, <c>APID</c>).
+    /// </summary>
+    /// <param name="AMode">OBD mode byte.</param>
+    /// <param name="APID">PID byte.</param>
+    /// <returns>The matching item, or <c>nil</c> when not present.</returns>
+    function Find(AMode: Byte; APID: Byte): TOBDPIDItem;
+
+    /// <summary>
+    ///   Returns every enabled PID byte for <c>AMode</c>.
+    /// </summary>
+    /// <param name="AMode">OBD mode byte to filter on.</param>
+    /// <returns>PID bytes in collection order.</returns>
     function EnabledFor(AMode: Byte): TArray<Byte>;
   end;
 
@@ -116,7 +171,7 @@ begin
   inherited Create(AOwner, TOBDPIDItem);
 end;
 
-function TOBDPIDList.Add(AMode, APID: Byte; const AName: string;
+function TOBDPIDList.Add(AMode: Byte; APID: Byte; const AName: string;
   AEnabled: Boolean): TOBDPIDItem;
 begin
   Result := TOBDPIDItem(inherited Add);
@@ -126,7 +181,7 @@ begin
   Result.Enabled := AEnabled;
 end;
 
-function TOBDPIDList.Find(AMode, APID: Byte): TOBDPIDItem;
+function TOBDPIDList.Find(AMode: Byte; APID: Byte): TOBDPIDItem;
 var
   I: Integer;
   It: TOBDPIDItem;
@@ -142,7 +197,8 @@ end;
 
 function TOBDPIDList.EnabledFor(AMode: Byte): TArray<Byte>;
 var
-  I, N: Integer;
+  I: Integer;
+  N: Integer;
   It: TOBDPIDItem;
 begin
   N := 0;

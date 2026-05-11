@@ -43,14 +43,33 @@ uses
   OBD.Protocol;
 
 const
-  /// <summary>UDS WriteDataByIdentifier SID.</summary>
+  /// <summary>UDS WriteDataByIdentifier service identifier.</summary>
   UDS_SID_WriteDataByIdentifier = $2E;
 
 type
-  /// <summary>Fired after a successful write of <c>ADID</c>.</summary>
+  /// <summary>
+  ///   Fired after a successful write of <c>ADID</c>.
+  /// </summary>
+  /// <remarks>
+  ///   Always fires on the main thread, even when triggered from
+  ///   <see cref="TOBDUDSWriteDID.WriteAsync"/>.
+  /// </remarks>
   TOBDUDSWriteDIDEvent = procedure(Sender: TObject; ADID: Word) of object;
 
-  /// <summary>WriteDataByIdentifier component.</summary>
+  /// <summary>
+  ///   Single-purpose UDS WriteDataByIdentifier (SID 0x2E) component.
+  /// </summary>
+  /// <remarks>
+  ///   Drop the component on a form, assign <c>Protocol</c> to a
+  ///   connected <see cref="TOBDProtocol"/>, set
+  ///   <c>AutoExecute := True</c> once the host has consented, then
+  ///   call <see cref="Write"/> (sync) or <see cref="WriteAsync"/>
+  ///   (non-blocking).
+  ///
+  ///   The component validates the response: the ECU must echo the
+  ///   16-bit DID in the positive response; a missing or mismatched
+  ///   echo raises <c>EOBDProtocolErr</c>.
+  /// </remarks>
   TOBDUDSWriteDID = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
@@ -69,24 +88,71 @@ type
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
+    /// <summary>Constructs the component.</summary>
+    /// <param name="AOwner">Component owner (standard VCL pattern).</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Cancels in-flight async work and frees state.</summary>
     destructor Destroy; override;
 
-    /// <summary>Writes <c>AData</c> to <c>ADID</c>. Raises
-    /// <c>EOBDConfig</c> if <c>AutoExecute</c> is False; raises
-    /// <c>EOBDProtocolErr</c> on a negative response or DID-echo
-    /// mismatch.</summary>
+    /// <summary>
+    ///   Writes <c>AData</c> to <c>ADID</c> synchronously.
+    /// </summary>
+    /// <param name="ADID">16-bit Data Identifier per ISO 14229-1
+    /// §10.2.</param>
+    /// <param name="AData">Payload bytes to write. Must not be
+    /// empty.</param>
+    /// <remarks>
+    ///   Blocks the caller until the ECU response arrives or the
+    ///   protocol times out. From GUI code prefer
+    ///   <see cref="WriteAsync"/>.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned; or <c>AutoExecute</c> is
+    ///   <c>False</c>; or <c>AData</c> is empty.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   ECU returned a negative response, a truncated positive
+    ///   response, or a DID echo that does not match
+    ///   <c>ADID</c>.
+    /// </exception>
     procedure Write(ADID: Word; const AData: TBytes);
-    /// <summary>Non-blocking <see cref="Write"/>. Fires
-    /// <c>OnWrite</c> on success or <c>OnError</c> on failure on
-    /// the main thread.</summary>
+
+    /// <summary>
+    ///   Writes <c>AData</c> to <c>ADID</c> without blocking.
+    /// </summary>
+    /// <param name="ADID">16-bit Data Identifier.</param>
+    /// <param name="AData">Payload bytes (deep-copied for the
+    /// worker thread).</param>
+    /// <remarks>
+    ///   Spawns a worker thread; reports completion via
+    ///   <c>OnWrite</c> or failure via <c>OnError</c> on the main
+    ///   thread. Only one <c>WriteAsync</c> may be in flight at a
+    ///   time — overlapping calls raise <c>EOBDConfig</c> from
+    ///   the calling thread before the worker is started.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   Another async write is already in flight.
+    /// </exception>
     procedure WriteAsync(ADID: Word; const AData: TBytes);
   published
+    /// <summary>Protocol stack to write through. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
-    /// <summary>Safety gate. Default <c>False</c>.</summary>
+
+    /// <summary>
+    ///   Safety gate. Default <c>False</c>.
+    /// </summary>
+    /// <remarks>
+    ///   Every <c>Write</c> raises <c>EOBDConfig</c> while this is
+    ///   <c>False</c>. The host flips it to <c>True</c> once the
+    ///   operator has explicitly consented to the write.
+    /// </remarks>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
+
+    /// <summary>Fires on success. Main thread.</summary>
     property OnWrite: TOBDUDSWriteDIDEvent read FOnWrite write FOnWrite;
+
+    /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
@@ -106,10 +172,13 @@ end;
 
 procedure TOBDUDSWriteDID.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDUDSWriteDID.Notification(AComponent: TComponent;
@@ -127,14 +196,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDUDSWriteDID: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDUDSWriteDID.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDUDSWriteDID.DoWrite(ADID: Word; const AData: TBytes);
@@ -179,21 +253,23 @@ end;
 procedure TOBDUDSWriteDID.WriteAsync(ADID: Word; const AData: TBytes);
 var
   Self_: TOBDUDSWriteDID;
-  D: Word;
+  DIDValue: Word;
   Data: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; D := ADID;
+  Self_ := Self;
+  DIDValue := ADID;
   Data := Copy(AData, 0, Length(AData));
   TThread.CreateAnonymousThread(
     procedure
     begin
       try
         try
-          Self_.DoWrite(D, Data);
-          Self_.FireWrite(D);
+          Self_.DoWrite(DIDValue, Data);
+          Self_.FireWrite(DIDValue);
         except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
         end;
       finally
         Self_.ReleaseAsync;
@@ -203,25 +279,36 @@ end;
 
 procedure TOBDUDSWriteDID.FireWrite(ADID: Word);
 var
-  Self_: TOBDUDSWriteDID; D: Word;
+  Self_: TOBDUDSWriteDID;
+  DIDValue: Word;
 begin
-  if not Assigned(FOnWrite) then Exit;
-  Self_ := Self; D := ADID;
+  if not Assigned(FOnWrite) then
+    Exit;
+  Self_ := Self;
+  DIDValue := ADID;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnWrite(Self_, D)
+    FOnWrite(Self_, DIDValue)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_, D);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnWrite) then
+          Self_.FOnWrite(Self_, DIDValue);
+      end);
 end;
 
 procedure TOBDUDSWriteDID.FireError(ACode: TOBDErrorCode;
   const AMessage: string);
 var
-  Self_: TOBDUDSWriteDID; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDUDSWriteDID;
+  Code: TOBDErrorCode;
+  Msg: string;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     var Handled: Boolean;
@@ -229,8 +316,10 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
-      var Handled: Boolean;
+    TThread.Queue(nil,
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

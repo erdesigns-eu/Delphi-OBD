@@ -39,39 +39,85 @@ uses
   OBD.Service.VIN;
 
 type
-  /// <summary>Source-kind enum (informational; the actual source
-  /// reference is held in <see cref="TOBDDataSource.Source"/>).
+  /// <summary>
+  ///   Source-kind tag derived from the bound component's class.
   /// </summary>
+  /// <remarks>
+  ///   The actual source reference is held in
+  ///   <see cref="TOBDDataSource.Source"/>. Consumers that only
+  ///   need to dispatch on kind read this enum from the payload.
+  /// </remarks>
   TOBDDataSourceKind = (
+    /// <summary>No source bound.</summary>
     dsNone,
+    /// <summary>Source is a <c>TOBDLiveData</c>.</summary>
     dsLiveData,
+    /// <summary>Source is a <c>TOBDDTCs</c>.</summary>
     dsDTCs,
+    /// <summary>Source is a <c>TOBDFreezeFrame</c>.</summary>
     dsFreezeFrame,
+    /// <summary>Source is a <c>TOBDOnBoardMonitor</c>.</summary>
     dsOnBoardMonitor,
+    /// <summary>Source is a <c>TOBDVIN</c>.</summary>
     dsVIN
   );
 
-  /// <summary>Data-change notification payload — opaque carrier so
-  /// the bridge can re-fire any service component's events without
-  /// the source-kind leaking into consumers that don't care.</summary>
+  /// <summary>
+  ///   Data-change notification payload.
+  /// </summary>
+  /// <remarks>
+  ///   Opaque carrier so the bridge can re-fire any service
+  ///   component's events without the source-kind leaking into
+  ///   consumers that don't care. Most fields are optional;
+  ///   <c>Kind</c> tells the consumer which ones are populated.
+  /// </remarks>
   TOBDDataSourcePayload = record
-    Kind:    TOBDDataSourceKind;
-    /// <summary>Mode 01 PID byte (when <c>Kind = dsLiveData</c>).</summary>
-    PID:     Byte;
-    /// <summary>Decoded value (when <c>Kind = dsLiveData</c>).</summary>
-    Value:   TOBDValue;
-    /// <summary>Raw response bytes (any kind).</summary>
-    Raw:     TBytes;
-    /// <summary>Short human-readable description.</summary>
+    /// <summary>Source kind that produced this notification.</summary>
+    Kind: TOBDDataSourceKind;
+    /// <summary>Mode 0x01 PID byte (when <c>Kind = dsLiveData</c>),
+    /// Mode 0x06 MID byte (when <c>Kind = dsOnBoardMonitor</c>), or
+    /// freeze-frame index (when <c>Kind = dsFreezeFrame</c>). 0
+    /// otherwise.</summary>
+    PID: Byte;
+    /// <summary>Raw response bytes — any kind.</summary>
+    Raw: TBytes;
+    /// <summary>Short human-readable description for logging.</summary>
     Caption: string;
   end;
 
+  /// <summary>
+  ///   Data-change event. Main thread.
+  /// </summary>
   TOBDDataSourceEvent = procedure(Sender: TObject;
     const APayload: TOBDDataSourcePayload) of object;
+
+  /// <summary>
+  ///   State-change event. Main thread.
+  /// </summary>
+  /// <remarks>
+  ///   Fires when <c>Source</c> is assigned, cleared (by
+  ///   FreeNotification or explicit unset), or when
+  ///   <c>Active</c> toggles. <c>AActive</c> is <c>True</c> iff
+  ///   <c>Active</c> and a non-nil <c>Source</c> are both true.
+  /// </remarks>
   TOBDDataSourceStateEvent = procedure(Sender: TObject;
     AActive: Boolean) of object;
 
-  /// <summary>The bridge.</summary>
+  /// <summary>
+  ///   TDataSource-style bridge.
+  /// </summary>
+  /// <remarks>
+  ///   Drop the bridge on a form, point <c>Source</c> at a Phase-5
+  ///   service component, then wire <c>OnDataChange</c> on each
+  ///   consumer. Toggling <c>Active</c> unsubscribes / re-subscribes
+  ///   without losing the source reference. Re-assigning
+  ///   <c>Source</c> automatically migrates subscribers.
+  ///
+  ///   The bridge only knows the public event surface of the bound
+  ///   service component, so consumers that need more detail (e.g.
+  ///   the full decoded <c>TOBDPIDValue</c>) should still subscribe
+  ///   to that component directly.
+  /// </remarks>
   TOBDDataSource = class(TComponent)
   strict private
     FSource: TComponent;
@@ -85,40 +131,67 @@ type
     procedure Unwire;
     procedure FireData(const APayload: TOBDDataSourcePayload);
     procedure FireState;
-    // Adapters for each known source kind.
-    procedure HandleLiveRaw(Sender: TObject;
-      APID: Byte; const ARaw: TBytes);
-    procedure HandleDTCs(Sender: TObject;
-      AKind: TOBDDtcKind; const AEntries: TArray<TOBDDtcEntry>);
-    procedure HandleFreezeFrame(Sender: TObject;
-      AFrameIndex: Byte; const AValue: TOBDPIDValue);
-    procedure HandleMonitor(Sender: TObject;
-      AMID: Byte; const AResults: TArray<TOBDMonitorResult>);
-    procedure HandleVIN(Sender: TObject; const AResult: TOBDVINResult);
+    procedure HandleLiveRaw(Sender: TObject; APID: Byte;
+      const ARaw: TBytes);
+    procedure HandleDTCs(Sender: TObject; AKind: TOBDDtcKind;
+      const AEntries: TArray<TOBDDtcEntry>);
+    procedure HandleFreezeFrame(Sender: TObject; AFrameIndex: Byte;
+      const AValue: TOBDPIDValue);
+    procedure HandleMonitor(Sender: TObject; AMID: Byte;
+      const AResults: TArray<TOBDMonitorResult>);
+    procedure HandleVIN(Sender: TObject;
+      const AResult: TOBDVINResult);
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
+    /// <summary>Constructs the bridge with <c>Active = True</c>.</summary>
+    /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Unsubscribes from the current source and frees
+    /// state.</summary>
     destructor Destroy; override;
 
-    /// <summary>Manually push a data-change notification to every
-    /// listener. Useful for synthetic / mocked sources during tests.
+    /// <summary>
+    ///   Pushes a data-change notification manually.
     /// </summary>
+    /// <param name="APayload">Payload to forward to every wired
+    /// <c>OnDataChange</c> handler.</param>
+    /// <remarks>
+    ///   Useful for synthetic or mocked sources during tests.
+    /// </remarks>
     procedure Notify(const APayload: TOBDDataSourcePayload);
   published
-    /// <summary>One of TOBDLiveData / TOBDDTCs / TOBDFreezeFrame /
-    /// TOBDOnBoardMonitor / TOBDVIN. Assigning unsubscribes from
-    /// the previous source and subscribes to the new one when
-    /// <c>Active</c> is <c>True</c>.</summary>
-    property Source: TComponent read FSource write SetSource;
-    /// <summary>Read-only — derived from <c>Source</c>'s class.</summary>
-    property Kind: TOBDDataSourceKind read FKind;
-    /// <summary>Subscribe / unsubscribe gate. Default <c>True</c>.
+    /// <summary>
+    ///   Bound service component (or <c>nil</c>).
     /// </summary>
+    /// <remarks>
+    ///   Assigning unsubscribes from the previous source and
+    ///   subscribes to the new one when <c>Active = True</c>.
+    ///   <c>FreeNotification</c> is wired so the bridge clears
+    ///   itself when the source is destroyed.
+    /// </remarks>
+    property Source: TComponent read FSource write SetSource;
+
+    /// <summary>
+    ///   Read-only kind derived from <c>Source</c>'s class.
+    /// </summary>
+    property Kind: TOBDDataSourceKind read FKind;
+
+    /// <summary>
+    ///   Subscribe / unsubscribe gate. Default <c>True</c>.
+    /// </summary>
+    /// <remarks>
+    ///   Setting to <c>False</c> detaches every event handler from
+    ///   <c>Source</c>; setting back to <c>True</c> reattaches.
+    /// </remarks>
     property Active: Boolean read FActive write SetActive default True;
+
+    /// <summary>Fires on every source-driven update. Main thread.</summary>
     property OnDataChange: TOBDDataSourceEvent read FOnDataChange
       write FOnDataChange;
+
+    /// <summary>Fires on source / active changes. Main thread.</summary>
     property OnStateChange: TOBDDataSourceStateEvent read FOnStateChange
       write FOnStateChange;
   end;
@@ -139,26 +212,42 @@ end;
 
 procedure TOBDDataSource.SetSource(AValue: TComponent);
 begin
-  if FSource = AValue then Exit;
+  if FSource = AValue then
+    Exit;
   Unwire;
-  if FSource <> nil then FSource.RemoveFreeNotification(Self);
+  if FSource <> nil then
+    FSource.RemoveFreeNotification(Self);
+
   FSource := AValue;
-  if AValue is TOBDLiveData            then FKind := dsLiveData
-  else if AValue is TOBDDTCs           then FKind := dsDTCs
-  else if AValue is TOBDFreezeFrame    then FKind := dsFreezeFrame
-  else if AValue is TOBDOnBoardMonitor then FKind := dsOnBoardMonitor
-  else if AValue is TOBDVIN            then FKind := dsVIN
-  else                                      FKind := dsNone;
-  if FSource <> nil then FSource.FreeNotification(Self);
-  if FActive then Rewire;
+  if AValue is TOBDLiveData then
+    FKind := dsLiveData
+  else if AValue is TOBDDTCs then
+    FKind := dsDTCs
+  else if AValue is TOBDFreezeFrame then
+    FKind := dsFreezeFrame
+  else if AValue is TOBDOnBoardMonitor then
+    FKind := dsOnBoardMonitor
+  else if AValue is TOBDVIN then
+    FKind := dsVIN
+  else
+    FKind := dsNone;
+
+  if FSource <> nil then
+    FSource.FreeNotification(Self);
+  if FActive then
+    Rewire;
   FireState;
 end;
 
 procedure TOBDDataSource.SetActive(AValue: Boolean);
 begin
-  if FActive = AValue then Exit;
+  if FActive = AValue then
+    Exit;
   FActive := AValue;
-  if FActive then Rewire else Unwire;
+  if FActive then
+    Rewire
+  else
+    Unwire;
   FireState;
 end;
 
@@ -176,36 +265,28 @@ end;
 
 procedure TOBDDataSource.Rewire;
 begin
-  if FSource = nil then Exit;
+  if FSource = nil then
+    Exit;
   // TOBDLiveData uses a subscribe API rather than a single
   // OnValue event, so we can't blanket-attach to every PID — the
   // OnRaw event is the universal hook here, mirroring how the
   // service-mode component reports any inbound frame.
   if FSource is TOBDLiveData then
-  begin
-    TOBDLiveData(FSource).OnRaw := HandleLiveRaw;
-  end
+    TOBDLiveData(FSource).OnRaw := HandleLiveRaw
   else if FSource is TOBDDTCs then
-  begin
-    TOBDDTCs(FSource).OnDTCs := HandleDTCs;
-  end
+    TOBDDTCs(FSource).OnDTCs := HandleDTCs
   else if FSource is TOBDFreezeFrame then
-  begin
-    TOBDFreezeFrame(FSource).OnValue := HandleFreezeFrame;
-  end
+    TOBDFreezeFrame(FSource).OnValue := HandleFreezeFrame
   else if FSource is TOBDOnBoardMonitor then
-  begin
-    TOBDOnBoardMonitor(FSource).OnResults := HandleMonitor;
-  end
+    TOBDOnBoardMonitor(FSource).OnResults := HandleMonitor
   else if FSource is TOBDVIN then
-  begin
     TOBDVIN(FSource).OnVIN := HandleVIN;
-  end;
 end;
 
 procedure TOBDDataSource.Unwire;
 begin
-  if FSource = nil then Exit;
+  if FSource = nil then
+    Exit;
   if FSource is TOBDLiveData then
     TOBDLiveData(FSource).OnRaw := nil
   else if FSource is TOBDDTCs then
@@ -218,8 +299,8 @@ begin
     TOBDVIN(FSource).OnVIN := nil;
 end;
 
-procedure TOBDDataSource.HandleLiveRaw(Sender: TObject;
-  APID: Byte; const ARaw: TBytes);
+procedure TOBDDataSource.HandleLiveRaw(Sender: TObject; APID: Byte;
+  const ARaw: TBytes);
 var
   P: TOBDDataSourcePayload;
 begin
@@ -231,8 +312,8 @@ begin
   FireData(P);
 end;
 
-procedure TOBDDataSource.HandleDTCs(Sender: TObject;
-  AKind: TOBDDtcKind; const AEntries: TArray<TOBDDtcEntry>);
+procedure TOBDDataSource.HandleDTCs(Sender: TObject; AKind: TOBDDtcKind;
+  const AEntries: TArray<TOBDDtcEntry>);
 var
   P: TOBDDataSourcePayload;
 begin
@@ -254,8 +335,8 @@ begin
   FireData(P);
 end;
 
-procedure TOBDDataSource.HandleMonitor(Sender: TObject;
-  AMID: Byte; const AResults: TArray<TOBDMonitorResult>);
+procedure TOBDDataSource.HandleMonitor(Sender: TObject; AMID: Byte;
+  const AResults: TArray<TOBDMonitorResult>);
 var
   P: TOBDDataSourcePayload;
 begin
@@ -291,29 +372,39 @@ var
   Self_: TOBDDataSource;
   Snap: TOBDDataSourcePayload;
 begin
-  if not Assigned(FOnDataChange) then Exit;
+  if not Assigned(FOnDataChange) then
+    Exit;
   Self_ := Self;
   Snap := APayload;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDataChange(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnDataChange) then Self_.FOnDataChange(Self_, Snap);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnDataChange) then
+          Self_.FOnDataChange(Self_, Snap);
+      end);
 end;
 
 procedure TOBDDataSource.FireState;
 var
-  Self_: TOBDDataSource; Act: Boolean;
+  Self_: TOBDDataSource;
+  ActiveNow: Boolean;
 begin
-  if not Assigned(FOnStateChange) then Exit;
-  Self_ := Self; Act := FActive and (FSource <> nil);
+  if not Assigned(FOnStateChange) then
+    Exit;
+  Self_ := Self;
+  ActiveNow := FActive and (FSource <> nil);
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnStateChange(Self_, Act)
+    FOnStateChange(Self_, ActiveNow)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnStateChange) then Self_.FOnStateChange(Self_, Act);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnStateChange) then
+          Self_.FOnStateChange(Self_, ActiveNow);
+      end);
 end;
 
 end.

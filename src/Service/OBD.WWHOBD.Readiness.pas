@@ -42,41 +42,63 @@ uses
   OBD.WWHOBD;
 
 type
-  /// <summary>Per-monitor-group readiness entry.</summary>
+  /// <summary>
+  ///   Per-monitor-group readiness entry.
+  /// </summary>
   TOBDWWHGroupReadiness = record
-    GroupId:     Byte;
-    Supported:   Boolean;
-    Complete:    Boolean;
-    /// <summary>OBD-monitoring conditions encountered counter
-    /// numerator (count of times the group's enabling conditions
-    /// were met). 0xFFFF when not reported.</summary>
-    Numerator:   UInt16;
-    /// <summary>OBD-monitoring conditions encountered counter
-    /// denominator (count of times the group was eligible to run).
-    /// 0xFFFF when not reported.</summary>
+    /// <summary>ISO 27145-3 functional-group ID.</summary>
+    GroupId: Byte;
+    /// <summary>True when the ECU advertises the group as
+    /// implemented.</summary>
+    Supported: Boolean;
+    /// <summary>True when the monitor has completed at least one
+    /// full evaluation since the last DTC clear.</summary>
+    Complete: Boolean;
+    /// <summary>Conditions-encountered counter numerator. <c>0xFFFF</c>
+    /// when the ECU did not report a value for this group.</summary>
+    Numerator: UInt16;
+    /// <summary>Conditions-encountered counter denominator.
+    /// <c>0xFFFF</c> when the ECU did not report a value.</summary>
     Denominator: UInt16;
   end;
 
-  /// <summary>Readiness snapshot returned by a Read call.</summary>
+  /// <summary>
+  ///   Readiness snapshot returned by <see cref="TOBDWWHReadiness.Read"/>.
+  /// </summary>
   TOBDWWHReadinessSnapshot = record
-    /// <summary>The 16-bit major-group readiness summary.
-    /// Bit set in <c>Supported</c> ↔ group is implemented on
-    /// this ECU; bit set in <c>Complete</c> ↔ monitor has
-    /// completed.</summary>
+    /// <summary>16-bit "supported" major-group bitmap (bit set
+    /// means the group is implemented on this ECU).</summary>
     MajorGroupSupported: UInt16;
-    MajorGroupComplete:  UInt16;
-    /// <summary>Per-group detail (only populated when 0xF412 and
-    /// 0xF40C come back successfully).</summary>
+    /// <summary>16-bit "complete" major-group bitmap (bit set
+    /// means the monitor has completed since the last clear).</summary>
+    MajorGroupComplete: UInt16;
+    /// <summary>Per-group detail; populated only when the
+    /// optional DIDs (0xF412 / 0xF40C) were read successfully.</summary>
     Groups: TArray<TOBDWWHGroupReadiness>;
     /// <summary>True when at least the major-group summary was
     /// read successfully.</summary>
     Valid: Boolean;
   end;
 
+  /// <summary>Fires after a readiness snapshot. Main thread.</summary>
   TOBDWWHReadinessEvent = procedure(Sender: TObject;
     const ASnapshot: TOBDWWHReadinessSnapshot) of object;
 
-  /// <summary>WWH-OBD readiness component.</summary>
+  /// <summary>
+  ///   WWH-OBD readiness component.
+  /// </summary>
+  /// <remarks>
+  ///   Drop the component on a form and assign <c>Protocol</c> to a
+  ///   connected, UDS-capable <see cref="TOBDProtocol"/>. Call
+  ///   <see cref="Read"/> (sync) or <see cref="ReadAsync"/> (non-
+  ///   blocking) to obtain a structured snapshot.
+  ///
+  ///   The component degrades gracefully: if the major-group DID
+  ///   is rejected, <c>Read</c> returns a snapshot with
+  ///   <c>Valid = False</c>; if the per-group DIDs are rejected,
+  ///   <c>Groups</c> is empty but the major-group bitmaps remain
+  ///   populated.
+  /// </remarks>
   TOBDWWHReadiness = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
@@ -95,19 +117,43 @@ type
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
+    /// <summary>Constructs the component.</summary>
+    /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
-    /// <summary>Reads the WWH-OBD readiness snapshot. Returns a
-    /// <c>Valid = False</c> record when the ECU rejects 0xF411 —
-    /// some HD ECUs only expose readiness through alternative DIDs
-    /// the host may need to add via overlay.</summary>
+    /// <summary>
+    ///   Reads the WWH-OBD readiness snapshot.
+    /// </summary>
+    /// <returns>A snapshot with <c>Valid = True</c> when at least
+    /// DID 0xF411 was readable. Per-group detail is populated when
+    /// the optional DIDs (0xF412 / 0xF40C) succeed.</returns>
+    /// <remarks>Blocks. From GUI code prefer
+    /// <see cref="ReadAsync"/>.</remarks>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
     function Read: TOBDWWHReadinessSnapshot;
+
+    /// <summary>Non-blocking <see cref="Read"/>.</summary>
+    /// <remarks>
+    ///   Spawns a worker thread; reports completion via
+    ///   <c>OnSnapshot</c> or failure via <c>OnError</c> on the
+    ///   main thread. Only one async read may be in flight at a
+    ///   time.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   Another async read is already in flight.
+    /// </exception>
     procedure ReadAsync;
   published
+    /// <summary>Protocol stack to read through. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
+    /// <summary>Fires on snapshot completion. Main thread.</summary>
     property OnSnapshot: TOBDWWHReadinessEvent read FOnSnapshot
       write FOnSnapshot;
+    /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
@@ -127,10 +173,13 @@ end;
 
 procedure TOBDWWHReadiness.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDWWHReadiness.Notification(AComponent: TComponent;
@@ -148,14 +197,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDWWHReadiness: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDWWHReadiness.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDWWHReadiness.ReadDID(ADID: Word): TBytes;
@@ -180,8 +234,10 @@ end;
 
 function TOBDWWHReadiness.DoRead: TOBDWWHReadinessSnapshot;
 var
-  MajorBody, GroupBody, CondBody: TBytes;
-  I, Off: Integer;
+  MajorBody: TBytes;
+  GroupBody: TBytes;
+  CondBody: TBytes;
+  Off: Integer;
   GroupId: Byte;
   GroupMap: TDictionary<Byte, TOBDWWHGroupReadiness>;
   G: TOBDWWHGroupReadiness;
@@ -203,9 +259,9 @@ begin
   except
     on E: Exception do
     begin
-      // Major-group DID rejected by ECU. Some HD platforms expose
-      // readiness through OEM-overlay DIDs — caller can read those
-      // directly.
+      // Major-group DID rejected by the ECU. Some HD platforms
+      // expose readiness through OEM-overlay DIDs — caller can
+      // read those directly. Leave Valid = False and return.
       Result.Valid := False;
       Exit;
     end;
@@ -221,20 +277,20 @@ begin
       begin
         GroupId := GroupBody[Off];
         G := Default(TOBDWWHGroupReadiness);
-        G.GroupId   := GroupId;
+        G.GroupId := GroupId;
         G.Supported := (GroupBody[Off + 1] and $01) <> 0;
-        G.Complete  := (GroupBody[Off + 1] and $02) <> 0;
+        G.Complete := (GroupBody[Off + 1] and $02) <> 0;
         G.Numerator := $FFFF;
         G.Denominator := $FFFF;
         GroupMap.AddOrSetValue(GroupId, G);
         Inc(Off, 2);
       end;
     except
-      // 0xF412 is optional. Skip on rejection.
+      // 0xF412 is optional. Swallow rejection and continue.
     end;
 
     // 0xF40C — monitoring-conditions encountered ratios. Each
-    // entry is 5 bytes: <groupId> <numHi> <numLo> <denHi> <denLo>.
+    // record is 5 bytes: <groupId> <numHi> <numLo> <denHi> <denLo>.
     try
       CondBody := ReadDID(WWHOBD_DID_OBDMonCondCount);
       Off := 0;
@@ -255,7 +311,7 @@ begin
         Inc(Off, 5);
       end;
     except
-      // 0xF40C optional too.
+      // 0xF40C is optional too.
     end;
 
     Tmp := TList<TOBDWWHGroupReadiness>.Create;
@@ -278,7 +334,8 @@ begin
 end;
 
 procedure TOBDWWHReadiness.ReadAsync;
-var Self_: TOBDWWHReadiness;
+var
+  Self_: TOBDWWHReadiness;
 begin
   GuardSingleAsync;
   Self_ := Self;
@@ -286,9 +343,15 @@ begin
     procedure
     begin
       try
-        try Self_.Read
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
-      finally Self_.ReleaseAsync; end;
+        try
+          Self_.Read;
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
+      end;
     end).Start;
 end;
 
@@ -298,24 +361,33 @@ var
   Self_: TOBDWWHReadiness;
   Snap: TOBDWWHReadinessSnapshot;
 begin
-  if not Assigned(FOnSnapshot) then Exit;
+  if not Assigned(FOnSnapshot) then
+    Exit;
   Self_ := Self;
   Snap := ASnapshot;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnSnapshot(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnSnapshot) then Self_.FOnSnapshot(Self_, Snap);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnSnapshot) then
+          Self_.FOnSnapshot(Self_, Snap);
+      end);
 end;
 
 procedure TOBDWWHReadiness.FireError(ACode: TOBDErrorCode;
   const AMessage: string);
 var
-  Self_: TOBDWWHReadiness; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDWWHReadiness;
+  Code: TOBDErrorCode;
+  Msg: string;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     var Handled: Boolean;
@@ -323,8 +395,10 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
-      var Handled: Boolean;
+    TThread.Queue(nil,
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

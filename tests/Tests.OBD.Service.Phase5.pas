@@ -9,9 +9,16 @@
 //    - TOBDWWHOBD            (WWH-OBD diagnostic surface)
 //    - TOBDWWHReadiness      (WWH-OBD readiness surface)
 //
-//  Lifecycle + safety-gate coverage. The codec / protocol round
-//  trips for these components are covered by the Phase 4 / Phase 5
+//  Lifecycle + safety-gate + classification coverage. Codec / protocol
+//  round trips for these components are covered by the Phase 4 / Phase 5
 //  protocol fixtures.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-11  ERD  Initial fixture.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Service.Phase5;
@@ -32,6 +39,15 @@ uses
   OBD.WWHOBD.Readiness;
 
 type
+  /// <summary>
+  ///   DUnitX fixture for the Phase 5 close-out components.
+  /// </summary>
+  /// <remarks>
+  ///   Tests are grouped by component (ClearDTC → OxygenMonitor →
+  ///   PIDList → DataSource → WWHOBD → WWHReadiness). Each test
+  ///   constructs its component on the stack, exercises one
+  ///   behaviour, and frees the component in a <c>try…finally</c>.
+  /// </remarks>
   [TestFixture]
   TPhase5Tests = class
   public
@@ -46,8 +62,8 @@ type
     [Test] procedure PIDList_EnabledForFiltersDisabledAndOtherMode;
     [Test] procedure PIDList_DisplayName;
 
-    [Test] procedure DataSource_KindForLiveDataIsLiveData;
     [Test] procedure DataSource_KindForUnknownIsNone;
+    [Test] procedure DataSource_KindForAnonymousComponentIsNone;
     [Test] procedure DataSource_NotifyForwardsToHandler;
     [Test] procedure DataSource_ActiveToggleFiresStateChange;
 
@@ -66,37 +82,57 @@ implementation
 { ---- ClearDTC ------------------------------------------------------------- }
 
 procedure TPhase5Tests.ClearDTC_DefaultsAutoExecuteFalse;
-var C: TOBDClearDTC;
+var
+  C: TOBDClearDTC;
 begin
   C := TOBDClearDTC.Create(nil);
   try
     Assert.IsFalse(C.AutoExecute);
     Assert.AreEqual(Ord(cdOBDII), Ord(C.Dialect));
     Assert.AreEqual($FFFFFF, Integer(C.UDSGroup));
-  finally C.Free; end;
+  finally
+    C.Free;
+  end;
 end;
 
 procedure TPhase5Tests.ClearDTC_ClearWithoutProtocolRaises;
-var C: TOBDClearDTC;
+var
+  C: TOBDClearDTC;
 begin
   C := TOBDClearDTC.Create(nil);
   try
     C.AutoExecute := True;
-    Assert.WillRaise(procedure begin C.Clear end, EOBDConfig);
-  finally C.Free; end;
+    Assert.WillRaise(
+      procedure
+      begin
+        C.Clear;
+      end,
+      EOBDConfig);
+  finally
+    C.Free;
+  end;
 end;
 
 procedure TPhase5Tests.ClearDTC_ClearWithoutAutoExecuteRaises;
-var C: TOBDClearDTC;
+var
+  C: TOBDClearDTC;
 begin
   C := TOBDClearDTC.Create(nil);
   try
-    Assert.WillRaise(procedure begin C.Clear end, EOBDConfig);
-  finally C.Free; end;
+    Assert.WillRaise(
+      procedure
+      begin
+        C.Clear;
+      end,
+      EOBDConfig);
+  finally
+    C.Free;
+  end;
 end;
 
 procedure TPhase5Tests.ClearDTC_DialectAndGroupDefaults;
-var C: TOBDClearDTC;
+var
+  C: TOBDClearDTC;
 begin
   C := TOBDClearDTC.Create(nil);
   try
@@ -104,19 +140,34 @@ begin
     C.UDSGroup := $123456;
     Assert.AreEqual(Ord(cdUDS), Ord(C.Dialect));
     Assert.AreEqual($123456, Integer(C.UDSGroup));
-  finally C.Free; end;
+  finally
+    C.Free;
+  end;
 end;
 
 { ---- OxygenMonitor -------------------------------------------------------- }
 
 procedure TPhase5Tests.OxygenMonitor_ReadWithoutProtocolRaises;
-var C: TOBDOxygenMonitor;
+var
+  C: TOBDOxygenMonitor;
 begin
   C := TOBDOxygenMonitor.Create(nil);
   try
-    Assert.WillRaise(procedure begin C.Read($01, $01) end, EOBDConfig);
-    Assert.WillRaise(procedure begin C.ReadSupportedTIDs end, EOBDConfig);
-  finally C.Free; end;
+    Assert.WillRaise(
+      procedure
+      begin
+        C.Read($01, $01);
+      end,
+      EOBDConfig);
+    Assert.WillRaise(
+      procedure
+      begin
+        C.ReadSupportedTIDs;
+      end,
+      EOBDConfig);
+  finally
+    C.Free;
+  end;
 end;
 
 { ---- PIDList -------------------------------------------------------------- }
@@ -135,7 +186,9 @@ begin
     Assert.IsNotNull(It);
     Assert.AreEqual('Vehicle Speed', It.Name);
     Assert.IsNull(L.Find($01, $FF));
-  finally L.Free; end;
+  finally
+    L.Free;
+  end;
 end;
 
 procedure TPhase5Tests.PIDList_EnabledForFiltersDisabledAndOtherMode;
@@ -147,13 +200,15 @@ begin
   try
     L.Add($01, $0C);
     L.Add($01, $0D);
-    L.Add($01, $11, '', False);  // disabled
-    L.Add($22, $F1, '');         // wrong mode
+    L.Add($01, $11, '', False);           // disabled
+    L.Add($22, $F1, '');                  // wrong mode
     Bytes := L.EnabledFor($01);
     Assert.AreEqual(2, Length(Bytes));
     Assert.AreEqual($0C, Integer(Bytes[0]));
     Assert.AreEqual($0D, Integer(Bytes[1]));
-  finally L.Free; end;
+  finally
+    L.Free;
+  end;
 end;
 
 procedure TPhase5Tests.PIDList_DisplayName;
@@ -166,26 +221,12 @@ begin
     It := L.Add($01, $0C, 'Engine RPM');
     Assert.Contains(It.DisplayName, 'Engine RPM');
     Assert.Contains(It.DisplayName, '0c');
-  finally L.Free; end;
+  finally
+    L.Free;
+  end;
 end;
 
 { ---- DataSource ----------------------------------------------------------- }
-
-procedure TPhase5Tests.DataSource_KindForLiveDataIsLiveData;
-var
-  DS: TOBDDataSource;
-  Comp: TComponent;
-begin
-  DS := TOBDDataSource.Create(nil);
-  Comp := TComponent.Create(nil); // anonymous: bridge falls back to dsNone
-  try
-    DS.Source := Comp;
-    Assert.AreEqual(Ord(dsNone), Ord(DS.Kind));
-  finally
-    DS.Free;
-    Comp.Free;
-  end;
-end;
 
 procedure TPhase5Tests.DataSource_KindForUnknownIsNone;
 var
@@ -194,7 +235,25 @@ begin
   DS := TOBDDataSource.Create(nil);
   try
     Assert.AreEqual(Ord(dsNone), Ord(DS.Kind));
-  finally DS.Free; end;
+  finally
+    DS.Free;
+  end;
+end;
+
+procedure TPhase5Tests.DataSource_KindForAnonymousComponentIsNone;
+var
+  DS: TOBDDataSource;
+  Comp: TComponent;
+begin
+  DS := TOBDDataSource.Create(nil);
+  Comp := TComponent.Create(nil);
+  try
+    DS.Source := Comp;
+    Assert.AreEqual(Ord(dsNone), Ord(DS.Kind));
+  finally
+    DS.Free;
+    Comp.Free;
+  end;
 end;
 
 procedure TPhase5Tests.DataSource_NotifyForwardsToHandler;
@@ -216,7 +275,9 @@ begin
     P.PID := $0C;
     DS.Notify(P);
     Assert.AreEqual(1, Hit);
-  finally DS.Free; end;
+  finally
+    DS.Free;
+  end;
 end;
 
 procedure TPhase5Tests.DataSource_ActiveToggleFiresStateChange;
@@ -228,11 +289,16 @@ begin
   try
     StateHit := 0;
     DS.OnStateChange :=
-      procedure(Sender: TObject; AActive: Boolean) begin Inc(StateHit); end;
+      procedure(Sender: TObject; AActive: Boolean)
+      begin
+        Inc(StateHit);
+      end;
     DS.Active := False;
     DS.Active := True;
     Assert.AreEqual(2, StateHit);
-  finally DS.Free; end;
+  finally
+    DS.Free;
+  end;
 end;
 
 { ---- WWH-OBD severity classification ------------------------------------- }
@@ -251,38 +317,56 @@ end;
 
 procedure TPhase5Tests.WWHOBD_ClassifySeverityBothIsCheckBoth;
 begin
-  Assert.AreEqual(Ord(wcCheckBoth), Ord(TOBDWWHOBD.ClassifySeverity(
-    WWHOBD_SEV_CHECK_IMMEDIATELY or WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
+  Assert.AreEqual(
+    Ord(wcCheckBoth),
+    Ord(TOBDWWHOBD.ClassifySeverity(
+      WWHOBD_SEV_CHECK_IMMEDIATELY or WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
 end;
 
 procedure TPhase5Tests.WWHOBD_ClassifySeverityHaltIsCheckHalt;
 begin
-  Assert.AreEqual(Ord(wcCheckHalt), Ord(
-    TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
+  Assert.AreEqual(Ord(wcCheckHalt),
+    Ord(TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
 end;
 
 procedure TPhase5Tests.WWHOBD_ClassifySeverityMaintenanceOnly;
 begin
-  Assert.AreEqual(Ord(wcMaintenance), Ord(
-    TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_MAINTENANCE_ONLY)));
+  Assert.AreEqual(Ord(wcMaintenance),
+    Ord(TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_MAINTENANCE_ONLY)));
 end;
 
 procedure TPhase5Tests.WWHOBD_ReadBySeverityWithoutProtocolRaises;
-var W: TOBDWWHOBD;
+var
+  W: TOBDWWHOBD;
 begin
   W := TOBDWWHOBD.Create(nil);
   try
-    Assert.WillRaise(procedure begin W.ReadBySeverity end, EOBDConfig);
-  finally W.Free; end;
+    Assert.WillRaise(
+      procedure
+      begin
+        W.ReadBySeverity;
+      end,
+      EOBDConfig);
+  finally
+    W.Free;
+  end;
 end;
 
 procedure TPhase5Tests.WWHReadiness_ReadWithoutProtocolRaises;
-var R: TOBDWWHReadiness;
+var
+  R: TOBDWWHReadiness;
 begin
   R := TOBDWWHReadiness.Create(nil);
   try
-    Assert.WillRaise(procedure begin R.Read end, EOBDConfig);
-  finally R.Free; end;
+    Assert.WillRaise(
+      procedure
+      begin
+        R.Read;
+      end,
+      EOBDConfig);
+  finally
+    R.Free;
+  end;
 end;
 
 initialization

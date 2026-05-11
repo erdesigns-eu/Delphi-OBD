@@ -55,15 +55,19 @@ const
   /// <summary>UDS 0x19 sub-function 0x42 — report DTC by severity
   /// information.</summary>
   UDS_DTC_REPORT_BY_SEVERITY_MASK = $42;
+
   /// <summary>UDS 0x19 sub-function 0x55 — report WWH-OBD DTC by
   /// readiness-group ID.</summary>
-  UDS_DTC_REPORT_WWHOBD_BY_GROUP  = $55;
+  UDS_DTC_REPORT_WWHOBD_BY_GROUP = $55;
 
-  /// <summary>WWH-OBD DTC severity bits per ISO 14229-1
+  /// <summary>"Check at next halt" severity bit per ISO 14229-1
   /// §11.3.5.4.</summary>
   WWHOBD_SEV_CHECK_AT_NEXT_HALT = $20;
-  WWHOBD_SEV_CHECK_IMMEDIATELY  = $40;
-  WWHOBD_SEV_MAINTENANCE_ONLY   = $80;
+  /// <summary>"Check immediately" severity bit (Class A escalation).
+  /// </summary>
+  WWHOBD_SEV_CHECK_IMMEDIATELY = $40;
+  /// <summary>"Maintenance only" severity bit (no MIL).</summary>
+  WWHOBD_SEV_MAINTENANCE_ONLY = $80;
 
   /// <summary>UDS DID — distance travelled with MIL on (km).</summary>
   WWHOBD_DID_DistanceMILOn      = $F402;
@@ -73,13 +77,13 @@ const
   WWHOBD_DID_MajorGroupReady    = $F411;
   /// <summary>UDS DID — readiness-group-specific status.</summary>
   WWHOBD_DID_ReadinessGroupStat = $F412;
-  /// <summary>UDS DID — monitoring conditions encountered counter.
-  /// </summary>
+  /// <summary>UDS DID — monitoring conditions encountered
+  /// counter.</summary>
   WWHOBD_DID_OBDMonCondCount    = $F40C;
   /// <summary>UDS DID — DTC counter (class A by default; varies
   /// per OEM).</summary>
   WWHOBD_DID_DTCCounter         = $F418;
-  /// <summary>UDS DID — second DTC counter byte (e.g. B1
+  /// <summary>UDS DID — second DTC counter byte (e.g. Class B1
   /// pending).</summary>
   WWHOBD_DID_DTCCounter2        = $F419;
   /// <summary>UDS DID — VIN (ISO 27145-2 alias of the standard
@@ -87,45 +91,69 @@ const
   WWHOBD_DID_VIN                = $F190;
 
 type
-  /// <summary>WWH-OBD DTC severity class. Maps to the high three
-  /// bits of the severity byte returned by sub-function 0x42.
+  /// <summary>
+  ///   WWH-OBD DTC severity class.
   /// </summary>
+  /// <remarks>
+  ///   Maps the high three bits of the severity byte returned by
+  ///   sub-function 0x42 to a coarser human-readable label.
+  /// </remarks>
   TOBDWWHDtcClass = (
-    wcUnknown,    // severity byte = 0
-    wcMaintenance,// severity byte high bit 0x80 set, classes "no MIL"
-    wcCheckHalt,  // 0x20 — Class B
-    wcCheckNow,   // 0x40 — Class A (immediate MIL)
-    wcCheckBoth   // 0x20 | 0x40 — Class A escalation
+    /// <summary>Severity byte = 0 — class not reported.</summary>
+    wcUnknown,
+    /// <summary>"Maintenance only" bit set — no MIL impact.</summary>
+    wcMaintenance,
+    /// <summary>"Check at next halt" only — Class B.</summary>
+    wcCheckHalt,
+    /// <summary>"Check immediately" only — Class A.</summary>
+    wcCheckNow,
+    /// <summary>Both "check halt" and "check now" set — Class A
+    /// escalation.</summary>
+    wcCheckBoth
   );
 
-  /// <summary>One WWH-OBD DTC entry.</summary>
+  /// <summary>
+  ///   One WWH-OBD DTC entry.
+  /// </summary>
   TOBDWWHDtcEntry = record
-    /// <summary>5-character J2012-format DTC code (e.g. P0420).</summary>
-    Code:           string;
-    /// <summary>Severity byte verbatim (high nibble carries the
-    /// class bits, low nibble carries the failure class).</summary>
-    SeverityByte:   Byte;
-    /// <summary>UDS status mask for this DTC (testFailed bits).</summary>
-    StatusByte:     Byte;
-    /// <summary>Decoded class.</summary>
-    DtcClass:       TOBDWWHDtcClass;
-    /// <summary>Functional unit byte (ISO 14229-1 §11.3.5.4 — the
-    /// hi-byte that follows the severity byte).</summary>
+    /// <summary>5-character J2012 DTC code (e.g. P0420).</summary>
+    Code: string;
+    /// <summary>Severity byte verbatim.</summary>
+    SeverityByte: Byte;
+    /// <summary>UDS status mask (testFailed bits).</summary>
+    StatusByte: Byte;
+    /// <summary>Decoded severity class.</summary>
+    DtcClass: TOBDWWHDtcClass;
+    /// <summary>Functional-unit byte that follows the severity
+    /// byte in sub 0x42 records.</summary>
     FunctionalUnit: Byte;
-    /// <summary>Raw 3-byte DTC plus the severity / functional
-    /// pair / status byte exactly as returned by the ECU.</summary>
-    Raw:            TBytes;
+    /// <summary>Raw bytes for this record exactly as returned by
+    /// the ECU.</summary>
+    Raw: TBytes;
   end;
 
-  /// <summary>Fires after a successful DTC sweep.</summary>
+  /// <summary>Fires after a successful DTC sweep. Main thread.</summary>
   TOBDWWHDtcsEvent = procedure(Sender: TObject;
     const AEntries: TArray<TOBDWWHDtcEntry>) of object;
 
-  /// <summary>Fires when the MIL distance / time has been read.</summary>
+  /// <summary>Fires after MIL distance / time read. Main thread.</summary>
   TOBDWWHMILUsageEvent = procedure(Sender: TObject;
     ADistanceKm: UInt32; ATimeMinutes: UInt32) of object;
 
-  /// <summary>WWH-OBD HD component.</summary>
+  /// <summary>
+  ///   WWH-OBD heavy-duty diagnostic component.
+  /// </summary>
+  /// <remarks>
+  ///   Drop the component on a form and assign <c>Protocol</c> to a
+  ///   connected, UDS-capable <see cref="TOBDProtocol"/>.
+  ///   <see cref="ReadBySeverity"/> enumerates every DTC whose
+  ///   severity byte intersects <see cref="SeverityMask"/>;
+  ///   <see cref="ReadByGroup"/> walks a single ISO 27145-3
+  ///   readiness-group ID. The DID-driven helpers
+  ///   (<see cref="ReadMILUsage"/>, <see cref="ReadDTCCounters"/>,
+  ///   <see cref="ReadVIN"/>) wrap a single UDS ReadDataByIdentifier
+  ///   per call.
+  /// </remarks>
   TOBDWWHOBD = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
@@ -140,53 +168,149 @@ type
     function DoReadBySeverity(AMask: Byte): TArray<TOBDWWHDtcEntry>;
     function DoReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
     function DoReadDID(ADID: Word; AExpectedBytes: Integer): TBytes;
-    function DecodeBigEndian(const AData: TBytes;
-      AOffset, ABytes: Integer): UInt32;
+    function DecodeBigEndian(const AData: TBytes; AOffset: Integer;
+      ABytes: Integer): UInt32;
     procedure FireDTCs(const AEntries: TArray<TOBDWWHDtcEntry>);
-    procedure FireMILUsage(ADistance, ATime: UInt32);
+    procedure FireMILUsage(ADistance: UInt32; ATime: UInt32);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
+    /// <summary>Constructs the component.</summary>
+    /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
-    /// <summary>Reads every DTC whose severity byte intersects
-    /// <see cref="SeverityMask"/>. The mask is a bitwise OR of
-    /// <c>WWHOBD_SEV_*</c> values.</summary>
-    function ReadBySeverity: TArray<TOBDWWHDtcEntry>;
-    /// <summary>Reads every WWH-OBD DTC for readiness group
-    /// <c>AGroupId</c> (ISO 27145-3).</summary>
-    function ReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
-    /// <summary>Reads the MIL-on usage counters (km and minutes).
+    /// <summary>
+    ///   Reads every DTC whose severity byte intersects
+    ///   <see cref="SeverityMask"/>.
     /// </summary>
+    /// <returns>Decoded DTC entries in wire order.</returns>
+    /// <remarks>Blocks. From GUI code prefer
+    /// <see cref="ReadBySeverityAsync"/>.</remarks>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   ECU returned a negative response.
+    /// </exception>
+    function ReadBySeverity: TArray<TOBDWWHDtcEntry>;
+
+    /// <summary>
+    ///   Reads every WWH-OBD DTC for readiness group
+    ///   <c>AGroupId</c>.
+    /// </summary>
+    /// <param name="AGroupId">ISO 27145-3 functional-group ID.</param>
+    /// <returns>Decoded DTC entries.</returns>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   ECU returned a negative response.
+    /// </exception>
+    function ReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
+
+    /// <summary>
+    ///   Reads the MIL-on usage counters.
+    /// </summary>
+    /// <param name="ADistanceKm">Out: kilometres driven with MIL
+    /// illuminated (DID 0xF402).</param>
+    /// <param name="ATimeMinutes">Out: minutes run with MIL
+    /// illuminated (DID 0xF407).</param>
+    /// <remarks>Fires <c>OnMILUsage</c> on completion.</remarks>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   One of the DID reads returned a negative or short
+    ///   response.
+    /// </exception>
     procedure ReadMILUsage(out ADistanceKm: UInt32;
       out ATimeMinutes: UInt32);
-    /// <summary>Reads the Class A / Class B1 DTC counters
-    /// (DIDs 0xF418 / 0xF419).</summary>
-    procedure ReadDTCCounters(out AClassA, AClassB1: UInt32);
-    /// <summary>Reads the VIN as exposed via DID 0xF190.</summary>
-    function ReadVIN: string;
-    /// <summary>Maps a severity byte to a <see cref="TOBDWWHDtcClass"/>.
+
+    /// <summary>
+    ///   Reads the Class A and Class B1 DTC counters.
     /// </summary>
+    /// <param name="AClassA">Out: Class A counter (DID
+    /// 0xF418).</param>
+    /// <param name="AClassB1">Out: Class B1 counter (DID
+    /// 0xF419).</param>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   One of the DID reads returned a negative or short
+    ///   response.
+    /// </exception>
+    procedure ReadDTCCounters(out AClassA: UInt32;
+      out AClassB1: UInt32);
+
+    /// <summary>
+    ///   Reads the VIN via DID 0xF190.
+    /// </summary>
+    /// <returns>The VIN as ASCII; trimmed of trailing padding.</returns>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   ECU returned a negative or short response.
+    /// </exception>
+    function ReadVIN: string;
+
+    /// <summary>
+    ///   Maps a severity byte to a <see cref="TOBDWWHDtcClass"/>.
+    /// </summary>
+    /// <param name="AByte">Severity byte from a sub-0x42 entry.</param>
+    /// <returns>Coarse severity class.</returns>
     class function ClassifySeverity(AByte: Byte): TOBDWWHDtcClass; static;
 
+    /// <summary>Non-blocking <see cref="ReadBySeverity"/>.</summary>
+    /// <remarks>
+    ///   Spawns a worker thread; reports completion via
+    ///   <c>OnDTCs</c> or failure via <c>OnError</c> on the main
+    ///   thread. Only one async read may be in flight at a time.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   Another async read is already in flight.
+    /// </exception>
     procedure ReadBySeverityAsync;
+
+    /// <summary>Non-blocking <see cref="ReadByGroup"/>.</summary>
+    /// <param name="AGroupId">ISO 27145-3 functional-group ID.</param>
+    /// <exception cref="EOBDConfig">
+    ///   Another async read is already in flight.
+    /// </exception>
     procedure ReadByGroupAsync(AGroupId: Byte);
+
+    /// <summary>Non-blocking <see cref="ReadMILUsage"/>.</summary>
+    /// <exception cref="EOBDConfig">
+    ///   Another async read is already in flight.
+    /// </exception>
     procedure ReadMILUsageAsync;
   published
+    /// <summary>Protocol stack to read through. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
-    /// <summary>Default severity-mask filter applied to
-    /// <see cref="ReadBySeverity"/>. Default <c>0xE0</c> (every
-    /// MIL-eligible severity bit).</summary>
+
+    /// <summary>
+    ///   Default severity-mask filter applied to
+    ///   <see cref="ReadBySeverity"/>. Default <c>0xE0</c> (every
+    ///   MIL-eligible severity bit).
+    /// </summary>
     property SeverityMask: Byte read FSeverityMask write FSeverityMask
       default WWHOBD_SEV_MAINTENANCE_ONLY or WWHOBD_SEV_CHECK_AT_NEXT_HALT
             or WWHOBD_SEV_CHECK_IMMEDIATELY;
+
+    /// <summary>Fires on DTC-sweep completion. Main thread.</summary>
     property OnDTCs: TOBDWWHDtcsEvent read FOnDTCs write FOnDTCs;
+
+    /// <summary>Fires after a MIL-usage read. Main thread.</summary>
     property OnMILUsage: TOBDWWHMILUsageEvent read FOnMILUsage
       write FOnMILUsage;
+
+    /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
@@ -209,10 +333,13 @@ end;
 
 procedure TOBDWWHOBD.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDWWHOBD.Notification(AComponent: TComponent;
@@ -230,14 +357,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDWWHOBD: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDWWHOBD.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 class function TOBDWWHOBD.ClassifySeverity(AByte: Byte): TOBDWWHDtcClass;
@@ -264,7 +396,7 @@ begin
 end;
 
 function TOBDWWHOBD.DecodeBigEndian(const AData: TBytes;
-  AOffset, ABytes: Integer): UInt32;
+  AOffset: Integer; ABytes: Integer): UInt32;
 var
   I: Integer;
 begin
@@ -273,9 +405,9 @@ begin
     Result := (Result shl 8) or AData[AOffset + I];
 end;
 
-function DecodeWWHJ2012(AHi, ALo: Byte): string;
+function DecodeWWHJ2012(AHi: Byte; ALo: Byte): string;
 const
-  Prefix: array[0..3] of Char = ('P','C','B','U');
+  Prefix: array[0..3] of Char = ('P', 'C', 'B', 'U');
 var
   PrefixIdx: Integer;
 begin
@@ -305,13 +437,13 @@ begin
     raise EOBDProtocolErr.CreateFmt(
       'ReadDTCBySeverity negative: %s', [Resp.NRCText]);
 
-  // Response body per ISO 14229-1 §11.3.5.4:
+  // Response per ISO 14229-1 §11.3.5.4:
   //   <subFunc> <DTCStatusAvailMask> [ <severityByte>
   //                                    <functionalUnit>
   //                                    <DTC hi> <DTC mid> <DTC lo>
   //                                    <statusOfDTC> ]*
-  // We skip the subFunc + status-avail-mask preamble. Each record
-  // is exactly 6 bytes.
+  // Skip the subFunc + status-avail-mask preamble (2 bytes); each
+  // record is exactly 6 bytes long.
   Acc := TList<TOBDWWHDtcEntry>.Create;
   try
     Off := 2;
@@ -355,7 +487,7 @@ begin
   //   <subFunc> <functionalGroupId> <severityAvailMask>
   //   <statusAvailMask> [ <DTC hi mid lo> <statusOfDTC>
   //                       <severityByte> ]*
-  // Preamble = 4 bytes. Each record = 5 bytes.
+  // Preamble = 4 bytes; each record is 5 bytes.
   Acc := TList<TOBDWWHDtcEntry>.Create;
   try
     Off := 4;
@@ -363,7 +495,7 @@ begin
     begin
       Entry := Default(TOBDWWHDtcEntry);
       Entry.Code := DecodeWWHJ2012(Resp.Data[Off + 0], Resp.Data[Off + 1]);
-      Entry.StatusByte   := Resp.Data[Off + 3];
+      Entry.StatusByte := Resp.Data[Off + 3];
       Entry.SeverityByte := Resp.Data[Off + 4];
       Entry.FunctionalUnit := AGroupId;
       Entry.DtcClass := ClassifySeverity(Entry.SeverityByte);
@@ -392,7 +524,7 @@ begin
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
       'ReadDID 0x%.4x negative: %s', [ADID, Resp.NRCText]);
-  // Response: <DID-hi> <DID-lo> <data...>
+  // Response is <DID-hi> <DID-lo> <data...>.
   if Length(Resp.Data) < 2 + AExpectedBytes then
     raise EOBDProtocolErr.CreateFmt(
       'ReadDID 0x%.4x: short response (%d, wanted >= %d)',
@@ -426,7 +558,8 @@ begin
   FireMILUsage(ADistanceKm, ATimeMinutes);
 end;
 
-procedure TOBDWWHOBD.ReadDTCCounters(out AClassA, AClassB1: UInt32);
+procedure TOBDWWHOBD.ReadDTCCounters(out AClassA: UInt32;
+  out AClassB1: UInt32);
 var
   Body: TBytes;
 begin
@@ -444,7 +577,7 @@ var
   I: Integer;
 begin
   Body := DoReadDID(WWHOBD_DID_VIN, 17);
-  // ISO 27145-2: ASCII string padded to 17 chars.
+  // ISO 27145-2: ASCII padded to 17 chars.
   SetLength(Result, Length(Body));
   for I := 0 to High(Body) do
     Result[I + 1] := Char(Body[I]);
@@ -452,7 +585,8 @@ begin
 end;
 
 procedure TOBDWWHOBD.ReadBySeverityAsync;
-var Self_: TOBDWWHOBD;
+var
+  Self_: TOBDWWHOBD;
 begin
   GuardSingleAsync;
   Self_ := Self;
@@ -460,40 +594,64 @@ begin
     procedure
     begin
       try
-        try Self_.ReadBySeverity
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
-      finally Self_.ReleaseAsync; end;
+        try
+          Self_.ReadBySeverity;
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
+      end;
     end).Start;
 end;
 
 procedure TOBDWWHOBD.ReadByGroupAsync(AGroupId: Byte);
-var Self_: TOBDWWHOBD; G: Byte;
+var
+  Self_: TOBDWWHOBD;
+  GID: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self; G := AGroupId;
+  Self_ := Self;
+  GID := AGroupId;
   TThread.CreateAnonymousThread(
     procedure
     begin
       try
-        try Self_.ReadByGroup(G)
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
-      finally Self_.ReleaseAsync; end;
+        try
+          Self_.ReadByGroup(GID);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
+      end;
     end).Start;
 end;
 
 procedure TOBDWWHOBD.ReadMILUsageAsync;
-var Self_: TOBDWWHOBD;
+var
+  Self_: TOBDWWHOBD;
 begin
   GuardSingleAsync;
   Self_ := Self;
   TThread.CreateAnonymousThread(
     procedure
-    var D, T: UInt32;
+    var
+      Distance: UInt32;
+      Time: UInt32;
     begin
       try
-        try Self_.ReadMILUsage(D, T)
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
-      finally Self_.ReleaseAsync; end;
+        try
+          Self_.ReadMILUsage(Distance, Time);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
+      finally
+        Self_.ReleaseAsync;
+      end;
     end).Start;
 end;
 
@@ -502,38 +660,55 @@ var
   Self_: TOBDWWHOBD;
   Snap: TArray<TOBDWWHDtcEntry>;
 begin
-  if not Assigned(FOnDTCs) then Exit;
+  if not Assigned(FOnDTCs) then
+    Exit;
   Self_ := Self;
   Snap := Copy(AEntries, 0, Length(AEntries));
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDTCs(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnDTCs) then Self_.FOnDTCs(Self_, Snap);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnDTCs) then
+          Self_.FOnDTCs(Self_, Snap);
+      end);
 end;
 
-procedure TOBDWWHOBD.FireMILUsage(ADistance, ATime: UInt32);
+procedure TOBDWWHOBD.FireMILUsage(ADistance: UInt32; ATime: UInt32);
 var
-  Self_: TOBDWWHOBD; D, T: UInt32;
+  Self_: TOBDWWHOBD;
+  Distance: UInt32;
+  Time: UInt32;
 begin
-  if not Assigned(FOnMILUsage) then Exit;
-  Self_ := Self; D := ADistance; T := ATime;
+  if not Assigned(FOnMILUsage) then
+    Exit;
+  Self_ := Self;
+  Distance := ADistance;
+  Time := ATime;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-    FOnMILUsage(Self_, D, T)
+    FOnMILUsage(Self_, Distance, Time)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnMILUsage) then Self_.FOnMILUsage(Self_, D, T);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnMILUsage) then
+          Self_.FOnMILUsage(Self_, Distance, Time);
+      end);
 end;
 
 procedure TOBDWWHOBD.FireError(ACode: TOBDErrorCode;
   const AMessage: string);
 var
-  Self_: TOBDWWHOBD; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDWWHOBD;
+  Code: TOBDErrorCode;
+  Msg: string;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     var Handled: Boolean;
@@ -541,8 +716,10 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
-      var Handled: Boolean;
+    TThread.Queue(nil,
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

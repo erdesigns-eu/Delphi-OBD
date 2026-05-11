@@ -7,7 +7,8 @@
 //  method) so a host can drop a single-purpose clear button on a
 //  form without instantiating the full DTC-reader surface.
 //
-//  Both paths covered:
+//  Both paths are covered:
+//
 //    Mode 0x04 (OBD-II)           : request 0x04 with no data
 //    Service 0x14 (UDS / KWP2000) : request 0x14 with a 3-byte
 //                                   DTC group (0xFFFFFF = all
@@ -43,11 +44,11 @@ uses
 
 const
   /// <summary>OBD-II Mode 0x04 — ClearDiagnosticInformation.</summary>
-  OBD_MODE_CLEAR_DTC      = $04;
+  OBD_MODE_CLEAR_DTC = $04;
   /// <summary>UDS Service 0x14 — ClearDiagnosticInformation.</summary>
-  UDS_SID_CLEAR_DTC       = $14;
-  /// <summary>UDS 0x14 group code "all groups".</summary>
-  UDS_DTC_GROUP_ALL       = $FFFFFF;
+  UDS_SID_CLEAR_DTC = $14;
+  /// <summary>UDS 0x14 "all groups" group code.</summary>
+  UDS_DTC_GROUP_ALL = $FFFFFF;
 
 type
   /// <summary>Which clear path to use.</summary>
@@ -58,10 +59,26 @@ type
     cdUDS
   );
 
-  /// <summary>Fires after a successful clear.</summary>
+  /// <summary>
+  ///   Fires after a successful clear. Main thread.
+  /// </summary>
   TOBDClearDTCEvent = procedure(Sender: TObject) of object;
 
-  /// <summary>ClearDTC component.</summary>
+  /// <summary>
+  ///   Mode 0x04 / UDS 0x14 ClearDiagnosticInformation component.
+  /// </summary>
+  /// <remarks>
+  ///   Drop the component on a form, assign <c>Protocol</c> to a
+  ///   connected <see cref="TOBDProtocol"/>, set
+  ///   <c>AutoExecute := True</c> once the host has explicitly
+  ///   consented, then call <see cref="Clear"/> (sync) or
+  ///   <see cref="ClearAsync"/> (non-blocking).
+  ///
+  ///   <c>Dialect</c> picks the wire path. <c>cdOBDII</c> is the
+  ///   universal fallback for any vehicle. <c>cdUDS</c> targets
+  ///   the broader UDS service and accepts a 24-bit
+  ///   <c>UDSGroup</c> selector.
+  /// </remarks>
   TOBDClearDTC = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
@@ -82,30 +99,75 @@ type
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
+    /// <summary>Constructs the component.</summary>
+    /// <param name="AOwner">Component owner (standard VCL pattern).</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Frees state and cancels in-flight async work.</summary>
     destructor Destroy; override;
 
-    /// <summary>Clears DTCs synchronously. Raises <c>EOBDConfig</c>
-    /// when <c>AutoExecute</c> is <c>False</c> or
-    /// <c>EOBDProtocolErr</c> on a negative response.</summary>
+    /// <summary>
+    ///   Clears DTCs synchronously.
+    /// </summary>
+    /// <remarks>
+    ///   Blocks the caller until the ECU response arrives or the
+    ///   protocol times out. From GUI code prefer
+    ///   <see cref="ClearAsync"/>.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
+    ///   <c>False</c>, or <c>Dialect</c> is out of range.
+    /// </exception>
+    /// <exception cref="EOBDProtocolErr">
+    ///   ECU returned a negative response.
+    /// </exception>
     procedure Clear;
-    /// <summary>Non-blocking <see cref="Clear"/>. Fires
-    /// <c>OnCleared</c> on success or <c>OnError</c> on failure
-    /// on the main thread.</summary>
+
+    /// <summary>
+    ///   Clears DTCs without blocking.
+    /// </summary>
+    /// <remarks>
+    ///   Spawns a worker thread; reports completion via
+    ///   <c>OnCleared</c> or failure via <c>OnError</c> on the
+    ///   main thread. Only one <c>ClearAsync</c> may be in flight
+    ///   at a time.
+    /// </remarks>
+    /// <exception cref="EOBDConfig">
+    ///   Another async clear is already in flight.
+    /// </exception>
     procedure ClearAsync;
   published
+    /// <summary>Protocol stack to clear through. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
-    /// <summary>Safety gate. Default <c>False</c>.</summary>
+
+    /// <summary>
+    ///   Safety gate. Default <c>False</c>.
+    /// </summary>
+    /// <remarks>
+    ///   Every <c>Clear</c> raises <c>EOBDConfig</c> while this is
+    ///   <c>False</c>. The host flips it to <c>True</c> once the
+    ///   operator has explicitly consented to the clear.
+    /// </remarks>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
-    /// <summary>Which clear path. Default <c>cdOBDII</c>.</summary>
+
+    /// <summary>
+    ///   Which clear-path dialect. Default <c>cdOBDII</c>.
+    /// </summary>
     property Dialect: TOBDClearDTCDialect read FDialect write FDialect
       default cdOBDII;
-    /// <summary>UDS group selector (24-bit) for <c>cdUDS</c>.
-    /// Default <c>0xFFFFFF</c> (all groups).</summary>
+
+    /// <summary>
+    ///   24-bit group selector for <c>cdUDS</c>. Default
+    ///   <c>0xFFFFFF</c> (all groups). Ignored when
+    ///   <c>Dialect = cdOBDII</c>.
+    /// </summary>
     property UDSGroup: Cardinal read FUDSGroup write FUDSGroup
       default UDS_DTC_GROUP_ALL;
+
+    /// <summary>Fires on success. Main thread.</summary>
     property OnCleared: TOBDClearDTCEvent read FOnCleared write FOnCleared;
+
+    /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
@@ -127,10 +189,13 @@ end;
 
 procedure TOBDClearDTC.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDClearDTC.Notification(AComponent: TComponent;
@@ -148,14 +213,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDClearDTC: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDClearDTC.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDClearDTC.DoClear;
@@ -172,19 +242,19 @@ begin
 
   case FDialect of
     cdOBDII:
-    begin
-      SID := OBD_MODE_CLEAR_DTC;
-      Body := nil;
-    end;
+      begin
+        SID := OBD_MODE_CLEAR_DTC;
+        Body := nil;
+      end;
     cdUDS:
-    begin
-      SID := UDS_SID_CLEAR_DTC;
-      // 3-byte big-endian DTC group.
-      SetLength(Body, 3);
-      Body[0] := Byte((FUDSGroup shr 16) and $FF);
-      Body[1] := Byte((FUDSGroup shr  8) and $FF);
-      Body[2] := Byte( FUDSGroup         and $FF);
-    end;
+      begin
+        SID := UDS_SID_CLEAR_DTC;
+        // 3-byte big-endian DTC group selector.
+        SetLength(Body, 3);
+        Body[0] := Byte((FUDSGroup shr 16) and $FF);
+        Body[1] := Byte((FUDSGroup shr  8) and $FF);
+        Body[2] := Byte( FUDSGroup         and $FF);
+      end;
   else
     raise EOBDConfig.Create('TOBDClearDTC: unknown dialect');
   end;
@@ -215,7 +285,8 @@ begin
           Self_.DoClear;
           Self_.FireCleared;
         except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
         end;
       finally
         Self_.ReleaseAsync;
@@ -227,23 +298,32 @@ procedure TOBDClearDTC.FireCleared;
 var
   Self_: TOBDClearDTC;
 begin
-  if not Assigned(FOnCleared) then Exit;
+  if not Assigned(FOnCleared) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnCleared(Self_)
   else
-    TThread.Queue(nil, procedure begin
-      if Assigned(Self_.FOnCleared) then Self_.FOnCleared(Self_);
-    end);
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(Self_.FOnCleared) then
+          Self_.FOnCleared(Self_);
+      end);
 end;
 
 procedure TOBDClearDTC.FireError(ACode: TOBDErrorCode;
   const AMessage: string);
 var
-  Self_: TOBDClearDTC; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDClearDTC;
+  Code: TOBDErrorCode;
+  Msg: string;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     var Handled: Boolean;
@@ -251,8 +331,10 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
-      var Handled: Boolean;
+    TThread.Queue(nil,
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
