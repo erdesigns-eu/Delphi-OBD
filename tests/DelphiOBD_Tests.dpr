@@ -265,7 +265,7 @@ uses
   Tests.OBD.Protocol.Integration in 'Tests.OBD.Protocol.Integration.pas',
   Tests.OBD.Service in 'Tests.OBD.Service.pas',
   Tests.OBD.Service.ComponentLifecycle in 'Tests.OBD.Service.ComponentLifecycle.pas',
-  Tests.OBD.Service.Phase5 in 'Tests.OBD.Service.Phase5.pas',
+  Tests.OBD.Service.NewComponents in 'Tests.OBD.Service.NewComponents.pas',
   Tests.OBD.Diagnostics.UDS in 'Tests.OBD.Diagnostics.UDS.pas',
   Tests.OBD.Diagnostics.KWP in 'Tests.OBD.Diagnostics.KWP.pas',
   Tests.OBD.Diagnostics.J1939 in 'Tests.OBD.Diagnostics.J1939.pas',

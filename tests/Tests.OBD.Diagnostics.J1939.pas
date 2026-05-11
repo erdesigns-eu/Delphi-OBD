@@ -32,7 +32,7 @@ type
   ///   DUnitX fixture for the J1939 components.
   /// </summary>
   [TestFixture]
-  TPhase6J1939Tests = class
+  TJ1939DiagnosticsTests = class
   public
     [Test] procedure J1939_DefaultsSourceIsNull;
     [Test] procedure J1939_SetNAMECopiesAndPads;
@@ -53,7 +53,7 @@ implementation
 
 { ---- TOBDJ1939 ---------------------------------------------------------- }
 
-procedure TPhase6J1939Tests.J1939_DefaultsSourceIsNull;
+procedure TJ1939DiagnosticsTests.J1939_DefaultsSourceIsNull;
 var
   J: TOBDJ1939;
 begin
@@ -67,7 +67,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_SetNAMECopiesAndPads;
+procedure TJ1939DiagnosticsTests.J1939_SetNAMECopiesAndPads;
 var
   J: TOBDJ1939;
 begin
@@ -84,7 +84,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_NAMEIndexOutOfRangeRaises;
+procedure TJ1939DiagnosticsTests.J1939_NAMEIndexOutOfRangeRaises;
 var
   J: TOBDJ1939;
 begin
@@ -104,7 +104,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_BuildClaimedPayloadIsNAME;
+procedure TJ1939DiagnosticsTests.J1939_BuildClaimedPayloadIsNAME;
 var
   J: TOBDJ1939;
   Body: TBytes;
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_BuildRequestPayloadIsLE3Bytes;
+procedure TJ1939DiagnosticsTests.J1939_BuildRequestPayloadIsLE3Bytes;
 var
   J: TOBDJ1939;
   Body: TBytes;
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_EncodeIdMatchesCodec;
+procedure TJ1939DiagnosticsTests.J1939_EncodeIdMatchesCodec;
 var
   J: TOBDJ1939;
   IdViaComponent: Cardinal;
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.J1939_DispatchInboundFiresOnFrameForNonTP;
+procedure TJ1939DiagnosticsTests.J1939_DispatchInboundFiresOnFrameForNonTP;
 var
   J: TOBDJ1939;
   Hit: Integer;
@@ -188,7 +188,7 @@ end;
 
 { ---- TOBDJ1939DM -------------------------------------------------------- }
 
-procedure TPhase6J1939Tests.DM_DecodeEntrySPNAndFMI;
+procedure TJ1939DiagnosticsTests.DM_DecodeEntrySPNAndFMI;
 var
   Buf: TBytes;
   E: TOBDJ1939DtcEntry;
@@ -204,7 +204,7 @@ begin
   Assert.AreEqual(3, Integer(E.FMI));
 end;
 
-procedure TPhase6J1939Tests.DM_DecodeEntryCMAndOC;
+procedure TJ1939DiagnosticsTests.DM_DecodeEntryCMAndOC;
 var
   Buf: TBytes;
   E: TOBDJ1939DtcEntry;
@@ -216,7 +216,7 @@ begin
   Assert.AreEqual(42, Integer(E.OC));
 end;
 
-procedure TPhase6J1939Tests.DM_DispatchDM1FiresStructured;
+procedure TJ1939DiagnosticsTests.DM_DispatchDM1FiresStructured;
 var
   DM: TOBDJ1939DM;
   Hit: Integer;
@@ -252,7 +252,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.DM_DispatchDM3FiresRaw;
+procedure TJ1939DiagnosticsTests.DM_DispatchDM3FiresRaw;
 var
   DM: TOBDJ1939DM;
   Hit: Integer;
@@ -272,7 +272,7 @@ begin
   end;
 end;
 
-procedure TPhase6J1939Tests.DM_DM1AllZeroDtcSkipped;
+procedure TJ1939DiagnosticsTests.DM_DM1AllZeroDtcSkipped;
 var
   DM: TOBDJ1939DM;
   EntryCount: Integer;
@@ -298,6 +298,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TPhase6J1939Tests);
+  TDUnitX.RegisterTestFixture(TJ1939DiagnosticsTests);
 
 end.

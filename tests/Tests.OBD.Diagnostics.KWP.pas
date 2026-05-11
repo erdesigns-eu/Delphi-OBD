@@ -42,7 +42,7 @@ type
   ///   DUnitX fixture for the KWP-diagnostic components.
   /// </summary>
   [TestFixture]
-  TPhase6KWPTests = class
+  TKWPDiagnosticsTests = class
   public
     [Test] procedure KWP_DefaultsCurrentSessionIsDefault;
     [Test] procedure KWP_StartSessionWithoutProtocolRaises;
@@ -71,7 +71,7 @@ implementation
 
 { ---- TOBDKWP ------------------------------------------------------------- }
 
-procedure TPhase6KWPTests.KWP_DefaultsCurrentSessionIsDefault;
+procedure TKWPDiagnosticsTests.KWP_DefaultsCurrentSessionIsDefault;
 var
   H: TOBDKWP;
 begin
@@ -85,7 +85,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWP_StartSessionWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWP_StartSessionWithoutProtocolRaises;
 var
   H: TOBDKWP;
 begin
@@ -102,7 +102,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWP_TesterPresentWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWP_TesterPresentWithoutProtocolRaises;
 var
   H: TOBDKWP;
 begin
@@ -121,7 +121,7 @@ end;
 
 { ---- TOBDKWPReadID ------------------------------------------------------ }
 
-procedure TPhase6KWPTests.KWPReadID_ReadECUIDWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPReadID_ReadECUIDWithoutProtocolRaises;
 var
   R: TOBDKWPReadID;
 begin
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPReadID_ReadByLocalIDWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPReadID_ReadByLocalIDWithoutProtocolRaises;
 var
   R: TOBDKWPReadID;
 begin
@@ -155,7 +155,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPReadID_ReadByCommonIDWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPReadID_ReadByCommonIDWithoutProtocolRaises;
 var
   R: TOBDKWPReadID;
 begin
@@ -174,7 +174,7 @@ end;
 
 { ---- TOBDKWPReadDTC ----------------------------------------------------- }
 
-procedure TPhase6KWPTests.KWPReadDTC_WithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPReadDTC_WithoutProtocolRaises;
 var
   R: TOBDKWPReadDTC;
 begin
@@ -191,7 +191,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPReadDTC_DecodeJ2012AllPrefixes;
+procedure TKWPDiagnosticsTests.KWPReadDTC_DecodeJ2012AllPrefixes;
 begin
   Assert.AreEqual('P0143', TOBDKWPReadDTC.DecodeJ2012($01, $43));
   Assert.AreEqual('C0220', TOBDKWPReadDTC.DecodeJ2012($42, $20));
@@ -201,7 +201,7 @@ end;
 
 { ---- TOBDKWPIOControl --------------------------------------------------- }
 
-procedure TPhase6KWPTests.KWPIOControl_DefaultsAutoExecuteFalse;
+procedure TKWPDiagnosticsTests.KWPIOControl_DefaultsAutoExecuteFalse;
 var
   C: TOBDKWPIOControl;
 begin
@@ -213,7 +213,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPIOControl_WithoutAutoExecuteRaises;
+procedure TKWPDiagnosticsTests.KWPIOControl_WithoutAutoExecuteRaises;
 var
   C: TOBDKWPIOControl;
 begin
@@ -230,7 +230,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPIOControl_WithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPIOControl_WithoutProtocolRaises;
 var
   C: TOBDKWPIOControl;
 begin
@@ -250,7 +250,7 @@ end;
 
 { ---- TOBDKWPRoutine ----------------------------------------------------- }
 
-procedure TPhase6KWPTests.KWPRoutine_DefaultsAutoExecuteFalse;
+procedure TKWPDiagnosticsTests.KWPRoutine_DefaultsAutoExecuteFalse;
 var
   R: TOBDKWPRoutine;
 begin
@@ -262,7 +262,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPRoutine_StartWithoutAutoExecuteRaises;
+procedure TKWPDiagnosticsTests.KWPRoutine_StartWithoutAutoExecuteRaises;
 var
   R: TOBDKWPRoutine;
 begin
@@ -279,7 +279,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPRoutine_StopWithoutAutoExecuteRaises;
+procedure TKWPDiagnosticsTests.KWPRoutine_StopWithoutAutoExecuteRaises;
 var
   R: TOBDKWPRoutine;
 begin
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-procedure TPhase6KWPTests.KWPRoutine_RequestResultsWithoutProtocolRaises;
+procedure TKWPDiagnosticsTests.KWPRoutine_RequestResultsWithoutProtocolRaises;
 var
   R: TOBDKWPRoutine;
 begin
@@ -315,7 +315,7 @@ end;
 
 { ---- TOBDClearDTC cdKWP dialect ----------------------------------------- }
 
-procedure TPhase6KWPTests.ClearDTC_KWPDialectAcceptsKWPGroup;
+procedure TKWPDiagnosticsTests.ClearDTC_KWPDialectAcceptsKWPGroup;
 var
   C: TOBDClearDTC;
 begin
@@ -331,6 +331,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TPhase6KWPTests);
+  TDUnitX.RegisterTestFixture(TKWPDiagnosticsTests);
 
 end.

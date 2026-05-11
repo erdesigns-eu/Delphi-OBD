@@ -42,7 +42,7 @@ type
   ///   DUnitX fixture for the UDS-diagnostic components.
   /// </summary>
   [TestFixture]
-  TPhase6UDSTests = class
+  TUDSDiagnosticsTests = class
   public
     [Test] procedure UDS_DefaultsCurrentSessionIsDefault;
     [Test] procedure UDS_DefaultsKeepAliveFalseInterval2000;
@@ -80,7 +80,7 @@ implementation
 
 { ---- TOBDUDS ------------------------------------------------------------- }
 
-procedure TPhase6UDSTests.UDS_DefaultsCurrentSessionIsDefault;
+procedure TUDSDiagnosticsTests.UDS_DefaultsCurrentSessionIsDefault;
 var
   H: TOBDUDS;
 begin
@@ -93,7 +93,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.UDS_DefaultsKeepAliveFalseInterval2000;
+procedure TUDSDiagnosticsTests.UDS_DefaultsKeepAliveFalseInterval2000;
 var
   H: TOBDUDS;
 begin
@@ -106,7 +106,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.UDS_OpenWithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.UDS_OpenWithoutProtocolRaises;
 var
   H: TOBDUDS;
 begin
@@ -123,7 +123,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.UDS_TesterPresentWithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.UDS_TesterPresentWithoutProtocolRaises;
 var
   H: TOBDUDS;
 begin
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.UDS_CommunicationControlWithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.UDS_CommunicationControlWithoutProtocolRaises;
 var
   H: TOBDUDS;
 begin
@@ -159,7 +159,7 @@ end;
 
 { ---- TOBDUDSReset ------------------------------------------------------- }
 
-procedure TPhase6UDSTests.Reset_DefaultsAutoExecuteFalse;
+procedure TUDSDiagnosticsTests.Reset_DefaultsAutoExecuteFalse;
 var
   R: TOBDUDSReset;
 begin
@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.Reset_WithoutAutoExecuteRaises;
+procedure TUDSDiagnosticsTests.Reset_WithoutAutoExecuteRaises;
 var
   R: TOBDUDSReset;
 begin
@@ -188,7 +188,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.Reset_WithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.Reset_WithoutProtocolRaises;
 var
   R: TOBDUDSReset;
 begin
@@ -208,7 +208,7 @@ end;
 
 { ---- TOBDUDSReadMemory -------------------------------------------------- }
 
-procedure TPhase6UDSTests.ReadMemory_DefaultsFour4ByteFormats;
+procedure TUDSDiagnosticsTests.ReadMemory_DefaultsFour4ByteFormats;
 var
   M: TOBDUDSReadMemory;
 begin
@@ -221,7 +221,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.ReadMemory_WithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.ReadMemory_WithoutProtocolRaises;
 var
   M: TOBDUDSReadMemory;
 begin
@@ -238,7 +238,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.ReadMemory_ZeroLengthRaises;
+procedure TUDSDiagnosticsTests.ReadMemory_ZeroLengthRaises;
 var
   M: TOBDUDSReadMemory;
 begin
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.ReadMemory_BadFormatBytesRaises;
+procedure TUDSDiagnosticsTests.ReadMemory_BadFormatBytesRaises;
 var
   M: TOBDUDSReadMemory;
 begin
@@ -275,7 +275,7 @@ end;
 
 { ---- TOBDUDSIOControl --------------------------------------------------- }
 
-procedure TPhase6UDSTests.IOControl_DefaultsAutoExecuteFalse;
+procedure TUDSDiagnosticsTests.IOControl_DefaultsAutoExecuteFalse;
 var
   C: TOBDUDSIOControl;
 begin
@@ -287,7 +287,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.IOControl_WithoutAutoExecuteRaises;
+procedure TUDSDiagnosticsTests.IOControl_WithoutAutoExecuteRaises;
 var
   C: TOBDUDSIOControl;
 begin
@@ -304,7 +304,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.IOControl_WithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.IOControl_WithoutProtocolRaises;
 var
   C: TOBDUDSIOControl;
 begin
@@ -324,7 +324,7 @@ end;
 
 { ---- TOBDUDSReadDID ----------------------------------------------------- }
 
-procedure TPhase6UDSTests.ReadDID_WithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.ReadDID_WithoutProtocolRaises;
 var
   R: TOBDUDSReadDID;
 begin
@@ -341,7 +341,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.ReadDID_LengthArrayMismatchRaises;
+procedure TUDSDiagnosticsTests.ReadDID_LengthArrayMismatchRaises;
 var
   R: TOBDUDSReadDID;
 begin
@@ -360,7 +360,7 @@ end;
 
 { ---- TOBDUDSReadDTC ----------------------------------------------------- }
 
-procedure TPhase6UDSTests.ReadDTC_WithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.ReadDTC_WithoutProtocolRaises;
 var
   R: TOBDUDSReadDTC;
 begin
@@ -377,7 +377,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.ReadDTC_DecodeJ2012AllPrefixes;
+procedure TUDSDiagnosticsTests.ReadDTC_DecodeJ2012AllPrefixes;
 begin
   Assert.AreEqual('P0143', TOBDUDSReadDTC.DecodeJ2012($01, $43));
   Assert.AreEqual('C0220', TOBDUDSReadDTC.DecodeJ2012($42, $20));
@@ -387,7 +387,7 @@ end;
 
 { ---- TOBDUDSReadByPeriodic --------------------------------------------- }
 
-procedure TPhase6UDSTests.Periodic_StartWithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.Periodic_StartWithoutProtocolRaises;
 var
   P: TOBDUDSReadByPeriodic;
 begin
@@ -404,7 +404,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.Periodic_StartWithStopRateRaises;
+procedure TUDSDiagnosticsTests.Periodic_StartWithStopRateRaises;
 var
   P: TOBDUDSReadByPeriodic;
 begin
@@ -421,7 +421,7 @@ begin
   end;
 end;
 
-procedure TPhase6UDSTests.Periodic_DispatchSampleFiresHandler;
+procedure TUDSDiagnosticsTests.Periodic_DispatchSampleFiresHandler;
 var
   P: TOBDUDSReadByPeriodic;
   Hit: Integer;
@@ -452,7 +452,7 @@ end;
 { ---- TOBDUDSDynamicDID -------------------------------------------------- }
 
 
-procedure TPhase6UDSTests.DynamicDID_DefineWithoutProtocolRaises;
+procedure TUDSDiagnosticsTests.DynamicDID_DefineWithoutProtocolRaises;
 var
   D: TOBDUDSDynamicDID;
   S: TOBDUDSDDDSlice;
@@ -474,6 +474,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TPhase6UDSTests);
+  TDUnitX.RegisterTestFixture(TUDSDiagnosticsTests);
 
 end.

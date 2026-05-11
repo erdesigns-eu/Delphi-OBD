@@ -46,7 +46,7 @@ begin
       [C.UDSGroup]));
     Writeln('    Calling Clear without AutoExecute=True or without');
     Writeln('    a Protocol raises EOBDConfig — verified in');
-    Writeln('    Tests.OBD.Service.Phase5.');
+    Writeln('    Tests.OBD.Service.NewComponents.');
   finally C.Free; end;
 end;
 
