@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Tests.OBD.Service.NewComponents
+//  Tests.OBD.Service.Extras
 //
 //  Coverage for the close-out components:
 //    - TOBDClearDTC          (Mode 0x04 / UDS 0x14)
@@ -21,7 +21,7 @@
 //    2026-05-11  ERD  Initial fixture.
 //------------------------------------------------------------------------------
 
-unit Tests.OBD.Service.NewComponents;
+unit Tests.OBD.Service.Extras;
 
 interface
 
@@ -49,7 +49,7 @@ type
   ///   behaviour, and frees the component in a <c>try…finally</c>.
   /// </remarks>
   [TestFixture]
-  TServiceCloseoutTests = class
+  TServiceExtrasTests = class
   public
     [Test] procedure ClearDTC_DefaultsAutoExecuteFalse;
     [Test] procedure ClearDTC_ClearWithoutProtocolRaises;
@@ -81,7 +81,7 @@ implementation
 
 { ---- ClearDTC ------------------------------------------------------------- }
 
-procedure TServiceCloseoutTests.ClearDTC_DefaultsAutoExecuteFalse;
+procedure TServiceExtrasTests.ClearDTC_DefaultsAutoExecuteFalse;
 var
   C: TOBDClearDTC;
 begin
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.ClearDTC_ClearWithoutProtocolRaises;
+procedure TServiceExtrasTests.ClearDTC_ClearWithoutProtocolRaises;
 var
   C: TOBDClearDTC;
 begin
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.ClearDTC_ClearWithoutAutoExecuteRaises;
+procedure TServiceExtrasTests.ClearDTC_ClearWithoutAutoExecuteRaises;
 var
   C: TOBDClearDTC;
 begin
@@ -130,7 +130,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.ClearDTC_DialectAndGroupDefaults;
+procedure TServiceExtrasTests.ClearDTC_DialectAndGroupDefaults;
 var
   C: TOBDClearDTC;
 begin
@@ -147,7 +147,7 @@ end;
 
 { ---- OxygenMonitor -------------------------------------------------------- }
 
-procedure TServiceCloseoutTests.OxygenMonitor_ReadWithoutProtocolRaises;
+procedure TServiceExtrasTests.OxygenMonitor_ReadWithoutProtocolRaises;
 var
   C: TOBDOxygenMonitor;
 begin
@@ -172,7 +172,7 @@ end;
 
 { ---- PIDList -------------------------------------------------------------- }
 
-procedure TServiceCloseoutTests.PIDList_AddAndFind;
+procedure TServiceExtrasTests.PIDList_AddAndFind;
 var
   L: TOBDPIDList;
   It: TOBDPIDItem;
@@ -191,7 +191,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.PIDList_EnabledForFiltersDisabledAndOtherMode;
+procedure TServiceExtrasTests.PIDList_EnabledForFiltersDisabledAndOtherMode;
 var
   L: TOBDPIDList;
   Bytes: TArray<Byte>;
@@ -211,7 +211,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.PIDList_DisplayName;
+procedure TServiceExtrasTests.PIDList_DisplayName;
 var
   L: TOBDPIDList;
   It: TOBDPIDItem;
@@ -228,7 +228,7 @@ end;
 
 { ---- DataSource ----------------------------------------------------------- }
 
-procedure TServiceCloseoutTests.DataSource_KindForUnknownIsNone;
+procedure TServiceExtrasTests.DataSource_KindForUnknownIsNone;
 var
   DS: TOBDDataSource;
 begin
@@ -240,7 +240,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.DataSource_KindForAnonymousComponentIsNone;
+procedure TServiceExtrasTests.DataSource_KindForAnonymousComponentIsNone;
 var
   DS: TOBDDataSource;
   Comp: TComponent;
@@ -256,7 +256,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.DataSource_NotifyForwardsToHandler;
+procedure TServiceExtrasTests.DataSource_NotifyForwardsToHandler;
 var
   DS: TOBDDataSource;
   Hit: Integer;
@@ -280,7 +280,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.DataSource_ActiveToggleFiresStateChange;
+procedure TServiceExtrasTests.DataSource_ActiveToggleFiresStateChange;
 var
   DS: TOBDDataSource;
   StateHit: Integer;
@@ -303,19 +303,19 @@ end;
 
 { ---- WWH-OBD severity classification ------------------------------------- }
 
-procedure TServiceCloseoutTests.WWHOBD_ClassifySeverityZeroIsUnknown;
+procedure TServiceExtrasTests.WWHOBD_ClassifySeverityZeroIsUnknown;
 begin
   Assert.AreEqual(Ord(wcUnknown),
     Ord(TOBDWWHOBD.ClassifySeverity($00)));
 end;
 
-procedure TServiceCloseoutTests.WWHOBD_ClassifySeverityImmediateIsCheckNow;
+procedure TServiceExtrasTests.WWHOBD_ClassifySeverityImmediateIsCheckNow;
 begin
   Assert.AreEqual(Ord(wcCheckNow),
     Ord(TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_CHECK_IMMEDIATELY)));
 end;
 
-procedure TServiceCloseoutTests.WWHOBD_ClassifySeverityBothIsCheckBoth;
+procedure TServiceExtrasTests.WWHOBD_ClassifySeverityBothIsCheckBoth;
 begin
   Assert.AreEqual(
     Ord(wcCheckBoth),
@@ -323,19 +323,19 @@ begin
       WWHOBD_SEV_CHECK_IMMEDIATELY or WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
 end;
 
-procedure TServiceCloseoutTests.WWHOBD_ClassifySeverityHaltIsCheckHalt;
+procedure TServiceExtrasTests.WWHOBD_ClassifySeverityHaltIsCheckHalt;
 begin
   Assert.AreEqual(Ord(wcCheckHalt),
     Ord(TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_CHECK_AT_NEXT_HALT)));
 end;
 
-procedure TServiceCloseoutTests.WWHOBD_ClassifySeverityMaintenanceOnly;
+procedure TServiceExtrasTests.WWHOBD_ClassifySeverityMaintenanceOnly;
 begin
   Assert.AreEqual(Ord(wcMaintenance),
     Ord(TOBDWWHOBD.ClassifySeverity(WWHOBD_SEV_MAINTENANCE_ONLY)));
 end;
 
-procedure TServiceCloseoutTests.WWHOBD_ReadBySeverityWithoutProtocolRaises;
+procedure TServiceExtrasTests.WWHOBD_ReadBySeverityWithoutProtocolRaises;
 var
   W: TOBDWWHOBD;
 begin
@@ -352,7 +352,7 @@ begin
   end;
 end;
 
-procedure TServiceCloseoutTests.WWHReadiness_ReadWithoutProtocolRaises;
+procedure TServiceExtrasTests.WWHReadiness_ReadWithoutProtocolRaises;
 var
   R: TOBDWWHReadiness;
 begin
@@ -370,6 +370,6 @@ begin
 end;
 
 initialization
-  TDUnitX.RegisterTestFixture(TServiceCloseoutTests);
+  TDUnitX.RegisterTestFixture(TServiceExtrasTests);
 
 end.
