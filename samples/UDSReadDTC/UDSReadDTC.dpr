@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  UDSReadDTC — Phase 6 sample
+//  UDSReadDTC
 //
 //  Demonstrates TOBDUDSReadDTC sub-function helpers and the
 //  J2012 5-character decoder shared with the J1939 DM surface.

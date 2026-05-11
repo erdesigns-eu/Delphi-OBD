@@ -4,9 +4,9 @@
 //  TOBDFlashHandshakeHMG — Hyundai / Kia / Genesis bootloader
 //  handshake. HMG GDS / KDS sequence:
 //
-//    1. 10 02            — programming session
-//    2. 27 01            — security access (level varies per ECU)
-//    3. 31 01 FF 00      — erase memory routine
+//    1. 10 02 — programming session
+//    2. 27 01 — security access (level varies per ECU)
+//    3. 31 01 FF 00 — erase memory routine
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

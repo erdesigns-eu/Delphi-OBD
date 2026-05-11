@@ -19,8 +19,8 @@
 //
 //  Because the response is variable-length per DID the component
 //  needs to know the expected length of each DID; callers pass an
-//  explicit per-DID length array. The Phase 5 catalogue
-//  (catalogs/uds/dids-generic.json) is the recommended source for
+//  explicit per-DID length array. The bundled
+//  catalogs/uds/dids-generic.json is the recommended source for
 //  those lengths.
 //
 //  Author      : Ernst Reidinga (ERDesigns)

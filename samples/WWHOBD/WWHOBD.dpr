@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  WWHOBD — Phase 5 World-Wide Harmonised OBD demo
+//  WWHOBD — World-Wide Harmonised OBD demo
 //
 //  Demonstrates the HD-OBD diagnostic surface for vehicles compliant
 //  with ISO 27145:

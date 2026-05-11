@@ -10,7 +10,7 @@
 //
 //    rmAsFastAsPossible — emit every entry back-to-back. Useful
 //                         for headless reprocessing / unit tests.
-//    rmRealTime         — match the wall-clock gaps between the
+//    rmRealTime — match the wall-clock gaps between the
 //                         original timestamps. Useful for
 //                         demoing a captured session in a UI.
 //

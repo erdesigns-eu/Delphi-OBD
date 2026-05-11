@@ -4,10 +4,10 @@
 //  TOBDFlashHandshakeMercedes — Mercedes-Benz / smart bootloader
 //  handshake. Mercedes DAS / Xentry sequence:
 //
-//    1. 10 03            — extended diagnostic session
-//    2. 10 02            — programming session
-//    3. 27 01            — security access
-//    4. 31 01 FF 00      — erase routine
+//    1. 10 03 — extended diagnostic session
+//    2. 10 02 — programming session
+//    3. 27 01 — security access
+//    4. 31 01 FF 00 — erase routine
 //
 //  Mercedes also supports SCN-coding alongside; that's a separate
 //  flow handled by OBD.Coding.Mercedes.

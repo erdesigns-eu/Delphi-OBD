@@ -4,10 +4,10 @@
 //  TOBDCodingSession — orchestrator that wraps a coding apply
 //  into a hardware-recoverable transaction:
 //
-//    1. Snapshot      — read current value(s)
-//    2. Write         — apply new value(s)
-//    3. Verify        — read back and compare
-//    4. Rollback      — on verify-fail or write-fail, write the
+//    1. Snapshot — read current value(s)
+//    2. Write — apply new value(s)
+//    3. Verify — read back and compare
+//    4. Rollback — on verify-fail or write-fail, write the
 //                       snapshot back
 //
 //  Hosts feed the orchestrator a list of (DID, NewBytes) tuples.

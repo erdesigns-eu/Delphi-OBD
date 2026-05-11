@@ -1,14 +1,14 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Diagnostics.UDS
 //
-//  Coverage for the Phase 6 UDS-diagnostic components:
+//  Coverage for the UDS-diagnostic components:
 //    - TOBDUDS              (session hub)
 //    - TOBDUDSReset         (ECU reset, SID 0x11)
 //    - TOBDUDSReadMemory    (ReadMemoryByAddress, SID 0x23)
 //    - TOBDUDSIOControl     (IOControlByIdentifier, SID 0x2F)
 //
 //  Lifecycle + safety-gate + default-property coverage. Wire-level
-//  encode / decode is covered by the Phase 4 protocol fixtures.
+//  encode / decode is covered by the protocol fixtures.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -39,7 +39,7 @@ uses
 
 type
   /// <summary>
-  ///   DUnitX fixture for the Phase 6 UDS-diagnostic components.
+  ///   DUnitX fixture for the UDS-diagnostic components.
   /// </summary>
   [TestFixture]
   TPhase6UDSTests = class

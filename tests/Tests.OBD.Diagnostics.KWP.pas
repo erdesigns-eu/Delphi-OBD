@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Diagnostics.KWP
 //
-//  Lifecycle + safety-gate coverage for the Phase 6 KWP-diagnostic
+//  Lifecycle + safety-gate coverage for the KWP-diagnostic
 //  components:
 //    - TOBDKWP            (session hub)
 //    - TOBDKWPReadID      (services 0x1A / 0x21 / 0x22)
@@ -9,8 +9,8 @@
 //    - TOBDKWPIOControl   (services 0x2F / 0x30)
 //    - TOBDKWPRoutine     (services 0x31 / 0x32 / 0x33)
 //
-//  Wire-level encode / decode is covered by the Phase 4 KWP
-//  protocol fixtures.
+//  Wire-level encode / decode is covered by the KWP protocol
+//  fixtures.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -39,7 +39,7 @@ uses
 
 type
   /// <summary>
-  ///   DUnitX fixture for the Phase 6 KWP-diagnostic components.
+  ///   DUnitX fixture for the KWP-diagnostic components.
   /// </summary>
   [TestFixture]
   TPhase6KWPTests = class

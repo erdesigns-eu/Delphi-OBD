@@ -4,9 +4,9 @@
 //  TOBDFlashHandshakeToyota — Toyota / Lexus / Daihatsu bootloader
 //  handshake. Toyota Techstream sequence:
 //
-//    1. 10 02            — programming session
-//    2. 27 01            — Toyota security access
-//    3. 31 01 FF 00      — erase pre-flash routine
+//    1. 10 02 — programming session
+//    2. 27 01 — Toyota security access
+//    3. 31 01 FF 00 — erase pre-flash routine
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

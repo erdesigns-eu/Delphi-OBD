@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  UDSRoutine — Phase 6 sample
+//  UDSRoutine
 //
 //  PLAN cross-reference: the dedicated UDS routine surface is
 //  covered by TOBDRoutineControl (src/Coding/OBD.Coding.RoutineControl.pas).

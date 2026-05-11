@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  IsoBusTaskController — Phase 7 sample
+//  IsoBusTaskController
 //
 //  Demonstrates the TOBDIsoBusTC Task Controller surface from
 //  ISO 11783 part 10: DDOP upload, process-data exchange,

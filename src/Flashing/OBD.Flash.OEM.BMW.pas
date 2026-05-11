@@ -4,11 +4,11 @@
 //  TOBDFlashHandshakeBMW — BMW (E / F / G / U series) bootloader
 //  handshake. BMW programming uses ISTA's UDS profile:
 //
-//    1. 10 02            — programming session (some F-series
+//    1. 10 02 — programming session (some F-series
 //                          require 10 03 first)
-//    2. 27 03 / 27 09    — security access (level 3 dev,
+//    2. 27 03 / 27 09 — security access (level 3 dev,
 //                          level 9 programming on G-series)
-//    3. 31 01 FF 00      — erase boot block routine
+//    3. 31 01 FF 00 — erase boot block routine
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

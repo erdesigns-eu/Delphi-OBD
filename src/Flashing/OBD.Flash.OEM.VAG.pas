@@ -4,10 +4,10 @@
 //  TOBDFlashHandshakeVAG — VAG (VW / Audi / Skoda / Seat / Cupra)
 //  bootloader handshake. Sequence (UDS-CAN-on-K-line):
 //
-//    1. 10 02            — programming session
-//    2. 27 01 / 27 02    — security access (level 1 = service,
+//    1. 10 02 — programming session
+//    2. 27 01 / 27 02 — security access (level 1 = service,
 //                          level 11 = programming on Mk7+)
-//    3. 31 01 FF 00      — erase flash routine (vendor RID)
+//    3. 31 01 FF 00 — erase flash routine (vendor RID)
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

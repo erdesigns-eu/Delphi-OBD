@@ -4,10 +4,10 @@
 //  Abstract base + interface for firmware-signature verification.
 //  Ships four concrete backends:
 //
-//    OBD.Signature.BCrypt   — Windows Cryptography Next Generation
-//    OBD.Signature.OpenSSL  — OpenSSL 3.x (Posix + Windows)
-//    OBD.Signature.HSM      — PKCS#11 (any HSM with a PKCS#11 driver)
-//    OBD.Signature.PQC      — post-quantum (Dilithium / Falcon /
+//    OBD.Signature.BCrypt — Windows Cryptography Next Generation
+//    OBD.Signature.OpenSSL — OpenSSL 3.x (Posix + Windows)
+//    OBD.Signature.HSM — PKCS#11 (any HSM with a PKCS#11 driver)
+//    OBD.Signature.PQC — post-quantum (Dilithium / Falcon /
 //                              SPHINCS+) via liboqs
 //
 //  The abstract surface is deliberately tiny: hosts pick a backend

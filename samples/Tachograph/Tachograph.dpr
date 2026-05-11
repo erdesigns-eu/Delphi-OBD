@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Tachograph — Phase 7 sample
+//  Tachograph
 //
 //  Demonstrates the TOBDTachograph + TOBDTachoPCSC surfaces from
 //  the EU 165/2014 digital-tachograph component family. The

@@ -9,7 +9,7 @@
 //                          "current vs commanded" pairs (boost
 //                          actual vs commanded, AFR vs lambda
 //                          target, throttle vs pedal demand).
-//    TOBDMinMaxGauge     — primary needle plus two small tick
+//    TOBDMinMaxGauge — primary needle plus two small tick
 //                          markers on the dial recording the
 //                          lowest and highest values seen since
 //                          the last ResetMinMax call.

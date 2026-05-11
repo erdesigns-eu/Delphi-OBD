@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  UDSReadDID — Phase 6 sample
+//  UDSReadDID
 //
 //  Demonstrates wiring TOBDUDSReadDID for a multi-DID read against
 //  a connected UDS-capable ECU. The sample builds the component
@@ -32,7 +32,7 @@ begin
   try
     Writeln('  Two DIDs would be batched into one 0x22 request,');
     Writeln('  each with an expected length:');
-    Writeln('    DID 0xF190 (VIN)           — 17 bytes');
+    Writeln('    DID 0xF190 (VIN) — 17 bytes');
     Writeln('    DID 0xF18C (Serial Number) — 16 bytes');
     Writeln;
     Writeln('  Without a Protocol assigned, Read raises EOBDConfig:');

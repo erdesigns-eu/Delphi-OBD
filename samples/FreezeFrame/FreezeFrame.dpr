@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  FreezeFrame — Phase 5 freeze-frame snapshot demo
+//  FreezeFrame — freeze-frame snapshot demo
 //
 //  Demonstrates how to wire TOBDFreezeFrame (Mode 0x02) to capture
 //  the snapshot of vehicle state taken when an emission DTC was

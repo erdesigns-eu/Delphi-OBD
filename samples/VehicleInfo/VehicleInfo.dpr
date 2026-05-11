@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  VehicleInfo — Phase 5 Service 0x09 demo
+//  VehicleInfo — Service 0x09 demo
 //
 //  Demonstrates wiring TOBDVIN — Service 0x09 vehicle-info surface
 //  (VIN PID 02, CalIDs PID 04, CVNs PID 06, In-Use Performance
@@ -30,8 +30,8 @@ begin
   V := TOBDVIN.Create(nil);
   try
     Writeln('  TOBDVIN surface:');
-    Writeln('    Read              — Mode 0x09 PID 0x02 VIN');
-    Writeln('    ReadUDS           — UDS DID 0xF190 VIN');
+    Writeln('    Read — Mode 0x09 PID 0x02 VIN');
+    Writeln('    ReadUDS — UDS DID 0xF190 VIN');
     Writeln('    Without a Protocol, both raise EOBDConfig:');
     try
       V.Read;

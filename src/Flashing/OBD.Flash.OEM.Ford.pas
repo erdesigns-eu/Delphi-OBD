@@ -5,9 +5,9 @@
 //  handshake. Ford uses CSE (Calibration Software Environment) on
 //  modern PCMs and TCMs; the IDS / FDRS sequence is:
 //
-//    1. 10 02            — programming session
-//    2. 27 01            — Ford CSE level-1 security access
-//    3. 31 01 FF 00      — erase pre-flash routine
+//    1. 10 02 — programming session
+//    2. 27 01 — Ford CSE level-1 security access
+//    3. 31 01 FF 00 — erase pre-flash routine
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

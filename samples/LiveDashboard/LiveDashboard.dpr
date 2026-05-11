@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  LiveDashboard — Phase 5 live-data dashboard demo
+//  LiveDashboard — live-data dashboard demo
 //
 //  Demonstrates TOBDLiveData + TOBDPIDList: configures a design-time-
 //  editable PID list, subscribes to value updates, prints them.

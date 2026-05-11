@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Service.Phase5
 //
-//  Coverage for the Phase 5 close-out components:
+//  Coverage for the close-out components:
 //    - TOBDClearDTC          (Mode 0x04 / UDS 0x14)
 //    - TOBDOxygenMonitor     (Mode 0x05)
 //    - TOBDPIDList           (design-time collection)
@@ -10,8 +10,8 @@
 //    - TOBDWWHReadiness      (WWH-OBD readiness surface)
 //
 //  Lifecycle + safety-gate + classification coverage. Codec / protocol
-//  round trips for these components are covered by the Phase 4 / Phase 5
-//  protocol fixtures.
+//  round trips for these components are covered by the protocol
+//  fixtures.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -40,7 +40,7 @@ uses
 
 type
   /// <summary>
-  ///   DUnitX fixture for the Phase 5 close-out components.
+  ///   DUnitX fixture for the close-out components.
   /// </summary>
   /// <remarks>
   ///   Tests are grouped by component (ClearDTC → OxygenMonitor →

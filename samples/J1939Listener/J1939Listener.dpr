@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  J1939Listener — Phase 6 sample
+//  J1939Listener
 //
 //  Demonstrates the TOBDJ1939 bus-client surface: SourceAddress +
 //  NAME configuration, address-claim payload assembly, the

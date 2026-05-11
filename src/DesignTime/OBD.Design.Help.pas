@@ -96,14 +96,14 @@ const
     'TOBDConnection', 'TOBDAdapter', 'TOBDProtocol',
     'TOBDDoIPClient', 'TOBDSecOCCodec',
 
-    // Service-mode (Phase 5)
+    // Service-mode components
     'TOBDLiveData', 'TOBDDTCs', 'TOBDVIN', 'TOBDVINInspector',
     'TOBDFreezeFrame', 'TOBDOnBoardMonitor', 'TOBDActuator',
     'TOBDVehicleHealth', 'TOBDDriveCycleAdvisor', 'TOBDEVBattery',
     'TOBDClearDTC', 'TOBDOxygenMonitor', 'TOBDDataSource',
     'TOBDWWHOBD', 'TOBDWWHReadiness',
 
-    // Diagnostics (Phase 6)
+    // Advanced diagnostics (UDS / KWP / J1939)
     'TOBDUDS', 'TOBDUDSReset', 'TOBDUDSReadMemory',
     'TOBDUDSIOControl', 'TOBDUDSReadDID', 'TOBDUDSReadDTC',
     'TOBDUDSReadByPeriodic', 'TOBDUDSDynamicDID',

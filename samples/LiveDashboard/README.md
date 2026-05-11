@@ -1,4 +1,4 @@
-# LiveDashboard — Phase 5 live-data PID list demo
+# LiveDashboard — live-data PID list demo
 
 Demonstrates `TOBDPIDList` — the design-time-editable collection
 that a host wires to `TOBDLiveData.Subscribe(...)` calls to drive

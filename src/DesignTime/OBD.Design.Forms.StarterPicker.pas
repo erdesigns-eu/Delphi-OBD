@@ -5,9 +5,9 @@
 //  invoked by the Delphi-OBD starter Tools-API entry. Three
 //  steps:
 //
-//    1. Starter        — pick from the registered TTreeView,
+//    1. Starter — pick from the registered TTreeView,
 //                        grouped by category.
-//    2. Options        — built dynamically from the selected
+//    2. Options — built dynamically from the selected
 //                        starter's <c>OptionGroups</c>; skipped
 //                        when the starter has no options.
 //    3. Project / unit — target folder, project name, unit name.

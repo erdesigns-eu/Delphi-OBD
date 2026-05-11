@@ -9,9 +9,9 @@
 //  (numerator / denominator) per supported group.
 //
 //  DIDs walked:
-//    0xF411  — Major group readiness summary (supported / complete)
-//    0xF412  — Per-group readiness completion flags (optional)
-//    0xF40C  — Monitoring-conditions encountered counters (each
+//    0xF411 — Major group readiness summary (supported / complete)
+//    0xF412 — Per-group readiness completion flags (optional)
+//    0xF40C — Monitoring-conditions encountered counters (each
 //              entry: <groupId> <numerator-hi/lo> <denominator-hi/lo>)
 //
 //  Author      : Ernst Reidinga (ERDesigns)

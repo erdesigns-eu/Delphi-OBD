@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.OEM
 //
-//  Coverage for the Phase 6 OEM-overlay surface:
+//  Coverage for the OEM-overlay surface:
 //    - TOBDOEMOverlay   (per-OEM identifier maps)
 //    - TOBDOEMRegistry  (process-wide singleton)
 //    - TOBDOEMCatalog   (JSON loader component)

@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  KWPReadID — Phase 6 sample
+//  KWPReadID
 //
 //  Demonstrates TOBDKWPReadID — the KWP2000 read-identifier trio:
 //
@@ -34,17 +34,17 @@ begin
     try
       R.ReadECUID($9A);                  // ECU identification
     except
-      on E: EOBDConfig do Writeln('    ReadECUID         — EOBDConfig OK');
+      on E: EOBDConfig do Writeln('    ReadECUID — EOBDConfig OK');
     end;
     try
       R.ReadByLocalID($01);              // Local identifier 0x01
     except
-      on E: EOBDConfig do Writeln('    ReadByLocalID     — EOBDConfig OK');
+      on E: EOBDConfig do Writeln('    ReadByLocalID — EOBDConfig OK');
     end;
     try
       R.ReadByCommonID($F190);           // VIN
     except
-      on E: EOBDConfig do Writeln('    ReadByCommonID    — EOBDConfig OK');
+      on E: EOBDConfig do Writeln('    ReadByCommonID — EOBDConfig OK');
     end;
   finally
     R.Free;

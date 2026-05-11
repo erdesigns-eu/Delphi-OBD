@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  DoIPDiagnostics — Phase 6 sample
+//  DoIPDiagnostics
 //
 //  Demonstrates wiring TOBDDoIPClient — the ISO 13400 DoIP
 //  surface (PLAN-spec'd as "TOBDDoIP"). The client owns the

@@ -3,10 +3,10 @@
 //
 //  TOBDOEMRegistry — process-wide singleton that resolves DID,
 //  PID, DTC and SPN identifiers to human-readable names against
-//  any number of OEM overlays. Generic Phase 5 / Phase 6
-//  components (TOBDDataIdentifierIO, TOBDDTCs, TOBDUDSReadDID,
-//  TOBDJ1939DM, …) consult the registry whenever they have raw
-//  numeric input and want a friendly label.
+//  any number of OEM overlays. The generic service-mode and
+//  diagnostics components (TOBDDataIdentifierIO, TOBDDTCs,
+//  TOBDUDSReadDID, TOBDJ1939DM, …) consult the registry whenever
+//  they have raw numeric input and want a friendly label.
 //
 //  Overlays are layered: a registered overlay either contains a
 //  name for a given identifier or it doesn't. The registry walks

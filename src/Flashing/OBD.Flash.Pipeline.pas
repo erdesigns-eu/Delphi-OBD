@@ -5,16 +5,16 @@
 //  Composes the flashing building blocks into one safe-by-default
 //  end-to-end run:
 //
-//    1. fpPreflight        — host-supplied checks (engine off,
+//    1. fpPreflight — host-supplied checks (engine off,
 //                            voltage floor, ambient temp, ignition,
 //                            user confirmation)
-//    2. fpVerifyImage      — image hash / signature verification
+//    2. fpVerifyImage — image hash / signature verification
 //    3. fpEnterProgramming — host-supplied entry routine (session
 //                            switch + security-access + erase)
-//    4. fpTransfer         — TOBDUDSTransfer
-//    5. fpVerify           — host-supplied verify routine
-//    6. fpReset            — ECUReset hardReset
-//    7. fpFinalise         — close audit log
+//    4. fpTransfer — TOBDUDSTransfer
+//    5. fpVerify — host-supplied verify routine
+//    6. fpReset — ECUReset hardReset
+//    7. fpFinalise — close audit log
 //
 //  SAFETY — BRICK RISK ----------------------------------------------------
 //  This is the dangerous one. Defaults <c>AutoExecute = False</c>;

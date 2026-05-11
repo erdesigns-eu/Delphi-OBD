@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  LINSchedule — Phase 7 sample
+//  LINSchedule
 //
 //  Demonstrates the LIN schedule structures parsed by the Phase
 //  4f LDF parser (TOBDLDFCluster). Builds a synthetic schedule

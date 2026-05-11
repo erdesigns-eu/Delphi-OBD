@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  J1939DM — Phase 6 sample
+//  J1939DM
 //
 //  Demonstrates TOBDJ1939DM — structured SPN/FMI/CM/OC decoding
 //  of a DM1 body. Builds a synthetic two-DTC payload and dumps

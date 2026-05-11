@@ -4,7 +4,7 @@
 //  Transport abstraction for the DoIP client. Two implementations
 //  ship in v1:
 //
-//    TOBDDoIPPlainTransport  — wraps a TOBDConnection (TCP, the
+//    TOBDDoIPPlainTransport — wraps a TOBDConnection (TCP, the
 //                              Wi-Fi transport). Used for
 //                              unencrypted DoIP-on-port-13400.
 //

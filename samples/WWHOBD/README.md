@@ -1,6 +1,6 @@
 # WWHOBD — World-Wide Harmonised OBD (ISO 27145)
 
-Demonstrates the two Phase 5 heavy-duty OBD components:
+Demonstrates the two heavy-duty OBD components:
 
 - `TOBDWWHOBD` — read DTCs by severity (UDS 0x19 sub 0x42) and
   by readiness-group (sub 0x55); MIL distance + time counters

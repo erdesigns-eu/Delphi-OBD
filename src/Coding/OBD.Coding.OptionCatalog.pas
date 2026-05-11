@@ -9,13 +9,13 @@
 //
 //  Schema kinds covered:
 //
-//    byte_bit         — VAG / Mercedes single-bit options
-//    byte_field       — Mercedes sub-byte fields
-//    byte_range       — VAG multi-byte ranges
-//    tlv_id           — BMW CAFD / Stellantis Proxi entries
-//    config_word      — HMG / Toyota id-width-value records
-//    asbuilt_section  — Ford AsBuilt named sections
-//    menu_index       — Honda flat-array indices
+//    byte_bit — VAG / Mercedes single-bit options
+//    byte_field — Mercedes sub-byte fields
+//    byte_range — VAG multi-byte ranges
+//    tlv_id — BMW CAFD / Stellantis Proxi entries
+//    config_word — HMG / Toyota id-width-value records
+//    asbuilt_section — Ford AsBuilt named sections
+//    menu_index — Honda flat-array indices
 //
 //  The loader validates each entry against the schema's
 //  per-kind rules. Hosts query the catalogue by vendor + name

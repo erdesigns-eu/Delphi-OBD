@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
-//  MonitorResults — Phase 5 on-board monitor demo
+//  MonitorResults — on-board monitor demo
 //
 //  Demonstrates the two monitor surfaces:
 //    - TOBDOnBoardMonitor — Service 0x06 (CAN cars) MID/TID/UASID
 //      results.
-//    - TOBDOxygenMonitor  — Service 0x05 (non-CAN cars) oxygen-
+//    - TOBDOxygenMonitor — Service 0x05 (non-CAN cars) oxygen-
 //      sensor monitor results.
 //
 //  Build & run:

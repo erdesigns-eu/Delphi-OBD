@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  IsoBusVT — Phase 7 sample
+//  IsoBusVT
 //
 //  Demonstrates the TOBDIsoBusVT Virtual Terminal surface from
 //  ISO 11783 part 6: object-pool upload, soft-key activation, and

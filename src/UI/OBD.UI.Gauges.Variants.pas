@@ -4,14 +4,14 @@
 //  Three non-dial gauge variants that share the
 //  TOBDGaugeBase contract:
 //
-//    TOBDDigitalGauge     — pure numeric readout (no needle).
+//    TOBDDigitalGauge — pure numeric readout (no needle).
 //                           Caption / value / unit stacked
 //                           vertically; optional min/max/avg
 //                           overlays.
-//    TOBDBarSegmentGauge  — LED-bar / VU-meter. N segments
+//    TOBDBarSegmentGauge — LED-bar / VU-meter. N segments
 //                           light from left to right (or
 //                           bottom to top) as value rises.
-//    TOBDDeltaGauge       — centre-zero horizontal bar. Value
+//    TOBDDeltaGauge — centre-zero horizontal bar. Value
 //                           > 0 fills right; value < 0 fills
 //                           left. Visualises signed signals
 //                           (yaw, lat-accel, fuel trim).

@@ -9,9 +9,9 @@
 //  Sequence:
 //
 //    1. SGW unlock (host wires this separately)
-//    2. 10 02            — programming session
-//    3. 27 01            — security access
-//    4. 31 01 FF 00      — erase routine
+//    2. 10 02 — programming session
+//    3. 27 01 — security access
+//    4. 31 01 FF 00 — erase routine
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors

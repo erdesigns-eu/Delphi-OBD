@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.Diagnostics.J1939
 //
-//  Coverage for the Phase 6 J1939-diagnostic components:
+//  Coverage for the J1939-diagnostic components:
 //    - TOBDJ1939     (bus client — NAME, address claim, request)
 //    - TOBDJ1939DM   (DM1..DM32 decoder)
 //
@@ -29,7 +29,7 @@ uses
 
 type
   /// <summary>
-  ///   DUnitX fixture for the Phase 6 J1939 components.
+  ///   DUnitX fixture for the J1939 components.
   /// </summary>
   [TestFixture]
   TPhase6J1939Tests = class

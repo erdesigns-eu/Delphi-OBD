@@ -8,8 +8,8 @@
 //  design-time package is installed.
 //
 //  Component categories used:
-//    - "OBD"        — non-visual diagnostic and protocol components
-//    - "OBD OEM"    — vendor-specific coding helpers
+//    - "OBD" — non-visual diagnostic and protocol components
+//    - "OBD OEM" — vendor-specific coding helpers
 //    - "OBD Visual" — reserved for future visual companions (currently
 //                     empty by design — v1 is headless)
 //
@@ -302,7 +302,7 @@ begin
     TOBDWWHReadiness
   ]);
 
-  // Phase 6 advanced UDS-diagnostic components.
+  // Advanced UDS / KWP / J1939 / OEM-overlay diagnostic components.
   RegisterComponents('OBD Diagnostics', [
     TOBDUDS,
     TOBDUDSReset,

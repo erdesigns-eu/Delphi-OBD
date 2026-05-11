@@ -6,13 +6,13 @@
 //  v1 schema) by accepting the richer manufacturer-PID and DTC
 //  shapes already in the repository:
 //
-//    obd2-pids.json   — { "dids": [ { "did": "0x000C", "name": ...,
+//    obd2-pids.json — { "dids": [ { "did": "0x000C", "name": ...,
 //                                     "decoder": { "kind": "uint16_be",
 //                                                  "scale": 0.25,
 //                                                  "offset": 0,
 //                                                  "unit": "rpm" } } ] }
 //
-//    dtc-*.json       — { "dtcs": [ { "code": "P0301",
+//    dtc-*.json — { "dtcs": [ { "code": "P0301",
 //                                      "description": "...",
 //                                      "severity": "warning" } ] }
 //

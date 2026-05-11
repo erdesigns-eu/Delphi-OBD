@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  UDSIOControl — Phase 6 sample
+//  UDSIOControl
 //
 //  Demonstrates TOBDUDSIOControl — Service 0x2F
 //  InputOutputControlByIdentifier. Drives an ECU I/O DID into a

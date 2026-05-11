@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  DTCReader — Phase 5 DTC reader / clear demo
+//  DTCReader — DTC reader / clear demo
 //
 //  Demonstrates the J2012 decode helper on TOBDDTCs (shared with
 //  TOBDWWHOBD) and the TOBDClearDTC safety contract.

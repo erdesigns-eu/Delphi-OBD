@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------------
-//  FlexRaySlot — Phase 7 sample
+//  FlexRaySlot
 //
 //  Demonstrates building a TOBDFlexRayFrame for a single static-
-//  segment slot and encoding it through the Phase 4f codec.
+//  segment slot and encoding it through the FlexRay codec.
 //
 //  Build & run:
 //    dcc32 -B FlexRaySlot.dpr

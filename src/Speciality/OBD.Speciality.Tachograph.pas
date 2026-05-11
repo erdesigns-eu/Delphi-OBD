@@ -257,7 +257,7 @@ begin
   //   89    workshopCardExpiryDate (TimeReal 4)
   //   93    vehicleIdentificationNumber (17)
   //   110   vehicleRegistrationNation (1)
-  //   111   vehicleRegistrationNumber (14)  — skipped
+  //   111   vehicleRegistrationNumber (14) — skipped
   //   125   wVehicleCharacteristicConstant (2 BE)
   //   127   kConstantOfRecordingEquipment (2 BE)
   //   129   lTyreCircumference (2 BE — skipped)

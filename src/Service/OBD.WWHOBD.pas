@@ -14,9 +14,9 @@
 //    - Read DTCs by readiness-group ID (0x19 sub 0x55)
 //    - DTC class counters (DIDs 0xF418 / 0xF419)
 //    - Distance / time-with-MIL (DIDs 0xF402 / 0xF407)
-//    - VIN (DID 0xF190 — same as Phase 5 TOBDVIN; we expose it
-//      here too because HD techs frequently want the bundle in
-//      one call)
+//    - VIN (DID 0xF190 — same as the generic TOBDVIN; we expose
+//      it here too because HD techs frequently want the bundle
+//      in one call)
 //
 //  TOBDWWHReadiness in a sibling unit covers the monitor-completion
 //  flags (DIDs 0xF411 / 0xF412 / 0xF40C).

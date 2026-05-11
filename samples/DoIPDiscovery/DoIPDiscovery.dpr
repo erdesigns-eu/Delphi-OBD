@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  DoIPDiscovery — Phase 6 sample
+//  DoIPDiscovery
 //
 //  PLAN cross-reference: the dedicated UDP discovery component
 //  (TOBDDoIPDiscovery) is covered by TOBDDoIPClient's
