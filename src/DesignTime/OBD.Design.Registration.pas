@@ -83,6 +83,8 @@ uses
   OBD.Diagnostics.KWP.Routine,
   OBD.Diagnostics.J1939,
   OBD.Diagnostics.J1939.DM,
+  OBD.OEM.Registry,
+  OBD.OEM.Catalog,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -315,7 +317,8 @@ begin
     TOBDKWPIOControl,
     TOBDKWPRoutine,
     TOBDJ1939,
-    TOBDJ1939DM
+    TOBDJ1939DM,
+    TOBDOEMCatalog
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

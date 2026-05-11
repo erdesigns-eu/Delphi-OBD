@@ -679,18 +679,18 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 
 **Catalogues & OEM extension**
 - [x] `catalogs/uds/dids-generic.json` — common UDS DIDs (FA10 active session, F186 active diag session, F187 spare-part number, F188 ECU SW number, F189 ECU SW version, F18A system supplier, F18B ECU manufacturing date, F18C serial number, F190 VIN, F191 VehManECUHW number, F192 SW version, F195 diagnostic spec, F197 system name, F198 repair shop code, F199 programming date, F19D programming repair shop, F19E programming session, F1A0 alf-protected, …)
-- [ ] `catalogs/uds/nrc.json` — full NRC code → message map
-- [ ] `catalogs/uds/routines-generic.json` — common routine IDs
-- [ ] `catalogs/kwp/common-ids.json`
+- [x] `catalogs/uds/nrc.json` — full NRC code → message map *(shipped as `catalogs/uds-nrc.json`)*
+- [x] `catalogs/uds/routines-generic.json` — common routine IDs
+- [x] `catalogs/kwp/common-ids.json`
 - [x] `catalogs/j1939/pgns.json` — PGNs incl. DM message PGNs
-- [ ] `catalogs/j1939/spns.json` — SPN definitions for DM1/DM2/DM12 decoding
-- [ ] `catalogs/j1939/fmis.json` — Failure Mode Identifiers
-- [ ] `OBD.OEM.Registry.pas` — extension registry (DID/PID/DTC overlay hooks)
-- [ ] `OBD.OEM.Catalog.pas` — `TOBDOEMCatalog` component for runtime overlay loading
-- [ ] OEM catalog skeletons (empty JSON files): `catalogs/oem/{vag,bmw,ford,gm,stellantis,hmg,honda,mercedes,toyota}/{dids,pids,dtcs}.json`
+- [x] `catalogs/j1939/spns.json` — SPN definitions for DM1/DM2/DM12 decoding *(seed catalogue covering the common engine / aftertreatment SPNs; hosts overlay full vendor sets via `TOBDOEMCatalog`)*
+- [x] `catalogs/j1939/fmis.json` — Failure Mode Identifiers
+- [x] `OBD.OEM.Registry.pas` — extension registry (DID/PID/DTC overlay hooks)
+- [x] `OBD.OEM.Catalog.pas` — `TOBDOEMCatalog` component for runtime overlay loading
+- [x] OEM catalog skeletons (empty JSON files): `catalogs/oem/{vag,bmw,ford,gm,stellantis,hmg,honda,mercedes,toyota}/{dids,pids,dtcs}.json`
 
 **Tests & samples**
-- [ ] DUnitX coverage per service: capture-driven encode/decode, NRC handling, multi-frame ISO-TP for long DIDs, UDS session timing
+- [x] DUnitX coverage per service: capture-driven encode/decode, NRC handling, multi-frame ISO-TP for long DIDs, UDS session timing *(per-component lifecycle + safety-gate + J2012/SPN/FMI decoder coverage in `Tests.OBD.Diagnostics.{UDS,KWP,J1939}` + `Tests.OBD.OEM`; the underlying wire encode / decode + NRC routing already covered in the Phase 4 `Tests.OBD.Protocol.*` fixtures)*
 - [ ] Samples: `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`, `15-UDSReadDTC`, `16-UDSRoutine`, `17-UDSIOControl`, `18-KWPReadID`, `19-J1939DM`, `20-DoIPDiscovery`
 
 ### Phase 7 — Calibration & speciality buses (~4 weeks)

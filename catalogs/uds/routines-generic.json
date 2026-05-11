@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "description": "Standard UDS routine identifiers (Service 0x31) per ISO 14229-1:2020 §10.10.2.4 — the generic 0x0200..0x02FF range plus the 0xFF00..0xFFFF reserved IDs that every ISO-compliant ECU is expected to recognise. OEM-specific routine IDs overlay this set via TOBDOEMCatalog.",
+  "kind": "uds-routine",
+  "source": "ISO 14229-1:2020 §10.10.2.4 Table 235",
+  "entries": [
+    { "rid": "0x0202", "name": "Erase Memory",
+                       "category": "flashing",
+                       "notes": "Used by the bootloader before RequestDownload." },
+    { "rid": "0x0203", "name": "Check Programming Dependencies",
+                       "category": "flashing",
+                       "notes": "Verifies a downloaded image's metadata + signatures." },
+    { "rid": "0x0204", "name": "Erase Mirror Memory DTCs",
+                       "category": "diagnostics",
+                       "notes": "Clears the mirror-memory DTC store." },
+
+    { "rid": "0xFF00", "name": "Start Programming Session",
+                       "category": "flashing",
+                       "notes": "Reference routine entry — most OEMs override." },
+    { "rid": "0xFF01", "name": "Check Programming Preconditions",
+                       "category": "flashing",
+                       "notes": "Battery / temperature / vehicle-state preflight." },
+
+    { "rid": "0xF000", "name": "OBD-II Generic Test Sequence",
+                       "category": "diagnostics",
+                       "notes": "Reserved range for emissions-related routine tests." }
+  ]
+}

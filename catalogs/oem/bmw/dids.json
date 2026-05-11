@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "description": "bmw-specific UDS Data Identifier overlay seed. Add entries here; TOBDOEMCatalog loads them into the OEM registry at runtime.",
+  "kind": "uds-did",
+  "oem": "bmw",
+  "dids": [
+  ]
+}

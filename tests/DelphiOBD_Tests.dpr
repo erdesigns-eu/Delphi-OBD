@@ -269,6 +269,7 @@ uses
   Tests.OBD.Diagnostics.UDS in 'Tests.OBD.Diagnostics.UDS.pas',
   Tests.OBD.Diagnostics.KWP in 'Tests.OBD.Diagnostics.KWP.pas',
   Tests.OBD.Diagnostics.J1939 in 'Tests.OBD.Diagnostics.J1939.pas',
+  Tests.OBD.OEM in 'Tests.OBD.OEM.pas',
   Tests.OBD.Speciality in 'Tests.OBD.Speciality.pas',
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
   Tests.OBD.Service.VINDecoder in 'Tests.OBD.Service.VINDecoder.pas',
