@@ -36,6 +36,7 @@ requires
 contains
   OBD.Design.Registration in '..\src\DesignTime\OBD.Design.Registration.pas',
   OBD.Design.Editors in '..\src\DesignTime\OBD.Design.Editors.pas',
+  OBD.Design.Help in '..\src\DesignTime\OBD.Design.Help.pas',
   OBD.Design.Forms.FlashSafety in '..\src\DesignTime\OBD.Design.Forms.FlashSafety.pas' {OBDFlashSafetyDlg},
   OBD.Design.Forms.InitCommands in '..\src\DesignTime\OBD.Design.Forms.InitCommands.pas' {OBDInitCommandsDlg},
   OBD.Design.Forms.PipelineValidate in '..\src\DesignTime\OBD.Design.Forms.PipelineValidate.pas' {OBDPipelineValidateDlg},

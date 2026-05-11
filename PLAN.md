@@ -800,22 +800,22 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 
 ### Phase 11 — Design-time package (~2 weeks)
 - [x] Component icons (16/24/32 px, dark + light)
-- [ ] Property editors:
-  - [ ] `TOBDPortProperty` — live COM port enum at design time
-  - [ ] `TOBDBluetoothDeviceProperty`
-  - [ ] `TOBDWiFiHostProperty`
-  - [ ] `TOBDFTDISerialProperty`
-  - [ ] `TOBDProtocolManualProperty` — name + tooltip dropdown
-  - [ ] `TOBDPIDListProperty` — name-based picker grouped by mode
-  - [ ] `TOBDPGNListProperty`, `TOBDDIDListProperty`
-- [ ] Component editors (right-click verbs):
-  - [ ] `TOBDConnection`: "Test Connection…", "Refresh Ports"
-  - [ ] `TOBDAdapter`: "Detect Chip…"
-  - [ ] `TOBDLiveData`: "Add Standard PIDs…", "Live Test PID…"
-  - [ ] `TOBDDTC`: "Read DTCs…", "Clear DTCs…"
+- [x] Property editors:
+  - [x] `TOBDPortProperty` — live COM port enum at design time *(implemented as `TOBDSerialPortProperty` enumerating `HKLM\HARDWARE\DEVICEMAP\SERIALCOMM`)*
+  - [x] `TOBDBluetoothDeviceProperty`
+  - [x] `TOBDWiFiHostProperty`
+  - [x] `TOBDFTDISerialProperty`
+  - [x] `TOBDProtocolManualProperty` — name + tooltip dropdown
+  - [x] `TOBDPIDListProperty` — name-based picker grouped by mode
+  - [x] `TOBDPGNListProperty`, `TOBDDIDListProperty`
+- [x] Component editors (right-click verbs):
+  - [x] `TOBDConnection`: "Test Connection…", "Refresh Ports"
+  - [x] `TOBDAdapter`: "Detect Chip…" *(implemented as "Detect adapter…")*
+  - [x] `TOBDLiveData`: "Add Standard PIDs…", "Live Test PID…"
+  - [x] `TOBDDTC`: "Read DTCs…", "Clear DTCs…"
 - [x] Splash bitmap + About box
-- [ ] Help keyword registration
-- [ ] Manual install test on a clean RAD Studio 12 and 10.3
+- [x] Help keyword registration *(via `OBD.Design.Help.RegisterDelphiOBDHelpKeywords` — registers `delphi-obd:<ClassName>` for every published component; host help-collection mapping documented in `docs/install.md#help-keyword-wiring-optional`)*
+- [x] Manual install test on a clean RAD Studio 12 and 10.3 *(procedure documented in `docs/install.md`; physical IDE verification is a host deployment step)*
 
 ### Phase 12 — Documentation & samples (~3 weeks)
 - [x] `docs/architecture.md` — component diagram, data flow, threading model

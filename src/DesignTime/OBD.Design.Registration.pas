@@ -161,6 +161,7 @@ uses
   OBD.RadioCode.FordV,
   OBD.RadioCode.EEPROM,
   OBD.Design.Editors,
+  OBD.Design.Help,
   OBD.Design.Wizards.Starters,
   OBD.Design.Starters.NewCategories,
   OBD.Design.Starters.DataModules,
@@ -605,6 +606,14 @@ begin
     RegisterDelphiOBDEditors;
   except
     // Swallow — editors are ergonomic only.
+  end;
+
+  // Help-keyword registration. Same best-effort guard: keywords
+  // are a usability nicety, not a load-time requirement.
+  try
+    RegisterDelphiOBDHelpKeywords;
+  except
+    // Swallow.
   end;
 
   // Project starter wizard (File > New > Other > Delphi-OBD).
