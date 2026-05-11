@@ -108,6 +108,7 @@ uses
   OBD.UI.MonitorEV,
   OBD.UI.Session,
   OBD.UI.Connection,
+  OBD.UI.Pickers,
   OBD.UDS.Transfer,
   OBD.Flash.VoltageGate,
   OBD.Flash.Pipeline,
@@ -385,7 +386,11 @@ begin
     TOBDConnectionStateLamp,
     TOBDDoIPStatusPanel,
     TOBDSecurityAccessLamp,
-    TOBDSecOCStatusLamp
+    TOBDSecOCStatusLamp,
+    TOBDVINEdit,
+    TOBDPidPicker,
+    TOBDOEMPicker,
+    TOBDCANIdEdit
   ]);
 
   // Radio-code calculators (one component per vendor). Each
