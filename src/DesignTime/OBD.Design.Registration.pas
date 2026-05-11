@@ -72,6 +72,10 @@ uses
   OBD.Diagnostics.UDS.Reset,
   OBD.Diagnostics.UDS.ReadMemory,
   OBD.Diagnostics.UDS.IOControl,
+  OBD.Diagnostics.UDS.ReadDID,
+  OBD.Diagnostics.UDS.ReadDTC,
+  OBD.Diagnostics.UDS.Periodic,
+  OBD.Diagnostics.UDS.DynamicDID,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -293,7 +297,11 @@ begin
     TOBDUDS,
     TOBDUDSReset,
     TOBDUDSReadMemory,
-    TOBDUDSIOControl
+    TOBDUDSIOControl,
+    TOBDUDSReadDID,
+    TOBDUDSReadDTC,
+    TOBDUDSReadByPeriodic,
+    TOBDUDSDynamicDID
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

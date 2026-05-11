@@ -31,7 +31,11 @@ uses
   OBD.Diagnostics.UDS,
   OBD.Diagnostics.UDS.Reset,
   OBD.Diagnostics.UDS.ReadMemory,
-  OBD.Diagnostics.UDS.IOControl;
+  OBD.Diagnostics.UDS.IOControl,
+  OBD.Diagnostics.UDS.ReadDID,
+  OBD.Diagnostics.UDS.ReadDTC,
+  OBD.Diagnostics.UDS.Periodic,
+  OBD.Diagnostics.UDS.DynamicDID;
 
 type
   /// <summary>
@@ -58,6 +62,18 @@ type
     [Test] procedure IOControl_DefaultsAutoExecuteFalse;
     [Test] procedure IOControl_WithoutAutoExecuteRaises;
     [Test] procedure IOControl_WithoutProtocolRaises;
+
+    [Test] procedure ReadDID_WithoutProtocolRaises;
+    [Test] procedure ReadDID_LengthArrayMismatchRaises;
+
+    [Test] procedure ReadDTC_WithoutProtocolRaises;
+    [Test] procedure ReadDTC_DecodeJ2012AllPrefixes;
+
+    [Test] procedure Periodic_StartWithoutProtocolRaises;
+    [Test] procedure Periodic_StartWithStopRateRaises;
+    [Test] procedure Periodic_DispatchSampleFiresHandler;
+
+    [Test] procedure DynamicDID_DefineWithoutProtocolRaises;
   end;
 
 implementation
@@ -303,6 +319,157 @@ begin
       EOBDConfig);
   finally
     C.Free;
+  end;
+end;
+
+{ ---- TOBDUDSReadDID ----------------------------------------------------- }
+
+procedure TPhase6UDSTests.ReadDID_WithoutProtocolRaises;
+var
+  R: TOBDUDSReadDID;
+begin
+  R := TOBDUDSReadDID.Create(nil);
+  try
+    Assert.WillRaise(
+      procedure
+      begin
+        R.Read([$F190], [17]);
+      end,
+      EOBDConfig);
+  finally
+    R.Free;
+  end;
+end;
+
+procedure TPhase6UDSTests.ReadDID_LengthArrayMismatchRaises;
+var
+  R: TOBDUDSReadDID;
+begin
+  R := TOBDUDSReadDID.Create(nil);
+  try
+    Assert.WillRaise(
+      procedure
+      begin
+        R.Read([$F190, $F18C], [17]);
+      end,
+      EOBDConfig);
+  finally
+    R.Free;
+  end;
+end;
+
+{ ---- TOBDUDSReadDTC ----------------------------------------------------- }
+
+procedure TPhase6UDSTests.ReadDTC_WithoutProtocolRaises;
+var
+  R: TOBDUDSReadDTC;
+begin
+  R := TOBDUDSReadDTC.Create(nil);
+  try
+    Assert.WillRaise(
+      procedure
+      begin
+        R.ReadByStatusMask($FF);
+      end,
+      EOBDConfig);
+  finally
+    R.Free;
+  end;
+end;
+
+procedure TPhase6UDSTests.ReadDTC_DecodeJ2012AllPrefixes;
+begin
+  Assert.AreEqual('P0143', TOBDUDSReadDTC.DecodeJ2012($01, $43));
+  Assert.AreEqual('C0220', TOBDUDSReadDTC.DecodeJ2012($42, $20));
+  Assert.AreEqual('B0300', TOBDUDSReadDTC.DecodeJ2012($83, $00));
+  Assert.AreEqual('U0000', TOBDUDSReadDTC.DecodeJ2012($C0, $00));
+end;
+
+{ ---- TOBDUDSReadByPeriodic --------------------------------------------- }
+
+procedure TPhase6UDSTests.Periodic_StartWithoutProtocolRaises;
+var
+  P: TOBDUDSReadByPeriodic;
+begin
+  P := TOBDUDSReadByPeriodic.Create(nil);
+  try
+    Assert.WillRaise(
+      procedure
+      begin
+        P.Start(UDS_PER_RATE_MEDIUM, [$01, $02]);
+      end,
+      EOBDConfig);
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TPhase6UDSTests.Periodic_StartWithStopRateRaises;
+var
+  P: TOBDUDSReadByPeriodic;
+begin
+  P := TOBDUDSReadByPeriodic.Create(nil);
+  try
+    Assert.WillRaise(
+      procedure
+      begin
+        P.Start(UDS_PER_RATE_STOP, [$01]);
+      end,
+      EOBDConfig);
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TPhase6UDSTests.Periodic_DispatchSampleFiresHandler;
+var
+  P: TOBDUDSReadByPeriodic;
+  Hit: Integer;
+  GotPID: Byte;
+  GotLen: Integer;
+begin
+  P := TOBDUDSReadByPeriodic.Create(nil);
+  try
+    Hit := 0;
+    GotPID := 0;
+    GotLen := -1;
+    P.OnSample :=
+      procedure(Sender: TObject; APID: Byte; const AData: TBytes)
+      begin
+        Inc(Hit);
+        GotPID := APID;
+        GotLen := Length(AData);
+      end;
+    P.DispatchSample($42, TBytes.Create($AA, $BB, $CC));
+    Assert.AreEqual(1, Hit);
+    Assert.AreEqual($42, Integer(GotPID));
+    Assert.AreEqual(3, GotLen);
+  finally
+    P.Free;
+  end;
+end;
+
+{ ---- TOBDUDSDynamicDID -------------------------------------------------- }
+
+
+procedure TPhase6UDSTests.DynamicDID_DefineWithoutProtocolRaises;
+var
+  D: TOBDUDSDynamicDID;
+  S: TOBDUDSDDDSlice;
+begin
+  D := TOBDUDSDynamicDID.Create(nil);
+  try
+    S.SourceDID := $F190;
+    S.Position := 1;
+    S.MemorySize := 4;
+    Assert.WillRaise(
+      procedure
+      begin
+        D.DefineByDID($F300, [S]);
+      end,
+      EOBDConfig);
+  finally
+    D.Free;
   end;
 end;
 

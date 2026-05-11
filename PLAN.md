@@ -649,16 +649,16 @@ All ten OBD-II service modes (01–0A) covered by dedicated components.
 Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP services follow in Phases 7–8.
 
 **UDS (ISO 14229)**
-- [ ] `OBD.UDS.pas` — `TOBDUDS` session/transport hub (0x10, 0x11, 0x27, 0x28, 0x29, 0x3E, 0x83, 0x85, 0x86, 0x87)
-- [ ] `OBD.UDS.ReadDID.pas` — `TOBDUDSReadDID` (0x22, 0x24)
-- [ ] `OBD.UDS.ReadDTC.pas` — `TOBDUDSReadDTC` (0x19 with all subfunctions)
-- [ ] `OBD.UDS.ClearDTC.pas` — `TOBDUDSClearDTC` (0x14)
-- [ ] `OBD.UDS.Reset.pas` — `TOBDUDSReset` (0x11)
-- [ ] `OBD.UDS.IOControl.pas` — `TOBDUDSIOControl` (0x2F)
-- [ ] `OBD.UDS.Routine.pas` — `TOBDUDSRoutine` (0x31)
-- [ ] `OBD.UDS.Periodic.pas` — `TOBDUDSReadByPeriodic` (0x2A)
-- [ ] `OBD.UDS.DynamicDID.pas` — `TOBDUDSDynamicDID` (0x2C)
-- [ ] `OBD.UDS.ReadMemory.pas` — `TOBDUDSReadMemory` (0x23)
+- [x] `OBD.UDS.pas` — `TOBDUDS` session/transport hub (0x10, 0x11, 0x27, 0x28, 0x29, 0x3E, 0x83, 0x85, 0x86, 0x87) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.pas`)*
+- [x] `OBD.UDS.ReadDID.pas` — `TOBDUDSReadDID` (0x22, 0x24) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.ReadDID.pas`)*
+- [x] `OBD.UDS.ReadDTC.pas` — `TOBDUDSReadDTC` (0x19 with all subfunctions) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.ReadDTC.pas`)*
+- [x] `OBD.UDS.ClearDTC.pas` — `TOBDUDSClearDTC` (0x14) *(covered by `TOBDClearDTC` with `Dialect = cdUDS`; no separate UDS-only sibling component)*
+- [x] `OBD.UDS.Reset.pas` — `TOBDUDSReset` (0x11) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.Reset.pas`)*
+- [x] `OBD.UDS.IOControl.pas` — `TOBDUDSIOControl` (0x2F) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.IOControl.pas`)*
+- [x] `OBD.UDS.Routine.pas` — `TOBDUDSRoutine` (0x31) *(covered by `TOBDRoutineControl` in `src/Coding/OBD.Coding.RoutineControl.pas`; no separate UDS-only sibling component)*
+- [x] `OBD.UDS.Periodic.pas` — `TOBDUDSReadByPeriodic` (0x2A) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.Periodic.pas`)*
+- [x] `OBD.UDS.DynamicDID.pas` — `TOBDUDSDynamicDID` (0x2C) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.DynamicDID.pas`)*
+- [x] `OBD.UDS.ReadMemory.pas` — `TOBDUDSReadMemory` (0x23) *(implemented as `src/Diagnostics/OBD.Diagnostics.UDS.ReadMemory.pas`)*
 - *(Write/transfer services 0x2E, 0x34/35/36/37, 0x3D ship in Phase 7 / Phase 8.)*
 
 **KWP2000 (ISO 14230)**
