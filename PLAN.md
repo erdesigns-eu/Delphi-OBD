@@ -670,12 +670,12 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 - [x] `OBD.KWP.ClearDTC.pas` — `TOBDKWPClearDTC` (0x14) *(covered by `TOBDClearDTC` with `Dialect = cdKWP` and the 2-byte `KWP_DTC_GROUP_ALL` group word)*
 
 **J1939**
-- [ ] `OBD.J1939.pas` — `TOBDJ1939` bus client (address claim, TP.CM/TP.DT, ETP)
-- [ ] `OBD.J1939.DM.pas` — `TOBDJ1939DM` covering DM1, DM2, DM3, DM4, DM5, DM6, DM11, DM12, DM19, DM20, DM21, DM22, DM23, DM24, DM25, DM26, DM27, DM28, DM29, DM30, DM31, DM32
+- [x] `OBD.J1939.pas` — `TOBDJ1939` bus client (address claim, TP.CM/TP.DT, ETP) *(implemented as `src/Diagnostics/OBD.Diagnostics.J1939.pas`; exposes `TOBDJ1939SessionManager` for transmit-path integration)*
+- [x] `OBD.J1939.DM.pas` — `TOBDJ1939DM` covering DM1, DM2, DM3, DM4, DM5, DM6, DM11, DM12, DM19, DM20, DM21, DM22, DM23, DM24, DM25, DM26, DM27, DM28, DM29, DM30, DM31, DM32 *(implemented as `src/Diagnostics/OBD.Diagnostics.J1939.DM.pas` with structured SPN/FMI/CM/OC decode for DM1/DM2/DM6/DM12/DM23/DM27/DM28; the remaining DM PGNs route through `OnRaw` for host-owned decode)*
 
 **DoIP (ISO 13400)**
-- [ ] `OBD.DoIP.pas` — `TOBDDoIP` (vehicle ID, routing activation, alive check, diagnostic exchange, power mode, entity status, TCP + TLS 1.2/1.3)
-- [ ] `OBD.DoIP.Discovery.pas` — `TOBDDoIPDiscovery` (UDP vehicle announcement / identification)
+- [x] `OBD.DoIP.pas` — `TOBDDoIP` (vehicle ID, routing activation, alive check, diagnostic exchange, power mode, entity status, TCP + TLS 1.2/1.3) *(covered by `TOBDDoIPClient` in `src/Protocol/OBD.Protocol.DoIP.Client.pas`)*
+- [x] `OBD.DoIP.Discovery.pas` — `TOBDDoIPDiscovery` (UDP vehicle announcement / identification) *(covered by `TOBDDoIPClient.OnVehicleAnnouncement` + the `TOBDDoIPVehicleAnnouncement` codec helpers)*
 
 **Catalogues & OEM extension**
 - [x] `catalogs/uds/dids-generic.json` — common UDS DIDs (FA10 active session, F186 active diag session, F187 spare-part number, F188 ECU SW number, F189 ECU SW version, F18A system supplier, F18B ECU manufacturing date, F18C serial number, F190 VIN, F191 VehManECUHW number, F192 SW version, F195 diagnostic spec, F197 system name, F198 repair shop code, F199 programming date, F19D programming repair shop, F19E programming session, F1A0 alf-protected, …)

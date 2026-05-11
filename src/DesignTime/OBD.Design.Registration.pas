@@ -81,6 +81,8 @@ uses
   OBD.Diagnostics.KWP.ReadDTC,
   OBD.Diagnostics.KWP.IOControl,
   OBD.Diagnostics.KWP.Routine,
+  OBD.Diagnostics.J1939,
+  OBD.Diagnostics.J1939.DM,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -311,7 +313,9 @@ begin
     TOBDKWPReadID,
     TOBDKWPReadDTC,
     TOBDKWPIOControl,
-    TOBDKWPRoutine
+    TOBDKWPRoutine,
+    TOBDJ1939,
+    TOBDJ1939DM
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

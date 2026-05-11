@@ -120,6 +120,8 @@ contains
   OBD.Diagnostics.KWP.ReadDTC in '..\src\Diagnostics\OBD.Diagnostics.KWP.ReadDTC.pas',
   OBD.Diagnostics.KWP.IOControl in '..\src\Diagnostics\OBD.Diagnostics.KWP.IOControl.pas',
   OBD.Diagnostics.KWP.Routine in '..\src\Diagnostics\OBD.Diagnostics.KWP.Routine.pas',
+  OBD.Diagnostics.J1939 in '..\src\Diagnostics\OBD.Diagnostics.J1939.pas',
+  OBD.Diagnostics.J1939.DM in '..\src\Diagnostics\OBD.Diagnostics.J1939.DM.pas',
   OBD.Service.VehicleHealth in '..\src\Service\OBD.Service.VehicleHealth.pas',
   OBD.Service.DriveCycle.Types in '..\src\Service\OBD.Service.DriveCycle.Types.pas',
   OBD.Service.DriveCycle.Catalog in '..\src\Service\OBD.Service.DriveCycle.Catalog.pas',
