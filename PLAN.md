@@ -691,7 +691,7 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 
 **Tests & samples**
 - [x] DUnitX coverage per service: capture-driven encode/decode, NRC handling, multi-frame ISO-TP for long DIDs, UDS session timing *(per-component lifecycle + safety-gate + J2012/SPN/FMI decoder coverage in `Tests.OBD.Diagnostics.{UDS,KWP,J1939}` + `Tests.OBD.OEM`; the underlying wire encode / decode + NRC routing already covered in the Phase 4 `Tests.OBD.Protocol.*` fixtures)*
-- [ ] Samples: `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`, `15-UDSReadDTC`, `16-UDSRoutine`, `17-UDSIOControl`, `18-KWPReadID`, `19-J1939DM`, `20-DoIPDiscovery`
+- [x] Samples: `08-UDSReadDID`, `09-J1939Listener`, `10-DoIPDiagnostics`, `15-UDSReadDTC`, `16-UDSRoutine`, `17-UDSIOControl`, `18-KWPReadID`, `19-J1939DM`, `20-DoIPDiscovery` *(shipped without the numeric phase-prefix per the no-numbering convention: `samples/UDSReadDID`, `samples/J1939Listener`, `samples/DoIPDiagnostics`, `samples/UDSReadDTC`, `samples/UDSRoutine`, `samples/UDSIOControl`, `samples/KWPReadID`, `samples/J1939DM`, `samples/DoIPDiscovery`)*
 
 ### Phase 7 — Calibration & speciality buses (~4 weeks)
 
