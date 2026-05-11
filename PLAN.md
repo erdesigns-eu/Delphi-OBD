@@ -612,8 +612,8 @@ with production-ready code on its scope.
 
 #### Phase 4g — Phase 4 close-out
 - [x] End-to-end integration tests using captured `.obdlog` fixtures
-- [ ] Phase 4 review report (consolidates 4a..4f honest reviews)
-- [ ] Confirm CHANGELOG covers every subphase
+- [x] Phase 4 review report (consolidates 4a..4f honest reviews)
+- [x] Confirm CHANGELOG covers every subphase
 - [x] Confirm sample 03-ReadVIN works end-to-end
 
 ### Phase 5 — Service-mode components (~4 weeks)
@@ -725,7 +725,7 @@ XCP/CCP, IsoBus, Tachograph. Built on the Phase 4 protocol layer (SecOC, LIN, Fl
 Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable failure mode (bad coding values can be reverted by writing back the snapshot).
 
 **Generic coding**
-- [ ] `OBD.UDS.WriteDID.pas` — `TOBDUDSWriteDID` (0x2E)
+- [x] `OBD.UDS.WriteDID.pas` — `TOBDUDSWriteDID` (0x2E)
 - [x] `OBD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory` (0x3D, used by Flasher in Phase 8 too)
 - [x] `OBD.Coding.Session.pas` — `TOBDCodingSession` orchestrator (snapshot → write → verify → rollback-on-fail)
 - [x] `OBD.Coding.Diff.pas` — `TOBDCodingDiff`
@@ -746,8 +746,8 @@ Vendor-agnostic write surface plus per-OEM coding helpers. Hardware-recoverable 
 - [x] `OBD.KWP.WriteID.pas` — write counterpart of ReadID
 
 **Tests & samples**
-- [ ] DUnitX coverage: snapshot/write/verify round-trip, rollback on NRC, audit log integrity, diff correctness
-- [ ] Samples: `21-CodingDryRun`, `22-CodingApply`, `23-VAGLongCoding`, `24-BMWCAFD`, `25-CodingDiff`, `26-CodingRollback`
+- [x] DUnitX coverage: snapshot/write/verify round-trip, rollback on NRC, audit log integrity, diff correctness
+- [x] Samples: `21-CodingDryRun`, `22-CodingApply`, `23-VAGLongCoding`, `24-BMWCAFD`, `25-CodingDiff`, `26-CodingRollback`
 
 ### Phase 9 — Flashing (~6 weeks)
 
@@ -787,7 +787,7 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 - [x] Loud documentation: every flashing component's XMLDoc opens with a brick-risk warning; `docs/flashing-safety.md` is a required read
 
 **Tests & samples**
-- [ ] DUnitX coverage: transfer state machine on captured fixtures (no real ECU), checkpoint resume, voltage-gate abort, signature pass/fail, audit-log signing
+- [x] DUnitX coverage: transfer state machine on captured fixtures (no real ECU), checkpoint resume, voltage-gate abort, signature pass/fail, audit-log signing
 - [x] Bench-test playbook: documented manual procedure with bricked-ECU recovery (separate `docs/flashing-safety.md`)
 - [x] Samples: `27-FlashDryRun` (computes everything, never sends 0x36), `28-FlashSignedFirmware` (real flash; opens with safety banner), `29-J1939Flash`
 

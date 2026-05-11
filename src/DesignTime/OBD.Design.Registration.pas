@@ -74,6 +74,7 @@ uses
   OBD.Calibration.CCP,
   OBD.Speciality.IsoBus,
   OBD.UDS.WriteMemory,
+  OBD.UDS.WriteDID,
   OBD.KWP.WriteID,
   OBD.Coding.AuditLog,
   OBD.Coding.Session,
@@ -297,6 +298,7 @@ begin
   // Extra write-side components and the session orchestrator.
   RegisterComponents('OBD Coding', [
     TOBDUDSWriteMemory,
+    TOBDUDSWriteDID,
     TOBDKWPWriteID,
     TOBDCodingAuditLog,
     TOBDCodingSession,

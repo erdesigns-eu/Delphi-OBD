@@ -119,6 +119,7 @@ contains
   OBD.Coding.Uploader in '..\src\Coding\OBD.Coding.Uploader.pas',
   OBD.Coding.FlashSession in '..\src\Coding\OBD.Coding.FlashSession.pas',
   OBD.UDS.WriteMemory in '..\src\Coding\OBD.UDS.WriteMemory.pas',
+  OBD.UDS.WriteDID in '..\src\Coding\OBD.UDS.WriteDID.pas',
   OBD.KWP.WriteID in '..\src\Coding\OBD.KWP.WriteID.pas',
   OBD.Coding.Diff in '..\src\Coding\OBD.Coding.Diff.pas',
   OBD.Coding.AuditLog in '..\src\Coding\OBD.Coding.AuditLog.pas',

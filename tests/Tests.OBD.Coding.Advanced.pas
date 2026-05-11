@@ -26,6 +26,7 @@ uses
   OBD.Types,
   OBD.Protocol.SecOC.AES,
   OBD.UDS.WriteMemory,
+  OBD.UDS.WriteDID,
   OBD.KWP.WriteID,
   OBD.Coding.Diff,
   OBD.Coding.AuditLog,
@@ -45,6 +46,9 @@ type
   public
     [Test] procedure UDSWriteMemoryRaisesWhenAutoExecuteFalse;
     [Test] procedure UDSWriteMemoryRaisesOnEmptyData;
+    [Test] procedure UDSWriteDIDRaisesWhenAutoExecuteFalse;
+    [Test] procedure UDSWriteDIDRaisesOnEmptyData;
+    [Test] procedure UDSWriteDIDRaisesWhenProtocolUnassigned;
     [Test] procedure KWPWriteIDRaisesWhenAutoExecuteFalse;
   end;
 
@@ -112,6 +116,51 @@ begin
     W.AutoExecute := True;
     Assert.WillRaise(
       procedure begin W.Write($1000, nil); end,
+      EOBDConfig);
+  finally
+    W.Free;
+  end;
+end;
+
+procedure TWriteSafetyTests.UDSWriteDIDRaisesWhenAutoExecuteFalse;
+var
+  W: TOBDUDSWriteDID;
+begin
+  W := TOBDUDSWriteDID.Create(nil);
+  try
+    Assert.IsFalse(W.AutoExecute);
+    Assert.WillRaise(
+      procedure begin W.Write($F190, TBytes.Create($31)); end,
+      EOBDConfig);
+  finally
+    W.Free;
+  end;
+end;
+
+procedure TWriteSafetyTests.UDSWriteDIDRaisesOnEmptyData;
+var
+  W: TOBDUDSWriteDID;
+begin
+  W := TOBDUDSWriteDID.Create(nil);
+  try
+    W.AutoExecute := True;
+    Assert.WillRaise(
+      procedure begin W.Write($F190, nil); end,
+      EOBDConfig);
+  finally
+    W.Free;
+  end;
+end;
+
+procedure TWriteSafetyTests.UDSWriteDIDRaisesWhenProtocolUnassigned;
+var
+  W: TOBDUDSWriteDID;
+begin
+  W := TOBDUDSWriteDID.Create(nil);
+  try
+    W.AutoExecute := True;
+    Assert.WillRaise(
+      procedure begin W.Write($F190, TBytes.Create($31)); end,
       EOBDConfig);
   finally
     W.Free;

@@ -196,6 +196,80 @@ work. Bug reports + feedback during the beta window:
   (6), `Tests.OBD.Connection` (8).
 - Sample `01-ConnectAndPing`.
 
+### Added — Phase 4g (Phase 4 close-out)
+- Palette registration of every Phase 4 component on the **OBD**
+  tab via `src/DesignTime/OBD.Design.Registration.pas`:
+  `TOBDProtocol`, `TOBDDoIPClient`, `TOBDSecOCCodec`.
+- `Tests.OBD.Protocol.Integration` — cross-cutting end-to-end
+  tests: `UDSOverSecOCOverDoIP` exercises the full forward +
+  reverse chain (UDS RDBI → SecOC wrap → DoIP DiagnosticMessage,
+  then unpack DoIP → unwrap SecOC and verify bytes + freshness);
+  `ISO15765MultiFrameDecodesViaUDS` feeds FF + 2× CF through the
+  reassembler and parses the reassembled buffer as a positive
+  Read-DID 0xF190 response.
+- Sample `04-LIN-LDF-Parse` — console LDF parser demo with
+  `sample.ldf` smoke fixture.
+- Sample `05-SecOC-WrapUnwrap` — console SecOC stack demo: wrap a
+  UDS payload, print wire bytes, unwrap, then trigger MAC-tamper
+  and replay rejection.
+- Consolidated Phase 4 honest review (`docs/phase-reviews.md`
+  §Phase 4g): ~5500 production lines across 23 protocol units,
+  ~3500 test lines across 13 fixtures, > 130 test methods,
+  24 honest-review flags raised (11 closed inline, 13 tracked).
+
+### Added — Phase 4f (LIN / FlexRay / MOST side buses)
+- `OBD.Protocol.LIN.Frame` — classic 0x55 break + sync framing,
+  PID parity, classic + enhanced checksum, signal pack/unpack
+  (LIN 1.x + 2.x rules).
+- `OBD.Protocol.LIN.LDF` — LDF parser: nodes, signals, frames,
+  schedule tables; emits a structured `TOBDLDFCluster`.
+- `OBD.Protocol.FlexRay.Frame` — static / dynamic segment frame
+  format, header CRC-11, payload CRC-24, slot / cycle indexing.
+- `OBD.Protocol.MOST.Control` — MOST25 / MOST50 / MOST150
+  control-channel framing (`fblock_id`, `inst_id`, `func_id`,
+  `op_type`, telegram_id, length, data).
+- DUnitX coverage: `Tests.OBD.Protocol.LIN`,
+  `Tests.OBD.Protocol.FlexRay`, `Tests.OBD.Protocol.MOST`.
+
+### Added — Phase 4e (SecOC, AUTOSAR Secure On-Board Communication)
+- `OBD.Protocol.SecOC.AES` — constant-time AES-128 encrypt with
+  full FIPS-197 test vectors covered.
+- `OBD.Protocol.SecOC.CMAC` — RFC 4493 CMAC-AES128 with the
+  RFC vectors (zero-length, 16, 40, 64 bytes) covered.
+- `OBD.Protocol.SecOC.KeyStore` — `IOBDSecOCKeyStore` interface
+  + in-memory implementation; per-`(KeyID, Direction)` keys.
+- `OBD.Protocol.SecOC.Freshness` — rolling freshness counter
+  manager; truncated-MAC convention; replay rejection.
+- `OBD.Protocol.SecOC` — `TOBDSecOCCodec` wrap / unwrap with
+  authenticated payload + freshness on the wire; verify on the
+  RX side with constant-time MAC compare.
+- DUnitX coverage via `Tests.OBD.Protocol.SecOC` (AES, CMAC,
+  wrap/unwrap, MAC-tamper rejection, replay rejection).
+
+### Added — Phase 4d (DoIP — ISO 13400)
+- `OBD.Protocol.DoIP.Header` — header decode (0x02 0xFD
+  signature, payload type, length) and encoders for every
+  payload type.
+- `OBD.Protocol.DoIP.Messages` — all 15 ISO 13400-2 payload
+  types: vehicle ID req/resp (0x0001 / 0x0004), routing
+  activation req/resp (0x0005 / 0x0006), alive check req/resp
+  (0x0007 / 0x0008), diagnostic message (0x8001) + ACK / NACK
+  (0x8002 / 0x8003), power-mode req/resp (0x4003 / 0x4004),
+  entity-status req/resp (0x4001 / 0x4002).
+- `OBD.Protocol.DoIP.Transport` — `IOBDDoIPTransport` contract
+  for TCP / TLS plumbing; pluggable via concrete `*.Client`
+  implementations.
+- `OBD.Protocol.DoIP.TLS.OpenSSL` — Windows OpenSSL DLL drop-in
+  TLS 1.2 / 1.3 transport (`libssl` + `libcrypto`).
+- `OBD.Protocol.DoIP.Client` — `TOBDDoIPClient` component:
+  vehicle discovery, routing activation lifecycle, diagnostic
+  exchange with ACK/NACK awaiting, alive check probing.
+- `OBD.Protocol.DoIP` — façade unit re-exporting the public
+  surface.
+- DUnitX coverage via `Tests.OBD.Protocol.DoIP` (every payload
+  type round-trip, transport state machine, routing activation
+  variants).
+
 ### Added — Phase 4c follow-ups (closed before 4d)
 - `TOBDJ1939SessionManager.InterFramePaceMs` — optional inter-
   frame pace (milliseconds) inserted between consecutive
