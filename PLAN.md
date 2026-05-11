@@ -621,28 +621,28 @@ with production-ready code on its scope.
 All ten OBD-II service modes (01–0A) covered by dedicated components.
 
 - [x] `OBD.LiveData.pas` — `TOBDLiveData` (Mode 01), batched PID requests (≤6/frame on CAN), polling timer, supported-PID handling
-- [ ] `OBD.PIDList.pas` — `TOBDPIDList` collection + `TOBDPIDItem` (shared by LiveData, FreezeFrame)
+- [x] `OBD.PIDList.pas` — `TOBDPIDList` collection + `TOBDPIDItem` (shared by LiveData, FreezeFrame)
 - [x] `OBD.FreezeFrame.pas` — `TOBDFreezeFrame` (Mode 02), frame-number-aware decoder
 - [x] `OBD.DTC.pas` — `TOBDDTC` (Modes 03/07/0A), single canonical DTC decoder per ISO 15031-5
-- [ ] `OBD.ClearDTC.pas` — `TOBDClearDTC` (Mode 04)
-- [ ] `OBD.OxygenMonitor.pas` — `TOBDOxygenMonitor` (Mode 05), test-ID structured, non-CAN
+- [x] `OBD.ClearDTC.pas` — `TOBDClearDTC` (Mode 04)
+- [x] `OBD.OxygenMonitor.pas` — `TOBDOxygenMonitor` (Mode 05), test-ID structured, non-CAN
 - [x] `OBD.MonitorResults.pas` — `TOBDMonitorResults` (Mode 06), MID/TID/UASID structured with min/max/value ranges; catalog-driven via `catalogs/obd2/monitors.json`
 - [x] `OBD.SystemControl.pas` — `TOBDSystemControl` (Mode 08), bidirectional control / actuator tests
 - [x] `OBD.VehicleInfo.pas` — `TOBDVehicleInfo` (Mode 09) covering full PID set:
-  - [ ] PID 02 — VIN
-  - [ ] PID 04 — Calibration ID(s)
-  - [ ] PID 06 — Calibration Verification Number(s)
-  - [ ] PID 08 — In-Use Performance Tracking (spark ignition)
-  - [ ] PID 0A — ECU Name
-  - [ ] PID 0B — In-Use Performance Tracking (compression ignition)
-  - [ ] PID 0D — Engine Serial Number
-  - [ ] Aux input status
-  - [ ] `TOBDCalibrationHelper` sub-object: VerifyCVN, IsCalIDInRange, format helpers (port logic from existing `OBD.Service09.Calibration.pas` for reference only)
-- [ ] `OBD.WWHOBD.pas` — `TOBDWWHOBD` (heavy-duty harmonised OBD over UDS, DTC class A/B1/B2/C handling)
-- [ ] `OBD.WWHOBD.Readiness.pas` — `TOBDWWHReadiness` (monitor-completion reporting)
-- [ ] `OBD.DataSource.pas` — `TOBDDataSource` bridge
-- [ ] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement; WWH-OBD class-mapping coverage
-- [ ] Samples `04-LiveDashboard`, `05-DTCReader`, `06-FreezeFrame`, `11-MonitorResults`, `12-VehicleInfo`, `30-WWHOBD`
+- [x] ] PID 02 — VIN
+- [x] ] PID 04 — Calibration ID(s)
+- [x] ] PID 06 — Calibration Verification Number(s)
+- [x] ] PID 08 — In-Use Performance Tracking (spark ignition)
+- [x] ] PID 0A — ECU Name
+- [x] ] PID 0B — In-Use Performance Tracking (compression ignition)
+- [x] ] PID 0D — Engine Serial Number
+- [x] ] Aux input status
+- [x] ] `TOBDCalibrationHelper` sub-object: VerifyCVN, IsCalIDInRange, format helpers (port logic from existing `OBD.Service09.Calibration.pas` for reference only)
+- [x] `OBD.WWHOBD.pas` — `TOBDWWHOBD` (heavy-duty harmonised OBD over UDS, DTC class A/B1/B2/C handling)
+- [x] `OBD.WWHOBD.Readiness.pas` — `TOBDWWHReadiness` (monitor-completion reporting)
+- [x] `OBD.DataSource.pas` — `TOBDDataSource` bridge
+- [x] Tests per component: end-to-end with `TOBDReplayer` feeding captured logs; explicit DTC-decode coverage for P/C/B/U categories; Mode 06 stride correctness; Mode 09 IPT counter advancement; WWH-OBD class-mapping coverage
+- [x] Samples `LiveDashboard`, `DTCReader`, `FreezeFrame`, `MonitorResults`, `VehicleInfo`, `WWHOBD`
 
 ### Phase 6 — Advanced diagnostics as components (~5 weeks)
 

@@ -63,6 +63,11 @@ uses
   OBD.Service.DriveCycle,
   OBD.Service.EVBattery,
   OBD.Service.Actuator,
+  OBD.ClearDTC,
+  OBD.OxygenMonitor,
+  OBD.DataSource,
+  OBD.WWHOBD,
+  OBD.WWHOBD.Readiness,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -271,7 +276,12 @@ begin
     TOBDActuator,
     TOBDVehicleHealth,
     TOBDDriveCycleAdvisor,
-    TOBDEVBattery
+    TOBDEVBattery,
+    TOBDClearDTC,
+    TOBDOxygenMonitor,
+    TOBDDataSource,
+    TOBDWWHOBD,
+    TOBDWWHReadiness
   ]);
 
   // Coding & flashing: write-side UDS components. On their own
