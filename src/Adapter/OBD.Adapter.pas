@@ -680,13 +680,13 @@ procedure TOBDAdapter.FireOnError(ACode: TOBDErrorCode;
 var
   Code: TOBDErrorCode;
   Msg: string;
+  Handled: Boolean;
 begin
   Code := ACode;
   Msg := AMessage;
   if not Assigned(FOnError) then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    var Handled: Boolean;
     Handled := False;
     FOnError(Self, Code, Msg, Handled);
   end

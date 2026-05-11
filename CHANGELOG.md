@@ -10,7 +10,168 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
-(no changes since `2.0.0-beta.1`)
+### Added — service-mode extras
+- `TOBDClearDTC` (`OBD.ClearDTC`) — single-purpose
+  ClearDiagnosticInformation component spanning OBD-II Mode 0x04,
+  UDS Service 0x14 (3-byte group selector) and KWP2000 Service
+  0x14 (2-byte group word) via the `Dialect` switch.
+  `AutoExecute = False` default.
+- `TOBDOxygenMonitor` (`OBD.OxygenMonitor`) — OBD-II Service 0x05
+  oxygen-sensor monitoring with supported-TID bitmap discovery
+  (0x00 / 0x20 / 0x40 walk) and `ReadAll` sweep.
+- `TOBDPIDList` + `TOBDPIDItem` (`OBD.PIDList`) — design-time-
+  editable `TOwnedCollection` of `(Mode, PID, Name, Enabled,
+  PollIntervalMs)` entries. `EnabledFor(Mode)` helper.
+- `TOBDDataSource` (`OBD.DataSource`) — TDataSource-style bridge
+  between a service component and any number of consumers.
+  Sources may be `TOBDLiveData`, `TOBDDTCs`, `TOBDFreezeFrame`,
+  `TOBDOnBoardMonitor` or `TOBDVIN`. `Active` toggle
+  subscribes / unsubscribes cleanly.
+- `TOBDWWHOBD` (`OBD.WWHOBD`) — ISO 27145 World-Wide Harmonised
+  OBD diagnostic component. ReadDTC by severity mask (0x19
+  sub 0x42) and by readiness-group (0x19 sub 0x55); MIL-usage
+  counters (DIDs 0xF402 / 0xF407); class-A / B1 DTC counters
+  (0xF418 / 0xF419); VIN (0xF190); `ClassifySeverity` helper
+  maps the raw severity byte to a 5-state enum.
+- `TOBDWWHReadiness` (`OBD.WWHOBD.Readiness`) — WWH-OBD monitor-
+  completion reporting. Walks DIDs 0xF411 / 0xF412 / 0xF40C
+  into a structured snapshot; degrades gracefully on rejected
+  secondary DIDs.
+
+### Added — advanced diagnostics surface
+- `TOBDUDS` (`OBD.Diagnostics.UDS`) — UDS session-hub component.
+  DiagnosticSessionControl (0x10), TesterPresent keep-alive
+  thread (0x3E), CommunicationControl (0x28),
+  AccessTimingParameter (0x83). KeepAlive thread joins cleanly
+  on destroy / Close.
+- `TOBDUDSReset` (`OBD.Diagnostics.UDS.Reset`) — ECU Reset
+  (Service 0x11) with every standard sub-function and the
+  `enableRapidShutdown` power-down-time payload.
+- `TOBDUDSReadMemory` (`OBD.Diagnostics.UDS.ReadMemory`) —
+  ReadMemoryByAddress (Service 0x23) with configurable address /
+  length format widths.
+- `TOBDUDSIOControl` (`OBD.Diagnostics.UDS.IOControl`) —
+  InputOutputControlByIdentifier (Service 0x2F). Destructive —
+  AutoExecute = False with OnBeforeSend cancellable hook.
+- `TOBDUDSReadDID` (`OBD.Diagnostics.UDS.ReadDID`) — focused
+  read-only ReadDataByIdentifier (Service 0x22). Multi-DID batch
+  encoder + DID-echo validation per response slot.
+- `TOBDUDSReadDTC` (`OBD.Diagnostics.UDS.ReadDTC`) — every
+  Service 0x19 sub-function with convenience helpers for
+  by-status-mask / supported-DTCs / by-DTC-number.
+- `TOBDUDSReadByPeriodic` (`OBD.Diagnostics.UDS.Periodic`) —
+  ReadDataByPeriodicIdentifier (Service 0x2A). Start / Stop /
+  StartAsync; DispatchSample routes received frames through
+  OnSample.
+- `TOBDUDSDynamicDID` (`OBD.Diagnostics.UDS.DynamicDID`) —
+  DynamicallyDefineDataIdentifier (Service 0x2C). DefineByDID
+  composes synthetic DIDs from slices of existing DIDs.
+- `TOBDKWP` (`OBD.Diagnostics.KWP`) — KWP2000 session hub
+  (Services 0x10 / 0x20 / 0x3E).
+- `TOBDKWPReadID` (`OBD.Diagnostics.KWP.ReadID`) — Services
+  0x1A / 0x21 / 0x22 with identifier-echo validation.
+- `TOBDKWPReadDTC` (`OBD.Diagnostics.KWP.ReadDTC`) — Services
+  0x18 / 0x19 with J2012 P/C/B/U decoder.
+- `TOBDKWPIOControl` (`OBD.Diagnostics.KWP.IOControl`) — Services
+  0x2F / 0x30. Destructive — AutoExecute = False with
+  OnBeforeSend hook.
+- `TOBDKWPRoutine` (`OBD.Diagnostics.KWP.Routine`) — Services
+  0x31 / 0x32 / 0x33 (Start / Stop / RequestResults) with
+  AutoExecute = False on Start / Stop.
+- `TOBDJ1939` (`OBD.Diagnostics.J1939`) — SAE J1939-21 bus-client
+  with SourceAddress + NAME, AddressClaimed / Request payload
+  helpers, owned TP/ETP session manager exposed for transmit-
+  path integration.
+- `TOBDJ1939DM` (`OBD.Diagnostics.J1939.DM`) — J1939-73 diagnostic
+  message decoder. Structured SPN / FMI / CM / OC + lamp-status
+  decode for DM1 / DM2 / DM6 / DM12 / DM23 / DM27 / DM28;
+  OnRaw for the rest.
+
+### Added — OEM overlay system
+- `TOBDOEMOverlay` (`OBD.OEM.Registry`) — per-OEM identifier maps
+  for DIDs, PIDs, DTCs, SPNs, FMIs and PGNs.
+- `TOBDOEMRegistry` — process-wide singleton walking overlays in
+  registration order. Generic identifier resolution falls back
+  to a sensible `<kind> 0xNNNN` label when nothing matches.
+- `TOBDOEMCatalog` (`OBD.OEM.Catalog`) — JSON-overlay loader
+  component. Reads a vendor catalogue with optional `dids` /
+  `pids` / `dtcs` / `spns` / `fmis` / `pgns` arrays and
+  registers the loaded overlay automatically.
+
+### Added — design-time editors + help keywords
+- New property editors in `OBD.Design.Editors`:
+  `TOBDBluetoothDeviceProperty`, `TOBDWiFiHostProperty`,
+  `TOBDFTDISerialProperty`, `TOBDProtocolManualProperty` (named-
+  protocol drop-down), `TOBDPIDListProperty`,
+  `TOBDPGNListProperty`, `TOBDDIDListProperty`.
+- New component editors: `TOBDLiveDataComponentEditor`
+  (`Add standard PIDs…` / `Live test PID…`),
+  `TOBDDTCsComponentEditor` (`Read DTCs…` / `Clear DTCs…` with
+  destructive confirmation).
+- `TOBDConnectionComponentEditor` gains a `Refresh ports` verb
+  alongside the existing `Test connection…`.
+- `OBD.Design.Help` — `RegisterDelphiOBDHelpKeywords` registers
+  `delphi-obd:<ClassName>` for every published Delphi-OBD
+  component (48 classes) so F1 in the form designer resolves
+  to a documentation anchor. Host help-collection wiring
+  documented in `docs/install.md`.
+
+### Added — documentation
+- `docs/install.md` — step-by-step RAD Studio 12 + 10.3 manual
+  install procedure with verification checklist and help-
+  collection wiring instructions.
+- `docs/components/README.md` — per-component documentation
+  index deep-linking into the consolidated `docs/components.md`
+  page. Extended `docs/components.md` with one-paragraph
+  entries for every newly-added Phase 5 / Phase 6 component
+  (22 new entries).
+
+### Added — catalogues
+- `catalogs/j1939/fmis.json` — every J1939-73 §5.7.13 Failure
+  Mode Identifier (0..21 + 31).
+- `catalogs/j1939/spns.json` — seed catalogue of 38 common
+  engine / aftertreatment / vehicle SPNs.
+- `catalogs/kwp/common-ids.json` — KWP2000 ECU-identification
+  table (0x80..0x9B) + the standard F1xx common-identifier
+  family.
+- `catalogs/uds/routines-generic.json` — standard UDS RIDs
+  (0x0202 Erase Memory, 0x0203 Check Programming Dependencies,
+  0xFF00 Start Programming, etc.).
+- `catalogs/tacho/data-types.json` — EU 2016/799 smart-tacho
+  data-type catalogue covering ActivityChangeInfo,
+  EventFaultType, CalibrationPurpose, GeoCoordinates and the
+  Vu / card record families.
+
+### Added — coding write side
+- `TOBDUDSWriteDID` (`OBD.UDS.WriteDID`) — focused
+  WriteDataByIdentifier (Service 0x2E) component. AutoExecute
+  = False default; validates the DID echo in the response.
+
+### Added — samples
+- 22 new walkthrough samples covering the new component
+  families: `UDSReadDID`, `UDSReadDTC`, `UDSRoutine`,
+  `UDSIOControl`, `KWPReadID`, `J1939Listener`, `J1939DM`,
+  `DoIPDiagnostics`, `DoIPDiscovery`, `XCPMeasurement`,
+  `XCPCalibration`, `IsoBusVT`, `IsoBusTaskController`,
+  `Tachograph`, `LINSchedule`, `FlexRaySlot`, `LiveDashboard`,
+  `DTCReader`, `FreezeFrame`, `MonitorResults`, `VehicleInfo`,
+  `WWHOBD` plus six coding samples (`CodingDryRun`,
+  `CodingApply`, `VAGLongCoding`, `BMWCAFD`, `CodingDiff`,
+  `CodingRollback`).
+
+### Changed — style / hygiene
+- Strip every `Phase N` reference from comments and XMLDoc
+  across `src/`, `tests/` and `samples/` (129 substitutions
+  across 54 files).
+- Replace every inline `var Handled: Boolean;` declaration with
+  a top-of-routine var-block entry, restoring Delphi 10.3 Rio
+  compatibility per `STYLE.md` §5 (39 files).
+- Rename `Tests.OBD.Service.Phase5` →
+  `Tests.OBD.Service.Extras` and rename test fixture classes
+  (`TPhase5Tests` → `TServiceExtrasTests`,
+  `TPhase6UDSTests` → `TUDSDiagnosticsTests`,
+  `TPhase6KWPTests` → `TKWPDiagnosticsTests`,
+  `TPhase6J1939Tests` → `TJ1939DiagnosticsTests`).
 
 ## [2.0.0-beta.1] — 2026-05-10
 

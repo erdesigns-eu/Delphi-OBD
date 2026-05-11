@@ -382,6 +382,7 @@ var
   Self_: TOBDWWHReadiness;
   Code: TOBDErrorCode;
   Msg: string;
+  Handled: Boolean;
 begin
   if not Assigned(FOnError) then
     Exit;
@@ -390,7 +391,6 @@ begin
   Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    var Handled: Boolean;
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end

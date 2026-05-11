@@ -490,12 +490,12 @@ procedure TOBDConnection.FireOnError(ACode: TOBDErrorCode;
 var
   CodeCopy: TOBDErrorCode;
   MsgCopy: string;
+  Handled: Boolean;
 begin
   CodeCopy := ACode;
   MsgCopy := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    var Handled: Boolean;
     Handled := False;
     if Assigned(FOnError) then
       FOnError(Self, CodeCopy, MsgCopy, Handled);
@@ -737,12 +737,12 @@ procedure TOBDConnection.HandleTransportError(Sender: TObject;
 var
   Code: TOBDErrorCode;
   Msg: string;
+  Handled: Boolean;
 begin
   Code := ACode;
   Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    var Handled: Boolean;
     Handled := False;
     if Assigned(FOnError) then
       FOnError(Self, Code, Msg, Handled);
