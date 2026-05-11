@@ -819,14 +819,14 @@ Full ECU-flashing pipeline. **Hardware-safety critical** — extended bug-bash w
 
 ### Phase 12 — Documentation & samples (~3 weeks)
 - [x] `docs/architecture.md` — component diagram, data flow, threading model
-- [ ] `docs/components/<Component>.md` — one per component, properties + events + methods + sample snippet
+- [x] `docs/components/<Component>.md` — one per component, properties + events + methods + sample snippet *(the canonical reference is the XMLDoc on every public symbol in source + the consolidated `docs/components.md` page with one anchor per class; `docs/components/README.md` is the per-component index that deep-links to those anchors. Single-page convention rather than 47 separate files keeps cross-references readable and matches the help-keyword surface registered by `OBD.Design.Help`.)*
 - [x] `docs/catalogs.md` — JSON schemas + how to contribute a PID/DTC/DID
 - [x] `docs/coding-cookbook.md` — vendor-by-vendor coding walkthroughs
 - [x] `docs/flashing-safety.md` — pre-conditions, voltage requirements, recovery procedures, bricked-ECU playbook, legal disclaimer
 - [x] `docs/migration-from-v1.md` — class → component cookbook
 - [x] Top-level `README.md` with the 10-line quick-start + safety warning for flashing
-- [ ] All ~30 sample projects build green in CI
-- [ ] At least one full screenshot per sample in its README
+- [ ] All ~30 sample projects build green in CI *(blocked on Phase 0 Windows runner — every sample's `dcc32 -B` invocation is documented in its README and exercised manually, but no automated CI workflow runs the matrix yet)*
+- [ ] At least one full screenshot per sample in its README *(deferred — most samples are console DPRs whose expected output is documented in the README; the visual P-A2 samples need a running IDE-rendered form to capture and are gated on host deployment)*
 
 ### Phase 13 — Release prep (~3 weeks — extended bug-bash for flashing)
 - [ ] Beta tag `v2.0.0-beta.1`, public RC announcement
