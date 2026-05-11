@@ -47,6 +47,7 @@ uses
   Vcl.Graphics,
   Vcl.ComCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.Coding.AuditLog;
@@ -229,14 +230,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 procedure ConfigureColumns(AListView: TListView;
   const ANames: array of string;
   const AWidths: array of Integer);
@@ -288,6 +281,7 @@ end;
 
 procedure TOBDFlashSafetyDashboard.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -571,6 +565,7 @@ end;
 
 procedure TOBDFlashCheckpointTimeline.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -742,6 +737,7 @@ end;
 
 procedure TOBDFlashAuditTail.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

@@ -59,13 +59,25 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>KWP1281 block counter (0..255). Default 0.
+    /// </summary>
     property Counter: Byte read FCounter write SetCounter default 0;
+    /// <summary>Total blocks exchanged this session. Default 0.
+    /// </summary>
     property BlockCount: Cardinal
       read FBlockCount write SetBlockCount default 0;
+    /// <summary>First keyword byte from the init sequence.
+    /// Default 0.</summary>
     property KW1: Byte read FKW1 write SetKW1 default 0;
+    /// <summary>Second keyword byte from the init sequence.
+    /// Default 0.</summary>
     property KW2: Byte read FKW2 write SetKW2 default 0;
+    /// <summary>Human-readable title of the most recent block.
+    /// </summary>
     property LastBlockTitle: string
       read FLastBlockTitle write SetLastBlockTitle;
+    /// <summary>Monospaced font used for the counters readout.
+    /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
@@ -84,8 +96,11 @@ type
   TOBDJ2534DeviceList = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Replace the displayed rows with the supplied
+    /// device list.</summary>
     procedure   LoadDevices(
       const ADevices: TArray<TOBDJ2534DeviceInfo>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearDevices;
   protected
     procedure CreateWnd; override;
@@ -122,14 +137,20 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Rx CAN identifier. Default 0.</summary>
     property RxId: Word read FRxId write SetRxId default 0;
+    /// <summary>Tx CAN identifier. Default 0.</summary>
     property TxId: Word read FTxId write SetTxId default 0;
+    /// <summary>Channel keep-alive interval in milliseconds.
+    /// Default 0 (disabled).</summary>
     property KeepAliveMs: Integer
       read FKeepAliveMs write SetKeepAliveMs default 0;
     /// <summary>Milliseconds since the last successful send.
     /// Hosts update this from a tick handler.</summary>
     property LastSendMs: Int64
       read FLastSendMs write SetLastSendMs default 0;
+    /// <summary>Monospaced font used for the channel readout.
+    /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
@@ -150,7 +171,10 @@ type
   TOBDDoIPNodePicker = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Replace the displayed rows with the supplied
+    /// node list.</summary>
     procedure   LoadNodes(const ANodes: TArray<TOBDDoIPNodeInfo>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearNodes;
   protected
     procedure CreateWnd; override;
@@ -211,6 +235,7 @@ end;
 
 procedure TOBDKWP1281SessionInspector.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -352,6 +377,7 @@ end;
 
 procedure TOBDTP20ChannelPanel.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

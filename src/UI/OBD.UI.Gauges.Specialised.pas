@@ -40,6 +40,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.UI.Gauges.Types,
@@ -214,19 +215,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
-function ResolveColor(ASlot, AFallback: TColor): TColor; inline;
-begin
-  if ASlot <> clDefault then Result := ASlot else Result := AFallback;
-end;
-
 { ---- TOBDBoostGauge ------------------------------------------------------ }
 
 constructor TOBDBoostGauge.Create(AOwner: TComponent);
@@ -378,6 +366,7 @@ end;
 
 procedure TOBDStateOfChargeBar.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -584,6 +573,7 @@ end;
 
 procedure TOBDRegenIndicator.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

@@ -35,6 +35,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -64,16 +65,30 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Bin the (X, Y) sample into the current grid and
+    /// trigger a repaint.</summary>
     procedure PushSample(AX, AY: Double);
+    /// <summary>Clear all bins and reset the max-hit watermark.
+    /// </summary>
     procedure Reset;
   published
+    /// <summary>Horizontal bin count. Default 32.</summary>
     property BinsX: Integer
       read FBinsX write SetBinsX default 32;
+    /// <summary>Vertical bin count. Default 24.</summary>
     property BinsY: Integer
       read FBinsY write SetBinsY default 24;
+    /// <summary>Lower bound on the X axis (sample units).
+    /// </summary>
     property XMin: Double read FXMin write SetXMin;
+    /// <summary>Upper bound on the X axis (sample units).
+    /// </summary>
     property XMax: Double read FXMax write SetXMax;
+    /// <summary>Lower bound on the Y axis (sample units).
+    /// </summary>
     property YMin: Double read FYMin write SetYMin;
+    /// <summary>Upper bound on the Y axis (sample units).
+    /// </summary>
     property YMax: Double read FYMax write SetYMax;
   end;
 
@@ -99,14 +114,27 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
+    /// <summary>Replace the cell list with the supplied array
+    /// and repaint. Auto-updates the internal max-torque
+    /// watermark used to scale colour intensity.</summary>
     procedure SetCells(const ACells: array of TOBDTorqueCell);
+    /// <summary>Remove all cells and repaint.</summary>
     procedure Clear;
+    /// <summary>Number of cells currently stored.</summary>
     function  CellCount: Integer;
   published
+    /// <summary>Lower bound of the RPM axis.</summary>
     property RPMMin:    Double read FRPMMin    write FRPMMin;
+    /// <summary>Upper bound of the RPM axis.</summary>
     property RPMMax:    Double read FRPMMax    write FRPMMax;
+    /// <summary>Lower bound of the load axis (typically 0..100 %).
+    /// </summary>
     property LoadMin:   Double read FLoadMin   write FLoadMin;
+    /// <summary>Upper bound of the load axis (typically 0..100 %).
+    /// </summary>
     property LoadMax:   Double read FLoadMax   write FLoadMax;
+    /// <summary>Reference torque (Nm) used to scale cell
+    /// colours. 0 = auto-derive from the loaded cells.</summary>
     property MaxTorque: Double read FMaxTorque write FMaxTorque;
   end;
 
@@ -146,26 +174,28 @@ type
     /// <summary>Fires the trigger. Subsequent pushes continue
     /// until the post-window elapses.</summary>
     procedure Trigger;
+    /// <summary>Discard the buffer, clear the trigger flag and
+    /// repaint.</summary>
     procedure Reset;
     /// <summary>Captured slice (pre + post window). Empty
     /// until <see cref="Finished"/> goes True.</summary>
     function  Samples: TArray<TOBDRunSample>;
+    /// <summary>True once <see cref="Trigger"/> has fired and
+    /// the post-window is still filling.</summary>
     property Triggered: Boolean read FTriggered;
+    /// <summary>True once the post-window has elapsed and
+    /// <see cref="Samples"/> is final.</summary>
     property Finished:  Boolean read FFinished;
   published
+    /// <summary>Pre-trigger window in milliseconds. Default
+    /// 1000 ms.</summary>
     property PreMs:  Cardinal read FPreMs  write SetPreMs default 1000;
+    /// <summary>Post-trigger window in milliseconds. Default
+    /// 5000 ms.</summary>
     property PostMs: Cardinal read FPostMs write SetPostMs default 5000;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 function HeatColor(T: Single): TColor; inline;
 var
@@ -205,6 +235,7 @@ end;
 
 procedure TOBDXYHeatmap.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -350,6 +381,7 @@ end;
 
 procedure TOBDTorqueRPMMap.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -441,6 +473,7 @@ end;
 
 procedure TOBDRunRecorder.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

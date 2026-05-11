@@ -366,6 +366,7 @@ end;
 
 procedure TOBDVINEdit.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -501,6 +502,7 @@ end;
 
 procedure TOBDPidPicker.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -603,6 +605,7 @@ end;
 
 procedure TOBDOEMPicker.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -678,6 +681,7 @@ end;
 
 procedure TOBDCANIdEdit.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

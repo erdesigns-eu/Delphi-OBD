@@ -38,6 +38,7 @@ uses
   Vcl.Graphics,
   Vcl.Controls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.UI.Gauges.Types,
@@ -131,14 +132,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 { ---- TOBDDigitalGauge ---------------------------------------------------- }
 
 constructor TOBDDigitalGauge.Create(AOwner: TComponent);
@@ -197,7 +190,6 @@ var
   S:        string;
   R:        TRect;
   CapH, ValH, MinMaxH: Integer;
-  Pen: TGPPen;
   Graphics: TGPGraphics;
   StripBrush: TGPSolidBrush;
   StripRect: TGPRectF;
@@ -290,7 +282,6 @@ begin
     finally
       StripBrush.Free;
     end;
-    Pen := nil; Pen.Free;  // silence
   finally
     Graphics.Free;
   end;

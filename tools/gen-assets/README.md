@@ -47,6 +47,25 @@ Append a new entry to `manifest.json` and re-run. Match the style
 guide block at the top of the manifest (flat 2D, deep blue +
 red accent, no text/shadows/gradients).
 
+## P-A2 bulk batch (169 new icons)
+
+`manifest.json` carries an entry for every component registered
+in `OBD.Design.Registration` — including the P-A2 visual surface
+(~95 components) and the radio-code calculators (~40). Most icon
+files don't exist on disk yet. When you have both API keys set:
+
+```bash
+export OPENAI_API_KEY=sk-...
+export REMOVE_BG_API_KEY=...
+python tools/gen-assets/generate.py    # only generates missing icons
+python tools/gen-assets/remove-bg.py   # strips white backgrounds
+python tools/gen-assets/build-res.py   # rebuilds DelphiOBD_DT.res
+```
+
+The pipeline is idempotent — re-running with no env changes is a
+no-op. Pass `--force` (or `--only <id>`) to regenerate specific
+entries.
+
 ## Security
 
 - The key is **only** read from `OPENAI_API_KEY`. The script

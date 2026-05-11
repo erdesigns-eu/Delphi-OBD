@@ -43,6 +43,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.Flash.Phases;
@@ -310,14 +311,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 { ---- TOBDFlashProgress --------------------------------------------------- }
 
 constructor TOBDFlashProgress.Create(AOwner: TComponent);
@@ -348,6 +341,7 @@ end;
 
 procedure TOBDFlashProgress.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -570,6 +564,7 @@ end;
 
 procedure TOBDCodingSessionPanel.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -722,6 +717,7 @@ end;
 
 procedure TOBDXCPProgressBar.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -913,6 +909,7 @@ end;
 
 procedure TOBDRecorderToolbar.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

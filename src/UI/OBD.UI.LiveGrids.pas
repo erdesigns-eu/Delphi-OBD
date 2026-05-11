@@ -270,6 +270,7 @@ end;
 
 procedure TOBDMultiPidGrid.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -443,6 +444,7 @@ end;
 
 procedure TOBDFreezeFrameTable.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

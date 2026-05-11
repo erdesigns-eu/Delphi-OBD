@@ -40,6 +40,7 @@ uses
   Vcl.Graphics,
   Vcl.StdCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -61,10 +62,19 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
+    /// <summary>Replace both buffers with the supplied old +
+    /// new bytes and repaint with change highlighting.
+    /// </summary>
     procedure LoadDiff(const AOld, ANew: TBytes);
+    /// <summary>Drop both buffers and repaint.</summary>
     procedure Clear;
+    /// <summary>Number of differing bytes between the two
+    /// buffers (over the shorter length; trailing bytes count
+    /// as changes too).</summary>
     function  ChangeCount: Integer;
   published
+    /// <summary>Monospaced font used for both hex columns.
+    /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
@@ -93,6 +103,7 @@ type
     /// <summary>Free-text label block (one bit per line, etc.)
     /// </summary>
     property LabelText: string read FLabelText write SetLabelText;
+    /// <summary>Monospaced font used for the editor.</summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
@@ -134,11 +145,18 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Adaptation channel index (1..65535 typical;
+    /// 0 = unset). Default 0.</summary>
     property Channel: Word read FChannel write SetChannel default 0;
+    /// <summary>Channel value (0..65535). Default 0.</summary>
     property Value: Word read FValue write SetValue default 0;
+    /// <summary>Monospaced font used for the inputs and status.
+    /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
+    /// <summary>Fires when the user clicks Read.</summary>
     property OnRead: TOBDAdaptationReadEvent
       read FOnRead write FOnRead;
+    /// <summary>Fires when the user clicks Write.</summary>
     property OnWrite: TOBDAdaptationWriteEvent
       read FOnWrite write FOnWrite;
   end;
@@ -163,9 +181,15 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
+    /// <summary>Replace the byte buffer and repaint the bit
+    /// grid.</summary>
     procedure LoadCoding(const ABytes: TBytes);
+    /// <summary>Snapshot of the current byte buffer (post-edits).
+    /// </summary>
     function  Coding: TBytes;
   published
+    /// <summary>Monospaced font used for the bit labels.
+    /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
@@ -191,23 +215,24 @@ type
     /// ECU's accept / reject verdict.</summary>
     procedure LoadResult(const ASeed, AKey: TBytes;
       AAccepted: Boolean);
+    /// <summary>Drop the seed / key buffers and repaint.
+    /// </summary>
     procedure Clear;
+    /// <summary>Seed bytes most recently loaded.</summary>
     property Seed:     TBytes  read FSeed;
+    /// <summary>Computed key bytes most recently loaded.
+    /// </summary>
     property Key:      TBytes  read FKey;
+    /// <summary>ECU verdict: True if the key was accepted.
+    /// </summary>
     property Accepted: Boolean read FAccepted;
   published
+    /// <summary>Monospaced font used for the seed / key
+    /// readout.</summary>
     property MonoFont: TFont read FFont write SetFontA;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 function HexBytes(const AB: TBytes): string;
 var I: Integer;
@@ -241,6 +266,7 @@ end;
 
 procedure TOBDCodingDiffViewer.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -349,6 +375,7 @@ end;
 
 procedure TOBDLabelFileEditor.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -420,6 +447,7 @@ end;
 
 procedure TOBDAdaptationEditor.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -588,6 +616,7 @@ end;
 
 procedure TOBDLongCodingEditor.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -731,6 +760,7 @@ end;
 
 procedure TOBDSeedKeyDebugger.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

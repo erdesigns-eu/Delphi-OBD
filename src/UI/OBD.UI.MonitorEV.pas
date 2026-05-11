@@ -46,6 +46,7 @@ uses
   Vcl.ExtCtrls,
   Vcl.ComCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.Service.DriveCycle.Types,
@@ -265,14 +266,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 function MonitorDisplay(AMonitor: TOBDMonitor): string;
 begin
   case AMonitor of
@@ -352,6 +345,7 @@ end;
 
 procedure TOBDReadinessGrid.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -465,6 +459,7 @@ end;
 
 procedure TOBDDriveCycleProgress.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -615,6 +610,7 @@ end;
 
 procedure TOBDCellVoltageHeatmap.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -840,6 +836,7 @@ end;
 
 procedure TOBDChargingFlow.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

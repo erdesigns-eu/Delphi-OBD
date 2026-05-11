@@ -43,6 +43,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.Connection.Types,
@@ -73,6 +74,7 @@ type
     function  StateColor: TColor;
     function  StateText: string;
   protected
+    procedure Loaded; override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
     procedure PaintControl(ACanvas: TCanvas); override;
@@ -265,14 +267,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 procedure DrawLamp(ACanvas: TCanvas; AGraphics: TGPGraphics;
   AX, AY, ASize: Single; AColor, ABorder: TColor;
   AHalo: Boolean);
@@ -341,6 +335,7 @@ end;
 
 procedure TOBDConnectionStateLamp.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -350,6 +345,15 @@ end;
 procedure TOBDConnectionStateLamp.HandleFontChange(Sender: TObject);
 begin
   Repaint;
+end;
+
+procedure TOBDConnectionStateLamp.Loaded;
+begin
+  inherited;
+  // DFM streaming finished — re-read the bound connection's
+  // state so the lamp tracks reality from the first frame.
+  if FConnection <> nil then
+    Refresh;
 end;
 
 procedure TOBDConnectionStateLamp.HandlePulseTick(Sender: TObject);
@@ -511,6 +515,7 @@ end;
 
 procedure TOBDDoIPStatusPanel.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -646,6 +651,7 @@ end;
 
 procedure TOBDSecurityAccessLamp.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -791,6 +797,7 @@ end;
 
 procedure TOBDSecOCStatusLamp.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

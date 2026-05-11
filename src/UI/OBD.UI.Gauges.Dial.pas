@@ -32,6 +32,7 @@ uses
   Vcl.Graphics,
   Vcl.Controls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.UI.Gauges.Types,
@@ -163,14 +164,6 @@ const
   // 4 o'clock).
   DEFAULT_DIAL_START = 135;
   DEFAULT_DIAL_SWEEP = 270;
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 { ---- TOBDDialBase --------------------------------------------------------- }
 

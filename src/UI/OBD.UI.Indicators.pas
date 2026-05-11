@@ -33,6 +33,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -144,14 +145,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 { ---- TOBDLED -------------------------------------------------------------- }
 
 constructor TOBDLED.Create(AOwner: TComponent);
@@ -178,6 +171,7 @@ end;
 
 procedure TOBDLED.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -470,6 +464,7 @@ end;
 
 procedure TOBDMatrixDisplay.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

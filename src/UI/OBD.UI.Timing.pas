@@ -39,6 +39,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -259,19 +260,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
-function ResolveColor(ASlot, AFallback: TColor): TColor; inline;
-begin
-  if ASlot <> clDefault then Result := ASlot else Result := AFallback;
-end;
-
 { ---- TOBDDragTimer ------------------------------------------------------- }
 
 constructor TOBDDragTimer.Create(AOwner: TComponent);
@@ -312,6 +300,7 @@ end;
 
 procedure TOBDDragTimer.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -516,6 +505,7 @@ end;
 
 procedure TOBDLapTimer.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -673,6 +663,7 @@ end;
 
 procedure TOBDAccelGraph.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

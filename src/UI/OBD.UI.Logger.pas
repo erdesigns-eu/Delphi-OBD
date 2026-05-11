@@ -30,6 +30,7 @@ uses
   Vcl.Graphics,
   Vcl.ComCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -70,13 +71,23 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Logging-active flag. Drives the Start / Stop
+    /// enabled state. Default False.</summary>
     property Running: Boolean
       read FRunning write SetRunning default False;
+    /// <summary>Active log file path (display only).</summary>
     property FileName: string
       read FFileName write SetFileName;
+    /// <summary>Free space on the storage volume in bytes;
+    /// rendered with auto KB/MB/GB suffix. Default 0.</summary>
     property FreeBytes: Int64
       read FFreeBytes write SetFreeBytes default 0;
+    /// <summary>Font used for the captions and storage line.
+    /// </summary>
     property LabelFont: TFont read FFont write SetFontA;
+    /// <summary>Fires when the user clicks Start
+    /// (<c>AStart = True</c>) or Stop (<c>AStart = False</c>).
+    /// </summary>
     property OnCommand: TOBDLoggerCommandEvent
       read FOnCommand write FOnCommand;
   end;
@@ -97,8 +108,11 @@ type
   TOBDLoggerExplorer = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Replace the displayed rows with the supplied
+    /// file descriptors.</summary>
     procedure   LoadFiles(
       const AFiles: TArray<TOBDLoggerFileInfo>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearFiles;
   protected
     procedure CreateWnd; override;
@@ -116,14 +130,6 @@ type
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 procedure ConfigureCols(AListView: TListView;
   const ANames: array of string;
@@ -167,6 +173,7 @@ end;
 
 procedure TOBDLoggerControl.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

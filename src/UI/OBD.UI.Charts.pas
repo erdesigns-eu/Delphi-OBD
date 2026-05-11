@@ -37,6 +37,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.UI.Dyno;
@@ -214,19 +215,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
-function ResolveColor(ASlot, AFallback: TColor): TColor; inline;
-begin
-  if ASlot <> clDefault then Result := ASlot else Result := AFallback;
-end;
-
 { ---- TOBDStripChart ----------------------------------------------------- }
 
 constructor TOBDStripChart.Create(AOwner: TComponent);
@@ -244,6 +232,7 @@ end;
 
 procedure TOBDStripChart.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -436,6 +425,7 @@ end;
 
 procedure TOBDLiveGridChart.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -606,6 +596,7 @@ end;
 
 procedure TOBDDynoChart.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -785,6 +776,7 @@ end;
 
 procedure TOBDPowerCurveGraph.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

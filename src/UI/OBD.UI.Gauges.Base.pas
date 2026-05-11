@@ -277,13 +277,15 @@ begin
     end;
   // LiveBindings refresh - notifies any TLinkPropertyToField /
   // TLinkObservableProperty bound to 'Value' on this gauge.
-  // Best-effort; the call is a no-op when no binding is wired.
-  try
-    TBindings.Notify(Self, 'Value');
-  except
-    // Bindings subsystem may not be initialised yet during
-    // design-time streaming or in stripped-down runtimes.
-  end;
+  // Best-effort; the call is a no-op when no binding is wired,
+  // and the design-time / teardown guard keeps the IDE quiet.
+  if ([csDesigning, csDestroying] * ComponentState) = [] then
+    try
+      TBindings.Notify(Self, 'Value');
+    except
+      // Bindings subsystem may not be initialised yet in
+      // stripped-down runtimes.
+    end;
 end;
 
 procedure TOBDGaugeBase.SetCaption(const AValue: string);

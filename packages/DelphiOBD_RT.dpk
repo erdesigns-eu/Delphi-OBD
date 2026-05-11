@@ -194,6 +194,7 @@ contains
   OBD.RadioCode.FordV in '..\src\RadioCode\OBD.RadioCode.FordV.pas',
   OBD.RadioCode.EEPROM in '..\src\RadioCode\OBD.RadioCode.EEPROM.pas',
   OBD.UI.Types         in '..\src\UI\OBD.UI.Types.pas',
+  OBD.UI.GDIP          in '..\src\UI\OBD.UI.GDIP.pas',
   OBD.UI.Theme         in '..\src\UI\OBD.UI.Theme.pas',
   OBD.UI.Control       in '..\src\UI\OBD.UI.Control.pas',
   OBD.UI.Anim          in '..\src\UI\OBD.UI.Anim.pas',

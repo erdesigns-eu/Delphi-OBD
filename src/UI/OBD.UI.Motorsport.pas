@@ -34,6 +34,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -162,14 +163,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 { ---- TOBDLapTrackMap --------------------------------------------------- }
 
 constructor TOBDLapTrackMap.Create(AOwner: TComponent);
@@ -181,6 +174,7 @@ end;
 
 procedure TOBDLapTrackMap.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -268,6 +262,14 @@ end;
 constructor TOBDHUDOverlay.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  // Borderless layered always-on-top form. The VCL's
+  // AlphaBlend + AlphaBlendValue properties wire the
+  // SetLayeredWindowAttributes call internally as soon as
+  // the handle is created, so we just set them here. The
+  // explicit WS_EX_LAYERED in CreateParams covers the early-
+  // handle case before AlphaBlend has run its own attribute
+  // application — also gives us WS_EX_TOOLWINDOW so the
+  // overlay doesn't appear in the taskbar.
   BorderStyle   := bsNone;
   FormStyle     := fsStayOnTop;
   AlphaBlend    := True;
@@ -288,6 +290,9 @@ procedure TOBDHUDOverlay.SetOpacityValue(AValue: Byte);
 begin
   if FOpacity = AValue then Exit;
   FOpacity := AValue;
+  // AlphaBlendValue setter re-applies the Win32 layered
+  // attributes when the handle exists; safe to set before the
+  // form is shown too (will be applied on handle creation).
   AlphaBlendValue := AValue;
 end;
 
@@ -326,6 +331,7 @@ end;
 
 procedure TOBDPredictiveLap.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -458,6 +464,7 @@ end;
 
 procedure TOBDGForceVisualiser.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

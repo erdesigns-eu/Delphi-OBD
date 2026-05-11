@@ -30,6 +30,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -56,10 +57,14 @@ type
     /// </summary>
     procedure SetBrand(const AName: string; AColor: TColor);
   published
+    /// <summary>Brand display name shown on the card.</summary>
     property BrandName: string
       read FBrandName write SetBrandName;
+    /// <summary>Card accent / fill colour. <c>clDefault</c>
+    /// uses the active theme accent.</summary>
     property AccentColor: TColor
       read FAccent write SetAccent default clDefault;
+    /// <summary>Font used for the brand name.</summary>
     property BrandFont: TFont read FFont write SetFontA;
   end;
 
@@ -85,11 +90,20 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    /// <summary>Number of digits in the cluster. Default 4.
+    /// </summary>
     property DigitCount: Integer
       read FDigitCount write SetDigitCount default 4;
+    /// <summary>Display text. Right-justified into
+    /// <see cref="DigitCount"/> digits; unsegmentable
+    /// characters render as blank.</summary>
     property Text: string read FText write SetText;
+    /// <summary>Colour for lit segments. <c>clDefault</c> uses
+    /// the theme accent.</summary>
     property OnColor: TColor read FOnColor write SetOnColor
       default clDefault;
+    /// <summary>Colour for unlit segments. <c>clDefault</c>
+    /// uses a dim theme tone.</summary>
     property OffColor: TColor read FOffColor write SetOffColor
       default clDefault;
   end;
@@ -115,13 +129,17 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Total number of bars in the indicator.
+    /// Default 4.</summary>
     property BarCount: Integer
       read FBarCount write SetBarCount default 4;
     /// <summary>Number of bars currently lit (0..BarCount).
     /// </summary>
     property ActiveBars: Integer
       read FActive write SetActive default 0;
+    /// <summary>Caption rendered next to the bars.</summary>
     property Caption: string read FCaption write SetCaption;
+    /// <summary>Font used for the caption.</summary>
     property LabelFont: TFont read FFont write SetFontA;
   end;
 
@@ -136,6 +154,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    /// <summary>Current Bluetooth RSSI in dBm (typically
+    /// -100..-30). Default -100 (no signal).</summary>
     property RssiDbm: Integer read FRssiDbm write SetRssiDbm
       default -100;
   end;
@@ -149,6 +169,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    /// <summary>Current Wi-Fi RSSI in dBm (typically
+    /// -100..-30). Default -100 (no signal).</summary>
     property RssiDbm: Integer read FRssiDbm write SetRssiDbm
       default -100;
   end;
@@ -173,26 +195,18 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Horizontal dilution of precision (lower is
+    /// better; &lt;2 is "excellent", &gt;5 is "poor").</summary>
     property HDOP: Double read FHDOP write SetHDOP;
+    /// <summary>Satellite count contributing to the fix.
+    /// Default 0.</summary>
     property SatCount: Integer
       read FSatCount write SetSatCount default 0;
+    /// <summary>Font used for the readout labels.</summary>
     property LabelFont: TFont read FFont write SetFontA;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
-function ResolveColor(ASlot, AFallback: TColor): TColor; inline;
-begin
-  if ASlot <> clDefault then Result := ASlot else Result := AFallback;
-end;
 
 { ---- TOBDOEMBadge --------------------------------------------------- }
 
@@ -218,6 +232,7 @@ end;
 
 procedure TOBDOEMBadge.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -305,6 +320,7 @@ end;
 
 procedure TOBDDigitalCluster.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -458,6 +474,7 @@ end;
 
 procedure TOBDSignalBarsBase.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -626,6 +643,7 @@ end;
 
 procedure TOBDGPSAccuracy.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

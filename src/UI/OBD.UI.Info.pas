@@ -44,6 +44,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control,
   OBD.Service.VINDecoder.Types,
@@ -72,6 +73,7 @@ type
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
   protected
+    procedure Loaded; override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
     procedure PaintControl(ACanvas: TCanvas); override;
@@ -121,6 +123,7 @@ type
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
   protected
+    procedure Loaded; override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
     procedure PaintControl(ACanvas: TCanvas); override;
@@ -298,14 +301,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
 function AdapterFamilyDisplay(AFamily: TOBDAdapterFamily): string;
 begin
   case AFamily of
@@ -343,6 +338,15 @@ begin
   inherited;
 end;
 
+procedure TOBDVINCard.Loaded;
+begin
+  inherited;
+  // DFM streaming finished — pull the decoded info from the
+  // bound inspector so the first paint reflects reality.
+  if FSource <> nil then
+    Refresh;
+end;
+
 procedure TOBDVINCard.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
@@ -353,6 +357,7 @@ end;
 
 procedure TOBDVINCard.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -488,6 +493,13 @@ begin
   inherited;
 end;
 
+procedure TOBDAdapterPanel.Loaded;
+begin
+  inherited;
+  // Re-read adapter + DTCs once the form finishes streaming.
+  Refresh;
+end;
+
 procedure TOBDAdapterPanel.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
@@ -501,6 +513,7 @@ end;
 
 procedure TOBDAdapterPanel.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -679,6 +692,7 @@ end;
 
 procedure TOBDOdometer.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -925,6 +939,7 @@ end;
 
 procedure TOBDClock.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

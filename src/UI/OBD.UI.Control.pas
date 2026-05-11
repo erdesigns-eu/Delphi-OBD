@@ -242,6 +242,33 @@ implementation
 const
   DESIGN_PPI = 96;
 
+/// <summary>Paints a designer-only fallback when a subclass'
+/// <c>PaintControl</c> raises during csDesigning. Dashed rect
+/// with the class name + the exception message so the host
+/// sees something useful in the IDE form designer instead of
+/// a black hole.</summary>
+procedure DrawDesignPlaceholder(ACanvas: TCanvas);
+var
+  E: Exception;
+  Msg: string;
+  R: TRect;
+begin
+  R := ACanvas.ClipRect;
+  ACanvas.Brush.Color := clBtnFace;
+  ACanvas.FillRect(R);
+  ACanvas.Pen.Style := psDash;
+  ACanvas.Pen.Color := clGrayText;
+  ACanvas.Brush.Style := bsClear;
+  ACanvas.Rectangle(R);
+  ACanvas.Font.Color := clGrayText;
+  E := Exception(ExceptObject);
+  if Assigned(E) then
+    Msg := '(design-time: ' + E.Message + ')'
+  else
+    Msg := '(design-time placeholder)';
+  ACanvas.TextOut(R.Left + 4, R.Top + 4, Msg);
+end;
+
 { ---- TOBDCustomControl ----------------------------------------------------- }
 
 constructor TOBDCustomControl.Create(AOwner: TComponent);
@@ -380,7 +407,18 @@ begin
     // paint can punch through with translucency where it wants.
     FBuffer.Canvas.Brush.Color := EffectiveBackground;
     FBuffer.Canvas.FillRect(Rect(0, 0, Width, Height));
-    PaintControl(FBuffer.Canvas);
+    // Swallow paint exceptions at design-time so a half-wired
+    // component (no bound LiveData yet, etc.) doesn't tear down
+    // the IDE Designer. At run-time any paint exception
+    // propagates so it can be debugged.
+    if csDesigning in ComponentState then
+      try
+        PaintControl(FBuffer.Canvas);
+      except
+        DrawDesignPlaceholder(FBuffer.Canvas);
+      end
+    else
+      PaintControl(FBuffer.Canvas);
     FBufferDirty := False;
   end;
   Canvas.Draw(0, 0, FBuffer);
@@ -558,7 +596,14 @@ begin Result := PickColor(FStyle.Border, Palette.Subtle); end;
 procedure TOBDGraphicControl.Paint;
 begin
   if (Width <= 0) or (Height <= 0) then Exit;
-  PaintControl(Canvas);
+  if csDesigning in ComponentState then
+    try
+      PaintControl(Canvas);
+    except
+      DrawDesignPlaceholder(Canvas);
+    end
+  else
+    PaintControl(Canvas);
 end;
 
 procedure TOBDGraphicControl.ChangeScale(M, D: Integer; isDpiChange: Boolean);

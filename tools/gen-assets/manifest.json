@@ -216,6 +216,1358 @@
       "final_size": 256
     },
     {
+      "id": "icon-obdafrgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAFRGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAFRGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdaccelgraph",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAccelGraph.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAccelGraph'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdactuatortestpanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDActuatorTestPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDActuatorTestPanel'. Subject: a stack of toggle switches in a row inside a small card. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdadbluelevel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAdBlueLevel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAdBlueLevel'. Subject: a vertical fluid tank gauge with a \"DEF\" label. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdadaptationeditor",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAdaptationEditor.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAdaptationEditor'. Subject: a text input control with a small chevron indicator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdadapterpanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDAdapterPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDAdapterPanel'. Subject: a small card showing an OBD-II adapter dongle thumbnail with status text. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdarcgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDArcGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDArcGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdbarsegmentgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDBarSegmentGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDBarSegmentGauge'. Subject: a horizontal bar gauge with a fill level and tick marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdbluetoothsignal",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDBluetoothSignal.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDBluetoothSignal'. Subject: four vertical signal-strength bars rising from left to right. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdboostgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDBoostGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDBoostGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcanidedit",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCANIdEdit.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCANIdEdit'. Subject: a small input field showing \"0x\" followed by hex digits. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcellvoltageheatmap",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCellVoltageHeatmap.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCellVoltageHeatmap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdchargeportindicator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDChargePortIndicator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDChargePortIndicator'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdchargingflow",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDChargingFlow.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDChargingFlow'. Subject: three boxes (charger, battery, motor) connected by arrows showing energy flow. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcirculargauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCircularGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCircularGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdclock",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDClock.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDClock'. Subject: a stylised clock face with hour and minute hands. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcodingdiffviewer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCodingDiffViewer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCodingDiffViewer'. Subject: two stacked columns of hex bytes with one byte highlighted as changed. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcodingsessionpanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDCodingSessionPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDCodingSessionPanel'. Subject: a small console card with a lit status lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdcombogauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDComboGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDComboGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdconnectionstatelamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDConnectionStateLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDConnectionStateLamp'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddpfstatus",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDPFStatus.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDPFStatus'. Subject: a horizontal soot-load bar with a tiny diesel-filter pictogram on the left. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddtcbadge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDTCBadge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDTCBadge'. Subject: a circular badge with a number inside. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddashlamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDashLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDashLamp'. Subject: a dashboard warning lamp (rounded glyph badge). 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddeltagauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDeltaGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDeltaGauge'. Subject: a centre-zero horizontal bar with a fill extending left or right of the centre line. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddigitalcluster",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDigitalCluster.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDigitalCluster'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddigitalgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDigitalGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDigitalGauge'. Subject: a large rectangular digital readout showing big numeric digits. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddoipnodepicker",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDoIPNodePicker.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDoIPNodePicker'. Subject: a text input control with a small chevron indicator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddoipstatuspanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDoIPStatusPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDoIPStatusPanel'. Subject: an Ethernet RJ45 plug next to a small list of nodes. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddragrun",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDragRun.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDragRun'. Subject: a stopwatch showing a quarter-mile-style elapsed time. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddragtimer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDragTimer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDragTimer'. Subject: a stopwatch showing a quarter-mile-style elapsed time. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddrivecycleadvisor",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDriveCycleAdvisor.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriveCycleAdvisor'. Subject: a stylised steering wheel with arrows around it, suggesting a drive cycle. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddrivecyclecatalogcomp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDriveCycleCatalogComp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriveCycleCatalogComp'. Subject: a steering wheel paired with a small catalogue book icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddrivecycleprogress",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDriveCycleProgress.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriveCycleProgress'. Subject: a step indicator (1 of N) with a progress bar underneath. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddriverscorewidget",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDriverScoreWidget.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDriverScoreWidget'. Subject: a gauge-style arc showing a numeric score in the centre. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddualneedlegauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDualNeedleGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDualNeedleGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddynocalculator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDynoCalculator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDynoCalculator'. Subject: a calculator with an HP / torque graph on the screen. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddynochart",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDynoChart.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDynoChart'. Subject: a power-curve graph with two line traces (HP + torque) on a grid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obddynoconditions",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDDynoConditions.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDDynoConditions'. Subject: three small dials (temperature, pressure, humidity) on a card. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdevbattery",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDEVBattery.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDEVBattery'. Subject: a stylised battery icon with cells inside and a lightning bolt. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdevbatterycatalogcomp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDEVBatteryCatalogComp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDEVBatteryCatalogComp'. Subject: a stylised battery icon with cells inside and a lightning bolt. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdecoscorewidget",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDEcoScoreWidget.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDEcoScoreWidget'. Subject: a stylised green leaf with a small score number overlaid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdemissionsestimator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDEmissionsEstimator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDEmissionsEstimator'. Subject: a small exhaust pipe puff with a CO2 chemical symbol. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdflashaudittail",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashAuditTail.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFlashAuditTail'. Subject: a checklist clipboard with a progress bar at the bottom. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdflashcheckpointtimeline",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashCheckpointTimeline.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFlashCheckpointTimeline'. Subject: a checklist clipboard with a progress bar at the bottom. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdflashprogress",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashProgress.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFlashProgress'. Subject: a checklist clipboard with a progress bar at the bottom. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdflashsafetydashboard",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFlashSafetyDashboard.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFlashSafetyDashboard'. Subject: a checklist clipboard with a progress bar at the bottom. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdframeinspector",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFrameInspector.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFrameInspector'. Subject: a small console card with hex bytes and a label column. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdfreezeframetable",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFreezeFrameTable.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFreezeFrameTable'. Subject: a small spreadsheet-like grid with frozen header row. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdfueleconomymeter",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFuelEconomyMeter.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFuelEconomyMeter'. Subject: a fuel pump nozzle with a small numeric readout next to it. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdfueltrimdisplay",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDFuelTrimDisplay.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDFuelTrimDisplay'. Subject: two horizontal centre-zero bars stacked, one for each engine bank. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdgforcevisualiser",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDGForceVisualiser.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDGForceVisualiser'. Subject: a traction-circle (round target) with a dot offset to one quadrant. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdgpsaccuracy",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDGPSAccuracy.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDGPSAccuracy'. Subject: a small satellite icon paired with crosshairs. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdgearindicator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDGearIndicator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDGearIndicator'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdinertialbrake",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDInertialBrake.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDInertialBrake'. Subject: a brake-disc rotor with motion lines suggesting deceleration. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdj2534channel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDJ2534Channel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDJ2534Channel'. Subject: a single channel of a J2534 device — one tile with arrows. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdj2534device",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDJ2534Device.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDJ2534Device'. Subject: a J2534 PassThru device tile with a USB icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdj2534devicelist",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDJ2534DeviceList.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDJ2534DeviceList'. Subject: a list of small device tiles each with a USB icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkwp1281session",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKWP1281Session.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKWP1281Session'. Subject: a stylised serial / OBD link icon with KWP labels. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkwp1281sessioninspector",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKWP1281SessionInspector.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKWP1281SessionInspector'. Subject: a small monitor screen showing rows of key/value pairs. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkeyadaptationbmw",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKeyAdaptationBMW.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationBMW'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"BMW\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkeyadaptationford",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKeyAdaptationFord.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationFord'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"Ford\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkeyadaptationhmg",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKeyAdaptationHMG.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationHMG'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"HMG\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdkeyadaptationtoyota",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDKeyAdaptationToyota.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDKeyAdaptationToyota'. Subject: a car ignition key with a transponder dot on the bow, paired with a small ECU chip, suggesting \"Toyota\" key adaptation programming. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdled",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLED.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLED'. Subject: a small round LED indicator lamp glowing. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlabelfileeditor",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLabelFileEditor.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLabelFileEditor'. Subject: a text input control with a small chevron indicator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlaptimer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLapTimer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLapTimer'. Subject: a stopwatch with a checkered flag stamp in the corner. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlaptrackmap",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLapTrackMap.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLapTrackMap'. Subject: a stylised race-track outline with a position marker. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlineargauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLinearGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLinearGauge'. Subject: a horizontal bar gauge with a fill level and tick marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlivegridchart",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLiveGridChart.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLiveGridChart'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdloggercontrol",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLoggerControl.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLoggerControl'. Subject: a record/stop pair of media-control buttons next to a tiny file icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdloggerexplorer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLoggerExplorer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLoggerExplorer'. Subject: a folder icon containing a stack of log-file documents. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdlongcodingeditor",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDLongCodingEditor.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDLongCodingEditor'. Subject: a text input control with a small chevron indicator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmillamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMILLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMILLamp'. Subject: a stylised check-engine icon (engine block silhouette with a lightning bolt). 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmaintenancecard",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMaintenanceCard.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMaintenanceCard'. Subject: a service-due reminder card with a wrench icon and a date. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmarinetach",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMarineTach.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMarineTach'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmatrixdisplay",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMatrixDisplay.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMatrixDisplay'. Subject: a small dot-matrix LCD readout with a scrolling text line. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdminmaxgauge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMinMaxGauge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMinMaxGauge'. Subject: a classic round automotive dial gauge with a needle pointing to a value. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmode04confirm",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMode04Confirm.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMode04Confirm'. Subject: a list table with a status column showing tick / cross marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmode06viewer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMode06Viewer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMode06Viewer'. Subject: a list table with a status column showing tick / cross marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmode07viewer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMode07Viewer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMode07Viewer'. Subject: a list table with a status column showing tick / cross marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmode0aviewer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMode0AViewer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMode0AViewer'. Subject: a list table with a status column showing tick / cross marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdmultipidgrid",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDMultiPidGrid.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDMultiPidGrid'. Subject: a small spreadsheet-like grid with PID rows and value column. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdoembadge",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDOEMBadge.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDOEMBadge'. Subject: a circular badge with a number inside. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdoempicker",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDOEMPicker.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDOEMPicker'. Subject: a drop-down combo-box with a small generic car logo placeholder. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdodometer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDOdometer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDOdometer'. Subject: an odometer-style mechanical number wheel readout. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdptometer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPTOMeter.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPTOMeter'. Subject: a round dial with \"540\" and \"1000\" RPM marks highlighted. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdpidpanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPidPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPidPanel'. Subject: a small dashboard card with label, big value, and a sparkline. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdpidpicker",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPidPicker.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPidPicker'. Subject: a drop-down combo-box with a small list of two-digit hex items. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdplaybackscrubber",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPlaybackScrubber.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPlaybackScrubber'. Subject: a horizontal timeline with a scrub-bar handle and event markers. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdplaybacktimeline",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPlaybackTimeline.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPlaybackTimeline'. Subject: a horizontal timeline with a scrub-bar handle and event markers. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdpowercurve",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPowerCurve.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPowerCurve'. Subject: a power-curve graph with two line traces (HP + torque) on a grid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdpowercurvegraph",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPowerCurveGraph.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPowerCurveGraph'. Subject: a power-curve graph with two line traces (HP + torque) on a grid. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdpredictivelap",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDPredictiveLap.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDPredictiveLap'. Subject: a stopwatch with a checkered flag stamp in the corner. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeacura",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeAcura.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeAcura'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Acura\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodealfaromeo",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeAlfaRomeo.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeAlfaRomeo'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"AlfaRomeo\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodealpine",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeAlpine.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeAlpine'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Alpine\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeaudiconcert",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeAudiConcert.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeAudiConcert'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"AudiConcert\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodebmw",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeBMW.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeBMW'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"BMW\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodebecker4",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeBecker4.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeBecker4'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Becker4\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodebecker5",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeBecker5.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeBecker5'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Becker5\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeblaupunkt",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeBlaupunkt.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeBlaupunkt'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Blaupunkt\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodechrysler",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeChrysler.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeChrysler'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Chrysler\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodecitroen",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeCitroen.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeCitroen'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Citroen\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeclarion",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeClarion.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeClarion'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Clarion\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeeeprom_mercedesbecker",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeEEPROM_MercedesBecker.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeEEPROM_MercedesBecker'. Subject: a small EEPROM memory chip (rectangular IC with pin legs) overlaid with a tiny stylised car radio faceplate, suggesting a \"MercedesBecker\" radio code recovered by reading the EEPROM dump. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeeeprom_opelcd30",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeEEPROM_OpelCD30.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeEEPROM_OpelCD30'. Subject: a small EEPROM memory chip (rectangular IC with pin legs) overlaid with a tiny stylised car radio faceplate, suggesting a \"OpelCD30\" radio code recovered by reading the EEPROM dump. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeeeprom_volvohu",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeEEPROM_VolvoHU.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeEEPROM_VolvoHU'. Subject: a small EEPROM memory chip (rectangular IC with pin legs) overlaid with a tiny stylised car radio faceplate, suggesting a \"VolvoHU\" radio code recovered by reading the EEPROM dump. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodefiatdaiichi",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeFiatDaiichi.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeFiatDaiichi'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"FiatDaiichi\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodefiatvp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeFiatVP.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeFiatVP'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"FiatVP\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodefordm",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeFordM.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeFordM'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"FordM\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodefordv",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeFordV.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeFordV'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"FordV\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodegm",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeGM.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeGM'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"GM\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodehonda",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeHonda.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeHonda'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Honda\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodehyundai",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeHyundai.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeHyundai'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Hyundai\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeinfiniti",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeInfiniti.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeInfiniti'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Infiniti\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodejaguar",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeJaguar.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeJaguar'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Jaguar\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodelandrover",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeLandRover.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeLandRover'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"LandRover\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodelexus",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeLexus.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeLexus'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Lexus\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodemaserati",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeMaserati.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeMaserati'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Maserati\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodemazda",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeMazda.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeMazda'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Mazda\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodemercedes",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeMercedes.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeMercedes'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Mercedes\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodemini",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeMini.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeMini'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Mini\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodemitsubishi",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeMitsubishi.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeMitsubishi'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Mitsubishi\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodenissan",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeNissan.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeNissan'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Nissan\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeopel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeOpel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeOpel'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Opel\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodepeugeot",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodePeugeot.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodePeugeot'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Peugeot\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeporsche",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodePorsche.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodePorsche'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Porsche\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocoderenault",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeRenault.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeRenault'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Renault\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeseat",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSEAT.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSEAT'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"SEAT\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodesaab",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSaab.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSaab'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Saab\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodeskoda",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSkoda.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSkoda'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Skoda\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodesmart",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSmart.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSmart'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Smart\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodesubaru",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSubaru.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSubaru'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Subaru\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodesuzuki",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeSuzuki.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeSuzuki'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Suzuki\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodetoyota",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeToyota.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeToyota'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Toyota\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodevw",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeVW.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeVW'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"VW\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodevisteon",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeVisteon.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeVisteon'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Visteon\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdradiocodevolvo",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRadioCodeVolvo.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRadioCodeVolvo'. Subject: a stylised car radio faceplate with a four-digit numeric display and two knobs, suggesting a \"Volvo\" head-unit unlock code generator. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdreadinessgrid",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDReadinessGrid.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDReadinessGrid'. Subject: a checklist of monitor states with green / amber / red marks. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdreadinesslamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDReadinessLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDReadinessLamp'. Subject: a single round indicator lamp with a tick in the centre. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdrecordertoolbar",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRecorderToolbar.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRecorderToolbar'. Subject: a small toolbar with record, pause, stop, load and play buttons. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdregenindicator",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRegenIndicator.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRegenIndicator'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdroutinecontrollauncher",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRoutineControlLauncher.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRoutineControlLauncher'. Subject: a small play-button triangle next to a hex code label. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdrunrecorder",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDRunRecorder.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDRunRecorder'. Subject: a small data-capture box with arrows in and out. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdsecocstatuslamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSecOCStatusLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSecOCStatusLamp'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdsecurityaccesslamp",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSecurityAccessLamp.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSecurityAccessLamp'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdseedkeydebugger",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSeedKeyDebugger.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSeedKeyDebugger'. Subject: a small key icon paired with a hex byte sequence. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdservicehistorytimeline",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDServiceHistoryTimeline.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDServiceHistoryTimeline'. Subject: a vertical timeline with service events marked along a vertical axis. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdshiftlight",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDShiftLight.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDShiftLight'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdshiftlightbar",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDShiftLightBar.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDShiftLightBar'. Subject: a small round indicator lamp. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdsparkline",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDSparkline.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDSparkline'. Subject: a tiny inline sparkline trace inside a small card. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdstateofchargebar",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDStateOfChargeBar.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDStateOfChargeBar'. Subject: a horizontal battery icon with a fill level and a small bolt. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdstripchart",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDStripChart.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDStripChart'. Subject: a line chart with multiple traces drawn on a grid background. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtp20channelpanel",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTP20ChannelPanel.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTP20ChannelPanel'. Subject: a small monitor screen showing rows of key/value pairs. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtp20session",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTP20Session.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTP20Session'. Subject: a TP2.0 channel icon — two paired arrows on a CAN bus rail. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtachometer",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTachometer.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTachometer'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtheme",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTheme.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTheme'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtorqueatwheels",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTorqueAtWheels.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTorqueAtWheels'. Subject: a stylised engine block linked to a wheel by a chain, with arrows. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtorquerpmmap",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTorqueRPMMap.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTorqueRPMMap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdtripsummarycard",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDTripSummaryCard.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDTripSummaryCard'. Subject: a small card with three figures (distance / time / fuel) on one row. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvincard",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVINCard.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVINCard'. Subject: a small index card with the 17-character VIN highlighted. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvincatalog",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVINCatalog.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVINCatalog'. Subject: an OBD-II adapter paired with a small catalogue book icon. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvinedit",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVINEdit.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVINEdit'. Subject: a text input field labelled with seventeen tiny character slots. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvininspector",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVINInspector.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVINInspector'. Subject: a small index card with the 17-character VIN highlighted. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvwradiosafe",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVWRadioSAFE.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVWRadioSAFE'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdvehiclehealth",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDVehicleHealth.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDVehicleHealth'. Subject: a generic modular software component tile. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdwifisignal",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDWiFiSignal.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDWiFiSignal'. Subject: four vertical signal-strength bars rising from left to right. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdxcpprogressbar",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDXCPProgressBar.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDXCPProgressBar'. Subject: a progress bar with a KB/s readout label on the right. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
+      "id": "icon-obdxyheatmap",
+      "kind": "component-icon",
+      "out": "assets/designtime/icons/TOBDXYHeatmap.png",
+      "prompt": "Modern Microsoft Office / Fluent UI style icon for the Delphi-OBD component 'TOBDXYHeatmap'. Subject: a small grid of coloured cells forming a heat-map. 2D with subtle depth, slight isometric perspective, soft layered shading, clean geometric shapes. Use ONLY colours from the attached reference logo (charcoal, silver, orange). Pure white background. Centered composition, generous padding. No text. Reads at 16x16 px after downscaling.",
+      "size": "1024x1024",
+      "final_size": 256
+    },
+    {
       "id": "icon-cp-base",
       "kind": "template",
       "out": "assets/designtime/templates/cp-shield-base.png",

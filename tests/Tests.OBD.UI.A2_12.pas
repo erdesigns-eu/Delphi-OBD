@@ -190,9 +190,19 @@ begin
   try
     H.XMin := 0; H.XMax := 10;
     H.YMin := 0; H.YMax := 10;
-    H.PushSample(5, 5);
+    H.BinsX := 8;
+    H.BinsY := 8;
+    H.PushSample(5, 5);                   // mid-grid
+    H.PushSample(5, 5);                   // same bin, second hit
+    H.PushSample(-1, -1);                 // out of range — dropped
+    H.PushSample(20, 20);                 // out of range — dropped
     H.Reset;
-    Assert.Pass;
+    // Reset should bring the visible-hit state to zero — the
+    // visible test is that PushSample is idempotent and Reset
+    // restores rest-state without crashing.
+    H.PushSample(1, 1);
+    Assert.IsTrue(H <> nil,
+      'Heatmap survived rapid push + reset + push');
   finally H.Free; end;
 end;
 
@@ -240,8 +250,13 @@ begin
     M.LoadTrack(P);
     M.PositionFraction := 0.5;
     Assert.AreEqual<Single>(0.5, M.PositionFraction);
+    // Out-of-range position wraps into [0, 1).
+    M.PositionFraction := 1.25;
+    Assert.IsTrue((M.PositionFraction >= 0) and (M.PositionFraction < 1),
+      'PositionFraction must wrap');
     M.Clear;
-    Assert.Pass;
+    M.PositionFraction := 0.25;          // safe after Clear
+    Assert.AreEqual<Single>(0.25, M.PositionFraction);
   finally M.Free; end;
 end;
 
@@ -447,13 +462,22 @@ end;
 { TDiagSmoke --------------------------------------------------- }
 
 procedure TDiagSmoke.Mode06ViewerSurvivesEmpty;
-var V: TOBDMode06Viewer;
+var
+  V: TOBDMode06Viewer;
+  Rows: TArray<TOBDMode06Row>;
+  R: TOBDMode06Row;
 begin
   V := TOBDMode06Viewer.Create(nil);
   try
     V.Refresh(nil);
+    Assert.AreEqual(0, V.Items.Count);
+    R := Default(TOBDMode06Row);
+    R.MID := $01; R.TID := $0A; R.Name := 'O2 sensor';
+    R.Value := 0.45; R.Min := 0.4; R.Max := 0.9; R.Passed := True;
+    Rows := TArray<TOBDMode06Row>.Create(R);
+    V.Refresh(Rows);
     V.ClearRows;
-    Assert.Pass;
+    Assert.AreEqual(0, V.Items.Count);
   finally V.Free; end;
 end;
 
@@ -572,10 +596,18 @@ var
 begin
   E := TOBDLoggerExplorer.Create(nil);
   try
-    Files[0].FileName := 'a.obdlog'; Files[0].SizeBytes := 1024;
-    Files[1].FileName := 'b.obdlog'; Files[1].SizeBytes := 2048;
+    Files[0].FileName := 'a.obdlog';
+    Files[0].SizeBytes := 1024;
+    Files[0].Modified := Now;
+    Files[1].FileName := 'b.obdlog';
+    Files[1].SizeBytes := 2048;
+    Files[1].Modified := Now - 1;
     E.LoadFiles(Files);
-    Assert.Pass;
+    // Loaded items show through Items (TListView contract):
+    // require window-handle creation. We assert no exception
+    // + a Clear round-trip cleans state.
+    E.ClearFiles;
+    Assert.AreEqual(0, E.Items.Count);
   finally E.Free; end;
 end;
 

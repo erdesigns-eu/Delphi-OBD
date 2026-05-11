@@ -40,6 +40,7 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -227,22 +228,6 @@ type
 
 implementation
 
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
-
-function RectF(AX, AY, AW, AH: Single): TGPRectF; inline;
-begin
-  Result.X := AX;
-  Result.Y := AY;
-  Result.Width  := AW;
-  Result.Height := AH;
-end;
-
 // Inline tick-mark helper — kept above the readiness-lamp code
 // so it's resolved by the time PaintControl needs it.
 procedure DrawCheckMark(AGraphics: TGPGraphics; APen: TGPPen;
@@ -285,6 +270,7 @@ end;
 
 procedure TOBDTelltaleBase.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -505,6 +491,7 @@ end;
 
 procedure TOBDDTCBadge.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -644,6 +631,7 @@ end;
 
 procedure TOBDReadinessLamp.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

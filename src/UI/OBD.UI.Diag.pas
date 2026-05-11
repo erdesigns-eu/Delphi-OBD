@@ -35,6 +35,7 @@ uses
   Vcl.ComCtrls,
   Vcl.Dialogs,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -54,8 +55,13 @@ type
   TOBDMode06Viewer = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Idempotently set up the columns. Safe to call
+    /// before or after the handle exists.</summary>
     procedure   ConfigureColumnsIfNeeded;
+    /// <summary>Replace the displayed rows with the supplied
+    /// array.</summary>
     procedure   Refresh(const ARows: TArray<TOBDMode06Row>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearRows;
   protected
     procedure CreateWnd; override;
@@ -83,7 +89,10 @@ type
   TOBDMode07Viewer = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Replace the displayed rows with the supplied
+    /// array.</summary>
     procedure   Refresh(const ARows: TArray<TOBDDTCRow>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearRows;
   protected
     procedure CreateWnd; override;
@@ -103,7 +112,10 @@ type
   TOBDMode0AViewer = class(TListView)
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Replace the displayed rows with the supplied
+    /// array.</summary>
     procedure   Refresh(const ARows: TArray<TOBDDTCRow>);
+    /// <summary>Remove all rows.</summary>
     procedure   ClearRows;
   protected
     procedure CreateWnd; override;
@@ -147,7 +159,10 @@ type
     /// emissions readiness loss.</summary>
     property ConfirmText: string
       read FConfirmText write SetConfirmText;
+    /// <summary>Font used for the button caption.</summary>
     property LabelFont: TFont read FFont write SetFontA;
+    /// <summary>Fires once the user has confirmed the clear.
+    /// </summary>
     property OnClear: TOBDClearDTCsEvent
       read FOnClear write FOnClear;
   end;
@@ -184,10 +199,18 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>UDS routine identifier (16-bit). Default 0.
+    /// </summary>
     property RoutineId: Word
       read FRoutineId write SetRoutineId default 0;
+    /// <summary>Routine arguments as a hex string (whitespace
+    /// permitted), e.g. <c>"01 0A FF"</c>.</summary>
     property ArgsHex: string read FArgsHex write SetArgsHex;
+    /// <summary>Monospaced font used for the args and result
+    /// readout.</summary>
     property MonoFont: TFont read FFont write SetFontA;
+    /// <summary>Fires when the host should execute the routine.
+    /// </summary>
     property OnLaunch: TOBDRoutineLaunchEvent
       read FOnLaunch write FOnLaunch;
   end;
@@ -230,25 +253,27 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
+    /// <summary>Replace the step list with the supplied array.
+    /// </summary>
     procedure LoadSteps(const ASteps: array of TOBDActuatorStep);
+    /// <summary>Remove all steps.</summary>
     procedure ClearSteps;
+    /// <summary>Snapshot of the current step list including
+    /// per-step status text.</summary>
     function  Steps: TArray<TOBDActuatorStep>;
+    /// <summary>True while a sequence is executing.</summary>
     property Running: Boolean read FRunning;
   published
+    /// <summary>Font used for the step labels and buttons.
+    /// </summary>
     property LabelFont: TFont read FFont write SetFontA;
+    /// <summary>Fires for each step the host must execute.
+    /// </summary>
     property OnStep: TOBDActuatorStepEvent
       read FOnStep write FOnStep;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 procedure ConfigureCols(AListView: TListView;
   const ANames: array of string;
@@ -444,6 +469,7 @@ end;
 
 procedure TOBDMode04Confirm.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -536,6 +562,7 @@ end;
 
 procedure TOBDRoutineControlLauncher.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -689,6 +716,7 @@ end;
 
 procedure TOBDActuatorTestPanel.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

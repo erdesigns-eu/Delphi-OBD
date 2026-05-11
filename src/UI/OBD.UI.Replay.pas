@@ -38,6 +38,7 @@ uses
   Vcl.Graphics,
   Vcl.ComCtrls,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -75,12 +76,19 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>True when a charger is plugged in. Default
+    /// False.</summary>
     property Connected: Boolean
       read FConnected write SetConnected default False;
+    /// <summary>True when the connector is latched. Default
+    /// False.</summary>
     property Locked: Boolean
       read FLocked write SetLocked default False;
+    /// <summary>Active charge level (L1 / L2 / DCFC).
+    /// Default <c>clNoneLevel</c>.</summary>
     property Level: TOBDChargeLevel
       read FLevel write SetLevel default clNoneLevel;
+    /// <summary>Font used for the level chip caption.</summary>
     property LabelFont: TFont read FFont write SetFontA;
   end;
 
@@ -105,13 +113,21 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Distance covered since the last service
+    /// (units as per <see cref="Unit"/>). Default 0.</summary>
     property MilesSinceService: Integer
       read FMilesSince write SetMilesSince default 0;
+    /// <summary>Distance remaining until the next service
+    /// (units as per <see cref="Unit"/>). Default 0.</summary>
     property MilesUntilDue: Integer
       read FMilesDueIn write SetMilesDueIn default 0;
+    /// <summary>Distance-unit suffix (e.g. "mi", "km").
+    /// </summary>
     property &Unit: string read FUnit write SetUnit;
+    /// <summary>Font for the metric captions.</summary>
     property CaptionFont: TFont
       read FCaptionFont write SetCaptionFont;
+    /// <summary>Font for the metric values.</summary>
     property ValueFont: TFont
       read FValueFont write SetValueFont;
   end;
@@ -125,8 +141,10 @@ type
     procedure CreateWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Append a single service-history row.</summary>
     procedure AppendEvent(ADate: TDateTime;
       const AKind, ADescription: string);
+    /// <summary>Remove all rows.</summary>
     procedure ClearEvents;
   published
     property Align;
@@ -141,6 +159,9 @@ type
   end;
 
   /// <summary>Fires when the user drags the scrubber.</summary>
+  /// <param name="Sender">The scrubber raising the event.</param>
+  /// <param name="APositionMs">New playback position in
+  /// milliseconds.</param>
   TOBDScrubEvent = procedure(Sender: TObject;
     APositionMs: Int64) of object;
 
@@ -168,10 +189,15 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    /// <summary>Current scrub position in milliseconds.
+    /// Clamped to 0..LengthMs. Default 0.</summary>
     property PositionMs: Int64
       read FPositionMs write SetPositionMs default 0;
+    /// <summary>Total log length in milliseconds. Default 0.
+    /// </summary>
     property LengthMs: Int64
       read FLengthMs write SetLengthMs default 0;
+    /// <summary>Fires while the user drags the thumb.</summary>
     property OnScrub: TOBDScrubEvent
       read FOnScrub write FOnScrub;
   end;
@@ -198,11 +224,17 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
+    /// <summary>Append a coloured marker at the given time
+    /// (milliseconds from the start of the log).</summary>
     procedure AddMarker(ATimeMs: Int64; AColor: TColor;
       const ALabel: string);
+    /// <summary>Drop all markers and repaint.</summary>
     procedure Clear;
+    /// <summary>Number of markers currently stored.</summary>
     function  MarkerCount: Integer;
   published
+    /// <summary>Total timeline length in milliseconds.
+    /// Default 0.</summary>
     property LengthMs: Int64
       read FLengthMs write SetLengthMs default 0;
   end;
@@ -233,23 +265,19 @@ type
       const AKind: string;
       AHasServiceID: Boolean; AServiceID: Byte;
       const ARaw: TBytes; const AMessage: string);
+    /// <summary>Drop the loaded frame and repaint blank.
+    /// </summary>
     procedure Clear;
   published
+    /// <summary>Font for field captions.</summary>
     property CaptionFont: TFont
       read FCaptionFont write SetCaptionFont;
+    /// <summary>Font for field values.</summary>
     property ValueFont: TFont
       read FValueFont write SetValueFont;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 function HexBytes(const ABytes: TBytes): string;
 var
@@ -285,6 +313,7 @@ end;
 
 procedure TOBDChargePortIndicator.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -402,6 +431,7 @@ end;
 
 procedure TOBDMaintenanceCard.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -509,6 +539,7 @@ end;
 
 procedure TOBDServiceHistoryTimeline.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -549,6 +580,7 @@ end;
 
 procedure TOBDPlaybackScrubber.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -697,6 +729,7 @@ end;
 
 procedure TOBDPlaybackTimeline.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -796,6 +829,7 @@ end;
 
 procedure TOBDFrameInspector.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except

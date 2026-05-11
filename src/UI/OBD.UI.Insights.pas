@@ -30,6 +30,7 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   OBD.UI.Types,
+  OBD.UI.GDIP,
   OBD.UI.Theme,
   OBD.UI.Control;
 
@@ -55,9 +56,12 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Driver score 0..100; clamped on set.</summary>
     property Score: Double read FScore write SetScore;
+    /// <summary>Font for the "Driver" caption.</summary>
     property CaptionFont: TFont
       read FCaptionFont write SetCaptionFont;
+    /// <summary>Font for the headline numeric value.</summary>
     property ValueFont: TFont
       read FValueFont write SetValueFont;
   end;
@@ -89,13 +93,21 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Headline eco score 0..100; clamped on set.
+    /// </summary>
     property OverallScore: Double
       read FOverall write SetOverall;
+    /// <summary>Braking-smoothness sub-score 0..100.</summary>
     property BrakeScore: Double read FBrake write SetBrake;
+    /// <summary>Acceleration-smoothness sub-score 0..100.
+    /// </summary>
     property AccelScore: Double read FAccel write SetAccel;
+    /// <summary>Idle-time sub-score 0..100.</summary>
     property IdleScore:  Double read FIdle  write SetIdle;
+    /// <summary>Font for sub-score captions.</summary>
     property CaptionFont: TFont
       read FCaptionFont write SetCaptionFont;
+    /// <summary>Font for the headline numeric value.</summary>
     property ValueFont: TFont
       read FValueFont write SetValueFont;
   end;
@@ -124,25 +136,23 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
   published
+    /// <summary>Trip distance in km.</summary>
     property DistanceKm:  Double read FDistanceKm  write SetDistanceKm;
+    /// <summary>Trip duration in minutes.</summary>
     property DurationMin: Double read FDurationMin write SetDurationMin;
+    /// <summary>Average speed in km/h.</summary>
     property AvgSpeedKmh: Double read FAvgSpeedKmh write SetAvgSpeedKmh;
+    /// <summary>Fuel consumed in litres.</summary>
     property FuelL:       Double read FFuelL       write SetFuelL;
+    /// <summary>Font for the metric captions.</summary>
     property CaptionFont: TFont
       read FCaptionFont write SetCaptionFont;
+    /// <summary>Font for the metric values.</summary>
     property ValueFont: TFont
       read FValueFont write SetValueFont;
   end;
 
 implementation
-
-function ColorToARGB(AColor: TColor; AAlpha: Byte = 255): ARGB; inline;
-var Rgb: Cardinal;
-begin
-  Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
-end;
 
 { ---- TOBDDriverScoreWidget ------------------------------------- }
 
@@ -171,6 +181,7 @@ end;
 
 procedure TOBDDriverScoreWidget.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -298,6 +309,7 @@ end;
 
 procedure TOBDEcoScoreWidget.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -466,6 +478,7 @@ end;
 
 procedure TOBDTripSummaryCard.NotifyBindings;
 begin
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
   try
     TBindings.Notify(Self, '');
   except
