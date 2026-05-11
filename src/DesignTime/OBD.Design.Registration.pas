@@ -76,6 +76,11 @@ uses
   OBD.Diagnostics.UDS.ReadDTC,
   OBD.Diagnostics.UDS.Periodic,
   OBD.Diagnostics.UDS.DynamicDID,
+  OBD.Diagnostics.KWP,
+  OBD.Diagnostics.KWP.ReadID,
+  OBD.Diagnostics.KWP.ReadDTC,
+  OBD.Diagnostics.KWP.IOControl,
+  OBD.Diagnostics.KWP.Routine,
   OBD.Service.VWRadioSAFE,
   OBD.Coding.SecurityAccess,
   OBD.Coding.DataIdentifierIO,
@@ -301,7 +306,12 @@ begin
     TOBDUDSReadDID,
     TOBDUDSReadDTC,
     TOBDUDSReadByPeriodic,
-    TOBDUDSDynamicDID
+    TOBDUDSDynamicDID,
+    TOBDKWP,
+    TOBDKWPReadID,
+    TOBDKWPReadDTC,
+    TOBDKWPIOControl,
+    TOBDKWPRoutine
   ]);
 
   // Coding & flashing: write-side UDS components. On their own

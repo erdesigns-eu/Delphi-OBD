@@ -7,12 +7,14 @@
 //  method) so a host can drop a single-purpose clear button on a
 //  form without instantiating the full DTC-reader surface.
 //
-//  Both paths are covered:
+//  Three paths are covered:
 //
-//    Mode 0x04 (OBD-II)           : request 0x04 with no data
-//    Service 0x14 (UDS / KWP2000) : request 0x14 with a 3-byte
-//                                   DTC group (0xFFFFFF = all
-//                                   groups, ISO 14229-1 §11.5).
+//    Mode 0x04 (OBD-II)        : request 0x04 with no data.
+//    Service 0x14 (UDS)        : request 0x14 with a 3-byte DTC
+//                                group (0xFFFFFF = all groups,
+//                                ISO 14229-1 §11.5).
+//    Service 0x14 (KWP2000)    : request 0x14 with a 2-byte DTC
+//                                group word (ISO 14230-3 §6.6.3).
 //
 //  AutoExecute = False default — Clear is destructive (drops the
 //  vehicle's stored DTC history) and is gated behind the standard
@@ -47,8 +49,13 @@ const
   OBD_MODE_CLEAR_DTC = $04;
   /// <summary>UDS Service 0x14 — ClearDiagnosticInformation.</summary>
   UDS_SID_CLEAR_DTC = $14;
-  /// <summary>UDS 0x14 "all groups" group code.</summary>
+  /// <summary>UDS 0x14 "all groups" group code (3 bytes).</summary>
   UDS_DTC_GROUP_ALL = $FFFFFF;
+  /// <summary>KWP2000 Service 0x14 —
+  /// ClearDiagnosticInformation.</summary>
+  KWP_SID_CLEAR_DTC = $14;
+  /// <summary>KWP2000 0x14 "all groups" group code (2 bytes).</summary>
+  KWP_DTC_GROUP_ALL = $FFFF;
 
 type
   /// <summary>Which clear path to use.</summary>
@@ -56,7 +63,9 @@ type
     /// <summary>OBD-II Mode 0x04 (no body bytes).</summary>
     cdOBDII,
     /// <summary>UDS Service 0x14 with a 3-byte group selector.</summary>
-    cdUDS
+    cdUDS,
+    /// <summary>KWP2000 Service 0x14 with a 2-byte group word.</summary>
+    cdKWP
   );
 
   /// <summary>
@@ -254,6 +263,14 @@ begin
         Body[0] := Byte((FUDSGroup shr 16) and $FF);
         Body[1] := Byte((FUDSGroup shr  8) and $FF);
         Body[2] := Byte( FUDSGroup         and $FF);
+      end;
+    cdKWP:
+      begin
+        SID := KWP_SID_CLEAR_DTC;
+        // KWP2000: 2-byte big-endian DTC group word.
+        SetLength(Body, 2);
+        Body[0] := Byte((FUDSGroup shr 8) and $FF);
+        Body[1] := Byte( FUDSGroup        and $FF);
       end;
   else
     raise EOBDConfig.Create('TOBDClearDTC: unknown dialect');

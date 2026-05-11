@@ -662,12 +662,12 @@ Complete diagnostic surface. Coding and flashing variants of the same UDS/KWP se
 - *(Write/transfer services 0x2E, 0x34/35/36/37, 0x3D ship in Phase 7 / Phase 8.)*
 
 **KWP2000 (ISO 14230)**
-- [ ] `OBD.KWP.pas` — `TOBDKWP` session hub
-- [ ] `OBD.KWP.ReadID.pas` — `TOBDKWPReadID` (0x1A, 0x21, 0x22)
-- [ ] `OBD.KWP.ReadDTC.pas` — `TOBDKWPReadDTC` (0x18, 0x19)
-- [ ] `OBD.KWP.IOControl.pas` — `TOBDKWPIOControl` (0x2F, 0x30)
-- [ ] `OBD.KWP.Routine.pas` — `TOBDKWPRoutine` (0x31, 0x32, 0x33)
-- [ ] `OBD.KWP.ClearDTC.pas` — `TOBDKWPClearDTC` (0x14)
+- [x] `OBD.KWP.pas` — `TOBDKWP` session hub *(implemented as `src/Diagnostics/OBD.Diagnostics.KWP.pas`)*
+- [x] `OBD.KWP.ReadID.pas` — `TOBDKWPReadID` (0x1A, 0x21, 0x22) *(implemented as `src/Diagnostics/OBD.Diagnostics.KWP.ReadID.pas`)*
+- [x] `OBD.KWP.ReadDTC.pas` — `TOBDKWPReadDTC` (0x18, 0x19) *(implemented as `src/Diagnostics/OBD.Diagnostics.KWP.ReadDTC.pas`)*
+- [x] `OBD.KWP.IOControl.pas` — `TOBDKWPIOControl` (0x2F, 0x30) *(implemented as `src/Diagnostics/OBD.Diagnostics.KWP.IOControl.pas`)*
+- [x] `OBD.KWP.Routine.pas` — `TOBDKWPRoutine` (0x31, 0x32, 0x33) *(implemented as `src/Diagnostics/OBD.Diagnostics.KWP.Routine.pas`)*
+- [x] `OBD.KWP.ClearDTC.pas` — `TOBDKWPClearDTC` (0x14) *(covered by `TOBDClearDTC` with `Dialect = cdKWP` and the 2-byte `KWP_DTC_GROUP_ALL` group word)*
 
 **J1939**
 - [ ] `OBD.J1939.pas` — `TOBDJ1939` bus client (address claim, TP.CM/TP.DT, ETP)
