@@ -21,6 +21,13 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-05-12  ERD  TOBDDtcCatalogEntry carries the full
+//                     v2 DTC schema — severity, possible_causes,
+//                     symptoms, repair guidance, monitor type,
+//                     freeze-frame relevance, related DIDs /
+//                     routines, OEM bulletin, source, verified.
+//                     Added TOBDDtcSeverity / TOBDDtcSystem /
+//                     TOBDDtcMonitorType enums.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Types;

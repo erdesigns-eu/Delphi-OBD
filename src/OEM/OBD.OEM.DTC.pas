@@ -15,6 +15,17 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-05-12  ERD  LoadFromFile reads every catalogue field
+//                     (severity, possible_causes, symptoms,
+//                     repair_guidance, monitor_type,
+//                     freeze_frame_relevant, related_dids,
+//                     related_routines, oem_bulletin, source,
+//                     verified) plus file-level default_source.
+//                     Added the J2012 helper functions
+//                     (FormatDtc / EncodeDtc / ParseDtcSystem /
+//                     IsManufacturerDtc / ParseSeverity /
+//                     ParseMonitorType + format inverses) and
+//                     EOBDDtcError.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.DTC;
