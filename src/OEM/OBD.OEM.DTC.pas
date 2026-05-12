@@ -24,6 +24,8 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  System.IOUtils,
+  System.JSON,
   System.SyncObjs,
   System.Generics.Collections,
   OBD.OEM.Types;
@@ -74,7 +76,23 @@ type
     /// <summary>Snapshot of every entry.</summary>
     /// <returns>Array of entries in arbitrary order.</returns>
     function Snapshot: TArray<TOBDDtcCatalogEntry>;
+
+    /// <summary>
+    ///   Merges entries from a JSON catalogue file. The file is a
+    ///   top-level object with a <c>dtcs</c> array of
+    ///   <c>{ "code": "P0420", "description": "...", "notes": "..." }</c>
+    ///   objects. Existing codes are replaced; new codes are
+    ///   appended.
+    /// </summary>
+    /// <param name="FilePath">Absolute path to the JSON file.</param>
+    /// <exception cref="EOBDDtcCatalog">File missing or
+    /// malformed.</exception>
+    procedure LoadFromFile(const FilePath: string);
   end;
+
+  /// <summary>Raised by <see cref="TOBDDtcCatalog.LoadFromFile"/>
+  /// on file or parse errors.</summary>
+  EOBDDtcCatalog = class(Exception);
 
 implementation
 
@@ -167,6 +185,47 @@ begin
     Result := FEntries.Values.ToArray;
   finally
     FLock.Leave;
+  end;
+end;
+
+procedure TOBDDtcCatalog.LoadFromFile(const FilePath: string);
+var
+  Text: string;
+  Value: TJSONValue;
+  Root: TJSONObject;
+  Arr: TJSONArray;
+  I: Integer;
+  Item: TJSONObject;
+  Entry: TOBDDtcCatalogEntry;
+begin
+  if not TFile.Exists(FilePath) then
+    raise EOBDDtcCatalog.CreateFmt(
+      'DTC catalog file %s not found', [FilePath]);
+  Text := TFile.ReadAllText(FilePath, TEncoding.UTF8);
+  Value := TJSONObject.ParseJSONValue(Text);
+  if not (Value is TJSONObject) then
+  begin
+    Value.Free;
+    raise EOBDDtcCatalog.Create('DTC catalog root must be a JSON object');
+  end;
+  try
+    Root := TJSONObject(Value);
+    Arr := Root.GetValue<TJSONArray>('dtcs');
+    if Arr = nil then
+      Exit;
+    for I := 0 to Arr.Count - 1 do
+    begin
+      if not (Arr.Items[I] is TJSONObject) then
+        Continue;
+      Item := TJSONObject(Arr.Items[I]);
+      Entry := Default(TOBDDtcCatalogEntry);
+      Entry.Code := Item.GetValue<string>('code', '');
+      Entry.Description := Item.GetValue<string>('description', '');
+      Entry.Notes := Item.GetValue<string>('notes', '');
+      RegisterEntry(Entry);
+    end;
+  finally
+    Value.Free;
   end;
 end;
 
