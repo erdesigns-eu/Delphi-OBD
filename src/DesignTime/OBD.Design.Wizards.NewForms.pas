@@ -17,8 +17,8 @@
 //    - TOBDNewMainFormWizard:   Main form: Connection + Adapter
 //                               + Protocol + a TOBDLiveData and
 //                               a TOBDDTCs, plus a TOBDCircularGauge
-//                               wired to a placeholder PID via
-//                               LiveBindings-friendly properties.
+//                               bound to PID 0x0C (engine RPM) so
+//                               the form runs out-of-the-box.
 //
 //  Generated templates use the v2 component names (TOBDConnection,
 //  TOBDAdapter, TOBDProtocol, TOBDLiveData, TOBDDTCs,
@@ -493,6 +493,8 @@ const
     '  object CircularGauge1: TOBDCircularGauge'        + #13#10 +
     '    Left = 280; Top = 80'                          + #13#10 +
     '    Width = 240; Height = 240'                     + #13#10 +
+    '    LiveData = LiveData'                           + #13#10 +
+    '    PID = $0C'                                     + #13#10 +
     '  end'                                             + #13#10 +
     '  object Connection: TOBDConnection'               + #13#10 +
     '    Left = 24; Top = 416'                          + #13#10 +
