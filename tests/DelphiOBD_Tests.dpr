@@ -295,6 +295,7 @@ uses
   Tests.OBD.UI.Gauges.Specialised in 'Tests.OBD.UI.Gauges.Specialised.pas',
   Tests.OBD.UI.LivePanels      in 'Tests.OBD.UI.LivePanels.pas',
   Tests.OBD.UI.LiveGrids       in 'Tests.OBD.UI.LiveGrids.pas',
+  Tests.OBD.UI.LegacyPorts     in 'Tests.OBD.UI.LegacyPorts.pas',
   Tests.OBD.UI.Info            in 'Tests.OBD.UI.Info.pas',
   Tests.OBD.UI.MonitorEV       in 'Tests.OBD.UI.MonitorEV.pas',
   Tests.OBD.UI.Session         in 'Tests.OBD.UI.Session.pas',

@@ -127,6 +127,9 @@ uses
   OBD.UI.Gauges.Specialised,
   OBD.UI.LivePanels,
   OBD.UI.LiveGrids,
+  OBD.UI.Terminal,
+  OBD.UI.LogViewer,
+  OBD.UI.DtcList,
   OBD.UI.Info,
   OBD.UI.MonitorEV,
   OBD.UI.Session,
@@ -403,6 +406,9 @@ begin
   // add the gauges / telltales / lists that consume the theme.
   RegisterComponents('OBD Visual', [
     TOBDTheme,
+    TOBDTerminal,
+    TOBDLogViewer,
+    TOBDDtcList,
     TOBDCircularGauge,
     TOBDLinearGauge,
     TOBDTachometer,
