@@ -22,9 +22,8 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-11  ERD  Initial port from v1 OBD.OEM.
-//    2026-05-12  ERD  Realigned to v1 build-catalog hooks +
-//                     session-plan model.
+//    2026-05-11  ERD  Initial implementation.
+//    2026-05-12  ERD  Build-catalog hooks + session-plan model.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Extensions;

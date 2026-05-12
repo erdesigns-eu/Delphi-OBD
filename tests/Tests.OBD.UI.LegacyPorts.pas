@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.UI.LegacyPorts
 //
-//  Coverage for the v1 visual components ported to v2 with native
+//  Coverage for the visual components rendered with native
 //  OS-control faces:
 //    - TOBDTerminal      (TListBox owner-draw face)
 //    - TOBDLogViewer     (TOBDTerminal + level tags)

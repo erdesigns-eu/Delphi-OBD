@@ -2,7 +2,7 @@
 //  Tests.OBD.Catalog.Inventory
 //
 //  Regression test that the shipped catalogue files contain at least
-//  the baseline entry counts captured at v2 launch. A future PR that
+//  the baseline entry counts captured here. A future PR that
 //  silently drops a PID, DTC, NRC or DID entry will fail this test.
 //
 //  Counts here are minimum thresholds, not exact numbers. New entries

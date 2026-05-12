@@ -3,7 +3,7 @@
 //
 //  Shared record types for the OEM-extension framework. Defines
 //  the catalogue rows every vendor extension publishes:
-//    - DID + Routine + ECU descriptors (the v1 baseline)
+//    - DID + Routine + ECU descriptors (the baseline catalogue)
 //    - Coding blocks + adaptations + actuator tests (extended
 //      writeable-coding schema)
 //    - Live PID descriptors (Service 0x01 + Service 0x22 PIDs
@@ -20,7 +20,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-11  ERD  Initial port from v1 OBD.OEM record schema.
+//    2026-05-11  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Types;

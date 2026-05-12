@@ -23,13 +23,13 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-11  ERD  Initial v2 stub (lambda registry only).
-//    2026-05-12  ERD  Replaced with v1-fidelity port — interface-
-//                     based algorithm contract, per-level multi-
-//                     algorithm registry with LIFO precedence,
-//                     four reference algorithm classes, frame
-//                     helpers. Vendor extensions register their
-//                     defaults via SeedDefaultSeedKeyAlgorithms.
+//    2026-05-11  ERD  Initial implementation (lambda registry).
+//    2026-05-12  ERD  Interface-based algorithm contract,
+//                     per-level multi-algorithm LIFO registry,
+//                     four reference algorithm classes, ISO 14229
+//                     §10 frame helpers. Vendor extensions register
+//                     their defaults via
+//                     SeedDefaultSeedKeyAlgorithms.
 //------------------------------------------------------------------------------
 unit OBD.OEM.SeedKey;
 
@@ -41,8 +41,8 @@ uses
 
 type
   EOBDSeedKeyError = class(Exception);
-  /// <summary>v2-stub alias preserved for callers that import
-  /// the shorter name.</summary>
+  /// <summary>Shorter alias for callers that prefer the bare
+  /// name.</summary>
   EOBDSeedKey = EOBDSeedKeyError;
 
   /// <summary>
@@ -146,9 +146,8 @@ type
     ///   Levels that have at least one algorithm registered.
     /// </summary>
     function Levels: TArray<Byte>;
-    /// <summary>v2-stub alias for <see cref="Levels"/> that
-    /// returns the levels sorted ascending (Levels itself is
-    /// unsorted).</summary>
+    /// <summary>Like <see cref="Levels"/> but the result is
+    /// sorted ascending.</summary>
     function RegisteredLevels: TArray<Byte>;
     /// <summary>
     ///   Drop every registration. Test-only helper; production

@@ -15,7 +15,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-12  ERD  Initial port from v1 OBD.OEM.GoldenCheck.
+//    2026-05-12  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.GoldenCheck;

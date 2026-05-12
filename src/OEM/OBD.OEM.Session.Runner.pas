@@ -17,8 +17,8 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-12  ERD  Initial port from v1 OBD.OEM.Session.Runner,
-//                     rebased onto TOBDProtocol + TOBDAdapter.
+//    2026-05-12  ERD  Initial implementation against
+//                     TOBDProtocol + TOBDAdapter.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Session.Runner;
@@ -312,7 +312,7 @@ begin
           Body := Copy(Step.UDS, 1, Length(Step.UDS) - 1);
           UdsResp := FProtocol.Request(SID, Body, Timeout);
           // Reassemble the on-wire shape (SID + Data) for
-          // expected-response matching against the v1-style prefix.
+          // expected-response prefix matching.
           SetLength(Result.ResponseBytes, 1 + Length(UdsResp.Data));
           Result.ResponseBytes[0] := UdsResp.ServiceID;
           if Length(UdsResp.Data) > 0 then

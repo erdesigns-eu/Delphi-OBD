@@ -3,7 +3,7 @@
 //
 //  CSV → JSON catalogue converter. Many community DID datasets
 //  ship as flat CSV files; this importer normalises them into the
-//  v1 JSON catalogue shape that
+//  JSON catalogue shape that
 //  <see cref="OBD.OEM.Catalog.Loader"/> consumes.
 //
 //  Recognised columns (case-insensitive, header row required):
@@ -26,7 +26,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-12  ERD  Initial port from v1 OBD.OEM.Catalog.CSV.
+//    2026-05-12  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Catalog.CSV;

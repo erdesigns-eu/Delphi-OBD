@@ -33,7 +33,7 @@ type
     [Test]
     procedure VersionStringIsPopulated;
 
-    /// <summary>The major version reflects the v2 rewrite.</summary>
+    /// <summary>The major version is 2.</summary>
     [Test]
     procedure MajorVersionIsTwo;
 

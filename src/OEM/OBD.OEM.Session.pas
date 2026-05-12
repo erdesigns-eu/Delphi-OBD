@@ -21,8 +21,8 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-11  ERD  Initial port (open/close shape).
-//    2026-05-12  ERD  Upgraded to v1 session-plan model.
+//    2026-05-11  ERD  Initial implementation (open/close shape).
+//    2026-05-12  ERD  Plan/step model with tester-present heartbeat.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Session;

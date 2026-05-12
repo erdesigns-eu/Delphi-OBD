@@ -14,7 +14,7 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-11  ERD  Initial port from v1 OBD.OEM.DTC.
+//    2026-05-11  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.DTC;
@@ -57,7 +57,9 @@ type
     function TryFind(const ACode: string;
       out AEntry: TOBDDtcCatalogEntry): Boolean;
 
-    /// <summary>v1 alias of <see cref="TryFind"/>.</summary>
+    /// <summary>Alias of <see cref="TryFind"/> using the
+    /// catalogue-style parameter names that vendor extensions
+    /// pass through from JSON loaders.</summary>
     /// <param name="Code">5-character DTC code.</param>
     /// <param name="Entry">Out: matching entry on success.</param>
     function FindByCode(const Code: string;

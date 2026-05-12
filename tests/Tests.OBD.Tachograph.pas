@@ -2,7 +2,7 @@
 //  Tests.OBD.Tachograph
 //
 //  Coverage for the EU 165/2014 tachograph signature + workshop
-//  surfaces ported from v1:
+//  surfaces:
 //    - TOBDTachographSignatureChecker (TLV parse + chain
 //      verification against a permissive in-test verifier).
 //    - OBD.Speciality.Tachograph.Workshop encoder / decoder
