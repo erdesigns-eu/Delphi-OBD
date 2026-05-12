@@ -166,6 +166,7 @@ uses
   OBD.Design.Editors,
   OBD.Design.Help,
   OBD.Design.Wizards.Starters,
+  OBD.Design.Wizards.NewForms,
   OBD.Design.Starters.NewCategories,
   OBD.Design.Starters.DataModules,
   OBD.Design.Starters.RadioPolished,
@@ -629,6 +630,13 @@ begin
     RegisterDelphiOBDStarterWizard;
   except
     // Swallow — wizard is ergonomic only.
+  end;
+
+  // New-form / DM / mainform wizards.
+  try
+    RegisterDelphiOBDFormWizards;
+  except
+    // Swallow — wizards are ergonomic only.
   end;
 
   // Per-category wizards. One entry per palette tab so
