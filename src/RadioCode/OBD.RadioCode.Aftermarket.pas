@@ -21,8 +21,8 @@
 //
 //  History     :
 //    2026-05-10  ERD  Initial implementation. Becker JSON
-//                     databases imported verbatim from v1's
-//                     catalogs/radiocode-becker{4,5}.json.
+//                     databases shipped at
+//                     catalogs/radio-code/becker{4,5}.json.
 //------------------------------------------------------------------------------
 
 unit OBD.RadioCode.Aftermarket;
