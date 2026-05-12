@@ -273,6 +273,7 @@ uses
   Tests.OBD.OEM.Extensions in 'Tests.OBD.OEM.Extensions.pas',
   Tests.OBD.OEM.CatalogLoader in 'Tests.OBD.OEM.CatalogLoader.pas',
   Tests.OBD.OEM.CatalogCSV in 'Tests.OBD.OEM.CatalogCSV.pas',
+  Tests.OBD.OEM.Support in 'Tests.OBD.OEM.Support.pas',
   Tests.OBD.Speciality in 'Tests.OBD.Speciality.pas',
   Tests.OBD.Service.Catalog in 'Tests.OBD.Service.Catalog.pas',
   Tests.OBD.Service.VINDecoder in 'Tests.OBD.Service.VINDecoder.pas',
