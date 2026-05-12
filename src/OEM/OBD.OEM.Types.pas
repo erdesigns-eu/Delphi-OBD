@@ -238,14 +238,98 @@ type
     Routines: TArray<TOBDOEMRoutine>;
   end;
 
-  /// <summary>One DTC catalogue entry.</summary>
+  /// <summary>Coarse severity hint for UI tinting / triage. The
+  /// wire protocol does not carry severity — these are catalogue
+  /// metadata.</summary>
+  TOBDDtcSeverity = (
+    /// <summary>Severity not stated in the catalogue.</summary>
+    dtcSeverityUnknown,
+    /// <summary>Informational only.</summary>
+    dtcSeverityInfo,
+    /// <summary>Drivability / emissions impact.</summary>
+    dtcSeverityWarning,
+    /// <summary>Safety / immediate-attention.</summary>
+    dtcSeverityCritical);
+
+  /// <summary>SAE J2012 system letter — the first character of
+  /// a DTC code.</summary>
+  TOBDDtcSystem = (
+    /// <summary>Powertrain (P codes).</summary>
+    dtcPowertrain,
+    /// <summary>Chassis (C codes).</summary>
+    dtcChassis,
+    /// <summary>Body (B codes).</summary>
+    dtcBody,
+    /// <summary>Network / communication (U codes).</summary>
+    dtcNetwork);
+
+  /// <summary>OBD-II monitor classification (SAE J1979 §6).
+  /// Drives readiness UI.</summary>
+  TOBDDtcMonitorType = (
+    /// <summary>Not stated.</summary>
+    dmtUnknown,
+    /// <summary>Misfire / fuel-system / comprehensive monitors that
+    /// run continuously while the engine is on.</summary>
+    dmtContinuous,
+    /// <summary>Catalyst / EVAP / O2 / EGR monitors that run
+    /// during specific drive cycles.</summary>
+    dmtNonContinuous,
+    /// <summary>Comprehensive component monitor.</summary>
+    dmtComprehensiveComponent);
+
+  /// <summary>One DTC catalogue entry. Fields beyond
+  /// <c>Code</c> + <c>Description</c> are optional in the JSON
+  /// schema; absent fields stay at their record defaults.</summary>
   TOBDDtcCatalogEntry = record
-    /// <summary>5-character J2012 code.</summary>
+    /// <summary>5-character J2012 code (uppercase,
+    /// e.g. <c>P0301</c>).</summary>
     Code: string;
-    /// <summary>Human-readable description.</summary>
+    /// <summary>Coarse severity hint.</summary>
+    Severity: TOBDDtcSeverity;
+    /// <summary>Single-line description
+    /// ("Cylinder 1 misfire detected").</summary>
     Description: string;
-    /// <summary>Cause / repair-hint note.</summary>
+    /// <summary>Free-form list of plausible causes shown to the
+    /// user.</summary>
+    PossibleCauses: TArray<string>;
+    /// <summary>Free-form repair-hint paragraph (often borrowed
+    /// from service manuals).</summary>
+    RepairHints: string;
+    /// <summary>Free-form cause / repair note (legacy
+    /// field).</summary>
     Notes: string;
+    /// <summary>Provenance — same vocabulary as the DID
+    /// catalogue (<c>iso-15031-6</c>, <c>sae-j2012</c>,
+    /// <c>ross-tech-wiki</c>, <c>esys-community</c>,
+    /// <c>community-pr</c>, …).</summary>
+    Source: string;
+    /// <summary>True only when matched against an authoritative
+    /// spec or capture fixture.</summary>
+    Verified: Boolean;
+    /// <summary>Driver-observable symptoms ("rough idle",
+    /// "MIL on", "lurching upshift").</summary>
+    Symptoms: TArray<string>;
+    /// <summary>Stepped repair guidance (numbered steps).
+    /// Distinct from the free-form
+    /// <c>RepairHints</c> paragraph.</summary>
+    RepairGuidance: TArray<string>;
+    /// <summary>SAE J1979 monitor category.</summary>
+    MonitorType: TOBDDtcMonitorType;
+    /// <summary>Whether this code triggers a freeze-frame
+    /// snapshot. MIL-on codes typically do; pending codes
+    /// typically do not.</summary>
+    FreezeFrameRelevant: Boolean;
+    /// <summary>DID names from the same OEM catalogue that are
+    /// useful during diagnosis (e.g. <c>ecm_misfire</c>,
+    /// <c>ecm_lambda_b1</c> for P0301).</summary>
+    RelatedDIDs: TArray<string>;
+    /// <summary>Routine names that are likely the corrective
+    /// action (e.g. <c>ecm_dpf_regen_force</c> for a P244A DPF
+    /// fault).</summary>
+    RelatedRoutines: TArray<string>;
+    /// <summary>OEM service-bulletin reference (TSB number /
+    /// recall ID / dealer fix code). Free text.</summary>
+    OemBulletin: string;
   end;
 
 implementation
