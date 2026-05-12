@@ -298,6 +298,7 @@ uses
   Tests.OBD.UI.LegacyPorts     in 'Tests.OBD.UI.LegacyPorts.pas',
   Tests.OBD.Tachograph         in 'Tests.OBD.Tachograph.pas',
   Tests.OBD.Utilities          in 'Tests.OBD.Utilities.pas',
+  Tests.OBD.UI.LegacyVisualsTier5 in 'Tests.OBD.UI.LegacyVisualsTier5.pas',
   Tests.OBD.UI.Info            in 'Tests.OBD.UI.Info.pas',
   Tests.OBD.UI.MonitorEV       in 'Tests.OBD.UI.MonitorEV.pas',
   Tests.OBD.UI.Session         in 'Tests.OBD.UI.Session.pas',
