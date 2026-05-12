@@ -272,7 +272,7 @@ begin
     Assert.WillRaise(
       procedure
       begin
-        Reg.RegisterAlgorithm($01, nil);
+        Reg.RegisterAlgorithm($01, TOBDSeedKeyAlgorithm(nil));
       end,
       EOBDSeedKey);
   finally

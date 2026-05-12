@@ -125,6 +125,7 @@ contains
   OBD.OEM.Registry in '..\src\OEM\OBD.OEM.Registry.pas',
   OBD.OEM.Catalog in '..\src\OEM\OBD.OEM.Catalog.pas',
   OBD.OEM.Types in '..\src\OEM\OBD.OEM.Types.pas',
+  OBD.OEM in '..\src\OEM\OBD.OEM.pas',
   OBD.OEM.SeedKey in '..\src\OEM\OBD.OEM.SeedKey.pas',
   OBD.OEM.DTC in '..\src\OEM\OBD.OEM.DTC.pas',
   OBD.OEM.Session in '..\src\OEM\OBD.OEM.Session.pas',
