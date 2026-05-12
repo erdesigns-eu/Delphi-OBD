@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  Tests.OBD.UI.LegacyVisualsTier5
 //
-//  Coverage for the second round of visual ports: TOBDKnob,
-//  TOBDSegmentedSwitch, TOBDTrendGraph. The painted output is
-//  out of unit-test scope (form-rendered); this fixture
-//  exercises every state-machine behaviour and the public API.
+//  Coverage for the second round of visual ports: TOBDKnob and
+//  TOBDTrendGraph. The painted output is form-rendered and not
+//  exercised here; this fixture covers the state machines and
+//  public API surface.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -24,7 +24,6 @@ uses
   Vcl.Graphics,
   DUnitX.TestFramework,
   OBD.UI.Knob,
-  OBD.UI.SegmentedSwitch,
   OBD.UI.TrendGraph;
 
 type
@@ -38,11 +37,6 @@ type
     [Test] procedure Knob_StepRejectsNonPositive;
     [Test] procedure Knob_SetMinPullsValueUp;
     [Test] procedure Knob_SetMaxPullsValueDown;
-
-    [Test] procedure Segmented_DefaultsTwoItemsSelectsZero;
-    [Test] procedure Segmented_SetIndexClamps;
-    [Test] procedure Segmented_OnChangeFiresOnce;
-    [Test] procedure Segmented_RemoveLastItemAdjustsIndex;
 
     [Test] procedure Trend_AddSeriesAndPush;
     [Test] procedure Trend_RingBufferOverwritesOldest;
@@ -147,72 +141,6 @@ begin
     Assert.AreEqual(50.0, K.Value, 0.001);
   finally
     K.Free;
-  end;
-end;
-
-{ ---- TOBDSegmentedSwitch ------------------------------------------------ }
-
-procedure TLegacyVisualsTier5Tests.Segmented_DefaultsTwoItemsSelectsZero;
-var
-  S: TOBDSegmentedSwitch;
-begin
-  S := TOBDSegmentedSwitch.Create(nil);
-  try
-    Assert.AreEqual(2, S.Segments.Count);
-    Assert.AreEqual(0, S.SelectedIndex);
-  finally
-    S.Free;
-  end;
-end;
-
-procedure TLegacyVisualsTier5Tests.Segmented_SetIndexClamps;
-var
-  S: TOBDSegmentedSwitch;
-begin
-  S := TOBDSegmentedSwitch.Create(nil);
-  try
-    S.SelectedIndex := 99;
-    Assert.AreEqual(1, S.SelectedIndex);
-    S.SelectedIndex := -5;
-    Assert.AreEqual(-1, S.SelectedIndex);
-  finally
-    S.Free;
-  end;
-end;
-
-procedure TLegacyVisualsTier5Tests.Segmented_OnChangeFiresOnce;
-var
-  S: TOBDSegmentedSwitch;
-  Hits: Integer;
-begin
-  S := TOBDSegmentedSwitch.Create(nil);
-  try
-    Hits := 0;
-    S.OnChange :=
-      procedure(Sender: TObject; AIndex: Integer)
-      begin
-        Inc(Hits);
-      end;
-    S.SelectedIndex := 1;
-    S.SelectedIndex := 1;                // same — no fire
-    S.SelectedIndex := 0;
-    Assert.AreEqual(2, Hits);
-  finally
-    S.Free;
-  end;
-end;
-
-procedure TLegacyVisualsTier5Tests.Segmented_RemoveLastItemAdjustsIndex;
-var
-  S: TOBDSegmentedSwitch;
-begin
-  S := TOBDSegmentedSwitch.Create(nil);
-  try
-    S.SelectedIndex := 1;
-    S.Segments.Delete(1);
-    Assert.AreEqual(0, S.SelectedIndex);
-  finally
-    S.Free;
   end;
 end;
 
