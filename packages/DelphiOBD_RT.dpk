@@ -131,6 +131,7 @@ contains
   OBD.OEM.Extensions in '..\src\OEM\OBD.OEM.Extensions.pas',
   OBD.OEM.Helpers in '..\src\OEM\OBD.OEM.Helpers.pas',
   OBD.OEM.Catalog.JSON in '..\src\OEM\OBD.OEM.Catalog.JSON.pas',
+  OBD.OEM.Catalog.CSV in '..\src\OEM\OBD.OEM.Catalog.CSV.pas',
   OBD.OEM.Catalog.Loader in '..\src\OEM\OBD.OEM.Catalog.Loader.pas',
   OBD.OEM.DTC.Loader in '..\src\OEM\OBD.OEM.DTC.Loader.pas',
   OBD.Service.VehicleHealth in '..\src\Service\OBD.Service.VehicleHealth.pas',
