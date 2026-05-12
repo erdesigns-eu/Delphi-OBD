@@ -2,19 +2,18 @@
 //  Tests.OBD.OEM.Extensions
 //
 //  Coverage for the manufacturer-extension framework:
-//    - TOBDSeedKeyRegistry  (OBD.OEM.SeedKey)
-//    - TOBDDtcCatalog       (OBD.OEM.DTC)
-//    - TOBDStandardSessionNegotiator + IOBDSessionNegotiator
-//      (OBD.OEM.Session)
-//    - TOBDOEMExtensionRegistry + TOBDOEMExtensionBase
-//      (OBD.OEM.Extensions)
+//    - TOBDSeedKeyRegistry              (OBD.OEM.SeedKey)
+//    - TOBDDtcCatalog                   (OBD.OEM.DTC)
+//    - TOBDStandardSessionNegotiator    (OBD.OEM.Session, plan model)
+//    - TOBDOEMExtensionRegistry +
+//      TOBDOEMExtensionBase             (OBD.OEM.Extensions)
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-12  ERD  Initial fixture.
+//    2026-05-12  ERD  Initial fixture (post session-plan upgrade).
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.OEM.Extensions;
@@ -39,14 +38,20 @@ type
     FDisplay: string;
     FWMI: string;
   protected
-    procedure LoadCatalog; override;
-    procedure SeedDtcCatalog(ACatalog: TOBDDtcCatalog); override;
+    procedure BuildCatalog(
+      var DIDs: TArray<TOBDOEMDataIdentifier>;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); override;
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
   public
     /// <summary>Constructs the stub with explicit identity.</summary>
+    /// <param name="AKey">Manufacturer key.</param>
+    /// <param name="ADisplay">Display name.</param>
+    /// <param name="AWMIPrefix">VIN WMI prefix.</param>
     constructor Create(const AKey, ADisplay, AWMIPrefix: string); reintroduce;
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
-    function ApplicableToVIN(const AVIN: string): Boolean; override;
+    function ApplicableToVIN(const VIN: string): Boolean; override;
   end;
 
   /// <summary>DUnitX fixture for the OEM extension framework.</summary>
@@ -66,17 +71,24 @@ type
 
     // ---- TOBDDtcCatalog ----
     [Test] procedure DtcCatalog_RegisterAndTryFind;
+    [Test] procedure DtcCatalog_FindByCodeAlias;
     [Test] procedure DtcCatalog_LookupIsCaseInsensitive;
     [Test] procedure DtcCatalog_RegisterReplacesExisting;
     [Test] procedure DtcCatalog_RemoveDropsEntry;
     [Test] procedure DtcCatalog_EmptyCodeIgnored;
 
     // ---- TOBDStandardSessionNegotiator ----
-    [Test] procedure Session_OpenExtendedEmitsSidAndSub;
-    [Test] procedure Session_CloseGoesToDefault;
-    [Test] procedure Session_EnterProgrammingNegotiatesProgramming;
-    [Test] procedure Session_ShortResponseRaises;
-    [Test] procedure Session_NilRequestRaises;
+    [Test] procedure SessionPlan_BeginExtendedEmitsUDSStep;
+    [Test] procedure SessionPlan_BeginWithECUAddressPrependsHeader;
+    [Test] procedure SessionPlan_BeginDefaultHasZeroTesterPresent;
+    [Test] procedure SessionPlan_BeginExtendedHasTesterPresent;
+    [Test] procedure SessionPlan_EndReturnsToDefault;
+    [Test] procedure SessionPlan_RequiresSecurityForProgrammingOnly;
+    [Test] procedure SessionPlan_DisplayNameMatchesStandard;
+    [Test] procedure SessionPlan_DefaultTesterPresentTwoSeconds;
+    [Test] procedure SessionPlan_FormatHeaderUses11Bit;
+    [Test] procedure SessionPlan_FormatHeaderUses29Bit;
+    [Test] procedure SessionPlan_SessionTypeByteMatchesISO;
 
     // ---- TOBDOEMExtensionRegistry ----
     [Test] procedure Registry_RegisterIsIdempotent;
@@ -85,13 +97,17 @@ type
     [Test] procedure Registry_UnregisterRemovesExtension;
     [Test] procedure Registry_ClearEmptiesRegistry;
     [Test] procedure Registry_AllReturnsSnapshot;
+    [Test] procedure Registry_FindByECUSupplierEmptyReturnsNil;
 
     // ---- TOBDOEMExtensionBase ----
-    [Test] procedure ExtBase_LoadCatalogIsLazyAndOnce;
+    [Test] procedure ExtBase_BuildCatalogIsLazyAndOnce;
     [Test] procedure ExtBase_FindDIDAndRoutine;
     [Test] procedure ExtBase_CatalogForECUFiltersAndIncludesGlobals;
+    [Test] procedure ExtBase_CatalogForECUZeroReturnsEverything;
     [Test] procedure ExtBase_DescribeDTCUsesSeededCatalog;
-    [Test] procedure ExtBase_DefaultSessionNegotiatorIsStandard;
+    [Test] procedure ExtBase_DefaultSessionNegotiatorIsStandardAndCached;
+    [Test] procedure ExtBase_DecodeDIDFallsBackToHexDump;
+    [Test] procedure ExtBase_MakeOEMECUBuildsRecord;
   end;
 
 implementation
@@ -117,53 +133,51 @@ begin
   Result := FDisplay;
 end;
 
-function TStubOEMExtension.ApplicableToVIN(const AVIN: string): Boolean;
+function TStubOEMExtension.ApplicableToVIN(const VIN: string): Boolean;
 begin
-  Result := (FWMI <> '') and (Length(AVIN) >= Length(FWMI)) and
-    SameText(Copy(AVIN, 1, Length(FWMI)), FWMI);
+  Result := (FWMI <> '') and (Length(VIN) >= Length(FWMI)) and
+    SameText(Copy(VIN, 1, Length(FWMI)), FWMI);
 end;
 
-procedure TStubOEMExtension.LoadCatalog;
+procedure TStubOEMExtension.BuildCatalog(
+  var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>;
+  var ECUs: TArray<TOBDOEMECU>);
 var
   DID: TOBDOEMDataIdentifier;
   Routine: TOBDOEMRoutine;
-  ECU: TOBDOEMECU;
 begin
   DID := Default(TOBDOEMDataIdentifier);
   DID.DID := $F190;
   DID.Name := 'vin';
   DID.Description := 'Vehicle Identification Number';
-  DID.EcuAddress := 0;                              // global
-  AddDID(DID);
+  DID.EcuAddress := 0;
+  DIDs := DIDs + [DID];
 
   DID := Default(TOBDOEMDataIdentifier);
   DID.DID := $F18C;
   DID.Name := 'ecu_serial';
   DID.Description := 'ECU Serial Number';
-  DID.EcuAddress := $7E0;                           // engine
-  AddDID(DID);
+  DID.EcuAddress := $7E0;
+  DIDs := DIDs + [DID];
 
   Routine := Default(TOBDOEMRoutine);
   Routine.Identifier := $0203;
   Routine.Name := 'erase_memory';
   Routine.EcuAddress := $7E0;
-  AddRoutine(Routine);
+  Routines := Routines + [Routine];
 
-  ECU := Default(TOBDOEMECU);
-  ECU.Address := $7E0;
-  ECU.Name := 'engine';
-  ECU.CommonName := 'Engine Control Module';
-  AddECU(ECU);
+  ECUs := ECUs + [MakeOEMECU($7E0, 'engine', 'Engine Control Module')];
 end;
 
-procedure TStubOEMExtension.SeedDtcCatalog(ACatalog: TOBDDtcCatalog);
+procedure TStubOEMExtension.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 var
   Entry: TOBDDtcCatalogEntry;
 begin
   Entry := Default(TOBDDtcCatalogEntry);
   Entry.Code := 'P0420';
   Entry.Description := 'Catalyst System Efficiency Below Threshold (Bank 1)';
-  ACatalog.RegisterEntry(Entry);
+  Cat.RegisterEntry(Entry);
 end;
 
 { TOEMExtensionsTests }
@@ -333,6 +347,23 @@ begin
   end;
 end;
 
+procedure TOEMExtensionsTests.DtcCatalog_FindByCodeAlias;
+var
+  Cat: TOBDDtcCatalog;
+  Entry, Found: TOBDDtcCatalogEntry;
+begin
+  Cat := TOBDDtcCatalog.Create;
+  try
+    Entry := Default(TOBDDtcCatalogEntry);
+    Entry.Code := 'P0420';
+    Cat.RegisterEntry(Entry);
+    Assert.IsTrue(Cat.FindByCode('p0420', Found));
+    Assert.AreEqual('P0420', Found.Code);
+  finally
+    Cat.Free;
+  end;
+end;
+
 procedure TOEMExtensionsTests.DtcCatalog_LookupIsCaseInsensitive;
 var
   Cat: TOBDDtcCatalog;
@@ -411,98 +442,121 @@ end;
 
 { ---- TOBDStandardSessionNegotiator -------------------------------------- }
 
-procedure TOEMExtensionsTests.Session_OpenExtendedEmitsSidAndSub;
+procedure TOEMExtensionsTests.SessionPlan_BeginExtendedEmitsUDSStep;
 var
   Neg: IOBDSessionNegotiator;
-  CapturedSID: Byte;
-  CapturedBody: TBytes;
-  Result_: TOBDSessionKind;
+  Plan: TOBDSessionPlan;
+  Step: TOBDSessionStep;
 begin
   Neg := TOBDStandardSessionNegotiator.Create;
-  CapturedSID := 0;
-  Result_ := Neg.OpenSession(skExtended,
-    function(AServiceId: Byte; const ABody: TBytes): TBytes
-    begin
-      CapturedSID := AServiceId;
-      CapturedBody := ABody;
-      Result := TBytes.Create($03);                  // echo sub-function
-    end);
-  Assert.AreEqual(UDS_SID_DIAGNOSTIC_SESSION_CONTROL, Integer(CapturedSID));
-  Assert.AreEqual(1, Length(CapturedBody));
-  Assert.AreEqual($03, Integer(CapturedBody[0]));
-  Assert.AreEqual(Ord(skExtended), Ord(Result_));
-  Assert.AreEqual(Ord(skExtended), Ord(Neg.CurrentSession));
+  Plan := Neg.BeginSessionPlan(sstExtendedDiagnostic, 0);
+  Assert.AreEqual(1, Length(Plan.Steps));
+  Step := Plan.Steps[0];
+  Assert.AreEqual(Ord(sskUDSRequest), Ord(Step.Kind));
+  Assert.AreEqual(2, Length(Step.UDS));
+  Assert.AreEqual($10, Integer(Step.UDS[0]));
+  Assert.AreEqual($03, Integer(Step.UDS[1]));
+  Assert.AreEqual(2, Length(Step.ExpectedResponse));
+  Assert.AreEqual($50, Integer(Step.ExpectedResponse[0]));
+  Assert.AreEqual($03, Integer(Step.ExpectedResponse[1]));
 end;
 
-procedure TOEMExtensionsTests.Session_CloseGoesToDefault;
+procedure TOEMExtensionsTests.SessionPlan_BeginWithECUAddressPrependsHeader;
 var
   Neg: IOBDSessionNegotiator;
-  Calls: Integer;
+  Plan: TOBDSessionPlan;
 begin
   Neg := TOBDStandardSessionNegotiator.Create;
-  Calls := 0;
-  Neg.OpenSession(skExtended,
-    function(AServiceId: Byte; const ABody: TBytes): TBytes
-    begin
-      Inc(Calls);
-      Result := TBytes.Create(ABody[0]);
-    end);
-  Neg.CloseSession(
-    function(AServiceId: Byte; const ABody: TBytes): TBytes
-    begin
-      Inc(Calls);
-      Assert.AreEqual($01, Integer(ABody[0]));
-      Result := TBytes.Create($01);
-    end);
-  Assert.AreEqual(2, Calls);
-  Assert.AreEqual(Ord(skDefault), Ord(Neg.CurrentSession));
+  Plan := Neg.BeginSessionPlan(sstExtendedDiagnostic, $7E0);
+  Assert.AreEqual(2, Length(Plan.Steps));
+  Assert.AreEqual(Ord(sskATCommand), Ord(Plan.Steps[0].Kind));
+  Assert.AreEqual('SH 7E0', Plan.Steps[0].AdapterCmd);
+  Assert.AreEqual(Ord(sskUDSRequest), Ord(Plan.Steps[1].Kind));
 end;
 
-procedure TOEMExtensionsTests.Session_EnterProgrammingNegotiatesProgramming;
+procedure TOEMExtensionsTests.SessionPlan_BeginDefaultHasZeroTesterPresent;
 var
   Neg: IOBDSessionNegotiator;
-  Captured: Byte;
+  Plan: TOBDSessionPlan;
 begin
   Neg := TOBDStandardSessionNegotiator.Create;
-  Captured := 0;
-  Neg.EnterProgrammingSession(
-    function(AServiceId: Byte; const ABody: TBytes): TBytes
-    begin
-      Captured := ABody[0];
-      Result := TBytes.Create($02);
-    end);
-  Assert.AreEqual($02, Integer(Captured));
-  Assert.AreEqual(Ord(skProgramming), Ord(Neg.CurrentSession));
+  Plan := Neg.BeginSessionPlan(sstDefault, 0);
+  Assert.AreEqual<Cardinal>(0, Plan.TesterPresentMs);
 end;
 
-procedure TOEMExtensionsTests.Session_ShortResponseRaises;
+procedure TOEMExtensionsTests.SessionPlan_BeginExtendedHasTesterPresent;
 var
   Neg: IOBDSessionNegotiator;
+  Plan: TOBDSessionPlan;
 begin
   Neg := TOBDStandardSessionNegotiator.Create;
-  Assert.WillRaise(
-    procedure
-    begin
-      Neg.OpenSession(skExtended,
-        function(AServiceId: Byte; const ABody: TBytes): TBytes
-        begin
-          Result := nil;
-        end);
-    end,
-    EOBDSession);
+  Plan := Neg.BeginSessionPlan(sstExtendedDiagnostic, 0);
+  Assert.AreEqual<Cardinal>(2000, Plan.TesterPresentMs);
+  Assert.AreEqual(2, Length(Plan.TesterPresentRequest));
+  Assert.AreEqual($3E, Integer(Plan.TesterPresentRequest[0]));
+  Assert.AreEqual($80, Integer(Plan.TesterPresentRequest[1]));
 end;
 
-procedure TOEMExtensionsTests.Session_NilRequestRaises;
+procedure TOEMExtensionsTests.SessionPlan_EndReturnsToDefault;
+var
+  Neg: IOBDSessionNegotiator;
+  Plan: TOBDSessionPlan;
+begin
+  Neg := TOBDStandardSessionNegotiator.Create;
+  Plan := Neg.EndSessionPlan(0);
+  Assert.AreEqual(1, Length(Plan.Steps));
+  Assert.AreEqual($10, Integer(Plan.Steps[0].UDS[0]));
+  Assert.AreEqual($01, Integer(Plan.Steps[0].UDS[1]));
+  Assert.AreEqual<Cardinal>(0, Plan.TesterPresentMs);
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_RequiresSecurityForProgrammingOnly;
 var
   Neg: IOBDSessionNegotiator;
 begin
   Neg := TOBDStandardSessionNegotiator.Create;
-  Assert.WillRaise(
-    procedure
-    begin
-      Neg.OpenSession(skExtended, nil);
-    end,
-    EOBDSession);
+  Assert.IsTrue(Neg.RequiresSecurityAccess(sstProgramming));
+  Assert.IsFalse(Neg.RequiresSecurityAccess(sstDefault));
+  Assert.IsFalse(Neg.RequiresSecurityAccess(sstExtendedDiagnostic));
+  Assert.IsFalse(Neg.RequiresSecurityAccess(sstSafetySystem));
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_DisplayNameMatchesStandard;
+var
+  Neg: IOBDSessionNegotiator;
+begin
+  Neg := TOBDStandardSessionNegotiator.Create;
+  Assert.AreEqual('ISO 14229 standard', Neg.DisplayName);
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_DefaultTesterPresentTwoSeconds;
+var
+  Neg: IOBDSessionNegotiator;
+begin
+  Neg := TOBDStandardSessionNegotiator.Create;
+  Assert.AreEqual<Cardinal>(2000, Neg.DefaultTesterPresentMs);
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_FormatHeaderUses11Bit;
+begin
+  Assert.AreEqual('7E0', FormatHeader($7E0));
+  Assert.AreEqual('000', FormatHeader($000));
+  Assert.AreEqual('7FF', FormatHeader($7FF));
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_FormatHeaderUses29Bit;
+begin
+  Assert.AreEqual('0000ABCD', FormatHeader($ABCD));
+end;
+
+procedure TOEMExtensionsTests.SessionPlan_SessionTypeByteMatchesISO;
+begin
+  Assert.AreEqual($01, Integer(SessionTypeByte(sstDefault)));
+  Assert.AreEqual($02, Integer(SessionTypeByte(sstProgramming)));
+  Assert.AreEqual($03, Integer(SessionTypeByte(sstExtendedDiagnostic)));
+  Assert.AreEqual($04, Integer(SessionTypeByte(sstSafetySystem)));
+  Assert.AreEqual($40, Integer(SessionTypeByte(sstOEMSpecific1)));
+  Assert.AreEqual($60, Integer(SessionTypeByte(sstOEMSpecific2)));
 end;
 
 { ---- TOBDOEMExtensionRegistry ------------------------------------------- }
@@ -528,7 +582,8 @@ begin
   Match := TOBDOEMExtensionRegistry.FindByVIN('WBAFR9C57DC123456');
   Assert.IsTrue(Match <> nil);
   Assert.AreEqual('BMW', Match.ManufacturerKey);
-  Assert.IsTrue(TOBDOEMExtensionRegistry.FindByVIN('1HGBH41JXMN109186') = nil);
+  Assert.IsTrue(TOBDOEMExtensionRegistry.FindByVIN(
+    '1HGBH41JXMN109186') = nil);
 end;
 
 procedure TOEMExtensionsTests.Registry_FindByKeyIsCaseInsensitive;
@@ -577,16 +632,22 @@ begin
   Assert.AreEqual('B', Snap[1].ManufacturerKey);
 end;
 
+procedure TOEMExtensionsTests.Registry_FindByECUSupplierEmptyReturnsNil;
+begin
+  TOBDOEMExtensionRegistry.RegisterExtension(
+    TStubOEMExtension.Create('VAG', 'VAG', 'WVW'));
+  Assert.IsTrue(TOBDOEMExtensionRegistry.FindByECUSupplier('') = nil);
+  Assert.IsTrue(TOBDOEMExtensionRegistry.FindByECUSupplier('BOSCH') = nil);
+end;
+
 { ---- TOBDOEMExtensionBase ----------------------------------------------- }
 
-procedure TOEMExtensionsTests.ExtBase_LoadCatalogIsLazyAndOnce;
+procedure TOEMExtensionsTests.ExtBase_BuildCatalogIsLazyAndOnce;
 var
-  Stub: TStubOEMExtension;
   Ext: IOBDOEMExtension;
   FirstSnap, SecondSnap: TArray<TOBDOEMDataIdentifier>;
 begin
-  Stub := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
-  Ext := Stub;
+  Ext := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
   FirstSnap := Ext.DataIdentifiers;
   SecondSnap := Ext.DataIdentifiers;
   Assert.AreEqual(2, Length(FirstSnap));
@@ -616,11 +677,22 @@ begin
   Ext := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
   Sub := Ext.CatalogForECU($7E0);
   Assert.AreEqual($7E0, Integer(Sub.EcuAddress));
-  Assert.AreEqual(2, Length(Sub.DIDs));               // global F190 + scoped F18C
+  Assert.AreEqual(2, Length(Sub.DIDs));            // global F190 + scoped F18C
   Assert.AreEqual(1, Length(Sub.Routines));
   Sub := Ext.CatalogForECU($7E1);
-  Assert.AreEqual(1, Length(Sub.DIDs));               // only the global
+  Assert.AreEqual(1, Length(Sub.DIDs));            // only the global
   Assert.AreEqual(0, Length(Sub.Routines));
+end;
+
+procedure TOEMExtensionsTests.ExtBase_CatalogForECUZeroReturnsEverything;
+var
+  Ext: IOBDOEMExtension;
+  Sub: TOBDOEMSubCatalog;
+begin
+  Ext := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
+  Sub := Ext.CatalogForECU(0);
+  Assert.AreEqual(2, Length(Sub.DIDs));
+  Assert.AreEqual(1, Length(Sub.Routines));
 end;
 
 procedure TOEMExtensionsTests.ExtBase_DescribeDTCUsesSeededCatalog;
@@ -634,7 +706,7 @@ begin
   Assert.IsFalse(Ext.DescribeDTC('P9999', Entry));
 end;
 
-procedure TOEMExtensionsTests.ExtBase_DefaultSessionNegotiatorIsStandard;
+procedure TOEMExtensionsTests.ExtBase_DefaultSessionNegotiatorIsStandardAndCached;
 var
   Ext: IOBDOEMExtension;
   Neg, Again: IOBDSessionNegotiator;
@@ -642,9 +714,33 @@ begin
   Ext := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
   Neg := Ext.SessionNegotiator;
   Assert.IsTrue(Neg <> nil);
-  Assert.AreEqual(Ord(skDefault), Ord(Neg.CurrentSession));
+  Assert.AreEqual('ISO 14229 standard', Neg.DisplayName);
   Again := Ext.SessionNegotiator;
   Assert.IsTrue(Pointer(Neg) = Pointer(Again));
+end;
+
+procedure TOEMExtensionsTests.ExtBase_DecodeDIDFallsBackToHexDump;
+var
+  Ext: IOBDOEMExtension;
+  S: string;
+begin
+  Ext := TStubOEMExtension.Create('VAG', 'VAG', 'WVW');
+  S := Ext.DecodeDID($F190, TBytes.Create($12, $AB, $FF));
+  Assert.Contains(S, 'vin');
+  Assert.Contains(S, '12 AB FF');
+  S := Ext.DecodeDID($FFFF, TBytes.Create($00));
+  Assert.Contains(S, '0xFFFF');
+  Assert.Contains(S, '00');
+end;
+
+procedure TOEMExtensionsTests.ExtBase_MakeOEMECUBuildsRecord;
+var
+  ECU: TOBDOEMECU;
+begin
+  ECU := MakeOEMECU($7E0, 'engine', 'Engine ECM');
+  Assert.AreEqual($7E0, Integer(ECU.Address));
+  Assert.AreEqual('engine', ECU.Name);
+  Assert.AreEqual('Engine ECM', ECU.CommonName);
 end;
 
 initialization

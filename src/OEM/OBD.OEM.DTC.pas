@@ -55,6 +55,12 @@ type
     function TryFind(const ACode: string;
       out AEntry: TOBDDtcCatalogEntry): Boolean;
 
+    /// <summary>v1 alias of <see cref="TryFind"/>.</summary>
+    /// <param name="Code">5-character DTC code.</param>
+    /// <param name="Entry">Out: matching entry on success.</param>
+    function FindByCode(const Code: string;
+      out Entry: TOBDDtcCatalogEntry): Boolean;
+
     /// <summary>Removes a code from the catalogue.</summary>
     /// <param name="ACode">5-character DTC code.</param>
     procedure Remove(const ACode: string);
@@ -116,6 +122,12 @@ begin
   finally
     FLock.Leave;
   end;
+end;
+
+function TOBDDtcCatalog.FindByCode(const Code: string;
+  out Entry: TOBDDtcCatalogEntry): Boolean;
+begin
+  Result := TryFind(Code, Entry);
 end;
 
 procedure TOBDDtcCatalog.Remove(const ACode: string);

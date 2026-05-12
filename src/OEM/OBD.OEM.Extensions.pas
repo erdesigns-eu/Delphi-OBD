@@ -23,6 +23,8 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial port from v1 OBD.OEM.
+//    2026-05-12  ERD  Realigned to v1 build-catalog hooks +
+//                     session-plan model.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Extensions;
@@ -46,85 +48,108 @@ type
   /// <summary>
   ///   Manufacturer-extension contract. One interface covering
   ///   identity, applicability, catalogues (DIDs, routines, ECUs,
-  ///   coding blocks, adaptations, actuator tests, live PIDs,
+  ///   coding blocks, adaptations, actuator tests, live PIDs and
   ///   DTC extended-data records), the session negotiator, the
   ///   seed-key registry and the DTC catalogue.
   /// </summary>
+  /// <remarks>
+  ///   <para>The framework calls the extension to look up DIDs,
+  ///   routines and any custom session negotiation; it does NOT
+  ///   delegate flashing, security access or bus arbitration
+  ///   through this interface — those stay in
+  ///   <c>OBD.ECU.Flashing</c>.</para>
+  /// </remarks>
   IOBDOEMExtension = interface
     ['{A2C5F4C6-4D71-4E8F-9C5B-3E4A8B1D6C2F}']
     /// <summary>Short ASCII manufacturer tag (e.g. <c>'VAG'</c>,
     /// <c>'BMW'</c>, <c>'FORD'</c>).</summary>
     function ManufacturerKey: string;
-    /// <summary>Display name.</summary>
+    /// <summary>Display-friendly name.</summary>
     function DisplayName: string;
-    /// <summary>Returns <c>True</c> when this extension claims
-    /// <c>AVIN</c> via WMI / VDS pattern matching.</summary>
-    /// <param name="AVIN">17-character ISO 3779 VIN.</param>
-    function ApplicableToVIN(const AVIN: string): Boolean;
-    /// <summary>Returns <c>True</c> when this extension claims an
-    /// ECU based on its <c>SupplierID</c> (J1939 PGN 65259 'Make'
-    /// or UDS DID 0xF18A).</summary>
-    /// <param name="ASupplierID">Supplier-identifier string.</param>
-    function ApplicableToECUSupplier(const ASupplierID: string): Boolean;
-    /// <summary>The full DID catalogue.</summary>
+
+    /// <summary>
+    ///   <c>True</c> when this extension claims <c>VIN</c>. The
+    ///   framework probes every registered extension; the first
+    ///   that returns <c>True</c> wins.
+    /// </summary>
+    /// <param name="VIN">17-character ISO 3779 VIN.</param>
+    function ApplicableToVIN(const VIN: string): Boolean;
+    /// <summary>
+    ///   <c>True</c> when this extension claims an ECU based on
+    ///   its component identification (J1939 PGN 65259 'Make' or
+    ///   ISO 14229 DID 0xF18A system_supplier_identifier).
+    ///   Engine OEMs and supplier-only modules opt in here.
+    /// </summary>
+    /// <param name="SupplierID">Supplier identifier.</param>
+    function ApplicableToECUSupplier(const SupplierID: string): Boolean;
+
+    /// <summary>Full DID catalogue.</summary>
     function DataIdentifiers: TArray<TOBDOEMDataIdentifier>;
-    /// <summary>The full Routine catalogue.</summary>
+    /// <summary>Full Routine catalogue.</summary>
     function Routines: TArray<TOBDOEMRoutine>;
-    /// <summary>The full ECU catalogue.</summary>
-    function ECUs: TArray<TOBDOEMECU>;
-    /// <summary>Decodes a raw DID payload to a human-readable
-    /// string.</summary>
-    /// <param name="ADID">DID being decoded.</param>
-    /// <param name="APayload">Raw response bytes.</param>
-    /// <returns>Decoded label.</returns>
-    function DecodeDID(ADID: Word; const APayload: TBytes): string;
+    /// <summary>
+    ///   Decodes a raw DID payload to a human-readable string.
+    ///   Base implementation prints <c>"&lt;name&gt; = HEX"</c>;
+    ///   subclasses override for structured decoding.
+    /// </summary>
+    /// <param name="DID">DID being decoded.</param>
+    /// <param name="Payload">Response bytes.</param>
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
     /// <summary>Looks up a DID.</summary>
-    /// <param name="ADID">DID value.</param>
-    /// <param name="AEntry">Out: matching entry on success.</param>
-    /// <returns><c>True</c> when found.</returns>
-    function FindDID(ADID: Word;
-      out AEntry: TOBDOEMDataIdentifier): Boolean;
+    /// <param name="DID">DID value.</param>
+    /// <param name="Entry">Out: matching entry on success.</param>
+    function FindDID(const DID: Word;
+      out Entry: TOBDOEMDataIdentifier): Boolean;
     /// <summary>Looks up a routine.</summary>
-    /// <param name="AId">Routine ID.</param>
-    /// <param name="AEntry">Out: matching entry on success.</param>
-    /// <returns><c>True</c> when found.</returns>
-    function FindRoutine(AId: Word;
-      out AEntry: TOBDOEMRoutine): Boolean;
-    /// <summary>Catalogue filtered to one ECU address.</summary>
-    /// <param name="AAddress">ECU CAN-ID.</param>
-    /// <returns>Filtered slice.</returns>
-    function CatalogForECU(AAddress: Word): TOBDOEMSubCatalog;
-    /// <summary>This OEM's session negotiator.</summary>
+    /// <param name="Id">Routine ID.</param>
+    /// <param name="Entry">Out: matching entry on success.</param>
+    function FindRoutine(const Id: Word;
+      out Entry: TOBDOEMRoutine): Boolean;
+
+    /// <summary>ECUs this manufacturer's diagnostics target.
+    /// May be empty for OEMs that have not been ECU-mapped.</summary>
+    function ECUs: TArray<TOBDOEMECU>;
+    /// <summary>Catalogue slice for one ECU (globals
+    /// + ECU-scoped). <c>Address = 0</c> returns everything.</summary>
+    /// <param name="Address">ECU CAN-ID.</param>
+    function CatalogForECU(const Address: Word): TOBDOEMSubCatalog;
+
+    /// <summary>Session-negotiation choreography for this
+    /// OEM.</summary>
     function SessionNegotiator: IOBDSessionNegotiator;
-    /// <summary>This OEM's seed-key registry.</summary>
+    /// <summary>Per-OEM seed-key registry keyed by SecurityAccess
+    /// level.</summary>
     function SeedKeyRegistry: TOBDSeedKeyRegistry;
-    /// <summary>This OEM's DTC catalogue.</summary>
+    /// <summary>Per-OEM DTC catalogue.</summary>
     function DtcCatalog: TOBDDtcCatalog;
-    /// <summary>Looks up a DTC code in <see cref="DtcCatalog"/>.</summary>
-    /// <param name="ACode">5-character DTC code.</param>
-    /// <param name="AEntry">Out: matching entry on success.</param>
-    /// <returns><c>True</c> when found.</returns>
-    function DescribeDTC(const ACode: string;
-      out AEntry: TOBDDtcCatalogEntry): Boolean;
+    /// <summary>Convenience: look up <c>Code</c> in
+    /// <see cref="DtcCatalog"/>.</summary>
+    /// <param name="Code">5-character DTC code.</param>
+    /// <param name="Entry">Out: matching entry on success.</param>
+    function DescribeDTC(const Code: string;
+      out Entry: TOBDDtcCatalogEntry): Boolean;
+
     /// <summary>Writeable coding blocks.</summary>
     function CodingBlocks: TArray<TOBDOEMCodingBlock>;
-    /// <summary>Adaptation channels (VAG-style).</summary>
+    /// <summary>Adaptation channels.</summary>
     function Adaptations: TArray<TOBDOEMAdaptation>;
     /// <summary>Forced-output actuator tests.</summary>
     function ActuatorTests: TArray<TOBDOEMActuatorTest>;
-    /// <summary>Streamable live PIDs (Mode 01 + Mode 22).</summary>
+    /// <summary>Streamable live PIDs.</summary>
     function LivePIDs: TArray<TOBDOEMLivePID>;
     /// <summary>DTC extended-data records (UDS 0x19 / 0x06).</summary>
     function DtcExtendedDataRecords: TArray<TOBDDtcExtendedDataRecord>;
   end;
 
   /// <summary>
-  ///   Process-wide registry.
+  ///   Process-wide registry. Extensions register themselves at
+  ///   unit initialisation so simply adding a vendor's unit to a
+  ///   project's <c>uses</c> clause activates it.
   /// </summary>
   /// <remarks>
-  ///   Extensions register themselves at unit initialisation so
-  ///   that simply adding a vendor's unit to the project's
-  ///   <c>uses</c> clause activates it.
+  ///   <para>Reentrant. All accessors take a snapshot under the
+  ///   internal lock so concurrent register / unregister calls
+  ///   cannot invalidate an iteration.</para>
   /// </remarks>
   TOBDOEMExtensionRegistry = class
   strict private
@@ -132,36 +157,36 @@ type
     class var FExtensions: TList<IOBDOEMExtension>;
     class procedure EnsureInitialized; static;
   public
-    /// <summary>Registers an extension.</summary>
-    /// <param name="AExtension">Extension to add.</param>
-    class procedure RegisterExtension(const AExtension: IOBDOEMExtension); static;
-    /// <summary>Unregisters an extension.</summary>
-    /// <param name="AExtension">Extension to remove.</param>
-    class procedure UnregisterExtension(const AExtension: IOBDOEMExtension); static;
-    /// <summary>Resolves the first extension that claims
-    /// <c>AVIN</c>.</summary>
-    /// <param name="AVIN">17-character VIN.</param>
-    /// <returns>Matching extension or <c>nil</c>.</returns>
-    class function FindByVIN(const AVIN: string): IOBDOEMExtension; static;
-    /// <summary>Resolves the first extension whose
-    /// <c>ManufacturerKey</c> matches (case-insensitive).</summary>
-    /// <param name="AManufacturerKey">Manufacturer key.</param>
-    /// <returns>Matching extension or <c>nil</c>.</returns>
-    class function FindByKey(const AManufacturerKey: string): IOBDOEMExtension; static;
-    /// <summary>Resolves the first extension that claims
-    /// <c>ASupplierID</c>.</summary>
-    /// <param name="ASupplierID">Supplier identifier.</param>
-    /// <returns>Matching extension or <c>nil</c>.</returns>
-    class function FindByECUSupplier(const ASupplierID: string): IOBDOEMExtension; static;
+    /// <summary>Registers an extension. Duplicate registration
+    /// is a no-op.</summary>
+    /// <param name="Ext">Extension to add.</param>
+    class procedure RegisterExtension(const Ext: IOBDOEMExtension); static;
+    /// <summary>Removes an extension.</summary>
+    /// <param name="Ext">Extension to drop.</param>
+    class procedure UnregisterExtension(
+      const Ext: IOBDOEMExtension); static;
+    /// <summary>First extension whose
+    /// <c>ApplicableToVIN(VIN)</c> returns <c>True</c>.</summary>
+    /// <param name="VIN">17-character VIN.</param>
+    class function FindByVIN(const VIN: string): IOBDOEMExtension; static;
+    /// <summary>First extension whose <c>ManufacturerKey</c>
+    /// matches (case-insensitive).</summary>
+    /// <param name="ManufacturerKey">Manufacturer key.</param>
+    class function FindByKey(
+      const ManufacturerKey: string): IOBDOEMExtension; static;
+    /// <summary>First extension that claims
+    /// <c>SupplierID</c>.</summary>
+    /// <param name="SupplierID">Supplier identifier.</param>
+    class function FindByECUSupplier(
+      const SupplierID: string): IOBDOEMExtension; static;
     /// <summary>Snapshot of every registered extension.</summary>
     class function All: TArray<IOBDOEMExtension>; static;
     /// <summary>Number of registered extensions.</summary>
     class function Count: Integer; static;
     /// <summary>Drops every registered extension.</summary>
     class procedure Clear; static;
-    /// <summary>Releases all registry state. Called from this
-    /// unit's <c>finalization</c>; safe to call multiple
-    /// times.</summary>
+    /// <summary>Releases registry state. Called from this unit's
+    /// <c>finalization</c>; safe to call multiple times.</summary>
     class procedure Shutdown; static;
   end;
 
@@ -169,7 +194,10 @@ type
   ///   Convenience base class with sensible defaults for the
   ///   lookup, decode and catalogue plumbing. Concrete OEMs
   ///   override <c>ManufacturerKey</c>, <c>DisplayName</c>,
-  ///   <c>ApplicableToVIN</c> and the catalogue-loader hooks.
+  ///   <c>ApplicableToVIN</c> and <c>BuildCatalog</c>;
+  ///   <c>BuildExtendedCatalog</c>, <c>CreateSessionNegotiator</c>,
+  ///   <c>SeedDefaultSeedKeyAlgorithms</c> and
+  ///   <c>SeedDefaultDtcCatalog</c> are optional override-points.
   /// </summary>
   TOBDOEMExtensionBase = class(TInterfacedObject, IOBDOEMExtension)
   strict private
@@ -189,86 +217,100 @@ type
     FSeedKeyLock: TCriticalSection;
     FDtcCatalog: TOBDDtcCatalog;
     FDtcLock: TCriticalSection;
-    procedure EnsureCatalogLoaded;
+    procedure EnsureCatalog;
+    procedure EnsureSeedKeyRegistry;
+    procedure EnsureDtcCatalog;
   protected
-    /// <summary>Subclass hook — load the DID / Routine / ECU
-    /// catalogues. Called once on first access.</summary>
-    procedure LoadCatalog; virtual;
-    /// <summary>Subclass hook — populate
-    /// <c>FCodingBlocks</c>.</summary>
-    procedure LoadCodingBlocks; virtual;
-    /// <summary>Subclass hook — populate
-    /// <c>FAdaptations</c>.</summary>
-    procedure LoadAdaptations; virtual;
-    /// <summary>Subclass hook — populate
-    /// <c>FActuatorTests</c>.</summary>
-    procedure LoadActuatorTests; virtual;
-    /// <summary>Subclass hook — populate <c>FLivePIDs</c>.</summary>
-    procedure LoadLivePIDs; virtual;
-    /// <summary>Subclass hook — populate
-    /// <c>FDtcExtended</c>.</summary>
-    procedure LoadDtcExtended; virtual;
-    /// <summary>Subclass hook — seed the DTC catalogue (called
-    /// once when <see cref="DtcCatalog"/> is first accessed).</summary>
-    /// <param name="ACatalog">Empty catalogue to populate.</param>
-    procedure SeedDtcCatalog(ACatalog: TOBDDtcCatalog); virtual;
-    /// <summary>Subclass hook — supply the session
+    /// <summary>
+    ///   Subclasses populate the three arrays on first access.
+    ///   Lazy so unit-init isn't slowed by catalogues that may
+    ///   never be queried. <c>ECUs</c> may be left empty.
+    /// </summary>
+    /// <param name="DIDs">Out: DID catalogue.</param>
+    /// <param name="Routines">Out: routine catalogue.</param>
+    /// <param name="ECUs">Out: bus map.</param>
+    procedure BuildCatalog(
+      var DIDs: TArray<TOBDOEMDataIdentifier>;
+      var Routines: TArray<TOBDOEMRoutine>;
+      var ECUs: TArray<TOBDOEMECU>); virtual; abstract;
+    /// <summary>
+    ///   Subclasses populate the extended catalogue (coding
+    ///   blocks, adaptations, actuator tests, live PIDs, DTC
+    ///   extended-data records). Default is a no-op so OEMs that
+    ///   only need the base catalogue compile unchanged.
+    /// </summary>
+    /// <param name="CodingBlocks">Out: writeable blocks.</param>
+    /// <param name="Adaptations">Out: adaptation channels.</param>
+    /// <param name="ActuatorTests">Out: actuator tests.</param>
+    /// <param name="LivePIDs">Out: streamable PIDs.</param>
+    /// <param name="DtcExtended">Out: DTC extended-data records.</param>
+    procedure BuildExtendedCatalog(
+      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+      var Adaptations: TArray<TOBDOEMAdaptation>;
+      var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+      var LivePIDs: TArray<TOBDOEMLivePID>;
+      var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); virtual;
+    /// <summary>Override-point: supply this OEM's session
     /// negotiator. Default returns a fresh
     /// <see cref="TOBDStandardSessionNegotiator"/>.</summary>
     function CreateSessionNegotiator: IOBDSessionNegotiator; virtual;
-
-    /// <summary>Adds one DID row to the in-memory cache.</summary>
-    procedure AddDID(const AEntry: TOBDOEMDataIdentifier);
-    /// <summary>Adds one routine row to the in-memory cache.</summary>
-    procedure AddRoutine(const AEntry: TOBDOEMRoutine);
-    /// <summary>Adds one ECU row to the in-memory cache.</summary>
-    procedure AddECU(const AEntry: TOBDOEMECU);
-    /// <summary>Adds one coding block.</summary>
-    procedure AddCodingBlock(const AEntry: TOBDOEMCodingBlock);
-    /// <summary>Adds one adaptation channel.</summary>
-    procedure AddAdaptation(const AEntry: TOBDOEMAdaptation);
-    /// <summary>Adds one actuator test.</summary>
-    procedure AddActuatorTest(const AEntry: TOBDOEMActuatorTest);
-    /// <summary>Adds one live PID.</summary>
-    procedure AddLivePID(const AEntry: TOBDOEMLivePID);
-    /// <summary>Adds one DTC extended-data record.</summary>
-    procedure AddDtcExtendedRecord(const AEntry: TOBDDtcExtendedDataRecord);
+    /// <summary>Override-point: populate <c>Reg</c> with this
+    /// OEM's default starter algorithms. Default no-op.</summary>
+    /// <param name="Reg">Empty registry to populate.</param>
+    procedure SeedDefaultSeedKeyAlgorithms(
+      Reg: TOBDSeedKeyRegistry); virtual;
+    /// <summary>Override-point: populate <c>Cat</c> with this
+    /// OEM's default DTC catalogue. Default no-op.</summary>
+    /// <param name="Cat">Empty catalogue to populate.</param>
+    procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); virtual;
+    /// <summary>Catalogue filename loaded by
+    /// <see cref="SeedDefaultDtcCatalog"/>. Empty = no
+    /// overlay.</summary>
+    function DtcCatalogFileName: string; virtual;
   public
     /// <summary>Constructs the base extension.</summary>
     constructor Create;
     /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
-    // ---- IOBDOEMExtension ----
     function ManufacturerKey: string; virtual; abstract;
     function DisplayName: string; virtual; abstract;
-    function ApplicableToVIN(const AVIN: string): Boolean; virtual;
-    function ApplicableToECUSupplier(const ASupplierID: string): Boolean; virtual;
-    function DataIdentifiers: TArray<TOBDOEMDataIdentifier>;
-    function Routines: TArray<TOBDOEMRoutine>;
-    function ECUs: TArray<TOBDOEMECU>;
-    function DecodeDID(ADID: Word; const APayload: TBytes): string; virtual;
-    function FindDID(ADID: Word;
-      out AEntry: TOBDOEMDataIdentifier): Boolean;
-    function FindRoutine(AId: Word;
-      out AEntry: TOBDOEMRoutine): Boolean;
-    function CatalogForECU(AAddress: Word): TOBDOEMSubCatalog;
-    function SessionNegotiator: IOBDSessionNegotiator;
-    function SeedKeyRegistry: TOBDSeedKeyRegistry;
-    function DtcCatalog: TOBDDtcCatalog;
-    function DescribeDTC(const ACode: string;
-      out AEntry: TOBDDtcCatalogEntry): Boolean;
-    function CodingBlocks: TArray<TOBDOEMCodingBlock>;
-    function Adaptations: TArray<TOBDOEMAdaptation>;
-    function ActuatorTests: TArray<TOBDOEMActuatorTest>;
-    function LivePIDs: TArray<TOBDOEMLivePID>;
-    function DtcExtendedDataRecords: TArray<TOBDDtcExtendedDataRecord>;
+    function ApplicableToVIN(const VIN: string): Boolean; virtual; abstract;
+    function ApplicableToECUSupplier(
+      const SupplierID: string): Boolean; virtual;
+    function DataIdentifiers: TArray<TOBDOEMDataIdentifier>; virtual;
+    function Routines: TArray<TOBDOEMRoutine>; virtual;
+    function DecodeDID(const DID: Word;
+      const Payload: TBytes): string; virtual;
+    function FindDID(const DID: Word;
+      out Entry: TOBDOEMDataIdentifier): Boolean; virtual;
+    function FindRoutine(const Id: Word;
+      out Entry: TOBDOEMRoutine): Boolean; virtual;
+    function ECUs: TArray<TOBDOEMECU>; virtual;
+    function CatalogForECU(
+      const Address: Word): TOBDOEMSubCatalog; virtual;
+    function SessionNegotiator: IOBDSessionNegotiator; virtual;
+    function SeedKeyRegistry: TOBDSeedKeyRegistry; virtual;
+    function DtcCatalog: TOBDDtcCatalog; virtual;
+    function DescribeDTC(const Code: string;
+      out Entry: TOBDDtcCatalogEntry): Boolean; virtual;
+    function CodingBlocks: TArray<TOBDOEMCodingBlock>; virtual;
+    function Adaptations: TArray<TOBDOEMAdaptation>; virtual;
+    function ActuatorTests: TArray<TOBDOEMActuatorTest>; virtual;
+    function LivePIDs: TArray<TOBDOEMLivePID>; virtual;
+    function DtcExtendedDataRecords:
+      TArray<TOBDDtcExtendedDataRecord>; virtual;
   end;
 
-implementation
+/// <summary>Builder helper used by JSON catalogue readers and
+/// vendor <c>BuildCatalog</c> implementations.</summary>
+/// <param name="Address">CAN-ID.</param>
+/// <param name="Name">Short snake_case key.</param>
+/// <param name="CommonName">Display label.</param>
+function MakeOEMECU(const Address: Word;
+  const Name, CommonName: string): TOBDOEMECU;
 
-uses
-  System.StrUtils;
+implementation
 
 { TOBDOEMExtensionRegistry }
 
@@ -281,93 +323,96 @@ begin
 end;
 
 class procedure TOBDOEMExtensionRegistry.RegisterExtension(
-  const AExtension: IOBDOEMExtension);
+  const Ext: IOBDOEMExtension);
 begin
-  if AExtension = nil then
+  if not Assigned(Ext) then
     Exit;
   EnsureInitialized;
   FLock.Enter;
   try
-    if FExtensions.IndexOf(AExtension) < 0 then
-      FExtensions.Add(AExtension);
+    if not FExtensions.Contains(Ext) then
+      FExtensions.Add(Ext);
   finally
     FLock.Leave;
   end;
 end;
 
 class procedure TOBDOEMExtensionRegistry.UnregisterExtension(
-  const AExtension: IOBDOEMExtension);
+  const Ext: IOBDOEMExtension);
 begin
-  if (AExtension = nil) or (FExtensions = nil) then
+  if not Assigned(Ext) then
     Exit;
+  EnsureInitialized;
   FLock.Enter;
   try
-    FExtensions.Remove(AExtension);
+    FExtensions.Remove(Ext);
   finally
     FLock.Leave;
   end;
 end;
 
 class function TOBDOEMExtensionRegistry.FindByVIN(
-  const AVIN: string): IOBDOEMExtension;
+  const VIN: string): IOBDOEMExtension;
 var
-  I: Integer;
+  Snapshot: TArray<IOBDOEMExtension>;
+  Ext: IOBDOEMExtension;
 begin
   Result := nil;
-  if FExtensions = nil then
-    Exit;
+  EnsureInitialized;
   FLock.Enter;
   try
-    for I := 0 to FExtensions.Count - 1 do
-      if FExtensions[I].ApplicableToVIN(AVIN) then
-        Exit(FExtensions[I]);
+    Snapshot := FExtensions.ToArray;
   finally
     FLock.Leave;
   end;
+  for Ext in Snapshot do
+    if Ext.ApplicableToVIN(VIN) then
+      Exit(Ext);
 end;
 
 class function TOBDOEMExtensionRegistry.FindByKey(
-  const AManufacturerKey: string): IOBDOEMExtension;
+  const ManufacturerKey: string): IOBDOEMExtension;
 var
-  I: Integer;
-  Target: string;
+  Snapshot: TArray<IOBDOEMExtension>;
+  Ext: IOBDOEMExtension;
 begin
   Result := nil;
-  if FExtensions = nil then
-    Exit;
-  Target := UpperCase(Trim(AManufacturerKey));
+  EnsureInitialized;
   FLock.Enter;
   try
-    for I := 0 to FExtensions.Count - 1 do
-      if UpperCase(FExtensions[I].ManufacturerKey) = Target then
-        Exit(FExtensions[I]);
+    Snapshot := FExtensions.ToArray;
   finally
     FLock.Leave;
   end;
+  for Ext in Snapshot do
+    if SameText(Ext.ManufacturerKey, Trim(ManufacturerKey)) then
+      Exit(Ext);
 end;
 
 class function TOBDOEMExtensionRegistry.FindByECUSupplier(
-  const ASupplierID: string): IOBDOEMExtension;
+  const SupplierID: string): IOBDOEMExtension;
 var
-  I: Integer;
+  Snapshot: TArray<IOBDOEMExtension>;
+  Ext: IOBDOEMExtension;
 begin
   Result := nil;
-  if FExtensions = nil then
+  if SupplierID = '' then
     Exit;
+  EnsureInitialized;
   FLock.Enter;
   try
-    for I := 0 to FExtensions.Count - 1 do
-      if FExtensions[I].ApplicableToECUSupplier(ASupplierID) then
-        Exit(FExtensions[I]);
+    Snapshot := FExtensions.ToArray;
   finally
     FLock.Leave;
   end;
+  for Ext in Snapshot do
+    if Ext.ApplicableToECUSupplier(SupplierID) then
+      Exit(Ext);
 end;
 
 class function TOBDOEMExtensionRegistry.All: TArray<IOBDOEMExtension>;
 begin
-  if FExtensions = nil then
-    Exit(nil);
+  EnsureInitialized;
   FLock.Enter;
   try
     Result := FExtensions.ToArray;
@@ -378,8 +423,7 @@ end;
 
 class function TOBDOEMExtensionRegistry.Count: Integer;
 begin
-  if FExtensions = nil then
-    Exit(0);
+  EnsureInitialized;
   FLock.Enter;
   try
     Result := FExtensions.Count;
@@ -390,8 +434,7 @@ end;
 
 class procedure TOBDOEMExtensionRegistry.Clear;
 begin
-  if FExtensions = nil then
-    Exit;
+  EnsureInitialized;
   FLock.Enter;
   try
     FExtensions.Clear;
@@ -400,11 +443,26 @@ begin
   end;
 end;
 
+class procedure TOBDOEMExtensionRegistry.Shutdown;
+begin
+  if FExtensions <> nil then
+  begin
+    FLock.Enter;
+    try
+      FExtensions.Clear;
+    finally
+      FLock.Leave;
+    end;
+    FreeAndNil(FExtensions);
+  end;
+  FreeAndNil(FLock);
+end;
+
 { TOBDOEMExtensionBase }
 
 constructor TOBDOEMExtensionBase.Create;
 begin
-  inherited;
+  inherited Create;
   FCatalogLock := TCriticalSection.Create;
   FSessionLock := TCriticalSection.Create;
   FSeedKeyLock := TCriticalSection.Create;
@@ -413,16 +471,17 @@ end;
 
 destructor TOBDOEMExtensionBase.Destroy;
 begin
-  FSeedKeyRegistry.Free;
+  FSessionNegotiator := nil;
   FDtcCatalog.Free;
-  FCatalogLock.Free;
-  FSessionLock.Free;
-  FSeedKeyLock.Free;
   FDtcLock.Free;
+  FSeedKeyRegistry.Free;
+  FSeedKeyLock.Free;
+  FSessionLock.Free;
+  FCatalogLock.Free;
   inherited;
 end;
 
-procedure TOBDOEMExtensionBase.EnsureCatalogLoaded;
+procedure TOBDOEMExtensionBase.EnsureCatalog;
 begin
   if FCatalogLoaded then
     Exit;
@@ -430,48 +489,52 @@ begin
   try
     if FCatalogLoaded then
       Exit;
-    LoadCatalog;
-    LoadCodingBlocks;
-    LoadAdaptations;
-    LoadActuatorTests;
-    LoadLivePIDs;
-    LoadDtcExtended;
+    BuildCatalog(FDIDs, FRoutines, FECUs);
+    BuildExtendedCatalog(FCodingBlocks, FAdaptations, FActuatorTests,
+      FLivePIDs, FDtcExtended);
     FCatalogLoaded := True;
   finally
     FCatalogLock.Leave;
   end;
 end;
 
-procedure TOBDOEMExtensionBase.LoadCatalog;
+procedure TOBDOEMExtensionBase.EnsureSeedKeyRegistry;
 begin
-  // Subclass hook; the base implementation publishes an empty
-  // catalogue.
+  FSeedKeyLock.Enter;
+  try
+    if FSeedKeyRegistry = nil then
+    begin
+      FSeedKeyRegistry := TOBDSeedKeyRegistry.Create;
+      SeedDefaultSeedKeyAlgorithms(FSeedKeyRegistry);
+    end;
+  finally
+    FSeedKeyLock.Leave;
+  end;
 end;
 
-procedure TOBDOEMExtensionBase.LoadCodingBlocks;
+procedure TOBDOEMExtensionBase.EnsureDtcCatalog;
 begin
+  FDtcLock.Enter;
+  try
+    if FDtcCatalog = nil then
+    begin
+      FDtcCatalog := TOBDDtcCatalog.Create;
+      SeedDefaultDtcCatalog(FDtcCatalog);
+    end;
+  finally
+    FDtcLock.Leave;
+  end;
 end;
 
-procedure TOBDOEMExtensionBase.LoadAdaptations;
+procedure TOBDOEMExtensionBase.BuildExtendedCatalog(
+  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+  var Adaptations: TArray<TOBDOEMAdaptation>;
+  var ActuatorTests: TArray<TOBDOEMActuatorTest>;
+  var LivePIDs: TArray<TOBDOEMLivePID>;
+  var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-end;
-
-procedure TOBDOEMExtensionBase.LoadActuatorTests;
-begin
-end;
-
-procedure TOBDOEMExtensionBase.LoadLivePIDs;
-begin
-end;
-
-procedure TOBDOEMExtensionBase.LoadDtcExtended;
-begin
-end;
-
-procedure TOBDOEMExtensionBase.SeedDtcCatalog(ACatalog: TOBDDtcCatalog);
-begin
-  // Subclass hook; default leaves the catalogue empty so the
-  // host can populate it from JSON / database / etc.
+  // Default: no extended catalogue. Subclasses populate from JSON
+  // via OBD.OEM.Catalog.Loader.MergeExtendedCatalogJSON.
 end;
 
 function TOBDOEMExtensionBase.CreateSessionNegotiator: IOBDSessionNegotiator;
@@ -479,188 +542,121 @@ begin
   Result := TOBDStandardSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionBase.AddDID(const AEntry: TOBDOEMDataIdentifier);
-var
-  N: Integer;
+procedure TOBDOEMExtensionBase.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
 begin
-  N := Length(FDIDs);
-  SetLength(FDIDs, N + 1);
-  FDIDs[N] := AEntry;
+  // Default: empty. Subclasses register their starter algorithms;
+  // production users replace them with their NDA-protected real
+  // ones via Reg.RegisterAlgorithm.
 end;
 
-procedure TOBDOEMExtensionBase.AddRoutine(const AEntry: TOBDOEMRoutine);
-var
-  N: Integer;
+procedure TOBDOEMExtensionBase.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
-  N := Length(FRoutines);
-  SetLength(FRoutines, N + 1);
-  FRoutines[N] := AEntry;
+  // Default: empty. Vendor units chain to inherited and append
+  // their P1xxx / B / C / U entries. The actual file loading lives
+  // in OBD.OEM.DTC.Loader so this unit stays dependency-free.
 end;
 
-procedure TOBDOEMExtensionBase.AddECU(const AEntry: TOBDOEMECU);
-var
-  N: Integer;
+function TOBDOEMExtensionBase.DtcCatalogFileName: string;
 begin
-  N := Length(FECUs);
-  SetLength(FECUs, N + 1);
-  FECUs[N] := AEntry;
-end;
-
-procedure TOBDOEMExtensionBase.AddCodingBlock(
-  const AEntry: TOBDOEMCodingBlock);
-var
-  N: Integer;
-begin
-  N := Length(FCodingBlocks);
-  SetLength(FCodingBlocks, N + 1);
-  FCodingBlocks[N] := AEntry;
-end;
-
-procedure TOBDOEMExtensionBase.AddAdaptation(
-  const AEntry: TOBDOEMAdaptation);
-var
-  N: Integer;
-begin
-  N := Length(FAdaptations);
-  SetLength(FAdaptations, N + 1);
-  FAdaptations[N] := AEntry;
-end;
-
-procedure TOBDOEMExtensionBase.AddActuatorTest(
-  const AEntry: TOBDOEMActuatorTest);
-var
-  N: Integer;
-begin
-  N := Length(FActuatorTests);
-  SetLength(FActuatorTests, N + 1);
-  FActuatorTests[N] := AEntry;
-end;
-
-procedure TOBDOEMExtensionBase.AddLivePID(const AEntry: TOBDOEMLivePID);
-var
-  N: Integer;
-begin
-  N := Length(FLivePIDs);
-  SetLength(FLivePIDs, N + 1);
-  FLivePIDs[N] := AEntry;
-end;
-
-procedure TOBDOEMExtensionBase.AddDtcExtendedRecord(
-  const AEntry: TOBDDtcExtendedDataRecord);
-var
-  N: Integer;
-begin
-  N := Length(FDtcExtended);
-  SetLength(FDtcExtended, N + 1);
-  FDtcExtended[N] := AEntry;
-end;
-
-function TOBDOEMExtensionBase.ApplicableToVIN(const AVIN: string): Boolean;
-begin
-  Result := False;
+  Result := '';
 end;
 
 function TOBDOEMExtensionBase.ApplicableToECUSupplier(
-  const ASupplierID: string): Boolean;
+  const SupplierID: string): Boolean;
 begin
   Result := False;
 end;
 
 function TOBDOEMExtensionBase.DataIdentifiers: TArray<TOBDOEMDataIdentifier>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FDIDs;
 end;
 
 function TOBDOEMExtensionBase.Routines: TArray<TOBDOEMRoutine>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FRoutines;
 end;
 
 function TOBDOEMExtensionBase.ECUs: TArray<TOBDOEMECU>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FECUs;
 end;
 
-function TOBDOEMExtensionBase.DecodeDID(ADID: Word;
-  const APayload: TBytes): string;
-const
-  HexDigits: array[0..15] of Char = '0123456789ABCDEF';
+function TOBDOEMExtensionBase.DecodeDID(const DID: Word;
+  const Payload: TBytes): string;
 var
   I: Integer;
-  Acc: string;
+  Hex: TStringBuilder;
+  Entry: TOBDOEMDataIdentifier;
 begin
-  // Base implementation: hex-dump the payload. Subclasses can
-  // override with structured decoding.
-  SetLength(Acc, Length(APayload) * 3);
-  for I := 0 to High(APayload) do
-  begin
-    Acc[1 + 3 * I]     := HexDigits[(APayload[I] shr 4) and $0F];
-    Acc[1 + 3 * I + 1] := HexDigits[APayload[I] and $0F];
-    Acc[1 + 3 * I + 2] := ' ';
+  Hex := TStringBuilder.Create;
+  try
+    for I := 0 to High(Payload) do
+    begin
+      if I > 0 then
+        Hex.Append(' ');
+      Hex.Append(IntToHex(Payload[I], 2));
+    end;
+    if FindDID(DID, Entry) then
+      Result := Format('%s = %s', [Entry.Name, Hex.ToString])
+    else
+      Result := Format('DID 0x%.4X = %s', [DID, Hex.ToString]);
+  finally
+    Hex.Free;
   end;
-  Result := TrimRight(Acc);
 end;
 
-function TOBDOEMExtensionBase.FindDID(ADID: Word;
-  out AEntry: TOBDOEMDataIdentifier): Boolean;
+function TOBDOEMExtensionBase.FindDID(const DID: Word;
+  out Entry: TOBDOEMDataIdentifier): Boolean;
 var
-  I: Integer;
+  E: TOBDOEMDataIdentifier;
 begin
-  EnsureCatalogLoaded;
-  for I := 0 to High(FDIDs) do
-    if FDIDs[I].DID = ADID then
+  EnsureCatalog;
+  for E in FDIDs do
+    if E.DID = DID then
     begin
-      AEntry := FDIDs[I];
+      Entry := E;
       Exit(True);
     end;
   Result := False;
 end;
 
-function TOBDOEMExtensionBase.FindRoutine(AId: Word;
-  out AEntry: TOBDOEMRoutine): Boolean;
+function TOBDOEMExtensionBase.FindRoutine(const Id: Word;
+  out Entry: TOBDOEMRoutine): Boolean;
 var
-  I: Integer;
+  R: TOBDOEMRoutine;
 begin
-  EnsureCatalogLoaded;
-  for I := 0 to High(FRoutines) do
-    if FRoutines[I].Identifier = AId then
+  EnsureCatalog;
+  for R in FRoutines do
+    if R.Identifier = Id then
     begin
-      AEntry := FRoutines[I];
+      Entry := R;
       Exit(True);
     end;
   Result := False;
 end;
 
 function TOBDOEMExtensionBase.CatalogForECU(
-  AAddress: Word): TOBDOEMSubCatalog;
+  const Address: Word): TOBDOEMSubCatalog;
 var
-  I: Integer;
-  DIDList: TList<TOBDOEMDataIdentifier>;
-  RoutineList: TList<TOBDOEMRoutine>;
+  D: TOBDOEMDataIdentifier;
+  R: TOBDOEMRoutine;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := Default(TOBDOEMSubCatalog);
-  Result.EcuAddress := AAddress;
-  DIDList := TList<TOBDOEMDataIdentifier>.Create;
-  RoutineList := TList<TOBDOEMRoutine>.Create;
-  try
-    for I := 0 to High(FDIDs) do
-      if (FDIDs[I].EcuAddress = 0) or
-         (FDIDs[I].EcuAddress = AAddress) then
-        DIDList.Add(FDIDs[I]);
-    for I := 0 to High(FRoutines) do
-      if (FRoutines[I].EcuAddress = 0) or
-         (FRoutines[I].EcuAddress = AAddress) then
-        RoutineList.Add(FRoutines[I]);
-    Result.DIDs := DIDList.ToArray;
-    Result.Routines := RoutineList.ToArray;
-  finally
-    DIDList.Free;
-    RoutineList.Free;
-  end;
+  Result.EcuAddress := Address;
+  for D in FDIDs do
+    if (D.EcuAddress = 0) or (Address = 0) or
+       (D.EcuAddress = Address) then
+      Result.DIDs := Result.DIDs + [D];
+  for R in FRoutines do
+    if (R.EcuAddress = 0) or (Address = 0) or
+       (R.EcuAddress = Address) then
+      Result.Routines := Result.Routines + [R];
 end;
 
 function TOBDOEMExtensionBase.SessionNegotiator: IOBDSessionNegotiator;
@@ -677,81 +673,59 @@ end;
 
 function TOBDOEMExtensionBase.SeedKeyRegistry: TOBDSeedKeyRegistry;
 begin
-  FSeedKeyLock.Enter;
-  try
-    if FSeedKeyRegistry = nil then
-      FSeedKeyRegistry := TOBDSeedKeyRegistry.Create;
-    Result := FSeedKeyRegistry;
-  finally
-    FSeedKeyLock.Leave;
-  end;
+  EnsureSeedKeyRegistry;
+  Result := FSeedKeyRegistry;
 end;
 
 function TOBDOEMExtensionBase.DtcCatalog: TOBDDtcCatalog;
 begin
-  FDtcLock.Enter;
-  try
-    if FDtcCatalog = nil then
-    begin
-      FDtcCatalog := TOBDDtcCatalog.Create;
-      SeedDtcCatalog(FDtcCatalog);
-    end;
-    Result := FDtcCatalog;
-  finally
-    FDtcLock.Leave;
-  end;
+  EnsureDtcCatalog;
+  Result := FDtcCatalog;
 end;
 
-function TOBDOEMExtensionBase.DescribeDTC(const ACode: string;
-  out AEntry: TOBDDtcCatalogEntry): Boolean;
+function TOBDOEMExtensionBase.DescribeDTC(const Code: string;
+  out Entry: TOBDDtcCatalogEntry): Boolean;
 begin
-  Result := DtcCatalog.TryFind(ACode, AEntry);
+  Result := DtcCatalog.FindByCode(Code, Entry);
 end;
 
 function TOBDOEMExtensionBase.CodingBlocks: TArray<TOBDOEMCodingBlock>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FCodingBlocks;
 end;
 
 function TOBDOEMExtensionBase.Adaptations: TArray<TOBDOEMAdaptation>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FAdaptations;
 end;
 
 function TOBDOEMExtensionBase.ActuatorTests: TArray<TOBDOEMActuatorTest>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FActuatorTests;
 end;
 
 function TOBDOEMExtensionBase.LivePIDs: TArray<TOBDOEMLivePID>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FLivePIDs;
 end;
 
 function TOBDOEMExtensionBase.DtcExtendedDataRecords:
   TArray<TOBDDtcExtendedDataRecord>;
 begin
-  EnsureCatalogLoaded;
+  EnsureCatalog;
   Result := FDtcExtended;
 end;
 
-class procedure TOBDOEMExtensionRegistry.Shutdown;
+function MakeOEMECU(const Address: Word;
+  const Name, CommonName: string): TOBDOEMECU;
 begin
-  if FExtensions <> nil then
-  begin
-    FLock.Enter;
-    try
-      FExtensions.Clear;
-    finally
-      FLock.Leave;
-    end;
-    FreeAndNil(FExtensions);
-  end;
-  FreeAndNil(FLock);
+  Result.Address := Address;
+  Result.Name := Name;
+  Result.CommonName := CommonName;
 end;
 
 initialization
