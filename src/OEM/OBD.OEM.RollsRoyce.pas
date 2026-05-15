@@ -59,6 +59,8 @@ type
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
+    procedure SeedDefaultSeedKeyAlgorithms(
+      Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -137,6 +139,23 @@ procedure TOBDOEMExtensionRollsRoyce.BuildExtendedCatalog(
 begin
   MergeExtendedCatalogJSON('rolls-royce.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
+
+procedure TOBDOEMExtensionRollsRoyce.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+const
+  PUBLIC_MASK: array[0..3] of Byte = ($A5, $5A, $C3, $3C);
+var
+  Mask: TBytes;
+begin
+  // BMW Group lineage — same XOR-mask placeholder used by the
+  // BMW and MINI extensions. Production callers replace via
+  // RegisterAlgorithm.
+  SetLength(Mask, Length(PUBLIC_MASK));
+  Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyXorMask.Create(Mask,
+    'Rolls-Royce (BMW E-Sys lineage) XOR-mask placeholder',
+    'community-pr', False));
 end;
 
 procedure TOBDOEMExtensionRollsRoyce.SeedDefaultDtcCatalog(

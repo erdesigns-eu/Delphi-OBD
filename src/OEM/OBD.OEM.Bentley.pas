@@ -45,6 +45,8 @@ type
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
+    procedure SeedDefaultSeedKeyAlgorithms(
+      Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -96,6 +98,16 @@ procedure TOBDOEMExtensionBentley.BuildExtendedCatalog(
 begin
   MergeExtendedCatalogJSON('bentley.json',
     CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+end;
+
+procedure TOBDOEMExtensionBentley.SeedDefaultSeedKeyAlgorithms(
+  Reg: TOBDSeedKeyRegistry);
+begin
+  // VAG-lineage starter — same KWP2000 two's-complement that the
+  // VW Group base extension registers; production callers replace
+  // it with the Bentley NDA implementation via RegisterAlgorithm.
+  Reg.RegisterAlgorithm($01,
+    TOBDSeedKeyKWP2000TwosComplement.Create);
 end;
 
 procedure TOBDOEMExtensionBentley.SeedDefaultDtcCatalog(
