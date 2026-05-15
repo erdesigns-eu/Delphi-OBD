@@ -190,6 +190,8 @@ contains
   OBD.OEM.BMW in '..\src\OEM\OBD.OEM.BMW.pas',
   OBD.OEM.MINI in '..\src\OEM\OBD.OEM.MINI.pas',
   OBD.OEM.RollsRoyce in '..\src\OEM\OBD.OEM.RollsRoyce.pas',
+  OBD.OEM.Mercedes in '..\src\OEM\OBD.OEM.Mercedes.pas',
+  OBD.OEM.Smart in '..\src\OEM\OBD.OEM.Smart.pas',
   OBD.Coding.OptionCatalog in '..\src\Coding\OBD.Coding.OptionCatalog.pas',
   OBD.Coding.DiffRLE in '..\src\Coding\OBD.Coding.DiffRLE.pas',
   OBD.Coding.LabelFile.VAG in '..\src\Coding\OBD.Coding.LabelFile.VAG.pas',
