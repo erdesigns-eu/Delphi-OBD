@@ -1,272 +1,172 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.Connection.Retry.pas
-// CONTENTS       : Connection Retry Logic with Exponential Backoff
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 06/12/2025
+//  OBD.Connection.Retry
+//
+//  TOBDRetryPolicy — TPersistent sub-object on TOBDConnection that
+//  controls automatic retry of an Open() call when the underlying
+//  transport fails transiently (target busy, network glitch, dialled
+//  Bluetooth not yet ready).
+//
+//  Implements exponential backoff with optional jitter:
+//     delay(n) = min(MaxDelay, InitialDelay * (Multiplier ^ n))
+//
+//  Adapter / detection retry (the AT-level handshake) is a separate
+//  concern and lives on <see cref="TOBDAdapter"/>.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation: TPersistent policy + delay
+//                     calculator + tests-friendly seedable jitter.
 //------------------------------------------------------------------------------
+
 unit OBD.Connection.Retry;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.SyncObjs, Winapi.Windows,
-  OBD.Logger;
+  System.SysUtils,
+  System.Classes;
 
-//------------------------------------------------------------------------------
-// TYPES
-//------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Retry strategy type
+  ///   Auto-reopen policy for a transport.
   /// </summary>
-  TRetryStrategy = (rsFixed, rsLinear, rsExponential);
-
-  /// <summary>
-  ///   Retry status event
-  /// </summary>
-  TRetryStatusEvent = procedure(Sender: TObject; const Attempt: Integer; const MaxAttempts: Integer; const NextRetryIn: Integer) of object;
-
-  /// <summary>
-  ///   Connection retry manager with exponential backoff
-  /// </summary>
-  TOBDConnectionRetry = class
-  private
-    /// <summary>
-    ///   Maximum number of retry attempts
-    /// </summary>
-    FMaxAttempts: Integer;
-    /// <summary>
-    ///   Initial retry delay in milliseconds
-    /// </summary>
-    FInitialDelay: Integer;
-    /// <summary>
-    ///   Maximum retry delay in milliseconds
-    /// </summary>
-    FMaxDelay: Integer;
-    /// <summary>
-    ///   Backoff multiplier for exponential strategy
-    /// </summary>
-    FBackoffMultiplier: Double;
-    /// <summary>
-    ///   Current retry attempt
-    /// </summary>
-    FCurrentAttempt: Integer;
-    /// <summary>
-    ///   Retry strategy
-    /// </summary>
-    FStrategy: TRetryStrategy;
-    /// <summary>
-    ///   Enable auto-retry on connection loss
-    /// </summary>
+  /// <remarks>
+  ///   Defaults: 3 attempts, 200 ms initial delay, ×2 multiplier capped
+  ///   at 5 s, 10 % jitter. Set <c>MaxAttempts := 0</c> to disable
+  ///   retry entirely (the first failure raises / surfaces directly).
+  /// </remarks>
+  TOBDRetryPolicy = class(TPersistent)
+  strict private
     FEnabled: Boolean;
-    /// <summary>
-    ///   Event handler for retry status updates
-    /// </summary>
-    FOnRetryStatus: TRetryStatusEvent;
-
-    /// <summary>
-    ///   Calculate next retry delay based on strategy
-    /// </summary>
-    function CalculateDelay: Integer;
-
+    FMaxAttempts: Cardinal;
+    FInitialDelayMs: Cardinal;
+    FMaxDelayMs: Cardinal;
+    FMultiplier: Double;
+    FJitterPercent: Byte;
+    FRandSeed: Cardinal;
   public
-    /// <summary>
-    ///   Constructor with default settings
-    /// </summary>
     constructor Create;
+    procedure Assign(Source: TPersistent); override;
 
     /// <summary>
-    ///   Reset retry counter
+    ///   Computes the delay for the n-th retry (1-based). Applies the
+    ///   exponential curve and clamps to <c>MaxDelayMs</c>.
     /// </summary>
-    procedure Reset;
+    /// <param name="AAttempt">1-based attempt index. Must be ≥ 1.</param>
+    /// <returns>Delay in milliseconds, including jitter.</returns>
+    /// <exception cref="EArgumentOutOfRangeException">
+    ///   <c>AAttempt</c> is zero.</exception>
+    function DelayForAttempt(AAttempt: Cardinal): Cardinal;
 
     /// <summary>
-    ///   Execute connection attempt with retry logic
+    ///   Seeds the internal jitter RNG. Call from tests for repeatable
+    ///   delay values; do not call from production code.
     /// </summary>
-    /// <param name="ConnectionFunc">
-    ///   Function that attempts connection and returns True on success
-    /// </param>
-    /// <returns>
-    ///   True if connection successful, False if all retries exhausted
-    /// </returns>
-    function Execute(ConnectionFunc: TFunc<Boolean>): Boolean;
-
-    /// <summary>
-    ///   Check if should retry
-    /// </summary>
-    function ShouldRetry: Boolean;
-
-    /// <summary>
-    ///   Wait for next retry with calculated delay
-    /// </summary>
-    procedure WaitForNextRetry;
-
-    /// <summary>
-    ///   Maximum number of retry attempts (default: 5)
-    /// </summary>
-    property MaxAttempts: Integer read FMaxAttempts write FMaxAttempts;
-    /// <summary>
-    ///   Initial retry delay in milliseconds (default: 1000)
-    /// </summary>
-    property InitialDelay: Integer read FInitialDelay write FInitialDelay;
-    /// <summary>
-    ///   Maximum retry delay in milliseconds (default: 30000)
-    /// </summary>
-    property MaxDelay: Integer read FMaxDelay write FMaxDelay;
-    /// <summary>
-    ///   Backoff multiplier for exponential strategy (default: 2.0)
-    /// </summary>
-    property BackoffMultiplier: Double read FBackoffMultiplier write FBackoffMultiplier;
-    /// <summary>
-    ///   Current retry attempt number
-    /// </summary>
-    property CurrentAttempt: Integer read FCurrentAttempt;
-    /// <summary>
-    ///   Retry strategy (default: rsExponential)
-    /// </summary>
-    property Strategy: TRetryStrategy read FStrategy write FStrategy;
-    /// <summary>
-    ///   Enable auto-retry (default: True)
-    /// </summary>
-    property Enabled: Boolean read FEnabled write FEnabled;
-    /// <summary>
-    ///   Event handler for retry status updates
-    /// </summary>
-    property OnRetryStatus: TRetryStatusEvent read FOnRetryStatus write FOnRetryStatus;
+    procedure SeedJitter(ASeed: Cardinal);
+  published
+    /// <summary>Master switch. When False the policy is bypassed and
+    /// open() fails on the first error.</summary>
+    property Enabled: Boolean read FEnabled write FEnabled default True;
+    /// <summary>Total number of attempts including the first. Zero
+    /// disables retry; one means "try, no retry".</summary>
+    property MaxAttempts: Cardinal read FMaxAttempts write FMaxAttempts
+      default 3;
+    /// <summary>Delay before the first retry (after the first failure)
+    /// in milliseconds.</summary>
+    property InitialDelayMs: Cardinal read FInitialDelayMs
+      write FInitialDelayMs default 200;
+    /// <summary>Cap on per-attempt delay in milliseconds.</summary>
+    property MaxDelayMs: Cardinal read FMaxDelayMs write FMaxDelayMs
+      default 5000;
+    /// <summary>Exponential growth factor between attempts.</summary>
+    property Multiplier: Double read FMultiplier write FMultiplier;
+    /// <summary>Random jitter as a percentage of the computed delay
+    /// (0–100). 10 means ±10 %.</summary>
+    property JitterPercent: Byte read FJitterPercent write FJitterPercent
+      default 10;
   end;
 
 implementation
 
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TOBDConnectionRetry.Create;
+{ ---- TOBDRetryPolicy --------------------------------------------------------- }
+
+constructor TOBDRetryPolicy.Create;
 begin
-  inherited Create;
-  FMaxAttempts := 5;
-  FInitialDelay := 1000;  // 1 second
-  FMaxDelay := 30000;     // 30 seconds
-  FBackoffMultiplier := 2.0;
-  FCurrentAttempt := 0;
-  FStrategy := rsExponential;
+  inherited;
   FEnabled := True;
+  FMaxAttempts := 3;
+  FInitialDelayMs := 200;
+  FMaxDelayMs := 5000;
+  FMultiplier := 2.0;
+  FJitterPercent := 10;
+  FRandSeed := Cardinal(GetTickCount);
 end;
 
-//------------------------------------------------------------------------------
-// CALCULATE DELAY
-//------------------------------------------------------------------------------
-function TOBDConnectionRetry.CalculateDelay: Integer;
+procedure TOBDRetryPolicy.Assign(Source: TPersistent);
 var
-  Delay: Integer;
+  S: TOBDRetryPolicy;
 begin
-  case FStrategy of
-    rsFixed:
-      Result := FInitialDelay;
-
-    rsLinear:
-      Result := FInitialDelay * (FCurrentAttempt + 1);
-
-    rsExponential:
-      begin
-        // Exponential backoff: InitialDelay * (Multiplier ^ Attempt)
-        Delay := Round(FInitialDelay * Power(FBackoffMultiplier, FCurrentAttempt));
-        Result := Delay;
-      end;
+  if Source is TOBDRetryPolicy then
+  begin
+    S := TOBDRetryPolicy(Source);
+    FEnabled := S.FEnabled;
+    FMaxAttempts := S.FMaxAttempts;
+    FInitialDelayMs := S.FInitialDelayMs;
+    FMaxDelayMs := S.FMaxDelayMs;
+    FMultiplier := S.FMultiplier;
+    FJitterPercent := S.FJitterPercent;
+  end
   else
-    Result := FInitialDelay;
-  end;
-
-  // Cap at maximum delay
-  if Result > FMaxDelay then
-    Result := FMaxDelay;
+    inherited Assign(Source);
 end;
 
-//------------------------------------------------------------------------------
-// RESET
-//------------------------------------------------------------------------------
-procedure TOBDConnectionRetry.Reset;
+procedure TOBDRetryPolicy.SeedJitter(ASeed: Cardinal);
 begin
-  FCurrentAttempt := 0;
+  FRandSeed := ASeed;
 end;
 
-//------------------------------------------------------------------------------
-// SHOULD RETRY
-//------------------------------------------------------------------------------
-function TOBDConnectionRetry.ShouldRetry: Boolean;
-begin
-  Result := FEnabled and (FCurrentAttempt < FMaxAttempts);
-end;
-
-//------------------------------------------------------------------------------
-// WAIT FOR NEXT RETRY
-//------------------------------------------------------------------------------
-procedure TOBDConnectionRetry.WaitForNextRetry;
+function TOBDRetryPolicy.DelayForAttempt(AAttempt: Cardinal): Cardinal;
 var
-  Delay: Integer;
+  Base: Double;
+  I: Cardinal;
+  Jitter: Double;
+  Range: Cardinal;
+  RandValue: Cardinal;
+  Multiplier: Double;
 begin
-  Delay := CalculateDelay;
+  if AAttempt = 0 then
+    raise EArgumentOutOfRangeException.Create(
+      'DelayForAttempt: AAttempt must be >= 1');
 
-  // Trigger status event
-  if Assigned(FOnRetryStatus) then
-    FOnRetryStatus(Self, FCurrentAttempt + 1, FMaxAttempts, Delay);
+  Base := FInitialDelayMs;
+  Multiplier := FMultiplier;
+  if Multiplier < 1.0 then
+    Multiplier := 1.0;
+  for I := 2 to AAttempt do
+    Base := Base * Multiplier;
 
-  // Log retry attempt
-  if Assigned(GlobalLogger) then
-    GlobalLogger.Info('Connection retry attempt %d/%d in %d ms', 
-      [FCurrentAttempt + 1, FMaxAttempts, Delay]);
+  if Base > FMaxDelayMs then
+    Base := FMaxDelayMs;
 
-  // Wait for delay
-  Sleep(Delay);
-end;
-
-//------------------------------------------------------------------------------
-// EXECUTE
-//------------------------------------------------------------------------------
-function TOBDConnectionRetry.Execute(ConnectionFunc: TFunc<Boolean>): Boolean;
-begin
-  Result := False;
-  Reset;
-
-  // First attempt (not a retry)
-  if Assigned(GlobalLogger) then
-    GlobalLogger.Info('Attempting connection...');
-
-  Result := ConnectionFunc();
-  if Result then
+  // Linear-congruential generator for repeatable jitter under SeedJitter.
+  if FJitterPercent > 0 then
   begin
-    if Assigned(GlobalLogger) then
-      GlobalLogger.Info('Connection successful');
-    Exit;
-  end;
-
-  // Retry attempts
-  while ShouldRetry do
-  begin
-    Inc(FCurrentAttempt);
-    WaitForNextRetry;
-
-    Result := ConnectionFunc();
-    if Result then
+    FRandSeed := FRandSeed * 1103515245 + 12345;
+    RandValue := (FRandSeed shr 16) and $7FFF;
+    Range := Round(Base * FJitterPercent / 100);
+    if Range > 0 then
     begin
-      if Assigned(GlobalLogger) then
-        GlobalLogger.Info('Connection successful after %d retries', [FCurrentAttempt]);
-      Exit;
+      Jitter := (Integer(RandValue mod (2 * Range + 1)) - Integer(Range));
+      Base := Base + Jitter;
+      if Base < 0 then
+        Base := 0;
     end;
-
-    if Assigned(GlobalLogger) then
-      GlobalLogger.Warning('Connection attempt %d/%d failed', [FCurrentAttempt, FMaxAttempts]);
   end;
 
-  // All retries exhausted
-  if not Result then
-  begin
-    if Assigned(GlobalLogger) then
-      GlobalLogger.Error('Connection failed after %d attempts', [FMaxAttempts]);
-  end;
+  Result := Round(Base);
 end;
 
 end.

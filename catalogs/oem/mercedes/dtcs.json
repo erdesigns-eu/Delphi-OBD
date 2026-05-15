@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9009",
+      "text": "Mercedes ESM (Driver Door) — Communication Lost"
+    },
+    {
+      "code": "0x5525",
+      "text": "Airmatic Compressor Run Time Exceeded (Mercedes)"
+    },
+    {
+      "code": "0x649E",
+      "text": "Brake Booster Vacuum Pump (Mercedes)"
+    },
+    {
+      "code": "0x0089",
+      "text": "Fuel Pressure Regulator Performance (CDI / GDI)"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (Mercedes Bi-Turbo)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Efficiency Below Threshold Bank 1 (Mercedes)"
+    },
+    {
+      "code": "0x061B",
+      "text": "Internal Control Module Torque Calculation (Mercedes)"
+    },
+    {
+      "code": "0x0A78",
+      "text": "Drive Motor 'A' Inverter Performance (Mercedes EQ)"
+    },
+    {
+      "code": "0x1000",
+      "text": "On-Board Monitoring System Not Yet Tested (Mercedes)"
+    },
+    {
+      "code": "0x1245",
+      "text": "Mercedes Crankshaft Position Sensor — Implausible"
+    },
+    {
+      "code": "0x1450",
+      "text": "Mercedes EVAP Purge Valve — Electrical Fault"
+    },
+    {
+      "code": "0x2004",
+      "text": "Intake Manifold Runner Control — Stuck Open Bank 1"
+    },
+    {
+      "code": "0x210A",
+      "text": "Fuel Composition Sensor (FlexFuel) (Mercedes)"
+    },
+    {
+      "code": "0x229F",
+      "text": "NOx Sensor Circuit Range/Performance Bank 1 Sensor 2 (Mercedes BlueTec)"
+    },
+    {
+      "code": "0xC001",
+      "text": "High Speed CAN Communication Bus (Mercedes HSL2)"
+    },
+    {
+      "code": "0xC129",
+      "text": "Lost Communication With Brake System Control Module (Mercedes ESP)"
+    }
+  ]
+}

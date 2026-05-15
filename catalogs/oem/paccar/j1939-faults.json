@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000C92",
+      "text": "SPN0100-FMI18: PACCAR MX — Engine oil pressure low warning"
+    },
+    {
+      "code": "0x00004FF3",
+      "text": "SPN0639-FMI19: PACCAR — J1939 network communication abnormal update rate"
+    },
+    {
+      "code": "0x00009724",
+      "text": "SPN1209-FMI4: PACCAR — Engine exhaust gas pressure 1 sensor circuit voltage low"
+    },
+    {
+      "code": "0x0001CE24",
+      "text": "SPN3697-FMI4: PACCAR — DPF lamp command circuit voltage low"
+    },
+    {
+      "code": "0x0002A247",
+      "text": "SPN5394-FMI7: PACCAR — DEF dosing unit not responding"
+    },
+    {
+      "code": "0x0002B870",
+      "text": "SPN5571-FMI16: PACCAR — DEF tank level low — engine inducement engaged"
+    },
+    {
+      "code": "0x0003473F",
+      "text": "SPN6713-FMI31: PACCAR MX-13 — Aftertreatment regeneration interrupted"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/delphi-obd/schemas/radiocode-becker.schema.json",
+  "title": "Becker radio-code lookup",
+  "description": "Becker (4 or 5 digit) radio-code database. Index = serial as integer (0..9999); value = code string of the matching width.",
+  "type": "object",
+  "required": ["schema_version", "format", "count", "codes"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "brand":          { "type": "string" },
+    "format":         { "type": "string", "enum": ["4-digit", "5-digit"] },
+    "description":    { "type": "string" },
+    "count":          { "type": "integer", "const": 10000 },
+    "codes": {
+      "type": "array",
+      "minItems": 10000,
+      "maxItems": 10000,
+      "items": { "type": "string", "minLength": 4, "maxLength": 5 }
+    }
+  },
+  "additionalProperties": false
+}

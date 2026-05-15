@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://delphi-obd.example/schema/vin-vds-rules.json",
+  "title": "VIN VDS rules",
+  "description": "Per-WMI VDS-decoding rules in NHTSA vPIC shape: each schema lists applicable WMIs (with optional year ranges) and the per-offset patterns that decode the VDS into named feature fields. AND-combined within one schema; OR-combined across schemas (multiple schemas can apply to the same VIN, contributions are merged).",
+  "type": "object",
+  "required": ["schemas"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version":  { "type": "string", "description": "Source build identifier (e.g. \"vPICList_lite_2026_04\")." },
+    "source":   { "type": "string", "description": "Free-text source citation; helpful for audit trails." },
+    "schemas": {
+      "type": "object",
+      "description": "Map of schema-id -> schema definition. Schema id is opaque (e.g. the vPIC VinSchemaId).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["wmis", "patterns"],
+        "additionalProperties": false,
+        "properties": {
+          "wmis": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["wmi"],
+              "additionalProperties": false,
+              "properties": {
+                "wmi":      { "type": "string", "pattern": "^[A-HJ-NPR-Z0-9]{3}$" },
+                "yearFrom": { "type": "integer", "minimum": 1980, "maximum": 2099 },
+                "yearTo":   { "type": ["integer", "null"], "minimum": 1980, "maximum": 2099 }
+              }
+            }
+          },
+          "patterns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["keys", "field"],
+              "additionalProperties": false,
+              "properties": {
+                "keys":   { "type": "string",
+                            "description": "vPIC SQL-wildcard pattern matched against the 6-char VDS char-by-char. \"*\" / \".\" = wildcard, single char = literal, \"[ABC]\" / \"[A-Z]\" / \"[^X]\" = char class. Strings shorter than 6 leave trailing positions unconstrained." },
+                "field":  { "type": "string",
+                            "description": "vPIC element name (BodyClass, DisplacementL, EngineModel, DriveType, TransmissionStyle, FuelTypePrimary, ElectrificationLevel, AirBagLocFront, GVWR, ...)." },
+                "value":  { "type": "string",
+                            "description": "Decoded value applied to the feature field when keys match." }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

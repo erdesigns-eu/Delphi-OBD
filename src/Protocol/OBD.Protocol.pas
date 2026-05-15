@@ -1,448 +1,765 @@
-﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.Protocol.pas
-// CONTENTS       : OBD Protocol Class
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 02/03/2024
 //------------------------------------------------------------------------------
+//  OBD.Protocol
+//
+//  TOBDProtocol — non-visual component that sits between TOBDAdapter
+//  and the application code (service-mode components, UDS / KWP /
+//  J1939 helpers, etc.). Encodes a TOBDRequest via the right codec,
+//  pushes it to the adapter via WriteOBDCommand, parses the textual
+//  hex response back into a TOBDResponse, and fires events on the
+//  main thread.
+//
+//  Honours the dual-method + main-thread + progress rule:
+//  Send / SendAsync, Request / RequestAsync. Only one async op of the
+//  same kind may be in flight per instance; cancellation flows through
+//  Close on the bound adapter.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation.
+//------------------------------------------------------------------------------
+
 unit OBD.Protocol;
 
 interface
 
 uses
-  WinApi.Windows, System.Classes, System.SysUtils, System.Generics.Defaults,
+  System.SysUtils,
+  System.Classes,
+  System.SyncObjs,
   System.Generics.Collections,
+  OBD.Types,
+  OBD.Catalog,
+  OBD.Adapter.Types,
+  OBD.Adapter,
+  OBD.Protocol.Types,
+  OBD.Protocol.UDS,
+  OBD.Protocol.KWP2000,
+  OBD.Protocol.ISO9141,
+  OBD.Protocol.J1850,
+  OBD.Protocol.J1939;
 
-  OBD.Protocol.Types;
-
-//------------------------------------------------------------------------------
-// INTERFACES
-//------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Thread-aware protocol contract used by parser implementations to convert
-  ///   adapter lines into decoded messages while exposing read-only snapshots of
-  ///   parsed ECU data.
+  ///   Selection mode for the wire protocol.
   /// </summary>
-  IOBDProtocol = interface
-    ['{D603AC35-7A02-4723-A52A-67809258AD0F}']
-    /// <summary>
-    ///   Parses the supplied text lines into data messages. Callers should pass
-    ///   immutable snapshots gathered under a lock when running on background
-    ///   threads.
-    /// </summary>
-    function Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
-    /// <summary>
-    ///   Consumes parsed messages to populate the ECU list. This method is
-    ///   expected to run under the parser's internal lock.
-    /// </summary>
-    procedure LoadECUList(const Messages: TArray<IOBDDataMessage>);
-    /// <summary>
-    ///   Gets the OBD protocol name.
-    /// </summary>
-    function GetName: string;
-    /// <summary>
-    ///   Gets the OBD protocol name with additional data.
-    /// </summary>
-    function GetDisplayName: string;
-    /// <summary>
-    ///   Gets the OBD protocol ID (for ELM compatible interfaces).
-    /// </summary>
-    function GetELMID: string;
-    /// <summary>
-    ///   Parses a single data frame, returning true when it could be decoded
-    ///   successfully.
-    /// </summary>
-    function ParseFrame(Frame: IOBDDataFrame): Boolean;
-    /// <summary>
-    ///   Parses a single data message, returning true when successful.
-    /// </summary>
-    function ParseMessage(Msg: IOBDDataMessage): Boolean;
-    /// <summary>
-    ///   Creates a thread-safe snapshot of loaded ECUs for read-only consumption.
-    /// </summary>
-    function SnapshotECUList: TArray<string>;
-    /// <summary>
-    ///   OBD Protocol name
-    /// </summary>
-    property Name: string read GetName;
-    /// <summary>
-    ///   OBD Protocol name with additional data
-    /// </summary>
-    property DisplayName: string read GetDisplayName;
-    /// <summary>
-    ///   ELM OBD ID
-    /// </summary>
-    property ELMID: string read GetELMID;
-    /// <summary>
-    ///   Thread-safe snapshot of loaded ECUs.
-    /// </summary>
-    property ECUListSnapshot: TArray<string> read SnapshotECUList;
-  end;
+  TOBDProtocolMode = (
+    /// <summary>Adapter chooses (<c>ATSP0</c>) — the most common
+    /// configuration.</summary>
+    pmAuto,
+    /// <summary>Force the protocol to <c>Manual</c>.</summary>
+    pmManual
+  );
 
-//------------------------------------------------------------------------------
-// CLASSES
-//------------------------------------------------------------------------------
-type
   /// <summary>
-  ///   OBD Protocol (CLASS)
+  ///   Non-visual protocol component bound to a <c>TOBDAdapter</c>.
   /// </summary>
-  TOBDProtocol = class(TInterfacedObject, IOBDProtocol)
-  private
-    /// <summary>
-    ///   Monitor used to guard ECU list access and parsing scratch buffers.
-    /// </summary>
-    FStateLock: TObject;
-    /// <summary>
-    ///   Used in the invoke function
-    /// </summary>
-    FOBDLines: TStringList;
-    /// <summary>
-    ///   Used in the invoke function
-    /// </summary>
-    FNonOBDLines: TStringList;
-    /// <summary>
-    ///   List of available ECU's
-    /// </summary>
-    FECUList: TStringList;
-    /// <summary>
-    ///   Allow long messages (> 7 bytes)
-    /// </summary>
-    FAllowLongMessages: Boolean;
-    /// <summary>
-    ///   Partition incoming lines into OBD and non-OBD buckets while guarding shared lists.
-    /// </summary>
-    /// <param name="Lines">
-    ///   Raw message lines returned from the adapter.
-    /// </param>
-    /// <param name="OBDLines">
-    ///   Output array of validated hexadecimal OBD lines.
-    /// </param>
-    /// <param name="NonOBDLines">
-    ///   Output array of non-OBD lines for diagnostic handling.
-    /// </param>
-    procedure BucketizeLines(const Lines: TStrings; out OBDLines, NonOBDLines: TArray<string>);
-    /// <summary>
-    ///   Invoke
-    /// </summary>
-    function Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
-    /// <summary>
-    ///   Load ECU list
-    /// </summary>
-    procedure LoadECUList(const Messages: TArray<IOBDDataMessage>);
-    /// <summary>
-    ///   Creates a thread-safe snapshot of loaded ECUs for read-only consumption.
-    /// </summary>
-    function SnapshotECUList: TArray<string>;
+  /// <remarks>
+  ///   Drop on a form, point <c>Adapter</c> at a configured
+  ///   <c>TOBDAdapter</c>, optionally set <c>Mode := pmManual</c> and
+  ///   <c>Manual := pidISO15765_4_CAN_11_500</c>, then call
+  ///   <c>Send</c> / <c>Request</c> from code (or use a
+  ///   service-mode component like <c>TOBDLiveData</c> that drives
+  ///   the protocol behind the scenes).
+  ///
+  ///   <c>Send</c> takes a fully populated <c>TOBDRequest</c>;
+  ///   <c>Request</c> is a one-call shortcut that builds the request
+  ///   from a service ID and payload bytes.
+  ///
+  ///   Both ship in synchronous and asynchronous forms; async fires
+  ///   <c>OnResponse</c> on success and <c>OnNRC</c> / <c>OnError</c>
+  ///   on failure, all on the main thread.
+  /// </remarks>
+  TOBDProtocol = class(TComponent)
+  strict private
+    FAdapter: TOBDAdapter;
+    FMode: TOBDProtocolMode;
+    FManual: TOBDProtocolID;
+    FApplication: TOBDApplicationProtocol;
+    FDefaultTimeoutMs: Cardinal;
+
+    // async
+    FAsyncLock: TCriticalSection;
+    FAsyncThread: TThread;
+
+    // events
+    FOnFrame: TOBDProtocolFrameEvent;
+    FOnResponse: TOBDProtocolResponseEvent;
+    FOnNRC: TOBDProtocolNRCEvent;
+    FOnError: TOBDConnectionErrorEvent;
+    FOnProgress: TOBDProgressEvent;
+
+    // Multi-cast listener registry. Hosts wire their own OnXxx
+    // handlers AND service-component glue (Recorder, Replayer,
+    // bus loggers) registers as listeners — neither path clobbers
+    // the other.
+    FListeners:       TDictionary<Integer, TOBDProtocolListener>;
+    FListenerLock:    TCriticalSection;
+    FNextListenerId:  Integer;
+
+    procedure SetAdapter(AValue: TOBDAdapter);
+    procedure WaitForAsync;
+
+    procedure DispatchFrameListeners(const AFrame: TOBDFrame);
+    procedure DispatchResponseListeners(const AResponse: TOBDResponse);
+    procedure DispatchNRCListeners(const ARequest: TOBDRequest;
+      ANRC: Byte; const AText: string);
+    procedure DispatchErrorListeners(ACode: TOBDErrorCode;
+      const AMessage: string);
+    function  SnapshotListeners: TArray<TOBDProtocolListener>;
+
+    function EncodeRequest(const ARequest: TOBDRequest): string;
+    function DecodeResponse(const ARequest: TOBDRequest;
+      const ARawHex: string; AElapsedMs: Cardinal): TOBDResponse;
+
+    procedure FireOnResponse(const AResponse: TOBDResponse);
+    procedure FireOnNRC(const ARequest: TOBDRequest; ANRC: Byte;
+      const AText: string);
+    procedure FireOnError(ACode: TOBDErrorCode; const AMessage: string);
+    procedure FireOnProgress(AIndex, ACount: Cardinal;
+      const AName, ADetail: string);
+    procedure FireOnFrame(const AFrame: TOBDFrame);
+    procedure DispatchFrames(const ARawHex: string);
+
+    function DoSend(const ARequest: TOBDRequest): TOBDResponse;
   protected
-    /// <summary>
-    ///   Convert a hex string to TBytes
-    /// </summary>
-    function HexStringToBytes(const HexString: string): TBytes;
-    /// <summary>
-    ///   Get the OBD Protocol friendlyname
-    /// </summary>
-    function GetName: string; virtual; abstract;
-    /// <summary>
-    ///   Get the OBD Protocol name with additional data
-    /// </summary>
-    function GetDisplayName: string; virtual; abstract;
-    /// <summary>
-    ///   Get the OBD Protocol ID (for ELM compatible interfaces)
-    /// </summary>
-    function GetELMID: string; virtual; abstract;
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
   public
-    /// <summary>
-    ///   Constructor
-    /// </summary>
-    constructor Create(Lines: TStrings; AllowLongMessages: Boolean); virtual;
-    /// <summary>
-    ///   Destructor
-    /// </summary>
+    /// <summary>Creates the component.</summary>
+    /// <param name="AOwner">Standard owner; may be <c>nil</c>.</param>
+    constructor Create(AOwner: TComponent); override;
+    /// <summary>Joins any in-flight async work.</summary>
     destructor Destroy; override;
 
     /// <summary>
-    ///   Parse a Data Frame
+    ///   Encodes a request and sends it through the bound adapter,
+    ///   blocking until the response arrives.
     /// </summary>
-    function ParseFrame(Frame: IOBDDataFrame): Boolean; virtual; abstract;
-    /// <summary>
-    ///   Parse a Data Message
-    /// </summary>
-    function ParseMessage(Msg: IOBDDataMessage): Boolean; virtual; abstract;
+    /// <param name="ARequest">Fully populated request.</param>
+    /// <returns>Decoded response.</returns>
+    /// <exception cref="EOBDNotConnected">Adapter not bound or
+    /// connection inactive.</exception>
+    /// <exception cref="EOBDProtocolErr">Encode or decode failed.</exception>
+    /// <exception cref="EOBDAdapter">Underlying adapter
+    /// exchange failed.</exception>
+    function Send(const ARequest: TOBDRequest): TOBDResponse;
+
+    /// <summary>Non-blocking <see cref="Send"/>. Result fires
+    /// <c>OnResponse</c> on success, <c>OnNRC</c> on negative,
+    /// <c>OnError</c> on transient failure (main thread).</summary>
+    /// <param name="ARequest">Fully populated request.</param>
+    /// <exception cref="EOBDConfig">Already in flight.</exception>
+    procedure SendAsync(const ARequest: TOBDRequest);
 
     /// <summary>
-    ///   List of available ECU's
+    ///   Convenience: build and send a request from a service ID and
+    ///   payload bytes. Equivalent to <c>Send(MakeRequest(...))</c>.
     /// </summary>
-    property ECUList: TStringList read FECUList;
-    /// <summary>
-    ///   Allow long messages (> 7 bytes)
-    /// </summary>
-    property AllowLongMessages: Boolean read FAllowLongMessages write FAllowLongMessages;
-    /// <summary>
-    ///   OBD Protocol name
-    /// </summary>
-    property Name: string read GetName;
-    /// <summary>
-    ///   OBD Protocol name with additional data
-    /// </summary>
-    property DisplayName: string read GetDisplayName;
-    /// <summary>
-    ///   ELM OBD ID
-    /// </summary>
-    property ELMID: string read GetELMID;
+    /// <param name="AServiceID">Application protocol SID
+    /// (e.g. 0x09 for OBD-II Mode 09, 0x22 for UDS
+    /// ReadDataByIdentifier).</param>
+    /// <param name="AData">Payload bytes after the SID.</param>
+    /// <param name="ATimeoutMs">Timeout in milliseconds.
+    /// <c>0</c> uses <c>DefaultTimeoutMs</c>.</param>
+    /// <returns>Decoded response.</returns>
+    /// <exception cref="EOBDNotConnected">Adapter not bound or
+    /// connection inactive.</exception>
+    function Request(AServiceID: Byte; const AData: TBytes;
+      ATimeoutMs: Cardinal = 0): TOBDResponse;
+
+    /// <summary>Non-blocking <see cref="Request"/>.</summary>
+    /// <param name="AServiceID">Application protocol SID.</param>
+    /// <param name="AData">Payload after the SID.</param>
+    /// <param name="ATimeoutMs">Timeout. <c>0</c> uses default.</param>
+    /// <exception cref="EOBDConfig">Already in flight.</exception>
+    procedure RequestAsync(AServiceID: Byte; const AData: TBytes;
+      ATimeoutMs: Cardinal = 0);
+
+    /// <summary>Cancels any in-flight async op, joining its worker.</summary>
+    procedure Close;
+
+    /// <summary>Registers a multi-cast listener for the
+    /// frame / response / NRC / error stream. Unlike the
+    /// single-cast <c>OnFrame</c>..<c>OnError</c> properties, this
+    /// path supports any number of registered observers — the
+    /// host can keep its own handlers and still drop in a
+    /// <c>TOBDRecorder</c> or custom bus logger. Returns an
+    /// integer tag the caller passes to
+    /// <see cref="RemoveListener"/> later. Thread-safe.</summary>
+    function AddListener(
+      const AListener: TOBDProtocolListener): Integer;
+    /// <summary>Removes the listener registered under
+    /// <paramref name="AListenerId"/>. Silently ignored when the
+    /// tag isn't found (already removed / never registered).
+    /// Thread-safe.</summary>
+    procedure RemoveListener(AListenerId: Integer);
+  published
+    /// <summary>Bound adapter. Required.</summary>
+    property Adapter: TOBDAdapter read FAdapter write SetAdapter;
+    /// <summary>Auto / manual selector.</summary>
+    property Mode: TOBDProtocolMode read FMode write FMode default pmAuto;
+    /// <summary>Manual protocol when <c>Mode = pmManual</c>.</summary>
+    property Manual: TOBDProtocolID read FManual write FManual
+      default pidAuto;
+    /// <summary>Application-protocol shape used by the codec
+    /// (UDS / KWP / OBD-II / J1939 / WWH-OBD / DoIP).</summary>
+    property Application: TOBDApplicationProtocol read FApplication
+      write FApplication default apOBD2;
+    /// <summary>Default per-request timeout when caller passes
+    /// <c>0</c>.</summary>
+    property DefaultTimeoutMs: Cardinal read FDefaultTimeoutMs
+      write FDefaultTimeoutMs default 5000;
+
+    /// <summary>Fires for every successful (positive) response on
+    /// the main thread.</summary>
+    property OnResponse: TOBDProtocolResponseEvent read FOnResponse
+      write FOnResponse;
+    /// <summary>Fires for negative responses (UDS / KWP NRC) on the
+    /// main thread.</summary>
+    property OnNRC: TOBDProtocolNRCEvent read FOnNRC write FOnNRC;
+    /// <summary>Fires for inbound frames before decoding (main
+    /// thread).</summary>
+    property OnFrame: TOBDProtocolFrameEvent read FOnFrame write FOnFrame;
+    /// <summary>Fires for transient I/O errors (main thread).</summary>
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
+    /// <summary>Fires per phase during async operations (main
+    /// thread).</summary>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
   end;
 
-  /// <summary>
-  ///   Comparer for sorting Data Frames (Legacy)
-  /// </summary>
-  TOBDDataFrameComparer = class(TInterfacedObject, IComparer<IOBDDataFrame>)
-  public
-    function Compare(const Left, Right: IOBDDataFrame): Integer;
-  end;
-
-  /// <summary>
-  ///   Comparer for sorting Data Frames (CAN)
-  /// </summary>
-  TOBDDataFrameSequenceComparer = class(TInterfacedObject, IComparer<IOBDDataFrame>)
-  public
-    function Compare(const Left, Right: IOBDDataFrame): Integer;
-  end;
+/// <summary>
+///   Helper that builds a fully populated <c>TOBDRequest</c> from a
+///   service ID + payload bytes.
+/// </summary>
+/// <param name="AProtocol">Application protocol shape.</param>
+/// <param name="AServiceID">Service / SID byte.</param>
+/// <param name="AData">Payload bytes after the SID.</param>
+/// <param name="ATimeoutMs">Optional per-request timeout (0 = use
+/// component default).</param>
+/// <returns>Fully populated request record.</returns>
+function MakeRequest(AProtocol: TOBDApplicationProtocol;
+  AServiceID: Byte; const AData: TBytes;
+  ATimeoutMs: Cardinal = 0): TOBDRequest;
 
 implementation
 
-//------------------------------------------------------------------------------
-// INVOKE
-//------------------------------------------------------------------------------
-procedure TOBDProtocol.BucketizeLines(const Lines: TStrings; out OBDLines, NonOBDLines: TArray<string>);
-
-  function IsHex(const Line: string): Boolean;
-  var
-    I: Integer;
-  begin
-    Result := False;
-    if Line = '' then Exit;
-    for I := 1 to Length(Line) do
-      if not CharInSet(Line[I], ['0'..'9', 'A'..'F', 'a'..'f']) then Exit;
-    Result := True;
-  end;
-
-var
-  Line: string;
-  LineNoSpaces: string;
+function MakeRequest(AProtocol: TOBDApplicationProtocol;
+  AServiceID: Byte; const AData: TBytes;
+  ATimeoutMs: Cardinal): TOBDRequest;
 begin
-  OBDLines := nil;
-  NonOBDLines := nil;
-  TMonitor.Enter(FStateLock);
-  try
-    FOBDLines.Clear;
-    FNonOBDLines.Clear;
-    for Line in Lines do
-    begin
-      LineNoSpaces := StringReplace(Line, ' ', '', [rfReplaceAll]);
-      if IsHex(LineNoSpaces) then
-      begin
-        FOBDLines.Add(Line);
-        OBDLines := OBDLines + [Line];
-      end
-      else
-      begin
-        FNonOBDLines.Add(Line);
-        NonOBDLines := NonOBDLines + [Line];
-      end;
-    end;
-  finally
-    TMonitor.Exit(FStateLock);
-  end;
+  Result := MakeOBDRequest;
+  Result.Protocol := AProtocol;
+  Result.ServiceID := AServiceID;
+  Result.Data := Copy(AData);
+  Result.TimeoutMs := ATimeoutMs;
 end;
 
-//------------------------------------------------------------------------------
-// INVOKE
-//------------------------------------------------------------------------------
-function TOBDProtocol.Invoke(const Lines: TStrings): TArray<IOBDDataMessage>;
+{ ---- TOBDProtocol ------------------------------------------------------------ }
 
-var
-  Line: string;
-  OBDLines: TArray<string>;
-  NonOBDLines: TArray<string>;
-  Frame: IOBDDataFrame;
-  Frames: TArray<IOBDDataFrame>;
-  FramesByECU: TDictionary<Integer, TArray<IOBDDataFrame>>;
-  ECU: Integer;
-  Msg: IOBDDataMessage;
+constructor TOBDProtocol.Create(AOwner: TComponent);
 begin
-  BucketizeLines(Lines, OBDLines, NonOBDLines);
-
-  // Initialize frames length
-  SetLength(Frames, 0);
-
-  // Loop over OBD lines
-  for Line in OBDLines do
-  begin
-    // Create frame from line
-    Frame := TOBDDataFrame.Create(Line);
-    // Parse lines into frames, and drop lines that couldn't be parsed
-    if ParseFrame(Frame) then Frames := Frames + [Frame];
-  end;
-
-  // Map frames by ECU
-  FramesByECU := TDictionary<Integer, TArray<IOBDDataFrame>>.Create;
-  try
-    // Loop over frames
-    for Frame in Frames do
-    begin
-      if not FramesByECU.ContainsKey(Frame.TxId) then
-        FramesByECU.Add(Frame.TxId, [Frame])
-      else
-        FramesByECU[Frame.TxId] := FramesByECU[Frame.TxId] + [Frame];
-    end;
-
-    // Parse frames into whole messages
-    for ECU in FramesByECU.Keys do
-    begin
-      Msg := TOBDDataMessage.Create(FramesByECU[ECU]);
-
-      // Assemble frames into Messages
-      if ParseMessage(Msg) then
-      begin
-        // Mark with the appropriate ECU ID
-        Msg.ECU := IntToHex(ECU, 2);
-        Result := Result + [Msg];
-      end;
-    end;
-
-    // Handle invalid lines (probably from the ELM)
-    for Line in NonOBDLines do
-    begin
-      // Give each line its own message object
-      Result := Result + [TOBDDataMessage.Create([TOBDDataFrame.Create(Line)])];
-    end;
-  finally
-    FramesByECU.Free;
-  end;
+  inherited Create(AOwner);
+  FMode := pmAuto;
+  FManual := pidAuto;
+  FApplication := apOBD2;
+  FDefaultTimeoutMs := 5000;
+  FAsyncLock := TCriticalSection.Create;
+  FListenerLock := TCriticalSection.Create;
+  FListeners := TDictionary<Integer, TOBDProtocolListener>.Create;
+  FNextListenerId := 0;
 end;
 
-//------------------------------------------------------------------------------
-// HEX STRING TO BYTES
-//------------------------------------------------------------------------------
-function TOBDProtocol.HexStringToBytes(const HexString: string): TBytes;
-var
-  I, Value: Integer;
-begin
-  // Exit here if the length is odd
-  if Length(HexString) mod 2 <> 0 then Exit;
-  // Set length of result
-  SetLength(Result, Length(HexString) div 2);
-  // Loop over hex string and convert to bytes
-  for I := 0 to Length(Result) - 1 do
-  begin
-    Value := StrToInt('$' + Copy(HexString, I * 2 + 1, 2));
-    Result[I] := Value;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// LOAD ECU LIST
-//------------------------------------------------------------------------------
-procedure TOBDProtocol.LoadECUList(const Messages: TArray<IOBDDataMessage>);
-var
-  Msg: IOBDDataMessage;
-begin
-  // Clear ECU list
-  TMonitor.Enter(FStateLock);
-  try
-    FECUList.Clear;
-    // Loop over messages
-    for Msg in Messages do
-    begin
-      // If the message doesnt contain any data, continue
-      if not Msg.Parsed then Continue;
-      // Convert the TxId to hexadecimal string and add to the ECU list
-      FECUList.Add(Msg.ECU);
-    end;
-  finally
-    TMonitor.Exit(FStateLock);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// SNAPSHOT ECU LIST
-//------------------------------------------------------------------------------
-function TOBDProtocol.SnapshotECUList: TArray<string>;
-var
-  Index: Integer;
-begin
-  TMonitor.Enter(FStateLock);
-  try
-    SetLength(Result, FECUList.Count);
-    for Index := 0 to FECUList.Count - 1 do
-      Result[Index] := FECUList[Index];
-  finally
-    TMonitor.Exit(FStateLock);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TOBDProtocol.Create(Lines: TStrings; AllowLongMessages: Boolean);
-var
-  Messages: TArray<IOBDDataMessage>;
-begin
-  // Call inherited Constructor
-  inherited Create;
-  // Create monitor lock
-  FStateLock := TObject.Create;
-  // Create ECU list
-  FECUList := TStringList.Create;
-  // Create lists
-  FOBDLines := TStringList.Create;
-  FNonOBDLines := TStringList.Create;
-  // Set allow long messages
-  FAllowLongMessages := AllowLongMessages;
-  // Parse the 0100 data into messages
-  Messages := Invoke(Lines);
-  // Load ECU list
-  LoadECUList(Messages);
-end;
-
-//------------------------------------------------------------------------------
-// DESTRUCTOR
-//------------------------------------------------------------------------------
 destructor TOBDProtocol.Destroy;
 begin
-  // Free ECU list
-  TMonitor.Enter(FStateLock);
-  try
-    FECUList.Free;
-    // Free lists
-    FOBDLines.Free;
-    FNonOBDLines.Free;
-  finally
-    TMonitor.Exit(FStateLock);
-  end;
-  // Release monitor lock
-  FStateLock.Free;
-  // Call inherited Destructor
+  WaitForAsync;
+  // inherited Destroy fires opRemove notifications on every
+  // component that registered FreeNotification — including
+  // TOBDRecorder, which will call back into RemoveListener.
+  // Run that BEFORE freeing the listener registry so the
+  // callback finds a valid lock + dictionary.
   inherited;
+  FListeners.Free;
+  FListenerLock.Free;
+  FAsyncLock.Free;
 end;
 
-//------------------------------------------------------------------------------
-// COMPARE FRAMES (LEGACY)
-//------------------------------------------------------------------------------
-function TOBDDataFrameComparer.Compare(const Left, Right: IOBDDataFrame): Integer;
+procedure TOBDProtocol.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
-  Result := Left.Data[2] - Right.Data[2];
+  inherited;
+  if (Operation = opRemove) and (AComponent = FAdapter) then
+    FAdapter := nil;
 end;
 
-//------------------------------------------------------------------------------
-// COMPARE FRAMES (CAN)
-//------------------------------------------------------------------------------
-function TOBDDataFrameSequenceComparer.Compare(const Left, Right: IOBDDataFrame): Integer;
+procedure TOBDProtocol.SetAdapter(AValue: TOBDAdapter);
 begin
-  Result := Left.SeqIndex - Right.SeqIndex;
+  if FAdapter = AValue then Exit;
+  // Drain any in-flight async worker before swapping the adapter
+  // — the worker reads FAdapter without locking, so swapping it
+  // mid-flight would race. WaitForAsync is a no-op when no
+  // worker is active, so the common (design-time / setup) path
+  // pays nothing.
+  WaitForAsync;
+  if FAdapter <> nil then
+    FAdapter.RemoveFreeNotification(Self);
+  FAdapter := AValue;
+  if FAdapter <> nil then
+    FAdapter.FreeNotification(Self);
+end;
+
+function TOBDProtocol.AddListener(
+  const AListener: TOBDProtocolListener): Integer;
+begin
+  FListenerLock.Enter;
+  try
+    Inc(FNextListenerId);
+    Result := FNextListenerId;
+    FListeners.Add(Result, AListener);
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+procedure TOBDProtocol.RemoveListener(AListenerId: Integer);
+begin
+  FListenerLock.Enter;
+  try
+    FListeners.Remove(AListenerId);
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+function TOBDProtocol.SnapshotListeners: TArray<TOBDProtocolListener>;
+var
+  L: TOBDProtocolListener;
+  I: Integer;
+begin
+  // Snapshot under the lock so dispatch can iterate without
+  // holding it (handlers may call back into Add/RemoveListener,
+  // which would deadlock if dispatch held the lock).
+  FListenerLock.Enter;
+  try
+    SetLength(Result, FListeners.Count);
+    I := 0;
+    for L in FListeners.Values do
+    begin
+      Result[I] := L;
+      Inc(I);
+    end;
+  finally
+    FListenerLock.Leave;
+  end;
+end;
+
+procedure TOBDProtocol.DispatchFrameListeners(const AFrame: TOBDFrame);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnFrame) then
+      try
+        L.OnFrame(Self, AFrame);
+      except
+      end;
+end;
+
+procedure TOBDProtocol.DispatchResponseListeners(
+  const AResponse: TOBDResponse);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnResponse) then
+      try
+        L.OnResponse(Self, AResponse);
+      except
+      end;
+end;
+
+procedure TOBDProtocol.DispatchNRCListeners(const ARequest: TOBDRequest;
+  ANRC: Byte; const AText: string);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnNRC) then
+      try
+        L.OnNRC(Self, ARequest, ANRC, AText);
+      except
+      end;
+end;
+
+procedure TOBDProtocol.DispatchErrorListeners(ACode: TOBDErrorCode;
+  const AMessage: string);
+var
+  Snap: TArray<TOBDProtocolListener>;
+  L: TOBDProtocolListener;
+begin
+  Snap := SnapshotListeners;
+  for L in Snap do
+    if Assigned(L.OnError) then
+      try
+        L.OnError(Self, ACode, AMessage);
+      except
+      end;
+end;
+
+procedure TOBDProtocol.WaitForAsync;
+var
+  Worker: TThread;
+begin
+  FAsyncLock.Enter;
+  try
+    Worker := FAsyncThread;
+    FAsyncThread := nil;
+  finally
+    FAsyncLock.Leave;
+  end;
+  if Worker = nil then Exit;
+  Worker.WaitFor;
+  Worker.Free;
+end;
+
+procedure TOBDProtocol.Close;
+begin
+  WaitForAsync;
+end;
+
+function TOBDProtocol.EncodeRequest(const ARequest: TOBDRequest): string;
+begin
+  case ARequest.Protocol of
+    apOBD2, apJ1939, apWWHOBD, apDoIP, apUDS:
+      Result := TOBDUDSCodec.Encode(ARequest);
+    apKWP2000:
+      Result := TOBDKWPCodec.Encode(ARequest);
+  else
+    Result := TOBDUDSCodec.Encode(ARequest);
+  end;
+end;
+
+function TOBDProtocol.DecodeResponse(const ARequest: TOBDRequest;
+  const ARawHex: string; AElapsedMs: Cardinal): TOBDResponse;
+begin
+  case ARequest.Protocol of
+    apKWP2000:
+      TOBDKWPCodec.Decode(ARequest, ARawHex, Result);
+  else
+    TOBDUDSCodec.Decode(ARequest, ARawHex, Result);
+  end;
+  Result.Elapsed := AElapsedMs;
+end;
+
+procedure TOBDProtocol.FireOnResponse(const AResponse: TOBDResponse);
+var
+  Snapshot: TOBDResponse;
+begin
+  Snapshot := AResponse;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnResponse) then FOnResponse(Self, Snapshot);
+    DispatchResponseListeners(Snapshot);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnResponse) then
+          FOnResponse(Self, Snapshot);
+        DispatchResponseListeners(Snapshot);
+      end);
+end;
+
+procedure TOBDProtocol.FireOnNRC(const ARequest: TOBDRequest;
+  ANRC: Byte; const AText: string);
+var
+  ReqCopy: TOBDRequest;
+  TextCopy: string;
+  NRCCopy: Byte;
+begin
+  ReqCopy := ARequest;
+  TextCopy := AText;
+  NRCCopy := ANRC;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnNRC) then FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
+    DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnNRC) then
+          FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
+        DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
+      end);
+end;
+
+procedure TOBDProtocol.FireOnError(ACode: TOBDErrorCode;
+  const AMessage: string);
+var
+  Code: TOBDErrorCode;
+  Msg: string;
+begin
+  Code := ACode;
+  Msg := AMessage;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnError) then
+    begin
+      var Handled: Boolean;
+      Handled := False;
+      FOnError(Self, Code, Msg, Handled);
+    end;
+    DispatchErrorListeners(Code, Msg);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      var Handled: Boolean;
+      begin
+        if Assigned(FOnError) then
+        begin
+          Handled := False;
+          FOnError(Self, Code, Msg, Handled);
+        end;
+        DispatchErrorListeners(Code, Msg);
+      end);
+end;
+
+procedure TOBDProtocol.FireOnProgress(AIndex, ACount: Cardinal;
+  const AName, ADetail: string);
+var
+  Step: TOBDProgressStep;
+begin
+  if not Assigned(FOnProgress) then Exit;
+  Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnProgress(Self, Step)
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnProgress) then
+          FOnProgress(Self, Step);
+      end);
+end;
+
+procedure TOBDProtocol.FireOnFrame(const AFrame: TOBDFrame);
+var
+  Snapshot: TOBDFrame;
+begin
+  Snapshot := AFrame;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin
+    if Assigned(FOnFrame) then FOnFrame(Self, Snapshot);
+    DispatchFrameListeners(Snapshot);
+  end
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FOnFrame) then
+          FOnFrame(Self, Snapshot);
+        DispatchFrameListeners(Snapshot);
+      end);
+end;
+
+procedure TOBDProtocol.DispatchFrames(const ARawHex: string);
+var
+  Lines: TArray<string>;
+  Trimmed, IdToken, Rest: string;
+  I, SpaceAt: Integer;
+  Frame: TOBDFrame;
+  IdValue: Int64;
+begin
+  // No early-exit on FOnFrame here — multi-cast listeners
+  // (TOBDRecorder, custom bus loggers) need frames even when
+  // the host doesn't wire a single-cast OnFrame.
+  Lines := SplitString(ARawHex, #13#10);
+  if Length(Lines) = 0 then
+    Lines := SplitString(ARawHex, #13);
+  if Length(Lines) = 0 then
+    Lines := SplitString(ARawHex, #10);
+  if Length(Lines) = 0 then
+  begin
+    SetLength(Lines, 1);
+    Lines[0] := ARawHex;
+  end;
+
+  for I := 0 to High(Lines) do
+  begin
+    Trimmed := Trim(Lines[I]);
+    if Trimmed = '' then Continue;
+
+    Frame := Default(TOBDFrame);
+    Frame.Timestamp := Now;
+    Frame.Kind := fkRaw;
+    Frame.Id := 0;
+    Frame.IsExtendedId := False;
+
+    // ELM327 with headers on prefixes each frame with the CAN ID
+    // (3 hex digits for 11-bit, 8 for 29-bit) followed by a space
+    // and the data bytes. Detect by an isolated leading hex token.
+    SpaceAt := Pos(' ', Trimmed);
+    if (SpaceAt > 0) and (SpaceAt in [4, 9]) then
+    begin
+      IdToken := Copy(Trimmed, 1, SpaceAt - 1);
+      if TryStrToInt64('$' + IdToken, IdValue) then
+      begin
+        Frame.Id := Cardinal(IdValue);
+        Frame.IsExtendedId := SpaceAt = 9;
+        Rest := Copy(Trimmed, SpaceAt + 1, MaxInt);
+        Frame.Payload := HexToBytes(Rest);
+      end
+      else
+        Frame.Payload := HexToBytes(Trimmed);
+    end
+    else
+      Frame.Payload := HexToBytes(Trimmed);
+
+    FireOnFrame(Frame);
+  end;
+end;
+
+function TOBDProtocol.DoSend(const ARequest: TOBDRequest): TOBDResponse;
+var
+  Hex: string;
+  AdapterResp: TOBDAdapterResponse;
+  Effective: Cardinal;
+  ExpectedSID: Byte;
+begin
+  if (FAdapter = nil) or (FAdapter.Connection = nil) or
+     not FAdapter.Connection.Active then
+    raise EOBDNotConnected.Create('TOBDProtocol: Adapter is not active');
+
+  Effective := ARequest.TimeoutMs;
+  if Effective = 0 then Effective := FDefaultTimeoutMs;
+
+  FireOnProgress(1, 3, 'Encoding', '');
+  Hex := EncodeRequest(ARequest);
+
+  FireOnProgress(2, 3, 'Adapter exchange', Hex);
+  AdapterResp := FAdapter.WriteOBDCommand(Hex, Effective);
+
+  // Frame-level fan-out (one TOBDFrame per response line). Done
+  // before decoding so subscribers see frames in arrival order
+  // even if decoding raises.
+  DispatchFrames(AdapterResp.Raw);
+
+  FireOnProgress(3, 3, 'Decoding', '');
+  if AdapterResp.IsError then
+  begin
+    Result := MakeOBDResponse;
+    Result.Request := ARequest;
+    Result.Elapsed := AdapterResp.Elapsed;
+    FireOnError(oeAdapterFault,
+      Format('Adapter rejected request: %s', [AdapterResp.ErrorKeyword]));
+    Exit;
+  end;
+  Result := DecodeResponse(ARequest, AdapterResp.Raw, AdapterResp.Elapsed);
+
+  if Result.IsNegative then
+    FireOnNRC(ARequest, Result.NRC, Result.NRCText)
+  else
+  begin
+    // SID-mismatch surfaces as a transient OnError(oeUnexpectedFrame).
+    // Some adapters silently strip the SID echo; only flag when we
+    // got a non-zero SID that doesn't match the expected positive
+    // response.
+    case ARequest.Protocol of
+      apKWP2000:
+        ExpectedSID := TOBDKWPCodec.ExpectedPositiveResponse(ARequest.ServiceID);
+    else
+      ExpectedSID := TOBDUDSCodec.ExpectedPositiveResponse(ARequest.ServiceID);
+    end;
+    if (Result.ServiceID <> 0) and (Result.ServiceID <> ExpectedSID) then
+      FireOnError(oeUnexpectedFrame,
+        Format('Unexpected response SID 0x%2.2X (expected 0x%2.2X for request 0x%2.2X)',
+          [Result.ServiceID, ExpectedSID, ARequest.ServiceID]));
+    FireOnResponse(Result);
+  end;
+end;
+
+function TOBDProtocol.Send(const ARequest: TOBDRequest): TOBDResponse;
+begin
+  WaitForAsync;
+  Result := DoSend(ARequest);
+end;
+
+procedure TOBDProtocol.SendAsync(const ARequest: TOBDRequest);
+var
+  Self_: TOBDProtocol;
+  RequestCopy: TOBDRequest;
+begin
+  if (FAdapter = nil) or (FAdapter.Connection = nil) or
+     not FAdapter.Connection.Active then
+    raise EOBDNotConnected.Create('TOBDProtocol.SendAsync: Adapter inactive');
+  FAsyncLock.Enter;
+  try
+    if FAsyncThread <> nil then
+      raise EOBDConfig.Create('Protocol operation already in flight');
+  finally
+    FAsyncLock.Leave;
+  end;
+
+  Self_ := Self;
+  RequestCopy := ARequest;
+
+  FAsyncThread := TThread.CreateAnonymousThread(
+    procedure
+    var
+      Worker: TThread;
+    begin
+      try
+        try
+          Self_.DoSend(RequestCopy);
+        except
+          on E: Exception do
+            Self_.FireOnError(oeIO, E.Message);
+        end;
+      finally
+        TThread.Queue(nil,
+          procedure
+          begin
+            Self_.FAsyncLock.Enter;
+            try
+              Worker := Self_.FAsyncThread;
+              Self_.FAsyncThread := nil;
+            finally
+              Self_.FAsyncLock.Leave;
+            end;
+            if Worker <> nil then
+            begin
+              Worker.WaitFor;
+              Worker.Free;
+            end;
+          end);
+      end;
+    end);
+  FAsyncThread.FreeOnTerminate := False;
+  FAsyncThread.Start;
+end;
+
+function TOBDProtocol.Request(AServiceID: Byte; const AData: TBytes;
+  ATimeoutMs: Cardinal): TOBDResponse;
+begin
+  Result := Send(MakeRequest(FApplication, AServiceID, AData, ATimeoutMs));
+end;
+
+procedure TOBDProtocol.RequestAsync(AServiceID: Byte; const AData: TBytes;
+  ATimeoutMs: Cardinal);
+begin
+  SendAsync(MakeRequest(FApplication, AServiceID, AData, ATimeoutMs));
 end;
 
 end.

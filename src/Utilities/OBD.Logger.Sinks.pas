@@ -1,509 +1,392 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.Logger.Sinks.pas
-// CONTENTS       : Pluggable IOBDLogSink + bundled sink implementations
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
-// NOTE           : Sinks let the logger fan out to multiple destinations
-//                  without each consumer writing its own dispatch glue.
-//                  Bundled implementations:
+//  OBD.Logger.Sinks
 //
-//                    TFileRotationSink   — size-based rotation
-//                    TDailyRotationSink  — date-stamped file per day
-//                    TJsonLineSink       — JSON-Lines for ELK / Splunk
-//                    TConsoleSink        — stdout (CLI tools, CI)
-//                    TInMemorySink       — buffer events in RAM (log viewer)
+//  Log-sink interface + the small "ships with the package" sink
+//  set: console (stdout / stderr split by severity), file (with
+//  optional rotation), and an in-memory ring buffer useful for
+//  test fixtures.
+//
+//  Hosts wire their own sinks by implementing
+//  <see cref="IOBDLogSink"/> and registering through
+//  <c>TOBDLogger.RegisterSink</c>. The visual TOBDLogViewer in
+//  <c>OBD.UI.LogViewer</c> implements the same interface so a
+//  drop-on-form log viewer can be added without extra glue.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-11  ERD  Initial port from v1 OBD.Logger.Sinks.
 //------------------------------------------------------------------------------
+
 unit OBD.Logger.Sinks;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.SyncObjs, System.IOUtils,
-  System.Generics.Collections, System.JSON, System.DateUtils;
+  System.SysUtils,
+  System.Classes,
+  System.SyncObjs,
+  System.Generics.Collections;
 
 type
-  /// <summary>
-  ///   Log severity. Mirrors <c>OBD.Logger.TLogLevel</c> — kept in sync
-  ///   manually so the sinks don't drag the legacy unit into every
-  ///   consumer.
-  /// </summary>
-  TOBDLogLevel = (lsDebug, lsInfo, lsWarning, lsError, lsCritical);
+  /// <summary>Log severity level.</summary>
+  TOBDLogLevel = (
+    /// <summary>Verbose debug-only tracing.</summary>
+    olDebug,
+    /// <summary>Informational message.</summary>
+    olInfo,
+    /// <summary>Warning — recoverable anomaly.</summary>
+    olWarning,
+    /// <summary>Error — single-operation failure.</summary>
+    olError,
+    /// <summary>Critical — fatal / shutdown-worthy.</summary>
+    olCritical
+  );
 
-  /// <summary>
-  ///   One log event handed to every sink.
-  /// </summary>
+  /// <summary>One log event passed to every registered sink.</summary>
   TOBDLogEvent = record
-    Timestamp: TDateTime;
+    /// <summary>Severity level.</summary>
     Level: TOBDLogLevel;
-    Source: string;        // optional logger / subsystem tag
+    /// <summary>Local timestamp at which the event was raised.</summary>
+    Timestamp: TDateTime;
+    /// <summary>Free-form category tag (e.g. <c>'Connection'</c>,
+    /// <c>'UDS'</c>, <c>'Flash'</c>); empty when not categorised.</summary>
+    Category: string;
+    /// <summary>Message body.</summary>
     Message: string;
   end;
 
   /// <summary>
-  ///   Implemented by anything that wants to receive log events.
+  ///   Sink contract — any host-supplied target that accepts log
+  ///   events.
   /// </summary>
+  /// <remarks>
+  ///   Implementations may be reference-counted (e.g.
+  ///   <c>TInterfacedObject</c> sinks) or component-attached
+  ///   (e.g. a <c>TComponent</c> that exposes a no-op
+  ///   <c>_AddRef</c> / <c>_Release</c>). The logger holds
+  ///   interface references so RAII rules apply on the sink
+  ///   side.
+  /// </remarks>
   IOBDLogSink = interface
-    ['{D8E1F1C6-3F65-4E5F-8A7C-9C7B5D2A5E10}']
-    procedure Write(const Event: TOBDLogEvent);
+    ['{4DAA1F1B-9D2B-4A28-9B0F-2C8C5F5C7D60}']
+    /// <summary>Writes one log event.</summary>
+    /// <param name="AEvent">Event to record.</param>
+    procedure Write(const AEvent: TOBDLogEvent);
+    /// <summary>Flushes any pending output (file flush, queue
+    /// drain, …).</summary>
     procedure Flush;
   end;
 
-//------------------------------------------------------------------------------
-// FILE ROTATION (size-based)
-//------------------------------------------------------------------------------
-type
-  TFileRotationSink = class(TInterfacedObject, IOBDLogSink)
+  /// <summary>
+  ///   Routes events to stdout (debug / info) and stderr
+  ///   (warning / error / critical).
+  /// </summary>
+  TOBDLogConsoleSink = class(TInterfacedObject, IOBDLogSink)
   strict private
     FLock: TCriticalSection;
-    FFilePath: string;
+  public
+    /// <summary>Constructs the sink.</summary>
+    constructor Create;
+    /// <summary>Frees state.</summary>
+    destructor Destroy; override;
+    /// <summary>Writes <c>AEvent</c> to the matching console
+    /// stream.</summary>
+    /// <param name="AEvent">Event to write.</param>
+    procedure Write(const AEvent: TOBDLogEvent);
+    /// <summary>Flushes both console streams.</summary>
+    procedure Flush;
+  end;
+
+  /// <summary>
+  ///   Appends events to a UTF-8 text file, one line per event.
+  ///   When <see cref="MaxBytes"/> is non-zero the file is
+  ///   rotated to <c>&lt;name&gt;.1</c>, <c>&lt;name&gt;.2</c>
+  ///   …, dropping the oldest beyond <see cref="MaxBackups"/>.
+  /// </summary>
+  TOBDLogFileSink = class(TInterfacedObject, IOBDLogSink)
+  strict private
+    FPath: string;
     FMaxBytes: Int64;
     FMaxBackups: Integer;
-    procedure RotateIfNeeded;
-    procedure Append(const S: string);
+    FStream: TFileStream;
+    FLock: TCriticalSection;
+    procedure OpenForAppend;
+    procedure RotateIfNeeded(AAdditional: Integer);
   public
-    constructor Create(const AFilePath: string; AMaxBytes: Int64 = 10 * 1024 * 1024;
+    /// <summary>Constructs the sink against <c>APath</c>.</summary>
+    /// <param name="APath">Target file path.</param>
+    /// <param name="AMaxBytes">Rotation threshold (0 = no
+    /// rotation; default 10 MiB).</param>
+    /// <param name="AMaxBackups">Backup-file count (default 5).</param>
+    constructor Create(const APath: string;
+      AMaxBytes: Int64 = 10 * 1024 * 1024;
       AMaxBackups: Integer = 5);
+    /// <summary>Closes the file and frees state.</summary>
     destructor Destroy; override;
-    procedure Write(const Event: TOBDLogEvent);
+    /// <summary>Appends one event as a UTF-8 line.</summary>
+    /// <param name="AEvent">Event to append.</param>
+    procedure Write(const AEvent: TOBDLogEvent);
+    /// <summary>Flushes the underlying stream to disk.</summary>
     procedure Flush;
-    property FilePath: string read FFilePath;
+    /// <summary>Configured rotation byte threshold.</summary>
+    property MaxBytes: Int64 read FMaxBytes;
+    /// <summary>Configured backup-file count.</summary>
+    property MaxBackups: Integer read FMaxBackups;
   end;
 
-//------------------------------------------------------------------------------
-// DAILY ROTATION (one file per day)
-//------------------------------------------------------------------------------
-type
-  TDailyRotationSink = class(TInterfacedObject, IOBDLogSink)
-  strict private
-    FLock: TCriticalSection;
-    FDirectory: string;
-    FBaseName: string;
-    FExtension: string;
-    function FileFor(const D: TDateTime): string;
-  public
-    constructor Create(const ADirectory, ABaseName: string;
-      const AExtension: string = '.log');
-    destructor Destroy; override;
-    procedure Write(const Event: TOBDLogEvent);
-    procedure Flush;
-  end;
-
-//------------------------------------------------------------------------------
-// JSON-LINES SINK
-//------------------------------------------------------------------------------
-type
   /// <summary>
-  ///   One JSON object per line. Compatible with Filebeat / Vector /
-  ///   Splunk JSON ingest.
+  ///   Holds the last <c>Capacity</c> events in memory. Useful
+  ///   from test fixtures and for "show me the last N log
+  ///   lines" host UIs.
   /// </summary>
-  TJsonLineSink = class(TInterfacedObject, IOBDLogSink)
+  TOBDLogMemorySink = class(TInterfacedObject, IOBDLogSink)
   strict private
-    FLock: TCriticalSection;
-    FFilePath: string;
-    function EventToJson(const Event: TOBDLogEvent): string;
-  public
-    constructor Create(const AFilePath: string);
-    destructor Destroy; override;
-    procedure Write(const Event: TOBDLogEvent);
-    procedure Flush;
-  end;
-
-//------------------------------------------------------------------------------
-// CONSOLE
-//------------------------------------------------------------------------------
-type
-  TConsoleSink = class(TInterfacedObject, IOBDLogSink)
-  public
-    procedure Write(const Event: TOBDLogEvent);
-    procedure Flush;
-  end;
-
-//------------------------------------------------------------------------------
-// IN-MEMORY
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   Bounded ring buffer of log events. Useful for the in-app log
-  ///   viewer and for tests that need to assert what was logged.
-  /// </summary>
-  TInMemorySink = class(TInterfacedObject, IOBDLogSink)
-  strict private
-    FLock: TCriticalSection;
+    FBuffer: TList<TOBDLogEvent>;
     FCapacity: Integer;
-    FEvents: TList<TOBDLogEvent>;
-    FOnEvent: TProc<TOBDLogEvent>;
+    FLock: TCriticalSection;
   public
-    constructor Create(ACapacity: Integer = 500);
+    /// <summary>Constructs the sink.</summary>
+    /// <param name="ACapacity">Ring-buffer capacity. Default
+    /// 256.</param>
+    constructor Create(ACapacity: Integer = 256);
+    /// <summary>Frees state.</summary>
     destructor Destroy; override;
-    procedure Write(const Event: TOBDLogEvent);
+    /// <summary>Stores one event.</summary>
+    /// <param name="AEvent">Event to store.</param>
+    procedure Write(const AEvent: TOBDLogEvent);
+    /// <summary>No-op (memory sink has nothing to flush).</summary>
     procedure Flush;
-    /// <summary>
-    ///   Snapshot the buffer (oldest first).
-    /// </summary>
+    /// <summary>Snapshot of the current buffer in event order.</summary>
+    /// <returns>Array of events.</returns>
     function Snapshot: TArray<TOBDLogEvent>;
-    procedure ClearEvents;
-    property Capacity: Integer read FCapacity;
-    /// <summary>
-    ///   Callback fired on every new event (after the buffer is updated).
-    ///   Lets the in-app log viewer subscribe without polling.
-    /// </summary>
-    property OnEvent: TProc<TOBDLogEvent> read FOnEvent write FOnEvent;
+    /// <summary>Number of currently-buffered events.</summary>
+    function Count: Integer;
   end;
 
-//------------------------------------------------------------------------------
-// HELPERS
-//------------------------------------------------------------------------------
-function LogLevelName(L: TOBDLogLevel): string;
+/// <summary>
+///   Formats <c>AEvent</c> as a single text line
+///   (<c>HH:MM:SS.zzz [LEVEL] [category] message</c>).
+/// </summary>
+/// <param name="AEvent">Event to format.</param>
+/// <returns>Formatted line (no trailing newline).</returns>
+function FormatLogLine(const AEvent: TOBDLogEvent): string;
+
+/// <summary>Returns the short uppercase tag for a level
+/// (<c>DEBUG</c> / <c>INFO</c> / <c>WARN</c> / <c>ERROR</c> /
+/// <c>FATAL</c>).</summary>
+/// <param name="ALevel">Severity.</param>
+/// <returns>Tag string.</returns>
+function LogLevelTag(ALevel: TOBDLogLevel): string;
 
 implementation
 
-//------------------------------------------------------------------------------
-// LOG LEVEL NAME
-//------------------------------------------------------------------------------
-function LogLevelName(L: TOBDLogLevel): string;
+uses
+  System.IOUtils,
+  System.DateUtils;
+
+function LogLevelTag(ALevel: TOBDLogLevel): string;
 begin
-  case L of
-    lsDebug:    Result := 'DEBUG';
-    lsInfo:     Result := 'INFO';
-    lsWarning:  Result := 'WARNING';
-    lsError:    Result := 'ERROR';
-    lsCritical: Result := 'CRITICAL';
-  else          Result := 'UNKNOWN';
+  case ALevel of
+    olDebug:    Result := 'DEBUG';
+    olInfo:     Result := 'INFO ';
+    olWarning:  Result := 'WARN ';
+    olError:    Result := 'ERROR';
+    olCritical: Result := 'FATAL';
+  else
+    Result := '?????';
   end;
 end;
 
-//------------------------------------------------------------------------------
-// FORMAT LINE
-//------------------------------------------------------------------------------
-function FormatLine(const Event: TOBDLogEvent): string;
-begin
-  if Event.Source <> '' then
-    Result := Format('[%s] [%s] [%s] %s',
-      [FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Event.Timestamp),
-       LogLevelName(Event.Level), Event.Source, Event.Message])
-  else
-    Result := Format('[%s] [%s] %s',
-      [FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Event.Timestamp),
-       LogLevelName(Event.Level), Event.Message]);
-end;
-
-//------------------------------------------------------------------------------
-// APPEND UTF8
-//------------------------------------------------------------------------------
-procedure AppendUtf8(const FilePath, Line: string);
+function FormatLogLine(const AEvent: TOBDLogEvent): string;
 var
-  Stream: TFileStream;
-  Bytes: TBytes;
+  Cat: string;
 begin
-  ForceDirectories(TPath.GetDirectoryName(FilePath));
-  Bytes := TEncoding.UTF8.GetBytes(Line + sLineBreak);
-  if TFile.Exists(FilePath) then
-  begin
-    Stream := TFileStream.Create(FilePath, fmOpenWrite or fmShareDenyWrite);
-    try Stream.Seek(0, soEnd); Stream.WriteBuffer(Bytes[0], Length(Bytes));
-    finally Stream.Free; end;
-  end
+  if AEvent.Category <> '' then
+    Cat := ' [' + AEvent.Category + ']'
   else
-  begin
-    Stream := TFileStream.Create(FilePath, fmCreate or fmShareDenyWrite);
-    try Stream.WriteBuffer(Bytes[0], Length(Bytes));
-    finally Stream.Free; end;
+    Cat := '';
+  Result := Format('%s [%s]%s %s', [
+    FormatDateTime('hh:nn:ss.zzz', AEvent.Timestamp),
+    LogLevelTag(AEvent.Level),
+    Cat,
+    AEvent.Message]);
+end;
+
+{ ---- TOBDLogConsoleSink --------------------------------------------------- }
+
+constructor TOBDLogConsoleSink.Create;
+begin
+  inherited Create;
+  FLock := TCriticalSection.Create;
+end;
+
+destructor TOBDLogConsoleSink.Destroy;
+begin
+  FLock.Free;
+  inherited;
+end;
+
+procedure TOBDLogConsoleSink.Write(const AEvent: TOBDLogEvent);
+var
+  Line: string;
+begin
+  Line := FormatLogLine(AEvent);
+  FLock.Enter;
+  try
+    if AEvent.Level >= olWarning then
+      System.Writeln(ErrOutput, Line)
+    else
+      System.Writeln(Line);
+  finally
+    FLock.Leave;
   end;
 end;
 
-//==============================================================================
-// TFileRotationSink
-//==============================================================================
+procedure TOBDLogConsoleSink.Flush;
+begin
+  // System.Writeln auto-flushes on console handles.
+end;
 
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
-constructor TFileRotationSink.Create(const AFilePath: string;
+{ ---- TOBDLogFileSink ------------------------------------------------------ }
+
+constructor TOBDLogFileSink.Create(const APath: string;
   AMaxBytes: Int64; AMaxBackups: Integer);
 begin
   inherited Create;
-  FLock := TCriticalSection.Create;
-  FFilePath := AFilePath;
+  FPath := APath;
   FMaxBytes := AMaxBytes;
   FMaxBackups := AMaxBackups;
+  FLock := TCriticalSection.Create;
+  OpenForAppend;
 end;
 
-//------------------------------------------------------------------------------
-// DESTROY
-//------------------------------------------------------------------------------
-destructor TFileRotationSink.Destroy;
+destructor TOBDLogFileSink.Destroy;
 begin
+  FreeAndNil(FStream);
   FLock.Free;
   inherited;
 end;
 
-//------------------------------------------------------------------------------
-// ROTATE IF NEEDED
-//------------------------------------------------------------------------------
-procedure TFileRotationSink.RotateIfNeeded;
+procedure TOBDLogFileSink.OpenForAppend;
+var
+  Mode: Word;
+begin
+  if TFile.Exists(FPath) then
+    Mode := fmOpenReadWrite or fmShareDenyWrite
+  else
+    Mode := fmCreate or fmShareDenyWrite;
+  FStream := TFileStream.Create(FPath, Mode);
+  FStream.Seek(0, soEnd);
+end;
+
+procedure TOBDLogFileSink.RotateIfNeeded(AAdditional: Integer);
 var
   I: Integer;
-  Old, NewName: string;
+  From_: string;
+  To_: string;
 begin
-  if not TFile.Exists(FFilePath) then Exit;
-  if TFile.GetSize(FFilePath) < FMaxBytes then Exit;
-
-  Old := FFilePath + '.' + IntToStr(FMaxBackups);
-  if TFile.Exists(Old) then TFile.Delete(Old);
-
-  for I := FMaxBackups - 1 downto 1 do
+  if FMaxBytes <= 0 then
+    Exit;
+  if FStream.Size + AAdditional <= FMaxBytes then
+    Exit;
+  FreeAndNil(FStream);
+  // Slide existing backups: .N-1 -> .N, dropping the oldest.
+  for I := FMaxBackups downto 1 do
   begin
-    Old := FFilePath + '.' + IntToStr(I);
-    NewName := FFilePath + '.' + IntToStr(I + 1);
-    if TFile.Exists(Old) then TFile.Move(Old, NewName);
+    From_ := FPath + '.' + IntToStr(I - 1);
+    To_ := FPath + '.' + IntToStr(I);
+    if I = 1 then
+      From_ := FPath;
+    if TFile.Exists(To_) then
+      TFile.Delete(To_);
+    if TFile.Exists(From_) then
+      TFile.Move(From_, To_);
   end;
-
-  TFile.Move(FFilePath, FFilePath + '.1');
+  OpenForAppend;
 end;
 
-//------------------------------------------------------------------------------
-// APPEND
-//------------------------------------------------------------------------------
-procedure TFileRotationSink.Append(const S: string);
-begin
-  AppendUtf8(FFilePath, S);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE
-//------------------------------------------------------------------------------
-procedure TFileRotationSink.Write(const Event: TOBDLogEvent);
-begin
-  FLock.Enter;
-  try
-    RotateIfNeeded;
-    try Append(FormatLine(Event)); except {silently ignore I/O errors so logging never raises} end;
-  finally
-    FLock.Leave;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// FLUSH
-//------------------------------------------------------------------------------
-procedure TFileRotationSink.Flush;
-begin
-  // Each Write closes the stream so no buffered data exists.
-end;
-
-//==============================================================================
-// TDailyRotationSink
-//==============================================================================
-
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
-constructor TDailyRotationSink.Create(const ADirectory, ABaseName,
-  AExtension: string);
-begin
-  inherited Create;
-  FLock := TCriticalSection.Create;
-  FDirectory := ADirectory;
-  FBaseName := ABaseName;
-  FExtension := AExtension;
-  ForceDirectories(FDirectory);
-end;
-
-//------------------------------------------------------------------------------
-// DESTROY
-//------------------------------------------------------------------------------
-destructor TDailyRotationSink.Destroy;
-begin
-  FLock.Free;
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// FILE FOR
-//------------------------------------------------------------------------------
-function TDailyRotationSink.FileFor(const D: TDateTime): string;
-begin
-  Result := TPath.Combine(FDirectory,
-    FBaseName + '-' + FormatDateTime('yyyymmdd', D) + FExtension);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE
-//------------------------------------------------------------------------------
-procedure TDailyRotationSink.Write(const Event: TOBDLogEvent);
-begin
-  FLock.Enter;
-  try
-    try AppendUtf8(FileFor(Event.Timestamp), FormatLine(Event)); except end;
-  finally
-    FLock.Leave;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// FLUSH
-//------------------------------------------------------------------------------
-procedure TDailyRotationSink.Flush;
-begin
-end;
-
-//==============================================================================
-// TJsonLineSink
-//==============================================================================
-
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
-constructor TJsonLineSink.Create(const AFilePath: string);
-begin
-  inherited Create;
-  FLock := TCriticalSection.Create;
-  FFilePath := AFilePath;
-end;
-
-//------------------------------------------------------------------------------
-// DESTROY
-//------------------------------------------------------------------------------
-destructor TJsonLineSink.Destroy;
-begin
-  FLock.Free;
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// EVENT TO JSON
-//------------------------------------------------------------------------------
-function TJsonLineSink.EventToJson(const Event: TOBDLogEvent): string;
+procedure TOBDLogFileSink.Write(const AEvent: TOBDLogEvent);
 var
-  Obj: TJSONObject;
+  Line: TBytes;
 begin
-  // ISO-8601 with milliseconds — what every JSON-log ingester expects.
-  Obj := TJSONObject.Create;
-  try
-    Obj.AddPair('ts',    FormatDateTime('yyyy-mm-dd"T"hh:nn:ss.zzz', Event.Timestamp));
-    Obj.AddPair('level', LogLevelName(Event.Level));
-    if Event.Source <> '' then Obj.AddPair('source', Event.Source);
-    Obj.AddPair('msg',   Event.Message);
-    Result := Obj.ToJSON;
-  finally
-    Obj.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// WRITE
-//------------------------------------------------------------------------------
-procedure TJsonLineSink.Write(const Event: TOBDLogEvent);
-begin
+  Line := TEncoding.UTF8.GetBytes(FormatLogLine(AEvent) + sLineBreak);
   FLock.Enter;
   try
-    try AppendUtf8(FFilePath, EventToJson(Event)); except end;
+    RotateIfNeeded(Length(Line));
+    FStream.WriteBuffer(Line[0], Length(Line));
   finally
     FLock.Leave;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// FLUSH
-//------------------------------------------------------------------------------
-procedure TJsonLineSink.Flush;
+procedure TOBDLogFileSink.Flush;
 begin
+  FLock.Enter;
+  try
+    // TFileStream flushes on close; no separate sync API in the
+    // RTL — host can call Free to force.
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//==============================================================================
-// TConsoleSink
-//==============================================================================
+{ ---- TOBDLogMemorySink ---------------------------------------------------- }
 
-//------------------------------------------------------------------------------
-// WRITE
-//------------------------------------------------------------------------------
-procedure TConsoleSink.Write(const Event: TOBDLogEvent);
-begin
-  // IsConsole is set by the runtime when {APPTYPE CONSOLE} is on; guard
-  // so a GUI app accidentally registering this sink doesn't crash on
-  // Writeln to a non-existent stdout.
-  if IsConsole then
-    System.Writeln(FormatLine(Event));
-end;
-
-//------------------------------------------------------------------------------
-// FLUSH
-//------------------------------------------------------------------------------
-procedure TConsoleSink.Flush;
-begin
-end;
-
-//==============================================================================
-// TInMemorySink
-//==============================================================================
-
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
-constructor TInMemorySink.Create(ACapacity: Integer);
+constructor TOBDLogMemorySink.Create(ACapacity: Integer);
 begin
   inherited Create;
-  if ACapacity < 1 then ACapacity := 1;
-  FLock := TCriticalSection.Create;
+  if ACapacity < 1 then
+    ACapacity := 1;
   FCapacity := ACapacity;
-  FEvents := TList<TOBDLogEvent>.Create;
+  FBuffer := TList<TOBDLogEvent>.Create;
+  FLock := TCriticalSection.Create;
 end;
 
-//------------------------------------------------------------------------------
-// DESTROY
-//------------------------------------------------------------------------------
-destructor TInMemorySink.Destroy;
+destructor TOBDLogMemorySink.Destroy;
 begin
-  FEvents.Free;
+  FBuffer.Free;
   FLock.Free;
   inherited;
 end;
 
-//------------------------------------------------------------------------------
-// WRITE
-//------------------------------------------------------------------------------
-procedure TInMemorySink.Write(const Event: TOBDLogEvent);
-var
-  Cb: TProc<TOBDLogEvent>;
+procedure TOBDLogMemorySink.Write(const AEvent: TOBDLogEvent);
 begin
   FLock.Enter;
   try
-    while FEvents.Count >= FCapacity do FEvents.Delete(0);
-    FEvents.Add(Event);
-    Cb := FOnEvent;
+    FBuffer.Add(AEvent);
+    while FBuffer.Count > FCapacity do
+      FBuffer.Delete(0);
   finally
     FLock.Leave;
   end;
-  if Assigned(Cb) then
-    try Cb(Event); except end;
 end;
 
-//------------------------------------------------------------------------------
-// FLUSH
-//------------------------------------------------------------------------------
-procedure TInMemorySink.Flush;
+procedure TOBDLogMemorySink.Flush;
 begin
+  // No-op.
 end;
 
-//------------------------------------------------------------------------------
-// SNAPSHOT
-//------------------------------------------------------------------------------
-function TInMemorySink.Snapshot: TArray<TOBDLogEvent>;
+function TOBDLogMemorySink.Snapshot: TArray<TOBDLogEvent>;
 begin
   FLock.Enter;
-  try Result := FEvents.ToArray; finally FLock.Leave; end;
+  try
+    Result := FBuffer.ToArray;
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//------------------------------------------------------------------------------
-// CLEAR EVENTS
-//------------------------------------------------------------------------------
-procedure TInMemorySink.ClearEvents;
+function TOBDLogMemorySink.Count: Integer;
 begin
   FLock.Enter;
-  try FEvents.Clear; finally FLock.Leave; end;
+  try
+    Result := FBuffer.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 end.

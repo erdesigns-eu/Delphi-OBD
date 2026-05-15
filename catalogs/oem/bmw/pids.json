@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "description": "bmw-specific OBD-II / Mode 06 PID overlay seed.",
+  "kind": "obd2-pid",
+  "oem": "bmw",
+  "pids": [
+  ]
+}

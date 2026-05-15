@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0xA618",
+      "text": "BCM communication error (Nissan)"
+    },
+    {
+      "code": "0x5130",
+      "text": "Engine signal lost (Nissan ABS)"
+    },
+    {
+      "code": "0x0011",
+      "text": "Camshaft Position 'A' Timing Over-Advanced Bank 1 (Nissan VQ)"
+    },
+    {
+      "code": "0x0335",
+      "text": "Crankshaft Position Sensor 'A' Circuit (Nissan VR/VQ)"
+    },
+    {
+      "code": "0x0746",
+      "text": "Pressure Control Solenoid Performance — Stuck Off (Nissan CVT/RE5)"
+    },
+    {
+      "code": "0x0A78",
+      "text": "Drive Motor 'A' Inverter Performance (Leaf / Ariya)"
+    },
+    {
+      "code": "0x1273",
+      "text": "Air-Fuel Ratio Sensor 1 Lean (Bank 1, Nissan)"
+    },
+    {
+      "code": "0x1564",
+      "text": "Intelligent Cruise Control: Module Internal (Nissan)"
+    },
+    {
+      "code": "0x1574",
+      "text": "ASCD vehicle speed sensor (Nissan cruise control)"
+    },
+    {
+      "code": "0x17F0",
+      "text": "CVT Judder Diagnosis — limited (Nissan JATCO CVT)"
+    },
+    {
+      "code": "0xD000",
+      "text": "CAN Communication Line (Nissan)"
+    }
+  ]
+}

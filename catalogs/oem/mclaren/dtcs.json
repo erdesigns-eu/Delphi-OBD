@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x4050",
+      "text": "McLaren — Vehicle-Lift system pressure sensor"
+    },
+    {
+      "code": "0x4090",
+      "text": "McLaren — Active rear-wing position sensor circuit"
+    },
+    {
+      "code": "0x0234",
+      "text": "McLaren V8 twin-turbo — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (M838T/M840T)"
+    },
+    {
+      "code": "0x0301",
+      "text": "McLaren M840T 4.0 V8 — Cylinder 1 misfire detected"
+    },
+    {
+      "code": "0x0302",
+      "text": "McLaren V8 — Cylinder 2 misfire detected"
+    },
+    {
+      "code": "0x0303",
+      "text": "McLaren V8 — Cylinder 3 misfire detected"
+    },
+    {
+      "code": "0x0304",
+      "text": "McLaren V8 — Cylinder 4 misfire detected"
+    },
+    {
+      "code": "0x0305",
+      "text": "McLaren V8 — Cylinder 5 misfire detected"
+    },
+    {
+      "code": "0x0306",
+      "text": "McLaren V8 — Cylinder 6 misfire detected"
+    },
+    {
+      "code": "0x0307",
+      "text": "McLaren V8 — Cylinder 7 misfire detected"
+    },
+    {
+      "code": "0x0308",
+      "text": "McLaren V8 — Cylinder 8 misfire detected"
+    },
+    {
+      "code": "0x0420",
+      "text": "McLaren — Catalyst Bank 1 efficiency below threshold"
+    },
+    {
+      "code": "0x0430",
+      "text": "McLaren — Catalyst Bank 2 efficiency below threshold"
+    },
+    {
+      "code": "0x0524",
+      "text": "McLaren — Engine oil pressure too low (dry-sump)"
+    },
+    {
+      "code": "0x052E",
+      "text": "McLaren V8 — Camshaft phasing performance"
+    },
+    {
+      "code": "0x0A7A",
+      "text": "McLaren Artura — Hybrid battery pack deterioration"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "McLaren Artura — HV battery isolation fault"
+    },
+    {
+      "code": "0x0D29",
+      "text": "McLaren Artura — AC charging coupler latch fault"
+    },
+    {
+      "code": "0x2769",
+      "text": "McLaren — 7-DCT (SSG) torque-converter clutch performance"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Imbalance (Artura / W1 PHEV)"
+    },
+    {
+      "code": "0xC073",
+      "text": "McLaren — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "McLaren — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "McLaren — Lost Communication With IRIS infotainment"
+    },
+    {
+      "code": "0xC316",
+      "text": "McLaren — Lost Communication With PCCM (Proactive Chassis Control)"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/delphi-obd/schemas/vin-regions.schema.json",
+  "title": "VIN regions",
+  "description": "ISO 3779 VIN region ranges keyed by the first WMI character.",
+  "type": "object",
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "spec":           { "type": "string" },
+    "description":    { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["range_start", "range_end", "name"],
+        "properties": {
+          "range_start": { "type": "string", "minLength": 1, "maxLength": 1 },
+          "range_end":   { "type": "string", "minLength": 1, "maxLength": 1 },
+          "name":        { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

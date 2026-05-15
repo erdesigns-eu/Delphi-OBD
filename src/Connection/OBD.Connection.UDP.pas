@@ -1,375 +1,231 @@
-﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.Connection.UDP.pas
-// CONTENTS       : UDP/Ethernet Connection for Diagnostics over IP (DoIP)
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 06/12/2024
 //------------------------------------------------------------------------------
+//  OBD.Connection.UDP
+//
+//  UDP transport. Primary use cases: DoIP UDP discovery (ISO 13400-2)
+//  and broadcast vehicle-announcement messages.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation.
+//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
+//------------------------------------------------------------------------------
+
 unit OBD.Connection.UDP;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, WinApi.Windows, WinApi.WinSock2,
-  OBD.Connection, OBD.Connection.Types;
+  System.SysUtils,
+  System.Classes,
+  System.SyncObjs,
+  System.Net.Socket,
+  OBD.Types,
+  OBD.Connection.Types,
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
-//------------------------------------------------------------------------------
-// CLASSES
-//------------------------------------------------------------------------------
 type
-  /// <summary>
-  ///   UDP Connection for Diagnostics over IP (DoIP) - ISO 13400
-  ///   Used for BMW ENET cables and other automotive Ethernet diagnostics
-  /// </summary>
-  TUDPConnection = class(TInterfacedObject, IOBDConnection)
-  private
+  /// <summary>UDP receive loop.</summary>
+  TOBDUDPReadThread = class(TThread)
+  strict private
     FSocket: TSocket;
-    FConnected: Boolean;
-    FHost: string;
-    FPort: Word;
-    FLocalPort: Word;
-    FReceiveTimeout: Integer;
-    FSendTimeout: Integer;
-    FReceiveBuffer: array[0..8192] of Byte;
-    FOnDataReceived: TDataReceivedEvent;
-    FOnDataSend: TDataSendEvent;
-    FOnError: TErrorEvent;
-    
-    procedure InitWinSock;
-    procedure CleanupWinSock;
-    function GetRemoteAddress: TSockAddr;
+    FOnBytes: TProc<TBytes>;
+    FOnError: TProc<TOBDErrorCode, string>;
+  protected
+    /// <summary>Datagram receive loop.</summary>
+    procedure Execute; override;
   public
-    /// <summary>
-    ///   Constructor
-    /// </summary>
-    /// <param name="AHost">
-    ///   Target host IP address (e.g., '192.168.0.10')
-    /// </param>
-    /// <param name="APort">
-    ///   Target port (default 13400 for DoIP)
-    /// </param>
-    constructor Create(const AHost: string; APort: Word = 13400); 
-    
-    /// <summary>
-    ///   Destructor
-    /// </summary>
+    /// <summary>Spawns the thread bound to a UDP socket.</summary>
+    /// <param name="ASocket">UDP <c>TSocket</c>.</param>
+    /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
+    /// <param name="AOnError">Error callback. Optional.</param>
+    constructor Create(ASocket: TSocket;
+      const AOnBytes: TProc<TBytes>;
+      const AOnError: TProc<TOBDErrorCode, string>);
+  end;
+
+  /// <summary>UDP transport. Connectionless; "open" means "ready to
+  /// send and receive datagrams."</summary>
+  TOBDUDPTransport = class(TOBDBaseTransport)
+  strict private
+    FSocket: TSocket;
+    FRemote: TNetEndpoint;
+    FReader: TOBDUDPReadThread;
+  public
+    /// <summary>Constructs an idle UDP transport.</summary>
+    constructor Create;
+    /// <summary>Closes the socket if open.</summary>
     destructor Destroy; override;
-    
+
     /// <summary>
-    ///   Connect to the remote DoIP endpoint
+    ///   Creates the UDP socket, optionally binds a local port, and
+    ///   stores the remote endpoint.
     /// </summary>
-    function Connect: Boolean;
-    
-    /// <summary>
-    ///   Disconnect from the remote DoIP endpoint
-    /// </summary>
-    function Disconnect: Boolean;
-    
-    /// <summary>
-    ///   Check if connected
-    /// </summary>
-    function Connected: Boolean;
-    
-    /// <summary>
-    ///   Send data over UDP
-    /// </summary>
-    function SendData(const Data: TBytes): Boolean;
-    
-    /// <summary>
-    ///   Receive data from UDP socket with timeout
-    /// </summary>
-    function ReceiveData(var Buffer: TBytes; Timeout: Integer = 1000): Integer;
-    
-    /// <summary>
-    ///   Target host IP address
-    /// </summary>
-    property Host: string read FHost write FHost;
-    
-    /// <summary>
-    ///   Target port (DoIP default: 13400)
-    /// </summary>
-    property Port: Word read FPort write FPort;
-    
-    /// <summary>
-    ///   Local UDP port (0 = auto-assign)
-    /// </summary>
-    property LocalPort: Word read FLocalPort write FLocalPort;
-    
-    /// <summary>
-    ///   Receive timeout in milliseconds
-    /// </summary>
-    property ReceiveTimeout: Integer read FReceiveTimeout write FReceiveTimeout;
-    
-    /// <summary>
-    ///   Send timeout in milliseconds
-    /// </summary>
-    property SendTimeout: Integer read FSendTimeout write FSendTimeout;
-    
-    /// <summary>
-    ///   Data received event
-    /// </summary>
-    property OnDataReceived: TDataReceivedEvent read FOnDataReceived write FOnDataReceived;
-    
-    /// <summary>
-    ///   Data send event
-    /// </summary>
-    property OnDataSend: TDataSendEvent read FOnDataSend write FOnDataSend;
-    
-    /// <summary>
-    ///   Error event
-    /// </summary>
-    property OnError: TErrorEvent read FOnError write FOnError;
+    /// <param name="ASettings">Host, port, bind / broadcast flags.</param>
+    /// <remarks>
+    ///   Synchronous. Fires two step-progress events:
+    ///   <c>1/2 Binding</c>, <c>2/2 Ready</c>.
+    /// </remarks>
+    /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>.</exception>
+    /// <exception cref="EOBDError">Bind or DNS lookup failed.</exception>
+    procedure Open(const ASettings: TOBDUDPSettings);
+
+    /// <summary>Closes the socket and joins the read thread.</summary>
+    procedure Close; override;
+    /// <summary>Sends a datagram to the configured remote endpoint.</summary>
+    /// <param name="ABytes">Datagram payload.</param>
+    /// <returns>Bytes the OS accepted.</returns>
+    /// <exception cref="EOBDNotConnected">Socket not open.</exception>
+    function WriteBytes(const ABytes: TBytes): Integer; override;
   end;
 
 implementation
 
-//------------------------------------------------------------------------------
-// INIT WINSOCK
-//------------------------------------------------------------------------------
-procedure TUDPConnection.InitWinSock;
-var
-  WSAData: TWSAData;
+{ ---- TOBDUDPReadThread ------------------------------------------------------- }
+
+constructor TOBDUDPReadThread.Create(ASocket: TSocket;
+  const AOnBytes: TProc<TBytes>;
+  const AOnError: TProc<TOBDErrorCode, string>);
 begin
-  if WSAStartup(MAKEWORD(2, 2), WSAData) <> 0 then
-    raise Exception.Create('Failed to initialize WinSock');
+  inherited Create(False);
+  FreeOnTerminate := False;
+  FSocket := ASocket;
+  FOnBytes := AOnBytes;
+  FOnError := AOnError;
 end;
 
-//------------------------------------------------------------------------------
-// CLEANUP WINSOCK
-//------------------------------------------------------------------------------
-procedure TUDPConnection.CleanupWinSock;
-begin
-  WSACleanup;
-end;
-
-//------------------------------------------------------------------------------
-// GET REMOTE ADDRESS
-//------------------------------------------------------------------------------
-function TUDPConnection.GetRemoteAddress: TSockAddr;
+procedure TOBDUDPReadThread.Execute;
+const
+  ChunkSize = 2048;
 var
-  HostEnt: PHostEnt;
-  Addr: u_long;
+  Buffer: TBytes;
+  Got: Integer;
+  Origin: TNetEndpoint;
 begin
-  // Try to resolve as IP address first
-  Addr := inet_addr(PAnsiChar(AnsiString(FHost)));
-  
-  if Addr = INADDR_NONE then
+  SetLength(Buffer, ChunkSize);
+  while not Terminated do
   begin
-    // Try to resolve as hostname
-    HostEnt := gethostbyname(PAnsiChar(AnsiString(FHost)));
-    if HostEnt = nil then
-      raise Exception.CreateFmt('Cannot resolve host: %s', [FHost]);
-    Addr := PInAddr(HostEnt^.h_addr_list^)^.S_addr;
-  end;
-  
-  FillChar(Result, SizeOf(Result), 0);
-  Result.sin_family := AF_INET;
-  Result.sin_addr.S_addr := Addr;
-  Result.sin_port := htons(FPort);
-end;
-
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TUDPConnection.Create(const AHost: string; APort: Word = 13400);
-begin
-  inherited Create;
-  FHost := AHost;
-  FPort := APort;
-  FLocalPort := 0; // Auto-assign
-  FReceiveTimeout := 5000;  // 5 seconds default
-  FSendTimeout := 5000;     // 5 seconds default
-  FConnected := False;
-  FSocket := INVALID_SOCKET;
-  
-  InitWinSock;
-end;
-
-//------------------------------------------------------------------------------
-// DESTRUCTOR
-//------------------------------------------------------------------------------
-destructor TUDPConnection.Destroy;
-begin
-  Disconnect;
-  CleanupWinSock;
-  inherited Destroy;
-end;
-
-//------------------------------------------------------------------------------
-// CONNECT
-//------------------------------------------------------------------------------
-function TUDPConnection.Connect: Boolean;
-var
-  LocalAddr: TSockAddr;
-  TimeoutVal: Integer;
-begin
-  Result := False;
-  
-  try
-    // Create UDP socket
-    FSocket := socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if FSocket = INVALID_SOCKET then
-    begin
-      if Assigned(FOnError) then
-        FOnError(Self, WSAGetLastError, 'Failed to create UDP socket');
-      Exit;
-    end;
-    
-    // Bind to local port if specified
-    if FLocalPort > 0 then
-    begin
-      FillChar(LocalAddr, SizeOf(LocalAddr), 0);
-      LocalAddr.sin_family := AF_INET;
-      LocalAddr.sin_addr.S_addr := INADDR_ANY;
-      LocalAddr.sin_port := htons(FLocalPort);
-      
-      if bind(FSocket, @LocalAddr, SizeOf(LocalAddr)) = SOCKET_ERROR then
+    try
+      Got := FSocket.ReceiveFrom(Buffer, Origin, [], ChunkSize);
+      if Terminated then Break;
+      if Got > 0 then
       begin
-        if Assigned(FOnError) then
-          FOnError(Self, WSAGetLastError, 'Failed to bind to local port');
-        closesocket(FSocket);
-        FSocket := INVALID_SOCKET;
-        Exit;
+        if Assigned(FOnBytes) then
+          FOnBytes(Copy(Buffer, 0, Got));
+      end;
+    except
+      on E: Exception do
+      begin
+        if not Terminated and Assigned(FOnError) then
+          FOnError(oeIO, E.Message);
+        Break;
       end;
     end;
-    
-    // Set receive timeout
-    TimeoutVal := FReceiveTimeout;
-    setsockopt(FSocket, SOL_SOCKET, SO_RCVTIMEO, @TimeoutVal, SizeOf(TimeoutVal));
-    
-    // Set send timeout
-    TimeoutVal := FSendTimeout;
-    setsockopt(FSocket, SOL_SOCKET, SO_SNDTIMEO, @TimeoutVal, SizeOf(TimeoutVal));
-    
-    FConnected := True;
-    Result := True;
-  except
-    on E: Exception do
-    begin
-      if Assigned(FOnError) then
-        FOnError(Self, 0, E.Message);
-    end;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// DISCONNECT
-//------------------------------------------------------------------------------
-function TUDPConnection.Disconnect: Boolean;
+{ ---- TOBDUDPTransport -------------------------------------------------------- }
+
+constructor TOBDUDPTransport.Create;
 begin
-  Result := False;
-  
-  if FSocket <> INVALID_SOCKET then
+  inherited;
+end;
+
+destructor TOBDUDPTransport.Destroy;
+begin
+  Close;
+  inherited;
+end;
+
+procedure TOBDUDPTransport.Open(const ASettings: TOBDUDPSettings);
+var
+  Local: TNetEndpoint;
+begin
+  if ASettings = nil then
+    raise EOBDConfig.Create('UDP settings are nil');
+
+  SetState(csOpening);
+  FSocket := TSocket.Create(TSocketType.UDP, TEncoding.ASCII);
+  try
+    FireProgress(1, 2, 'Binding',
+      Format('local-port=%d', [ASettings.LocalPort]));
+    if ASettings.BindLocal then
+    begin
+      Local := TNetEndpoint.Create(TIPAddress.Any.IPv4Address,
+        ASettings.LocalPort);
+      FSocket.Bind(Local);
+    end;
+    if ASettings.Broadcast then
+      FSocket.SetSocketOpt(TSocketOption.Broadcast, 1);
+    if Trim(ASettings.Host) <> '' then
+      FRemote := TNetEndpoint.Create(
+        TIPAddress.LookupName(ASettings.Host), ASettings.Port)
+    else
+      FRemote := TNetEndpoint.Create(TIPAddress.Any.IPv4Address,
+        ASettings.Port);
+  except
+    on E: Exception do
+    begin
+      FreeAndNil(FSocket);
+      SetState(csError);
+      raise EOBDError.CreateFmt('UDP open failed: %s', [E.Message]);
+    end;
+  end;
+
+  FReader := TOBDUDPReadThread.Create(FSocket,
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
+
+  FireProgress(2, 2, 'Ready', '');
+  SetState(csOpen);
+end;
+
+procedure TOBDUDPTransport.Close;
+var
+  Local: TSocket;
+begin
+  FLock.Enter;
+  try
+    if FState in [csClosed, csClosing] then Exit;
+    SetState(csClosing);
+    Local := FSocket;
+    FSocket := nil;
+  finally
+    FLock.Leave;
+  end;
+
+  if Assigned(FReader) then
   begin
-    closesocket(FSocket);
-    FSocket := INVALID_SOCKET;
-    Result := True;
+    FReader.Terminate;
+    if Assigned(Local) then
+      try Local.Close; except end;
+    FReader.WaitFor;
+    FreeAndNil(FReader);
   end;
-  
-  FConnected := False;
+
+  if Assigned(Local) then
+    Local.Free;
+
+  SetState(csClosed);
 end;
 
-//------------------------------------------------------------------------------
-// CONNECTED
-//------------------------------------------------------------------------------
-function TUDPConnection.Connected: Boolean;
+function TOBDUDPTransport.WriteBytes(const ABytes: TBytes): Integer;
 begin
-  Result := FConnected and (FSocket <> INVALID_SOCKET);
-end;
-
-//------------------------------------------------------------------------------
-// SEND DATA
-//------------------------------------------------------------------------------
-function TUDPConnection.SendData(const Data: TBytes): Boolean;
-var
-  RemoteAddr: TSockAddr;
-  BytesSent: Integer;
-begin
-  Result := False;
-  
-  if not Connected then Exit;
-  if Length(Data) = 0 then Exit;
-  
+  if not IsOpen then
+    raise EOBDNotConnected.Create('UDP transport is not open');
+  if Length(ABytes) = 0 then
+    Exit(0);
   try
-    RemoteAddr := GetRemoteAddress;
-    BytesSent := sendto(FSocket, Data[0], Length(Data), 0, @RemoteAddr, SizeOf(RemoteAddr));
-    
-    if BytesSent = SOCKET_ERROR then
-    begin
-      if Assigned(FOnError) then
-        FOnError(Self, WSAGetLastError, 'Failed to send data');
-      Exit;
-    end;
-    
-    Result := BytesSent = Length(Data);
-    
-    if Result and Assigned(FOnDataSend) then
-      FOnDataSend(Self, @Data[0], BytesSent);
+    Result := FSocket.SendTo(FRemote, ABytes);
   except
     on E: Exception do
     begin
-      if Assigned(FOnError) then
-        FOnError(Self, 0, E.Message);
-    end;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// RECEIVE DATA
-//------------------------------------------------------------------------------
-function TUDPConnection.ReceiveData(var Buffer: TBytes; Timeout: Integer = 1000): Integer;
-var
-  BytesReceived: Integer;
-  FromAddr: TSockAddr;
-  FromLen: Integer;
-  OldTimeout: Integer;
-begin
-  Result := 0;
-  
-  if not Connected then Exit;
-  
-  try
-    // Set temporary timeout if different from default
-    if Timeout <> FReceiveTimeout then
-    begin
-      OldTimeout := FReceiveTimeout;
-      setsockopt(FSocket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, SizeOf(Timeout));
-    end;
-    
-    FromLen := SizeOf(FromAddr);
-    BytesReceived := recvfrom(FSocket, FReceiveBuffer[0], SizeOf(FReceiveBuffer), 0, @FromAddr, @FromLen);
-    
-    // Restore original timeout if it was changed
-    if Timeout <> FReceiveTimeout then
-      setsockopt(FSocket, SOL_SOCKET, SO_RCVTIMEO, @OldTimeout, SizeOf(OldTimeout));
-    
-    if BytesReceived = SOCKET_ERROR then
-    begin
-      if WSAGetLastError <> WSAETIMEDOUT then
-      begin
-        if Assigned(FOnError) then
-          FOnError(Self, WSAGetLastError, 'Failed to receive data');
-      end;
-      Exit;
-    end;
-    
-    if BytesReceived > 0 then
-    begin
-      SetLength(Buffer, BytesReceived);
-      Move(FReceiveBuffer[0], Buffer[0], BytesReceived);
-      Result := BytesReceived;
-      
-      if Assigned(FOnDataReceived) then
-        FOnDataReceived(Self, @Buffer[0], BytesReceived);
-    end;
-  except
-    on E: Exception do
-    begin
-      if Assigned(FOnError) then
-        FOnError(Self, 0, E.Message);
+      FireError(oeIO, E.Message);
+      Result := 0;
     end;
   end;
 end;

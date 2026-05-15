@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x9131",
+      "text": "Driver airbag deployment loop resistance high (Honda)"
+    },
+    {
+      "code": "0x0303",
+      "text": "Cylinder 3 Misfire (1.5L turbo oil dilution warning)"
+    },
+    {
+      "code": "0x0496",
+      "text": "Evap System High Purge Flow (Honda)"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor 'A' Inverter Performance (Honda i-MMD)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "HV Battery Cooling System Performance (Honda i-MMD)"
+    },
+    {
+      "code": "0x1259",
+      "text": "VTEC System Malfunction Bank 1 (Honda)"
+    },
+    {
+      "code": "0x1399",
+      "text": "Random Cylinder Misfire Detected (Honda)"
+    },
+    {
+      "code": "0x1456",
+      "text": "EVAP Emission Control System Leak Detected — Fuel Tank (Honda)"
+    },
+    {
+      "code": "0x1457",
+      "text": "EVAP Emission Control System Leak Detected — Canister (Honda)"
+    },
+    {
+      "code": "0x14B9",
+      "text": "Direct Adaptive Steering Calibration Lost"
+    },
+    {
+      "code": "0x162F",
+      "text": "Steering wheel angle sensor calibration not learned (Honda)"
+    },
+    {
+      "code": "0x2646",
+      "text": "VTEC Oil Pressure Switch Stuck OFF (Honda K-series)"
+    },
+    {
+      "code": "0xC028",
+      "text": "F-CAN Bus Off (Honda body bus)"
+    },
+    {
+      "code": "0xF000",
+      "text": "Front Camera Module: Calibration Required (Honda SENSING)"
+    }
+  ]
+}

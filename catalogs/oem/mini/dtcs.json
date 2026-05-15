@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0xBF8A",
+      "text": "MINI — Tire Pressure Indicator (RDC) — Pressure Below Threshold"
+    },
+    {
+      "code": "0x5135",
+      "text": "MINI — Brake-pedal switch circuit (cruise interlock)"
+    },
+    {
+      "code": "0x0234",
+      "text": "MINI Cooper S / JCW (B48) — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "MINI Cooper S / JCW (B48) — Turbocharger underboost"
+    },
+    {
+      "code": "0x0301",
+      "text": "MINI — Cylinder 1 misfire (common after coil pack failure)"
+    },
+    {
+      "code": "0x0302",
+      "text": "MINI — Cylinder 2 misfire"
+    },
+    {
+      "code": "0x0303",
+      "text": "MINI — Cylinder 3 misfire (3-cyl B38)"
+    },
+    {
+      "code": "0x0304",
+      "text": "MINI — Cylinder 4 misfire (4-cyl B48)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Efficiency Below Threshold (Mini Cooper)"
+    },
+    {
+      "code": "0x0442",
+      "text": "MINI — EVAP small-leak (loose fuel cap)"
+    },
+    {
+      "code": "0x0455",
+      "text": "MINI — EVAP large leak"
+    },
+    {
+      "code": "0x0524",
+      "text": "MINI — Engine oil pressure low (B48 oil pump failure pattern)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "MINI Cooper E / SE — Drive Motor Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "MINI Cooper E / SE / Aceman — HV battery isolation fault"
+    },
+    {
+      "code": "0x0D38",
+      "text": "MINI Cooper E / SE — On-board charger DC/DC performance"
+    },
+    {
+      "code": "0x10DF",
+      "text": "VANOS Bank 1: Stuck (Mini N12/N14/B38)"
+    },
+    {
+      "code": "0x10E1",
+      "text": "MINI — VANOS Solenoid Bank 1 stuck closed"
+    },
+    {
+      "code": "0x15F0",
+      "text": "MINI — Eccentric Shaft Sensor (Valvetronic) plausibility"
+    },
+    {
+      "code": "0x164A",
+      "text": "MINI — Camshaft phaser solenoid (B38 / B48 / B58)"
+    },
+    {
+      "code": "0x1A0F",
+      "text": "Battery Registration Required (Mini)"
+    },
+    {
+      "code": "0xC073",
+      "text": "MINI — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC184",
+      "text": "MINI — Lost Communication With iDrive / NBT"
+    },
+    {
+      "code": "0xC293",
+      "text": "MINI Cooper E / SE — Lost Communication With BMS"
+    },
+    {
+      "code": "0xD0E8",
+      "text": "MINI — FlexRay Bus Off Error Frame (chassis)"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x900E",
+      "text": "Polestar Pilot Assist — front-camera obstructed"
+    },
+    {
+      "code": "0x905F",
+      "text": "Polestar — Active suspension sensor open circuit"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Polestar — ESP / DSTC controller fault"
+    },
+    {
+      "code": "0x0A09",
+      "text": "DC/DC Converter Status: Open (Polestar 2/3)"
+    },
+    {
+      "code": "0x0A0F",
+      "text": "Polestar 1 / 2 phev — Engine failed to start (range extender)"
+    },
+    {
+      "code": "0x0A2A",
+      "text": "Polestar — Drive Motor 'A' Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0A3A",
+      "text": "Polestar — Drive Motor 'B' Temperature Sensor Circuit (rear)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Polestar 2 / 3 / 4 — HV Battery Voltage System Isolation Fault"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "Polestar — Hybrid battery cell voltage delta out of range"
+    },
+    {
+      "code": "0x0AFE",
+      "text": "Polestar — Battery cooling-system performance"
+    },
+    {
+      "code": "0x0D38",
+      "text": "Polestar — On-board charger DC/DC performance"
+    },
+    {
+      "code": "0x30FA",
+      "text": "HV Battery Cell Imbalance — Performance Pack"
+    },
+    {
+      "code": "0xC073",
+      "text": "Polestar — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC184",
+      "text": "Polestar — Lost Communication With Sensus / IHU"
+    },
+    {
+      "code": "0xC293",
+      "text": "Polestar — Lost Communication With BMS"
+    },
+    {
+      "code": "0xC316",
+      "text": "Polestar — Lost Communication With TCAM (telematics)"
+    },
+    {
+      "code": "0xE018",
+      "text": "Front Camera Module: Calibration Required (Polestar)"
+    }
+  ]
+}

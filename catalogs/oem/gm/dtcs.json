@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x8026",
+      "text": "Driver Frontal Stage 1 Deployment Control (GM SDM)"
+    },
+    {
+      "code": "0x4561",
+      "text": "Magnetic Ride Control: System Disabled"
+    },
+    {
+      "code": "0x0089",
+      "text": "Fuel Pressure Regulator Performance (LT1 / LT4)"
+    },
+    {
+      "code": "0x00C6",
+      "text": "Fuel Rail Pressure Low During Engine Cranking (LT4 SC)"
+    },
+    {
+      "code": "0x0599",
+      "text": "Thermostat Heater Control Circuit High (GM)"
+    },
+    {
+      "code": "0x0A09",
+      "text": "DC/DC Converter Status: Open Circuit (Ultium)"
+    },
+    {
+      "code": "0x0A1F",
+      "text": "Drive Motor Module Performance (Hummer EV / Lyriq)"
+    },
+    {
+      "code": "0x1101",
+      "text": "Intake Air Flow System Performance (GM)"
+    },
+    {
+      "code": "0x1133",
+      "text": "HO2S Insufficient Switching Bank 1 Sensor 1 (GM)"
+    },
+    {
+      "code": "0x1216",
+      "text": "Fuel Solenoid Response Time Short (GM Diesel)"
+    },
+    {
+      "code": "0x175D",
+      "text": "Trans Pump Motor — Performance (GM 6Lxx)"
+    },
+    {
+      "code": "0x3400",
+      "text": "Cylinder Deactivation System Bank 1 (GM AFM/DFM)"
+    },
+    {
+      "code": "0x3401",
+      "text": "Cylinder 1 Deactivation/Intake Valve Solenoid (GM AFM)"
+    },
+    {
+      "code": "0xC101",
+      "text": "Lost Communication With TCM (GMLAN)"
+    },
+    {
+      "code": "0xC140",
+      "text": "Lost Communication With Body Control Module (GM)"
+    },
+    {
+      "code": "0xE00B",
+      "text": "Front Camera Module: Calibration Required (Super Cruise)"
+    }
+  ]
+}

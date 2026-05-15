@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "type": "j1939-spn",
+  "entries": [
+    {
+      "code": "0x00000B64",
+      "text": "SPN0091-FMI4: Detroit — Accelerator pedal position sensor 1 voltage low"
+    },
+    {
+      "code": "0x00000CC3",
+      "text": "SPN0102-FMI3: Detroit — Engine intake manifold pressure circuit voltage high"
+    },
+    {
+      "code": "0x000013A4",
+      "text": "SPN0157-FMI4: Detroit — Fuel rail pressure sensor circuit voltage low"
+    },
+    {
+      "code": "0x00019210",
+      "text": "SPN3216-FMI16: Detroit — Aftertreatment 1 SCR catalyst NOx inlet high"
+    },
+    {
+      "code": "0x00019660",
+      "text": "SPN3251-FMI0: Detroit — DPF differential pressure above normal range"
+    },
+    {
+      "code": "0x0001A424",
+      "text": "SPN3361-FMI4: Detroit — DEF dosing valve circuit voltage low"
+    },
+    {
+      "code": "0x0001DD5F",
+      "text": "SPN3818-FMI31: Detroit — DEF quality unacceptable (water dilution)"
+    },
+    {
+      "code": "0x0002B870",
+      "text": "SPN5571-FMI16: Detroit — DEF tank level inducement (warning derate)"
+    }
+  ]
+}

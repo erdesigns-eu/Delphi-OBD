@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x916F",
+      "text": "Mahindra — Smart Door Handle / push-button start fault"
+    },
+    {
+      "code": "0x9318",
+      "text": "Mahindra BCM — Battery voltage low"
+    },
+    {
+      "code": "0x5135",
+      "text": "Mahindra — Brake-pedal switch circuit (cruise interlock)"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Mahindra — Air-suspension compressor fault (XUV700 AX7L)"
+    },
+    {
+      "code": "0x5A21",
+      "text": "Mahindra — Air-suspension reservoir pressure too low"
+    },
+    {
+      "code": "0x0087",
+      "text": "Mahindra mHawk diesel — Fuel rail pressure too low"
+    },
+    {
+      "code": "0x0088",
+      "text": "Mahindra mHawk diesel — Fuel rail pressure too high"
+    },
+    {
+      "code": "0x008A",
+      "text": "Mahindra — Low-pressure fuel system pressure too low"
+    },
+    {
+      "code": "0x0093",
+      "text": "Mahindra mHawk — Fuel system leak (large)"
+    },
+    {
+      "code": "0x0234",
+      "text": "Mahindra mStallion T-GDi — Turbocharger overboost"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (mHawk 2.2 / mStallion 2.0)"
+    },
+    {
+      "code": "0x0335",
+      "text": "Mahindra — CKP Crankshaft Position Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0341",
+      "text": "Mahindra — Camshaft phasing performance (mStallion)"
+    },
+    {
+      "code": "0x0401",
+      "text": "Mahindra mHawk — EGR insufficient flow"
+    },
+    {
+      "code": "0x0411",
+      "text": "Mahindra — Secondary air injection incorrect flow"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Bank 1 efficiency below threshold (mStallion)"
+    },
+    {
+      "code": "0x0455",
+      "text": "Mahindra — EVAP large leak (loose fuel cap)"
+    },
+    {
+      "code": "0x0741",
+      "text": "Mahindra Aisin AT — Torque converter clutch performance"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "Mahindra BE EV — HV battery isolation fault"
+    },
+    {
+      "code": "0x2002",
+      "text": "Mahindra mHawk BS-VI — DPF efficiency below threshold"
+    },
+    {
+      "code": "0x244A",
+      "text": "DPF Differential Pressure Too Low (mHawk Diesel)"
+    },
+    {
+      "code": "0x3000",
+      "text": "Mahindra BE EV / XUV400 EV — HV battery system performance"
+    },
+    {
+      "code": "0xC073",
+      "text": "Mahindra — High-speed CAN bus 'A' off"
+    },
+    {
+      "code": "0xC146",
+      "text": "Mahindra — Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC184",
+      "text": "Mahindra — Lost Communication With AdrenoX IVI"
+    }
+  ]
+}

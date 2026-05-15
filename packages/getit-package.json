@@ -1,0 +1,139 @@
+{
+  "$comment": [
+    "GetIt package metadata for Delphi-OBD v2. Submitted to GetIt",
+    "after the stable v2.0.0 tag ships; the beta is github-only.",
+    "",
+    "Schema follows the Embarcadero GetIt package descriptor",
+    "format. Update version + supported_studios on every release."
+  ],
+  "name": "Delphi-OBD",
+  "id": "ErDesigns.DelphiOBD",
+  "version": "2.0.0",
+  "publisher": "ERDesigns",
+  "publisher_email": "info@erdesigns.eu",
+  "publisher_url": "https://erdesigns.eu",
+  "license": "MIT",
+  "license_url": "https://github.com/erdesigns-eu/Delphi-OBD/blob/v2/LICENSE",
+  "summary": "Production-quality, RAD-first, open-source automotive diagnostics, coding, and flashing for Delphi.",
+  "description": [
+    "Component-first RAD package covering diagnostics, coding,",
+    "calibration and ECU flashing across modern automotive",
+    "protocols. Drop a TOBDConnection on a form, point a",
+    "TOBDAdapter at it, point a TOBDLiveData at the protocol,",
+    "press F9.",
+    "",
+    "Ships:",
+    "  - 32 design-time components (Connection, Adapter, Protocol,",
+    "    DoIP, SecOC, LiveData, DTCs, VIN, FreezeFrame, OnBoard",
+    "    Monitor, Actuator, Coding, Flashing, XCP, CCP, IsoBus,",
+    "    Recorder, Replayer, ...).",
+    "  - 26 IDE starter templates (File > New > Other > Delphi-OBD).",
+    "  - Full UDS / KWP2000 / J1939 / DoIP / SecOC / LIN / FlexRay /",
+    "    MOST surfaces.",
+    "  - Production-grade flash pipeline with voltage gate, image",
+    "    applicability, signature verification (BCrypt / OpenSSL /",
+    "    PKCS#11 HSM / post-quantum), atomic checkpoint, audit log.",
+    "  - JSON-Schema-validated catalogs for PIDs / DTCs / NRCs /",
+    "    DIDs / J1939 PGNs / OEM coding options.",
+    "",
+    "Hardware-safety: every destructive component defaults",
+    "AutoExecute = False. Read docs/flashing-safety.md before",
+    "running any flash operation against a real vehicle."
+  ],
+  "categories": [
+    "Diagnostics",
+    "Automotive",
+    "Communication",
+    "Components"
+  ],
+  "tags": [
+    "obd2",
+    "uds",
+    "kwp2000",
+    "j1939",
+    "doip",
+    "secoc",
+    "iso15765",
+    "elm327",
+    "obdlink",
+    "j2534",
+    "iso11783",
+    "isobus",
+    "xcp",
+    "ccp",
+    "ecu-flashing",
+    "ecu-coding",
+    "automotive",
+    "diagnostics"
+  ],
+  "homepage": "https://github.com/erdesigns-eu/Delphi-OBD",
+  "issues_url": "https://github.com/erdesigns-eu/Delphi-OBD/issues",
+  "documentation_url": "https://github.com/erdesigns-eu/Delphi-OBD/tree/v2/docs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erdesigns-eu/Delphi-OBD.git"
+  },
+  "supported_studios": [
+    "Delphi 10.3 Rio",
+    "Delphi 10.4 Sydney",
+    "Delphi 11 Alexandria",
+    "Delphi 12 Athens"
+  ],
+  "supported_platforms": [
+    "Win32",
+    "Win64"
+  ],
+  "packages": [
+    {
+      "name": "DelphiOBD_RT",
+      "type": "runtime",
+      "dpk": "packages/DelphiOBD_RT.dpk",
+      "description": "Delphi-OBD runtime package — every component, codec, catalog loader, signature backend, and helper."
+    },
+    {
+      "name": "DelphiOBD_DT",
+      "type": "designtime",
+      "dpk": "packages/DelphiOBD_DT.dpk",
+      "description": "Delphi-OBD design-time package — palette icons, splash + About registration, property editors, component editors with live-test verbs, IDE starter wizard.",
+      "requires": [ "DelphiOBD_RT" ]
+    }
+  ],
+  "search_paths": [
+    "src/Core",
+    "src/Connection",
+    "src/Adapter",
+    "src/Protocol",
+    "src/Service",
+    "src/Coding",
+    "src/Flashing",
+    "src/UDS",
+    "src/KWP",
+    "src/Calibration",
+    "src/Speciality",
+    "src/Recorder",
+    "src/OEM"
+  ],
+  "browsing_paths": [
+    "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\src"
+  ],
+  "files_to_copy": [
+    {
+      "source": "catalogs/**/*",
+      "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\catalogs"
+    },
+    {
+      "source": "data/schemas/**/*",
+      "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\data\\schemas"
+    },
+    {
+      "source": "docs/**/*",
+      "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\docs"
+    },
+    {
+      "source": "samples/**/*",
+      "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\samples"
+    }
+  ],
+  "icon": "assets/designtime/templates/delphi-obd-mark.png",
+  "splash": "assets/designtime/splash.png"
+}

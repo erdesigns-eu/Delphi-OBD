@@ -1,18 +1,24 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.Async.pas
-// CONTENTS       : Async primitives — IOBDFuture<T>, IOBDPromise<T>,
-//                  IOBDCancellationToken
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
-// NOTE           : Lightweight future/promise pair. Producers create a
-//                  promise, hand the IOBDFuture<T> facet to consumers, and
-//                  call SetResult / SetError / Cancel exactly once.
-//                  Consumers can Await(timeout), poll IsCompleted, or
-//                  attach an OnComplete handler that runs immediately if
-//                  the future is already settled.
+//  OBD.Async
+//
+//  Lightweight async primitives: <see cref="IOBDFuture{T}"/>,
+//  <see cref="IOBDPromise{T}"/>, <see cref="IOBDCancellationToken"/>.
+//
+//  Producers create a promise, hand the future facet to
+//  consumers, and call <c>SetResult</c> / <c>SetError</c> /
+//  <c>Cancel</c> exactly once. Consumers can <c>Await(timeout)</c>,
+//  poll <c>IsCompleted</c>, or attach an <c>OnComplete</c>
+//  handler that runs immediately if the future is already
+//  settled. Cancellation tokens are shared between producer and
+//  consumer so a single <c>Cancel</c> call propagates to every
+//  in-flight future that observes the token.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-12  ERD  Initial implementation.
 //------------------------------------------------------------------------------
 unit OBD.Async;
 

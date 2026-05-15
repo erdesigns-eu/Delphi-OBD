@@ -1,0 +1,13 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "tesla",
+  "label": "Tesla Model S / 3 / X / Y",
+  "ecu": { "request_id_hex": "n/a", "response_id_hex": "n/a" },
+  "applicable_models": ["Model S", "Model 3", "Model X", "Model Y"],
+  "addressable_via_obdii": false,
+  "fields": [],
+  "notes": "Tesla does not implement standardized OBD-II / UDS Mode 22 on the diagnostic connector. Battery telemetry is read by passive sniffing of the proprietary vehicle CAN bus on the diagnostic harness behind the centre console (Model 3/Y) or rear seat (Model S/X). Community references: https://github.com/joshwardell/model3dbc , https://github.com/jamiejones85/Tesla-CAN-Bus-Decoder . Implementations should flag Tesla as 'not addressable via standard OBD-II'.",
+  "unavailable_fields": {
+    "all": "Standard OBD-II / UDS interface is not provided by Tesla. Use proprietary CAN sniffing instead."
+  }
+}

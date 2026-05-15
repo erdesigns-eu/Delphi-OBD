@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "description": "vag-specific DTC overlay seed.",
+  "kind": "obd2-dtc",
+  "oem": "vag",
+  "dtcs": [
+  ]
+}

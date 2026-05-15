@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x907A",
+      "text": "Ferrari front lift / nose-lift system fault"
+    },
+    {
+      "code": "0x5A20",
+      "text": "Ferrari Magneride damper controller fault"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (F154/F163 BiTurbo)"
+    },
+    {
+      "code": "0x0301",
+      "text": "Cylinder 1 misfire (Ferrari V8 / V12 — coil pack failure pattern)"
+    },
+    {
+      "code": "0x0302",
+      "text": "Cylinder 2 misfire"
+    },
+    {
+      "code": "0x0303",
+      "text": "Cylinder 3 misfire"
+    },
+    {
+      "code": "0x0304",
+      "text": "Cylinder 4 misfire"
+    },
+    {
+      "code": "0x0305",
+      "text": "Cylinder 5 misfire"
+    },
+    {
+      "code": "0x0306",
+      "text": "Cylinder 6 misfire"
+    },
+    {
+      "code": "0x0307",
+      "text": "Cylinder 7 misfire (V8 / V12)"
+    },
+    {
+      "code": "0x0308",
+      "text": "Cylinder 8 misfire (V8 / V12)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst Bank 1 efficiency below threshold (Ferrari)"
+    },
+    {
+      "code": "0x0430",
+      "text": "Catalyst Bank 2 efficiency below threshold (Ferrari)"
+    },
+    {
+      "code": "0x0524",
+      "text": "Engine oil pressure low (Ferrari V8 turbo / V12 NA)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "SF90 / 296 / 12Cilindri HV battery isolation fault"
+    },
+    {
+      "code": "0x0AFA",
+      "text": "SF90 / 296 hybrid battery cell-voltage delta out of range"
+    },
+    {
+      "code": "0x164A",
+      "text": "Camshaft phaser solenoid (Ferrari V8 / V12)"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Imbalance (SF90/296 PHEV)"
+    },
+    {
+      "code": "0xDA00",
+      "text": "Ferrari CAN-FD Powertrain Bus performance fault"
+    }
+  ]
+}

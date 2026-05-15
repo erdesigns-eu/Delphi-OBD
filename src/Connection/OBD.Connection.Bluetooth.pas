@@ -1,617 +1,274 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.Connection.Bluetooth.pas
-// CONTENTS       : Bluetooth OBD Connection Class
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 25/02/2024
+//  OBD.Connection.Bluetooth
+//
+//  Bluetooth Classic (RFCOMM / SPP) transport via System.Bluetooth.
+//
+//  The Bluetooth shared <c>TBluetoothManager</c> is reference-counted
+//  internally by the RTL; this transport claims a reference on Open
+//  and releases it on Close. SPP service UUID defaults to the canonical
+//  <c>00001101-0000-1000-8000-00805F9B34FB</c>; ELM327 BT clones use
+//  the same UUID.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation.
+//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+//                     and instrumented with step-progress events.
+//
+//  Future work :
+//    - Pairing / passkey events surfaced through OnTransportError so
+//      apps can prompt without coupling to System.Bluetooth.
 //------------------------------------------------------------------------------
+
 unit OBD.Connection.Bluetooth;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Bluetooth,
-
-  OBD.Connection,
+  System.SysUtils,
+  System.Classes,
+  System.SyncObjs,
+  System.Bluetooth,
+  OBD.Types,
   OBD.Connection.Types,
-  OBD.Connection.Constants;
+  OBD.Connection.Settings,
+  OBD.Connection.Transport.Base;
 
 type
-  /// <summary>
-  ///   Bluetooth Thread for events
-  /// </summary>
-  TBluetoothThread = class(TThread)
-  private
-    /// <summary>
-    ///   Bluetooth socket
-    /// </summary
-    FBluetoothSocket: TBluetoothSocket;
-    /// <summary>
-    ///   Window Handle to notify owner class
-    /// </summary
-    FWindowHandle: HWND;
+  /// <summary>Read loop for the Bluetooth Classic socket.</summary>
+  TOBDBluetoothReadThread = class(TThread)
+  strict private
+    FSocket: TBluetoothSocket;
+    FOnBytes: TProc<TBytes>;
+    FOnError: TProc<TOBDErrorCode, string>;
   protected
-    /// <summary>
-    ///   Execute thread
-    /// </summary
+    /// <summary>Read loop. Exits on socket close or
+    /// <c>Terminated</c>.</summary>
     procedure Execute; override;
   public
-    /// <summary>
-    ///   Constructor
-    /// </summary
-    constructor Create(CreateSuspended: Boolean; Socket: TBluetoothSocket; WindowHandle: HWND);
+    /// <summary>Spawns the thread bound to a connected RFCOMM
+    /// socket.</summary>
+    /// <param name="ASocket">Connected <c>TBluetoothSocket</c>.</param>
+    /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
+    /// <param name="AOnError">Error callback. Optional.</param>
+    constructor Create(ASocket: TBluetoothSocket;
+      const AOnBytes: TProc<TBytes>;
+      const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
-  /// <summary>
-  ///   Bluetooth
-  /// </summary>
-  TBluetooth = class
-  private
-    /// <summary>
-    ///   Bluetooth socket
-    /// </summary
-    FBluetoothSocket: TBluetoothSocket;
-    /// <summary>
-    ///   Connected flag
-    /// </summary>
-    FConnected: Boolean;
-    /// <summary>
-    ///   This is used for the thread
-    /// </summary>
-    FNotifyWnd: HWND;
-    /// <summary>
-    ///   Thread for listening to Bluetooth events
-    /// </summary>
-    FEventThread: TThread;
-    /// <summary>
-    ///   Event to emit on data reception (asynchronous)
-    /// </summary>
-    FOnReceiveData: TDataReceivedEvent;
-    /// <summary>
-    ///   Event to emit on data send (asynchronous)
-    /// </summary>
-    FOnSendData: TDataSendEvent;
-    /// <summary>
-    ///   Event to emit when an error occurs
-    /// </summary>
-    FOnError: TErrorEvent;
-    /// <summary>
-    ///   Input Buffer
-    /// </summary>
-    FInputBuffer: Array[0..BT_In_Buffer_Length] of Byte;
-  protected
-    /// <summary>
-    ///   Thread proc: fetches received data from the connection and calls the
-    ///   apropriate receive callbacks if necessary
-    /// </summary>
-    procedure ThreadWndProc(var msg: TMessage);
-    /// <summary>
-    ///   Callback when thread terminates
-    /// </summary>
-    /// <param name="Sender">
-    ///   Thread calling this eventhandler
-    /// </param>
-    procedure EventThreadTerminate(Sender: TObject);
+  /// <summary>Bluetooth Classic / RFCOMM transport.</summary>
+  TOBDBluetoothTransport = class(TOBDBaseTransport)
+  strict private
+    FManager: TBluetoothManager;
+    FDevice: TBluetoothDevice;
+    FSocket: TBluetoothSocket;
+    FReader: TOBDBluetoothReadThread;
+    function FindDevice(const AAddress: string): TBluetoothDevice;
   public
-    /// <summary>
-    ///   Constructor
-    /// <summary>
-    constructor Create; virtual;
-    /// <summary>
-    ///   Close existing connection and free internal ressources
-    /// </summary>
+    /// <summary>Constructs an idle Bluetooth transport.</summary>
+    constructor Create;
+    /// <summary>Closes the socket if open.</summary>
     destructor Destroy; override;
 
     /// <summary>
-    ///   Opens the Bluetooth connection. Returns false if something goes wrong
+    ///   Locates the paired device and opens an RFCOMM client socket
+    ///   against the configured service UUID.
     /// </summary>
-    function Connect(Manager: TBluetoothManager; Address: AnsiString): Boolean;
-    /// <summary>
-    ///   Closes the Bluetooth connection and releases control of it
-    /// </summary>
-    procedure Disconnect;
+    /// <param name="ASettings">Device address + service UUID +
+    /// connect timeout.</param>
+    /// <remarks>
+    ///   Synchronous. Fires five step-progress events:
+    ///   <c>1/5 Adapter check</c>, <c>2/5 Locating device</c>,
+    ///   <c>3/5 Creating socket</c>, <c>4/5 Connecting</c>,
+    ///   <c>5/5 Ready</c>. The device must already be paired with
+    ///   the host OS.
+    /// </remarks>
+    /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>,
+    /// device address empty, or service UUID empty.</exception>
+    /// <exception cref="EOBDError">Adapter unavailable, device not
+    /// paired, or RFCOMM connect refused.</exception>
+    procedure Open(const ASettings: TOBDBluetoothSettings);
 
-    /// <summary>
-    ///   Sends binary data
-    /// </summary>
-    /// <param name="DataPtr">
-    ///   Pointer to the memory containing the data to send
-    /// </param>
-    /// <param name="DataSize">
-    ///   Number of bytes to send
-    /// </param>
-    /// <returns>
-    ///   Number of bytes sent
-    /// </returns>
-    function SendData(DataPtr: pointer; DataSize: DWORD): DWORD;
-    /// <summary>
-    ///   Sends a byte. Returns true if the byte has been sent
-    /// </summary>
-    /// <param name="Value">
-    ///   Byte to send
-    /// </param>
-    function SendByte(Value: byte): Boolean;
-    /// <summary>
-    ///   Sends a AnsiChar. Returns true if the AnsiChar has been sent
-    /// </summary>
-    /// <param name="Value">
-    ///   Char to send
-    /// </param>
-    function SendChar(Value: AnsiChar): Boolean;
-    /// <summary>
-    ///   Sends a Pascal Ansistring (NULL terminated)
-    /// </summary>
-    /// <param name="s">
-    ///   string to send
-    /// </param>
-    function SendString(const S: Ansistring): Boolean;
-    /// <summary>
-    //    Sends a C-style Ansi string (NULL terminated)
-    /// </summary>
-    /// <param name="s">
-    ///   string to send
-    /// </param>
-    function SendCString(S: PAnsiChar): Boolean;
-
-    /// <summary>
-    ///   Connected state
-    /// </summary>
-    property Connected: Boolean read FConnected;
-    /// <summary>
-    ///   Event to emit when there is data available (input buffer has data)
-    ///   (called only if PacketSize <= 0)
-    /// </summary>
-    property OnReceiveData: TDataReceivedEvent read FOnReceiveData write FOnReceiveData;
-    /// <summary>
-    ///   Event to emit when data is send
-    /// </summary>
-    property OnSendData: TDataSendEvent read FOnSendData write FOnSendData;
-    /// <summary>
-    ///   Event to emit an error occurs
-    /// </summary>
-    property OnError: TErrorEvent read FOnError write FOnError;
-  end;
-
-  /// <summary>
-  ///   Bluetooth OBD Connection
-  /// </summary>
-  TBluetoothOBDConnection = class(TOBDConnection)
-  private
-    /// <summary>
-    ///    Bluetooth class instance
-    /// </summary>
-    FBluetooth: TBluetooth;
-  protected
-    /// <summary>
-    ///    Returns true if the adapter is connected
-    /// </summary>
-    function Connected: Boolean; override;
-    /// <summary>
-    ///    Bluetooth Receive Data event handler
-    /// </summary>
-    procedure OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: DWORD);
-    /// <summary>
-    ///    Bluetooth Send Data event handler
-    /// </summary>
-    procedure OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: DWORD);
-    /// <summary>
-    ///    Bluetooth Error event handler
-    /// </summary>
-    procedure OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
-  public
-    /// <summary>
-    ///   Constructor: Allocate resources needed for the OBD adapter.
-    /// <summary>
-    constructor Create; override;
-    /// <summary>
-    ///   Destructor: Free internal allocated resources
-    /// <summary>
-    destructor Destroy; override;
-
-    /// <summary>
-    ///   Connect to a OBD adapter (ELM327, OBDLink, ..)
-    /// </summary>
-    /// <param name="Params">
-    ///   TOBDInterfaceConnectionParams Record with parameters for connecting
-    ///   to the OBD adapter over Serial (COM) Port, Bluetooth, WiFi and FTDI.
-    /// </param>
-    function Connect(const Params: TOBDConnectionParams): Boolean; override;
-    /// <summary>
-    ///   Disconnect the connected OBD adapter
-    /// </summary>
-    function Disconnect: Boolean; override;
-    /// <summary>
-    ///   Write AT Command
-    /// </summary>
-    /// <param name="ATCommand">
-    ///   The AT command string (AT Z, AT SP 0, AT R, ..)
-    /// </param>
-    function WriteATCommand(const ATCommand: string): Boolean; override;
-    /// <summary>
-    ///   Write ST Command
-    /// </summary>
-    /// <param name="STCommand">
-    ///   The AT command string (STDI, STI, STFMR, ..)
-    /// </param>
-    function WriteSTCommand(const STCommand: string): Boolean; override;
-    /// <summary>
-    ///   Write OBD Command
-    /// </summary>
-    /// <param name="OBDCommand">
-    ///   The OBD command string (01 00, 01 1C, ..)
-    /// </param>
-    function WriteOBDCommand(const OBDCommand: string): Boolean; override;
+    /// <summary>Closes the socket and joins the read thread.</summary>
+    procedure Close; override;
+    /// <summary>Sends bytes through the RFCOMM socket.</summary>
+    /// <param name="ABytes">Bytes to send.</param>
+    /// <returns><c>Length(ABytes)</c> on success; 0 on transport
+    /// error.</returns>
+    /// <exception cref="EOBDNotConnected">Socket not open.</exception>
+    function WriteBytes(const ABytes: TBytes): Integer; override;
   end;
 
 implementation
 
-uses System.StrUtils;
+{ ---- TOBDBluetoothReadThread ------------------------------------------------- }
 
-//------------------------------------------------------------------------------
-// THREAD EXECUTE
-//------------------------------------------------------------------------------
-procedure TBluetoothThread.Execute;
+constructor TOBDBluetoothReadThread.Create(ASocket: TBluetoothSocket;
+  const AOnBytes: TProc<TBytes>;
+  const AOnError: TProc<TOBDErrorCode, string>);
+begin
+  inherited Create(False);
+  FreeOnTerminate := False;
+  FSocket := ASocket;
+  FOnBytes := AOnBytes;
+  FOnError := AOnError;
+end;
+
+procedure TOBDBluetoothReadThread.Execute;
 var
-  ReceivedData: TBytes;
-  DataPtr: Pointer;
+  Got: TBytes;
 begin
   while not Terminated do
   begin
-    if FBluetoothSocket.Connected then
-    begin
-      // Get the received data from the Bluetooth socket
-      ReceivedData := FBluetoothSocket.ReceiveData;
-      if Length(ReceivedData) > 0 then
+    try
+      Got := FSocket.ReceiveData;
+      if Length(Got) > 0 then
       begin
-        // Allocate memory for the data copy
-        GetMem(DataPtr, Length(ReceivedData));
-        try
-          // Ensure the data is copied into the newly allocated memory
-          Move(ReceivedData[0], DataPtr^, Length(ReceivedData));
-          // Post the message with the allocated memory pointer
-          // The main thread will be responsible for freeing this memory
-          PostMessage(FWindowHandle, WM_BLUETOOTH_EVENT, WPARAM(Length(ReceivedData)), LPARAM(DataPtr));
-        except
-          // In case of any exception, free the allocated memory to avoid leaks
-          FreeMem(DataPtr);
-          raise;
-        end;
+        if Assigned(FOnBytes) then
+          FOnBytes(Got);
       end;
-    end;
-    Sleep(10);
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// THREAD CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TBluetoothThread.Create(CreateSuspended: Boolean; Socket: TBluetoothSocket; WindowHandle: HWND);
-begin
-  // Inherited constructor
-  inherited Create(CreateSuspended);
-  // Set bluetooth socket
-  FBluetoothSocket := Socket;
-  // Set window handle
-  FWindowHandle := WindowHandle;
-end;
-
-//------------------------------------------------------------------------------
-// FTDI PORT THREAD PROC
-//------------------------------------------------------------------------------
-procedure TBluetooth.ThreadWndProc(var msg: TMessage);
-var
-  DataPtr: PByte;
-  DataSize: Integer;
-begin
-  // Data received notification
-  if (Msg.Msg = WM_BLUETOOTH_EVENT) and Connected then
-  begin
-    // Get data length from message
-    DataSize := Msg.WParam;
-    // Get the pointer to the data from LPARAM
-    DataPtr := PByte(Msg.LParam);
-    // Ensure we don't read beyond the input buffer's size
-    if DataSize > Length(FInputBuffer) then DataSize := Length(FInputBuffer);
-    // Copy the received data from LPARAM to the temporary buffer
-    if DataSize > 0 then
-    begin
-      // Move the data to the input buffer
-      Move(DataPtr^, FInputBuffer[0], DataSize);
-      // If read is successful, emit event that we have new data
-      if Assigned(OnReceiveData) then OnReceiveData(Self, @FInputBuffer, DataSize);
-    end;
-    // Important: Free the allocated memory
-    FreeMem(DataPtr);
-  end else
-    // Let Windows handle other messages.
-    Msg.Result := DefWindowProc(FNotifyWnd, Msg.Msg, Msg.wParam, Msg.lParam);
-end;
-
-//------------------------------------------------------------------------------
-// FTDI THREAD TERMINATE HANDLER
-//------------------------------------------------------------------------------
-procedure TBluetooth.EventThreadTerminate(Sender: TObject);
-begin
-  FEventThread := nil;
-end;
-
-//------------------------------------------------------------------------------
-// COMPONENT CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TBluetooth.Create;
-begin
-  // Call inherited constructor
-  inherited Create;
-  // Allocate a Window HANDLE to catch the Bluetooth Thread Notification Message
-  FNotifyWnd := AllocateHWnd(ThreadWndProc);
-end;
-
-//------------------------------------------------------------------------------
-// COMPONENT DESTRUCTOR
-//------------------------------------------------------------------------------
-destructor TBluetooth.Destroy;
-begin
-  // Disconnect if there is still an open connection
-  if Connected then Disconnect;
-  // Release the thread's Window HANDLE
-  DeallocateHWnd(FNotifyWnd);
-  //
-  if FEventThread <> nil then
-  begin
-    FEventThread.Terminate;
-    FEventThread.WaitFor;
-    FreeAndNil(FEventThread);
-  end;
-  // Call inherited destructor
-  inherited Destroy;
-end;
-
-//------------------------------------------------------------------------------
-// CONNECT
-//------------------------------------------------------------------------------
-function TBluetooth.Connect(Manager: TBluetoothManager; Address: AnsiString): Boolean;
-var
-  PairedDevices: TBluetoothDeviceList;
-  I: Integer;
-begin
-  // initialize result
-  Result := False;
-  // Exit here when we're already connected
-  if Connected then Exit;
-  // Get paired devices
-  PairedDevices := Manager.GetPairedDevices;
-  // Try to connect to the bluetooth device
-  for I := 0 to PairedDevices.Count - 1 do
-  begin
-    // If this device matches the address
-    if CompareText(PairedDevices[I].Address, String(Address)) = 0 then
-    begin
-      // Create a client socket
-      FBluetoothSocket := PairedDevices[I].CreateClientSocket(TBluetoothUUID.Create(BT_SERVICE_GUID), True);
-      if Assigned(FBluetoothSocket) then
+    except
+      on E: Exception do
       begin
-        // Try to connect, if we fail then exit.
-        try
-          // Connect
-          FBluetoothSocket.Connect;
-          // Create the thread for listening to incoming data
-          FEventThread := TBluetoothThread.Create(True, FBluetoothSocket, FNotifyWnd);
-          FEventThread.OnTerminate := EventThreadTerminate;
-          FEventThread.Start;
-          // Set connected flag
-          FConnected := True;
-          Result := True;
-          // Break the loop because we find and connected the device
-          Break;
-        except
-          // If we encounter an error, like when the address is incorrect
-          // or the device with the address can not be found, exit here.
-          Break;
-        end;
+        if not Terminated and Assigned(FOnError) then
+          FOnError(oeIO, E.Message);
+        Break;
       end;
     end;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// DISCONNECT
-//------------------------------------------------------------------------------
-procedure TBluetooth.Disconnect;
+{ ---- TOBDBluetoothTransport -------------------------------------------------- }
+
+constructor TOBDBluetoothTransport.Create;
 begin
-  if Connected and Assigned(FEventThread) then
+  inherited;
+end;
+
+destructor TOBDBluetoothTransport.Destroy;
+begin
+  Close;
+  inherited;
+end;
+
+function TOBDBluetoothTransport.FindDevice(
+  const AAddress: string): TBluetoothDevice;
+var
+  Devices: TBluetoothDeviceList;
+  D: TBluetoothDevice;
+  Needle: string;
+begin
+  Result := nil;
+  Devices := FManager.GetPairedDevices;
+  if Devices = nil then Exit;
+  Needle := UpperCase(Trim(AAddress));
+  for D in Devices do
   begin
-    // Terminate thread
-    FEventThread.Terminate;
-    // Wait for the thread to finish
-    FEventThread.WaitFor;
-    // Close bluetooth socket
-    FBluetoothSocket.Close;
-    // Free thread
-    FreeAndNil(FEventThread);
-    // Free bluetooth socket
-    FreeAndNil(FBluetoothSocket);
-    // Update connected flag
-    FConnected := False;
+    if (UpperCase(D.Address) = Needle) or
+       SameText(D.DeviceName, AAddress) then
+      Exit(D);
   end;
 end;
 
-//------------------------------------------------------------------------------
-// SEND DATA
-//------------------------------------------------------------------------------
-function TBluetooth.SendData(DataPtr: Pointer; DataSize: Cardinal): Cardinal;
-begin
-  Result := 0;
-  // Exit here when we're not connected
-  if not Connected then Exit;
-  // Send data
-  if Assigned(OnSendData) then OnSendData(Self, DataPtr, DataSize);
-  if Assigned(FBluetoothSocket) and FBluetoothSocket.Connected then
-    FBluetoothSocket.SendData(TBytes(DataPtr));
-end;
-
-//------------------------------------------------------------------------------
-// SEND BYTE
-//------------------------------------------------------------------------------
-function TBluetooth.SendByte(Value: Byte): Boolean;
-begin
-  Result := SendData(@Value, 1) = 1;
-end;
-
-//------------------------------------------------------------------------------
-// SEND ANSI CHARACTER
-//------------------------------------------------------------------------------
-function TBluetooth.SendChar(Value: AnsiChar): Boolean;
-begin
-  Result := SendData(@Value, 1) = 1;
-end;
-
-//------------------------------------------------------------------------------
-// SEND ANSI string
-//------------------------------------------------------------------------------
-function TBluetooth.SendString(const S: Ansistring): Boolean;
+procedure TOBDBluetoothTransport.Open(const ASettings: TOBDBluetoothSettings);
 var
-  L: DWORD;
+  ServiceGUID: TGUID;
 begin
-  L := Length(S);
-  Result := SendData(PAnsiChar(S), L) = L;
-end;
+  if ASettings = nil then
+    raise EOBDConfig.Create('Bluetooth settings are nil');
+  if Trim(ASettings.DeviceAddress) = '' then
+    raise EOBDConfig.Create('Bluetooth device address is empty');
+  if Trim(ASettings.ServiceUUID) = '' then
+    raise EOBDConfig.Create('Bluetooth service UUID is empty');
 
-//------------------------------------------------------------------------------
-// SEND C-STYLE ANSI string
-//------------------------------------------------------------------------------
-function TBluetooth.SendCString(S: PAnsiChar): Boolean;
-var
-  L: DWORD;
-begin
-  L := Length(S);
-  Result := SendData(S, L) = L;
-end;
-
-//------------------------------------------------------------------------------
-// GET INTERFACE CONNECTED STATE
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.Connected: Boolean;
-begin
-  Result := FBluetooth.Connected;
-end;
-
-//------------------------------------------------------------------------------
-// BLUETOOTH RECEIVE DATA EVENT HANDLER
-//------------------------------------------------------------------------------
-procedure TBluetoothOBDConnection.OnReceiveData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-begin
-  InvokeDataReceived(DataPtr, DataSize);
-end;
-
-//------------------------------------------------------------------------------
-// BLUETOOTH SEND DATA EVENT HANDLER
-//------------------------------------------------------------------------------
-procedure TBluetoothOBDConnection.OnSendData(Sender: TObject; DataPtr: Pointer; DataSize: Cardinal);
-begin
-  InvokeDataSend(DataPtr, DataSize);
-end;
-
-//------------------------------------------------------------------------------
-// BLUETOOTH ERROR EVENT HANDLER
-//------------------------------------------------------------------------------
-procedure TBluetoothOBDConnection.OnConnectionError(Sender: TObject; ErrorCode: Integer; ErrorMessage: string);
-begin
-  InvokeError(ErrorCode, ErrorMessage);
-end;
-
-//------------------------------------------------------------------------------
-// BLUETOOTH OBD CONNECTION CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TBluetoothOBDConnection.Create;
-begin
-  // Inherited constructor
-  inherited;
-  // Create Bluetooth Class instance
-  FBluetooth := TBluetooth.Create;
-  FBluetooth.OnReceiveData := OnReceiveData;
-  FBluetooth.OnSendData := OnSendData;
-  FBluetooth.OnError := OnConnectionError;
-end;
-
-//------------------------------------------------------------------------------
-// BLUETOOTH OBD CONNECTION DESTRUCTOR
-//------------------------------------------------------------------------------
-destructor TBluetoothOBDConnection.Destroy;
-begin
-  // Free the Bluetooth Class instance
-  FBluetooth.Free;
-  // Inherited destructor
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// CONNECT TO OBD CONNECTION
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.Connect(const Params: TOBDConnectionParams): Boolean;
-begin
-  TMonitor.Enter(FConnectionLock);
+  SetState(csOpening);
   try
-    Result := Connected;
-    // Exit here is we're already connected
-    if Result then Exit;
-    // Exit here if the connection type is incorrect
-    if Params.ConnectionType <> ctBluetooth then Exit;
-    // Connect to the Bluetooth Device
-    Result := FBluetooth.Connect(Params.Manager, AnsiString(Params.Address));
-  finally
-    TMonitor.Exit(FConnectionLock);
-  end;
-end;
+    FireProgress(1, 5, 'Adapter check', '');
+    FManager := TBluetoothManager.Current;
+    if (FManager = nil) or not FManager.CurrentAdapter.Activated then
+      raise EOBDError.Create('Bluetooth adapter is not available or activated');
 
-//------------------------------------------------------------------------------
-// DISCONNECT THE CONNECTED OBD CONNECTION
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.Disconnect: Boolean;
-begin
-  TMonitor.Enter(FConnectionLock);
-  try
-    Result := Connected;
-    if Result then
+    FireProgress(2, 5, 'Locating device', ASettings.DeviceAddress);
+    FDevice := FindDevice(ASettings.DeviceAddress);
+    if FDevice = nil then
+      raise EOBDError.CreateFmt(
+        'Bluetooth device "%s" is not paired with this host',
+        [ASettings.DeviceAddress]);
+
+    FireProgress(3, 5, 'Creating socket', ASettings.ServiceUUID);
+    ServiceGUID := StringToGUID('{' + ASettings.ServiceUUID + '}');
+    FSocket := FDevice.CreateClientSocket(ServiceGUID, False);
+    if FSocket = nil then
+      raise EOBDError.Create('Failed to create RFCOMM client socket');
+
+    FireProgress(4, 5, 'Connecting', '');
+    FSocket.Connect;
+  except
+    on E: Exception do
     begin
-      FBluetooth.Disconnect;
-      Result := Connected;
+      FreeAndNil(FSocket);
+      SetState(csError);
+      raise EOBDError.CreateFmt('Bluetooth open failed: %s', [E.Message]);
     end;
-  finally
-    TMonitor.Exit(FConnectionLock);
   end;
+
+  FReader := TOBDBluetoothReadThread.Create(FSocket,
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
+
+  FireProgress(5, 5, 'Ready', '');
+  SetState(csOpen);
 end;
 
-//------------------------------------------------------------------------------
-// WRITE AT COMMAND
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.WriteATCommand(const ATCommand: string): Boolean;
+procedure TOBDBluetoothTransport.Close;
 var
-  S: string;
+  Local: TBluetoothSocket;
 begin
-  S := IfThen(Pos('AT', ATCommand) = 1, ATCommand, Format(IfThen(Pos(' ', ATCommand) > 0, 'AT %s', 'AT%s'), [ATCommand]));
-  Result := FBluetooth.Sendstring(AnsiString(S));
+  FLock.Enter;
+  try
+    if FState in [csClosed, csClosing] then Exit;
+    SetState(csClosing);
+    Local := FSocket;
+    FSocket := nil;
+  finally
+    FLock.Leave;
+  end;
+
+  if Assigned(FReader) then
+  begin
+    FReader.Terminate;
+    if Assigned(Local) then
+      try Local.Close; except end;
+    FReader.WaitFor;
+    FreeAndNil(FReader);
+  end;
+
+  if Assigned(Local) then
+    Local.Free;
+  FDevice := nil;
+
+  SetState(csClosed);
 end;
 
-//------------------------------------------------------------------------------
-// WRITE ST COMMAND
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.WriteSTCommand(const STCommand: string): Boolean;
-var
-  S: string;
+function TOBDBluetoothTransport.WriteBytes(const ABytes: TBytes): Integer;
 begin
-  S := IfThen(Pos('ST', STCommand) = 1, STCommand, Format(IfThen(Pos(' ', STCommand) > 0, 'ST %s', 'ST%s'), [STCommand]));
-  Result := FBluetooth.Sendstring(AnsiString(S));
-end;
-
-//------------------------------------------------------------------------------
-// WRITE OBD COMMAND
-//------------------------------------------------------------------------------
-function TBluetoothOBDConnection.WriteOBDCommand(const OBDCommand: string): Boolean;
-begin
-  Result := FBluetooth.Sendstring(AnsiString(OBDCommand));
+  if not IsOpen then
+    raise EOBDNotConnected.Create('Bluetooth transport is not open');
+  if Length(ABytes) = 0 then
+    Exit(0);
+  try
+    FSocket.SendData(ABytes);
+    Result := Length(ABytes);
+  except
+    on E: Exception do
+    begin
+      FireError(oeIO, E.Message);
+      Result := 0;
+    end;
+  end;
 end;
 
 end.

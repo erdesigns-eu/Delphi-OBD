@@ -1,0 +1,812 @@
+{
+  "$schema": "../_schema/vin-countries.schema.json",
+  "schema_version": 1,
+  "spec": "ISO 3779 / SAE J853",
+  "description": "VIN country ranges keyed by first two WMI characters.",
+  "entries": [
+    {
+      "range_start": "AA",
+      "range_end": "AH",
+      "name": "South Africa",
+      "iso_code": "ZA"
+    },
+    {
+      "range_start": "AJ",
+      "range_end": "AK",
+      "name": "Ivory Coast",
+      "iso_code": "CI"
+    },
+    {
+      "range_start": "AL",
+      "range_end": "AM",
+      "name": "Lesotho",
+      "iso_code": "LS"
+    },
+    {
+      "range_start": "AN",
+      "range_end": "AP",
+      "name": "Botswana",
+      "iso_code": "BW"
+    },
+    {
+      "range_start": "AR",
+      "range_end": "AS",
+      "name": "Namibia",
+      "iso_code": "NA"
+    },
+    {
+      "range_start": "AT",
+      "range_end": "AU",
+      "name": "Madagascar",
+      "iso_code": "MG"
+    },
+    {
+      "range_start": "AV",
+      "range_end": "AW",
+      "name": "Mauritius",
+      "iso_code": "MU"
+    },
+    {
+      "range_start": "AX",
+      "range_end": "AY",
+      "name": "Tunisia",
+      "iso_code": "TN"
+    },
+    {
+      "range_start": "AZ",
+      "range_end": "A1",
+      "name": "Cyprus",
+      "iso_code": "CY"
+    },
+    {
+      "range_start": "A2",
+      "range_end": "A3",
+      "name": "Zimbabwe",
+      "iso_code": "ZW"
+    },
+    {
+      "range_start": "A4",
+      "range_end": "A5",
+      "name": "Mozambique",
+      "iso_code": "MZ"
+    },
+    {
+      "range_start": "BA",
+      "range_end": "BB",
+      "name": "Angola",
+      "iso_code": "AO"
+    },
+    {
+      "range_start": "BC",
+      "range_end": "BC",
+      "name": "Ethiopia",
+      "iso_code": "ET"
+    },
+    {
+      "range_start": "BF",
+      "range_end": "BG",
+      "name": "Kenya",
+      "iso_code": "KE"
+    },
+    {
+      "range_start": "BH",
+      "range_end": "BH",
+      "name": "Rwanda",
+      "iso_code": "RW"
+    },
+    {
+      "range_start": "BL",
+      "range_end": "BL",
+      "name": "Nigeria",
+      "iso_code": "NG"
+    },
+    {
+      "range_start": "BR",
+      "range_end": "BR",
+      "name": "Algeria",
+      "iso_code": "DZ"
+    },
+    {
+      "range_start": "BT",
+      "range_end": "BT",
+      "name": "Swaziland",
+      "iso_code": "SZ"
+    },
+    {
+      "range_start": "BU",
+      "range_end": "BU",
+      "name": "Uganda",
+      "iso_code": "UG"
+    },
+    {
+      "range_start": "B3",
+      "range_end": "B4",
+      "name": "Libya",
+      "iso_code": "LY"
+    },
+    {
+      "range_start": "CA",
+      "range_end": "CB",
+      "name": "Egypt",
+      "iso_code": "EG"
+    },
+    {
+      "range_start": "CF",
+      "range_end": "CG",
+      "name": "Morocco",
+      "iso_code": "MA"
+    },
+    {
+      "range_start": "CL",
+      "range_end": "CM",
+      "name": "Zambia",
+      "iso_code": "ZM"
+    },
+    {
+      "range_start": "EA",
+      "range_end": "E0",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "HA",
+      "range_end": "H0",
+      "name": "China",
+      "iso_code": "CN"
+    },
+    {
+      "range_start": "JA",
+      "range_end": "J0",
+      "name": "Japan",
+      "iso_code": "JP"
+    },
+    {
+      "range_start": "KF",
+      "range_end": "KH",
+      "name": "Israel",
+      "iso_code": "IL"
+    },
+    {
+      "range_start": "KL",
+      "range_end": "KR",
+      "name": "South Korea",
+      "iso_code": "KR"
+    },
+    {
+      "range_start": "KS",
+      "range_end": "KT",
+      "name": "Jordan",
+      "iso_code": "JO"
+    },
+    {
+      "range_start": "K1",
+      "range_end": "K3",
+      "name": "South Korea",
+      "iso_code": "KR"
+    },
+    {
+      "range_start": "K5",
+      "range_end": "K5",
+      "name": "Kyrgyzstan",
+      "iso_code": "KG"
+    },
+    {
+      "range_start": "LA",
+      "range_end": "L0",
+      "name": "China",
+      "iso_code": "CN"
+    },
+    {
+      "range_start": "MA",
+      "range_end": "ME",
+      "name": "India",
+      "iso_code": "IN"
+    },
+    {
+      "range_start": "MF",
+      "range_end": "MK",
+      "name": "Indonesia",
+      "iso_code": "ID"
+    },
+    {
+      "range_start": "ML",
+      "range_end": "MR",
+      "name": "Thailand",
+      "iso_code": "TH"
+    },
+    {
+      "range_start": "MS",
+      "range_end": "MS",
+      "name": "Myanmar",
+      "iso_code": "MM"
+    },
+    {
+      "range_start": "MU",
+      "range_end": "MU",
+      "name": "Mongolia",
+      "iso_code": "MN"
+    },
+    {
+      "range_start": "MX",
+      "range_end": "MX",
+      "name": "Kazakhstan",
+      "iso_code": "KZ"
+    },
+    {
+      "range_start": "M1",
+      "range_end": "M0",
+      "name": "India",
+      "iso_code": "IN"
+    },
+    {
+      "range_start": "NA",
+      "range_end": "NE",
+      "name": "Iran",
+      "iso_code": "IR"
+    },
+    {
+      "range_start": "NF",
+      "range_end": "NG",
+      "name": "Pakistan",
+      "iso_code": "PK"
+    },
+    {
+      "range_start": "NJ",
+      "range_end": "NJ",
+      "name": "Iraq",
+      "iso_code": "IQ"
+    },
+    {
+      "range_start": "NL",
+      "range_end": "NR",
+      "name": "Turkey",
+      "iso_code": "TR"
+    },
+    {
+      "range_start": "NS",
+      "range_end": "NT",
+      "name": "Uzbekistan",
+      "iso_code": "UZ"
+    },
+    {
+      "range_start": "NV",
+      "range_end": "NV",
+      "name": "Azerbaijan",
+      "iso_code": "AZ"
+    },
+    {
+      "range_start": "NX",
+      "range_end": "NX",
+      "name": "Tajikistan",
+      "iso_code": "TJ"
+    },
+    {
+      "range_start": "NY",
+      "range_end": "NY",
+      "name": "Armenia",
+      "iso_code": "AM"
+    },
+    {
+      "range_start": "N1",
+      "range_end": "N5",
+      "name": "Iran",
+      "iso_code": "IR"
+    },
+    {
+      "range_start": "N7",
+      "range_end": "N8",
+      "name": "Turkey",
+      "iso_code": "TR"
+    },
+    {
+      "range_start": "PA",
+      "range_end": "PC",
+      "name": "Philippines",
+      "iso_code": "PH"
+    },
+    {
+      "range_start": "PF",
+      "range_end": "PG",
+      "name": "Singapore",
+      "iso_code": "SG"
+    },
+    {
+      "range_start": "PL",
+      "range_end": "PR",
+      "name": "Malaysia",
+      "iso_code": "MY"
+    },
+    {
+      "range_start": "PS",
+      "range_end": "PT",
+      "name": "Bangladesh",
+      "iso_code": "BD"
+    },
+    {
+      "range_start": "P5",
+      "range_end": "P0",
+      "name": "India",
+      "iso_code": "IN"
+    },
+    {
+      "range_start": "RA",
+      "range_end": "RB",
+      "name": "United Arab Emirates",
+      "iso_code": "AE"
+    },
+    {
+      "range_start": "RF",
+      "range_end": "RK",
+      "name": "Taiwan",
+      "iso_code": "TW"
+    },
+    {
+      "range_start": "RL",
+      "range_end": "RM",
+      "name": "Vietnam",
+      "iso_code": "VN"
+    },
+    {
+      "range_start": "RP",
+      "range_end": "RP",
+      "name": "Laos",
+      "iso_code": "LA"
+    },
+    {
+      "range_start": "RS",
+      "range_end": "RT",
+      "name": "Saudi Arabia",
+      "iso_code": "SA"
+    },
+    {
+      "range_start": "RU",
+      "range_end": "RW",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "R1",
+      "range_end": "R7",
+      "name": "Hong Kong",
+      "iso_code": "HK"
+    },
+    {
+      "range_start": "SA",
+      "range_end": "SM",
+      "name": "United Kingdom",
+      "iso_code": "GB"
+    },
+    {
+      "range_start": "SN",
+      "range_end": "ST",
+      "name": "Germany",
+      "iso_code": "DE"
+    },
+    {
+      "range_start": "SU",
+      "range_end": "SZ",
+      "name": "Poland",
+      "iso_code": "PL"
+    },
+    {
+      "range_start": "S1",
+      "range_end": "S2",
+      "name": "Latvia",
+      "iso_code": "LV"
+    },
+    {
+      "range_start": "S3",
+      "range_end": "S3",
+      "name": "Georgia",
+      "iso_code": "GE"
+    },
+    {
+      "range_start": "S4",
+      "range_end": "S4",
+      "name": "Iceland",
+      "iso_code": "IS"
+    },
+    {
+      "range_start": "TA",
+      "range_end": "TH",
+      "name": "Switzerland",
+      "iso_code": "CH"
+    },
+    {
+      "range_start": "TJ",
+      "range_end": "TP",
+      "name": "Czech Republic",
+      "iso_code": "CZ"
+    },
+    {
+      "range_start": "TR",
+      "range_end": "TV",
+      "name": "Hungary",
+      "iso_code": "HU"
+    },
+    {
+      "range_start": "TW",
+      "range_end": "T1",
+      "name": "Portugal",
+      "iso_code": "PT"
+    },
+    {
+      "range_start": "T3",
+      "range_end": "T5",
+      "name": "Republic of Serbia",
+      "iso_code": "RS"
+    },
+    {
+      "range_start": "T6",
+      "range_end": "T6",
+      "name": "Andorra",
+      "iso_code": "AD"
+    },
+    {
+      "range_start": "T7",
+      "range_end": "T8",
+      "name": "Netherlands",
+      "iso_code": "NL"
+    },
+    {
+      "range_start": "UA",
+      "range_end": "UC",
+      "name": "Spain",
+      "iso_code": "ES"
+    },
+    {
+      "range_start": "UH",
+      "range_end": "UM",
+      "name": "Denmark",
+      "iso_code": "DK"
+    },
+    {
+      "range_start": "UN",
+      "range_end": "UR",
+      "name": "Ireland",
+      "iso_code": "IE"
+    },
+    {
+      "range_start": "UU",
+      "range_end": "UX",
+      "name": "Romania",
+      "iso_code": "RO"
+    },
+    {
+      "range_start": "U1",
+      "range_end": "U2",
+      "name": "Macedonia",
+      "iso_code": "MK"
+    },
+    {
+      "range_start": "U5",
+      "range_end": "U7",
+      "name": "Slovakia",
+      "iso_code": "SK"
+    },
+    {
+      "range_start": "U8",
+      "range_end": "U0",
+      "name": "Bosnia & Herzegovina",
+      "iso_code": "BA"
+    },
+    {
+      "range_start": "VA",
+      "range_end": "VE",
+      "name": "Austria",
+      "iso_code": "AT"
+    },
+    {
+      "range_start": "VF",
+      "range_end": "VR",
+      "name": "France",
+      "iso_code": "FR"
+    },
+    {
+      "range_start": "VS",
+      "range_end": "VW",
+      "name": "Spain",
+      "iso_code": "ES"
+    },
+    {
+      "range_start": "VX",
+      "range_end": "V2",
+      "name": "France",
+      "iso_code": "FR"
+    },
+    {
+      "range_start": "V3",
+      "range_end": "V5",
+      "name": "Croatia",
+      "iso_code": "HR"
+    },
+    {
+      "range_start": "V6",
+      "range_end": "V8",
+      "name": "Estonia",
+      "iso_code": "EE"
+    },
+    {
+      "range_start": "WA",
+      "range_end": "W0",
+      "name": "Germany",
+      "iso_code": "DE"
+    },
+    {
+      "range_start": "XA",
+      "range_end": "XC",
+      "name": "Bulgaria",
+      "iso_code": "BG"
+    },
+    {
+      "range_start": "XD",
+      "range_end": "XE",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "XF",
+      "range_end": "XH",
+      "name": "Greece",
+      "iso_code": "GR"
+    },
+    {
+      "range_start": "XJ",
+      "range_end": "XK",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "XL",
+      "range_end": "XR",
+      "name": "Netherlands",
+      "iso_code": "NL"
+    },
+    {
+      "range_start": "XS",
+      "range_end": "XW",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "XX",
+      "range_end": "XY",
+      "name": "Luxembourg",
+      "iso_code": "LU"
+    },
+    {
+      "range_start": "XZ",
+      "range_end": "X0",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "YA",
+      "range_end": "YE",
+      "name": "Belgium",
+      "iso_code": "BE"
+    },
+    {
+      "range_start": "YF",
+      "range_end": "YK",
+      "name": "Finland",
+      "iso_code": "FI"
+    },
+    {
+      "range_start": "YN",
+      "range_end": "YN",
+      "name": "Malta",
+      "iso_code": "MT"
+    },
+    {
+      "range_start": "YS",
+      "range_end": "YW",
+      "name": "Sweden",
+      "iso_code": "SE"
+    },
+    {
+      "range_start": "YX",
+      "range_end": "Y2",
+      "name": "Norway",
+      "iso_code": "NO"
+    },
+    {
+      "range_start": "Y3",
+      "range_end": "Y5",
+      "name": "Belarus",
+      "iso_code": "BY"
+    },
+    {
+      "range_start": "Y6",
+      "range_end": "Y8",
+      "name": "Ukraine",
+      "iso_code": "UA"
+    },
+    {
+      "range_start": "ZA",
+      "range_end": "ZU",
+      "name": "Italy",
+      "iso_code": "IT"
+    },
+    {
+      "range_start": "ZX",
+      "range_end": "ZZ",
+      "name": "Slovenia",
+      "iso_code": "SI"
+    },
+    {
+      "range_start": "Z1",
+      "range_end": "Z1",
+      "name": "San Marino",
+      "iso_code": "SM"
+    },
+    {
+      "range_start": "Z3",
+      "range_end": "Z5",
+      "name": "Lithuania",
+      "iso_code": "LT"
+    },
+    {
+      "range_start": "Z6",
+      "range_end": "Z0",
+      "name": "Russia",
+      "iso_code": "RU"
+    },
+    {
+      "range_start": "1A",
+      "range_end": "10",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "13",
+      "range_end": "13",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "2A",
+      "range_end": "25",
+      "name": "Canada",
+      "iso_code": "CA"
+    },
+    {
+      "range_start": "3A",
+      "range_end": "3X",
+      "name": "Mexico",
+      "iso_code": "MX"
+    },
+    {
+      "range_start": "34",
+      "range_end": "34",
+      "name": "Nicaragua",
+      "iso_code": "NI"
+    },
+    {
+      "range_start": "35",
+      "range_end": "35",
+      "name": "Dominican Republic",
+      "iso_code": "DO"
+    },
+    {
+      "range_start": "36",
+      "range_end": "36",
+      "name": "Honduras",
+      "iso_code": "HN"
+    },
+    {
+      "range_start": "37",
+      "range_end": "37",
+      "name": "Panama",
+      "iso_code": "PA"
+    },
+    {
+      "range_start": "38",
+      "range_end": "39",
+      "name": "Puerto Rico",
+      "iso_code": "PR"
+    },
+    {
+      "range_start": "4A",
+      "range_end": "40",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "5A",
+      "range_end": "50",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "5G",
+      "range_end": "5G",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "6A",
+      "range_end": "6X",
+      "name": "Australia",
+      "iso_code": "AU"
+    },
+    {
+      "range_start": "6Y",
+      "range_end": "61",
+      "name": "New Zealand",
+      "iso_code": "NZ"
+    },
+    {
+      "range_start": "7A",
+      "range_end": "70",
+      "name": "United States",
+      "iso_code": "US"
+    },
+    {
+      "range_start": "8A",
+      "range_end": "8E",
+      "name": "Argentina",
+      "iso_code": "AR"
+    },
+    {
+      "range_start": "8F",
+      "range_end": "8G",
+      "name": "Chile",
+      "iso_code": "CL"
+    },
+    {
+      "range_start": "8L",
+      "range_end": "8N",
+      "name": "Ecuador",
+      "iso_code": "EC"
+    },
+    {
+      "range_start": "8S",
+      "range_end": "8T",
+      "name": "Peru",
+      "iso_code": "PE"
+    },
+    {
+      "range_start": "8X",
+      "range_end": "8Z",
+      "name": "Venezuela",
+      "iso_code": "VE"
+    },
+    {
+      "range_start": "82",
+      "range_end": "82",
+      "name": "Bolivia",
+      "iso_code": "BO"
+    },
+    {
+      "range_start": "84",
+      "range_end": "84",
+      "name": "Costa Rica",
+      "iso_code": "CR"
+    },
+    {
+      "range_start": "9A",
+      "range_end": "9E",
+      "name": "Brazil",
+      "iso_code": "BR"
+    },
+    {
+      "range_start": "9F",
+      "range_end": "9G",
+      "name": "Colombia",
+      "iso_code": "CO"
+    },
+    {
+      "range_start": "9S",
+      "range_end": "9V",
+      "name": "Uruguay",
+      "iso_code": "UY"
+    },
+    {
+      "range_start": "91",
+      "range_end": "90",
+      "name": "Brazil",
+      "iso_code": "BR"
+    }
+  ]
+}

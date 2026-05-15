@@ -1,0 +1,58 @@
+package DelphiOBD_DT;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  designide,
+  DelphiOBD_RT;
+
+contains
+  OBD.Design.Registration in '..\src\DesignTime\OBD.Design.Registration.pas',
+  OBD.Design.Editors in '..\src\DesignTime\OBD.Design.Editors.pas',
+  OBD.Design.Help in '..\src\DesignTime\OBD.Design.Help.pas',
+  OBD.Design.Forms.FlashSafety in '..\src\DesignTime\OBD.Design.Forms.FlashSafety.pas' {OBDFlashSafetyDlg},
+  OBD.Design.Forms.InitCommands in '..\src\DesignTime\OBD.Design.Forms.InitCommands.pas' {OBDInitCommandsDlg},
+  OBD.Design.Forms.PipelineValidate in '..\src\DesignTime\OBD.Design.Forms.PipelineValidate.pas' {OBDPipelineValidateDlg},
+  OBD.Design.Forms.LiveTest in '..\src\DesignTime\OBD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg},
+  OBD.Design.Starters in '..\src\DesignTime\OBD.Design.Starters.pas',
+  OBD.Design.Starters.Templates in '..\src\DesignTime\OBD.Design.Starters.Templates.pas',
+  OBD.Design.Starters.ServiceMode in '..\src\DesignTime\OBD.Design.Starters.ServiceMode.pas',
+  OBD.Design.Starters.Coding in '..\src\DesignTime\OBD.Design.Starters.Coding.pas',
+  OBD.Design.Starters.Flashing in '..\src\DesignTime\OBD.Design.Starters.Flashing.pas',
+  OBD.Design.Starters.Advanced in '..\src\DesignTime\OBD.Design.Starters.Advanced.pas',
+  OBD.Design.Forms.StarterPicker in '..\src\DesignTime\OBD.Design.Forms.StarterPicker.pas' {OBDStarterPickerDlg},
+  OBD.Design.Wizards.Starters in '..\src\DesignTime\OBD.Design.Wizards.Starters.pas',
+  OBD.Design.Wizards.NewForms in '..\src\DesignTime\OBD.Design.Wizards.NewForms.pas',
+  OBD.Design.Starters.NewCategories in '..\src\DesignTime\OBD.Design.Starters.NewCategories.pas',
+  OBD.Design.Starters.DataModules in '..\src\DesignTime\OBD.Design.Starters.DataModules.pas',
+  OBD.Design.Starters.RadioPolished in '..\src\DesignTime\OBD.Design.Starters.RadioPolished.pas',
+  OBD.Design.Wizards.PerCategory in '..\src\DesignTime\OBD.Design.Wizards.PerCategory.pas';
+
+end.

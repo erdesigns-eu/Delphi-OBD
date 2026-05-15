@@ -1,0 +1,12 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "porsche",
+  "label": "Porsche Taycan (J1 platform). Audi e-tron GT shares architecture.",
+  "ecu": { "request_id_hex": "unknown-public", "response_id_hex": "unknown-public" },
+  "applicable_models": ["Porsche Taycan", "Audi e-tron GT", "Audi RS e-tron GT"],
+  "fields": [],
+  "notes": "Taycan exposes BMS SOC, SOH, kWh energy content, per-cell voltage, cell imbalance and module temperatures via UDS Mode 22 (confirmed by Car Scanner community). However, the per-DID, per-byte decode table is bundled commercially in Car Scanner and PoCOM and is not redistributable in any open-source repository.",
+  "unavailable_fields": {
+    "all": "Field not documented for this vendor in any open public source. Recommend partnership with Car Scanner / PoCOM authors or extraction from PIWIS ODX."
+  }
+}

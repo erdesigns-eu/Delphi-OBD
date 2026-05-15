@@ -1,88 +1,158 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.SecureSettings.pas
-// CONTENTS       : Encrypted at-rest settings via Windows DPAPI
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COPYRIGHT      : © 2024-2026 Ernst Reidinga (ERDesigns)
-// NOTE           : Wraps `CryptProtectData` / `CryptUnprotectData` so
-//                  dealer codes, security-access keys, and similar
-//                  sensitive strings stay encrypted on disk against the
-//                  current Windows user. DPAPI ties the ciphertext to
-//                  the user account — copying the file to another
-//                  machine doesn't grant decryption.
+//  OBD.SecureSettings
+//
+//  TOBDSecureSettings — Windows-DPAPI-backed name/value
+//  configuration store. Each (Key, Value) is persisted into a
+//  DPAPI-protected blob; the host picks the scope at construction
+//  time:
+//
+//    - ssCurrentUser: encrypted under the current Windows user
+//      profile. Other accounts on the same machine cannot read
+//      the file even when they have NTFS access to it.
+//    - ssLocalMachine: encrypted under the machine key. Every
+//      account on this machine can read; portability is broken
+//      (the file does not decrypt on a different machine).
+//
+//  Use ssCurrentUser for per-user tool preferences (API keys,
+//  OEM tokens, security-access seeds bound to a workshop
+//  technician). Use ssLocalMachine for shared workstation
+//  setups where multiple operators must share one cached
+//  configuration on the same physical PC.
+//
+//  Storage path defaults to
+//  <c>%LOCALAPPDATA%\&lt;AppName&gt;\settings.dat</c> for the
+//  current-user scope and to
+//  <c>%PROGRAMDATA%\&lt;AppName&gt;\settings.dat</c> for the
+//  machine scope; both can be overridden by the explicit-path
+//  constructor.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  References  :
+//    - Microsoft Docs: CryptProtectData / CryptUnprotectData
+//      (CRYPTPROTECT_LOCAL_MACHINE flag for the machine scope)
+//
+//  History     :
+//    2026-05-11  ERD  Initial implementation.
 //------------------------------------------------------------------------------
+
 unit OBD.SecureSettings;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.IOUtils, System.IniFiles,
-  WinApi.Windows;
+  System.SysUtils,
+  System.Classes,
+  System.JSON,
+  System.IOUtils,
+  System.SyncObjs,
+  System.Generics.Collections;
 
 type
-  /// <summary>
-  ///   Raised when DPAPI returns an error.
-  /// </summary>
-  EOBDDpapiError = class(Exception);
+  /// <summary>Raised on storage / DPAPI errors.</summary>
+  EOBDSecureSettings = class(Exception);
+
+  /// <summary>DPAPI protection scope.</summary>
+  TOBDSecureSettingsScope = (
+    /// <summary>Encrypt under the current Windows user (default).
+    /// Other accounts on the same machine cannot decrypt.</summary>
+    ssCurrentUser,
+    /// <summary>Encrypt under the local machine key. Every
+    /// account on this PC can decrypt; the file does not
+    /// decrypt on a different machine.</summary>
+    ssLocalMachine
+  );
 
   /// <summary>
-  ///   Persistent INI-style storage where every value is DPAPI-encrypted.
-  ///   On disk you see Base64-encoded ciphertext; in memory you handle
-  ///   plaintext. Keys are in the clear (so the file remains
-  ///   debuggable); values aren't.
+  ///   Encrypted name/value configuration store.
   /// </summary>
+  /// <remarks>
+  ///   Construct once per host application. Reads / writes are
+  ///   reentrant. <see cref="Save"/> persists to disk; the
+  ///   store auto-loads on first access.
+  /// </remarks>
   TOBDSecureSettings = class
   strict private
     FFilePath: string;
-    FIni: TMemIniFile;
-    function ProtectString(const Plain: string): string;
-    function UnprotectString(const Cipher: string): string;
+    FScope: TOBDSecureSettingsScope;
+    FLock: TCriticalSection;
+    FCache: TDictionary<string, string>;
+    FLoaded: Boolean;
+    procedure EnsureLoaded;
+    function ProtectBlob(const APlainText: TBytes): TBytes;
+    function UnprotectBlob(const ACipherText: TBytes): TBytes;
   public
-    constructor Create(const AFilePath: string);
+    /// <summary>
+    ///   Constructs a store backed by the default per-scope path.
+    /// </summary>
+    /// <param name="AAppName">Application name folder.</param>
+    /// <param name="AScope">DPAPI scope. Default
+    /// <c>ssCurrentUser</c>.</param>
+    constructor Create(const AAppName: string;
+      AScope: TOBDSecureSettingsScope = ssCurrentUser); overload;
+    /// <summary>Constructs a store at the explicit path.</summary>
+    /// <param name="AFilePath">Storage file path.</param>
+    /// <param name="AScope">DPAPI scope.</param>
+    constructor CreateAt(const AFilePath: string;
+      AScope: TOBDSecureSettingsScope = ssCurrentUser);
+    /// <summary>Frees state without writing — call
+    /// <see cref="Save"/> first to persist.</summary>
     destructor Destroy; override;
 
-    /// <summary>
-    ///   Read an encrypted value. Returns Default if missing or undecryptable.
-    /// </summary>
-    function ReadString(const Section, Key, Default: string): string;
-    /// <summary>
-    ///   Write a value, DPAPI-encrypting first.
-    /// </summary>
-    procedure WriteString(const Section, Key, Value: string);
-    /// <summary>
-    ///   Remove a key (no-op if absent).
-    /// </summary>
-    procedure DeleteKey(const Section, Key: string);
-    /// <summary>
-    ///   Persist to disk.
-    /// </summary>
+    /// <summary>Reads a value, returning <c>ADefault</c> when
+    /// the key is unknown.</summary>
+    /// <param name="AKey">Setting key.</param>
+    /// <param name="ADefault">Fallback value.</param>
+    /// <returns>The stored value or <c>ADefault</c>.</returns>
+    function Read(const AKey: string;
+      const ADefault: string = ''): string;
+    /// <summary>Writes a value (in-memory; call
+    /// <see cref="Save"/> to persist).</summary>
+    /// <param name="AKey">Setting key.</param>
+    /// <param name="AValue">Value to store.</param>
+    procedure Write(const AKey: string; const AValue: string);
+    /// <summary>Removes a key from the store.</summary>
+    /// <param name="AKey">Setting key.</param>
+    procedure Delete(const AKey: string);
+    /// <summary>Returns <c>True</c> when the key is present.</summary>
+    /// <param name="AKey">Setting key.</param>
+    function HasKey(const AKey: string): Boolean;
+
+    /// <summary>Number of stored keys.</summary>
+    function Count: Integer;
+    /// <summary>Snapshot of every key.</summary>
+    /// <returns>Array of keys (no defined order).</returns>
+    function Keys: TArray<string>;
+
+    /// <summary>Persists the current in-memory state to disk
+    /// under the configured DPAPI scope.</summary>
+    /// <exception cref="EOBDSecureSettings">
+    ///   DPAPI returned an error or the destination is
+    ///   unwritable.
+    /// </exception>
     procedure Save;
-    /// <summary>
-    ///   List of section names (in the clear).
-    /// </summary>
-    procedure ReadSections(Out: TStrings);
 
+    /// <summary>Drops every key (in-memory only — call
+    /// <see cref="Save"/> to commit).</summary>
+    procedure Clear;
+
+    /// <summary>Storage file path.</summary>
     property FilePath: string read FFilePath;
+    /// <summary>DPAPI protection scope.</summary>
+    property Scope: TOBDSecureSettingsScope read FScope;
   end;
-
-/// <summary>
-///   Encrypt arbitrary bytes with DPAPI (current user scope).
-/// </summary>
-function DPAPIEncrypt(const Plain: TBytes): TBytes;
-/// <summary>
-///   Decrypt previously-encrypted bytes.
-/// </summary>
-function DPAPIDecrypt(const Cipher: TBytes): TBytes;
 
 implementation
 
+{$IFDEF MSWINDOWS}
 uses
-  System.NetEncoding;
+  Winapi.Windows;
 
 const
-  CRYPTPROTECT_UI_FORBIDDEN = $01;
+  CRYPTPROTECT_LOCAL_MACHINE = $00000004;
+  CRYPTPROTECT_UI_FORBIDDEN  = $00000001;
 
 type
   DATA_BLOB = record
@@ -91,171 +161,297 @@ type
   end;
   PDATA_BLOB = ^DATA_BLOB;
 
-//------------------------------------------------------------------------------
-// CRYPT PROTECT DATA
-//------------------------------------------------------------------------------
 function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: PWideChar;
   pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
   pPromptStruct: Pointer; dwFlags: DWORD;
   pDataOut: PDATA_BLOB): BOOL; stdcall;
-  external 'crypt32.dll' name 'CryptProtectData';
+  external 'Crypt32.dll' name 'CryptProtectData';
 
-//------------------------------------------------------------------------------
-// CRYPT UNPROTECT DATA
-//------------------------------------------------------------------------------
 function CryptUnprotectData(pDataIn: PDATA_BLOB;
-  ppszDataDescr: PPWideChar;
-  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
-  pPromptStruct: Pointer; dwFlags: DWORD;
+  szDataDescr: PPWideChar; pOptionalEntropy: PDATA_BLOB;
+  pvReserved: Pointer; pPromptStruct: Pointer; dwFlags: DWORD;
   pDataOut: PDATA_BLOB): BOOL; stdcall;
-  external 'crypt32.dll' name 'CryptUnprotectData';
+  external 'Crypt32.dll' name 'CryptUnprotectData';
 
-//------------------------------------------------------------------------------
-// DPAPIENCRYPT
-//------------------------------------------------------------------------------
-function DPAPIEncrypt(const Plain: TBytes): TBytes;
+function FlagsForScope(AScope: TOBDSecureSettingsScope): DWORD;
+begin
+  Result := CRYPTPROTECT_UI_FORBIDDEN;
+  if AScope = ssLocalMachine then
+    Result := Result or CRYPTPROTECT_LOCAL_MACHINE;
+end;
+
+function DPAPIProtect(const APlain: TBytes;
+  AScope: TOBDSecureSettingsScope): TBytes;
 var
   In_, Out_: DATA_BLOB;
 begin
-  if Length(Plain) = 0 then Exit(nil);
-  In_.cbData := Length(Plain);
-  In_.pbData := @Plain[0];
-  Out_.cbData := 0;
-  Out_.pbData := nil;
+  In_.cbData := Length(APlain);
+  if In_.cbData > 0 then
+    In_.pbData := @APlain[0]
+  else
+    In_.pbData := nil;
   if not CryptProtectData(@In_, nil, nil, nil, nil,
-       CRYPTPROTECT_UI_FORBIDDEN, @Out_) then
-    raise EOBDDpapiError.CreateFmt('CryptProtectData failed: %d',
-      [GetLastError]);
+                          FlagsForScope(AScope), @Out_) then
+    raise EOBDSecureSettings.CreateFmt(
+      'CryptProtectData failed: %d', [GetLastError]);
   try
     SetLength(Result, Out_.cbData);
-    if Out_.cbData > 0 then Move(Out_.pbData^, Result[0], Out_.cbData);
+    if Out_.cbData > 0 then
+      Move(Out_.pbData^, Result[0], Out_.cbData);
   finally
-    if Out_.pbData <> nil then LocalFree(HLOCAL(Out_.pbData));
+    if Out_.pbData <> nil then
+      LocalFree(HLOCAL(Out_.pbData));
   end;
 end;
 
-//------------------------------------------------------------------------------
-// DPAPIDECRYPT
-//------------------------------------------------------------------------------
-function DPAPIDecrypt(const Cipher: TBytes): TBytes;
+function DPAPIUnprotect(const ACipher: TBytes;
+  AScope: TOBDSecureSettingsScope): TBytes;
 var
   In_, Out_: DATA_BLOB;
 begin
-  if Length(Cipher) = 0 then Exit(nil);
-  In_.cbData := Length(Cipher);
-  In_.pbData := @Cipher[0];
-  Out_.cbData := 0;
-  Out_.pbData := nil;
+  In_.cbData := Length(ACipher);
+  if In_.cbData > 0 then
+    In_.pbData := @ACipher[0]
+  else
+    In_.pbData := nil;
   if not CryptUnprotectData(@In_, nil, nil, nil, nil,
-       CRYPTPROTECT_UI_FORBIDDEN, @Out_) then
-    raise EOBDDpapiError.CreateFmt('CryptUnprotectData failed: %d',
-      [GetLastError]);
+                            FlagsForScope(AScope), @Out_) then
+    raise EOBDSecureSettings.CreateFmt(
+      'CryptUnprotectData failed: %d', [GetLastError]);
   try
     SetLength(Result, Out_.cbData);
-    if Out_.cbData > 0 then Move(Out_.pbData^, Result[0], Out_.cbData);
+    if Out_.cbData > 0 then
+      Move(Out_.pbData^, Result[0], Out_.cbData);
   finally
-    if Out_.pbData <> nil then LocalFree(HLOCAL(Out_.pbData));
+    if Out_.pbData <> nil then
+      LocalFree(HLOCAL(Out_.pbData));
   end;
 end;
+{$ELSE}
+function DPAPIProtect(const APlain: TBytes;
+  AScope: TOBDSecureSettingsScope): TBytes;
+begin
+  raise EOBDSecureSettings.Create(
+    'TOBDSecureSettings: DPAPI is Windows-only');
+end;
 
-//==============================================================================
-// TOBDSecureSettings
-//==============================================================================
+function DPAPIUnprotect(const ACipher: TBytes;
+  AScope: TOBDSecureSettingsScope): TBytes;
+begin
+  raise EOBDSecureSettings.Create(
+    'TOBDSecureSettings: DPAPI is Windows-only');
+end;
+{$ENDIF}
 
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
-constructor TOBDSecureSettings.Create(const AFilePath: string);
+function DefaultStorePath(const AAppName: string;
+  AScope: TOBDSecureSettingsScope): string;
+var
+  Base: string;
+  EnvVar: string;
+begin
+  {$IFDEF MSWINDOWS}
+  if AScope = ssLocalMachine then
+    EnvVar := 'PROGRAMDATA'
+  else
+    EnvVar := 'LOCALAPPDATA';
+  Base := GetEnvironmentVariable(EnvVar);
+  if Base = '' then
+    Base := TPath.GetHomePath;
+  {$ELSE}
+  Base := TPath.GetHomePath;
+  {$ENDIF}
+  Result := TPath.Combine(TPath.Combine(Base, AAppName), 'settings.dat');
+end;
+
+{ TOBDSecureSettings }
+
+constructor TOBDSecureSettings.Create(const AAppName: string;
+  AScope: TOBDSecureSettingsScope);
+begin
+  CreateAt(DefaultStorePath(AAppName, AScope), AScope);
+end;
+
+constructor TOBDSecureSettings.CreateAt(const AFilePath: string;
+  AScope: TOBDSecureSettingsScope);
 begin
   inherited Create;
   FFilePath := AFilePath;
-  ForceDirectories(TPath.GetDirectoryName(FFilePath));
-  FIni := TMemIniFile.Create(FFilePath);
+  FScope := AScope;
+  FLock := TCriticalSection.Create;
+  FCache := TDictionary<string, string>.Create;
 end;
 
-//------------------------------------------------------------------------------
-// DESTROY
-//------------------------------------------------------------------------------
 destructor TOBDSecureSettings.Destroy;
 begin
-  FIni.Free;
+  FCache.Free;
+  FLock.Free;
   inherited;
 end;
 
-//------------------------------------------------------------------------------
-// PROTECT STRING
-//------------------------------------------------------------------------------
-function TOBDSecureSettings.ProtectString(const Plain: string): string;
-var
-  Bytes, Encrypted: TBytes;
+function TOBDSecureSettings.ProtectBlob(const APlainText: TBytes): TBytes;
 begin
-  Bytes := TEncoding.UTF8.GetBytes(Plain);
-  Encrypted := DPAPIEncrypt(Bytes);
-  Result := TNetEncoding.Base64.EncodeBytesToString(Encrypted);
+  Result := DPAPIProtect(APlainText, FScope);
 end;
 
-//------------------------------------------------------------------------------
-// UNPROTECT STRING
-//------------------------------------------------------------------------------
-function TOBDSecureSettings.UnprotectString(const Cipher: string): string;
-var
-  Encrypted, Decrypted: TBytes;
+function TOBDSecureSettings.UnprotectBlob(const ACipherText: TBytes): TBytes;
 begin
-  if Cipher = '' then Exit('');
-  Encrypted := TNetEncoding.Base64.DecodeStringToBytes(Cipher);
-  Decrypted := DPAPIDecrypt(Encrypted);
-  Result := TEncoding.UTF8.GetString(Decrypted);
+  Result := DPAPIUnprotect(ACipherText, FScope);
 end;
 
-//------------------------------------------------------------------------------
-// READ STRING
-//------------------------------------------------------------------------------
-function TOBDSecureSettings.ReadString(const Section, Key, Default: string): string;
+procedure TOBDSecureSettings.EnsureLoaded;
 var
-  Cipher: string;
+  Raw: TBytes;
+  PlainBytes: TBytes;
+  PlainText: string;
+  Root: TJSONValue;
+  Obj: TJSONObject;
+  I: Integer;
+  Pair: TJSONPair;
 begin
-  Cipher := FIni.ReadString(Section, Key, '');
-  if Cipher = '' then Exit(Default);
+  if FLoaded then
+    Exit;
+  FLoaded := True;
+  if not TFile.Exists(FFilePath) then
+    Exit;
   try
-    Result := UnprotectString(Cipher);
+    Raw := TFile.ReadAllBytes(FFilePath);
+    PlainBytes := UnprotectBlob(Raw);
+    PlainText := TEncoding.UTF8.GetString(PlainBytes);
   except
-    // If the file was tampered with or moved between user accounts the
-    // ciphertext won't decrypt — fall back to Default rather than
-    // crashing the calling code.
-    Result := Default;
+    on E: Exception do
+      raise EOBDSecureSettings.CreateFmt(
+        'TOBDSecureSettings: cannot decrypt "%s": %s',
+        [FFilePath, E.Message]);
+  end;
+  Root := TJSONObject.ParseJSONValue(PlainText);
+  if not (Root is TJSONObject) then
+  begin
+    Root.Free;
+    raise EOBDSecureSettings.CreateFmt(
+      'TOBDSecureSettings: malformed JSON in "%s"', [FFilePath]);
+  end;
+  Obj := Root as TJSONObject;
+  try
+    for I := 0 to Obj.Count - 1 do
+    begin
+      Pair := Obj.Pairs[I];
+      FCache.AddOrSetValue(Pair.JsonString.Value,
+        Pair.JsonValue.Value);
+    end;
+  finally
+    Root.Free;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// WRITE STRING
-//------------------------------------------------------------------------------
-procedure TOBDSecureSettings.WriteString(const Section, Key, Value: string);
+function TOBDSecureSettings.Read(const AKey: string;
+  const ADefault: string): string;
 begin
-  FIni.WriteString(Section, Key, ProtectString(Value));
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    if not FCache.TryGetValue(AKey, Result) then
+      Result := ADefault;
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//------------------------------------------------------------------------------
-// DELETE KEY
-//------------------------------------------------------------------------------
-procedure TOBDSecureSettings.DeleteKey(const Section, Key: string);
+procedure TOBDSecureSettings.Write(const AKey: string;
+  const AValue: string);
 begin
-  FIni.DeleteKey(Section, Key);
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    FCache.AddOrSetValue(AKey, AValue);
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//------------------------------------------------------------------------------
-// SAVE
-//------------------------------------------------------------------------------
+procedure TOBDSecureSettings.Delete(const AKey: string);
+begin
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    FCache.Remove(AKey);
+  finally
+    FLock.Leave;
+  end;
+end;
+
+function TOBDSecureSettings.HasKey(const AKey: string): Boolean;
+begin
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    Result := FCache.ContainsKey(AKey);
+  finally
+    FLock.Leave;
+  end;
+end;
+
+function TOBDSecureSettings.Count: Integer;
+begin
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    Result := FCache.Count;
+  finally
+    FLock.Leave;
+  end;
+end;
+
+function TOBDSecureSettings.Keys: TArray<string>;
+begin
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    Result := FCache.Keys.ToArray;
+  finally
+    FLock.Leave;
+  end;
+end;
+
 procedure TOBDSecureSettings.Save;
+var
+  Obj: TJSONObject;
+  Pair: TPair<string, string>;
+  PlainText: string;
+  PlainBytes: TBytes;
+  Cipher: TBytes;
+  Dir: string;
 begin
-  FIni.UpdateFile;
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    Obj := TJSONObject.Create;
+    try
+      for Pair in FCache do
+        Obj.AddPair(Pair.Key, Pair.Value);
+      PlainText := Obj.ToString;
+    finally
+      Obj.Free;
+    end;
+    PlainBytes := TEncoding.UTF8.GetBytes(PlainText);
+    Cipher := ProtectBlob(PlainBytes);
+    Dir := TPath.GetDirectoryName(FFilePath);
+    if (Dir <> '') and not TDirectory.Exists(Dir) then
+      TDirectory.CreateDirectory(Dir);
+    TFile.WriteAllBytes(FFilePath, Cipher);
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//------------------------------------------------------------------------------
-// READ SECTIONS
-//------------------------------------------------------------------------------
-procedure TOBDSecureSettings.ReadSections(Out: TStrings);
+procedure TOBDSecureSettings.Clear;
 begin
-  FIni.ReadSections(Out);
+  FLock.Enter;
+  try
+    EnsureLoaded;
+    FCache.Clear;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 end.

@@ -1,0 +1,10 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "stellantis",
+  "label": "Stellantis e-CMP (Peugeot e-208/e-2008, Opel Corsa-e/Mokka-e, Citroen e-C4, DS3 Crossback E-Tense, Jeep Avenger, Vauxhall Vivaro-e). Fiat 500e (Mini-platform) decode is separate.",
+  "ecu": { "request_id_hex": "unknown-public", "response_id_hex": "unknown-public" },
+  "applicable_models": ["Peugeot e-208", "Peugeot e-2008", "Opel Corsa-e", "Opel Mokka-e", "Citroen e-C4", "DS3 Crossback E-Tense", "Jeep Avenger EV", "Fiat 500e"],
+  "fields": [],
+  "notes": "e-CMP requires a special 16-pin OBD adapter cable to expose the diagnostic CAN. Community apps (Car Scanner) include SOH, SOC, battery temperature, per-cell V and module temperatures, but no open-source repository publishes the per-DID byte map. OVMS Github issue #719 tracks an unfinished port. See https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/issues/719 .",
+  "unavailable_fields": { "all": "Field not documented for this vendor at byte-level in any open public source." }
+}

@@ -1,756 +1,314 @@
-﻿//------------------------------------------------------------------------------
-// UNIT           : OBD.Protocol.Types.pas
-// CONTENTS       : OBD Protocol Types
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 02/03/2024
 //------------------------------------------------------------------------------
+//  OBD.Protocol.Types
+//
+//  Foundational protocol-layer types: request / response records,
+//  service-tag enums, error categories, frame kinds, NRC text loader
+//  hook. Has no dependencies beyond OBD.Types and OBD.Catalog.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  References  :
+//    - ISO 15031-5 (OBD-II services)
+//    - ISO 14229-1 (UDS service set + NRC catalogue)
+//    - ISO 14230-3 (KWP2000 services)
+//    - SAE J1939-73 (Diagnostics Messages)
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation.
+//------------------------------------------------------------------------------
+
 unit OBD.Protocol.Types;
 
 interface
 
-uses WinApi.Windows, System.Classes, System.SysUtils;
+uses
+  System.SysUtils,
+  System.Classes,
+  OBD.Types;
 
-//------------------------------------------------------------------------------
-// INTERFACES
-//------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   OBD Data Frame (INTERFACE)
+  ///   Application-layer protocol the request will be encoded in.
   /// </summary>
-  IOBDDataFrame = interface
-    ['{4F4318BD-2108-43D4-BA4D-7428E21C9710}']
-    /// <summary>
-    ///   Gets the raw data of the frame.
-    /// </summary>
-    function GetRaw: string;
-    /// <summary>
-    ///   Sets the raw data of the frame.
-    /// </summary>
-    procedure SetRaw(Value: string);
-    /// <summary>
-    ///   Gets the data payload of the frame.
-    /// </summary>
-    function GetData: TBytes;
-    /// <summary>
-    ///   Sets the data payload of the frame.
-    /// </summary>
-    procedure SetData(Value: TBytes);
-    /// <summary>
-    ///   Gets the priority of the frame.
-    /// </summary>
-    function GetPriority: Integer;
-    /// <summary>
-    ///   Sets the priority of the frame.
-    /// </summary>
-    procedure SetPriority(Value: Integer);
-    /// <summary>
-    ///   Gets the address mode of the frame.
-    /// </summary>
-    function GetAddrMode: Integer;
-    /// <summary>
-    ///   Sets the address mode of the frame.
-    /// </summary>
-    procedure SetAddrMode(Value: Integer);
-    /// <summary>
-    ///   Gets the receiver identifier of the frame.
-    /// </summary>
-    function GetRxId: Integer;
-    /// <summary>
-    ///   Sets the receiver identifier of the frame.
-    /// </summary>
-    procedure SetRxId(Value: Integer);
-    /// <summary>
-    ///   Gets the transmitter identifier of the frame.
-    /// </summary>
-    function GetTxId: Integer;
-    /// <summary>
-    ///   Sets the transmitter identifier of the frame.
-    /// </summary>
-    procedure SetTxId(Value: Integer);
-    /// <summary>
-    ///   Gets the type of the frame.
-    /// </summary>
-    function GetFrameType: Byte;
-    /// <summary>
-    ///   Sets the type of the frame.
-    /// </summary>
-    procedure SetFrameType(Value: Byte);
-    /// <summary>
-    ///   Gets the sequence index of the frame.
-    /// </summary>
-    function GetSeqIndex: Integer;
-    /// <summary>
-    ///   Sets the sequence index of the frame.
-    /// </summary>
-    procedure SetSeqIndex(Value: Integer);
-    /// <summary>
-    ///   Gets the length of the data in the frame.
-    /// </summary>
-    function GetDataLength: Integer;
-    /// <summary>
-    ///   Sets the length of the data in the frame.
-    /// </summary>
-    procedure SetDataLength(Value: Integer);
-    /// <summary>
-    ///   Raw data of the frame.
-    /// </summary>
-    property Raw: string read GetRaw;
-    /// <summary>
-    ///   Data payload of the frame.
-    /// </summary>
-    property Data: TBytes read GetData write SetData;
-    /// <summary>
-    ///   Priority of the frame.
-    /// </summary>
-    property Priority: Integer read GetPriority write SetPriority;
-    /// <summary>
-    ///   Address mode of the frame.
-    /// </summary>
-    property AddrMode: Integer read GetAddrMode write SetAddrMode;
-    /// <summary>
-    ///   Receiver identifier of the frame.
-    /// </summary>
-    property RxId: Integer read GetRxId write SetRxId;
-    /// <summary>
-    ///   Transmitter identifier of the frame.
-    /// </summary>
-    property TxId: Integer read GetTxId write SetTxId;
-    /// <summary>
-    ///   Type of the frame.
-    /// </summary>
-    property FrameType: Byte read GetFrameType write SetFrameType;
-    /// <summary>
-    ///   Sequence index of the frame.
-    /// </summary>
-    property SeqIndex: Integer read GetSeqIndex write SetSeqIndex;
-    /// <summary>
-    ///   Length of the data in the frame.
-    /// </summary>
-    property DataLength: Integer read GetDataLength write SetDataLength;
+  /// <remarks>
+  ///   Distinct from <see cref="TOBDProtocolID"/> in
+  ///   <c>OBD.Types</c>, which is the wire-bus protocol (CAN /
+  ///   J1850 / etc.). One bus protocol can carry multiple
+  ///   application protocols — e.g. ISO 15765 carries OBD-II Mode
+  ///   01–0A *and* UDS *and* WWH-OBD.
+  /// </remarks>
+  TOBDApplicationProtocol = (
+    /// <summary>OBD-II Modes 01–0A (ISO 15031-5).</summary>
+    apOBD2,
+    /// <summary>UDS (ISO 14229).</summary>
+    apUDS,
+    /// <summary>KWP2000 (ISO 14230).</summary>
+    apKWP2000,
+    /// <summary>SAE J1939 (heavy-duty diagnostics messages).</summary>
+    apJ1939,
+    /// <summary>WWH-OBD (GTR No. 5; UDS-shaped).</summary>
+    apWWHOBD,
+    /// <summary>Diagnostics over IP (ISO 13400).</summary>
+    apDoIP
+  );
+
+  /// <summary>
+  ///   Frame kind in an ISO-TP / multi-frame transport.
+  /// </summary>
+  TOBDFrameKind = (
+    /// <summary>Single Frame (ISO-TP SF, payload &lt;= 7 bytes on
+    /// classic CAN).</summary>
+    fkSingle,
+    /// <summary>First Frame of a multi-frame message.</summary>
+    fkFirst,
+    /// <summary>Consecutive Frame.</summary>
+    fkConsecutive,
+    /// <summary>Flow Control frame.</summary>
+    fkFlowControl,
+    /// <summary>Frame outside the ISO-TP categorisation
+    /// (e.g. raw legacy line).</summary>
+    fkRaw
+  );
+
+  /// <summary>
+  ///   A single low-level frame as observed on the wire.
+  /// </summary>
+  /// <remarks>
+  ///   For an ELM327-driven adapter this is constructed by parsing
+  ///   the chip's hex-text response. For raw-CAN adapters (J2534)
+  ///   it is constructed directly from the bus driver.
+  /// </remarks>
+  TOBDFrame = record
+    /// <summary>CAN identifier (11 or 29 bit) or 0 for non-CAN
+    /// transports.</summary>
+    Id: Cardinal;
+    /// <summary>True when <c>Id</c> is a 29-bit identifier.</summary>
+    IsExtendedId: Boolean;
+    /// <summary>Frame payload bytes (without the CAN ID).</summary>
+    Payload: TBytes;
+    /// <summary>Categorised frame kind (ISO-TP discriminator if
+    /// applicable).</summary>
+    Kind: TOBDFrameKind;
+    /// <summary>Local capture timestamp.</summary>
+    Timestamp: TDateTime;
   end;
 
   /// <summary>
-  ///   OBD Data Message (INTERFACE)
+  ///   Application-level request to send.
   /// </summary>
-  IOBDDataMessage = interface
-    ['{24207F32-9B74-4D4C-8824-0A7E0F01B3F3}']
-    /// <summary>
-    ///   Gets the frames associated with the message.
-    /// </summary>
-    function GetFrames: TArray<IOBDDataFrame>;
-    /// <summary>
-    ///   Gets the ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    function GetEcu: string;
-    /// <summary>
-    ///   Sets the ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    procedure SetEcu(Value: string);
-    /// <summary>
-    ///   Gets the data payload of the message.
-    /// </summary>
-    function GetData: TBytes;
-    /// <summary>
-    ///   Sets the data payload of the message.
-    /// </summary>
-    procedure SetData(Value: TBytes);
-    /// <summary>
-    ///   Sets the length of the data payload of the message.
-    /// </summary>
-    procedure SetDataLength(Value: Integer);
-    /// <summary>
-    ///   Gets the transmitter ID of the message.
-    /// </summary>
-    function GetTxId: Integer;
-    /// <summary>
-    ///   Sets the transmitter ID of the message.
-    /// </summary>
-    procedure SetTxId(Value: Integer);
-    /// <summary>
-    ///   Converts the message data to hexadecimal format.
-    /// </summary>
-    function Hex: string;
-    /// <summary>
-    ///   Returns the original raw input string from the adapter.
-    /// </summary>
-    function Raw: string;
-    /// <summary>
-    ///   Indicates whether the message was successfully parsed.
-    /// </summary>
-    function Parsed: Boolean;
-    /// <summary>
-    ///   Checks if the message is equal to another message.
-    /// </summary>
-    function Equals(Msg: IOBDDataMessage): Boolean;
-    /// <summary>
-    ///   Frames associated with the message.
-    /// </summary>
-    property Frames: TArray<IOBDDataFrame> read GetFrames;
-    /// <summary>
-    ///   ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    property ECU: string read GetECU write SetECU;
-    /// <summary>
-    ///   Data payload of the message.
-    /// </summary>
-    property Data: TBytes read GetData write SetData;
-    /// <summary>
-    ///   Transmitter ID of the message.
-    /// </summary>
-    property TxId: Integer read GetTxId write SetTxId;
-  end;
-
-//------------------------------------------------------------------------------
-// CLASSES
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   OBD Data Frame (CLASS)
-  /// </summary>
-  TOBDDataFrame = class(TInterfacedObject, IOBDDataFrame)
-  private
-    /// <summary>
-    ///   Raw data of the frame.
-    /// </summary>
-    FRaw: string;
-    /// <summary>
-    ///   Data payload of the frame.
-    /// </summary>
-    FData: TBytes;
-    /// <summary>
-    ///   Priority of the frame.
-    /// </summary>
-    FPriority: Integer;
-    /// <summary>
-    ///   Address mode of the frame.
-    /// </summary>
-    FAddrMode: Integer;
-    /// <summary>
-    ///   Receiver identifier of the frame.
-    /// </summary>
-    FRxId: Integer;
-    /// <summary>
-    ///   Transmitter identifier of the frame.
-    /// </summary>
-    FTxId: Integer;
-    /// <summary>
-    ///   Type of the frame.
-    /// </summary>
-    FFrameType: Byte;
-    /// <summary>
-    ///   Sequence index of the frame.
-    /// </summary>
-    FSeqIndex: Integer;
-    /// <summary>
-    ///   Length of the data.
-    /// </summary>
-    FDataLength: Integer;
-  protected
-    /// <summary>
-    ///   Gets the raw data of the frame.
-    /// </summary>
-    function GetRaw: string;
-    /// <summary>
-    ///   Sets the raw data of the frame.
-    /// </summary>
-    procedure SetRaw(Value: string);
-    /// <summary>
-    ///   Gets the data payload of the frame.
-    /// </summary>
-    function GetData: TBytes;
-    /// <summary>
-    ///   Sets the data payload of the frame.
-    /// </summary>
-    procedure SetData(Value: TBytes);
-    /// <summary>
-    ///   Gets the priority of the frame.
-    /// </summary>
-    function GetPriority: Integer;
-    /// <summary>
-    ///   Sets the priority of the frame.
-    /// </summary>
-    procedure SetPriority(Value: Integer);
-    /// <summary>
-    ///   Gets the address mode of the frame.
-    /// </summary>
-    function GetAddrMode: Integer;
-    /// <summary>
-    ///   Sets the address mode of the frame.
-    /// </summary>
-    procedure SetAddrMode(Value: Integer);
-    /// <summary>
-    ///   Gets the receiver identifier of the frame.
-    /// </summary>
-    function GetRxId: Integer;
-    /// <summary>
-    ///   Sets the receiver identifier of the frame.
-    /// </summary>
-    procedure SetRxId(Value: Integer);
-    /// <summary>
-    ///   Gets the transmitter identifier of the frame.
-    /// </summary>
-    function GetTxId: Integer;
-    /// <summary>
-    ///   Sets the transmitter identifier of the frame.
-    /// </summary>
-    procedure SetTxId(Value: Integer);
-    /// <summary>
-    ///   Gets the type of the frame.
-    /// </summary>
-    function GetFrameType: Byte;
-    /// <summary>
-    ///   Sets the type of the frame.
-    /// </summary>
-    procedure SetFrameType(Value: Byte);
-    /// <summary>
-    ///   Gets the sequence index of the frame.
-    /// </summary>
-    function GetSeqIndex: Integer;
-    /// <summary>
-    ///   Sets the sequence index of the frame.
-    /// </summary>
-    procedure SetSeqIndex(Value: Integer);
-    /// <summary>
-    ///   Gets the length of the data in the frame.
-    /// </summary>
-    function GetDataLength: Integer;
-    /// <summary>
-    ///   Sets the length of the data in the frame.
-    /// </summary>
-    procedure SetDataLength(Value: Integer);
-  public
-    /// <summary>
-    ///   Constructor
-    /// </summary>
-    constructor Create(Raw: string); virtual;
-
-    /// <summary>
-    ///   Raw data of the frame.
-    /// </summary>
-    property Raw: string read GetRaw write SetRaw;
-    /// <summary>
-    ///   Data payload of the frame.
-    /// </summary>
-    property Data: TBytes read GetData write SetData;
-    /// <summary>
-    ///   Priority of the frame.
-    /// </summary>
-    property Priority: Integer read GetPriority write SetPriority;
-    /// <summary>
-    ///   Address mode of the frame.
-    /// </summary>
-    property AddrMode: Integer read GetAddrMode write SetAddrMode;
-    /// <summary>
-    ///   Receiver identifier of the frame.
-    /// </summary>
-    property RxId: Integer read GetRxId write SetRxId;
-    /// <summary>
-    ///   Transmitter identifier of the frame.
-    /// </summary>
-    property TxId: Integer read GetTxId write SetTxId;
-    /// <summary>
-    ///   Type of the frame.
-    /// </summary>
-    property FrameType: Byte read GetFrameType write SetFrameType;
-    /// <summary>
-    ///   Sequence index of the frame.
-    /// </summary>
-    property SeqIndex: Integer read GetSeqIndex write SetSeqIndex;
-    /// <summary>
-    ///   Length of the data in the frame.
-    /// </summary>
-    property DataLength: Integer read GetDataLength write SetDataLength;
+  /// <remarks>
+  ///   <c>ServiceID</c> is the leading byte (e.g. 0x01 for OBD-II
+  ///   current data, 0x22 for UDS ReadDataByIdentifier). <c>Data</c>
+  ///   is the body that follows (PID, DID, sub-function, …). The
+  ///   protocol layer prepends <c>ServiceID</c> and any wire-level
+  ///   header bytes (CAN ID, KWP format byte, …) before transmit.
+  /// </remarks>
+  TOBDRequest = record
+    /// <summary>Application protocol used to encode this request.</summary>
+    Protocol: TOBDApplicationProtocol;
+    /// <summary>Leading service / SID byte.</summary>
+    ServiceID: Byte;
+    /// <summary>Body bytes after the service ID.</summary>
+    Data: TBytes;
+    /// <summary>Optional override of the adapter-managed header /
+    /// CAN ID. Empty string lets the adapter use its current
+    /// setting.</summary>
+    HeaderOverride: string;
+    /// <summary>Per-request timeout in milliseconds. <c>0</c> uses
+    /// the protocol component's default.</summary>
+    TimeoutMs: Cardinal;
   end;
 
   /// <summary>
-  ///   OBD Data Message (CLASS)
+  ///   Decoded response to a request.
   /// </summary>
-  TOBDDataMessage = class(TInterfacedObject, IOBDDataMessage)
-  private
-    /// <summary>
-    ///   Frames associated with the message.
-    /// </summary>
-    FFrames: TArray<IOBDDataFrame>;
-    /// <summary>
-    ///   ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    FECU: string;
-    /// <summary>
-    ///   Data payload of the message.
-    /// </summary>
-    FData: TBytes;
-    /// <summary>
-    ///   Transmitter ID of the message.
-    /// </summary>
-    FTxId: Integer;
-  protected
-    /// <summary>
-    ///   Gets the frames associated with the message.
-    /// </summary>
-    function GetFrames: TArray<IOBDDataFrame>;
-    /// <summary>
-    ///   Gets the ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    function GetEcu: string;
-    /// <summary>
-    ///   Sets the ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    procedure SetEcu(Value: string);
-    /// <summary>
-    ///   Gets the data payload of the message.
-    /// </summary>
-    function GetData: TBytes;
-    /// <summary>
-    ///   Sets the data payload of the message.
-    /// </summary>
-    procedure SetData(Value: TBytes);
-    /// <summary>
-    ///   Sets the length of the data payload of the message.
-    /// </summary>
-    procedure SetDataLength(Value: Integer);
-    /// <summary>
-    ///   Gets the transmitter ID of the message.
-    /// </summary>
-    function GetTxId: Integer;
-    /// <summary>
-    ///   Sets the transmitter ID of the message.
-    /// </summary>
-    procedure SetTxId(Value: Integer);
-    /// <summary>
-    ///   Converts the message data to hexadecimal format.
-    /// </summary>
-    function Hex: string;
-    /// <summary>
-    ///   Returns the original raw input string from the interface.
-    /// </summary>
-    function Raw: string;
-    /// <summary>
-    ///   Indicates whether the message was successfully parsed.
-    /// </summary>
-    function Parsed: Boolean;
-  public
-    /// <summary>
-    ///   Constructor
-    /// </summary>
-    constructor Create(Frames: TArray<IOBDDataFrame>); virtual;
-
-    /// <summary>
-    ///   Checks if the message is equal to another message.
-    /// </summary>
-    function Equals(Msg: IOBDDataMessage): Boolean; reintroduce;
-
-    /// <summary>
-    ///   Frames associated with the message.
-    /// </summary>
-    property Frames: TArray<IOBDDataFrame> read GetFrames;
-    /// <summary>
-    ///   ECU (Electronic Control Unit) associated with the message.
-    /// </summary>
-    property ECU: string read GetECU write SetECU;
-    /// <summary>
-    ///   Data payload of the message.
-    /// </summary>
-    property Data: TBytes read GetData write SetData;
-    /// <summary>
-    ///   Transmitter ID of the message.
-    /// </summary>
-    property TxId: Integer read GetTxId write SetTxId;
+  TOBDResponse = record
+    /// <summary>Request that produced this response.</summary>
+    Request: TOBDRequest;
+    /// <summary>Service ID echoed back by the ECU (request SID + 0x40
+    /// for positive response on UDS / OBD-II).</summary>
+    ServiceID: Byte;
+    /// <summary>Application payload (excludes the service ID).</summary>
+    Data: TBytes;
+    /// <summary>Frames seen on the wire that contributed to this
+    /// response. Useful for diagnostics / logging.</summary>
+    Frames: TArray<TOBDFrame>;
+    /// <summary>Round-trip elapsed milliseconds.</summary>
+    Elapsed: Cardinal;
+    /// <summary>True when the response is a UDS / KWP negative
+    /// response (<c>0x7F service NRC</c>).</summary>
+    IsNegative: Boolean;
+    /// <summary>NRC byte when <c>IsNegative</c> is True.</summary>
+    NRC: Byte;
+    /// <summary>Resolved NRC text (looked up via <c>OBD.Catalog</c>);
+    /// empty when <c>IsNegative</c> is False.</summary>
+    NRCText: string;
   end;
+
+  /// <summary>
+  ///   Event raised for every frame observed on the wire.
+  /// </summary>
+  /// <param name="Sender">Protocol component instance.</param>
+  /// <param name="AFrame">Captured frame.</param>
+  /// <remarks>Fires on the main thread.</remarks>
+  TOBDProtocolFrameEvent = procedure(Sender: TObject;
+    const AFrame: TOBDFrame) of object;
+
+  /// <summary>
+  ///   Event raised for every successful response.
+  /// </summary>
+  /// <param name="Sender">Protocol component instance.</param>
+  /// <param name="AResponse">Decoded response.</param>
+  /// <remarks>Fires on the main thread.</remarks>
+  TOBDProtocolResponseEvent = procedure(Sender: TObject;
+    const AResponse: TOBDResponse) of object;
+
+  /// <summary>
+  ///   Negative-response (NRC) callback for <c>OnNRC</c>.
+  /// </summary>
+  /// <param name="Sender">Protocol component instance.</param>
+  /// <param name="ARequest">The request that triggered the NRC.</param>
+  /// <param name="ANRC">Negative-response code byte.</param>
+  /// <param name="AText">Resolved NRC text.</param>
+  TOBDProtocolNRCEvent = procedure(Sender: TObject;
+    const ARequest: TOBDRequest; ANRC: Byte;
+    const AText: string) of object;
+
+  /// <summary>Multi-listener variant of the protocol error event.
+  /// Listeners observe transient errors; they cannot absorb them
+  /// (the <c>var AHandled</c> contract belongs to the single
+  /// <c>OnError</c> handler).</summary>
+  TOBDProtocolErrorListenerEvent = procedure(Sender: TObject;
+    ACode: TOBDErrorCode; const AMessage: string) of object;
+
+  /// <summary>
+  ///   Multi-cast listener record for
+  ///   <c>TOBDProtocol.AddListener</c>. Set the fields you care
+  ///   about; leave the rest <c>nil</c>. The protocol fans every
+  ///   event out to all registered listeners on the main thread,
+  ///   alongside (not instead of) the single-cast OnXxx
+  ///   properties — so a host can wire its own OnFrame handler
+  ///   AND drop in a TOBDRecorder without either clobbering the
+  ///   other.
+  /// </summary>
+  TOBDProtocolListener = record
+    OnFrame:    TOBDProtocolFrameEvent;
+    OnResponse: TOBDProtocolResponseEvent;
+    OnNRC:      TOBDProtocolNRCEvent;
+    OnError:    TOBDProtocolErrorListenerEvent;
+  end;
+
+  /// <summary>
+  ///   Programmer / configuration error raised by the protocol layer.
+  /// </summary>
+  EOBDProtocolErr = class(EOBDError);
+
+/// <summary>
+///   Returns an empty <see cref="TOBDRequest"/> with sensible defaults.
+/// </summary>
+/// <returns>Fresh request record.</returns>
+function MakeOBDRequest: TOBDRequest;
+
+/// <summary>
+///   Returns an empty <see cref="TOBDResponse"/>.
+/// </summary>
+/// <returns>Fresh response record.</returns>
+function MakeOBDResponse: TOBDResponse;
+
+/// <summary>
+///   Format raw bytes as a space-separated upper-case hex string
+///   (e.g. <c>'01 0C'</c>). Used by the protocol layer to assemble
+///   commands the ELM327 / OBDLink chip expects.
+/// </summary>
+/// <param name="ABytes">Bytes to format.</param>
+/// <returns>Space-separated hex string. Empty for an empty input.</returns>
+function BytesToHex(const ABytes: TBytes): string;
+
+/// <summary>
+///   Parse a space-separated hex string back into bytes. Tolerates
+///   any whitespace (CR/LF/Tab) and ignores hex-only token cruft;
+///   any non-hex character interrupts the parse.
+/// </summary>
+/// <param name="AText">Hex-and-whitespace text.</param>
+/// <returns>Bytes. Empty when no recognisable hex byte was found.</returns>
+function HexToBytes(const AText: string): TBytes;
 
 implementation
 
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TOBDDataFrame.Create(Raw: string);
+function MakeOBDRequest: TOBDRequest;
 begin
-  FRaw := Raw;
-  FData := nil;
-  FPriority := 0;
-  FAddrMode := 0;
-  FRxId := 0;
-  FTxId := 0;
-  FFrameType := $00;
-  FSeqIndex := 0;
+  Result.Protocol := apOBD2;
+  Result.ServiceID := 0;
+  Result.Data := nil;
+  Result.HeaderOverride := '';
+  Result.TimeoutMs := 0;
 end;
 
-//------------------------------------------------------------------------------
-// GET RAW DATA
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetRaw: string;
+function MakeOBDResponse: TOBDResponse;
 begin
-  Result := FRaw;
+  Result.Request := MakeOBDRequest;
+  Result.ServiceID := 0;
+  Result.Data := nil;
+  Result.Frames := nil;
+  Result.Elapsed := 0;
+  Result.IsNegative := False;
+  Result.NRC := 0;
+  Result.NRCText := '';
 end;
 
-//------------------------------------------------------------------------------
-// SET RAW DATA
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetRaw(Value: string);
-begin
-  FRaw := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET DATA
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetData: TBytes;
-begin
-  Result := FData;
-end;
-
-//------------------------------------------------------------------------------
-// SET DATA
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetData(Value: TBytes);
-begin
-  FData := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET PRIORITY
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetPriority: Integer;
-begin
-  Result := FPriority;
-end;
-
-//------------------------------------------------------------------------------
-// SET PRIORITY
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetPriority(Value: Integer);
-begin
-  FPriority := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET ADDRESS MODE
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetAddrMode: Integer;
-begin
-  Result := FAddrMode;
-end;
-
-//------------------------------------------------------------------------------
-// SET ADDRESS MODE
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetAddrMode(Value: Integer);
-begin
-  FAddrMode := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET RX ID
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetRxId: Integer;
-begin
-  Result := FRxId;
-end;
-
-//------------------------------------------------------------------------------
-// SET RX ID
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetRxId(Value: Integer);
-begin
-  FRxId := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET TX ID
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetTxId: Integer;
-begin
-  Result := FTxId;
-end;
-
-//------------------------------------------------------------------------------
-// SET TX ID
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetTxId(Value: Integer);
-begin
-  FTxId := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET FRAME TYPE
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetFrameType: Byte;
-begin
-  Result := FFrameType;
-end;
-
-//------------------------------------------------------------------------------
-// SET FRAME TYPE
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetFrameType(Value: Byte);
-begin
-  FFrameType := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET SEQUENCE INDEX
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetSeqIndex: Integer;
-begin
-  Result := FSeqIndex;
-end;
-
-//------------------------------------------------------------------------------
-// SET SEQUENCE INDEX
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetSeqIndex(Value: Integer);
-begin
-  FSeqIndex := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET DATA LENGTH
-//------------------------------------------------------------------------------
-function TOBDDataFrame.GetDataLength: Integer;
-begin
-  Result := FDataLength;
-end;
-
-//------------------------------------------------------------------------------
-// SET DATA LENGTH
-//------------------------------------------------------------------------------
-procedure TOBDDataFrame.SetDataLength(Value: Integer);
-begin
-  FDataLength := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET FRAMES
-//------------------------------------------------------------------------------
-function TOBDDataMessage.GetFrames: TArray<IOBDDataFrame>;
-begin
-  Result := FFrames;
-end;
-
-//------------------------------------------------------------------------------
-// GET ECU
-//------------------------------------------------------------------------------
-function TOBDDataMessage.GetEcu: string;
-begin
-  Result := FECU;
-end;
-
-//------------------------------------------------------------------------------
-// SET ECU
-//------------------------------------------------------------------------------
-procedure TOBDDataMessage.SetEcu(Value: string);
-begin
-  FECU := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET DATA
-//------------------------------------------------------------------------------
-function TOBDDataMessage.GetData: TBytes;
-begin
-  Result := FData;
-end;
-
-//------------------------------------------------------------------------------
-// SET DATA
-//------------------------------------------------------------------------------
-procedure TOBDDataMessage.SetData(Value: TBytes);
-begin
-  FData := Value;
-end;
-
-//------------------------------------------------------------------------------
-// SET DATA LENGTH
-//------------------------------------------------------------------------------
-procedure TOBDDataMessage.SetDataLength(Value: Integer);
-begin
-  SetLength(FData, Value);
-end;
-
-//------------------------------------------------------------------------------
-// GET TRANSMITTER ID
-//------------------------------------------------------------------------------
-function TOBDDataMessage.GetTxId: Integer;
-begin
-  Result := FTxId;
-end;
-
-//------------------------------------------------------------------------------
-// SET TRANSMITTER ID
-//------------------------------------------------------------------------------
-procedure TOBDDataMessage.SetTxId(Value: Integer);
-begin
-  FTxId := Value;
-end;
-
-//------------------------------------------------------------------------------
-// GET DATA AS HEX
-//------------------------------------------------------------------------------
-function TOBDDataMessage.Hex: string;
-var
-  B: Byte;
-begin
-  Result := '';
-  for B in FData do Result := Result + IntToHex(B, 2);
-end;
-
-//------------------------------------------------------------------------------
-// GET RAW DATA
-//------------------------------------------------------------------------------
-function TOBDDataMessage.Raw: string;
+function BytesToHex(const ABytes: TBytes): string;
 var
   I: Integer;
 begin
   Result := '';
-  for I := Low(FFrames) to High(FFrames) do Result := Result + FFrames[I].Raw + #10;
-end;
-
-//------------------------------------------------------------------------------
-// GET PARSED SUCCESS
-//------------------------------------------------------------------------------
-function TOBDDataMessage.Parsed: Boolean;
-begin
-  Result := Length(FData) > 0;
-end;
-
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TOBDDataMessage.Create(Frames: TArray<IOBDDataFrame>);
-begin
-  FFrames := Frames;
-end;
-
-//------------------------------------------------------------------------------
-// CHECK IF MESSAGE IS EQUAL
-//------------------------------------------------------------------------------
-function TOBDDataMessage.Equals(Msg: IOBDDataMessage): Boolean;
-
-  function CompareData(const Data1, Data2: TBytes): Integer;
-  var
-    I: Integer;
+  for I := 0 to High(ABytes) do
   begin
-    // Initialize with 0 differences
-    Result := 0;
-    // Loop over the data
-    for I := Low(Data1) to High(Data1) do
-    if Data1[I] <> Data2[I] then Inc(Result);
+    if I > 0 then
+      Result := Result + ' ';
+    Result := Result + IntToHex(ABytes[I], 2);
   end;
+end;
 
-var
-  IsSameECU, IsSameData, IsSameFrames: Boolean;
+function IsHexDigit(C: Char): Boolean;
 begin
-  // Check if the ECU is the same
-  IsSameECU := CompareText(Msg.ECU, FECU) = 0;
-  // Check if the data is the same
-  IsSameData := (Length(Msg.Data) = Length(FData)) and (CompareData(Msg.Data, FData) = 0);
-  // Check the frames are the same
-  IsSameFrames := Length(Msg.Frames) = Length(FFrames);
-  // Set the result
-  Result := IsSameECU and IsSameData and IsSameFrames;
+  Result := CharInSet(C, ['0'..'9', 'A'..'F', 'a'..'f']);
+end;
+
+function HexNibble(C: Char): Byte;
+begin
+  case C of
+    '0'..'9': Result := Ord(C) - Ord('0');
+    'A'..'F': Result := Ord(C) - Ord('A') + 10;
+    'a'..'f': Result := Ord(C) - Ord('a') + 10;
+  else
+    Result := 0;
+  end;
+end;
+
+function HexToBytes(const AText: string): TBytes;
+var
+  I, Hi, Lo: Integer;
+begin
+  SetLength(Result, 0);
+  I := 1;
+  while I <= Length(AText) do
+  begin
+    if not IsHexDigit(AText[I]) then
+    begin
+      Inc(I);
+      Continue;
+    end;
+    Hi := HexNibble(AText[I]);
+    Inc(I);
+    if (I > Length(AText)) or not IsHexDigit(AText[I]) then
+      Break;
+    Lo := HexNibble(AText[I]);
+    Inc(I);
+    SetLength(Result, Length(Result) + 1);
+    Result[High(Result)] := (Hi shl 4) or Lo;
+  end;
 end;
 
 end.

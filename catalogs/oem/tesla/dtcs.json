@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x6005",
+      "text": "Charge Connector Latch Open"
+    }
+  ]
+}

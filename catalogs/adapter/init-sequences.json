@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "type": "adapter-init-sequences",
+  "description": "Per-family initialisation sequences. Override the in-source built-ins by loading this file.",
+  "families": [
+    {
+      "family": "elm327",
+      "steps": [
+        { "verb": "ATZ",   "name": "Reset",              "required": true  },
+        { "verb": "ATE0",  "name": "Echo off",           "required": true  },
+        { "verb": "ATL0",  "name": "Linefeeds off",      "required": true  },
+        { "verb": "ATS0",  "name": "Spaces off",         "required": false },
+        { "verb": "ATH0",  "name": "Headers off",        "required": false },
+        { "verb": "ATAT1", "name": "Adaptive timing on", "required": false },
+        { "verb": "ATSP0", "name": "Auto-protocol",      "required": true  }
+      ]
+    },
+    {
+      "family": "obdlink",
+      "steps": [
+        { "verb": "ATZ",   "name": "Reset",              "required": true  },
+        { "verb": "ATE0",  "name": "Echo off",           "required": true  },
+        { "verb": "ATL0",  "name": "Linefeeds off",      "required": true  },
+        { "verb": "ATS0",  "name": "Spaces off",         "required": false },
+        { "verb": "ATH0",  "name": "Headers off",        "required": false },
+        { "verb": "STSR",  "name": "ST software reset",  "required": false },
+        { "verb": "ATAT1", "name": "Adaptive timing on", "required": false },
+        { "verb": "ATSP0", "name": "Auto-protocol",      "required": true  }
+      ]
+    },
+    {
+      "family": "j2534",
+      "steps": []
+    },
+    {
+      "family": "doip",
+      "steps": []
+    }
+  ]
+}

@@ -1,0 +1,316 @@
+{
+  "version": 1,
+  "type": "uds-did",
+  "entries": [
+    {
+      "id": "0xF180",
+      "name": "Boot Software Identification",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Boot software identification block (manufacturer-defined ASCII)"
+    },
+    {
+      "id": "0xF181",
+      "name": "Application Software Identification",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Application software identification block"
+    },
+    {
+      "id": "0xF182",
+      "name": "Application Data Identification",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Application data identification block"
+    },
+    {
+      "id": "0xF183",
+      "name": "Boot Software Fingerprint",
+      "length": 1,
+      "unit": "",
+      "decoder": "bitfield",
+      "scale": 1,
+      "offset": 0,
+      "description": "Boot software fingerprint"
+    },
+    {
+      "id": "0xF184",
+      "name": "Application Software Fingerprint",
+      "length": 1,
+      "unit": "",
+      "decoder": "bitfield",
+      "scale": 1,
+      "offset": 0,
+      "description": "Application software fingerprint"
+    },
+    {
+      "id": "0xF185",
+      "name": "Application Data Fingerprint",
+      "length": 1,
+      "unit": "",
+      "decoder": "bitfield",
+      "scale": 1,
+      "offset": 0,
+      "description": "Application data fingerprint"
+    },
+    {
+      "id": "0xF186",
+      "name": "Active Diagnostic Session",
+      "length": 1,
+      "unit": "",
+      "decoder": "linear",
+      "scale": 1,
+      "offset": 0,
+      "description": "Currently active UDS diagnostic session"
+    },
+    {
+      "id": "0xF187",
+      "name": "Vehicle Manufacturer Spare Part Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Manufacturer service part number (ASCII)"
+    },
+    {
+      "id": "0xF188",
+      "name": "Vehicle Manufacturer Ecu Software Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Manufacturer ECU software number"
+    },
+    {
+      "id": "0xF189",
+      "name": "Vehicle Manufacturer Ecu Software Version Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Manufacturer ECU software version"
+    },
+    {
+      "id": "0xF18A",
+      "name": "System Supplier Identifier",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "System supplier identifier"
+    },
+    {
+      "id": "0xF18B",
+      "name": "Ecu Manufacturing Date",
+      "length": 1,
+      "unit": "",
+      "decoder": "linear",
+      "scale": 1,
+      "offset": 0,
+      "description": "ECU manufacturing date (YYMMDD BCD)"
+    },
+    {
+      "id": "0xF18C",
+      "name": "Ecu Serial Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "ECU serial number"
+    },
+    {
+      "id": "0xF18D",
+      "name": "Supported Functional Units",
+      "length": 1,
+      "unit": "",
+      "decoder": "bitfield",
+      "scale": 1,
+      "offset": 0,
+      "description": "Bit-mask of supported functional units"
+    },
+    {
+      "id": "0xF18E",
+      "name": "Vehicle Manufacturer Kit Assembly Part Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Manufacturer kit assembly part number"
+    },
+    {
+      "id": "0xF190",
+      "name": "Vin",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Vehicle identification number (17 chars ASCII)"
+    },
+    {
+      "id": "0xF191",
+      "name": "Vehicle Manufacturer Ecu Hardware Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Manufacturer ECU hardware number"
+    },
+    {
+      "id": "0xF192",
+      "name": "System Supplier Ecu Hardware Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Supplier ECU hardware number"
+    },
+    {
+      "id": "0xF193",
+      "name": "System Supplier Ecu Hardware Version Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Supplier ECU hardware version"
+    },
+    {
+      "id": "0xF194",
+      "name": "System Supplier Ecu Software Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Supplier ECU software number"
+    },
+    {
+      "id": "0xF195",
+      "name": "System Supplier Ecu Software Version Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Supplier ECU software version"
+    },
+    {
+      "id": "0xF196",
+      "name": "Exhaust Regulation Or Type Approval Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Exhaust regulation / type approval number"
+    },
+    {
+      "id": "0xF197",
+      "name": "System Name Or Engine Type",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "ECU long name / engine-type identifier"
+    },
+    {
+      "id": "0xF198",
+      "name": "Repair Shop Code Or Tester Serial Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Repair shop / tester serial number (last write)"
+    },
+    {
+      "id": "0xF199",
+      "name": "Programming Date",
+      "length": 1,
+      "unit": "",
+      "decoder": "linear",
+      "scale": 1,
+      "offset": 0,
+      "description": "Last programming date (YYMMDD BCD)"
+    },
+    {
+      "id": "0xF19A",
+      "name": "Calibration Repair Shop Code Or Calibration Serial",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Calibration repair shop or calibration equipment serial"
+    },
+    {
+      "id": "0xF19B",
+      "name": "Calibration Date",
+      "length": 1,
+      "unit": "",
+      "decoder": "linear",
+      "scale": 1,
+      "offset": 0,
+      "description": "Last calibration date (YYMMDD BCD)"
+    },
+    {
+      "id": "0xF19C",
+      "name": "Calibration Equipment Software Number",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Calibration equipment software identifier"
+    },
+    {
+      "id": "0xF19D",
+      "name": "Ecu Installation Date",
+      "length": 1,
+      "unit": "",
+      "decoder": "linear",
+      "scale": 1,
+      "offset": 0,
+      "description": "ECU installation date (YYMMDD BCD)"
+    },
+    {
+      "id": "0xF19E",
+      "name": "Odx File Data Identifier",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "ODX file identifier"
+    },
+    {
+      "id": "0xF19F",
+      "name": "Entity Data Identifier",
+      "length": 1,
+      "unit": "",
+      "decoder": "ascii",
+      "scale": 1,
+      "offset": 0,
+      "description": "Entity data identifier (per ISO 14229-1 amendment)"
+    }
+  ]
+}

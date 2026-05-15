@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x0299",
+      "text": "Turbocharger Underboost (common Renault TCe)"
+    },
+    {
+      "code": "0x11AB",
+      "text": "DPF Differential Pressure Sensor — Range/Performance (Renault dCi)"
+    },
+    {
+      "code": "0x1497",
+      "text": "Renault EGR Position Sensor — Plausibility (1.5 dCi)"
+    },
+    {
+      "code": "0x2509",
+      "text": "ECM/PCM Power Input Signal Intermittent (Renault — alternator wear)"
+    },
+    {
+      "code": "0xE102",
+      "text": "Lost Communication With ABS Module (Renault CAN-H)"
+    }
+  ]
+}

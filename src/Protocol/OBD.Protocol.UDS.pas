@@ -1,584 +1,206 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.Protocol.UDS.pas
-// CONTENTS       : UDS (ISO 14229) Protocol Support
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 07/12/2024
+//  OBD.Protocol.UDS
+//
+//  UDS (ISO 14229) request / response codec. Encodes a TOBDRequest
+//  into a hex command string suitable for ELM327 / OBDLink chips
+//  (which abstract the wire framing) and decodes the textual hex
+//  response into a TOBDResponse — including the negative-response
+//  shape <c>0x7F service NRC</c>.
+//
+//  This unit does not own a transport. It is consumed by the
+//  TOBDProtocol component, which runs the encoded request through
+//  TOBDAdapter.WriteOBDCommand.
+//
+//  The high-level UDS components (TOBDUDS, TOBDUDSReadDID, …)
+//  build on this codec.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  References  :
+//    - ISO 14229-1:2020 §7 (services + response shapes)
+//    - ISO 14229-1:2020 §8.7 (negative response codes)
+//
+//  History     :
+//    2026-05-09  ERD  Initial implementation codec.
 //------------------------------------------------------------------------------
+
 unit OBD.Protocol.UDS;
 
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes,
-  OBD.Protocol, OBD.Protocol.Types;
+  System.SysUtils,
+  System.Classes,
+  OBD.Types,
+  OBD.Catalog,
+  OBD.Protocol.Types;
 
-//------------------------------------------------------------------------------
-// TYPES
-//------------------------------------------------------------------------------
+const
+  /// <summary>UDS positive-response offset (added to the request
+  /// service ID).</summary>
+  UDS_POSITIVE_RESPONSE_OFFSET = $40;
+  /// <summary>Leading byte of every UDS negative response.</summary>
+  UDS_NEGATIVE_RESPONSE = $7F;
+
+  // ---- UDS Service IDs (ISO 14229-1 §7) ----
+  UDS_SID_DiagnosticSessionControl     = $10;
+  UDS_SID_ECUReset                     = $11;
+  UDS_SID_ClearDiagnosticInformation   = $14;
+  UDS_SID_ReadDTCInformation           = $19;
+  UDS_SID_ReadDataByIdentifier         = $22;
+  UDS_SID_ReadMemoryByAddress          = $23;
+  UDS_SID_ReadScalingDataByIdentifier  = $24;
+  UDS_SID_SecurityAccess               = $27;
+  UDS_SID_CommunicationControl         = $28;
+  UDS_SID_Authentication               = $29;
+  UDS_SID_ReadDataByPeriodicIdentifier = $2A;
+  UDS_SID_DynamicallyDefineDataIdentifier = $2C;
+  UDS_SID_WriteDataByIdentifier        = $2E;
+  UDS_SID_InputOutputControlByIdentifier = $2F;
+  UDS_SID_RoutineControl               = $31;
+  UDS_SID_RequestDownload              = $34;
+  UDS_SID_RequestUpload                = $35;
+  UDS_SID_TransferData                 = $36;
+  UDS_SID_RequestTransferExit          = $37;
+  UDS_SID_WriteMemoryByAddress         = $3D;
+  UDS_SID_TesterPresent                = $3E;
+  UDS_SID_AccessTimingParameter        = $83;
+  UDS_SID_SecuredDataTransmission      = $84;
+  UDS_SID_ControlDTCSetting            = $85;
+  UDS_SID_ResponseOnEvent              = $86;
+  UDS_SID_LinkControl                  = $87;
+
+  // ---- Common NRC codes (full table lives in catalogs/obd2/nrc.json) ----
+  UDS_NRC_GeneralReject                = $10;
+  UDS_NRC_ServiceNotSupported          = $11;
+  UDS_NRC_SubFunctionNotSupported      = $12;
+  UDS_NRC_IncorrectMessageLength       = $13;
+  UDS_NRC_ResponseTooLong              = $14;
+  UDS_NRC_BusyRepeatRequest            = $21;
+  UDS_NRC_ConditionsNotCorrect         = $22;
+  UDS_NRC_RequestSequenceError         = $24;
+  UDS_NRC_RequestOutOfRange            = $31;
+  UDS_NRC_SecurityAccessDenied         = $33;
+  UDS_NRC_InvalidKey                   = $35;
+  UDS_NRC_ExceededAttempts             = $36;
+  UDS_NRC_RequiredTimeDelayNotExpired  = $37;
+  UDS_NRC_ResponsePending              = $78;
+  UDS_NRC_ServiceNotSupportedInSession = $7F;
+
 type
   /// <summary>
-  ///   UDS Service IDs (ISO 14229-1)
+  ///   Stateless UDS encoder / decoder.
   /// </summary>
-  TUDSServiceID = (
-    udsNone                              = $00,
-    udsDiagnosticSessionControl          = $10,
-    udsECUReset                          = $11,
-    udsSecurityAccess                    = $27,
-    udsCommunicationControl              = $28,
-    udsTesterPresent                     = $3E,
-    udsAccessTimingParameter             = $83,
-    udsSecuredDataTransmission           = $84,
-    udsControlDTCSetting                 = $85,
-    udsResponseOnEvent                   = $86,
-    udsLinkControl                       = $87,
-    udsReadDataByIdentifier              = $22,
-    udsReadMemoryByAddress               = $23,
-    udsReadScalingDataByIdentifier       = $24,
-    udsReadDataByPeriodicIdentifier      = $2A,
-    udsDynamicallyDefineDataIdentifier   = $2C,
-    udsWriteDataByIdentifier             = $2E,
-    udsWriteMemoryByAddress              = $3D,
-    udsClearDiagnosticInformation        = $14,
-    udsReadDTCInformation                = $19,
-    udsInputOutputControlByIdentifier    = $2F,
-    udsRoutineControl                    = $31,
-    udsRequestDownload                   = $34,
-    udsRequestUpload                     = $35,
-    udsTransferData                      = $36,
-    udsRequestTransferExit               = $37
-  );
-
-  /// <summary>
-  ///   UDS Diagnostic Session Types
-  /// </summary>
-  TUDSSessionType = (
-    udsDefaultSession         = $01,
-    udsProgrammingSession     = $02,
-    udsExtendedDiagnostic     = $03,
-    udsSafetySystemSession    = $04
-  );
-
-  /// <summary>
-  ///   UDS ECU Reset Types
-  /// </summary>
-  TUDSResetType = (
-    udsHardReset              = $01,
-    udsKeyOffOnReset          = $02,
-    udsSoftReset              = $03,
-    udsEnableRapidPowerShutdown = $04,
-    udsDisableRapidPowerShutdown = $05
-  );
-
-  /// <summary>
-  ///   UDS Response Codes
-  /// </summary>
-  TUDSResponseCode = (
-    udsPositiveResponse                = $00,
-    udsGeneralReject                   = $10,
-    udsServiceNotSupported             = $11,
-    udsSubFunctionNotSupported         = $12,
-    udsIncorrectMessageLength          = $13,
-    udsResponseTooLong                 = $14,
-    udsBusyRepeatRequest               = $21,
-    udsConditionsNotCorrect            = $22,
-    udsRequestSequenceError            = $24,
-    udsNoResponseFromSubnetComponent   = $25,
-    udsFailurePreventsExecution        = $26,
-    udsRequestOutOfRange               = $31,
-    udsSecurityAccessDenied            = $33,
-    udsInvalidKey                      = $35,
-    udsExceededNumberOfAttempts        = $36,
-    udsRequiredTimeDelayNotExpired     = $37,
-    udsUploadDownloadNotAccepted       = $70,
-    udsTransferDataSuspended           = $71,
-    udsGeneralProgrammingFailure       = $72,
-    udsWrongBlockSequenceCounter       = $73,
-    udsResponsePending                 = $78,
-    udsSubFunctionNotSupportedInActiveSession = $7E,
-    udsServiceNotSupportedInActiveSession = $7F
-  );
-
-//------------------------------------------------------------------------------
-// CLASSES
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   UDS Protocol (ISO 14229)
-  ///   Unified Diagnostic Services with security and authentication
-  /// </summary>
-  TUDSProtocol = class(TOBDProtocol)
-  private
-    FCurrentSession: TUDSSessionType;
-    FSecurityLevel: Byte;
-    FSecurityUnlocked: Boolean;
-    
-    /// <summary>
-    ///   Build UDS request message
-    /// </summary>
-    function BuildRequest(ServiceID: Byte; const Data: TBytes): TBytes;
-    
-    /// <summary>
-    ///   Parse UDS response
-    /// </summary>
-    function ParseResponse(const Response: TBytes; var ServiceID: Byte; var Data: TBytes): TUDSResponseCode;
-  protected
-    function GetName: string; override;
-    function GetDisplayName: string; override;
-    function GetELMID: string; override;
+  TOBDUDSCodec = class
   public
-    constructor Create;
-    
     /// <summary>
-    ///   Diagnostic Session Control ($10)
+    ///   Encodes a request into the hex command form ELM327 chips
+    ///   expect (e.g. <c>'22 F1 90'</c>).
     /// </summary>
-    function DiagnosticSessionControl(SessionType: TUDSSessionType): TBytes;
-    
+    /// <param name="ARequest">Request. <c>ServiceID</c> must be set.</param>
+    /// <returns>Hex command string with single-space separators.</returns>
+    /// <exception cref="EOBDProtocolErr"><c>ServiceID</c> is zero.</exception>
+    class function Encode(const ARequest: TOBDRequest): string; static;
+
     /// <summary>
-    ///   ECU Reset ($11)
+    ///   Decodes the hex-text response from the adapter into a
+    ///   structured response. Detects the <c>0x7F service NRC</c>
+    ///   shape and resolves NRC text via <c>OBD.Catalog</c>.
     /// </summary>
-    function ECUReset(ResetType: TUDSResetType): TBytes;
-    
+    /// <param name="ARequest">The originating request.</param>
+    /// <param name="ARawHex">Raw hex text from the adapter (one or
+    /// more concatenated lines).</param>
+    /// <param name="AResponse">Output response.</param>
+    /// <returns>True when at least one byte was decoded.</returns>
+    class function Decode(const ARequest: TOBDRequest;
+      const ARawHex: string; out AResponse: TOBDResponse): Boolean; static;
+
     /// <summary>
-    ///   Security Access - Request Seed ($27, sub $01/$03/$05...)
+    ///   Returns the conventional positive-response service ID for a
+    ///   request (request SID + 0x40).
     /// </summary>
-    function SecurityAccessRequestSeed(Level: Byte = $01): TBytes;
-    
+    /// <param name="ARequestSID">Request service ID.</param>
+    /// <returns>Positive-response SID.</returns>
+    class function ExpectedPositiveResponse(ARequestSID: Byte): Byte; static;
+
     /// <summary>
-    ///   Security Access - Send Key ($27, sub $02/$04/$06...)
+    ///   Resolves an NRC byte to its human-readable text via
+    ///   <c>OBD.Catalog</c>. Returns a synthetic
+    ///   <c>'NRC 0xXX'</c> when no catalogue entry matches.
     /// </summary>
-    function SecurityAccessSendKey(Level: Byte; const Key: TBytes): TBytes;
-    
-    /// <summary>
-    ///   Tester Present ($3E)
-    /// </summary>
-    function TesterPresent(SuppressResponse: Boolean = False): TBytes;
-    
-    /// <summary>
-    ///   Read Data By Identifier ($22)
-    /// </summary>
-    function ReadDataByIdentifier(const Identifiers: array of Word): TBytes;
-    
-    /// <summary>
-    ///   Write Data By Identifier ($2E)
-    /// </summary>
-    function WriteDataByIdentifier(Identifier: Word; const Data: TBytes): TBytes;
-    
-    /// <summary>
-    ///   Read Memory By Address ($23)
-    /// </summary>
-    function ReadMemoryByAddress(Address: Cardinal; Size: Word): TBytes;
-    
-    /// <summary>
-    ///   Write Memory By Address ($3D)
-    /// </summary>
-    function WriteMemoryByAddress(Address: Cardinal; const Data: TBytes): TBytes;
-    
-    /// <summary>
-    ///   Clear Diagnostic Information ($14)
-    /// </summary>
-    function ClearDiagnosticInformation(GroupOfDTC: Cardinal = $FFFFFF): TBytes;
-    
-    /// <summary>
-    ///   Read DTC Information ($19)
-    /// </summary>
-    function ReadDTCInformation(SubFunction: Byte; const Data: TBytes = nil): TBytes;
-    
-    /// <summary>
-    ///   Routine Control ($31)
-    /// </summary>
-    function RoutineControl(RoutineType: Byte; Identifier: Word; const Data: TBytes = nil): TBytes;
-    
-    /// <summary>
-    ///   Request Download ($34) - for ECU flashing
-    /// </summary>
-    function RequestDownload(MemoryAddress: Cardinal; MemorySize: Cardinal; 
-      DataFormatIdentifier: Byte = $00): TBytes;
-    
-    /// <summary>
-    ///   Request Upload ($35)
-    /// </summary>
-    function RequestUpload(MemoryAddress: Cardinal; MemorySize: Cardinal;
-      DataFormatIdentifier: Byte = $00): TBytes;
-    
-    /// <summary>
-    ///   Transfer Data ($36)
-    /// </summary>
-    function TransferData(BlockSequenceCounter: Byte; const Data: TBytes): TBytes;
-    
-    /// <summary>
-    ///   Request Transfer Exit ($37)
-    /// </summary>
-    function RequestTransferExit(const Data: TBytes = nil): TBytes;
-    
-    /// <summary>
-    ///   Control DTC Setting ($85)
-    /// </summary>
-    function ControlDTCSetting(SettingType: Byte): TBytes;
-    
-    /// <summary>
-    ///   Current diagnostic session
-    /// </summary>
-    property CurrentSession: TUDSSessionType read FCurrentSession;
-    
-    /// <summary>
-    ///   Security level
-    /// </summary>
-    property SecurityLevel: Byte read FSecurityLevel;
-    
-    /// <summary>
-    ///   Security unlocked status
-    /// </summary>
-    property SecurityUnlocked: Boolean read FSecurityUnlocked;
+    /// <param name="ANRC">NRC byte.</param>
+    /// <returns>Resolved text.</returns>
+    class function ResolveNRCText(ANRC: Byte): string; static;
   end;
 
 implementation
 
-//------------------------------------------------------------------------------
-// CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TUDSProtocol.Create;
+{ ---- TOBDUDSCodec ------------------------------------------------------------ }
+
+class function TOBDUDSCodec.ExpectedPositiveResponse(ARequestSID: Byte): Byte;
 begin
-  inherited Create;
-  FCurrentSession := udsDefaultSession;
-  FSecurityLevel := 0;
-  FSecurityUnlocked := False;
+  Result := ARequestSID + UDS_POSITIVE_RESPONSE_OFFSET;
 end;
 
-//------------------------------------------------------------------------------
-// GET NAME
-//------------------------------------------------------------------------------
-function TUDSProtocol.GetName: string;
-begin
-  Result := 'UDS (ISO 14229)';
-end;
-
-//------------------------------------------------------------------------------
-// GET DISPLAY NAME
-//------------------------------------------------------------------------------
-function TUDSProtocol.GetDisplayName: string;
-begin
-  Result := 'Unified Diagnostic Services (ISO 14229-1)';
-end;
-
-//------------------------------------------------------------------------------
-// GET ELM ID
-//------------------------------------------------------------------------------
-function TUDSProtocol.GetELMID: string;
-begin
-  Result := 'C'; // CAN 11-bit, 500 kbaud (typical for UDS)
-end;
-
-//------------------------------------------------------------------------------
-// BUILD REQUEST
-//------------------------------------------------------------------------------
-function TUDSProtocol.BuildRequest(ServiceID: Byte; const Data: TBytes): TBytes;
+class function TOBDUDSCodec.Encode(const ARequest: TOBDRequest): string;
 var
-  Len: Integer;
+  Body: TBytes;
 begin
-  Len := 1 + Length(Data);
-  SetLength(Result, Len);
-  Result[0] := ServiceID;
-  if Length(Data) > 0 then
-    Move(Data[0], Result[1], Length(Data));
+  if ARequest.ServiceID = 0 then
+    raise EOBDProtocolErr.Create('UDS Encode: ServiceID is 0');
+  SetLength(Body, 1 + Length(ARequest.Data));
+  Body[0] := ARequest.ServiceID;
+  if Length(ARequest.Data) > 0 then
+    Move(ARequest.Data[0], Body[1], Length(ARequest.Data));
+  Result := BytesToHex(Body);
 end;
 
-//------------------------------------------------------------------------------
-// PARSE RESPONSE
-//------------------------------------------------------------------------------
-function TUDSProtocol.ParseResponse(const Response: TBytes; var ServiceID: Byte; var Data: TBytes): TUDSResponseCode;
+class function TOBDUDSCodec.ResolveNRCText(ANRC: Byte): string;
 begin
-  Result := udsGeneralReject;
-  ServiceID := 0;
-  SetLength(Data, 0);
-  
-  if Length(Response) < 2 then
-    Exit;
-  
-  // Check for negative response
-  if Response[0] = $7F then
+  if not TOBDCatalogStore.Default.FindText(ckUDSNRC, ANRC, Result) then
+    Result := Format('NRC 0x%2.2X', [ANRC]);
+end;
+
+class function TOBDUDSCodec.Decode(const ARequest: TOBDRequest;
+  const ARawHex: string; out AResponse: TOBDResponse): Boolean;
+var
+  Bytes: TBytes;
+  Expected: Byte;
+begin
+  AResponse := MakeOBDResponse;
+  AResponse.Request := ARequest;
+  Bytes := HexToBytes(ARawHex);
+  if Length(Bytes) = 0 then Exit(False);
+
+  // Negative response: 7F <SID> <NRC>
+  if (Bytes[0] = UDS_NEGATIVE_RESPONSE) and (Length(Bytes) >= 3) then
   begin
-    if Length(Response) >= 3 then
-    begin
-      ServiceID := Response[1];
-      Result := TUDSResponseCode(Response[2]);
-    end;
-    Exit;
+    AResponse.IsNegative := True;
+    AResponse.ServiceID := Bytes[1];
+    AResponse.NRC := Bytes[2];
+    AResponse.NRCText := ResolveNRCText(AResponse.NRC);
+    SetLength(AResponse.Data, 0);
+    Exit(True);
   end;
-  
-  // Positive response
-  ServiceID := Response[0] - $40; // Remove positive response offset
-  Result := udsPositiveResponse;
-  
-  if Length(Response) > 1 then
+
+  Expected := ExpectedPositiveResponse(ARequest.ServiceID);
+  AResponse.ServiceID := Bytes[0];
+  if Length(Bytes) > 1 then
   begin
-    SetLength(Data, Length(Response) - 1);
-    Move(Response[1], Data[0], Length(Data));
+    SetLength(AResponse.Data, Length(Bytes) - 1);
+    Move(Bytes[1], AResponse.Data[0], Length(Bytes) - 1);
   end;
-end;
 
-//------------------------------------------------------------------------------
-// DIAGNOSTIC SESSION CONTROL
-//------------------------------------------------------------------------------
-function TUDSProtocol.DiagnosticSessionControl(SessionType: TUDSSessionType): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1);
-  Data[0] := Byte(SessionType);
-  Result := BuildRequest(Byte(udsDiagnosticSessionControl), Data);
-  FCurrentSession := SessionType;
-end;
+  // Mismatched service ID is not a hard fault — some chips strip the
+  // SID echo. Caller can compare AResponse.ServiceID with Expected
+  // and decide.
+  if (Expected = 0) or (AResponse.ServiceID = Expected) then
+    // expected match (or no expectation).
+    ;
 
-//------------------------------------------------------------------------------
-// ECU RESET
-//------------------------------------------------------------------------------
-function TUDSProtocol.ECUReset(ResetType: TUDSResetType): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1);
-  Data[0] := Byte(ResetType);
-  Result := BuildRequest(Byte(udsECUReset), Data);
-end;
-
-//------------------------------------------------------------------------------
-// SECURITY ACCESS REQUEST SEED
-//------------------------------------------------------------------------------
-function TUDSProtocol.SecurityAccessRequestSeed(Level: Byte): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1);
-  Data[0] := Level; // Odd numbers for seed request (01, 03, 05, etc.)
-  Result := BuildRequest(Byte(udsSecurityAccess), Data);
-  FSecurityLevel := Level;
-end;
-
-//------------------------------------------------------------------------------
-// SECURITY ACCESS SEND KEY
-//------------------------------------------------------------------------------
-function TUDSProtocol.SecurityAccessSendKey(Level: Byte; const Key: TBytes): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1 + Length(Key));
-  Data[0] := Level; // Even numbers for key send (02, 04, 06, etc.)
-  if Length(Key) > 0 then
-    Move(Key[0], Data[1], Length(Key));
-  Result := BuildRequest(Byte(udsSecurityAccess), Data);
-end;
-
-//------------------------------------------------------------------------------
-// TESTER PRESENT
-//------------------------------------------------------------------------------
-function TUDSProtocol.TesterPresent(SuppressResponse: Boolean): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1);
-  if SuppressResponse then
-    Data[0] := $80  // Suppress positive response
-  else
-    Data[0] := $00;
-  Result := BuildRequest(Byte(udsTesterPresent), Data);
-end;
-
-//------------------------------------------------------------------------------
-// READ DATA BY IDENTIFIER
-//------------------------------------------------------------------------------
-function TUDSProtocol.ReadDataByIdentifier(const Identifiers: array of Word): TBytes;
-var
-  Data: TBytes;
-  I: Integer;
-begin
-  SetLength(Data, Length(Identifiers) * 2);
-  for I := 0 to High(Identifiers) do
-  begin
-    Data[I * 2] := Hi(Identifiers[I]);
-    Data[I * 2 + 1] := Lo(Identifiers[I]);
-  end;
-  Result := BuildRequest(Byte(udsReadDataByIdentifier), Data);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE DATA BY IDENTIFIER
-//------------------------------------------------------------------------------
-function TUDSProtocol.WriteDataByIdentifier(Identifier: Word; const Data: TBytes): TBytes;
-var
-  ReqData: TBytes;
-begin
-  SetLength(ReqData, 2 + Length(Data));
-  ReqData[0] := Hi(Identifier);
-  ReqData[1] := Lo(Identifier);
-  if Length(Data) > 0 then
-    Move(Data[0], ReqData[2], Length(Data));
-  Result := BuildRequest(Byte(udsWriteDataByIdentifier), ReqData);
-end;
-
-//------------------------------------------------------------------------------
-// READ MEMORY BY ADDRESS
-//------------------------------------------------------------------------------
-function TUDSProtocol.ReadMemoryByAddress(Address: Cardinal; Size: Word): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 7); // addressAndLengthFormatIdentifier + 4 bytes address + 2 bytes size
-  Data[0] := $44; // 4-byte address, 4-byte length
-  Data[1] := (Address shr 24) and $FF;
-  Data[2] := (Address shr 16) and $FF;
-  Data[3] := (Address shr 8) and $FF;
-  Data[4] := Address and $FF;
-  Data[5] := Hi(Size);
-  Data[6] := Lo(Size);
-  Result := BuildRequest(Byte(udsReadMemoryByAddress), Data);
-end;
-
-//------------------------------------------------------------------------------
-// WRITE MEMORY BY ADDRESS
-//------------------------------------------------------------------------------
-function TUDSProtocol.WriteMemoryByAddress(Address: Cardinal; const Data: TBytes): TBytes;
-var
-  ReqData: TBytes;
-  Size: Word;
-begin
-  Size := Length(Data);
-  SetLength(ReqData, 7 + Size);
-  ReqData[0] := $44; // 4-byte address, 4-byte length
-  ReqData[1] := (Address shr 24) and $FF;
-  ReqData[2] := (Address shr 16) and $FF;
-  ReqData[3] := (Address shr 8) and $FF;
-  ReqData[4] := Address and $FF;
-  ReqData[5] := Hi(Size);
-  ReqData[6] := Lo(Size);
-  if Size > 0 then
-    Move(Data[0], ReqData[7], Size);
-  Result := BuildRequest(Byte(udsWriteMemoryByAddress), ReqData);
-end;
-
-//------------------------------------------------------------------------------
-// CLEAR DIAGNOSTIC INFORMATION
-//------------------------------------------------------------------------------
-function TUDSProtocol.ClearDiagnosticInformation(GroupOfDTC: Cardinal): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 3);
-  Data[0] := (GroupOfDTC shr 16) and $FF;
-  Data[1] := (GroupOfDTC shr 8) and $FF;
-  Data[2] := GroupOfDTC and $FF;
-  Result := BuildRequest(Byte(udsClearDiagnosticInformation), Data);
-end;
-
-//------------------------------------------------------------------------------
-// READ DTC INFORMATION
-//------------------------------------------------------------------------------
-function TUDSProtocol.ReadDTCInformation(SubFunction: Byte; const Data: TBytes): TBytes;
-var
-  ReqData: TBytes;
-begin
-  SetLength(ReqData, 1 + Length(Data));
-  ReqData[0] := SubFunction;
-  if Length(Data) > 0 then
-    Move(Data[0], ReqData[1], Length(Data));
-  Result := BuildRequest(Byte(udsReadDTCInformation), ReqData);
-end;
-
-//------------------------------------------------------------------------------
-// ROUTINE CONTROL
-//------------------------------------------------------------------------------
-function TUDSProtocol.RoutineControl(RoutineType: Byte; Identifier: Word; const Data: TBytes): TBytes;
-var
-  ReqData: TBytes;
-begin
-  SetLength(ReqData, 3 + Length(Data));
-  ReqData[0] := RoutineType; // $01=Start, $02=Stop, $03=Request Results
-  ReqData[1] := Hi(Identifier);
-  ReqData[2] := Lo(Identifier);
-  if Length(Data) > 0 then
-    Move(Data[0], ReqData[3], Length(Data));
-  Result := BuildRequest(Byte(udsRoutineControl), ReqData);
-end;
-
-//------------------------------------------------------------------------------
-// REQUEST DOWNLOAD
-//------------------------------------------------------------------------------
-function TUDSProtocol.RequestDownload(MemoryAddress: Cardinal; MemorySize: Cardinal; 
-  DataFormatIdentifier: Byte): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 10);
-  Data[0] := DataFormatIdentifier;
-  Data[1] := $44; // addressAndLengthFormatIdentifier: 4 bytes each
-  Data[2] := (MemoryAddress shr 24) and $FF;
-  Data[3] := (MemoryAddress shr 16) and $FF;
-  Data[4] := (MemoryAddress shr 8) and $FF;
-  Data[5] := MemoryAddress and $FF;
-  Data[6] := (MemorySize shr 24) and $FF;
-  Data[7] := (MemorySize shr 16) and $FF;
-  Data[8] := (MemorySize shr 8) and $FF;
-  Data[9] := MemorySize and $FF;
-  Result := BuildRequest(Byte(udsRequestDownload), Data);
-end;
-
-//------------------------------------------------------------------------------
-// REQUEST UPLOAD
-//------------------------------------------------------------------------------
-function TUDSProtocol.RequestUpload(MemoryAddress: Cardinal; MemorySize: Cardinal;
-  DataFormatIdentifier: Byte): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 10);
-  Data[0] := DataFormatIdentifier;
-  Data[1] := $44; // addressAndLengthFormatIdentifier: 4 bytes each
-  Data[2] := (MemoryAddress shr 24) and $FF;
-  Data[3] := (MemoryAddress shr 16) and $FF;
-  Data[4] := (MemoryAddress shr 8) and $FF;
-  Data[5] := MemoryAddress and $FF;
-  Data[6] := (MemorySize shr 24) and $FF;
-  Data[7] := (MemorySize shr 16) and $FF;
-  Data[8] := (MemorySize shr 8) and $FF;
-  Data[9] := MemorySize and $FF;
-  Result := BuildRequest(Byte(udsRequestUpload), Data);
-end;
-
-//------------------------------------------------------------------------------
-// TRANSFER DATA
-//------------------------------------------------------------------------------
-function TUDSProtocol.TransferData(BlockSequenceCounter: Byte; const Data: TBytes): TBytes;
-var
-  ReqData: TBytes;
-begin
-  SetLength(ReqData, 1 + Length(Data));
-  ReqData[0] := BlockSequenceCounter;
-  if Length(Data) > 0 then
-    Move(Data[0], ReqData[1], Length(Data));
-  Result := BuildRequest(Byte(udsTransferData), ReqData);
-end;
-
-//------------------------------------------------------------------------------
-// REQUEST TRANSFER EXIT
-//------------------------------------------------------------------------------
-function TUDSProtocol.RequestTransferExit(const Data: TBytes): TBytes;
-begin
-  Result := BuildRequest(Byte(udsRequestTransferExit), Data);
-end;
-
-//------------------------------------------------------------------------------
-// CONTROL DTC SETTING
-//------------------------------------------------------------------------------
-function TUDSProtocol.ControlDTCSetting(SettingType: Byte): TBytes;
-var
-  Data: TBytes;
-begin
-  SetLength(Data, 1);
-  Data[0] := SettingType; // $01=On, $02=Off
-  Result := BuildRequest(Byte(udsControlDTCSetting), Data);
+  Result := True;
 end;
 
 end.

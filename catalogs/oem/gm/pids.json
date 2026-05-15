@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "description": "gm-specific OBD-II / Mode 06 PID overlay seed.",
+  "kind": "obd2-pid",
+  "oem": "gm",
+  "pids": [
+  ]
+}

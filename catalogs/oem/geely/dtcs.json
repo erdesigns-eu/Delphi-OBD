@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0xA01A",
+      "text": "Lynk & Co — Driver-side seat-position sensor open circuit"
+    },
+    {
+      "code": "0x541C",
+      "text": "Geely — ESP yaw-rate sensor plausibility"
+    },
+    {
+      "code": "0x0299",
+      "text": "Geely 1.5T / 2.0T — Turbo underboost (Volvo-shared engine)"
+    },
+    {
+      "code": "0x0420",
+      "text": "Catalyst System Efficiency Bank 1 (Geely / Lynk & Co)"
+    },
+    {
+      "code": "0x0A09",
+      "text": "DC/DC Converter Status (Zeekr 800V SEA-S)"
+    },
+    {
+      "code": "0x0A80",
+      "text": "Replace Hybrid Battery Pack (Geely Geometry / Zeekr PHEV)"
+    },
+    {
+      "code": "0x30F0",
+      "text": "HV Battery Cell Imbalance (Geely SEA platforms)"
+    },
+    {
+      "code": "0xC10C",
+      "text": "Lost Communication With Glow Plug Module (Geely diesel)"
+    },
+    {
+      "code": "0xE018",
+      "text": "Front Camera Calibration Required (Lotus Eletre HYPER-OS)"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "bmw",
+  "label": "BMW i3 / i3s (SME battery management ECU). Partial: full per-byte map for newer i4/iX is not publicly published.",
+  "ecu": {
+    "request_id_hex": "0x6F1",
+    "response_id_hex": "0x607",
+    "addressing": "ISOTP_EXTADR",
+    "notes": "BMW F-/I-series uses ISO-TP extended addressing on bus PT-CAN/F-CAN at 500 kbps. Tester address 0xF1 prepended; SME ECU address is 0x07 (request 0x6F1 with 1st payload byte = 0x07; response 0x607 with 1st payload byte = 0xF1). OVMS module sets I3_ECU_SME_TX = 0x6F1 and I3_ECU_SME_RX = 0x607."
+  },
+  "applicable_models": [
+    "BMW i3 60Ah (2014-2016)",
+    "BMW i3 94Ah (2017-2018)",
+    "BMW i3 / i3s 120Ah (2019-2022)"
+  ],
+  "fields": [
+    { "field": "soh_capacity",    "service_hex": "0x22", "did_hex": "0x6335", "offset": 0, "length": 4, "scale": 0.001, "offset_value": 0, "unit": "Ah",  "notes": "ALTERUNG_KAPAZITAET_TS - remaining storage capacity (max-Ah aging tracker). Divide raw uint32 by 1000. SOH% = value / nominal Ah * 100.", "source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/tree/master/vehicle/OVMS.V3/components/vehicle_bmwi3" },
+    { "field": "soc_displayed",   "service_hex": "0x22", "did_hex": "0xDDBC", "offset": 0, "length": 1, "scale": 0.5,   "offset_value": 0, "unit": "%",   "notes": "STAT_LADEZUSTAND_BMS - displayed SOC %. Confirmed in OVMS i3 module and Deep OBD .prg files.", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "pack_voltage",    "service_hex": "0x22", "did_hex": "0xDDB7", "offset": 0, "length": 2, "scale": 0.01,  "offset_value": 0, "unit": "V",   "notes": "STAT_SPANNUNG_BATTERIE_HV - HV battery terminal voltage. uint16 / 100.", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "pack_current",    "service_hex": "0x22", "did_hex": "0xDDB8", "offset": 0, "length": 2, "scale": 0.1,   "offset_value": -3276.8, "unit": "A", "signed": true, "notes": "STAT_STROM_BATTERIE_HV - HV battery current; signed int16 / 10. Positive = discharge.", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "battery_temp_max","service_hex": "0x22", "did_hex": "0xDDC0", "offset": 0, "length": 1, "scale": 0.5,   "offset_value": -40, "unit": "C", "notes": "STAT_T_BATT_MAX. raw*0.5 - 40.", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "battery_temp_min","service_hex": "0x22", "did_hex": "0xDDC1", "offset": 0, "length": 1, "scale": 0.5,   "offset_value": -40, "unit": "C", "notes": "STAT_T_BATT_MIN.", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "cell_voltages_min_max","service_hex": "0x22", "did_hex": "0xDDBF", "offset": 0, "length": 4, "scale": 0.001, "offset_value": 0, "unit": "V", "notes": "Pair of uint16 millivolt values: min, max." , "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "range_km",        "service_hex": "0x22", "did_hex": "0x402B", "offset": 0, "length": 2, "scale": 1,     "offset_value": 0, "unit": "km",  "notes": "Polled from KOMBI cluster ECU (TX=0x6F1, RX=0x612), not SME. Estimated range.", "ecu_request_id_hex": "0x6F1", "ecu_response_id_hex": "0x612", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" },
+    { "field": "odometer_km",     "service_hex": "0x22", "did_hex": "0x2240", "offset": 0, "length": 3, "scale": 1,     "offset_value": 0, "unit": "km",  "notes": "Polled from KOMBI ECU (RX=0x612).", "ecu_request_id_hex": "0x6F1", "ecu_response_id_hex": "0x612", "source": "https://docs.openvehicles.com/en/latest/components/vehicle_bmwi3/docs/index.html" }
+  ],
+  "unavailable_fields": {
+    "per_cell_voltages_array": "Individual cell voltages (96 cells) are reported via SME but distributed across multiple DIDs not collated in any single public table; OVMS i3 currently only collects min/max. Per-cell map exists in EDIABAS .prg but is not redistributable.",
+    "charge_port_temperature": "Not documented in OVMS poll list.",
+    "i4_iX_ix1_ix3_decode": "Newer BMW EVs (Gen5 EME/eDrive) use different DIDs; no comprehensive public byte-level table found."
+  }
+}

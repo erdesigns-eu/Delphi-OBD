@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "type": "obd2-dtc",
+  "entries": [
+    {
+      "code": "0x942F",
+      "text": "NIO Aquila lidar — front-left module heater fault"
+    },
+    {
+      "code": "0x6003",
+      "text": "NIO — Steering position sensor calibration not learned"
+    },
+    {
+      "code": "0x0A0F",
+      "text": "Engine failed to start (NIO range-extender variant)"
+    },
+    {
+      "code": "0x0AA6",
+      "text": "HV Battery Cooling System (NIO Power Swap battery)"
+    },
+    {
+      "code": "0x0D29",
+      "text": "AC charging coupler latch fault (NIO Type-2 / GB-AC)"
+    },
+    {
+      "code": "0x3F00",
+      "text": "Battery Swap Handshake Failed (NIO Power Swap 4.0)"
+    },
+    {
+      "code": "0xC293",
+      "text": "Lost Communication With BMS (NIO swap pack timeout)"
+    },
+    {
+      "code": "0xE018",
+      "text": "NAD Camera Module Calibration Required (Aquila)"
+    }
+  ]
+}

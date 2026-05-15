@@ -1,308 +1,245 @@
 //------------------------------------------------------------------------------
-// UNIT           : OBD.StringHelpers.pas
-// CONTENTS       : String Helper Functions for Memory Optimization
-// VERSION        : 1.0
-// TARGET         : Embarcadero Delphi 11 or higher
-// AUTHOR         : Ernst Reidinga (ERDesigns)
-// STATUS         : Open source under Apache 2.0 library
-// COMPATIBILITY  : Windows 7, 8/8.1, 10, 11
-// RELEASE DATE   : 06/12/2025
+//  OBD.StringHelpers
+//
+//  Free-function utilities for the kind of byte / hex / id
+//  formatting that bubbles up across the diagnostic surface:
+//  hex encode / decode, ASCII-from-bytes, J2012 helpers,
+//  printable-byte rendering for debug output, etc.
+//
+//  All routines are pure and threadsafe.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  License     : MIT — see LICENSE
+//
+//  History     :
+//    2026-05-11  ERD  Initial port from v1 OBD.StringHelpers.
 //------------------------------------------------------------------------------
+
 unit OBD.StringHelpers;
 
 interface
 
 uses
-  System.SysUtils, System.Classes;
-
-//------------------------------------------------------------------------------
-// STRING BUILDER HELPERS
-//------------------------------------------------------------------------------
+  System.SysUtils,
+  System.Classes;
 
 /// <summary>
-///   Build a hex string from byte array efficiently using TStringBuilder
+///   Hex-encodes <c>ABytes</c> as an uppercase string. Each byte
+///   yields two hex digits, no separators.
 /// </summary>
-function BytesToHexString(const Bytes: TBytes): string; overload;
+/// <param name="ABytes">Bytes to encode.</param>
+/// <returns>Uppercase hex string.</returns>
+function BytesToHexUpper(const ABytes: TBytes): string;
 
 /// <summary>
-///   Build a hex string from byte array with separator efficiently
+///   Hex-encodes <c>ABytes</c> as a lowercase string.
 /// </summary>
-function BytesToHexString(const Bytes: TBytes; const Separator: string): string; overload;
+/// <param name="ABytes">Bytes to encode.</param>
+/// <returns>Lowercase hex string.</returns>
+function BytesToHexLower(const ABytes: TBytes): string;
 
 /// <summary>
-///   Convert hex string to byte array efficiently
+///   Hex-encodes <c>ABytes</c> with a configurable separator
+///   between each pair (e.g. <c>' '</c> for canonical ELM-style
+///   <c>"7E 03 22 F1 90"</c> output).
 /// </summary>
-function HexStringToBytes(const HexStr: string): TBytes;
+/// <param name="ABytes">Bytes to encode.</param>
+/// <param name="ASeparator">Separator inserted between every
+/// two hex digits (no separator before the first pair).</param>
+/// <returns>Separator-spaced hex string.</returns>
+function BytesToHexSeparated(const ABytes: TBytes;
+  const ASeparator: string = ' '): string;
 
 /// <summary>
-///   Build a formatted message efficiently using TStringBuilder
+///   Decodes a hex string back to bytes. Accepts upper- or
+///   lower-case digits and ignores spaces / tabs / new-lines.
 /// </summary>
-function BuildFormattedMessage(const Parts: array of string; const Separator: string = ' '): string;
+/// <param name="AHex">Source hex string.</param>
+/// <returns>Decoded bytes.</returns>
+/// <exception cref="EConvertError">
+///   The cleaned string has an odd digit count or contains a
+///   non-hex character.
+/// </exception>
+function HexToBytes(const AHex: string): TBytes;
 
 /// <summary>
-///   Join strings with separator efficiently
+///   ASCII-decodes <c>ABytes</c>, substituting non-printable
+///   bytes with <c>AReplacement</c>.
 /// </summary>
-function JoinStrings(const Strings: TArray<string>; const Separator: string): string;
+/// <param name="ABytes">Source bytes.</param>
+/// <param name="AReplacement">Character used in place of any
+/// byte outside the 0x20..0x7E printable range. Default
+/// <c>'.'</c>.</param>
+/// <returns>String with one character per byte.</returns>
+function BytesToPrintableAscii(const ABytes: TBytes;
+  AReplacement: Char = '.'): string;
 
 /// <summary>
-///   Split string by delimiter efficiently (avoid multiple allocations)
+///   Slices <c>ASource</c> into fixed-width chunks (default
+///   16 bytes) and returns a hex-dump-style string with one
+///   line per chunk. Each line is formatted as
+///   <c>OFFSET  HEX  ASCII</c>.
 /// </summary>
-function SplitString(const Text: string; const Delimiter: Char): TArray<string>;
-
-//------------------------------------------------------------------------------
-// CACHED STRING OPERATIONS
-//------------------------------------------------------------------------------
-type
-  /// <summary>
-  ///   Simple string cache for frequently used strings (like hex conversions)
-  /// </summary>
-  TStringCache = class
-  private
-    /// <summary>
-    ///   Cache storage (key-value pairs)
-    /// </summary>
-    FCache: TStringList;
-    /// <summary>
-    ///   Maximum cache size
-    /// </summary>
-    FMaxSize: Integer;
-
-  public
-    /// <summary>
-    ///   Constructor with optional max size
-    /// </summary>
-    constructor Create(MaxSize: Integer = 100);
-    /// <summary>
-    ///   Destructor
-    /// </summary>
-    destructor Destroy; override;
-
-    /// <summary>
-    ///   Get cached value or compute and cache it
-    /// </summary>
-    function GetOrCompute(const Key: string; ComputeFunc: TFunc<string>): string;
-
-    /// <summary>
-    ///   Clear cache
-    /// </summary>
-    procedure Clear;
-  end;
+/// <param name="ASource">Source bytes.</param>
+/// <param name="AWidth">Bytes per line. Default 16; clamped
+/// to <c>[1..64]</c>.</param>
+/// <returns>Multi-line hex dump.</returns>
+function FormatHexDump(const ASource: TBytes;
+  AWidth: Integer = 16): string;
 
 implementation
 
-//------------------------------------------------------------------------------
-// BYTES TO HEX STRING
-//------------------------------------------------------------------------------
-function BytesToHexString(const Bytes: TBytes): string;
+const
+  HexUpperDigits: array[0..15] of Char = '0123456789ABCDEF';
+  HexLowerDigits: array[0..15] of Char = '0123456789abcdef';
+
+function BytesToHexUpper(const ABytes: TBytes): string;
 var
-  Builder: TStringBuilder;
   I: Integer;
 begin
-  if Length(Bytes) = 0 then
-    Exit('');
-
-  Builder := TStringBuilder.Create(Length(Bytes) * 2);
-  try
-    for I := 0 to High(Bytes) do
-      Builder.Append(IntToHex(Bytes[I], 2));
-    Result := Builder.ToString;
-  finally
-    Builder.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// BYTES TO HEX STRING WITH SEPARATOR
-//------------------------------------------------------------------------------
-function BytesToHexString(const Bytes: TBytes; const Separator: string): string;
-var
-  Builder: TStringBuilder;
-  I: Integer;
-begin
-  if Length(Bytes) = 0 then
-    Exit('');
-
-  Builder := TStringBuilder.Create(Length(Bytes) * (2 + Length(Separator)));
-  try
-    for I := 0 to High(Bytes) do
-    begin
-      if I > 0 then
-        Builder.Append(Separator);
-      Builder.Append(IntToHex(Bytes[I], 2));
-    end;
-    Result := Builder.ToString;
-  finally
-    Builder.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// HEX STRING TO BYTES
-//------------------------------------------------------------------------------
-function HexStringToBytes(const HexStr: string): TBytes;
-var
-  Builder: TStringBuilder;
-  I, Len: Integer;
-  Cleaned: string;
-begin
-  // Remove spaces and non-hex characters using TStringBuilder
-  Builder := TStringBuilder.Create(Length(HexStr));
-  try
-    for I := 1 to Length(HexStr) do
-    begin
-      if CharInSet(HexStr[I], ['0'..'9', 'A'..'F', 'a'..'f']) then
-        Builder.Append(HexStr[I]);
-    end;
-    Cleaned := Builder.ToString;
-  finally
-    Builder.Free;
-  end;
-
-  Len := Length(Cleaned) div 2;
-  SetLength(Result, Len);
-
-  for I := 0 to Len - 1 do
-    Result[I] := StrToInt('$' + Copy(Cleaned, I * 2 + 1, 2));
-end;
-
-//------------------------------------------------------------------------------
-// BUILD FORMATTED MESSAGE
-//------------------------------------------------------------------------------
-function BuildFormattedMessage(const Parts: array of string; const Separator: string): string;
-var
-  Builder: TStringBuilder;
-  I, TotalLen: Integer;
-begin
-  if Length(Parts) = 0 then
-    Exit('');
-
-  // Calculate approximate size
-  TotalLen := 0;
-  for I := 0 to High(Parts) do
-    Inc(TotalLen, Length(Parts[I]));
-  Inc(TotalLen, Length(Parts) * Length(Separator));
-
-  Builder := TStringBuilder.Create(TotalLen);
-  try
-    for I := 0 to High(Parts) do
-    begin
-      if I > 0 then
-        Builder.Append(Separator);
-      Builder.Append(Parts[I]);
-    end;
-    Result := Builder.ToString;
-  finally
-    Builder.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// JOIN STRINGS
-//------------------------------------------------------------------------------
-function JoinStrings(const Strings: TArray<string>; const Separator: string): string;
-var
-  Builder: TStringBuilder;
-  I, TotalLen: Integer;
-begin
-  if Length(Strings) = 0 then
-    Exit('');
-
-  // Calculate approximate size
-  TotalLen := 0;
-  for I := 0 to High(Strings) do
-    Inc(TotalLen, Length(Strings[I]));
-  Inc(TotalLen, Length(Strings) * Length(Separator));
-
-  Builder := TStringBuilder.Create(TotalLen);
-  try
-    for I := 0 to High(Strings) do
-    begin
-      if I > 0 then
-        Builder.Append(Separator);
-      Builder.Append(Strings[I]);
-    end;
-    Result := Builder.ToString;
-  finally
-    Builder.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// SPLIT STRING
-//------------------------------------------------------------------------------
-function SplitString(const Text: string; const Delimiter: Char): TArray<string>;
-var
-  List: TStringList;
-  I: Integer;
-begin
-  List := TStringList.Create;
-  try
-    List.Delimiter := Delimiter;
-    List.StrictDelimiter := True;
-    List.DelimitedText := Text;
-    SetLength(Result, List.Count);
-    for I := 0 to List.Count - 1 do
-      Result[I] := List[I];
-  finally
-    List.Free;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-// STRING CACHE - CONSTRUCTOR
-//------------------------------------------------------------------------------
-constructor TStringCache.Create(MaxSize: Integer);
-begin
-  inherited Create;
-  FCache := TStringList.Create;
-  FCache.Sorted := True;
-  FCache.Duplicates := dupIgnore;
-  FMaxSize := MaxSize;
-end;
-
-//------------------------------------------------------------------------------
-// STRING CACHE - DESTRUCTOR
-//------------------------------------------------------------------------------
-destructor TStringCache.Destroy;
-begin
-  FCache.Free;
-  inherited;
-end;
-
-//------------------------------------------------------------------------------
-// STRING CACHE - GET OR COMPUTE
-//------------------------------------------------------------------------------
-function TStringCache.GetOrCompute(const Key: string; ComputeFunc: TFunc<string>): string;
-var
-  Index: Integer;
-begin
-  Index := FCache.IndexOf(Key);
-  if Index >= 0 then
+  SetLength(Result, Length(ABytes) * 2);
+  for I := 0 to High(ABytes) do
   begin
-    // Return cached value
-    Result := FCache.ValueFromIndex[Index];
-  end
+    Result[1 + 2 * I]     := HexUpperDigits[(ABytes[I] shr 4) and $0F];
+    Result[1 + 2 * I + 1] := HexUpperDigits[ ABytes[I]        and $0F];
+  end;
+end;
+
+function BytesToHexLower(const ABytes: TBytes): string;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(ABytes) * 2);
+  for I := 0 to High(ABytes) do
+  begin
+    Result[1 + 2 * I]     := HexLowerDigits[(ABytes[I] shr 4) and $0F];
+    Result[1 + 2 * I + 1] := HexLowerDigits[ ABytes[I]        and $0F];
+  end;
+end;
+
+function BytesToHexSeparated(const ABytes: TBytes;
+  const ASeparator: string): string;
+var
+  I: Integer;
+  Acc: TStringBuilder;
+begin
+  if Length(ABytes) = 0 then
+    Exit('');
+  Acc := TStringBuilder.Create(Length(ABytes) * 3);
+  try
+    for I := 0 to High(ABytes) do
+    begin
+      if I > 0 then
+        Acc.Append(ASeparator);
+      Acc.Append(HexUpperDigits[(ABytes[I] shr 4) and $0F]);
+      Acc.Append(HexUpperDigits[ ABytes[I]        and $0F]);
+    end;
+    Result := Acc.ToString;
+  finally
+    Acc.Free;
+  end;
+end;
+
+function NibbleValue(AChar: Char): Integer;
+begin
+  case AChar of
+    '0'..'9': Result := Ord(AChar) - Ord('0');
+    'a'..'f': Result := 10 + Ord(AChar) - Ord('a');
+    'A'..'F': Result := 10 + Ord(AChar) - Ord('A');
   else
-  begin
-    // Compute and cache
-    Result := ComputeFunc();
-    
-    // Check cache size and remove oldest if needed
-    // Note: This is a simple FIFO eviction, not true LRU
-    // For proper LRU, a different data structure (e.g., linked list + hash map) would be needed
-    if FCache.Count >= FMaxSize then
-      FCache.Delete(0);
-    
-    FCache.Values[Key] := Result;
+    Result := -1;
   end;
 end;
 
-//------------------------------------------------------------------------------
-// STRING CACHE - CLEAR
-//------------------------------------------------------------------------------
-procedure TStringCache.Clear;
+function HexToBytes(const AHex: string): TBytes;
+var
+  Clean: string;
+  I: Integer;
+  Hi: Integer;
+  Lo: Integer;
 begin
-  FCache.Clear;
+  SetLength(Clean, Length(AHex));
+  Hi := 0;
+  for I := 1 to Length(AHex) do
+    case AHex[I] of
+      ' ', #9, #10, #13: ;                  // skip whitespace
+    else
+      Inc(Hi);
+      Clean[Hi] := AHex[I];
+    end;
+  SetLength(Clean, Hi);
+  if Odd(Length(Clean)) then
+    raise EConvertError.CreateFmt(
+      'HexToBytes: odd digit count %d', [Length(Clean)]);
+  SetLength(Result, Length(Clean) div 2);
+  for I := 0 to High(Result) do
+  begin
+    Hi := NibbleValue(Clean[1 + 2 * I]);
+    Lo := NibbleValue(Clean[1 + 2 * I + 1]);
+    if (Hi < 0) or (Lo < 0) then
+      raise EConvertError.CreateFmt(
+        'HexToBytes: invalid pair "%s"',
+        [Copy(Clean, 1 + 2 * I, 2)]);
+    Result[I] := Byte((Hi shl 4) or Lo);
+  end;
+end;
+
+function BytesToPrintableAscii(const ABytes: TBytes;
+  AReplacement: Char): string;
+var
+  I: Integer;
+  B: Byte;
+begin
+  SetLength(Result, Length(ABytes));
+  for I := 0 to High(ABytes) do
+  begin
+    B := ABytes[I];
+    if (B >= $20) and (B <= $7E) then
+      Result[I + 1] := Char(B)
+    else
+      Result[I + 1] := AReplacement;
+  end;
+end;
+
+function FormatHexDump(const ASource: TBytes;
+  AWidth: Integer): string;
+var
+  Acc: TStringBuilder;
+  I: Integer;
+  J: Integer;
+  LineEnd: Integer;
+  Slice: TBytes;
+begin
+  if AWidth < 1 then
+    AWidth := 1
+  else if AWidth > 64 then
+    AWidth := 64;
+  Acc := TStringBuilder.Create(Length(ASource) * 4);
+  try
+    I := 0;
+    while I < Length(ASource) do
+    begin
+      LineEnd := I + AWidth;
+      if LineEnd > Length(ASource) then
+        LineEnd := Length(ASource);
+      Acc.Append(Format('%.8x  ', [I]));
+      for J := I to LineEnd - 1 do
+        Acc.Append(Format('%.2x ', [ASource[J]]));
+      // Pad short final line so the ASCII gutter aligns.
+      for J := LineEnd to I + AWidth - 1 do
+        Acc.Append('   ');
+      Acc.Append(' ');
+      SetLength(Slice, LineEnd - I);
+      if Length(Slice) > 0 then
+        Move(ASource[I], Slice[0], Length(Slice));
+      Acc.AppendLine(BytesToPrintableAscii(Slice));
+      I := LineEnd;
+    end;
+    Result := Acc.ToString;
+  finally
+    Acc.Free;
+  end;
 end;
 
 end.
