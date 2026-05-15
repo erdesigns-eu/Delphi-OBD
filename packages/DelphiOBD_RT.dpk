@@ -128,6 +128,7 @@ contains
   OBD.OEM.Types in '..\src\OEM\OBD.OEM.Types.pas',
   OBD.OEM in '..\src\OEM\OBD.OEM.pas',
   OBD.OEM.SeedKey in '..\src\OEM\OBD.OEM.SeedKey.pas',
+  OBD.OEM.SecurityAccess in '..\src\OEM\OBD.OEM.SecurityAccess.pas',
   OBD.OEM.DTC in '..\src\OEM\OBD.OEM.DTC.pas',
   OBD.OEM.Session in '..\src\OEM\OBD.OEM.Session.pas',
   OBD.OEM.Extensions in '..\src\OEM\OBD.OEM.Extensions.pas',

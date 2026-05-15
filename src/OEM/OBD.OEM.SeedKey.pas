@@ -251,6 +251,56 @@ type
     function ComputeKey(const Seed: TBytes; const Level: Byte): TBytes; override;
   end;
 
+  /// <summary>
+  ///   Two's-complement with LSB-first carry. Variant of
+  ///   <see cref="TOBDSeedKeyKWP2000TwosComplement"/> that
+  ///   propagates the +1 carry from the first byte upwards rather
+  ///   than from the last byte downwards — matches the documented
+  ///   Bosch ME7 / EDC15 KWP2000 example in the public ECU-tuning
+  ///   literature.
+  /// </summary>
+  TOBDSeedKeyTwosComplementLE = class(TOBDSeedKeyAlgorithmBase)
+  public
+    constructor Create;
+    function ComputeKey(const Seed: TBytes; const Level: Byte): TBytes; override;
+  end;
+
+  /// <summary>
+  ///   Nibble-swap + XOR. <c>key[i] = ((Mask[i] XOR seed[i]) shl 4)
+  ///   or ((Mask[i] XOR seed[i]) shr 4)</c>. Caller supplies the
+  ///   mask. Documented general shape used by several legacy
+  ///   KWP2000 / KLine ECUs and early aftermarket modules.
+  /// </summary>
+  TOBDSeedKeyNibbleSwapXor = class(TOBDSeedKeyAlgorithmBase)
+  strict private
+    FMask: TBytes;
+  public
+    constructor Create(const Mask: TBytes;
+      const Description: string = 'Nibble-swap + XOR seed-key';
+      const Source: string = 'public-domain';
+      const Verified: Boolean = False);
+    function ComputeKey(const Seed: TBytes; const Level: Byte): TBytes; override;
+  end;
+
+  /// <summary>
+  ///   CRC-32 (polynomial 0xEDB88320, the reflected IEEE-802.3
+  ///   "zlib" poly) of the seed bytes, XORed with a caller-
+  ///   supplied 4-byte mask. The result is the 4 little-endian
+  ///   CRC bytes. Common public template used by community
+  ///   bench-flashing tools when a real OEM algorithm is not
+  ///   installed.
+  /// </summary>
+  TOBDSeedKeyCrc32XorMask = class(TOBDSeedKeyAlgorithmBase)
+  strict private
+    FMask: array[0..3] of Byte;
+  public
+    constructor Create(const Mask: array of Byte;
+      const Description: string = 'CRC-32 + XOR mask seed-key';
+      const Source: string = 'public-domain';
+      const Verified: Boolean = False);
+    function ComputeKey(const Seed: TBytes; const Level: Byte): TBytes; override;
+  end;
+
   //----------------------------------------------------------------------------
   //  Helpers used by SecurityAccess flow code.
   //----------------------------------------------------------------------------
@@ -723,6 +773,120 @@ function TOBDSeedKeyConstant.ComputeKey(const Seed: TBytes;
 begin
   CheckSeed(Seed);
   Result := Copy(FKey, 0, Length(FKey));
+end;
+
+//==============================================================================
+//  TOBDSeedKeyTwosComplementLE
+//==============================================================================
+
+constructor TOBDSeedKeyTwosComplementLE.Create;
+begin
+  inherited Create(
+    'KWP2000 two''s-complement, LSB-first carry (Bosch ME7 / EDC15)',
+    'community-public', False);
+end;
+
+function TOBDSeedKeyTwosComplementLE.ComputeKey(const Seed: TBytes;
+  const Level: Byte): TBytes;
+var
+  I, Carry, Sum: Integer;
+begin
+  // Identical to the textbook two's-complement except the +1
+  // carry propagates from byte 0 upwards rather than from the
+  // last byte downwards. Several KWP2000-on-CAN ECUs ship this
+  // variant; the two are not interchangeable.
+  CheckSeed(Seed);
+  SetLength(Result, Length(Seed));
+  for I := 0 to High(Seed) do
+    Result[I] := (not Seed[I]) and $FF;
+  Carry := 1;
+  for I := 0 to High(Result) do
+  begin
+    if Carry = 0 then Break;
+    Sum := Result[I] + Carry;
+    Result[I] := Sum and $FF;
+    Carry := Sum shr 8;
+  end;
+end;
+
+//==============================================================================
+//  TOBDSeedKeyNibbleSwapXor
+//==============================================================================
+
+constructor TOBDSeedKeyNibbleSwapXor.Create(const Mask: TBytes;
+  const Description, Source: string; const Verified: Boolean);
+begin
+  inherited Create(Description, Source, Verified);
+  if Length(Mask) = 0 then
+    raise EOBDSeedKeyError.Create(
+      'Nibble-swap XOR mask must not be empty');
+  FMask := Copy(Mask, 0, Length(Mask));
+end;
+
+function TOBDSeedKeyNibbleSwapXor.ComputeKey(const Seed: TBytes;
+  const Level: Byte): TBytes;
+var
+  I: Integer;
+  B: Byte;
+begin
+  CheckSeed(Seed);
+  SetLength(Result, Length(Seed));
+  for I := 0 to High(Seed) do
+  begin
+    B := Seed[I] xor FMask[I mod Length(FMask)];
+    Result[I] := Byte(((B and $0F) shl 4) or ((B and $F0) shr 4));
+  end;
+end;
+
+//==============================================================================
+//  TOBDSeedKeyCrc32XorMask
+//==============================================================================
+
+constructor TOBDSeedKeyCrc32XorMask.Create(const Mask: array of Byte;
+  const Description, Source: string; const Verified: Boolean);
+var
+  I: Integer;
+begin
+  inherited Create(Description, Source, Verified);
+  if Length(Mask) <> 4 then
+    raise EOBDSeedKeyError.Create(
+      'CRC-32 XOR mask must be exactly 4 bytes');
+  for I := 0 to 3 do
+    FMask[I] := Mask[I];
+end;
+
+function Crc32Reflected(const Bytes: TBytes): Cardinal;
+const
+  POLY = $EDB88320;  // reflected IEEE-802.3 ("zlib") polynomial
+var
+  I, J: Integer;
+  Crc: Cardinal;
+begin
+  Crc := $FFFFFFFF;
+  for I := 0 to High(Bytes) do
+  begin
+    Crc := Crc xor Bytes[I];
+    for J := 0 to 7 do
+      if (Crc and 1) <> 0 then
+        Crc := (Crc shr 1) xor POLY
+      else
+        Crc := Crc shr 1;
+  end;
+  Result := Crc xor $FFFFFFFF;
+end;
+
+function TOBDSeedKeyCrc32XorMask.ComputeKey(const Seed: TBytes;
+  const Level: Byte): TBytes;
+var
+  Crc: Cardinal;
+begin
+  CheckSeed(Seed);
+  Crc := Crc32Reflected(Seed);
+  SetLength(Result, 4);
+  Result[0] := Byte( Crc          and $FF) xor FMask[0];
+  Result[1] := Byte((Crc shr 8)   and $FF) xor FMask[1];
+  Result[2] := Byte((Crc shr 16)  and $FF) xor FMask[2];
+  Result[3] := Byte((Crc shr 24)  and $FF) xor FMask[3];
 end;
 
 //==============================================================================
