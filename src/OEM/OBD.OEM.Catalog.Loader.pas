@@ -281,6 +281,8 @@ begin
     Field.EnumValues := FE.EnumValues;
     Result.Fields[I] := Field;
   end;
+  Result.Source := E.Source;
+  Result.Verified := E.Verified;
 end;
 
 function ConvertAdaptation(
@@ -297,6 +299,8 @@ begin
   Result.DefaultValue := E.DefaultValue;
   Result.Unit_ := E.Unit_;
   Result.EnumValues := E.EnumValues;
+  Result.Source := E.Source;
+  Result.Verified := E.Verified;
 end;
 
 function ConvertActuatorTest(
@@ -312,6 +316,8 @@ begin
   Result.ExpectedResponseKind :=
     ParseActuatorResponseKind(E.ExpectedResponseKind);
   Result.ExpectedResponseLabel := E.ExpectedResponseLabel;
+  Result.Source := E.Source;
+  Result.Verified := E.Verified;
 end;
 
 function ConvertLivePID(const E: TOBDLivePIDEntry): TOBDOEMLivePID;
@@ -327,6 +333,18 @@ begin
   Result.Scale := E.Scale;
   Result.Offset := E.Offset;
   Result.Unit_ := E.Unit_;
+  Result.Source := E.Source;
+  Result.Verified := E.Verified;
+  // Mirror the flat decoder fields into the structured Decoder
+  // subrecord plus carry the schema's values / bits maps that
+  // the flat surface cannot express.
+  Result.Decoder.Kind := Result.DecoderKind;
+  Result.Decoder.Size := E.DecoderSize;
+  Result.Decoder.Scale := E.Scale;
+  Result.Decoder.Offset := E.Offset;
+  Result.Decoder.Unit_ := E.Unit_;
+  Result.Decoder.EnumValues := E.EnumValues;
+  Result.Decoder.BitNames := E.BitNames;
 end;
 
 function ConvertDtcExtended(
@@ -341,6 +359,15 @@ begin
   Result.Scale := E.Scale;
   Result.Offset := E.Offset;
   Result.Unit_ := E.Unit_;
+  Result.Source := E.Source;
+  Result.Verified := E.Verified;
+  Result.Decoder.Kind := Result.DecoderKind;
+  Result.Decoder.Size := E.DecoderSize;
+  Result.Decoder.Scale := E.Scale;
+  Result.Decoder.Offset := E.Offset;
+  Result.Decoder.Unit_ := E.Unit_;
+  Result.Decoder.EnumValues := E.EnumValues;
+  Result.Decoder.BitNames := E.BitNames;
 end;
 
 procedure MergeCodingBlocks(var Existing: TArray<TOBDOEMCodingBlock>;

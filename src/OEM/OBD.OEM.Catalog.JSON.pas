@@ -207,6 +207,15 @@ type
     Scale: Double;
     Offset: Double;
     Unit_: string;
+    /// <summary>Decoder <c>size</c> (fixed payload width for
+    /// enum / bitmask / fixed-length kinds); 0 when omitted.</summary>
+    DecoderSize: Integer;
+    /// <summary>Decoder <c>values</c> map for
+    /// <c>kind: enum</c>.</summary>
+    EnumValues: TArray<TPair<Integer, string>>;
+    /// <summary>Decoder <c>bits</c> map for
+    /// <c>kind: bitmask</c>.</summary>
+    BitNames: TArray<TPair<Integer, string>>;
   end;
 
   /// <summary>DTC extended-data record as loaded from JSON.</summary>
@@ -221,6 +230,12 @@ type
     Scale: Double;
     Offset: Double;
     Unit_: string;
+    /// <summary>Decoder <c>size</c>.</summary>
+    DecoderSize: Integer;
+    /// <summary>Decoder <c>values</c> map.</summary>
+    EnumValues: TArray<TPair<Integer, string>>;
+    /// <summary>Decoder <c>bits</c> map.</summary>
+    BitNames: TArray<TPair<Integer, string>>;
   end;
 
   /// <summary>
@@ -247,6 +262,8 @@ type
     function ParseHexOrInt(const S: string): Cardinal;
     function ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
     function ParseEnumValues(Obj: TJSONObject;
+      const Key: string): TArray<TPair<Integer, string>>;
+    function ParseBitNames(Obj: TJSONObject;
       const Key: string): TArray<TPair<Integer, string>>;
     procedure LoadFromJSON(Root: TJSONObject);
     procedure LoadDIDs(Arr: TJSONArray);
@@ -798,6 +815,35 @@ begin
   end;
 end;
 
+function TOBDOEMJSONCatalog.ParseBitNames(Obj: TJSONObject;
+  const Key: string): TArray<TPair<Integer, string>>;
+var
+  BitsObj: TJSONObject;
+  Pair: TJSONPair;
+  Acc: TList<TPair<Integer, string>>;
+begin
+  // Bit-name maps use decimal bit-index keys (0..N-1); a bitmask
+  // decoder's "bits" object is { "0": "...", "1": "..." } so the
+  // same string->int parse used for enum-value keys is correct
+  // here too.
+  Result := nil;
+  if Obj = nil then
+    Exit;
+  BitsObj := Obj.GetValue<TJSONObject>(Key);
+  if BitsObj = nil then
+    Exit;
+  Acc := TList<TPair<Integer, string>>.Create;
+  try
+    for Pair in BitsObj do
+      Acc.Add(TPair<Integer, string>.Create(
+        StrToIntDef(Pair.JsonString.Value, -1),
+        (Pair.JsonValue as TJSONString).Value));
+    Result := Acc.ToArray;
+  finally
+    Acc.Free;
+  end;
+end;
+
 procedure TOBDOEMJSONCatalog.LoadCodingBlocks(Arr: TJSONArray);
 var
   I, J: Integer;
@@ -954,6 +1000,9 @@ begin
       Entry.Scale := Decoder.GetValue<Double>('scale', 1.0);
       Entry.Offset := Decoder.GetValue<Double>('offset', 0.0);
       Entry.Unit_ := Decoder.GetValue<string>('unit', '');
+      Entry.DecoderSize := Decoder.GetValue<Integer>('size', 0);
+      Entry.EnumValues := ParseEnumValues(Decoder, 'values');
+      Entry.BitNames := ParseBitNames(Decoder, 'bits');
     end
     else
       Entry.Scale := 1.0;
@@ -988,11 +1037,73 @@ begin
       Entry.Scale := Decoder.GetValue<Double>('scale', 1.0);
       Entry.Offset := Decoder.GetValue<Double>('offset', 0.0);
       Entry.Unit_ := Decoder.GetValue<string>('unit', '');
+      Entry.DecoderSize := Decoder.GetValue<Integer>('size', 0);
+      Entry.EnumValues := ParseEnumValues(Decoder, 'values');
+      Entry.BitNames := ParseBitNames(Decoder, 'bits');
     end
     else
       Entry.Scale := 1.0;
     FDtcExtended.Add(Entry);
   end;
+end;
+
+function DictionaryToPairs(D: TDictionary<Cardinal, string>):
+  TArray<TPair<Integer, string>>;
+var
+  Pair: TPair<Cardinal, string>;
+  Acc: TList<TPair<Integer, string>>;
+begin
+  if D = nil then
+    Exit(nil);
+  Acc := TList<TPair<Integer, string>>.Create;
+  try
+    for Pair in D do
+      Acc.Add(TPair<Integer, string>.Create(
+        Integer(Pair.Key), Pair.Value));
+    Result := Acc.ToArray;
+  finally
+    Acc.Free;
+  end;
+end;
+
+function BitsDictionaryToPairs(D: TDictionary<Integer, string>):
+  TArray<TPair<Integer, string>>;
+var
+  Pair: TPair<Integer, string>;
+  Acc: TList<TPair<Integer, string>>;
+begin
+  if D = nil then
+    Exit(nil);
+  Acc := TList<TPair<Integer, string>>.Create;
+  try
+    for Pair in D do
+      Acc.Add(Pair);
+    Result := Acc.ToArray;
+  finally
+    Acc.Free;
+  end;
+end;
+
+function ToOEMDecoderSpec(
+  const Spec: TOBDDecoderSpec): TOBDOEMDecoderSpec;
+const
+  // The internal TOBDDecoderKind and the public
+  // TOBDOEMDecoderKind enums share their member layout (same
+  // ordinal positions) so a straight Ord-cast carries the
+  // mapping without an explicit lookup table.
+  // Drift here will be caught by Tests.OBD.OEM.CatalogLoader.
+  PUBLIC_KIND: array[TOBDDecoderKind] of TOBDOEMDecoderKind = (
+    dkUnknown, dkAscii, dkHex, dkUInt8, dkUInt16BE, dkUInt32BE,
+    dkInt16BE, dkInt32BE, dkBcdDate, dkEnum, dkBitmask, dkSeconds);
+begin
+  Result := Default(TOBDOEMDecoderSpec);
+  Result.Kind := PUBLIC_KIND[Spec.Kind];
+  Result.Size := Spec.Size;
+  Result.Scale := Spec.Scale;
+  Result.Offset := Spec.Offset;
+  Result.Unit_ := Spec.Unit_;
+  Result.EnumValues := DictionaryToPairs(Spec.EnumValues);
+  Result.BitNames := BitsDictionaryToPairs(Spec.BitNames);
 end;
 
 function TOBDOEMJSONCatalog.AsBaseDIDs: TArray<TOBDOEMDataIdentifier>;
@@ -1008,6 +1119,9 @@ begin
     Out_.Name := FDIDs[I].Name;
     Out_.Description := FDIDs[I].Description;
     Out_.EcuAddress := FDIDs[I].EcuAddress;
+    Out_.Source := FDIDs[I].Source;
+    Out_.Verified := FDIDs[I].Verified;
+    Out_.Decoder := ToOEMDecoderSpec(FDIDs[I].Decoder);
     Result[I] := Out_;
   end;
 end;
@@ -1025,6 +1139,8 @@ begin
     Out_.Name := FRoutines[I].Name;
     Out_.Description := FRoutines[I].Description;
     Out_.EcuAddress := FRoutines[I].EcuAddress;
+    Out_.Source := FRoutines[I].Source;
+    Out_.Verified := FRoutines[I].Verified;
     Result[I] := Out_;
   end;
 end;

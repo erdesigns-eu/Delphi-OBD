@@ -68,6 +68,32 @@ type
     xdkMilesSinceCleared, xdkFreezeFrameTemplate,
     xdkOemStatusByte, xdkEnvironmentalData);
 
+  /// <summary>Decoder spec carried by every catalogue entry
+  /// that ships a <c>decoder</c> sub-object — DIDs, live PIDs,
+  /// DTC extended-data records. Mirrors the catalogue schema
+  /// 1:1; absent fields stay at their record defaults.</summary>
+  TOBDOEMDecoderSpec = record
+    /// <summary>Decoder kind, or <c>dkUnknown</c> when the
+    /// entry has no decoder.</summary>
+    Kind: TOBDOEMDecoderKind;
+    /// <summary>Fixed payload size in bytes for enum / bitmask
+    /// / fixed-length kinds; 0 when the schema omits it.</summary>
+    Size: Integer;
+    /// <summary>Multiplicative scale (default 1.0 when the
+    /// catalogue omits the field).</summary>
+    Scale: Double;
+    /// <summary>Additive offset (default 0.0).</summary>
+    Offset: Double;
+    /// <summary>Display unit (e.g. <c>°C</c>, <c>%</c>,
+    /// <c>kPa</c>).</summary>
+    Unit_: string;
+    /// <summary>Value → label pairs for <c>dkEnum</c>.</summary>
+    EnumValues: TArray<TPair<Integer, string>>;
+    /// <summary>Bit-index → label pairs for
+    /// <c>dkBitmask</c>.</summary>
+    BitNames: TArray<TPair<Integer, string>>;
+  end;
+
   /// <summary>One Data Identifier (DID) in a vendor catalogue.</summary>
   TOBDOEMDataIdentifier = record
     /// <summary>16-bit DID value.</summary>
@@ -78,6 +104,16 @@ type
     Description: string;
     /// <summary>UDS request CAN-ID that owns this DID; 0 = global.</summary>
     EcuAddress: Word;
+    /// <summary>Provenance ("iso-15031-6", "oem-spec",
+    /// "community-pr", …).</summary>
+    Source: string;
+    /// <summary>True only when matched against an authoritative
+    /// spec or capture fixture.</summary>
+    Verified: Boolean;
+    /// <summary>Decoder spec for the payload bytes returned by
+    /// reading this DID. <c>Decoder.Kind = dkUnknown</c> when
+    /// the catalogue declares no decoder.</summary>
+    Decoder: TOBDOEMDecoderSpec;
   end;
 
   /// <summary>One RoutineControl (SID 0x31) entry.</summary>
@@ -90,6 +126,10 @@ type
     Description: string;
     /// <summary>Owning ECU address; 0 = global.</summary>
     EcuAddress: Word;
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
   end;
 
   /// <summary>One ECU on the vehicle bus.</summary>
@@ -144,6 +184,10 @@ type
     PayloadSize: Integer;
     /// <summary>Field layout.</summary>
     Fields: TArray<TOBDCodingField>;
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
   end;
 
   /// <summary>One numbered adaptation channel.</summary>
@@ -168,6 +212,10 @@ type
     Unit_: string;
     /// <summary>Enum value/label pairs when <c>Kind = adkEnum</c>.</summary>
     EnumValues: TArray<TPair<Integer, string>>;
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
   end;
 
   /// <summary>One forced-output actuator test.</summary>
@@ -188,6 +236,10 @@ type
     ExpectedResponseKind: TOBDActuatorResponseKind;
     /// <summary>Expected response label.</summary>
     ExpectedResponseLabel: string;
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
   end;
 
   /// <summary>One streamable live PID.</summary>
@@ -204,14 +256,28 @@ type
     EcuAddress: Word;
     /// <summary>Byte offset of this signal in the response payload.</summary>
     FrameOffset: Integer;
-    /// <summary>Decoder kind.</summary>
+    /// <summary>Decoder kind (mirrored from
+    /// <c>Decoder.Kind</c> for back-compat).</summary>
     DecoderKind: TOBDOEMDecoderKind;
-    /// <summary>Multiplicative scale.</summary>
+    /// <summary>Multiplicative scale (mirrored from
+    /// <c>Decoder.Scale</c>).</summary>
     Scale: Double;
-    /// <summary>Additive offset.</summary>
+    /// <summary>Additive offset (mirrored from
+    /// <c>Decoder.Offset</c>).</summary>
     Offset: Double;
-    /// <summary>Display unit.</summary>
+    /// <summary>Display unit (mirrored from
+    /// <c>Decoder.Unit_</c>).</summary>
     Unit_: string;
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
+    /// <summary>Full decoder spec including enum-value and
+    /// bitmask-name maps. The flat fields above mirror
+    /// <c>Decoder.Kind</c> / <c>Scale</c> / <c>Offset</c> /
+    /// <c>Unit_</c> for callers that only need the scalar
+    /// decoder parameters.</summary>
+    Decoder: TOBDOEMDecoderSpec;
   end;
 
   /// <summary>One DTC extended-data record (UDS 0x19 sub 0x06).</summary>
@@ -224,7 +290,14 @@ type
     Kind: TOBDDtcExtendedDataKind;
     /// <summary>Description.</summary>
     Description: string;
-    /// <summary>Decoder kind.</summary>
+    /// <summary>Provenance.</summary>
+    Source: string;
+    /// <summary>Spec-confirmed.</summary>
+    Verified: Boolean;
+    /// <summary>Full decoder spec.</summary>
+    Decoder: TOBDOEMDecoderSpec;
+    /// <summary>Decoder kind (mirrored from
+    /// <c>Decoder.Kind</c>).</summary>
     DecoderKind: TOBDOEMDecoderKind;
     /// <summary>Multiplicative scale.</summary>
     Scale: Double;
