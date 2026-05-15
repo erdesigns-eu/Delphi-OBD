@@ -185,6 +185,8 @@ contains
   OBD.OEM.KeyAdaptation.BMW in '..\src\OEM\OBD.OEM.KeyAdaptation.BMW.pas',
   OBD.OEM.KeyAdaptation.Toyota in '..\src\OEM\OBD.OEM.KeyAdaptation.Toyota.pas',
   OBD.OEM.KeyAdaptation.Platforms in '..\src\OEM\OBD.OEM.KeyAdaptation.Platforms.pas',
+  OBD.OEM.VW in '..\src\OEM\OBD.OEM.VW.pas',
+  OBD.OEM.Bentley in '..\src\OEM\OBD.OEM.Bentley.pas',
   OBD.Coding.OptionCatalog in '..\src\Coding\OBD.Coding.OptionCatalog.pas',
   OBD.Coding.DiffRLE in '..\src\Coding\OBD.Coding.DiffRLE.pas',
   OBD.Coding.LabelFile.VAG in '..\src\Coding\OBD.Coding.LabelFile.VAG.pas',
