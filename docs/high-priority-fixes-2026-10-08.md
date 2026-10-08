@@ -21,7 +21,7 @@ protocollen, OEM-algoritmen of Windows-backends.
 | G09, P1 | HSM-facade delegeert beschikbaarheid, algoritmen en verificatie aan een geconfigureerde `IOBDSignatureVerifier`-driver. Een bestaand LibraryPath-bestand is onvoldoende. De always-raise-implementatie is verwijderd. Ook de OpenSSL-signaturebackend heeft nu een echte POSIX-loader, consistente initialisatie en beschikbaarheidscontrole. | Zes controles met een echt gegenereerde RSA-handtekening: bestand zonder driver, capabilities, geldig bericht, gewijzigd bericht en verwijderde driver. Native OpenSSL verifieert de cryptografie. Een specifieke PKCS#11-tokenimplementatie wordt door de host geleverd; er wordt geen gebundelde hardwaredriver geclaimd. |
 | G10, P1 | Seed-keyregistry selecteert standaard alleen `Verified` providers. Unverified starters en lambda's vereisen expliciet `AllowUnverified := True` voor labgebruik. Een nieuwe unverified registratie kan een oudere verified provider niet verdringen. | Defaultweigering, expliciete lab-opt-in en selectie van een eligible provider getest. Provenance blijft beschikbaar via Find/FindAll. `Verified` is metadata van de leverancier; geen verzonnen OEM-algoritmen toegevoegd. |
 | G13, P1 | Drie echte, tracked `.dproj`-entrypoints met search paths, namespaces, DCCReference-lijsten en outputpaden. Package-dependencies voor VCL/PNG/LiveBindings vermeld; onbestaande package-RES-verwijzingen verwijderd. CI controleert BDS en DUnitX-prerequisites. | XML, lokale references en project/package/search-path-analyzers gecontroleerd. De Delphi-job blijft bewust disabled tot een gelicentieerde Windows-runner en de afgesproken Delphi-validatiefase beschikbaar zijn. MSBuild/RAD Studio zijn hier niet uitgevoerd. |
-| G14, P1 | Gedragsdekking uitgebreid met de echte wire-keten, flash-/recovery-simulator, native TCP/UDP, TLS-certificaatmatrix, native RSA-verificatie, lifetimes, replaylimieten en catalogusvectors. Assertions blijven actief. | 273 Linux nonvisual units compileren; 191 runtimechecks, zes signaturechecks en zeven TLS-handshakes slagen, naast 185 portable checks. Dit is gerichte regressiedekking, geen claim dat elke unit of elk protocol op hardware is getest. |
+| G14, P1 | Gedragsdekking uitgebreid met de echte wire-keten, flash-/recovery-simulator, native TCP/UDP, TLS-certificaatmatrix, native RSA-verificatie, lifetimes, replaylimieten en catalogusvectors. Assertions blijven actief. | 273 Linux nonvisual units compileren; 193 runtimechecks, zes signaturechecks en zeven TLS-handshakes slagen, naast 185 portable checks. Dit is gerichte regressiedekking, geen claim dat elke unit of elk protocol op hardware is getest. |
 
 ## Extra fouten gevonden tijdens de regressies
 
@@ -36,8 +36,9 @@ protocollen, OEM-algoritmen of Windows-backends.
   opgegeven slice en weigert truncatie/misalignment. Alle vijftien vendorcatalogi
   plus de testfixture laden nu via de productieparser.
 - Malformed JSON zonder parserexceptions kon met de gebruikte officiële FPC
-  System.JSON een ongeldige resultaatpointer opleveren. Replay en checkpoint
-  schakelen expliciete parserexceptions in en behandelen het foutpad.
+  System.JSON een ongeldige resultaatpointer opleveren. Replay, checkpoint en de centrale catalogushelper
+  schakelen expliciete parserexceptions in en behandelen het foutpad. Ongeldige
+  catalogus-JSON en niet-object-roots krijgen gecontroleerde configuratiefouten.
 
 ## Validatie
 
@@ -57,7 +58,7 @@ FPC-bibliotheken en compileert de oorspronkelijke units, zonder RTL-stubs.
 | Controle | Resultaat |
 |---|---|
 | FPC 3.3.1, Linux x86-64 | 273 niet-visuele units gecompileerd |
-| Runtime | 191 checks geslaagd |
+| Runtime | 193 checks geslaagd |
 | Handtekeningen | 6 native RSA/driverchecks geslaagd |
 | TLS | 7 echte handshake-scenario's geslaagd |
 | Portable FPC 3.2.2 | 185 checks geslaagd |

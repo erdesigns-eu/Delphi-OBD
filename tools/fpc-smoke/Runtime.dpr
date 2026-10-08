@@ -10,7 +10,7 @@ uses
   ERD.Protocol, ERD.Protocol.Types, ERD.Coding.DataIdentifierIO, ERD.OEM.SeedKey,
   ERD.Flash.VoltageGate, ERD.Service.EVBattery, ERD.Service.EVBattery.Catalog,
   ERD.Service.EVBattery.Types,
-  ERD.Async.Task, ERD.Service.VehicleHealth, ERD.Async, ERD.Collections.ThreadedQueue, ERD.Types,
+  ERD.Async.Task, ERD.Service.VehicleHealth, ERD.Async, ERD.Collections.ThreadedQueue, ERD.Types, ERD.JSON,
   ERD.Recorder, ERD.Replayer, ERD.Flash.Checkpoint, ERD.UDS.Transfer, ERD.Flash.Pipeline,
   ERD.Protocol.DoIP.TLS.OpenSSL, ERD.Protocol.J1939,
   ERD.Connection.WiFi, ERD.Connection.UDP, ERD.Connection.Settings;
@@ -35,6 +35,14 @@ begin
     Value := Obj.GetValue<Integer>('answer');
     Check(Value = 42, 'JSON typed lookup');
   finally Root.Free end;
+  try
+    Obj := ParseOBDJSONObject('broken JSON'); Obj.Free;
+    Check(False, 'Malformed catalog JSON accepted');
+  except on E: EOBDConfig do Check(True, 'Malformed catalog JSON raises configuration error') end;
+  try
+    Obj := ParseOBDJSONObject('[]'); Obj.Free;
+    Check(False, 'Array catalog root accepted');
+  except on E: EOBDConfig do Check(True, 'Non-object catalog root rejected and cleaned up') end;
 end;
 procedure TestFutures;
 var P: IOBDPromise<Integer>; Calls: Integer; Worker: TThread; Token: IOBDCancellationToken;

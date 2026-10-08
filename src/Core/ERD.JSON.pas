@@ -46,6 +46,8 @@ function ParseOBDJSONObject(const AText: string): TJSONObject;
 
 implementation
 
+uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
+
 function RequireOBDJSONObject(AValue: TJSONValue): TJSONObject;
 begin
   if not (AValue is TJSONObject) then
@@ -64,7 +66,12 @@ function ParseOBDJSONObject(const AText: string): TJSONObject;
 var
   Root: TJSONValue;
 begin
-  Root := TJSONObject.ParseJSONValue(AText);
+  try
+    Root := TJSONObject.ParseJSONValue(AText, True, True);
+  except
+    on E: Exception do
+      raise EOBDConfig.Create('Catalogue JSON: ' + E.Message);
+  end;
   try
     Result := RequireOBDJSONObject(Root);
   except
