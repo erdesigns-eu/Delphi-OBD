@@ -216,7 +216,7 @@ procedure TestFlashRecovery;
 var Mock: TScriptedTransport; Transport: IOBDConnectionTransport;
   Connection: TOBDConnection; Adapter: TOBDAdapter; Protocol: TOBDProtocol;
   Pipeline: TOBDFlashPipeline; Info: TOBDFlashCheckpointInfo;
-  Image: TBytes; Path: string; ConfirmCalls: Integer;
+  Image: TBytes; Path: string; ConfirmCalls: Integer; CheckpointFailed: Boolean;
 begin
   Mock := TScriptedTransport.Create; Transport := Mock; Mock.SimulateOpen; Mock.TransferMode := True;
   Connection := TOBDConnection.Create(nil); Adapter := TOBDAdapter.Create(nil);
@@ -228,8 +228,10 @@ begin
     Pipeline.Protocol := Protocol; Pipeline.AutoExecute := True; Pipeline.ResetAfterFlash := False;
     Pipeline.TargetVendor := 'fixture'; Pipeline.TargetModule := 'engine'; Pipeline.ECUIdentity := 'ECU-1';
     Pipeline.CheckpointFile := IncludeTrailingPathDelimiter(ParamStr(1)) + 'missing-dir/checkpoint.json';
-    try Pipeline.Flash($1000, Image); Check(False, 'Checkpoint failure allowed transfer to continue')
-    except on E: Exception do Check(Mock.Commands = 2, 'Checkpoint error aborts before next block or transfer exit') end;
+    CheckpointFailed := False;
+    try Pipeline.Flash($1000, Image)
+    except on E: Exception do CheckpointFailed := True end;
+    Check(CheckpointFailed and (Mock.Commands = 2), 'Checkpoint error raises and aborts before next block or transfer exit');
     Info := Default(TOBDFlashCheckpointInfo);
     Info.SessionID := 'session'; Info.Vendor := 'fixture'; Info.Module := 'engine'; Info.ECUIdentity := 'ECU-1';
     Info.ImageSha256 := TOBDFlashCheckpoint.ComputeImageHash(Image);
