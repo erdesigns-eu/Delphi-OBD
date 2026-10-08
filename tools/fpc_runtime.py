@@ -22,9 +22,18 @@ PLATFORM_UNITS = {
 }
 
 
+def select_compiler(explicit_compiler, source_tree):
+    """An explicit compiler wins; a built source tree wins over the bootstrap on PATH."""
+    if explicit_compiler:
+        return explicit_compiler
+    if source_tree:
+        return str(source_tree / 'compiler/ppcx64')
+    return shutil.which('fpc')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--compiler', default=shutil.which('fpc'))
+    parser.add_argument('--compiler', help='Override the source-tree compiler or fpc on PATH')
     parser.add_argument('--source-tree', type=pathlib.Path,
                         help='Built official FPC source tree (compiler, rtl, packages)')
     parser.add_argument('--rtl', type=pathlib.Path,
@@ -32,12 +41,11 @@ def main():
     parser.add_argument('--runtime-only', action='store_true',
                         help='Run linked regressions only; omit full-library compilation')
     args = parser.parse_args()
-    compiler = args.compiler
-    if not compiler and args.source_tree:
-        compiler = str(args.source_tree / 'compiler/ppcx64')
+    compiler = select_compiler(args.compiler, args.source_tree)
     if not compiler:
         parser.error('pass --compiler or --source-tree')
     version = subprocess.check_output([compiler, '-iV'], text=True).strip()
+    print(f'Using FPC {version}: {compiler}', flush=True)
     if tuple(map(int, version.split('.'))) < (3, 3, 1):
         parser.error('full runtime requires FPC 3.3.1+; use fpc_smoke.py for 3.2.2 codecs')
     target_os = subprocess.check_output([compiler, '-iTO'], text=True).strip().lower()

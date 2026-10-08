@@ -10,6 +10,9 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+- Fix full-runtime CI compiler selection: `--source-tree` uses its built FPC
+  instead of the FPC 3.2.2 bootstrap on PATH; explicit `--compiler` wins.
+
 - Simplify packages to components and their editors: remove project/form wizards,
   starter generators, picker UI, IDE help hooks and About/Splash registrations,
   resources and artwork. Preserve all 229 palette components and their icons.

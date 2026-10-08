@@ -8,8 +8,42 @@ from unittest.mock import patch
 
 import designtime_resources as resources
 import ev_support_matrix as matrix
+import fpc_runtime as runtime
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+class CompilerSelectionTests(unittest.TestCase):
+    def test_built_source_tree_wins_over_system_bootstrap(self):
+        with patch.object(runtime.shutil, 'which', return_value='/usr/bin/fpc') as lookup:
+            selected = runtime.select_compiler(None, Path('/tmp/erd-fpc-source'))
+        self.assertEqual(selected, '/tmp/erd-fpc-source/compiler/ppcx64')
+        lookup.assert_not_called()
+
+    def test_cli_source_tree_ignores_compiler_on_path(self):
+        with patch('sys.argv', ['fpc_runtime.py', '--source-tree', '/tmp/erd-fpc-source']), \
+                patch.object(runtime.shutil, 'which', return_value='/usr/bin/fpc'), \
+                patch.object(runtime.subprocess, 'check_output',
+                             side_effect=RuntimeError('stop after compiler selection')) as query:
+            with self.assertRaisesRegex(RuntimeError, 'stop after compiler selection'):
+                runtime.main()
+        query.assert_called_once_with(
+            ['/tmp/erd-fpc-source/compiler/ppcx64', '-iV'], text=True)
+
+    def test_explicit_compiler_wins_over_source_tree(self):
+        self.assertEqual(runtime.select_compiler('/opt/fpc/ppcx64', Path('/tmp/fpc')),
+                         '/opt/fpc/ppcx64')
+
+    def test_path_lookup_is_used_only_without_overrides(self):
+        with patch.object(runtime.shutil, 'which', return_value='/usr/bin/fpc') as lookup:
+            self.assertEqual(runtime.select_compiler(None, None), '/usr/bin/fpc')
+        lookup.assert_called_once_with('fpc')
+
+    def test_missing_built_compiler_does_not_fall_back_to_bootstrap(self):
+        with patch.object(runtime.shutil, 'which', return_value='/usr/bin/fpc') as lookup:
+            selected = runtime.select_compiler(None, Path('/missing/fpc-tree'))
+        self.assertEqual(selected, '/missing/fpc-tree/compiler/ppcx64')
+        lookup.assert_not_called()
 
 
 class ResourceTests(unittest.TestCase):
