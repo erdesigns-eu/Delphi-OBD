@@ -4,7 +4,7 @@
 //  PLAN cross-reference: the dedicated UDP discovery component
 //  (TOBDDoIPDiscovery) is covered by TOBDDoIPClient's
 //  OnVehicleAnnouncement event + the TOBDDoIPCodec helpers in
-//  src/Protocol/OBD.Protocol.DoIP.Messages.pas.
+//  src/Protocol/ERD.Protocol.DoIP.Messages.pas.
 //
 //  This sample builds a synthetic VehicleAnnouncement payload
 //  through the codec, decodes it back, and prints the parsed
@@ -21,11 +21,11 @@ program DoIPDiscovery;
 
 uses
   System.SysUtils,
-  OBD.Types                  in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                 in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.Types         in '..\..\src\Protocol\OBD.Protocol.Types.pas',
-  OBD.Protocol.DoIP.Header   in '..\..\src\Protocol\OBD.Protocol.DoIP.Header.pas',
-  OBD.Protocol.DoIP.Messages in '..\..\src\Protocol\OBD.Protocol.DoIP.Messages.pas';
+  ERD.Types                  in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                 in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.Types         in '..\..\src\Protocol\ERD.Protocol.Types.pas',
+  ERD.Protocol.DoIP.Header   in '..\..\src\Protocol\ERD.Protocol.DoIP.Header.pas',
+  ERD.Protocol.DoIP.Messages in '..\..\src\Protocol\ERD.Protocol.DoIP.Messages.pas';
 
 begin
   Writeln('Delphi-OBD DoIP discovery demo');
@@ -33,9 +33,9 @@ begin
 
   Writeln('  DoIP UDP discovery surface lives in:');
   Writeln('    - TOBDDoIPCodec.DecodeVehicleAnnouncement');
-  Writeln('      (src/Protocol/OBD.Protocol.DoIP.Messages.pas)');
+  Writeln('      (src/Protocol/ERD.Protocol.DoIP.Messages.pas)');
   Writeln('    - TOBDDoIPClient.OnVehicleAnnouncement event');
-  Writeln('      (src/Protocol/OBD.Protocol.DoIP.Client.pas)');
+  Writeln('      (src/Protocol/ERD.Protocol.DoIP.Client.pas)');
   Writeln;
   Writeln('  Real-app wiring:');
   Writeln('    1. Bind a UDP socket on the DoIP discovery port (13400).');

@@ -18,8 +18,8 @@ program EVBatteryDecode;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.Service.EVBattery.Types   in '..\..\src\Service\OBD.Service.EVBattery.Types.pas',
-  OBD.Service.EVBattery.Catalog in '..\..\src\Service\OBD.Service.EVBattery.Catalog.pas';
+  ERD.Service.EVBattery.Types   in '..\..\src\Service\ERD.Service.EVBattery.Types.pas',
+  ERD.Service.EVBattery.Catalog in '..\..\src\Service\ERD.Service.EVBattery.Catalog.pas';
 
 procedure DumpVendor(const AVendor: string);
 var

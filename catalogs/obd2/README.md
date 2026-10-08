@@ -3,7 +3,7 @@
 Standard OBD-II identifiers and code text — PIDs (modes 01/02/05/06/09),
 DTC suffixes, NRC text, J1939 PGNs/SPNs/FMIs, UDS DIDs.
 
-Loaded at startup by `OBD.Catalog`. JSON schema documented under
+Loaded at startup by `ERD.Catalog`. JSON schema documented under
 [`../_schema/`](../_schema/).
 
 | File | Type | Contents |

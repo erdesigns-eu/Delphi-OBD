@@ -51,7 +51,7 @@ one that needs the IDE setup below.
 
 ## Help-keyword wiring (optional)
 
-`OBD.Design.Help` registers every component class with a
+`ERD.Design.Help` registers every component class with a
 keyword of the form `delphi-obd:<ClassName>` (e.g.
 `delphi-obd:TOBDFlasher`). Hosts that want F1-help to land on a
 specific page configure a RAD Studio help collection that maps

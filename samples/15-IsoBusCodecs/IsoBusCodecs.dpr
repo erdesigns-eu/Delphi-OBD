@@ -20,11 +20,11 @@ program IsoBusCodecs;
 
 uses
   System.SysUtils,
-  OBD.Speciality.IsoBus      in '..\..\src\Speciality\OBD.Speciality.IsoBus.pas',
-  OBD.Speciality.IsoBus.VT   in '..\..\src\Speciality\OBD.Speciality.IsoBus.VT.pas',
-  OBD.Speciality.IsoBus.TC   in '..\..\src\Speciality\OBD.Speciality.IsoBus.TC.pas',
-  OBD.Speciality.IsoBus.FS   in '..\..\src\Speciality\OBD.Speciality.IsoBus.FS.pas',
-  OBD.Speciality.IsoBus.GNSS in '..\..\src\Speciality\OBD.Speciality.IsoBus.GNSS.pas';
+  ERD.Speciality.IsoBus      in '..\..\src\Speciality\ERD.Speciality.IsoBus.pas',
+  ERD.Speciality.IsoBus.VT   in '..\..\src\Speciality\ERD.Speciality.IsoBus.VT.pas',
+  ERD.Speciality.IsoBus.TC   in '..\..\src\Speciality\ERD.Speciality.IsoBus.TC.pas',
+  ERD.Speciality.IsoBus.FS   in '..\..\src\Speciality\ERD.Speciality.IsoBus.FS.pas',
+  ERD.Speciality.IsoBus.GNSS in '..\..\src\Speciality\ERD.Speciality.IsoBus.GNSS.pas';
 
 procedure DumpHex(const ALabel: string; const ABytes: TBytes);
 var I: Integer;

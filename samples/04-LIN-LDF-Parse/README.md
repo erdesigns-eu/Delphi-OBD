@@ -5,7 +5,7 @@ Loads a LIN Description File and prints the structural contents
 with signal placement, schedule tables with microsecond delays).
 
 Demonstrates the standalone LDF parser
-(`OBD.Protocol.LIN.LDF`). No hardware or bus access required.
+(`ERD.Protocol.LIN.LDF`). No hardware or bus access required.
 
 ## Build
 

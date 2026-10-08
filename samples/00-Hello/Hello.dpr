@@ -20,7 +20,7 @@ program Hello;
 
 uses
   System.SysUtils,
-  OBD.Version in '..\..\src\Core\OBD.Version.pas';
+  ERD.Version in '..\..\src\Core\ERD.Version.pas';
 
 begin
   Writeln('Delphi-OBD ', OBD_VERSION);

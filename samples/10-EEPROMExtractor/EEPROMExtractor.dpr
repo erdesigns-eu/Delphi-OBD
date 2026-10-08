@@ -22,8 +22,8 @@ program EEPROMExtractor;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.RadioCode.Types  in '..\..\src\RadioCode\OBD.RadioCode.Types.pas',
-  OBD.RadioCode.EEPROM in '..\..\src\RadioCode\OBD.RadioCode.EEPROM.pas';
+  ERD.RadioCode.Types  in '..\..\src\RadioCode\ERD.RadioCode.Types.pas',
+  ERD.RadioCode.EEPROM in '..\..\src\RadioCode\ERD.RadioCode.EEPROM.pas';
 
 function MakeSyntheticVolvoHUDump(const ACode4: string): TBytes;
 const

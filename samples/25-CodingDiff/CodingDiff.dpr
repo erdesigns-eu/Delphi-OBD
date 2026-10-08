@@ -17,9 +17,9 @@ program CodingDiff;
 
 uses
   System.SysUtils,
-  OBD.Types         in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors        in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Coding.Diff   in '..\..\src\Coding\OBD.Coding.Diff.pas';
+  ERD.Types         in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors        in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Coding.Diff   in '..\..\src\Coding\ERD.Coding.Diff.pas';
 
 procedure DumpHex(const ALabel: string; const ABuf: TBytes);
 var I: Integer; S: string;

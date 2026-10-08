@@ -16,9 +16,9 @@ program IsoBusTaskController;
 
 uses
   System.SysUtils,
-  OBD.Types                in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors               in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Speciality.IsoBus.TC in '..\..\src\Speciality\OBD.Speciality.IsoBus.TC.pas';
+  ERD.Types                in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors               in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Speciality.IsoBus.TC in '..\..\src\Speciality\ERD.Speciality.IsoBus.TC.pas';
 
 begin
   Writeln('Delphi-OBD ISO 11783 Task Controller demo');
@@ -30,7 +30,7 @@ begin
   Writeln('    - TASKDATA.XML import / export.');
   Writeln('    - Task lifecycle (start / stop / pause / resume).');
   Writeln;
-  Writeln('  See src/Speciality/OBD.Speciality.IsoBus.TC.pas for the full API.');
+  Writeln('  See src/Speciality/ERD.Speciality.IsoBus.TC.pas for the full API.');
   Writeln;
   Writeln('Done.');
 end.

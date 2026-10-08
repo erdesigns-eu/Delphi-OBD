@@ -1,4 +1,4 @@
-# J1939DM — DM1..DM32 decoder
+# J1939DM — selected DM1..DM31 decoder
 
 Demonstrates `TOBDJ1939DM` decoding a synthetic two-DTC DM1
 payload into structured SPN/FMI/CM/OC entries with a decoded

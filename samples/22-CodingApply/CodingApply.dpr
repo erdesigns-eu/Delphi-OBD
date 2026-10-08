@@ -28,12 +28,12 @@ program CodingApply;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.SecOC.AES  in '..\..\src\Protocol\OBD.Protocol.SecOC.AES.pas',
-  OBD.Protocol.SecOC.CMAC in '..\..\src\Protocol\OBD.Protocol.SecOC.CMAC.pas',
-  OBD.Coding.AuditLog     in '..\..\src\Coding\OBD.Coding.AuditLog.pas',
-  OBD.Coding.Session      in '..\..\src\Coding\OBD.Coding.Session.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.SecOC.AES  in '..\..\src\Protocol\ERD.Protocol.SecOC.AES.pas',
+  ERD.Protocol.SecOC.CMAC in '..\..\src\Protocol\ERD.Protocol.SecOC.CMAC.pas',
+  ERD.Coding.AuditLog     in '..\..\src\Coding\ERD.Coding.AuditLog.pas',
+  ERD.Coding.Session      in '..\..\src\Coding\ERD.Coding.Session.pas';
 
 var
   Session: TOBDCodingSession;

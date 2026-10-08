@@ -1,18 +1,23 @@
 # Delphi-OBD
 
 A production-quality, RAD-first, open-source diagnostics
-package for Delphi.
+package for Delphi, with a nonvisual Free Pascal runtime.
 
 Drop a `TOBDConnection` on a form, point a `TOBDAdapter` at it,
 point a `TOBDLiveData` at the protocol, pick the PIDs you want
 in code, press F9.
 
+Units use the `ERD.` namespace. Component classes keep their `TOBD` names.
+For existing applications, update unit imports and rebuild packages and DCUs.
+The UI and IDE integration use Delphi VCL/FMX; FPC supports the nonvisual
+library. See [compiler targets and validation](docs/fpc-compatibility.md).
+
 ## Quick start
 
 ```pascal
 uses
-  OBD.Connection, OBD.Adapter, OBD.Protocol, OBD.Service.LiveData,
-  OBD.Types;
+  ERD.Connection, ERD.Adapter, ERD.Protocol, ERD.Service.LiveData,
+  ERD.Types;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -56,7 +61,7 @@ digital tachograph):
 | WWH-OBD | GTR-5 incl. readiness monitor and DTC class A/B1/B2/C |
 | UDS | Full diagnostic + coding + flashing surface (services 0x10, 11, 14, 19, 22, 23, 24, 27, 28, 29, 2A, 2C, 2E, 2F, 31, 34/35/36/37, 3D, 3E, 83, 85, 86, 87) |
 | KWP2000 | 0x10, 14, 18, 19, 1A, 21, 22, 27, 2F, 30, 31, 32, 33, 3E |
-| J1939 | DM1–DM32 + DM14–DM18 memory access |
+| J1939 | Selected DM1–DM31 messages + DM14–DM18 memory access |
 | Calibration | XCP (CAN / CAN-FD / Ethernet / FlexRay / USB) + CCP + A2L parser |
 | Speciality | ISO 11783 IsoBus (VT, TC, FS, GNSS), EU digital tachograph |
 | OEM coding | Per-vendor for BMW, Ford, HMG, Honda, Mercedes, Stellantis, Toyota, VAG. Pluggable extension registry for more |

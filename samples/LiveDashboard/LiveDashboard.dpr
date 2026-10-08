@@ -19,9 +19,9 @@ program LiveDashboard;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.PIDList             in '..\..\src\Service\OBD.PIDList.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.PIDList             in '..\..\src\Service\ERD.PIDList.pas';
 
 procedure Dump(L: TOBDPIDList);
 var

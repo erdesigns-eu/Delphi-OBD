@@ -22,8 +22,8 @@ uses
   System.SysUtils,
   System.Classes,
   System.IOUtils,
-  OBD.Types in '..\..\src\Core\OBD.Types.pas',
-  OBD.J1939.MemoryAccess in '..\..\src\Flashing\OBD.J1939.MemoryAccess.pas';
+  ERD.Types in '..\..\src\Core\ERD.Types.pas',
+  ERD.J1939.MemoryAccess in '..\..\src\Flashing\ERD.J1939.MemoryAccess.pas';
 
 procedure DumpHex(const ALabel: string; const ABytes: TBytes);
 var

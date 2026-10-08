@@ -84,45 +84,45 @@ the design-time package (charcoal / silver / orange).
 
 ### A3. VIN decoder
 
-`src/VIN/OBD.VIN.Decoder.pas` parses a VIN into WMI / VDS / VIS
+`src/VIN/ERD.VIN.Decoder.pas` parses a VIN into WMI / VDS / VIS
 plus model-year / region / make / plant / serial. v2 only has
 `TOBDVINValidator` (ISO 3779 check digit). The decoder needs the
 decode tables baked in (or shipped as a JSON catalog).
 
-**Suggested v2 home:** `src/Service/OBD.Service.VINDecoder.pas` —
+**Suggested v2 home:** `src/Service/ERD.Service.VINDecoder.pas` —
 new, registry-backed, JSON-driven. The current `TOBDVIN` component
 gains a `Decoded: TOBDVINInfo` property populated after `Read`.
 
 ### A4. Drive-cycle advisor
 
-`src/Services/OBD.DriveCycle.Advisor.pas` + `Resolvers.pas`. Walks
+`src/Services/ERD.DriveCycle.Advisor.pas` + `Resolvers.pas`. Walks
 a driver through the drive cycles needed to clear specific
 readiness monitors (catalyst, EVAP, oxygen sensor, …). Useful for
 emissions inspection prep.
 
-**Suggested v2 home:** `src/Service/OBD.Service.DriveCycle.pas` as
+**Suggested v2 home:** `src/Service/ERD.Service.DriveCycle.pas` as
 a `TOBDDriveCycleAdvisor` component. Hooks `TOBDOnBoardMonitor`'s
 readiness flags to drive the state machine.
 
 ### A5. EV battery health
 
-`src/Services/OBD.EV.BatteryHealth.pas`. Reads HV-pack DIDs (SOC,
+`src/Services/ERD.EV.BatteryHealth.pas`. Reads HV-pack DIDs (SOC,
 SOH, capacity, cell voltages, temperatures) across BEV / PHEV
 platforms. Major value-add for the EV market.
 
-**Suggested v2 home:** `src/Service/OBD.Service.EVBattery.pas`.
+**Suggested v2 home:** `src/Service/ERD.Service.EVBattery.pas`.
 Component-shaped, reads via `TOBDProtocol`, decodes via JSON
 catalog of EV-specific DIDs (per-OEM since there's no OBD-II
 standard for HV pack).
 
 ### A6. Key adaptation (BMW / Ford / HMG / Toyota)
 
-`src/Services/OBD.OEM.KeyAdaptation.*.pas`. Per-vendor immobilizer
+`src/Services/ERD.OEM.KeyAdaptation.*.pas`. Per-vendor immobilizer
 key-pairing flows. Different from component-protection (which v2
 already covers): key adaptation specifically programs a new
 transponder key against the immobilizer.
 
-**Suggested v2 home:** `src/OEM/OBD.OEM.KeyAdaptation.<Vendor>.pas`
+**Suggested v2 home:** `src/OEM/ERD.OEM.KeyAdaptation.<Vendor>.pas`
 as a new component family. AutoExecute = False, OnConfirmExecute
 required (this is destructive).
 
@@ -130,7 +130,7 @@ required (this is destructive).
 
 ### B1. OEM service depth (~50 vendor modules in v1)
 
-v1's `src/Services/OBD.OEM.*.pas` set is enormous:
+v1's `src/Services/ERD.OEM.*.pas` set is enormous:
 
 | v1 has | v2 has |
 |---|---|
@@ -150,9 +150,9 @@ keeping since they expand the package's market.
 
 ### B2. Service-mode depth (Service01–0A in v1)
 
-v1 has explicit `OBD.Service01.pas` … `OBD.Service0A.pas` units
-plus `OBD.Service.pas`, `OBD.Service.Types.pas`,
-`OBD.Service.Recorder.pas`. v2 collapsed these into per-component
+v1 has explicit `ERD.Service01.pas` … `ERD.Service0A.pas` units
+plus `ERD.Service.pas`, `ERD.Service.Types.pas`,
+`ERD.Service.Recorder.pas`. v2 collapsed these into per-component
 modules (`TOBDLiveData`, `TOBDDTCs`, `TOBDVIN`, `TOBDFreezeFrame`,
 `TOBDOnBoardMonitor`, `TOBDActuator`).
 
@@ -169,31 +169,31 @@ useful on modern cars and can stay deferred.
 
 ### B3. ReadinessMonitor + VehicleHealth
 
-v1 has `OBD.ReadinessMonitor.pas` and `OBD.VehicleHealth.pas` as
+v1 has `ERD.ReadinessMonitor.pas` and `ERD.VehicleHealth.pas` as
 separate units. v2's `TOBDOnBoardMonitor` covers Mode 06 readiness;
 `TOBDVehicleHealth` would be a roll-up component combining DTCs,
 freeze-frame, monitors, MIL status, drive-cycle progress into a
 single "is this car healthy?" surface.
 
-**Suggested v2 home:** `src/Service/OBD.Service.VehicleHealth.pas`.
+**Suggested v2 home:** `src/Service/ERD.Service.VehicleHealth.pas`.
 
 ### B4. Tachograph signature + workshop
 
-v1 has `OBD.Tachograph.Signature.pas` + `OBD.Tachograph.Workshop.pas`
+v1 has `ERD.Tachograph.Signature.pas` + `ERD.Tachograph.Workshop.pas`
 (EU 165/2014 workshop / fitter card flows). v2 has a basic
 `TOBDTachograph` for card reading; the signature + workshop layers
 are not yet ported.
 
-**Suggested v2 home:** `src/Speciality/OBD.Speciality.Tachograph.Signature.pas`
-+ `OBD.Speciality.Tachograph.Workshop.pas`.
+**Suggested v2 home:** `src/Speciality/ERD.Speciality.Tachograph.Signature.pas`
++ `ERD.Speciality.Tachograph.Workshop.pas`.
 
 ### B5. Utilities (logger, secure settings, security helpers)
 
-v1 ships `OBD.Logger.pas` + `OBD.Logger.Sinks.pas` (structured
-logger), `OBD.SecureSettings.pas` (encrypted settings store),
-`OBD.Security.AttemptCounter.pas` + `OBD.Security.Nonce.pas`,
-`OBD.Async.pas`, `OBD.Audit.pas`, `OBD.Application.Settings.pas`,
-`OBD.StringHelpers.pas`, `OBD.DataModule.pas`.
+v1 ships `ERD.Logger.pas` + `ERD.Logger.Sinks.pas` (structured
+logger), `ERD.SecureSettings.pas` (encrypted settings store),
+`ERD.Security.AttemptCounter.pas` + `ERD.Security.Nonce.pas`,
+`ERD.Async.pas`, `ERD.Audit.pas`, `ERD.Application.Settings.pas`,
+`ERD.StringHelpers.pas`, `ERD.DataModule.pas`.
 
 v2 has a basic audit log (`TOBDCodingAuditLog`). The logger and
 secure-settings surfaces aren't ported.
@@ -207,10 +207,10 @@ mORMot, …) — porting may be wasted effort.
 
 v1 has 4 IDE wizards:
 
-- `OBD.Project.Wizard.pas` — like v2's starter wizard.
-- `OBD.MainForm.Wizard.pas` — generates a main form with menu / toolbar / status-bar pre-wired.
-- `OBD.Form.Wizard.pas` — generates a sub-form (dialog).
-- `OBD.DataModule.Wizard.pas` — generates a data-module with the OBD chain on it.
+- `ERD.Project.Wizard.pas` — like v2's starter wizard.
+- `ERD.MainForm.Wizard.pas` — generates a main form with menu / toolbar / status-bar pre-wired.
+- `ERD.Form.Wizard.pas` — generates a sub-form (dialog).
+- `ERD.DataModule.Wizard.pas` — generates a data-module with the OBD chain on it.
 
 v2's starter wizard does projects with one form. The form / data-
 module wizards would let a host add "another OBD form" / "an OBD
@@ -224,7 +224,7 @@ based on context (new project vs add-form vs add-data-module).
 
 ## Tier C — defer or drop
 
-### C1. v1 form templates (`src/Forms/OBD.Form.pas`)
+### C1. v1 form templates (`src/Forms/ERD.Form.pas`)
 
 v1 ships a base `TOBDForm` that wires connection / adapter /
 protocol on every form. v2's wizard emits the same shape directly
@@ -254,9 +254,9 @@ The rest of v1's example set is covered by v2 starters / samples.
 
 ### C3. v1 architecture: ELM327 / OBDLink / J2534 as separate adapter classes
 
-v1 has `OBD.Adapter.ELM327.pas`, `OBD.Adapter.OBDLink.pas`,
-`OBD.Adapter.PassThrough.pas` (J2534 v1), and
-`OBD.Adapter.PassThrough.J2534v2.pas` as **separate adapter
+v1 has `ERD.Adapter.ELM327.pas`, `ERD.Adapter.OBDLink.pas`,
+`ERD.Adapter.PassThrough.pas` (J2534 v1), and
+`ERD.Adapter.PassThrough.J2534v2.pas` as **separate adapter
 classes** the host instantiates explicitly.
 
 v2 unified them into a single `TOBDAdapter` component with
@@ -265,7 +265,7 @@ do not port v1's adapter split.
 
 ### C4. CSV catalog loader
 
-v1 ships `OBD.OEM.Catalog.CSV.pas` alongside the JSON loader. v2
+v1 ships `ERD.OEM.Catalog.CSV.pas` alongside the JSON loader. v2
 is JSON-only by design (single source of truth, JSON-Schema
 validated). Skip the port.
 

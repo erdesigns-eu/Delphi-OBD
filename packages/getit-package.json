@@ -71,7 +71,7 @@
   "documentation_url": "https://github.com/erdesigns-eu/Delphi-OBD/tree/v2/docs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erdesigns-eu/Delphi-OBD.git"
+    "url": "https://github.com/erdesigns-eu/Delphi-ERD.git"
   },
   "supported_studios": [
     "Delphi 10.3 Rio",

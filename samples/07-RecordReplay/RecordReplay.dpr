@@ -22,9 +22,9 @@ uses
   System.IOUtils,
   System.DateUtils,
   System.TypInfo,
-  OBD.Types in '..\..\src\Core\OBD.Types.pas',
-  OBD.Recorder in '..\..\src\Recorder\OBD.Recorder.pas',
-  OBD.Replayer in '..\..\src\Recorder\OBD.Replayer.pas';
+  ERD.Types in '..\..\src\Core\ERD.Types.pas',
+  ERD.Recorder in '..\..\src\Recorder\ERD.Recorder.pas',
+  ERD.Replayer in '..\..\src\Recorder\ERD.Replayer.pas';
 
 procedure RecordSample(const APath: string);
 var

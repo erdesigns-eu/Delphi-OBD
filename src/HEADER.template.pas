@@ -22,12 +22,12 @@
 //    - <Planned addition or known gap>
 //------------------------------------------------------------------------------
 
-unit OBD.<Layer>.<Detail>;
+unit ERD.<Layer>.<Detail>;
 
 interface
 
 uses
-  // System.* first, then OBD.*, then anything else.
+  // System.* first, then ERD.*, then anything else.
   System.SysUtils, System.Classes;
 
 type

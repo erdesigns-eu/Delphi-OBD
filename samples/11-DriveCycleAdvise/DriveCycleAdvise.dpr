@@ -24,10 +24,10 @@ program DriveCycleAdvise;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.Errors,
-  OBD.Service.DriveCycle.Types   in '..\..\src\Service\OBD.Service.DriveCycle.Types.pas',
-  OBD.Service.DriveCycle.Catalog in '..\..\src\Service\OBD.Service.DriveCycle.Catalog.pas',
-  OBD.Service.DriveCycle         in '..\..\src\Service\OBD.Service.DriveCycle.pas';
+  ERD.Errors,
+  ERD.Service.DriveCycle.Types   in '..\..\src\Service\ERD.Service.DriveCycle.Types.pas',
+  ERD.Service.DriveCycle.Catalog in '..\..\src\Service\ERD.Service.DriveCycle.Catalog.pas',
+  ERD.Service.DriveCycle         in '..\..\src\Service\ERD.Service.DriveCycle.pas';
 
 procedure DumpCatalog;
 var

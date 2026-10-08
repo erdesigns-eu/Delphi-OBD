@@ -23,8 +23,8 @@ This page maps v1 idioms to v2 components.
 **v1:**
 ```pascal
 OBD := TOBDInterface.Create;
-OBD.Port := 'COM3';
-OBD.Open;
+ERD.Port := 'COM3';
+ERD.Open;
 ```
 
 **v2:**
@@ -57,7 +57,7 @@ Adapter.Detect;                // sync; or Adapter.DetectAsync
 
 **v1:**
 ```pascal
-Reply := OBD.SendCommand('0105');
+Reply := ERD.SendCommand('0105');
 ParseAndDecodeCoolantTemp(Reply);  // host code
 ```
 
@@ -82,7 +82,7 @@ PID is a JSON edit; see [`catalogs.md`](catalogs.md).
 
 **v1:**
 ```pascal
-Reply := OBD.SendCommand('03');
+Reply := ERD.SendCommand('03');
 DTCs := ParseDTCResponse(Reply);
 ```
 
@@ -97,7 +97,7 @@ DTCs.Clear;                     // Mode 04
 
 **v1:**
 ```pascal
-Reply := OBD.SendCommand('0902');
+Reply := ERD.SendCommand('0902');
 VIN := ExtractVIN(Reply);
 ```
 

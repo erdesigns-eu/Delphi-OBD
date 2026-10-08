@@ -19,11 +19,11 @@ program WWHOBD;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.Types      in '..\..\src\Protocol\OBD.Protocol.Types.pas',
-  OBD.WWHOBD              in '..\..\src\Service\OBD.WWHOBD.pas',
-  OBD.WWHOBD.Readiness    in '..\..\src\Service\OBD.WWHOBD.Readiness.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.Types      in '..\..\src\Protocol\ERD.Protocol.Types.pas',
+  ERD.WWHOBD              in '..\..\src\Service\ERD.WWHOBD.pas',
+  ERD.WWHOBD.Readiness    in '..\..\src\Service\ERD.WWHOBD.Readiness.pas';
 
 procedure ShowSeverityMap;
 const

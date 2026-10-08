@@ -84,6 +84,20 @@ jobs:
         run: python3 tools/fpc_smoke.py
 
 
+  fpc-runtime:
+    name: Full Linux nonvisual FPC runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bootstrap compiler and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fp-compiler make binutils gcc libssl-dev
+      - name: Build pinned official FPC 3.3.1 and runtime packages
+        run: bash tools/setup_fpc_runtime.sh /tmp/erd-fpc-source
+      - name: Compile all Linux nonvisual units and run runtime regressions
+        run: python3 tools/fpc_runtime.py --source-tree /tmp/erd-fpc-source
+
   build:
     name: Build & test (Delphi ${{ matrix.delphi }})
     needs: [guard]

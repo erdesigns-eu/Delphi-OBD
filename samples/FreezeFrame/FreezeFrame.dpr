@@ -16,9 +16,9 @@ program FreezeFrame;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Service.FreezeFrame in '..\..\src\Service\OBD.Service.FreezeFrame.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Service.FreezeFrame in '..\..\src\Service\ERD.Service.FreezeFrame.pas';
 
 var
   FF: TOBDFreezeFrame;
@@ -30,7 +30,7 @@ begin
   try
     // Without a protocol, reading raises EOBDConfig — the
     // standard safety-gate behaviour verified in
-    // Tests.OBD.Service.ComponentLifecycle.
+    // Tests.ERD.Service.ComponentLifecycle.
     try
       FF.Read($00, $0C);  // frame 0, PID 0x0C (RPM)
       Writeln('  unexpected: read returned without raising');

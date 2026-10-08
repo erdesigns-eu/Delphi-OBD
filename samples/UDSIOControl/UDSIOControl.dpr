@@ -18,9 +18,9 @@ program UDSIOControl;
 
 uses
   System.SysUtils,
-  OBD.Types                     in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                    in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Diagnostics.UDS.IOControl in '..\..\src\Diagnostics\OBD.Diagnostics.UDS.IOControl.pas';
+  ERD.Types                     in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                    in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Diagnostics.UDS.IOControl in '..\..\src\Diagnostics\ERD.Diagnostics.UDS.IOControl.pas';
 
 var
   C: TOBDUDSIOControl;

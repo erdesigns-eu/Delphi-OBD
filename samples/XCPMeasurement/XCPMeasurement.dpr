@@ -17,10 +17,10 @@ program XCPMeasurement;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Calibration.XCP.Transport in '..\..\src\Calibration\OBD.Calibration.XCP.Transport.pas',
-  OBD.Calibration.XCP    in '..\..\src\Calibration\OBD.Calibration.XCP.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Calibration.XCP.Transport in '..\..\src\Calibration\ERD.Calibration.XCP.Transport.pas',
+  ERD.Calibration.XCP    in '..\..\src\Calibration\ERD.Calibration.XCP.pas';
 
 var
   X: TOBDXCP;

@@ -34,7 +34,7 @@ From here the per-vendor wiring picks up.
 VAG ECUs use long coding (`0x22 / 0x2E` against DIDs in the
 `0x01xx` range) plus a separate "coding" service via short codes for
 older platforms. The `TOBDCodingCatalogVAG` loader (in
-`OBD.Coding.Catalog.VAG`) reads `.lbl` label files and surfaces
+`ERD.Coding.Catalog.VAG`) reads `.lbl` label files and surfaces
 the option list to the host.
 
 ```pascal
@@ -201,10 +201,10 @@ DataIO.WriteDID($F190, ConfigBytes);
 
 ## Where the wire-level reference lives
 
-- UDS coding services: `OBD.Protocol.UDS.pas` + `OBD.UDS.WriteMemory.pas`.
-- KWP2000 coding services: `OBD.Protocol.KWP2000.pas` + `OBD.KWP.WriteID.pas`.
-- Vendor specifics: `src/OEM/OBD.OEM.*.pas`.
-- Component protection: `src/OEM/OBD.OEM.ComponentProtection.*.pas`.
+- UDS coding services: `ERD.Protocol.UDS.pas` + `ERD.UDS.WriteMemory.pas`.
+- KWP2000 coding services: `ERD.Protocol.KWP2000.pas` + `ERD.KWP.WriteID.pas`.
+- Vendor specifics: `src/OEM/ERD.OEM.*.pas`.
+- Component protection: `src/OEM/ERD.OEM.ComponentProtection.*.pas`.
 
 Every public surface is XMLDoc'd at declaration. The walkthroughs
 above only show the component-level wiring — the wire-level details

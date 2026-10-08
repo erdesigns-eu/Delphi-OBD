@@ -83,7 +83,7 @@ for sources if you need to wire your own.
 | Component | Status | Notes |
 |---|---|---|
 | `TOBDRadioCodeChrysler`     | 🔌 | TM9 / Panasonic-built. |
-| `TOBDRadioCodeFordM`        | 💡 | Ford "M-prefix" series; full pre-computed serial→code lookup at [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes), Flipper Zero impl at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). Will ship as `TOBDRadioCodeFordV` (`OBD.RadioCode.FordV`) once the database is extracted to JSON. |
+| `TOBDRadioCodeFordM`        | 💡 | Ford "M-prefix" series; full pre-computed serial→code lookup at [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes), Flipper Zero impl at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). Will ship as `TOBDRadioCodeFordV` (`ERD.RadioCode.FordV`) once the database is extracted to JSON. |
 | `TOBDRadioCodeGM`           | 💡 | Delco Theftlock — dealer-call procedure, not a calculation. See [Diesel Place thread](https://www.dieselplace.com/threads/here-is-how-to-unlock-delco-theftlock-radio-that-displays-loc.40705/). |
 | `TOBDRadioCodeVisteon`      | 🔌 | Fiat Stilo / Bravo Visteon — commercial only. |
 
@@ -176,7 +176,7 @@ a documented KWP1281 backdoor that lets the host extract the SAFE
 code from the radio's EEPROM over the diagnostic bus — no
 calculation, no database, no paid service.
 
-`TOBDVWRadioSAFE` (in `OBD.Service.VWRadioSAFE.pas`) wraps the
+`TOBDVWRadioSAFE` (in `ERD.Service.VWRadioSAFE.pas`) wraps the
 documented sequence. The component owns the per-variant
 EEPROM-offset map (Gamma 5 / Premium IV / Premium V / Rhapsody)
 and the byte-decode rule (BCD vs ASCII). Until the bundled

@@ -16,10 +16,10 @@ program LINSchedule;
 
 uses
   System.SysUtils,
-  OBD.Types                in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors               in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.LIN.Frame   in '..\..\src\Protocol\OBD.Protocol.LIN.Frame.pas',
-  OBD.Protocol.LIN.LDF     in '..\..\src\Protocol\OBD.Protocol.LIN.LDF.pas';
+  ERD.Types                in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors               in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.LIN.Frame   in '..\..\src\Protocol\ERD.Protocol.LIN.Frame.pas',
+  ERD.Protocol.LIN.LDF     in '..\..\src\Protocol\ERD.Protocol.LIN.LDF.pas';
 
 var
   Cluster: TOBDLDFCluster;

@@ -89,8 +89,8 @@ The runtime package is strictly thread-disciplined. The contract:
   No `Sleep` busy-loops. Locks where shared state is unavoidable;
   documented immutable structures everywhere else.
 
-The threading rule is enforced by the `OBD.Connection.*`,
-`OBD.Adapter.*` and `OBD.Protocol.*` units: every public event field is
+The threading rule is enforced by the `ERD.Connection.*`,
+`ERD.Adapter.*` and `ERD.Protocol.*` units: every public event field is
 fired through a `Fire*` helper that queues to the main thread when called
 from a worker.
 
@@ -117,7 +117,7 @@ provides human-readable text for every NRC and DTC.
 
 ## Cross-cutting types
 
-`OBD.Types` ships every shared type:
+`ERD.Types` ships every shared type:
 
 - `TOBDValue` — discriminated union (`vkEmpty`, `vkInteger`, `vkFloat`,
   `vkString`, `vkRawOnly`) used by every decoder.
@@ -132,7 +132,7 @@ provides human-readable text for every NRC and DTC.
 
 PIDs, DTCs, NRCs, DIDs, and J1939 PGNs live as JSON under
 `catalogs/`. Each catalog has a JSON-Schema 2020-12 file under
-`catalogs/_schema/` and is loaded at runtime by `OBD.Catalog`. Hosts
+`catalogs/_schema/` and is loaded at runtime by `ERD.Catalog`. Hosts
 can swap catalogs (e.g. an OEM-specific DID set) by pointing
 `TOBDProtocol.Catalog := MyCatalog` before sending. Adding an entry
 is a JSON edit, no recompile.
@@ -154,7 +154,7 @@ The full safety contract is in [`docs/flashing-safety.md`](flashing-safety.md).
 ## OEM extension registry
 
 Vendor-specific code lives under `src/OEM/` (component protection,
-seed/key, label-file parsing) and `src/Flashing/OBD.Flash.OEM.*`
+seed/key, label-file parsing) and `src/Flashing/ERD.Flash.OEM.*`
 (bootloader handshakes). Adding support for a new vendor is a single
 unit that registers itself with `TOBDOEMRegistry.Default` at unit
 initialization. No core change needed.

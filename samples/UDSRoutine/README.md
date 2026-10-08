@@ -2,7 +2,7 @@
 
 PLAN cross-reference: the dedicated UDS routine surface is
 already covered by `TOBDRoutineControl`
-(`src/Coding/OBD.Coding.RoutineControl.pas`). This sample wires
+(`src/Coding/ERD.Coding.RoutineControl.pas`). This sample wires
 the component and prints the `AutoExecute = False` safety
 contract.
 

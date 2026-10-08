@@ -47,7 +47,7 @@ mandatory; copy the template and fill them in.
 //    - <Planned addition or known gap>
 //------------------------------------------------------------------------------
 
-unit OBD.<Layer>.<Detail>;
+unit ERD.<Layer>.<Detail>;
 ```
 
 The `History` block is append-only; do not rewrite or rebase it. Use it to
@@ -175,7 +175,7 @@ does.
 
 | Kind | Convention | Example |
 |---|---|---|
-| Unit | `OBD.<Layer>.<Detail>` | `OBD.UDS.ReadDID` |
+| Unit | `ERD.<Layer>.<Detail>` | `ERD.UDS.ReadDID` |
 | Class | `T<Name>` | `TOBDLiveData` |
 | Interface | `I<Name>` | `IOBDProtocolFactory` |
 | Record | `T<Name>` | `TOBDValue` |

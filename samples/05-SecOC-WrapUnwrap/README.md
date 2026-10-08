@@ -14,11 +14,11 @@ that:
 
 Demonstrates the SecOC stack:
 
-- `OBD.Protocol.SecOC.AES` — constant-time AES-128
-- `OBD.Protocol.SecOC.CMAC` — RFC 4493 / NIST SP 800-38B
-- `OBD.Protocol.SecOC.Keys` — in-memory key store
-- `OBD.Protocol.SecOC.Freshness` — in-memory freshness manager
-- `OBD.Protocol.SecOC` — wrap / unwrap codec
+- `ERD.Protocol.SecOC.AES` — constant-time AES-128
+- `ERD.Protocol.SecOC.CMAC` — RFC 4493 / NIST SP 800-38B
+- `ERD.Protocol.SecOC.Keys` — in-memory key store
+- `ERD.Protocol.SecOC.Freshness` — in-memory freshness manager
+- `ERD.Protocol.SecOC` — wrap / unwrap codec
 
 In production, replace the in-memory providers with NVM- /
 HSM-backed implementations (the codec only depends on the

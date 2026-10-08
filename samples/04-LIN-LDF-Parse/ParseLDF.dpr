@@ -26,8 +26,8 @@ program ParseLDF;
 uses
   System.SysUtils,
   System.Classes,
-  OBD.Types,
-  OBD.Protocol.LIN.LDF in '..\..\src\Protocol\OBD.Protocol.LIN.LDF.pas';
+  ERD.Types,
+  ERD.Protocol.LIN.LDF in '..\..\src\Protocol\ERD.Protocol.LIN.LDF.pas';
 
 procedure PrintCluster(const ACluster: TOBDLDFCluster);
 var

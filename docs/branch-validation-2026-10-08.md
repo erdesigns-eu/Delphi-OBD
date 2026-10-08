@@ -36,7 +36,7 @@ lokaal uitgevoerd. Een GitHub-run of Windows-build is daarmee niet aangetoond.
   worden nooit via het netwerk opgehaald.
 - CI voert strikte Pascalanalyse uit, inclusief hints, en vereist volledige
   catalogusdekking. De FPC-smoke compileert elf echte bronunits in Delphi-mode;
-  alleen RTL-namespaces worden in tijdelijke kopieën aangepast.
+  de huidige smoke compileert deze bronbestanden rechtstreeks, zonder herschreven kopieën.
 
 ## Uitgevoerde controles
 
@@ -89,3 +89,5 @@ beide e-Up modelgeneraties en celvolgorde. Een adapter die `ATCEA`/`ATCER` niet
 ondersteunt moet vóór de diagnostische aanvraag stoppen. OEM writes worden
 uitsluitend op een simulator/bench gevalideerd met een bekende herstelprocedure;
 er zijn tijdens dit werk geen echte ECU-writes uitgevoerd.
+
+De daaropvolgende ERD/FPC-migratie en huidige compilerprofielen staan in [fpc-compatibility.md](fpc-compatibility.md).

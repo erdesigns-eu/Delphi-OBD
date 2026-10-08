@@ -10,11 +10,11 @@
 //  freshness check.
 //
 //  Demonstrates the SecOC stack:
-//    OBD.Protocol.SecOC.AES        (constant-time AES-128)
-//    OBD.Protocol.SecOC.CMAC       (RFC 4493 / NIST SP 800-38B)
-//    OBD.Protocol.SecOC.Keys       (in-memory key store)
-//    OBD.Protocol.SecOC.Freshness  (in-memory freshness manager)
-//    OBD.Protocol.SecOC            (wrap / unwrap codec)
+//    ERD.Protocol.SecOC.AES        (constant-time AES-128)
+//    ERD.Protocol.SecOC.CMAC       (RFC 4493 / NIST SP 800-38B)
+//    ERD.Protocol.SecOC.Keys       (in-memory key store)
+//    ERD.Protocol.SecOC.Freshness  (in-memory freshness manager)
+//    ERD.Protocol.SecOC            (wrap / unwrap codec)
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -31,12 +31,12 @@ program SecOCDemo;
 uses
   System.SysUtils,
   System.Classes,
-  OBD.Types,
-  OBD.Protocol.SecOC.AES        in '..\..\src\Protocol\OBD.Protocol.SecOC.AES.pas',
-  OBD.Protocol.SecOC.CMAC       in '..\..\src\Protocol\OBD.Protocol.SecOC.CMAC.pas',
-  OBD.Protocol.SecOC.Keys       in '..\..\src\Protocol\OBD.Protocol.SecOC.Keys.pas',
-  OBD.Protocol.SecOC.Freshness  in '..\..\src\Protocol\OBD.Protocol.SecOC.Freshness.pas',
-  OBD.Protocol.SecOC            in '..\..\src\Protocol\OBD.Protocol.SecOC.pas';
+  ERD.Types,
+  ERD.Protocol.SecOC.AES        in '..\..\src\Protocol\ERD.Protocol.SecOC.AES.pas',
+  ERD.Protocol.SecOC.CMAC       in '..\..\src\Protocol\ERD.Protocol.SecOC.CMAC.pas',
+  ERD.Protocol.SecOC.Keys       in '..\..\src\Protocol\ERD.Protocol.SecOC.Keys.pas',
+  ERD.Protocol.SecOC.Freshness  in '..\..\src\Protocol\ERD.Protocol.SecOC.Freshness.pas',
+  ERD.Protocol.SecOC            in '..\..\src\Protocol\ERD.Protocol.SecOC.pas';
 
 const
   /// Demo Data ID. In real systems this is the SecOC binding ID

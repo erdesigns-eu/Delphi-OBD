@@ -8,14 +8,14 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = (
-    'src/Core/OBD.Types.pas', 'src/Core/OBD.Version.pas',
-    'src/Core/OBD.Binary.Value.pas',
-    'src/Core/OBD.CAN.Route.pas', 'src/Protocol/OBD.Protocol.Types.pas',
-    'src/Service/OBD.Service.EVBattery.Types.pas',
-    'src/Service/OBD.Service.EVBattery.Request.pas',
-    'src/Core/OBD.Errors.pas', 'src/Protocol/OBD.Protocol.LIN.Frame.pas',
-    'src/Protocol/OBD.Protocol.MOST.Control.pas',
-    'src/Protocol/OBD.Protocol.FlexRay.Frame.pas',
+    'src/Core/ERD.Types.pas', 'src/Core/ERD.Version.pas',
+    'src/Core/ERD.Binary.Value.pas',
+    'src/Core/ERD.CAN.Route.pas', 'src/Protocol/ERD.Protocol.Types.pas',
+    'src/Service/ERD.Service.EVBattery.Types.pas',
+    'src/Service/ERD.Service.EVBattery.Request.pas',
+    'src/Core/ERD.Errors.pas', 'src/Protocol/ERD.Protocol.LIN.Frame.pas',
+    'src/Protocol/ERD.Protocol.MOST.Control.pas',
+    'src/Protocol/ERD.Protocol.FlexRay.Frame.pas',
 )
 
 
@@ -37,19 +37,16 @@ def main():
     if rtl:
         # Extracted Debian packages do not have a system fpc.cfg; use their
         # genuine RTL units, without fake System.* wrappers or API stubs.
-        flags += ['-n', '-Fu' + str(rtl / 'rtl'), '-Fu' + str(rtl / 'rtl-objpas')]
+        flags += ['-n', *['-Fu' + str(directory) for directory in sorted(rtl.iterdir()) if directory.is_dir()]]
     subprocess.run([str(compiler), '-iV'], check=True)
     with tempfile.TemporaryDirectory(prefix='delphi-obd-fpc-') as directory:
         target = pathlib.Path(directory)
         # Version has no RTL dependency and is compiled unmodified first.
         subprocess.run([str(compiler), *flags, '-FU' + directory,
-                        str(ROOT / 'src/Core/OBD.Version.pas')], check=True)
-        for relative in SOURCES:
-            original = ROOT / relative
-            text = original.read_text(encoding='utf-8')
-            # Only unit scope names differ for these portable sources.
-            text = text.replace('System.SysUtils', 'SysUtils').replace('System.Variants', 'Variants').replace('System.Classes', 'Classes')
-            (target / original.name).write_text(text, encoding='utf-8')
+                        str(ROOT / 'src/Core/ERD.Version.pas')], check=True)
+        # Compile repository sources directly; no rewritten copies or RTL stubs.
+        source_dirs = sorted({str((ROOT / relative).parent) for relative in SOURCES})
+        flags += ['-Fu' + directory for directory in source_dirs]
         shutil.copyfile(ROOT / 'tools/fpc-smoke/Smoke.dpr', target / 'Smoke.dpr')
         subprocess.run([str(compiler), *flags, '-Fu' + directory, '-FU' + directory,
                         '-FE' + directory, str(target / 'Smoke.dpr')], check=True)

@@ -15,9 +15,9 @@ program FlexRaySlot;
 
 uses
   System.SysUtils,
-  OBD.Types                    in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                   in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.FlexRay.Frame   in '..\..\src\Protocol\OBD.Protocol.FlexRay.Frame.pas';
+  ERD.Types                    in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                   in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.FlexRay.Frame   in '..\..\src\Protocol\ERD.Protocol.FlexRay.Frame.pas';
 
 var
   Frame: TOBDFlexRayFrame;

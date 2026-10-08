@@ -15,14 +15,14 @@ program DTCReader;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.Types      in '..\..\src\Protocol\OBD.Protocol.Types.pas',
-  OBD.Catalog             in '..\..\src\Core\OBD.Catalog.pas',
-  OBD.Decoders            in '..\..\src\Core\OBD.Decoders.pas',
-  OBD.Service.Catalog     in '..\..\src\Service\OBD.Service.Catalog.pas',
-  OBD.Service.DTCs        in '..\..\src\Service\OBD.Service.DTCs.pas',
-  OBD.ClearDTC            in '..\..\src\Service\OBD.ClearDTC.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.Types      in '..\..\src\Protocol\ERD.Protocol.Types.pas',
+  ERD.Catalog             in '..\..\src\Core\ERD.Catalog.pas',
+  ERD.Decoders            in '..\..\src\Core\ERD.Decoders.pas',
+  ERD.Service.Catalog     in '..\..\src\Service\ERD.Service.Catalog.pas',
+  ERD.Service.DTCs        in '..\..\src\Service\ERD.Service.DTCs.pas',
+  ERD.ClearDTC            in '..\..\src\Service\ERD.ClearDTC.pas';
 
 procedure Decode(AHi, ALo: Byte);
 begin
@@ -46,7 +46,7 @@ begin
       [C.UDSGroup]));
     Writeln('    Calling Clear without AutoExecute=True or without');
     Writeln('    a Protocol raises EOBDConfig — verified in');
-    Writeln('    Tests.OBD.Service.Extras.');
+    Writeln('    Tests.ERD.Service.Extras.');
   finally C.Free; end;
 end;
 

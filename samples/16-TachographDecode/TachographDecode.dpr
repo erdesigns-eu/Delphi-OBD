@@ -22,7 +22,7 @@ program TachographDecode;
 uses
   System.SysUtils,
   System.DateUtils,
-  OBD.Speciality.Tachograph in '..\..\src\Speciality\OBD.Speciality.Tachograph.pas';
+  ERD.Speciality.Tachograph in '..\..\src\Speciality\ERD.Speciality.Tachograph.pas';
 
 procedure DemoTimeReal;
 var
@@ -49,5 +49,5 @@ begin
   Writeln(StringOfChar('-', 60));
   Writeln('Done. (Activity / event / fault / calibration record');
   Writeln('decoders take TBytes payloads from a card or VU; see');
-  Writeln('Tests.OBD.Speciality for vector inputs.)');
+  Writeln('Tests.ERD.Speciality for vector inputs.)');
 end.

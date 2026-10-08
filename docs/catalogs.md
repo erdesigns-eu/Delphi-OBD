@@ -36,7 +36,7 @@ data/schemas/                    Schemas for runtime-loaded sidecars
 
 ## Schema-driven loader
 
-`OBD.Catalog` (in `src/Core`) loads any catalog into a host registry at
+`ERD.Catalog` (in `src/Core`) loads any catalog into a host registry at
 runtime. A typical load:
 
 ```pascal
@@ -69,7 +69,7 @@ Each PID descriptor:
 }
 ```
 
-`decoder` names a function registered in `OBD.Decoders` (`linear`,
+`decoder` names a function registered in `ERD.Decoders` (`linear`,
 `percentage`, `temperature`, `fueltrim`, `rpm`, `speed`, `maf`,
 `ascii`, `bitfield`, `raw`, `signed`).
 

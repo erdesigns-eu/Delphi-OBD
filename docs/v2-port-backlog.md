@@ -31,7 +31,7 @@ its **task id** (e.g. "let's do `P-A3`").
 `Registry`, `VinResolver`, `Variants`, `Pending` units.
 
 **v2 rewrite target:**
-- New unit family `OBD.RadioCode.*` under `src/RadioCode/`.
+- New unit family `ERD.RadioCode.*` under `src/RadioCode/`.
 - One palette component `TOBDRadioCode` on a new "OBD Radio"
   category (or fold into "OBD Coding").
 - `IOBDRadioCodeCalculator` interface; per-vendor concrete
@@ -74,7 +74,7 @@ none.
 variants, with a render-class framework and theme support.
 
 **v2 rewrite target:**
-- New family `src/UI/OBD.UI.*` (VCL) and `src/UI.FMX/OBD.UI.FMX.*`
+- New family `src/UI/ERD.UI.*` (VCL) and `src/UI.FMX/ERD.UI.FMX.*`
   (FMX). Common rendering split into render classes so a host can
   swap a `TOBDCircularGauge` for a `TOBDCircularGauge.FMX` without
   touching the binding code.
@@ -110,11 +110,11 @@ dashboard sample.
 
 ### P-A3 — VIN decoder (full WMI / VDS / VIS)
 
-**v1 source:** `src/VIN/OBD.VIN.Decoder.pas` + `Constants.pas` +
+**v1 source:** `src/VIN/ERD.VIN.Decoder.pas` + `Constants.pas` +
 `Types.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Service.VINDecoder.pas` — `TOBDVINInfo` record (WMI, VDS,
+- `ERD.Service.VINDecoder.pas` — `TOBDVINInfo` record (WMI, VDS,
   VIS, region, country, manufacturer, plant, model year, serial)
   plus `TOBDVINDecoder` static class.
 - Decode tables shipped as a JSON catalogue
@@ -132,11 +132,11 @@ dashboard sample.
 
 ### P-A4 — Drive-cycle advisor
 
-**v1 source:** `src/Services/OBD.DriveCycle.Advisor.pas` +
-`OBD.DriveCycle.Resolvers.pas` on main.
+**v1 source:** `src/Services/ERD.DriveCycle.Advisor.pas` +
+`ERD.DriveCycle.Resolvers.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Service.DriveCycle.pas` — `TOBDDriveCycleAdvisor`
+- `ERD.Service.DriveCycle.pas` — `TOBDDriveCycleAdvisor`
   component on the "OBD Services" palette tab.
 - Hooks `TOBDOnBoardMonitor`'s readiness flags + `TOBDLiveData`'s
   PID stream to drive an internal state machine that walks the
@@ -157,10 +157,10 @@ already in v2).
 
 ### P-A5 — EV battery health
 
-**v1 source:** `src/Services/OBD.EV.BatteryHealth.pas` on main.
+**v1 source:** `src/Services/ERD.EV.BatteryHealth.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Service.EVBattery.pas` — `TOBDEVBattery` component.
+- `ERD.Service.EVBattery.pas` — `TOBDEVBattery` component.
 - Reads HV-pack DIDs (SOC, SOH, capacity, cell voltages,
   temperatures, charging power, max discharge power) across the
   major BEV / PHEV platforms.
@@ -177,11 +177,11 @@ already in v2).
 
 ### P-A6 — Key adaptation (BMW / Ford / HMG / Toyota)
 
-**v1 source:** `src/Services/OBD.OEM.KeyAdaptation.*.pas` on
+**v1 source:** `src/Services/ERD.OEM.KeyAdaptation.*.pas` on
 main (BMW, Ford, HMG, Toyota).
 
 **v2 rewrite target:**
-- New family `OBD.OEM.KeyAdaptation.<Vendor>.pas` under `src/OEM/`.
+- New family `ERD.OEM.KeyAdaptation.<Vendor>.pas` under `src/OEM/`.
 - One palette component per vendor on "OBD Coding" tab.
 - AutoExecute = False, OnConfirmExecute required (key adaptation
   is destructive — programs a new transponder against the
@@ -210,7 +210,7 @@ DataModules + a polished radio-calculator form template.
 **v2 build target:**
 
 1. **Per-category wizards.** Split
-   `OBD.Design.Wizards.Starters.pas` into a multi-wizard
+   `ERD.Design.Wizards.Starters.pas` into a multi-wizard
    surface, registering one `IOTARepositoryWizard` per palette
    category:
 
@@ -304,7 +304,7 @@ broader per-category surface).
 keep vendor-by-vendor data provenance, request vectors and bench validation open.
 Do not restart the port based on the historical quick-pick checkbox.
 
-**v1 source:** `src/Services/OBD.OEM.*.pas` — ~50 vendor
+**v1 source:** `src/Services/ERD.OEM.*.pas` — ~50 vendor
 modules. The current branch contains a much wider OEM implementation
 under `src/OEM/`, including heavy-duty, marine, motorcycles and EV helpers.
 The original eight-vendor baseline is historical; source presence does not
@@ -340,8 +340,8 @@ some vendors.
 `TOBDDTCs`. The separately named palette components and their wizard starters
 remain proposed work; they are not evidence that these modes cannot be read.
 
-**v1 source:** `src/Services/OBD.Service05.pas`,
-`OBD.Service07.pas`, `OBD.Service0A.pas` on main.
+**v1 source:** `src/Services/ERD.Service05.pas`,
+`ERD.Service07.pas`, `ERD.Service0A.pas` on main.
 
 **v2 rewrite target:**
 - `TOBDPendingDTCs` (Mode 07) — thin subclass of `TOBDDTCs` with
@@ -358,11 +358,11 @@ remain proposed work; they are not evidence that these modes cannot be read.
 
 ### P-B3 — VehicleHealth roll-up
 
-**v1 source:** `src/Services/OBD.VehicleHealth.pas` +
-`OBD.ReadinessMonitor.pas` on main.
+**v1 source:** `src/Services/ERD.VehicleHealth.pas` +
+`ERD.ReadinessMonitor.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Service.VehicleHealth.pas` — `TOBDVehicleHealth`
+- `ERD.Service.VehicleHealth.pas` — `TOBDVehicleHealth`
   composite component.
 - Rolls up DTCs + freeze-frame + on-board monitor + MIL status +
   drive-cycle progress into a single `IsHealthy: Boolean` plus a
@@ -377,17 +377,17 @@ remain proposed work; they are not evidence that these modes cannot be read.
 ### P-B4 — Tachograph signature + workshop
 
 **Branch status (2026-10-08):** Signature, Workshop and PCSC units exist
-under `src/Speciality/`; `tests/Tests.OBD.Tachograph.pas` exists. Known-good
+under `src/Speciality/`; `tests/Tests.ERD.Tachograph.pas` exists. Known-good
 card captures, real signature validation and workshop bench results still
 need separate evidence.
 
-**v1 source:** `src/Services/OBD.Tachograph.Signature.pas` +
-`OBD.Tachograph.Workshop.pas` on main.
+**v1 source:** `src/Services/ERD.Tachograph.Signature.pas` +
+`ERD.Tachograph.Workshop.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Speciality.Tachograph.Signature.pas` — handles EU 165/2014
+- `ERD.Speciality.Tachograph.Signature.pas` — handles EU 165/2014
   card-data signature validation.
-- `OBD.Speciality.Tachograph.Workshop.pas` — workshop / fitter
+- `ERD.Speciality.Tachograph.Workshop.pas` — workshop / fitter
   card flows (calibration, time-adjust, manufacturer activity).
 - Both extend the existing `TOBDTachograph` base.
 - Tests pinned to known-good card dumps.
@@ -405,17 +405,17 @@ also includes Async and StringHelpers despite the original suggestion to
 skip them; the coding audit log remains under `src/Coding/`. Review the delivered implementation
 and platform/security tests rather than treating these as missing ports.
 
-**v1 source:** `src/Utilities/OBD.Logger.pas` + `Sinks.pas` +
+**v1 source:** `src/Utilities/ERD.Logger.pas` + `Sinks.pas` +
 `SecureSettings.pas` + `Security.AttemptCounter.pas` +
 `Security.Nonce.pas` + `Async.pas` + `Audit.pas` +
 `Application.Settings.pas` + `StringHelpers.pas` on main.
 
 **v2 rewrite target:**
-- `OBD.Tools.Logger.pas` + sinks (file, syslog, IDE OutputDebug).
+- `ERD.Tools.Logger.pas` + sinks (file, syslog, IDE OutputDebug).
   Structured (not printf), level-filtered, async-friendly.
-- `OBD.Tools.SecureSettings.pas` — DPAPI-backed settings store
+- `ERD.Tools.SecureSettings.pas` — DPAPI-backed settings store
   for SecOC keys, signature passphrases, etc.
-- `OBD.Tools.Security.*` — attempt counter + nonce.
+- `ERD.Tools.Security.*` — attempt counter + nonce.
 - Skip `Application.Settings`, `Async`, `Audit`, `StringHelpers`
   (the audit log is already in v2 as `TOBDCodingAuditLog`; the
   rest duplicate well-trodden third-party libraries — Spring4D,
@@ -431,17 +431,17 @@ bring their own logger / settings stack.
 
 ### P-B6 — Form / DataModule / MainForm IDE wizards
 
-**Branch status (2026-10-08):** `src/DesignTime/OBD.Design.Wizards.NewForms.pas`
+**Branch status (2026-10-08):** `src/DesignTime/ERD.Design.Wizards.NewForms.pas`
 is implemented. Registration, generated-project compilation and a clean IDE
 installation remain unverified; source presence is not an IDE acceptance test.
 
-**v1 source:** `src/Wizards/OBD.Form.Wizard.pas` +
-`OBD.DataModule.Wizard.pas` + `OBD.MainForm.Wizard.pas` on main
-(plus `OBD.Project.Wizard.pas` which v2's starter wizard already
+**v1 source:** `src/Wizards/ERD.Form.Wizard.pas` +
+`ERD.DataModule.Wizard.pas` + `ERD.MainForm.Wizard.pas` on main
+(plus `ERD.Project.Wizard.pas` which v2's starter wizard already
 covers).
 
 **v2 rewrite target:**
-- Extend `OBD.Design.Wizards.Starters.pas` to register
+- Extend `ERD.Design.Wizards.Starters.pas` to register
   additional wizard kinds:
   - `IOTAFormWizard` — adds an OBD-shaped form to an existing
     project (any of the 26 starter templates can be the body).

@@ -31,7 +31,7 @@ out from the file's own location, so the suite runs from any directory; set
 
 Discovery includes `src/`, `samples/`, `packages/`, `tests/` and `tools/`,
 plus the original imported layouts. Namespaced units are resolved using
-full names (`OBD.Protocol.Types`, not `Types`). Mutually exclusive compiler
+full names (`ERD.Protocol.Types`, not `Types`). Mutually exclusive compiler
 branches do not count as duplicate declarations. No source files are
 rewritten by the checkers.
 
@@ -57,7 +57,7 @@ python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
 ```
 
 For actual execution of portable codecs, install Free Pascal and run
-`python3 tools/fpc_smoke.py`. It uses `-Mdelphi`, compiles `OBD.Version`
+`python3 tools/fpc_smoke.py`. It uses `-Mdelphi`, compiles `ERD.Version`
 unmodified, then builds six selected units with only `System.SysUtils`
 and `System.Variants` scope names adapted in temporary copies. It uses the
 real FPC RTL and no Delphi/VCL/API stubs. The 154 runtime checks cover LIN

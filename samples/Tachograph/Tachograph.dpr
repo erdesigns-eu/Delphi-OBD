@@ -17,10 +17,10 @@ program Tachograph;
 
 uses
   System.SysUtils,
-  OBD.Types                       in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                      in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Speciality.Tachograph       in '..\..\src\Speciality\OBD.Speciality.Tachograph.pas',
-  OBD.Speciality.Tachograph.PCSC  in '..\..\src\Speciality\OBD.Speciality.Tachograph.PCSC.pas';
+  ERD.Types                       in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                      in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Speciality.Tachograph       in '..\..\src\Speciality\ERD.Speciality.Tachograph.pas',
+  ERD.Speciality.Tachograph.PCSC  in '..\..\src\Speciality\ERD.Speciality.Tachograph.PCSC.pas';
 
 begin
   Writeln('Delphi-OBD Digital Tachograph (EU 165/2014) demo');

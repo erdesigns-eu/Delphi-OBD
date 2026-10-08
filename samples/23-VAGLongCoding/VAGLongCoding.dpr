@@ -20,9 +20,9 @@ program VAGLongCoding;
 
 uses
   System.SysUtils,
-  OBD.Types         in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors        in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Coding.VAG    in '..\..\src\Coding\OBD.Coding.VAG.pas';
+  ERD.Types         in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors        in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Coding.VAG    in '..\..\src\Coding\ERD.Coding.VAG.pas';
 
 procedure Dump(const ALabel: string; const ABuf: TBytes);
 begin

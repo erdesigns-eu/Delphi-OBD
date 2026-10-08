@@ -18,9 +18,9 @@ program KWPReadID;
 
 uses
   System.SysUtils,
-  OBD.Types                  in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                 in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Diagnostics.KWP.ReadID in '..\..\src\Diagnostics\OBD.Diagnostics.KWP.ReadID.pas';
+  ERD.Types                  in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                 in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Diagnostics.KWP.ReadID in '..\..\src\Diagnostics\ERD.Diagnostics.KWP.ReadID.pas';
 
 var
   R: TOBDKWPReadID;

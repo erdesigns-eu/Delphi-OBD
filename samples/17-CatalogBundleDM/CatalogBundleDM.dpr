@@ -23,24 +23,24 @@ uses
   System.SysUtils,
   System.IOUtils,
   System.Classes,
-  OBD.Service.VINDecoder.Types
-    in '..\..\src\Service\OBD.Service.VINDecoder.Types.pas',
-  OBD.Service.VINDecoder
-    in '..\..\src\Service\OBD.Service.VINDecoder.pas',
-  OBD.Service.VINDecoder.Catalog.Component
-    in '..\..\src\Service\OBD.Service.VINDecoder.Catalog.Component.pas',
-  OBD.Service.DriveCycle.Types
-    in '..\..\src\Service\OBD.Service.DriveCycle.Types.pas',
-  OBD.Service.DriveCycle.Catalog
-    in '..\..\src\Service\OBD.Service.DriveCycle.Catalog.pas',
-  OBD.Service.DriveCycle.Catalog.Component
-    in '..\..\src\Service\OBD.Service.DriveCycle.Catalog.Component.pas',
-  OBD.Service.EVBattery.Types
-    in '..\..\src\Service\OBD.Service.EVBattery.Types.pas',
-  OBD.Service.EVBattery.Catalog
-    in '..\..\src\Service\OBD.Service.EVBattery.Catalog.pas',
-  OBD.Service.EVBattery.Catalog.Component
-    in '..\..\src\Service\OBD.Service.EVBattery.Catalog.Component.pas';
+  ERD.Service.VINDecoder.Types
+    in '..\..\src\Service\ERD.Service.VINDecoder.Types.pas',
+  ERD.Service.VINDecoder
+    in '..\..\src\Service\ERD.Service.VINDecoder.pas',
+  ERD.Service.VINDecoder.Catalog.Component
+    in '..\..\src\Service\ERD.Service.VINDecoder.Catalog.Component.pas',
+  ERD.Service.DriveCycle.Types
+    in '..\..\src\Service\ERD.Service.DriveCycle.Types.pas',
+  ERD.Service.DriveCycle.Catalog
+    in '..\..\src\Service\ERD.Service.DriveCycle.Catalog.pas',
+  ERD.Service.DriveCycle.Catalog.Component
+    in '..\..\src\Service\ERD.Service.DriveCycle.Catalog.Component.pas',
+  ERD.Service.EVBattery.Types
+    in '..\..\src\Service\ERD.Service.EVBattery.Types.pas',
+  ERD.Service.EVBattery.Catalog
+    in '..\..\src\Service\ERD.Service.EVBattery.Catalog.pas',
+  ERD.Service.EVBattery.Catalog.Component
+    in '..\..\src\Service\ERD.Service.EVBattery.Catalog.Component.pas';
 
 procedure HandleVINReloaded(Sender: TObject);
 begin

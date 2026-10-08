@@ -49,6 +49,25 @@ def strip_code(src):
             i = j + 1
         else:
             i += 1
+    # Analyze the Delphi branch of FPC conditionals, preserving source offsets.
+    # Other target conditionals stay visible for existing cross-platform checks.
+    stack = []
+    cursor = 0
+    for start, end, text in directives:
+        if any(state is False for state in stack):
+            blank(cursor, start)
+        command = re.search(r'\$\s*(IFDEF|IFNDEF|IF|ELSEIF|ELSE|ENDIF|IFEND)\b(.*?)\}', text, re.I)
+        if command:
+            name, argument = command.group(1).upper(), command.group(2).strip().upper()
+            if name in ('IFDEF', 'IFNDEF', 'IF'):
+                stack.append((name == 'IFNDEF') if argument == 'FPC' else None)
+            elif name == 'ELSE' and stack and stack[-1] is not None:
+                stack[-1] = not stack[-1]
+            elif name in ('ENDIF', 'IFEND') and stack:
+                stack.pop()
+        cursor = end
+    if any(state is False for state in stack):
+        blank(cursor, n)
     return ''.join(out), directives
 
 IDENT = re.compile(r'[A-Za-z_&][A-Za-z0-9_]*')

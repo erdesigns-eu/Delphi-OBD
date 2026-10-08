@@ -19,11 +19,11 @@ program RadioCodeMulti;
 uses
   System.SysUtils,
   System.StrUtils,
-  OBD.RadioCode.Types       in '..\..\src\RadioCode\OBD.RadioCode.Types.pas',
-  OBD.RadioCode             in '..\..\src\RadioCode\OBD.RadioCode.pas',
-  OBD.RadioCode.FrenchItalian in '..\..\src\RadioCode\OBD.RadioCode.FrenchItalian.pas',
-  OBD.RadioCode.Asian       in '..\..\src\RadioCode\OBD.RadioCode.Asian.pas',
-  OBD.RadioCode.Aftermarket in '..\..\src\RadioCode\OBD.RadioCode.Aftermarket.pas';
+  ERD.RadioCode.Types       in '..\..\src\RadioCode\ERD.RadioCode.Types.pas',
+  ERD.RadioCode             in '..\..\src\RadioCode\ERD.RadioCode.pas',
+  ERD.RadioCode.FrenchItalian in '..\..\src\RadioCode\ERD.RadioCode.FrenchItalian.pas',
+  ERD.RadioCode.Asian       in '..\..\src\RadioCode\ERD.RadioCode.Asian.pas',
+  ERD.RadioCode.Aftermarket in '..\..\src\RadioCode\ERD.RadioCode.Aftermarket.pas';
 
 procedure Try_(ACalc: TOBDRadioCode; const AInput: string);
 var R: TOBDRadioCodeResult;

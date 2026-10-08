@@ -21,8 +21,8 @@ program DecodeVIN;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.Service.VINDecoder.Types in '..\..\src\Service\OBD.Service.VINDecoder.Types.pas',
-  OBD.Service.VINDecoder      in '..\..\src\Service\OBD.Service.VINDecoder.pas';
+  ERD.Service.VINDecoder.Types in '..\..\src\Service\ERD.Service.VINDecoder.Types.pas',
+  ERD.Service.VINDecoder      in '..\..\src\Service\ERD.Service.VINDecoder.pas';
 
 procedure PrintVIN(const AVIN: string);
 var

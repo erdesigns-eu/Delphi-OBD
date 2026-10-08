@@ -16,9 +16,9 @@ program IsoBusVT;
 
 uses
   System.SysUtils,
-  OBD.Types                  in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                 in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Speciality.IsoBus.VT   in '..\..\src\Speciality\OBD.Speciality.IsoBus.VT.pas';
+  ERD.Types                  in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                 in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Speciality.IsoBus.VT   in '..\..\src\Speciality\ERD.Speciality.IsoBus.VT.pas';
 
 begin
   Writeln('Delphi-OBD ISO 11783 Virtual Terminal demo');
@@ -30,7 +30,7 @@ begin
   Writeln('    - Mask and input-field updates.');
   Writeln('    - Input-attribute responses.');
   Writeln;
-  Writeln('  See src/Speciality/OBD.Speciality.IsoBus.VT.pas for the full API.');
+  Writeln('  See src/Speciality/ERD.Speciality.IsoBus.VT.pas for the full API.');
   Writeln;
   Writeln('Done.');
 end.

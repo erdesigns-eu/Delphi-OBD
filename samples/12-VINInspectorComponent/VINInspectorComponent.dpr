@@ -16,9 +16,9 @@ program VINInspectorComponent;
 uses
   System.SysUtils,
   System.IOUtils,
-  OBD.Service.VINDecoder.Types in '..\..\src\Service\OBD.Service.VINDecoder.Types.pas',
-  OBD.Service.VINDecoder       in '..\..\src\Service\OBD.Service.VINDecoder.pas',
-  OBD.Service.VINInspector     in '..\..\src\Service\OBD.Service.VINInspector.pas';
+  ERD.Service.VINDecoder.Types in '..\..\src\Service\ERD.Service.VINDecoder.Types.pas',
+  ERD.Service.VINDecoder       in '..\..\src\Service\ERD.Service.VINDecoder.pas',
+  ERD.Service.VINInspector     in '..\..\src\Service\ERD.Service.VINInspector.pas';
 
 procedure Inspect(Insp: TOBDVINInspector; const AVIN: string);
 begin

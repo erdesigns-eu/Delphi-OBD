@@ -30,21 +30,21 @@ uses
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
-  OBD.Types in '..\..\src\Core\OBD.Types.pas',
-  OBD.Connection.Types in '..\..\src\Connection\OBD.Connection.Types.pas',
-  OBD.Connection.Settings in '..\..\src\Connection\OBD.Connection.Settings.pas',
-  OBD.Connection.Retry in '..\..\src\Connection\OBD.Connection.Retry.pas',
-  OBD.Connection.Transport.Base in '..\..\src\Connection\OBD.Connection.Transport.Base.pas',
-  OBD.Connection.Mock in '..\..\src\Connection\OBD.Connection.Mock.pas',
-  OBD.Connection.Bluetooth in '..\..\src\Connection\OBD.Connection.Bluetooth.pas',
-  OBD.Connection.BLE in '..\..\src\Connection\OBD.Connection.BLE.pas',
-  OBD.Connection.WiFi in '..\..\src\Connection\OBD.Connection.WiFi.pas',
-  OBD.Connection.UDP in '..\..\src\Connection\OBD.Connection.UDP.pas',
+  ERD.Types in '..\..\src\Core\ERD.Types.pas',
+  ERD.Connection.Types in '..\..\src\Connection\ERD.Connection.Types.pas',
+  ERD.Connection.Settings in '..\..\src\Connection\ERD.Connection.Settings.pas',
+  ERD.Connection.Retry in '..\..\src\Connection\ERD.Connection.Retry.pas',
+  ERD.Connection.Transport.Base in '..\..\src\Connection\ERD.Connection.Transport.Base.pas',
+  ERD.Connection.Mock in '..\..\src\Connection\ERD.Connection.Mock.pas',
+  ERD.Connection.Bluetooth in '..\..\src\Connection\ERD.Connection.Bluetooth.pas',
+  ERD.Connection.BLE in '..\..\src\Connection\ERD.Connection.BLE.pas',
+  ERD.Connection.WiFi in '..\..\src\Connection\ERD.Connection.WiFi.pas',
+  ERD.Connection.UDP in '..\..\src\Connection\ERD.Connection.UDP.pas',
   {$IFDEF MSWINDOWS}
-  OBD.Connection.Serial in '..\..\src\Connection\OBD.Connection.Serial.pas',
-  OBD.Connection.FTDI in '..\..\src\Connection\OBD.Connection.FTDI.pas',
+  ERD.Connection.Serial in '..\..\src\Connection\ERD.Connection.Serial.pas',
+  ERD.Connection.FTDI in '..\..\src\Connection\ERD.Connection.FTDI.pas',
   {$ENDIF}
-  OBD.Connection in '..\..\src\Connection\OBD.Connection.pas';
+  ERD.Connection in '..\..\src\Connection\ERD.Connection.pas';
 
 var
   Connection: TOBDConnection;

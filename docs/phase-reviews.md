@@ -20,16 +20,16 @@ section answers:
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `src/Core/OBD.Version.pas` | 53 | Version constants single source of truth (Phase 0). |
-| `src/Core/OBD.Types.pas` | 280 | Enums, polymorphic `TOBDValue`, `TOBDPIDDescriptor`, exception hierarchy. |
-| `src/Core/OBD.Errors.pas` | 88 | Error code → message / identifier resolver. |
-| `src/Core/OBD.Decoders.pas` | 360 | `TOBDDecoderRegistry` plus 10 built-in scaling primitives. Pluggable. |
-| `src/Core/OBD.Catalog.pas` | 380 | Schema-versioned JSON loader, in-memory store, recursive `LoadDirectory`, typed `FindPID` / `FindText`. |
+| `src/Core/ERD.Version.pas` | 53 | Version constants single source of truth (Phase 0). |
+| `src/Core/ERD.Types.pas` | 280 | Enums, polymorphic `TOBDValue`, `TOBDPIDDescriptor`, exception hierarchy. |
+| `src/Core/ERD.Errors.pas` | 88 | Error code → message / identifier resolver. |
+| `src/Core/ERD.Decoders.pas` | 360 | `TOBDDecoderRegistry` plus 10 built-in scaling primitives. Pluggable. |
+| `src/Core/ERD.Catalog.pas` | 380 | Schema-versioned JSON loader, in-memory store, recursive `LoadDirectory`, typed `FindPID` / `FindText`. |
 | **Total runtime** | **~1,160** | |
-| `tests/Tests.OBD.Types.pas` | 70 | Type helpers + exception hierarchy. |
-| `tests/Tests.OBD.Errors.pas` | 60 | Every error code has message + identifier. |
-| `tests/Tests.OBD.Decoders.pas` | 200 | All 10 decoders + boundary / under-length / clamp / registry. |
-| `tests/Tests.OBD.Catalog.pas` | 165 | Round-trip, malformed JSON, missing fields, hex tolerance, recursive walk, multi-catalogue lookup. |
+| `tests/Tests.ERD.Types.pas` | 70 | Type helpers + exception hierarchy. |
+| `tests/Tests.ERD.Errors.pas` | 60 | Every error code has message + identifier. |
+| `tests/Tests.ERD.Decoders.pas` | 200 | All 10 decoders + boundary / under-length / clamp / registry. |
+| `tests/Tests.ERD.Catalog.pas` | 165 | Round-trip, malformed JSON, missing fields, hex tolerance, recursive walk, multi-catalogue lookup. |
 | **Total tests** | **~495** | |
 
 ### Catalogue data ported
@@ -122,7 +122,7 @@ consuming component is designed.**
 
 ### Suggested follow-up before Phase 2
 
-1. Add a `Tests.OBD.Catalog.Inventory` fixture asserting baseline
+1. Add a `Tests.ERD.Catalog.Inventory` fixture asserting baseline
    entry counts (e.g. ≥ 80 Mode 01 PIDs) so a future PR cannot silently
    drop data. **Done in this phase.**
 2. Decide on the NRC text-style policy (verbatim ISO camelCase vs
@@ -136,27 +136,27 @@ consuming component is designed.**
 ## Phase 2 — Connection layer
 
 **Status:** Complete on `claude/v2-phase-1` (the active PR branch).
-**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Connection/ tests/Tests.OBD.Connection*.pas samples/01-ConnectAndPing/`.
+**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Connection/ tests/Tests.ERD.Connection*.pas samples/01-ConnectAndPing/`.
 
 ### Code landed
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `src/Connection/OBD.Connection.Types.pas` | ~210 | `IOBDConnectionTransport` contract; state, baud, parity, stop-bit, flow-control enums; byte / state / error event types. |
-| `src/Connection/OBD.Connection.Settings.pas` | ~290 | TPersistent sub-objects for every transport (Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI). |
-| `src/Connection/OBD.Connection.Retry.pas` | ~140 | `TOBDRetryPolicy` with exponential backoff, MaxDelay clamp, configurable jitter, seedable RNG. |
-| `src/Connection/OBD.Connection.Mock.pas` | ~220 | `TOBDMockTransport` for tests — state simulation, write capture, byte feed, error injection. |
-| `src/Connection/OBD.Connection.Serial.pas` | ~330 | Win32 serial transport with `CreateFile` + read thread. |
-| `src/Connection/OBD.Connection.WiFi.pas` | ~225 | TCP transport via `System.Net.Socket`. |
-| `src/Connection/OBD.Connection.UDP.pas` | ~225 | UDP transport via `System.Net.Socket`. |
-| `src/Connection/OBD.Connection.Bluetooth.pas` | ~285 | RFCOMM via `System.Bluetooth`. |
-| `src/Connection/OBD.Connection.BLE.pas` | ~270 | GATT via `System.Bluetooth.TBluetoothLEManager`. |
-| `src/Connection/OBD.Connection.FTDI.pas` | ~365 | FTDI D2XX via dynamically-loaded `ftd2xx.dll`. |
-| `src/Connection/OBD.Connection.pas` | ~360 | `TOBDConnection` component, retry loop, event marshalling. |
+| `src/Connection/ERD.Connection.Types.pas` | ~210 | `IOBDConnectionTransport` contract; state, baud, parity, stop-bit, flow-control enums; byte / state / error event types. |
+| `src/Connection/ERD.Connection.Settings.pas` | ~290 | TPersistent sub-objects for every transport (Serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI). |
+| `src/Connection/ERD.Connection.Retry.pas` | ~140 | `TOBDRetryPolicy` with exponential backoff, MaxDelay clamp, configurable jitter, seedable RNG. |
+| `src/Connection/ERD.Connection.Mock.pas` | ~220 | `TOBDMockTransport` for tests — state simulation, write capture, byte feed, error injection. |
+| `src/Connection/ERD.Connection.Serial.pas` | ~330 | Win32 serial transport with `CreateFile` + read thread. |
+| `src/Connection/ERD.Connection.WiFi.pas` | ~225 | TCP transport via `System.Net.Socket`. |
+| `src/Connection/ERD.Connection.UDP.pas` | ~225 | UDP transport via `System.Net.Socket`. |
+| `src/Connection/ERD.Connection.Bluetooth.pas` | ~285 | RFCOMM via `System.Bluetooth`. |
+| `src/Connection/ERD.Connection.BLE.pas` | ~270 | GATT via `System.Bluetooth.TBluetoothLEManager`. |
+| `src/Connection/ERD.Connection.FTDI.pas` | ~365 | FTDI D2XX via dynamically-loaded `ftd2xx.dll`. |
+| `src/Connection/ERD.Connection.pas` | ~360 | `TOBDConnection` component, retry loop, event marshalling. |
 | **Total runtime** | **~2,920** | |
-| `tests/Tests.OBD.Connection.Mock.pas` | ~210 | Mock transport coverage. |
-| `tests/Tests.OBD.Connection.Retry.pas` | ~165 | Retry policy coverage. |
-| `tests/Tests.OBD.Connection.pas` | ~165 | Component lifecycle + sub-settings round-trip. |
+| `tests/Tests.ERD.Connection.Mock.pas` | ~210 | Mock transport coverage. |
+| `tests/Tests.ERD.Connection.Retry.pas` | ~165 | Retry policy coverage. |
+| `tests/Tests.ERD.Connection.pas` | ~165 | Component lifecycle + sub-settings round-trip. |
 | `samples/01-ConnectAndPing/ConnectAndPing.dpr` | ~115 | Wi-Fi → ATZ → response sample. |
 | **Total tests + sample** | **~655** | |
 
@@ -207,11 +207,11 @@ Both addressed in this commit:
 
 | v1 file / behaviour | Reason | Where it lands |
 |---|---|---|
-| `OBD.Connection.Async.pas` (the SendAsync wrapper) | Async API is not the v2 public surface — sync API + events was the locked decision in PLAN §2 row 5. The async machinery is reused internally inside `TOBDAdapter` (Phase 3). | Phase 3 |
+| `ERD.Connection.Async.pas` (the SendAsync wrapper) | Async API is not the v2 public surface — sync API + events was the locked decision in PLAN §2 row 5. The async machinery is reused internally inside `TOBDAdapter` (Phase 3). | Phase 3 |
 | Per-OS POSIX serial backend | v1 was Windows-only; v2 keeps Windows-only for serial / FTDI. POSIX termios backend is out of scope until someone needs it. | Post-1.0 / community |
-| Adapter / port enumeration (port-scan helpers in `OBD.Adapter.Enumerator.pas`) | Belongs on `TOBDAdapter`, not on the connection layer. | Phase 3 |
-| `OBD.Connection.Constants.pas` | Constants from v1 were transport-specific magic numbers (CTS / DCB flags, BT buffer sizes) — all inlined where used in v2 with named comments for the magic bits. The unit's existence on `main` is no longer needed. | n/a (folded in) |
-| `OBD.Connection.Component.pas` (the v1 wrapper) | v1 had a separate "component" wrapper because the v1 base was a plain class. v2's `TOBDConnection` IS the component; no wrapper needed. | n/a |
+| Adapter / port enumeration (port-scan helpers in `ERD.Adapter.Enumerator.pas`) | Belongs on `TOBDAdapter`, not on the connection layer. | Phase 3 |
+| `ERD.Connection.Constants.pas` | Constants from v1 were transport-specific magic numbers (CTS / DCB flags, BT buffer sizes) — all inlined where used in v2 with named comments for the magic bits. The unit's existence on `main` is no longer needed. | n/a (folded in) |
+| `ERD.Connection.Component.pas` (the v1 wrapper) | v1 had a separate "component" wrapper because the v1 base was a plain class. v2's `TOBDConnection` IS the component; no wrapper needed. | n/a |
 
 ### Honest review — what a reviewer should double-check
 
@@ -223,7 +223,7 @@ Both addressed in this commit:
 2. **BLE notifications fire on the BLE manager's worker thread.**
    `TOBDConnection` then re-fires on the main thread, which is
    correct, but reviewers should verify that `OnCharacteristicRead` in
-   `OBD.Connection.BLE.pas:HandleCharRead` matches the RTL expectation
+   `ERD.Connection.BLE.pas:HandleCharRead` matches the RTL expectation
    for the Delphi version we're testing on (10.3 is the floor).
 3. **FTDI `Sleep(2)` in the read loop.** The D2XX `FT_Read` returns
    immediately when no bytes are queued; without a brief sleep the loop
@@ -251,7 +251,7 @@ Both addressed in this commit:
 8. **Event marshalling captures `Snapshot`** by-reference into the
    anonymous method, which is correct because `TBytes` is reference
    counted. Spot-check the closures in
-   `OBD.Connection.pas:HandleTransportBytes` to make sure no race
+   `ERD.Connection.pas:HandleTransportBytes` to make sure no race
    exists across the `TThread.Queue` boundary.
 
 ### Quality bars met
@@ -312,7 +312,7 @@ Implementation contract (encoded in PLAN §3.7):
   raises `EOBDConfig`.
 - Worker self-reaps via a queued cleanup on the main thread.
 
-New tests: `Tests.OBD.Connection.Async` (5 assertions) covering
+New tests: `Tests.ERD.Connection.Async` (5 assertions) covering
 return-immediately, OnError-on-main-thread, in-flight rejection, Close
 cancellation, destructor cleanup with in-flight worker.
 
@@ -374,10 +374,10 @@ event-wiring inside each `case` branch. The four transport callbacks
 
 New tests:
 
-- `Tests.OBD.Connection.Progress` — record helpers, `Percent`
+- `Tests.ERD.Connection.Progress` — record helpers, `Percent`
   semantics including saturate-at-1 and zero-when-unknown (6
   assertions).
-- `Tests.OBD.Connection.Mock.ProgressEventCarriesStep` — verifies
+- `Tests.ERD.Connection.Mock.ProgressEventCarriesStep` — verifies
   the mock's `SimulateProgress` and the round-trip through the
   `OnProgress` event.
 
@@ -393,23 +393,23 @@ The §3.7 progress section is now part of the rule.
 ## Phase 3 — Adapter layer
 
 **Status:** Complete on `claude/v2-phase-1` (the active PR branch).
-**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Adapter/ tests/Tests.OBD.Adapter*.pas samples/02-DetectAdapter/`.
+**Commits:** see `git log --oneline claude/v2-phase-1 -- src/Adapter/ tests/Tests.ERD.Adapter*.pas samples/02-DetectAdapter/`.
 
 ### Code landed
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `src/Adapter/OBD.Adapter.Types.pas` | ~250 | `TOBDAdapterCapability` (15 bits), `TOBDAdapterCapabilities` set, `TOBDAdapterIdentity`, `TOBDAdapterCommandKind`, `TOBDAdapterCommand`, `TOBDAdapterResponse`, event signatures, `EOBDAdapter`, `TryParseCapability` (synonym-tolerant). |
-| `src/Adapter/OBD.Adapter.Capabilities.pas` | ~280 | `TOBDAdapterCapabilityRegistry` singleton + JSON loader; built-in seed for 12 adapter rows. |
-| `src/Adapter/OBD.Adapter.Commands.pas` | ~340 | Single `TOBDAdapterCommandCatalog`; `FormatCommand` with `%d`/`%s`/`%x..xX..X` placeholders; ~35 AT + ~12 ST built-in entries. |
-| `src/Adapter/OBD.Adapter.Detection.pas` | ~260 | Stateless `TOBDAdapterDetector` — six-phase ATZ → ATE0 → ATI → AT@1 → AT@2 → STI; regex-driven `ParseInfoLine`; `LooksLikeClone` heuristic; `IOBDAdapterCommandSender` test seam; `TOBDDetectionProgress` callback. |
-| `src/Adapter/OBD.Adapter.Init.pas` | ~190 | `TOBDAdapterInitializer` with built-in per-family sequences; required vs best-effort step semantics; `ExtendSequence` for user-supplied extras. |
-| `src/Adapter/OBD.Adapter.pas` | ~660 | `TOBDAdapter` component implementing `IOBDAdapterCommandSender`; sync + async + progress for Detect / Init / WriteAT / WriteST / WriteOBD per PLAN §3.7. |
+| `src/Adapter/ERD.Adapter.Types.pas` | ~250 | `TOBDAdapterCapability` (15 bits), `TOBDAdapterCapabilities` set, `TOBDAdapterIdentity`, `TOBDAdapterCommandKind`, `TOBDAdapterCommand`, `TOBDAdapterResponse`, event signatures, `EOBDAdapter`, `TryParseCapability` (synonym-tolerant). |
+| `src/Adapter/ERD.Adapter.Capabilities.pas` | ~280 | `TOBDAdapterCapabilityRegistry` singleton + JSON loader; built-in seed for 12 adapter rows. |
+| `src/Adapter/ERD.Adapter.Commands.pas` | ~340 | Single `TOBDAdapterCommandCatalog`; `FormatCommand` with `%d`/`%s`/`%x..xX..X` placeholders; ~35 AT + ~12 ST built-in entries. |
+| `src/Adapter/ERD.Adapter.Detection.pas` | ~260 | Stateless `TOBDAdapterDetector` — six-phase ATZ → ATE0 → ATI → AT@1 → AT@2 → STI; regex-driven `ParseInfoLine`; `LooksLikeClone` heuristic; `IOBDAdapterCommandSender` test seam; `TOBDDetectionProgress` callback. |
+| `src/Adapter/ERD.Adapter.Init.pas` | ~190 | `TOBDAdapterInitializer` with built-in per-family sequences; required vs best-effort step semantics; `ExtendSequence` for user-supplied extras. |
+| `src/Adapter/ERD.Adapter.pas` | ~660 | `TOBDAdapter` component implementing `IOBDAdapterCommandSender`; sync + async + progress for Detect / Init / WriteAT / WriteST / WriteOBD per PLAN §3.7. |
 | **Total runtime** | **~1,980** | |
-| `tests/Tests.OBD.Adapter.Commands.pas` | ~120 | 12 assertions on FormatCommand + catalogue. |
-| `tests/Tests.OBD.Adapter.Capabilities.pas` | ~110 | 6 assertions on registry + JSON loader + synonyms. |
-| `tests/Tests.OBD.Adapter.Detection.pas` | ~210 | 7 assertions: ELM327 v1.5 clone, ELM327 v2.3 genuine, OBDLink MX, STN1110, six-phase progress, info-line regex, nil-sender. |
-| `tests/Tests.OBD.Adapter.pas` | ~140 | 7 assertions on lifecycle, defaults, EOBDNotConnected gates, EOBDUnsupported on ST without capability, FreeNotification. |
+| `tests/Tests.ERD.Adapter.Commands.pas` | ~120 | 12 assertions on FormatCommand + catalogue. |
+| `tests/Tests.ERD.Adapter.Capabilities.pas` | ~110 | 6 assertions on registry + JSON loader + synonyms. |
+| `tests/Tests.ERD.Adapter.Detection.pas` | ~210 | 7 assertions: ELM327 v1.5 clone, ELM327 v2.3 genuine, OBDLink MX, STN1110, six-phase progress, info-line regex, nil-sender. |
+| `tests/Tests.ERD.Adapter.pas` | ~140 | 7 assertions on lifecycle, defaults, EOBDNotConnected gates, EOBDUnsupported on ST without capability, FreeNotification. |
 | `samples/02-DetectAdapter/DetectAdapter.dpr` | ~145 | Wi-Fi connect → DetectAsync → print identity + capabilities. |
 | **Total tests + sample** | **~725** | |
 
@@ -455,11 +455,11 @@ under `catalogs/adapter/`.
 
 | v1 file | Reason | Where it lands |
 |---|---|---|
-| `OBD.Adapter.ELM327.pas` (per-chip subclass) | v2 collapses ELM327 + OBDLink into a single `TOBDAdapter` parameterised by `Family` enum + capability set. | n/a |
-| `OBD.Adapter.OBDLink.pas` (separate class) | Same. | n/a |
-| `OBD.Adapter.PassThrough.J2534v2.pas` (188 lines) | J2534 PassThru API is a separate concern — opens via the J2534 DLL rather than AT/ST commands. Belongs as a future J2534 transport, not on `TOBDAdapter` itself. | Post-1.0 |
-| `OBD.Adapter.Enumerator.pas` (911 lines) | Adapter / port enumeration is a design-time concern (property editor in Phase 11) rather than runtime. | Phase 11 |
-| `OBD.Adapter.Constants.pas` | Magic numbers inlined where used with named comments; the central constants unit was removed in v2 in favour of named constants in each file. | n/a |
+| `ERD.Adapter.ELM327.pas` (per-chip subclass) | v2 collapses ELM327 + OBDLink into a single `TOBDAdapter` parameterised by `Family` enum + capability set. | n/a |
+| `ERD.Adapter.OBDLink.pas` (separate class) | Same. | n/a |
+| `ERD.Adapter.PassThrough.J2534v2.pas` (188 lines) | J2534 PassThru API is a separate concern — opens via the J2534 DLL rather than AT/ST commands. Belongs as a future J2534 transport, not on `TOBDAdapter` itself. | Post-1.0 |
+| `ERD.Adapter.Enumerator.pas` (911 lines) | Adapter / port enumeration is a design-time concern (property editor in Phase 11) rather than runtime. | Phase 11 |
+| `ERD.Adapter.Constants.pas` | Magic numbers inlined where used with named comments; the central constants unit was removed in v2 in favour of named constants in each file. | n/a |
 
 ### Honest review — what a reviewer should double-check
 
@@ -491,7 +491,7 @@ under `catalogs/adapter/`.
    intentional but worth flagging if you change the error-keyword
    list.
 5. **Init-sequences JSON is file-shipped but not yet loaded.** The
-   built-in sequences are baked into `OBD.Adapter.Init`. The JSON
+   built-in sequences are baked into `ERD.Adapter.Init`. The JSON
    file is shipped so users can drop in a replacement, but
    `TOBDAdapterInitializer` does not yet have `LoadFromJSON`. This
    is a deliberate Phase-3-scope cap; runtime override lands when
@@ -550,19 +550,19 @@ a subphase boundary as a scaffold. 4a is the first.
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `OBD.Protocol.Types.pas` | ~250 | Application-protocol enum, frame kind enum, `TOBDFrame`, `TOBDRequest`, `TOBDResponse`, event signatures, `EOBDProtocolErr`, `BytesToHex` / `HexToBytes` helpers, request/response factory functions. |
-| `OBD.Protocol.ISO15765.pas` | ~245 | Full ISO-TP encoder + decoder + reassembler. SF / FF / CF / FC encoding; multi-frame reassembler with sequence-error abort. `ClassifyFrame` for inbound classification. OBD-II broadcast / response ID constants. |
-| `OBD.Protocol.UDS.pas` | ~200 | UDS service-ID constants (SID 0x10..0x87), common NRC constants, encoder, decoder with `0x7F sid nrc` detection and catalogue-resolved NRC text, `ExpectedPositiveResponse` (+0x40). |
-| `OBD.Protocol.KWP2000.pas` | ~120 | KWP2000 service-ID constants (SID 0x10..0x3E), encoder; decode delegates to UDS (response shapes are identical). |
-| `OBD.Protocol.ISO9141.pas` | ~110 | 3-byte header (FMT 0x68 / TGT / SRC), modulo-256 checksum, full encode. |
-| `OBD.Protocol.J1850.pas` | ~95 | 3-byte header, CRC-8 (poly 0x1D, init 0xFF, post-XOR 0xFF), encode. |
-| `OBD.Protocol.J1939.pas` | ~150 | 29-bit CAN ID encode/decode (priority/EDP/DP/PF/PS/SA), PGN computation, PDU1 vs PDU2 detection, full DM1..DM32 PGN catalogue, `IsDMPGN` predicate. |
+| `ERD.Protocol.Types.pas` | ~250 | Application-protocol enum, frame kind enum, `TOBDFrame`, `TOBDRequest`, `TOBDResponse`, event signatures, `EOBDProtocolErr`, `BytesToHex` / `HexToBytes` helpers, request/response factory functions. |
+| `ERD.Protocol.ISO15765.pas` | ~245 | Full ISO-TP encoder + decoder + reassembler. SF / FF / CF / FC encoding; multi-frame reassembler with sequence-error abort. `ClassifyFrame` for inbound classification. OBD-II broadcast / response ID constants. |
+| `ERD.Protocol.UDS.pas` | ~200 | UDS service-ID constants (SID 0x10..0x87), common NRC constants, encoder, decoder with `0x7F sid nrc` detection and catalogue-resolved NRC text, `ExpectedPositiveResponse` (+0x40). |
+| `ERD.Protocol.KWP2000.pas` | ~120 | KWP2000 service-ID constants (SID 0x10..0x3E), encoder; decode delegates to UDS (response shapes are identical). |
+| `ERD.Protocol.ISO9141.pas` | ~110 | 3-byte header (FMT 0x68 / TGT / SRC), modulo-256 checksum, full encode. |
+| `ERD.Protocol.J1850.pas` | ~95 | 3-byte header, CRC-8 (poly 0x1D, init 0xFF, post-XOR 0xFF), encode. |
+| `ERD.Protocol.J1939.pas` | ~150 | 29-bit CAN ID encode/decode (priority/EDP/DP/PF/PS/SA), PGN computation, PDU1 vs PDU2 detection, full selected DM1..DM31 PGN catalogue, `IsDMPGN` predicate. |
 | **Total runtime** | **~1,170** | |
-| `Tests.OBD.Protocol.Types.pas` | ~110 | 7 assertions: hex round-trip, whitespace tolerance, case insensitivity, defaults. |
-| `Tests.OBD.Protocol.ISO15765.pas` | ~165 | 10 assertions: encode SF/FF/CF/FC, overflow guards, reassembly round-trip (single + multi-frame), sequence-error abort, classify. |
-| `Tests.OBD.Protocol.UDS.pas` | ~145 | 8 assertions: encode 22 F1 90, zero-SID raise, positive decode, negative decode with known NRC, negative decode with unknown NRC (synthetic text), expected positive response, empty input, noisy hex. |
-| `Tests.OBD.Protocol.J1939.pas` | ~85 | 6 assertions: DM1 broadcast decode, PDU1 request decode, encode/decode round-trip, PDU1 boundary, IsDMPGN coverage. |
-| `Tests.OBD.Protocol.Legacy.pas` | ~135 | 8 assertions across ISO 9141 (header / checksum / encode), J1850 (CRC8 / encode), KWP2000 (encode / zero-SID / delegated decode). |
+| `Tests.ERD.Protocol.Types.pas` | ~110 | 7 assertions: hex round-trip, whitespace tolerance, case insensitivity, defaults. |
+| `Tests.ERD.Protocol.ISO15765.pas` | ~165 | 10 assertions: encode SF/FF/CF/FC, overflow guards, reassembly round-trip (single + multi-frame), sequence-error abort, classify. |
+| `Tests.ERD.Protocol.UDS.pas` | ~145 | 8 assertions: encode 22 F1 90, zero-SID raise, positive decode, negative decode with known NRC, negative decode with unknown NRC (synthetic text), expected positive response, empty input, noisy hex. |
+| `Tests.ERD.Protocol.J1939.pas` | ~85 | 6 assertions: DM1 broadcast decode, PDU1 request decode, encode/decode round-trip, PDU1 boundary, IsDMPGN coverage. |
+| `Tests.ERD.Protocol.Legacy.pas` | ~135 | 8 assertions across ISO 9141 (header / checksum / encode), J1850 (CRC8 / encode), KWP2000 (encode / zero-SID / delegated decode). |
 | **Total tests** | **~640** | |
 
 **39 new assertions across the protocol codec layer.**
@@ -633,7 +633,7 @@ These belong in later subphases per PLAN §Phase 4 split:
 - [x] No `Sleep` busy-loops, no `Application.ProcessMessages`.
 - [x] All codecs are deterministic / side-effect-free (the reassembler's
       state is documented).
-- [x] All catalogue lookups go through `OBD.Catalog`.
+- [x] All catalogue lookups go through `ERD.Catalog`.
 
 ---
 
@@ -645,9 +645,9 @@ These belong in later subphases per PLAN §Phase 4 split:
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `OBD.Protocol.pas` | ~370 | `TOBDProtocol` component (TComponent) bound to `TOBDAdapter`; `Mode` (auto / manual), `Manual` (TOBDProtocolID), `Application` (TOBDApplicationProtocol), `DefaultTimeoutMs` published; `Send` / `SendAsync` / `Request` / `RequestAsync` per the dual-method rule; `OnFrame` / `OnResponse` / `OnNRC` / `OnError` / `OnProgress` events on the main thread; FreeNotification clears `Adapter` when bound adapter is freed. `MakeRequest` factory helper. |
+| `ERD.Protocol.pas` | ~370 | `TOBDProtocol` component (TComponent) bound to `TOBDAdapter`; `Mode` (auto / manual), `Manual` (TOBDProtocolID), `Application` (TOBDApplicationProtocol), `DefaultTimeoutMs` published; `Send` / `SendAsync` / `Request` / `RequestAsync` per the dual-method rule; `OnFrame` / `OnResponse` / `OnNRC` / `OnError` / `OnProgress` events on the main thread; FreeNotification clears `Adapter` when bound adapter is freed. `MakeRequest` factory helper. |
 | Adapter follow-up | small | `TOBDAdapter.MaxIsoTpFrameBytes` exposed (Phase 3 follow-up #4 closed); populated from the capability registry on `Detect`. |
-| `Tests.OBD.Protocol.pas` | ~120 | 6 lifecycle assertions: defaults, Send / Request without adapter raise, FreeNotification, Free is clean, MakeRequest shape. |
+| `Tests.ERD.Protocol.pas` | ~120 | 6 lifecycle assertions: defaults, Send / Request without adapter raise, FreeNotification, Free is clean, MakeRequest shape. |
 | `samples/03-ReadVIN/ReadVIN.dpr` | ~155 | End-to-end Phase 0 → 4b sample: connect → detect → init → request VIN. Wires both adapter and protocol `OnProgress` to a single console printer. |
 
 ### Architecture highlights
@@ -679,7 +679,7 @@ These belong in later subphases per PLAN §Phase 4 split:
 ### Honest review
 
 1. ~~Sample 03-ReadVIN's VIN parser is lenient.~~ **Closed.** New
-   `OBD.Protocol.VIN` ships `TOBDVINValidator.IsValid` (alphabet +
+   `ERD.Protocol.VIN` ships `TOBDVINValidator.IsValid` (alphabet +
    ISO 3779 check-digit at position 9), `Normalize`, `CheckDigit`,
    and `ExtractFromOBDResponse`. Sample 03 now reports both the
    extracted VIN and whether it passed ISO 3779 strict validation.
@@ -730,8 +730,8 @@ the message when they differ (and the response wasn't negative).
 
 | Unit | Lines | Purpose |
 |---|---:|---|
-| `OBD.Protocol.J1939.TP.pas` | ~720 | Full TP / ETP transport: control-byte constants for TP.CM (RTS / CTS / EOMA / BAM / Abort) and ETP.CM (RTS / CTS / DPO / EOMA / Abort), all encoders and the embedded-PGN extractor; `TJ1939AbortReason` enum (13 standard reasons + synthetic host-timeout), `TJ1939SessionState`, `TJ1939Session` record; `TOBDJ1939SessionManager` (concurrent multi-session, RX BAM + RTS-CTS, TX BAM + RTS-CTS, ETP RX + TX, abort flow, timeout sweep) and `TOBDJ1939Transmitter` convenience wrapper. Outbound frames go through a host-supplied `OnFrameSend` callback so the same manager works behind ELM327, J2534 and DoIP transports. |
-| `Tests.OBD.Protocol.J1939.TP.pas` | ~440 | 18 assertions across encoder layouts, BAM round-trip, RTS-CTS round-trip, bad-sequence abort, concurrent independent sessions, peer-abort handling, transmitter BAM emission, transmitter RTS / CTS / EOMA cycle, payload-too-small raise, ETP-broadcast raise. |
+| `ERD.Protocol.J1939.TP.pas` | ~720 | Full TP / ETP transport: control-byte constants for TP.CM (RTS / CTS / EOMA / BAM / Abort) and ETP.CM (RTS / CTS / DPO / EOMA / Abort), all encoders and the embedded-PGN extractor; `TJ1939AbortReason` enum (13 standard reasons + synthetic host-timeout), `TJ1939SessionState`, `TJ1939Session` record; `TOBDJ1939SessionManager` (concurrent multi-session, RX BAM + RTS-CTS, TX BAM + RTS-CTS, ETP RX + TX, abort flow, timeout sweep) and `TOBDJ1939Transmitter` convenience wrapper. Outbound frames go through a host-supplied `OnFrameSend` callback so the same manager works behind ELM327, J2534 and DoIP transports. |
+| `Tests.ERD.Protocol.J1939.TP.pas` | ~440 | 18 assertions across encoder layouts, BAM round-trip, RTS-CTS round-trip, bad-sequence abort, concurrent independent sessions, peer-abort handling, transmitter BAM emission, transmitter RTS / CTS / EOMA cycle, payload-too-small raise, ETP-broadcast raise. |
 
 ### Architecture highlights
 
@@ -770,7 +770,7 @@ the message when they differ (and the response wasn't negative).
 - Real-CAN integration is independent of the manager — it lands
   with the transport-aware DoIP TCP work in 4d for the
   IP-side, and with the side-bus units in 4f for native CAN.
-- The Phase 6 `TOBDJ1939DM` component will own DM1..DM32 framing
+- The Phase 6 `TOBDJ1939DM` component will own selected DM1..DM31 framing
   on top of this transport.
 
 ### Honest review
@@ -805,7 +805,7 @@ the message when they differ (and the response wasn't negative).
    defines an entirely different framing (Multi-PG packs
    multiple PGNs into one CAN-FD frame and replaces TP / ETP
    for the long-payload case). Adding CAN-FD support is
-   therefore a separate unit (`OBD.Protocol.J1939.MultiPG`)
+   therefore a separate unit (`ERD.Protocol.J1939.MultiPG`)
    rather than a `MaxFrameBytes` knob on this one. **Deferred
    to a post-1.0 unit; the current TP / ETP code is correct
    for J1939-21 over classic CAN.**
@@ -820,7 +820,7 @@ the message when they differ (and the response wasn't negative).
 | 2 | Timeout granularity | `TimeoutMs` configurable + opt-in `AutoSweepEnabled` background thread |
 | 4 | CAN-FD long-frame (reframed) | Out-of-scope for J1939-21; tracked for a future J1939-22 unit |
 
-New tests in `Tests.OBD.Protocol.J1939.TP`:
+New tests in `Tests.ERD.Protocol.J1939.TP`:
 
 - `InterFramePaceLatency` — measures BAM emission elapsed time
   with `InterFramePaceMs := 30`; expects ≥ 50 ms (two
@@ -860,7 +860,7 @@ addressed:
 | 4 | AT@1 / AT@2 best-effort tolerance | Inline comments explain the swallow-and-continue contract; `IsError` is also checked so a `?` response leaves the field empty (instead of accidentally storing `?` as the description). XMLDoc on `Detect` documents both the swallow and the clone-heuristic interaction. |
 | 5 | Init JSON loader not wired | Implemented; `TOBDAdapter.DoInit` now calls `ResolvedSequence` (overrides + builtins) instead of `BuiltinSequence`. |
 
-New tests added in `Tests.OBD.Adapter.Followups`: charset preservation
+New tests added in `Tests.ERD.Adapter.Followups`: charset preservation
 (0xFE / 0x80 / 0x7F / 0x00), echo stripping with whitespace and CR/LF
 variants, cancel-without-pending no-op timing, SendCommand connection
 guard ordering, JSON override register / resolve / clear-revert /
@@ -873,12 +873,12 @@ malformed / unknown-family skip.
 
 ### Code landed
 
-- `src/Protocol/OBD.Protocol.DoIP.Header.pas` — 8-byte ISO 13400-2
+- `src/Protocol/ERD.Protocol.DoIP.Header.pas` — 8-byte ISO 13400-2
   header (protocol version + inverse + payload-type +
   payload-length), payload-type catalogue, Generic-NACK reasons,
   port constants (TCP 13400, UDP 13400, TLS 3496). Encode /
   Decode / Validate plus a human-readable type-name helper.
-- `src/Protocol/OBD.Protocol.DoIP.Messages.pas` — records and
+- `src/Protocol/ERD.Protocol.DoIP.Messages.pas` — records and
   `TOBDDoIPCodec` for every payload type defined in Table 17:
   routing-activation request / response, vehicle ID request
   (generic / EID / VIN), vehicle announcement, alive check,
@@ -887,12 +887,12 @@ malformed / unknown-family skip.
   routing-activation response codes (Table 23), DM NACK codes
   (Table 39), node types (Table 33) and "further-action-required"
   (Table 19) constants.
-- `src/Protocol/OBD.Protocol.DoIP.Transport.pas` — `IOBDDoIPTransport`
+- `src/Protocol/ERD.Protocol.DoIP.Transport.pas` — `IOBDDoIPTransport`
   contract (Connect / Disconnect / IsConnected / Send / Receive)
   and `TOBDDoIPPlainTransport` that wraps the Phase 2
   `TOBDConnection` Wi-Fi transport for unencrypted DoIP on port
   13400.
-- `src/Protocol/OBD.Protocol.DoIP.TLS.OpenSSL.pas` — drop-in
+- `src/Protocol/ERD.Protocol.DoIP.TLS.OpenSSL.pas` — drop-in
   OpenSSL 3.x plug. Dynamic-loads `libssl-3` / `libcrypto-3`
   (Win64 + Linux fallback names). Implements the same
   `IOBDDoIPTransport`. TLS 1.2 minimum, TLS 1.3 maximum, SNI,
@@ -902,7 +902,7 @@ malformed / unknown-family skip.
   certificate + key, optional cipher / ciphersuite overrides.
   Hosts ship the OpenSSL DLLs next to their EXE; no compile-time
   dependency.
-- `src/Protocol/OBD.Protocol.DoIP.Client.pas` — non-visual
+- `src/Protocol/ERD.Protocol.DoIP.Client.pas` — non-visual
   `TOBDDoIPClient` component. Bound to any `IOBDDoIPTransport`,
   exposes Connect / Disconnect plus the standard exchanges:
   `ActivateRouting`, `SendDiagnostic`, `AliveCheck`,
@@ -914,12 +914,12 @@ malformed / unknown-family skip.
   dispatches to event handlers and pending-op events.
   Configurable `SourceAddress` / `TargetAddress` /
   `ActivationType` / `DefaultTimeoutMs` / `ActivationTimeoutMs`.
-- `src/Protocol/OBD.Protocol.DoIP.pas` — facade unit that re-
+- `src/Protocol/ERD.Protocol.DoIP.pas` — facade unit that re-
   exports the public types from header / messages / transport /
   client for one-line `uses`. The OpenSSL plug is intentionally
   not re-exported here; hosts that don't ship OpenSSL DLLs are
   not forced to take the dependency.
-- `tests/Tests.OBD.Protocol.DoIP.pas` — DUnitX coverage:
+- `tests/Tests.ERD.Protocol.DoIP.pas` — DUnitX coverage:
   five header tests, eleven message-codec tests, six client-
   lifecycle tests against an in-memory loopback transport that
   simulates a DoIP entity (activation OK / denied, diagnostic
@@ -1090,24 +1090,24 @@ intentional behaviour with documented trade-offs.
 
 ### Code landed
 
-- `src/Protocol/OBD.Protocol.SecOC.AES.pas` — pure-Pascal AES-128
+- `src/Protocol/ERD.Protocol.SecOC.AES.pas` — pure-Pascal AES-128
   single-block encryption per FIPS-197. Encryption-only — CMAC
   never decrypts, so the inverse round logic is not shipped. Byte-
   oriented (no T-tables) — short SecOC PDUs make per-message
   latency irrelevant; clarity wins.
-- `src/Protocol/OBD.Protocol.SecOC.CMAC.pas` — `TOBDCMACAES` with
+- `src/Protocol/ERD.Protocol.SecOC.CMAC.pas` — `TOBDCMACAES` with
   `Compute` (full 128-bit tag) and `ComputeTruncated` (arbitrary
   bit length 1..128). Implements RFC 4493 § 2 verbatim:
   subkey derivation by GF(2^128) shift + Rb constant ($87),
   iterative AES-CBC-MAC, K1 / K2 selection on the last block.
-- `src/Protocol/OBD.Protocol.SecOC.Keys.pas` — `IOBDSecOCKeyProvider`
+- `src/Protocol/ERD.Protocol.SecOC.Keys.pas` — `IOBDSecOCKeyProvider`
   contract + in-memory `TOBDSecOCKeyStore` (TInterfacedObject,
   thread-safe `TDictionary<Word, TOBDSecOCBinding>` under a
   critical section). Per-Data-ID binding carries the 128-bit key,
   the truncated-MAC bit length, and the truncated-FV bit length.
   Hosts that want a TPM / HSM-backed store implement
   `IOBDSecOCKeyProvider` externally.
-- `src/Protocol/OBD.Protocol.SecOC.Freshness.pas` —
+- `src/Protocol/ERD.Protocol.SecOC.Freshness.pas` —
   `IOBDSecOCFreshnessProvider` contract + in-memory
   `TOBDSecOCFreshness`. Per-Data-ID 64-bit TX and RX counters.
   `NextTx` increments and returns; `TryAccept` reconstructs the
@@ -1115,13 +1115,13 @@ intentional behaviour with documented trade-offs.
   greater than the last RX value, and bounds the accepted jump by
   `MaxJump` (default 16). Wraps the truncated counter epoch
   forward when the candidate is ≤ last RX.
-- `src/Protocol/OBD.Protocol.SecOC.pas` — `TOBDSecOCCodec`
+- `src/Protocol/ERD.Protocol.SecOC.pas` — `TOBDSecOCCodec`
   component. `Wrap` produces an Authentic PDU (Original ||
   Truncated FV || Truncated MAC); `Unwrap` parses, accepts the
   freshness, recomputes the MAC over (Data ID-BE || Original ||
   Full FV-BE) and constant-time-compares. New `EOBDSecOCError`
   exception on every failure path.
-- `tests/Tests.OBD.Protocol.SecOC.pas` — five fixtures, twenty-one
+- `tests/Tests.ERD.Protocol.SecOC.pas` — five fixtures, twenty-one
   tests:
   - **AES**: FIPS-197 Appendix B known answer + expanded-key
     round-trip.
@@ -1264,7 +1264,7 @@ deferrals as documented above.
 
 ### Code landed
 
-- `src/Protocol/OBD.Protocol.LIN.Frame.pas` — LIN frame
+- `src/Protocol/ERD.Protocol.LIN.Frame.pas` — LIN frame
   primitives. Protected Identifier (6-bit ID + 2 parity bits per
   LIN 2.2A § 2.3), classic and enhanced 8-bit one's-complement
   checksums, frame encoder / decoder over the data portion of the
@@ -1272,7 +1272,7 @@ deferrals as documented above.
   and not produced here. Default-checksum selector follows the
   LIN 2.2A § 2.8.4 rule (classic for diagnostic IDs 0x3C / 0x3D,
   enhanced for everything else).
-- `src/Protocol/OBD.Protocol.LIN.LDF.pas` — LIN Description File
+- `src/Protocol/ERD.Protocol.LIN.LDF.pas` — LIN Description File
   parser. Tokenizer (line-tracked, comment-aware) + recursive
   descent over the structural sections (`Nodes`, `Signals`,
   `Frames`, `Schedule_tables`). Header values (protocol version,
@@ -1281,7 +1281,7 @@ deferrals as documented above.
   `LIN_speed`. Schedule slot delays are stored as integer
   microseconds. Unknown sections are skipped cleanly so future
   spec additions do not break parsing.
-- `src/Protocol/OBD.Protocol.FlexRay.Frame.pas` — FlexRay frame
+- `src/Protocol/ERD.Protocol.FlexRay.Frame.pas` — FlexRay frame
   primitives per ISO 17458-1 / FlexRay 2.1A. 5-byte header
   (reserved + 4 indicator bits + 11-bit Frame ID + 7-bit payload
   length + 11-bit header CRC + 6-bit cycle count). Header
@@ -1290,26 +1290,26 @@ deferrals as documented above.
   `FlexRayEncodeFrame` compute the CRCs when the corresponding
   fields are zero on input; the decoders verify them and return
   False on mismatch.
-- `src/Protocol/OBD.Protocol.MOST.Control.pas` — MOST control-
+- `src/Protocol/ERD.Protocol.MOST.Control.pas` — MOST control-
   message frame: 16-bit source/destination addresses, 8-bit
   FBlock ID + Inst ID, 12-bit Fkt ID + 4-bit OPType, 4-bit
   Tel ID + 4-bit Tel Len, variable data. Common FBlock and
   OPType constants from the MOST Cooperation function-block
   catalog. Speed selector (`msMOST25` / `msMOST50` / `msMOST150`)
   controls the data-length ceiling.
-- `tests/Tests.OBD.Protocol.LIN.pas` — eight LIN frame tests +
+- `tests/Tests.ERD.Protocol.LIN.pas` — eight LIN frame tests +
   four LDF parser tests. PID Table 2.3 vectors, full
   round-trip across all 64 IDs, parity-flip rejection, classic
   + enhanced checksum vectors, default-kind selection,
   encode/decode round-trip, checksum tamper detection. LDF tests
   cover minimal cluster, schedule-delay micros, unknown-section
   skip, comma-separated slave list.
-- `tests/Tests.OBD.Protocol.FlexRay.pas` — seven tests covering
+- `tests/Tests.ERD.Protocol.FlexRay.pas` — seven tests covering
   header round-trip, deterministic header CRC fitting in 11 bits,
   identifier bit-flip rejection, full-frame round-trip, payload
   bit-flip rejection, invalid Frame ID rejection, cycle-count
   overflow rejection.
-- `tests/Tests.OBD.Protocol.MOST.pas` — five tests covering
+- `tests/Tests.ERD.Protocol.MOST.pas` — five tests covering
   control-message round-trip, too-short buffer rejection,
   oversized FktID rejection, MOST25 data ceiling, MOST50 longer
   data acceptance.
@@ -1425,13 +1425,13 @@ or out-of-scope for diagnostics).
 
 ### Code landed
 
-- `src/DesignTime/OBD.Design.Registration.pas` — registered every
+- `src/DesignTime/ERD.Design.Registration.pas` — registered every
   v1 component on the **OBD** palette tab: `TOBDConnection`
   (Phase 2), `TOBDAdapter` (Phase 3), `TOBDProtocol` (Phase 4b),
   `TOBDDoIPClient` (Phase 4d), `TOBDSecOCCodec` (Phase 4e). The
   design-time package (`packages/DelphiOBD_DT.dpk`) already
   pulled this unit in.
-- `tests/Tests.OBD.Protocol.Integration.pas` — cross-cutting
+- `tests/Tests.ERD.Protocol.Integration.pas` — cross-cutting
   integration coverage:
   - `UDSOverSecOCOverDoIP` exercises the full forward + reverse
     chain: build a UDS RDBI request, wrap with SecOC, encapsulate
@@ -1569,7 +1569,7 @@ TOBDFreezeFrame, TOBDDTCs, TOBDVIN) is the next milestone.
 
 ### Code landed
 
-- `src/Service/OBD.Service.LiveData.pas` — `TOBDLiveData`. Reads
+- `src/Service/ERD.Service.LiveData.pas` — `TOBDLiveData`. Reads
   OBD-II Mode 01 PIDs synchronously and asynchronously, walks
   the support-bitmap PIDs (0x00 / 0x20 / 0x40 / 0x60 / 0x80 /
   0xA0 / 0xC0 / 0xE0) into a sorted set of supported PIDs, and
@@ -1580,28 +1580,28 @@ TOBDFreezeFrame, TOBDDTCs, TOBDVIN) is the next milestone.
   engine load, fuel level / pressure, fuel rate, control-module
   voltage, distance with MIL on, run time since engine start,
   barometric pressure, calculated load).
-- `src/Service/OBD.Service.DTCs.pas` — `TOBDDTCs`. Reads
+- `src/Service/ERD.Service.DTCs.pas` — `TOBDDTCs`. Reads
   confirmed (Mode 03), pending (Mode 07), permanent (Mode 0A)
   and UDS Service 0x19 sub-function 0x02 DTCs. Decodes the
   raw 2-byte codes to SAE J2012 string form (`"P0301"`,
   `"C0123"`, `"B1234"`, `"U0073"`). Resolves descriptions via
-  the `OBD.Catalog` DTC table when one is loaded. Includes
+  the `ERD.Catalog` DTC table when one is loaded. Includes
   `Clear` (Mode 04). Tolerates the optional leading-count byte
   some controllers prepend (parity-based detection).
-- `src/Service/OBD.Service.VIN.pas` — `TOBDVIN`. Two read
+- `src/Service/ERD.Service.VIN.pas` — `TOBDVIN`. Two read
   paths: OBD-II Service 09 PID 02 (legacy) and UDS Service 22
   DID 0xF190. Validates the result against the Phase 4b
   `TOBDVINValidator` (ISO 3779 check digit) and returns
   `Valid` plus `RawVIN`.
-- `src/Service/OBD.Service.FreezeFrame.pas` — `TOBDFreezeFrame`.
+- `src/Service/ERD.Service.FreezeFrame.pas` — `TOBDFreezeFrame`.
   Reads Mode 02 PIDs against a configurable frame index (0 =
   most recent stored snapshot). Mirrors `TOBDLiveData`'s
   request shape but with the index byte appended.
-- `tests/Tests.OBD.Service.pas` — two fixtures: built-in
+- `tests/Tests.ERD.Service.pas` — two fixtures: built-in
   decoder formula coverage (RPM, speed, coolant offset, engine
   load) and J2012 decoder coverage across all four DTC family
   letters plus the `P0000` zero-sentinel.
-- `src/DesignTime/OBD.Design.Registration.pas` — registers the
+- `src/DesignTime/ERD.Design.Registration.pas` — registers the
   four new components on a new **OBD Services** palette tab,
   separating them from the lower-level building blocks on
   **OBD**.
@@ -1729,13 +1729,13 @@ hardware loop. All five flags are now closed:
 
 | # | Flag | Resolution |
 |---|---|---|
-| 1 | Built-in PID decoder dictionary (hand-coded `case`) | **Closed.** New `OBD.Service.Catalog` unit loads the existing `catalogs/obd2-pids.json` shape (`dids` array with nested `decoder.kind` / `scale` / `offset` / `unit`). `EvaluatePIDDecoder` covers `uint8` / `int8` / `uint16_be` / `int16_be` / `uint32_be`. `TOBDLiveData.DoRead` queries the catalogue first and falls back to the hand-coded dictionary so a host that has not loaded any catalogue still gets the J1979 classics. |
-| 4 | DTC description catalogue | **Closed.** Same unit handles the existing `catalogs/dtc-*.json` shape (`dtcs` array with `code` / `description` / `severity`). Case-insensitive lookup. `TOBDDTCs.ResolveDtcText` consults the JSON catalogue first, then the legacy `OBD.Catalog` v1 schema (now correctly using `ckOBD2DTC`, fixing a `ckDTC` typo from the original Phase 5 commit). |
+| 1 | Built-in PID decoder dictionary (hand-coded `case`) | **Closed.** New `ERD.Service.Catalog` unit loads the existing `catalogs/obd2-pids.json` shape (`dids` array with nested `decoder.kind` / `scale` / `offset` / `unit`). `EvaluatePIDDecoder` covers `uint8` / `int8` / `uint16_be` / `int16_be` / `uint32_be`. `TOBDLiveData.DoRead` queries the catalogue first and falls back to the hand-coded dictionary so a host that has not loaded any catalogue still gets the J1979 classics. |
+| 4 | DTC description catalogue | **Closed.** Same unit handles the existing `catalogs/dtc-*.json` shape (`dtcs` array with `code` / `description` / `severity`). Case-insensitive lookup. `TOBDDTCs.ResolveDtcText` consults the JSON catalogue first, then the legacy `ERD.Catalog` v1 schema (now correctly using `ckOBD2DTC`, fixing a `ckDTC` typo from the original Phase 5 commit). |
 | 6 | Single-in-flight async discipline | **Closed.** `GuardSingleAsync` / `ReleaseAsync` pattern (mirrored from `TOBDDoIPClient`) applied to `TOBDLiveData.ReadAsync`, `TOBDDTCs.DispatchAsync` (covers all four read variants), `TOBDVIN.ReadAsync`, `TOBDFreezeFrame.ReadAsync`, and the two new components below. Concurrent calls now raise `EOBDConfig` instead of silently serialising. |
 | — | Mode 06 (on-board monitoring) | **Closed.** New `TOBDOnBoardMonitor` component reads MID-keyed test results into a flat `TArray<TOBDMonitorResult>` (TID + ComponentID + UnitAndScale + signed 16-bit Value/Min/Max). Sync + Async + main-thread events. |
 | — | Mode 08 (actuator control) | **Closed with safety gate.** New `TOBDActuator` component honours the original `AutoExecute = False`-by-default discussion: every `Send` raises `EOBDConfig` until the host explicitly flips the gate, and `OnBeforeSend` fires on the main thread with a `Cancel: Boolean` out-parameter so a UI can pop a confirmation dialog. The synchronous and asynchronous send paths share the gate; there is no back-door entry. |
 
-New tests in `Tests.OBD.Service.Catalog`:
+New tests in `Tests.ERD.Service.Catalog`:
 
 - `LoadsPIDFromJSON` / `LoadsDTCFromJSON` — round-trip a temp
   JSON file through the catalogue.
@@ -1763,7 +1763,7 @@ Phase 2 and is gated on the rig the user actually owns.
 
 ### Code landed
 
-- `src/Coding/OBD.Coding.SecurityAccess.pas` — `TOBDSecurityAccess`.
+- `src/Coding/ERD.Coding.SecurityAccess.pas` — `TOBDSecurityAccess`.
   ISO 14229-1 § 9.4 SecurityAccess (SID 0x27). Drives the
   request-seed → compute-key → send-key handshake. The seed →
   key transform is OEM-specific so the component does not ship
@@ -1772,16 +1772,16 @@ Phase 2 and is gated on the rig the user actually owns.
   odd, handles the "already unlocked / zero-byte seed" reply
   per § 9.4.5.2, and emits `OnUnlocked` only on positive ACK.
   Sync + Async + Progress.
-- `src/Coding/OBD.Coding.DataIdentifierIO.pas` —
+- `src/Coding/ERD.Coding.DataIdentifierIO.pas` —
   `TOBDDataIdentifierIO`. UDS Read (0x22) / Write (0x2E).
   Reads support multiple DIDs in a single request and split
   the response per DID echo. Writes are gated by
   `AutoExecute = False` (default).
-- `src/Coding/OBD.Coding.RoutineControl.pas` — `TOBDRoutineControl`.
+- `src/Coding/ERD.Coding.RoutineControl.pas` — `TOBDRoutineControl`.
   UDS Service 0x31 with all three sub-functions: `Start`,
   `Stop`, `RequestResults`. Start / Stop are gated by
   `AutoExecute`; results queries are read-only and not gated.
-- `src/Coding/OBD.Coding.Flasher.pas` — `TOBDFlasher`. UDS
+- `src/Coding/ERD.Coding.Flasher.pas` — `TOBDFlasher`. UDS
   download trio: 0x34 RequestDownload (negotiates max block
   length, accounting for the 2-byte SID + BSC overhead), 0x36
   TransferData chunked transfer with BSC counter (1..255 then
@@ -1790,12 +1790,12 @@ Phase 2 and is gated on the rig the user actually owns.
   `Cancel: Boolean` out-parameter for last-ditch UI
   confirmation. `OnProgress` fires per chunk so a host can drive
   a progress bar without polling.
-- `tests/Tests.OBD.Coding.pas` — four fixtures. Safety-gate
+- `tests/Tests.ERD.Coding.pas` — four fixtures. Safety-gate
   rejection on every gated entry-point, even-level rejection on
   `Unlock`, transform-not-configured rejection, empty-DID-list
   rejection on read, empty-image rejection on flash,
   `OnBeforeFlash` cancel honoured.
-- `src/DesignTime/OBD.Design.Registration.pas` — registers the
+- `src/DesignTime/ERD.Design.Registration.pas` — registers the
   four components on a new **OBD Coding** palette tab so a host
   can keep the write-side gear visually separated from the
   read-only service-mode components.
@@ -1908,8 +1908,8 @@ flag items. All six are closed:
 
 | # | Flag | Resolution |
 |---|---|---|
-| 1 | `TOBDUploader` for UDS Service 0x35 | **Closed.** New `OBD.Coding.Uploader` unit mirrors `TOBDFlasher`: 0x35 RequestUpload + 0x36 TransferData (read-side, response carries data) + 0x37 RequestTransferExit. Same NRC 0x78 pending-retry budget and same per-chunk retry budget. Reads are non-destructive so `AutoExecute` is not gated; `OnBeforeUpload` still fires for hosts that want a confirmation flow. |
-| 2 | `TOBDFlashSession` orchestrator | **Closed.** New `OBD.Coding.FlashSession` unit composes the classic UDS reflash choreography into a single `Flash` / `FlashAsync` call: `0x10/02 programmingSession` → `0x27 SecurityAccess` → `0x31/01 erase RID` → flasher → `0x31/01 verify RID` → `0x11/01 hardReset`. Every step is configurable (`SecurityLevel`, `EraseRoutineID`, `VerifyRoutineID`, `ResetAfterFlash`, `SessionAtStart`); setting an `RID` to `0` disables that step. Children are lazily created and inherit `Protocol`, `AutoExecute` and `SeedToKey`. |
+| 1 | `TOBDUploader` for UDS Service 0x35 | **Closed.** New `ERD.Coding.Uploader` unit mirrors `TOBDFlasher`: 0x35 RequestUpload + 0x36 TransferData (read-side, response carries data) + 0x37 RequestTransferExit. Same NRC 0x78 pending-retry budget and same per-chunk retry budget. Reads are non-destructive so `AutoExecute` is not gated; `OnBeforeUpload` still fires for hosts that want a confirmation flow. |
+| 2 | `TOBDFlashSession` orchestrator | **Closed.** New `ERD.Coding.FlashSession` unit composes the classic UDS reflash choreography into a single `Flash` / `FlashAsync` call: `0x10/02 programmingSession` → `0x27 SecurityAccess` → `0x31/01 erase RID` → flasher → `0x31/01 verify RID` → `0x11/01 hardReset`. Every step is configurable (`SecurityLevel`, `EraseRoutineID`, `VerifyRoutineID`, `ResetAfterFlash`, `SessionAtStart`); setting an `RID` to `0` disables that step. Children are lazily created and inherit `Protocol`, `AutoExecute` and `SeedToKey`. |
 | 3 | TransferData NRC 0x78 (responsePending) handling | **Closed.** New `RequestWithPending` helper in both `TOBDFlasher` and `TOBDUploader` retransmits the same request on NRC 0x78 up to `MaxPendingRetries` (default 10), with `PendingDelayMs` (default 50 ms) between attempts. Applied uniformly to RequestDownload, RequestUpload, every TransferData chunk, and RequestTransferExit. |
 | 4 | Per-chunk retry budget on TransferData | **Closed.** New `MaxChunkRetries` (default 3) and `ChunkRetryDelayMs` (default 20 ms) properties on both flasher and uploader. A non-pending negative on a chunk re-sends the same BSC up to the budget, with each retry surfaced through `OnProgress` so a UI can display "BSC 12 retry 2/3 (transferDataSuspended)". |
 | 5 | Strict-mode multi-DID read | **Closed.** New `TOBDDataIdentifierIO.ReadStrict(ADIDs, ALengths)` overload. The host declares the data length per DID; the response is split deterministically by length (no heuristic next-DID-echo scan). Length-array size mismatch raises `EOBDConfig` eagerly. |
@@ -1946,7 +1946,7 @@ Hardware-loop verification stays the only standing deferral.
 
 ### Code landed
 
-- `src/Calibration/OBD.Calibration.A2L.pas` — `TOBDA2L`. ASAM
+- `src/Calibration/ERD.Calibration.A2L.pas` — `TOBDA2L`. ASAM
   MCD-2 MC parser covering MEASUREMENT, CHARACTERISTIC and
   COMPU_METHOD blocks (the load-bearing types for measurement
   and calibration). Tokenizer with line-tracked errors;
@@ -1954,36 +1954,36 @@ Hardware-loop verification stays the only standing deferral.
   `GROUP`, …) are skipped cleanly with brace-balanced
   `SkipBlock`. `Convert` evaluates `IDENTICAL` / `LINEAR` /
   `RAT_FUNC` formulas.
-- `src/Calibration/OBD.Calibration.XCP.Transport.pas` —
+- `src/Calibration/ERD.Calibration.XCP.Transport.pas` —
   `IOBDXCPTransport` contract. The XCP master never touches
   CAN / Ethernet / FlexRay directly; hosts plug their driver
   by implementing the four-method interface
   (Connect / Disconnect / SendPacket / ReceivePacket).
-- `src/Calibration/OBD.Calibration.XCP.pas` — `TOBDXCP`. ASAM
+- `src/Calibration/ERD.Calibration.XCP.pas` — `TOBDXCP`. ASAM
   MCD-1 XCP master. Standard set: CONNECT, DISCONNECT,
   GET_STATUS, GET_ID, GET_SEED / UNLOCK, SET_MTA, UPLOAD,
   SHORT_UPLOAD, DOWNLOAD, SHORT_DOWNLOAD, SET_CAL_PAGE,
   GET_CAL_PAGE, START_STOP_DAQ_LIST, START_STOP_SYNCH.
   Honours the slave-declared byte order on every address
   field. Surfaces ERR responses as `EOBDProtocolErr`.
-- `src/Calibration/OBD.Calibration.CCP.pas` — `TOBDCCP`. ASAP1a
+- `src/Calibration/ERD.Calibration.CCP.pas` — `TOBDCCP`. ASAP1a
   CCP v2.1 master. CCP rides on CAN only and uses an 8-byte
   packet with PID + counter + 6 parameter bytes. Covers
   CONNECT, DISCONNECT, GET_CCP_VERSION, EXCHANGE_ID,
   GET_SEED / UNLOCK, SET_MTA, DNLOAD, UPLOAD, SELECT_CAL_PAGE,
   START_STOP. Big-endian addresses per spec.
-- `src/Speciality/OBD.Speciality.IsoBus.pas` — `TOBDIsoBus`.
+- `src/Speciality/ERD.Speciality.IsoBus.pas` — `TOBDIsoBus`.
   ISO 11783-5 base-protocol surface. 64-bit NAME encode /
   decode (LSB-first per spec), priority comparison, address-
   claim handler with conflict resolution, registry of claimed
   addresses, PGN-request frame builder. Address-claim conflicts
   go through `OnAddressLost` so the host knows when to re-claim.
-- `src/Speciality/OBD.Speciality.Tachograph.pas` —
+- `src/Speciality/ERD.Speciality.Tachograph.pas` —
   `TOBDTachograph`. EU 2016/799 Annex IC record decoder.
   TimeReal ↔ `TDateTime` conversion (1970-01-01 UTC epoch),
   Activity, Event and Fault records, ASCII string field
   unpadding. Stateless — every method is `class function`.
-- `tests/Tests.OBD.Calibration.pas` — five fixtures covering
+- `tests/Tests.ERD.Calibration.pas` — five fixtures covering
   the A2L parser (MEASUREMENT / CHARACTERISTIC / COMPU_METHOD,
   formula vectors, unknown-block skipping), the XCP master
   through a queue-backed stub transport (CONNECT response
@@ -2114,16 +2114,16 @@ closed:
 
 | # | Flag | Resolution |
 |---|---|---|
-| 1 | Sample `IOBDXCPTransport` | **Closed.** New `OBD.Calibration.XCP.Loopback` unit ships `TOBDXCPLoopbackTransport`: an in-process implementation backed by a thread-safe queue + event. Useful both as a reference for hosts wiring real CAN drivers and as test infrastructure. The new test fixture exercises every closed-flag case through it. |
+| 1 | Sample `IOBDXCPTransport` | **Closed.** New `ERD.Calibration.XCP.Loopback` unit ships `TOBDXCPLoopbackTransport`: an in-process implementation backed by a thread-safe queue + event. Useful both as a reference for hosts wiring real CAN drivers and as test infrastructure. The new test fixture exercises every closed-flag case through it. |
 | 2 | Full XCP DAQ programming | **Closed.** `TOBDXCP` gained `FreeDAQ`, `AllocDAQ`, `AllocODT`, `AllocODTEntry`, `SetDAQPtr`, `WriteDAQ`, `SetDAQListMode`. Every multi-byte field honours the slave-declared byte order via the existing `BigEndian` flag. |
 | 3 | XCP ProgramFlash (PGM) | **Closed.** `TOBDXCP` gained `ProgramStart`, `ProgramClear`, `Program_`, `ProgramReset`, `ProgramVerify`. Address / length encoding mirrors UPLOAD / DOWNLOAD and follows the slave byte order. `ProgramReset` swallows the optional response per spec. |
 | 4 | CCP DAQ programming | **Closed.** `TOBDCCP` gained `GetDAQSize`, `SetDAQPtr`, `WriteDAQ`, `StartStopAll`. Big-endian addresses per ASAP1a. |
 | 5 | A2L `MOD_COMMON` / `MOD_PAR` | **Closed.** New `TOBDA2LModuleCommon` and `TOBDA2LModulePar` records on the cluster; the parser fills `Common.ByteOrder` / `Deposit` / `AlignmentByte..Float64` and `Par.EpkValue` / `EpkAddress` / `Customer` / `Version`. `HasCommon` / `HasPar` flags signal presence so a host doesn't confuse a missing block with all-zero defaults. |
 | 6 | A2L `COMPU_VTAB` / table interpolation | **Closed.** New `TOBDA2LCompuVTabEntry` + `TOBDA2LCompuTabEntry` records, parser branches for `COMPU_VTAB` / `COMPU_VTAB_RANGE` / `COMPU_TAB`, and a new `TOBDA2L.ConvertVerbal` lookup. `Convert` now interpolates `cmTabIntp` and does nearest-lower lookup for `cmTabNointp`, with clamping outside the table. |
 | 7 | IsoBus VT, TC, FS, GNSS | **Closed.** Four new units shipping the framing helpers every IsoBus host needs. `TOBDIsoBusVT`: Get_Memory, Get_Versions, Load/Store/Delete_Version, End_Of_Object_Pool, Audio_Signal, Change_Active_Mask + Soft_Key_Activation and VT_Status decoders. `TOBDIsoBusTC`: Status decoder, Value / SetValue / SetValue / RequestVersion / RequestDDOP / ProcessDataAck builders + a Value round-trip decoder. `TOBDIsoBusFS`: Get_Properties, Open / Read / Write / Seek / Close, GetCWD / ChangeCWD. `TOBDIsoBusGNSS`: NMEA 2000 decoders for PGN 129025 (Position Rapid), PGN 129026 (COG/SOG), PGN 129029 (full GNSS Position). |
-| 8 | Tachograph CalibrationRecord + PC/SC | **Closed.** `TOBDTachograph.DecodeCalibration` covers the Gen-1 fixed-offset CalibrationRecord per Annex IB §2.39 (purpose, workshop name, card number, date, VIN, w / k constants, tyre size, authorised speed). New `OBD.Speciality.Tachograph.PCSC` unit dynamic-loads `winscard.dll` (Win) / `libpcsclite.so.1` (Posix) and wraps `SCardEstablishContext` / `SCardListReaders` / `SCardConnect` / `SCardTransmit` / `SCardDisconnect` with proper resource lifetime. Same dynamic-load pattern as the Phase 4d OpenSSL plug — no compile-time dependency. |
+| 8 | Tachograph CalibrationRecord + PC/SC | **Closed.** `TOBDTachograph.DecodeCalibration` covers the Gen-1 fixed-offset CalibrationRecord per Annex IB §2.39 (purpose, workshop name, card number, date, VIN, w / k constants, tyre size, authorised speed). New `ERD.Speciality.Tachograph.PCSC` unit dynamic-loads `winscard.dll` (Win) / `libpcsclite.so.1` (Posix) and wraps `SCardEstablishContext` / `SCardListReaders` / `SCardConnect` / `SCardTransmit` / `SCardDisconnect` with proper resource lifetime. Same dynamic-load pattern as the Phase 4d OpenSSL plug — no compile-time dependency. |
 
-New `Tests.OBD.Calibration.Followups` fixture: 22 tests across
+New `Tests.ERD.Calibration.Followups` fixture: 22 tests across
 five fixtures covering the new A2L blocks, XCP DAQ + PGM
 encoding (using the loopback transport), CCP DAQ encoding,
 IsoBus VT / TC / FS / GNSS framing, and a 147-byte Tachograph
@@ -2156,56 +2156,56 @@ loop test, per the standing convention.
 ### Code landed
 
 **Generic write surface**
-- `src/Coding/OBD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory`.
+- `src/Coding/ERD.UDS.WriteMemory.pas` — `TOBDUDSWriteMemory`.
   ISO 14229-1 §11.7 WriteMemoryByAddress (SID 0x3D). Same
   `AutoExecute = False` safety contract as every other write-side
   component; address / length encoder lifted from the flasher.
-- `src/Coding/OBD.KWP.WriteID.pas` — `TOBDKWPWriteID`. KWP2000
+- `src/Coding/ERD.KWP.WriteID.pas` — `TOBDKWPWriteID`. KWP2000
   WriteDataByLocalIdentifier (SID 0x3B) — the older European-car
   K-line write counterpart of UDS 0x2E.
-- `src/Coding/OBD.Coding.Diff.pas` — `TOBDCodingDiff`. Byte-level
+- `src/Coding/ERD.Coding.Diff.pas` — `TOBDCodingDiff`. Byte-level
   diff / apply / revert. Catches length mismatches, before-byte
   mismatches, supports growing and shrinking buffers, ascending-
   offset Sort helper.
-- `src/Coding/OBD.Coding.AuditLog.pas` — `TOBDCodingAuditLog`.
+- `src/Coding/ERD.Coding.AuditLog.pas` — `TOBDCodingAuditLog`.
   Append-only JSONL with optional HMAC-SHA-CMAC chain (each line's
   HMAC covers `prev_hmac || serialised_line_without_hmac`). Built
   on the Phase 4e CMAC primitive — no new crypto. `Verify` walks
   the chain and returns the line index of the first tamper.
-- `src/Coding/OBD.Coding.Session.pas` — `TOBDCodingSession`.
+- `src/Coding/ERD.Coding.Session.pas` — `TOBDCodingSession`.
   Hardware-recoverable orchestrator: snapshot → write → verify →
   rollback-on-fail. Snapshots **every** step before any write so
   a partial-write failure can roll the whole batch back. Wired
   into the audit log when one is attached.
 
 **Per-OEM helpers**
-- `OBD.Coding.VAG` — long-coding parse / format / GetBit / SetBit
+- `ERD.Coding.VAG` — long-coding parse / format / GetBit / SetBit
   / GetByte / SetByte; adaptation channel encode / decode.
-- `OBD.Coding.BMW` — CAFD / NCS TLV walk, FindEntry, WriteValue,
+- `ERD.Coding.BMW` — CAFD / NCS TLV walk, FindEntry, WriteValue,
   ReadBit / SetBit on multi-byte values, ParseVehicleOrder for
   S-code lists.
-- `OBD.Coding.Ford` — AsBuilt section parse / format, two's-
+- `ERD.Coding.Ford` — AsBuilt section parse / format, two's-
   complement section checksum compute / verify / seal,
   GetByte / SetByte by offset, FindSection by name.
-- `OBD.Coding.HMG` — Hyundai / Kia / Genesis configuration-word
+- `ERD.Coding.HMG` — Hyundai / Kia / Genesis configuration-word
   parse / GetOption / SetOption (1- / 2- / 4-byte values).
-- `OBD.Coding.Honda` — flat-array customisation entries with
+- `ERD.Coding.Honda` — flat-array customisation entries with
   ranged setter for enum-style options.
-- `OBD.Coding.Mercedes` — variant-coding GetBit / SetBit + sub-
+- `ERD.Coding.Mercedes` — variant-coding GetBit / SetBit + sub-
   byte GetField / SetField; SCN (Software Calibration Number)
   decode / encode against a fixed-length ASCII field.
-- `OBD.Coding.Stellantis` — FCA Proxi parameter parse / get / set,
+- `ERD.Coding.Stellantis` — FCA Proxi parameter parse / get / set,
   ID-keyed.
-- `OBD.Coding.Toyota` — customisation menu parse / get / set
+- `ERD.Coding.Toyota` — customisation menu parse / get / set
   (id-width-value records).
-- `OBD.OEM.ComponentProtection.VAG` —
+- `ERD.OEM.ComponentProtection.VAG` —
   `TOBDComponentProtectionVAG`. CP DID catalogue + status decoder
   + challenge-read → authorisation-write flow gated by an
   `AuthFunc` callback the host wires to its Geko / SVM bridge.
   No OEM secrets in the unit.
 
 **Tests**
-- `tests/Tests.OBD.Coding.Phase8.pas` — four fixtures, 21 tests:
+- `tests/Tests.ERD.Coding.Phase8.pas` — four fixtures, 21 tests:
   WriteMemory + KWP WriteID safety gates, diff round-trip / apply
   / revert / mismatch detection, audit-log three-entry round-trip
   / verify-clean / verify-detects-tampering, plus per-OEM
@@ -2216,7 +2216,7 @@ loop test, per the standing convention.
 **Wiring**
 - `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
   added all 15 new units and the test fixture.
-- `src/DesignTime/OBD.Design.Registration.pas` — registered
+- `src/DesignTime/ERD.Design.Registration.pas` — registered
   `TOBDUDSWriteMemory`, `TOBDKWPWriteID`, `TOBDCodingAuditLog`,
   `TOBDCodingSession`, `TOBDComponentProtectionVAG` on the
   **OBD Coding** palette tab.
@@ -2302,13 +2302,13 @@ convention).
 
 | # | Flag | Resolution |
 |---|---|---|
-| 1 | Per-OEM option-name catalogues | **Closed (loader-only).** New `data/schemas/oem-coding-catalog.schema.json` (JSON Schema 2020-12) + `OBD.Coding.OptionCatalog.pas` loader. Schema covers all seven addressing kinds (`byte_bit`, `byte_field`, `byte_range`, `tlv_id`, `config_word`, `asbuilt_section`, `menu_index`) plus optional value-label tables and tag arrays. The loader validates `version`, `vendor`, `module`, every option's `addressing.kind`-specific fields, and per-kind range constraints (bit 0..7, width 1..8, etc). No OEM content shipped — hosts populate from their own ground-truth sources, as you said. |
+| 1 | Per-OEM option-name catalogues | **Closed (loader-only).** New `data/schemas/oem-coding-catalog.schema.json` (JSON Schema 2020-12) + `ERD.Coding.OptionCatalog.pas` loader. Schema covers all seven addressing kinds (`byte_bit`, `byte_field`, `byte_range`, `tlv_id`, `config_word`, `asbuilt_section`, `menu_index`) plus optional value-label tables and tag arrays. The loader validates `version`, `vendor`, `module`, every option's `addressing.kind`-specific fields, and per-kind range constraints (bit 0..7, width 1..8, etc). No OEM content shipped — hosts populate from their own ground-truth sources, as you said. |
 | 2 | `TOBDCodingSession` dry-run mode | **Closed.** New `DryRun: Boolean` property (default `False`). When `True`, snapshot reads still happen (so the audit trail captures the pre-state), but write / verify / rollback skip the wire and emit audit-log entries with `'dry-run'` notes. Hosts get the full audit trail without touching the ECU. |
-| 3 | Run-length-encoded diff | **Closed.** New `OBD.Coding.DiffRLE.pas` ships `TOBDCodingDiffRLE` with run-based change records. Configurable gap budget — `AGap = 0` keeps strict per-run boundaries; raising it merges nearby runs into fewer, larger transfers (useful for flasher chunking). `TransferSize` returns the total post-merge transfer bytes so a host can compare strict-vs-merged encodings before committing to a flash plan. |
+| 3 | Run-length-encoded diff | **Closed.** New `ERD.Coding.DiffRLE.pas` ships `TOBDCodingDiffRLE` with run-based change records. Configurable gap budget — `AGap = 0` keeps strict per-run boundaries; raising it merges nearby runs into fewer, larger transfers (useful for flasher chunking). `TransferSize` returns the total post-merge transfer bytes so a host can compare strict-vs-merged encodings before committing to a flash plan. |
 | 4 | BMW / Mercedes / Stellantis component-protection helpers | **Closed.** Three new units paralleling the VAG variant. Each ships its default DID catalogue (BMW 0xF1B0/B2/B4, Mercedes 0xF1C0/C2/C4, Stellantis 0xF1D0/D2/D4) overridable per ECU, plus the same `AuthFunc` callback contract. All three register on the **OBD Coding** palette tab. No OEM secrets shipped — hosts wire ISTA / DAS-Xentry / SGW token bridges. |
-| 5 | OEM label-file parser (VAG `.lbl`) | **Closed.** New `OBD.Coding.LabelFile.VAG.pas` ships `TOBDLabelFileVAG`. Parses the line-oriented Ross-Tech `.lbl` format: bit-position labels (`byte,bit,description`), bit-range labels (`byte,bit-bit,description`), whole-byte labels (`byte,Bx,description`), adaptation channels (`Adp;channel;description`), inline value tables (`(0=Off,1=On)`), and header / inline comments. BMW CAFD, Ford AsBuilt, Mercedes SCN-XML are vendor-proprietary formats; for those the JSON option catalogue is the supported path. |
+| 5 | OEM label-file parser (VAG `.lbl`) | **Closed.** New `ERD.Coding.LabelFile.VAG.pas` ships `TOBDLabelFileVAG`. Parses the line-oriented Ross-Tech `.lbl` format: bit-position labels (`byte,bit,description`), bit-range labels (`byte,bit-bit,description`), whole-byte labels (`byte,Bx,description`), adaptation channels (`Adp;channel;description`), inline value tables (`(0=Off,1=On)`), and header / inline comments. BMW CAFD, Ford AsBuilt, Mercedes SCN-XML are vendor-proprietary formats; for those the JSON option catalogue is the supported path. |
 
-New tests in `Tests.OBD.Coding.Phase8b`: 22 across 4 fixtures —
+New tests in `Tests.ERD.Coding.Phase8b`: 22 across 4 fixtures —
 catalogue load + schema validation (7 cases), RLE diff
 round-trip + gap merging + reject paths (7), CP safety paths
 across the three new vendors (5), `.lbl` parser (5).
@@ -2353,31 +2353,31 @@ This entry summarises all six.
 ### Code shape
 
 **Transfer & memory (9a)**
-- `OBD.UDS.Transfer` — `TOBDUDSTransfer`. Idle / RequestingDownload /
+- `ERD.UDS.Transfer` — `TOBDUDSTransfer`. Idle / RequestingDownload /
   Transferring / RequestingExit / Completed / Aborted state machine.
   Chunked TransferData with BSC; NRC 0x78 retransmit budget; per-chunk
   retry budget; cooperative `Cancel`; resumable via `Resume(Cursor)`.
-- `OBD.J1939.MemoryAccess` — DM14 / DM15 / DM16 / DM17 / DM18 PGN
+- `ERD.J1939.MemoryAccess` — DM14 / DM15 / DM16 / DM17 / DM18 PGN
   catalogue + framing helpers.
 
 **Pipeline scaffolding (9b)**
-- `OBD.Flash.VoltageGate` — `TOBDVoltageGate`. Background-thread
+- `ERD.Flash.VoltageGate` — `TOBDVoltageGate`. Background-thread
   voltage monitor; `MinimumVoltage` / `PollIntervalMs` /
   `HoldTimeMs` defaults 12.0 V / 200 ms / 1000 ms; latches
   `OnAbort` only after the dip persists for the full hold-time.
   Transient dips do not abort.
-- `OBD.Flash.Checkpoint` — `TOBDFlashCheckpoint`. File-backed JSON
+- `ERD.Flash.Checkpoint` — `TOBDFlashCheckpoint`. File-backed JSON
   checkpoint with image SHA-256 integrity tag; atomic write
   (write-temp + rename). `MatchesImage` refuses to resume against
   a different image.
-- `OBD.Flash.Phases` — `TOBDFlashPhase` enum (preflight / verify-image /
+- `ERD.Flash.Phases` — `TOBDFlashPhase` enum (preflight / verify-image /
   enter-programming / transfer / verify / reset / finalise);
   `TOBDFlashCheckList` orders checks by phase; `TOBDFlashChecks`
   ships built-in helpers (EngineOff, VoltageFloor,
   AmbientTemperature, IgnitionOn).
 
 **Pipeline orchestrator (9c)**
-- `OBD.Flash.Pipeline` — `TOBDFlashPipeline`. Composes every Phase
+- `ERD.Flash.Pipeline` — `TOBDFlashPipeline`. Composes every Phase
   9 building block. AutoExecute defaults False;
   `OnConfirmExecute(var Allow)` fires under `TThread.Synchronize`;
   voltage-gate abort triggers `TOBDUDSTransfer.Cancel`;
@@ -2387,22 +2387,22 @@ This entry summarises all six.
   per PLAN §785.
 
 **Signature verification (9d)**
-- `OBD.Signature` — `IOBDSignatureVerifier` contract +
+- `ERD.Signature` — `IOBDSignatureVerifier` contract +
   `TOBDSignatureRegistry` (first-supporting wins).
-- `OBD.Signature.BCrypt` — Windows CNG. RSA-PSS / RSA-PKCS#1 /
+- `ERD.Signature.BCrypt` — Windows CNG. RSA-PSS / RSA-PKCS#1 /
   ECDSA P256 / P384.
-- `OBD.Signature.OpenSSL` — same set + Ed25519. PEM / DER public
+- `ERD.Signature.OpenSSL` — same set + Ed25519. PEM / DER public
   keys auto-detected.
-- `OBD.Signature.HSM` — PKCS#11 scaffolding for vendor drivers.
-- `OBD.Signature.PQC` — Open Quantum Safe (liboqs) — Dilithium
+- `ERD.Signature.HSM` — PKCS#11 scaffolding for vendor drivers.
+- `ERD.Signature.PQC` — Open Quantum Safe (liboqs) — Dilithium
   2/3/5 (ML-DSA), Falcon-512/1024, SPHINCS+ SHA2-128f/192f
   (SLH-DSA).
 
 **OEM handshakes (9e)**
-- `OBD.Flash.OEM.Common` — `IOBDFlashHandshake` + abstract base
+- `ERD.Flash.OEM.Common` — `IOBDFlashHandshake` + abstract base
   with `SwitchSession` / `ResetECU` / `TesterPresent` helpers and
   the FreeNotification-aware `SetUp(...)`.
-- `OBD.Flash.OEM.VAG` / `BMW` / `Ford` / `HMG` / `Mercedes` /
+- `ERD.Flash.OEM.VAG` / `BMW` / `Ford` / `HMG` / `Mercedes` /
   `Stellantis` / `Toyota` — vendor-specific session sub-functions,
   security levels, erase RIDs. BMW's `ExtendedFirst` toggles the
   F-series ZGW two-step session switch; Mercedes does extended +
@@ -2589,7 +2589,7 @@ verification, per existing convention.
 
 ### Code landed
 
-- `src/Recorder/OBD.Recorder.pas` — `TOBDRecorder`. Append-only
+- `src/Recorder/ERD.Recorder.pas` — `TOBDRecorder`. Append-only
   JSONL capture of every protocol-level event. Subscribes to a
   bound `TOBDProtocol`'s `OnFrame` / `OnResponse` / `OnNRC` /
   `OnError` hooks; one entry per event. Hosts can also `Append`
@@ -2597,14 +2597,14 @@ verification, per existing convention.
   operator name, …) that share the file format. File schema is
   intentionally close to v1's `.obdlog` so existing tooling
   works on either generation.
-- `src/Recorder/OBD.Replayer.pas` — `TOBDReplayer`. Reads the
+- `src/Recorder/ERD.Replayer.pas` — `TOBDReplayer`. Reads the
   same `.obdlog` and streams every entry back through
   `OnEntry`. Two playback modes: `rmAsFastAsPossible` for
   offline reprocessing / unit tests, `rmRealTime` to honour
   the original timestamp gaps for UI demos. Sync + async + a
   cooperative `Stop`. `LoadAll` returns the full entry array
   for analysis without going through the event interface.
-- `tests/Tests.OBD.Recorder.pas` — two fixtures: recorder
+- `tests/Tests.ERD.Recorder.pas` — two fixtures: recorder
   three-entry round-trip + raw-byte preservation + idempotent
   `Close`; replayer plays-every-entry, cancel-stops-replay,
   missing-file-raises, default mode.
@@ -2614,7 +2614,7 @@ verification, per existing convention.
   fields side-by-side.
 - `packages/DelphiOBD_RT.dpk` and `tests/DelphiOBD_Tests.dpr` —
   added the two new units and the test fixture.
-- `src/DesignTime/OBD.Design.Registration.pas` — registers
+- `src/DesignTime/ERD.Design.Registration.pas` — registers
   `TOBDRecorder` and `TOBDReplayer` on the **OBD** palette tab.
 
 ### Architecture highlights
@@ -2677,7 +2677,7 @@ verification, per existing convention.
 All four follow-ups closed inline (2026-05-10):
 
 - [x] **`TOBDProtocolMock`** —
-  `src/Recorder/OBD.Recorder.ProtocolMock.pas`. Wraps a
+  `src/Recorder/ERD.Recorder.ProtocolMock.pas`. Wraps a
   `TOBDReplayer` and exposes the same `OnFrame` /
   `OnResponse` / `OnNRC` / `OnError` surface as
   `TOBDProtocol`. Hosts wire integration tests against the
@@ -2689,7 +2689,7 @@ All four follow-ups closed inline (2026-05-10):
   `TZCompressionStream(WindowBits=31)`; `Close` frees the
   wrapper before the file so the gzip footer flushes.
   `TOBDReplayer.LoadLines` does the inverse. Round-trip test
-  in `Tests.OBD.Recorder.TGzipRoundTripTests`. The
+  in `Tests.ERD.Recorder.TGzipRoundTripTests`. The
   `Compressed` property reports the active mode. Compressed
   mode is create-truncate (no append) — appended gzip members
   read fine in CLI tools but break some library readers.
@@ -2697,7 +2697,7 @@ All four follow-ups closed inline (2026-05-10):
   gap cap with a published `Cardinal` (default 60000). Hosts
   that want fast UI demos can drop it to a few hundred ms.
 - [x] **`TOBDLogRedactor`.**
-  `src/Recorder/OBD.Recorder.Redactor.pas`. Streams a
+  `src/Recorder/ERD.Recorder.Redactor.pas`. Streams a
   `.obdlog` (plain or `.gz`) through a host-supplied filter
   and writes a redacted copy. The filter can drop entries
   (`AKeep := False`) or mutate them in place. Ships a
@@ -2711,7 +2711,7 @@ To make the redactor reuse the gzip-aware loader and the
 JSONL parser without a private back door, `LoadLines` and
 `ParseLine` were promoted from strict-private to public on
 `TOBDReplayer`. Tests cover all four follow-ups in
-`tests/Tests.OBD.Recorder.pas` (fixtures
+`tests/Tests.ERD.Recorder.pas` (fixtures
 `TGzipRoundTripTests`, `TProtocolMockTests`, `TRedactorTests`,
 plus the `MaxGapMsDefault` test on `TReplayerTests`).
 
@@ -2754,7 +2754,7 @@ plus the `MaxGapMsDefault` test on `TReplayerTests`).
   under custom resource type `PNG` (the convention RAD Studio's
   HiDPI palette auto-pickup expects in 10.4+), plus `SPLASH` and
   `ABOUT` as `RT_RCDATA`.
-- `src/DesignTime/OBD.Design.Registration.pas` — binds the .res
+- `src/DesignTime/ERD.Design.Registration.pas` — binds the .res
   via `{$R DelphiOBD_DT.res}`. Adds `LoadPngResource` and
   `PngToBitmap` helpers and two procedures, `RegisterSplash` and
   `RegisterAbout`, that decode the resource PNG and hand a
@@ -2848,17 +2848,17 @@ Ford-M, plus 10K-entry Becker4 / Becker5 databases and a
 ship as `OnCalculate` stubs.
 
 Bonus shipped under the same umbrella:
-- `OBD.RadioCode.EEPROM` — three EEPROM-dump extractors
+- `ERD.RadioCode.EEPROM` — three EEPROM-dump extractors
   (Volvo HU, Opel CD30, Mercedes Becker) on the **OBD EEPROM**
   palette tab.
-- `OBD.Service.VWRadioSAFE` — VW SAFE-code recovery component.
+- `ERD.Service.VWRadioSAFE` — VW SAFE-code recovery component.
 - Full `KWP1281` codec stack: protocol unit + 5 transport
   implementations (Serial bit-bang, ELM327, TP2.0, ISO-TP,
-  J2534 PassThru) + `OBD.J2534` host-stack unit.
+  J2534 PassThru) + `ERD.J2534` host-stack unit.
 
-**Tests:** `Tests.OBD.RadioCode.{French,Asian,American,EEPROM,
+**Tests:** `Tests.ERD.RadioCode.{French,Asian,American,EEPROM,
 DBBacked,StubVendors}` plus the protocol-side
-`Tests.OBD.Protocol.KWP1281`.
+`Tests.ERD.Protocol.KWP1281`.
 
 **Honest review:**
 1. Vendor JSON catalogues (Becker4 / Becker5 / Ford-V) live
@@ -2876,7 +2876,7 @@ DBBacked,StubVendors}` plus the protocol-side
 
 ### P-A3 — VIN decoder (full WMI / VDS / VIS)
 
-**Shipped:** `OBD.Service.VINDecoder` — full ISO 3779/3780/J853
+**Shipped:** `ERD.Service.VINDecoder` — full ISO 3779/3780/J853
 breakdown into `TOBDVINInfo` (region, country, manufacturer,
 plant, year candidates, check digit, serial, features). Catalogs
 under `catalogs/vin/` (regions, countries, WMI, plants) plus
@@ -2886,8 +2886,8 @@ public-domain bulk dump. WMI index built at load time so a VDS
 decode is O(1) on WMI lookup. Companion `TOBDVINInspector`
 non-visual component on **OBD Services** for drop-on-form usage.
 
-**Tests:** `Tests.OBD.Service.VINDecoder` plus
-`Tests.OBD.Service.VINInspector`.
+**Tests:** `Tests.ERD.Service.VINDecoder` plus
+`Tests.ERD.Service.VINInspector`.
 
 **Honest review:**
 1. The 29 MB `vds-rules.json` is committed as deterministic
@@ -2900,7 +2900,7 @@ non-visual component on **OBD Services** for drop-on-form usage.
 
 ### P-A4 — Drive-cycle advisor
 
-**Shipped:** `OBD.Service.DriveCycle` —
+**Shipped:** `ERD.Service.DriveCycle` —
 `TOBDDriveCycleAdvisor` on **OBD Services**. Live-poll mode
 walks the driver through cycle steps from
 `catalogs/drive-cycle-generic.json` (ISO 15031-7) plus any
@@ -2909,7 +2909,7 @@ readiness bytes for both SI and CI engines via the public
 class function `DecodePID01` (extracted in punch-list audit
 work for direct testability).
 
-**Tests:** `Tests.OBD.Service.DriveCycle` covers types,
+**Tests:** `Tests.ERD.Service.DriveCycle` covers types,
 catalogue, advisor config, and the readiness decoder
 end-to-end. Live poll thread tested via the decoder split;
 fully end-to-end live mode needs a hardware loop.
@@ -2925,7 +2925,7 @@ fully end-to-end live mode needs a hardware loop.
 
 ### P-A5 — EV battery health
 
-**Shipped:** `OBD.Service.EVBattery` —
+**Shipped:** `ERD.Service.EVBattery` —
 `TOBDEVBattery` on **OBD Services**. Polls high-voltage
 battery management systems via per-vendor decode rules
 loaded from `catalogs/ev-battery/<vendor>.json`. Snapshot
@@ -2940,7 +2940,7 @@ toyota / tesla. `_manifest.json` documents per-vendor coverage
 status (`full` / `partial` / `minimal` / `none` /
 `not-applicable`).
 
-**Tests:** `Tests.OBD.Service.EVBattery` covers types,
+**Tests:** `Tests.ERD.Service.EVBattery` covers types,
 catalogue, and component config-error paths. Live poll is
 hardware-only.
 
@@ -2957,14 +2957,14 @@ hardware-only.
 
 ### P-A6 — Key adaptation (BMW / Ford / HMG / Toyota)
 
-**Shipped:** `OBD.OEM.KeyAdaptation.{BMW,Ford,HMG,Toyota}`
+**Shipped:** `ERD.OEM.KeyAdaptation.{BMW,Ford,HMG,Toyota}`
 under `src/OEM/`. Four palette components on **OBD Coding**.
 Every destructive entry point (`AddKey` / `ClearOneSlot` /
 `ClearAllKeys`) ships with `AutoExecute = False` and refuses
 to run unless the host wires `OnConfirmExecute` first — same
 safety pattern as the flashing components.
 
-**Tests:** `Tests.OBD.OEM.KeyAdaptation` covers the safety
+**Tests:** `Tests.ERD.OEM.KeyAdaptation` covers the safety
 gate (refuses without AutoExecute), ChassisCode validation,
 and PIN-format validation per vendor.
 
@@ -3030,12 +3030,12 @@ Before pivoting to P-A2 (visuals), an audit pass cleaned up:
 - Top-level `catalogs/vin-*.json` duplicates
 - Empty `src/Signature/` and `src/Services/` placeholders
 - Stale "POSIX support coming" claim in
-  `OBD.Signature.PQC.pas` (Windows-only by current
+  `ERD.Signature.PQC.pas` (Windows-only by current
   implementation)
 - User-visible `// TODO` comments in wizard-generated starter
   code
-- Mismatched unit name `OBD.RadioCode.FordVDatabase` →
-  renamed to `OBD.RadioCode.FordV` to match the class
+- Mismatched unit name `ERD.RadioCode.FordVDatabase` →
+  renamed to `ERD.RadioCode.FordV` to match the class
 - Test gaps: service-component lifecycle, radio-code
   DB-backed pinned vectors, stub-vendor smokes, Speciality
   smokes, drive-cycle decoder

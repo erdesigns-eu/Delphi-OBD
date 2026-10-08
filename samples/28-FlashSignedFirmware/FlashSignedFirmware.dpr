@@ -23,15 +23,15 @@ uses
   System.Classes,
   System.IOUtils,
   System.TypInfo,
-  OBD.Types in '..\..\src\Core\OBD.Types.pas',
-  OBD.Coding.AuditLog in '..\..\src\Coding\OBD.Coding.AuditLog.pas',
-  OBD.Protocol.SecOC.AES in '..\..\src\Protocol\OBD.Protocol.SecOC.AES.pas',
-  OBD.Signature in '..\..\src\Flashing\OBD.Signature.pas',
-  OBD.Signature.BCrypt in '..\..\src\Flashing\OBD.Signature.BCrypt.pas',
-  OBD.Signature.OpenSSL in '..\..\src\Flashing\OBD.Signature.OpenSSL.pas',
-  OBD.Flash.Phases in '..\..\src\Flashing\OBD.Flash.Phases.pas',
-  OBD.Flash.VoltageGate in '..\..\src\Flashing\OBD.Flash.VoltageGate.pas',
-  OBD.Flash.Pipeline in '..\..\src\Flashing\OBD.Flash.Pipeline.pas';
+  ERD.Types in '..\..\src\Core\ERD.Types.pas',
+  ERD.Coding.AuditLog in '..\..\src\Coding\ERD.Coding.AuditLog.pas',
+  ERD.Protocol.SecOC.AES in '..\..\src\Protocol\ERD.Protocol.SecOC.AES.pas',
+  ERD.Signature in '..\..\src\Flashing\ERD.Signature.pas',
+  ERD.Signature.BCrypt in '..\..\src\Flashing\ERD.Signature.BCrypt.pas',
+  ERD.Signature.OpenSSL in '..\..\src\Flashing\ERD.Signature.OpenSSL.pas',
+  ERD.Flash.Phases in '..\..\src\Flashing\ERD.Flash.Phases.pas',
+  ERD.Flash.VoltageGate in '..\..\src\Flashing\ERD.Flash.VoltageGate.pas',
+  ERD.Flash.Pipeline in '..\..\src\Flashing\ERD.Flash.Pipeline.pas';
 
 procedure PrintBanner;
 begin

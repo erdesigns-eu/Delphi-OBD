@@ -64,7 +64,7 @@ Adding a PID, DTC, DID, J1939 PGN, or any other catalogue entry:
 
 OEM-specific decoders go in `catalogs/oem/<vendor>/` and use the OEM
 extension registry. Per-vendor coding components (`TOBDCodingVAG`,
-`TOBDCodingBMW`, …) live in `src/Coding/`. See `OBD.OEM.Registry.pas` for
+`TOBDCodingBMW`, …) live in `src/Coding/`. See `ERD.OEM.Registry.pas` for
 the registration pattern once Phase 6 lands.
 
 ## Local development
@@ -95,7 +95,7 @@ Run these locally before opening a PR if you can.
 ## Hardware-affecting changes
 
 Any change touching `src/Flashing/`, `src/Coding/`, `src/Signature/`, or
-`OBD.UDS.WriteDID`, `OBD.UDS.WriteMemory`, `OBD.UDS.Transfer` requires:
+`ERD.UDS.WriteDID`, `ERD.UDS.WriteMemory`, `ERD.UDS.Transfer` requires:
 
 - An issue describing the change and the test plan.
 - Tests against captured fixtures (no real-ECU dependency in CI).

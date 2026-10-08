@@ -18,10 +18,10 @@ program MonitorResults;
 
 uses
   System.SysUtils,
-  OBD.Types                  in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                 in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Service.OnBoardMonitor in '..\..\src\Service\OBD.Service.OnBoardMonitor.pas',
-  OBD.OxygenMonitor          in '..\..\src\Service\OBD.OxygenMonitor.pas';
+  ERD.Types                  in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                 in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Service.OnBoardMonitor in '..\..\src\Service\ERD.Service.OnBoardMonitor.pas',
+  ERD.OxygenMonitor          in '..\..\src\Service\ERD.OxygenMonitor.pas';
 
 var
   M: TOBDOnBoardMonitor;

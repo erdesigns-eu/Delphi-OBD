@@ -23,12 +23,12 @@ program J1939Listener;
 
 uses
   System.SysUtils,
-  OBD.Types               in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors              in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Protocol.Types      in '..\..\src\Protocol\OBD.Protocol.Types.pas',
-  OBD.Protocol.J1939      in '..\..\src\Protocol\OBD.Protocol.J1939.pas',
-  OBD.Protocol.J1939.TP   in '..\..\src\Protocol\OBD.Protocol.J1939.TP.pas',
-  OBD.Diagnostics.J1939   in '..\..\src\Diagnostics\OBD.Diagnostics.J1939.pas';
+  ERD.Types               in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors              in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Protocol.Types      in '..\..\src\Protocol\ERD.Protocol.Types.pas',
+  ERD.Protocol.J1939      in '..\..\src\Protocol\ERD.Protocol.J1939.pas',
+  ERD.Protocol.J1939.TP   in '..\..\src\Protocol\ERD.Protocol.J1939.TP.pas',
+  ERD.Diagnostics.J1939   in '..\..\src\Diagnostics\ERD.Diagnostics.J1939.pas';
 
 var
   J: TOBDJ1939;

@@ -38,7 +38,7 @@ Done.
 ```
 
 The other 44 vendors live in the same family
-(`OBD.RadioCode.{EuropeanPremium,British,American,Aftermarket,
+(`ERD.RadioCode.{EuropeanPremium,British,American,Aftermarket,
 Volvo,FordV}`). Most ship as validate-only stubs — the host
 wires `OnCalculate` against a paid-service or licensed
 algorithm.

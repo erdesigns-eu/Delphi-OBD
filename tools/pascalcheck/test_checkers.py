@@ -30,7 +30,7 @@ class CheckerRegressionTests(unittest.TestCase):
         return result.stdout
 
     def test_namespaced_exports_are_visible_and_missing_import_is_found(self):
-        self.source('src/Core/OBD.Values.pas', '''unit OBD.Values;
+        self.source('src/Core/ERD.Values.pas', '''unit ERD.Values;
 interface
 function Answer: Integer;
 implementation
@@ -42,13 +42,13 @@ end.
 interface
 procedure Run;
 implementation
-uses OBD.Values;
+uses ERD.Values;
 procedure Run;
 begin Writeln(Answer); end;
 end.
 ''')
         self.assertIn('total: 0', self.checker('reach'))
-        consumer.write_text(consumer.read_text().replace('uses OBD.Values;', ''))
+        consumer.write_text(consumer.read_text().replace('uses ERD.Values;', ''))
         out = self.checker('reach')
         self.assertIn('Answer', out)
         self.assertIn('total: 1', out)
@@ -122,7 +122,7 @@ end.
         self.assertIn('total: 1', self.checker('ifthen'))
 
     def test_multiline_framework_import_is_a_runtime_violation(self):
-        source = self.source('src/Service/OBD.Service.Demo.pas', """unit OBD.Service.Demo;
+        source = self.source('src/Service/ERD.Service.Demo.pas', """unit ERD.Service.Demo;
 interface
 uses
   System.Classes,
@@ -133,6 +133,31 @@ end.
         self.assertIn('total: 1', self.checker('runtime'))
         source.write_text(source.read_text().replace('Vcl.Graphics', 'System.SysUtils'))
         self.assertIn('total: 0', self.checker('runtime'))
+
+    def test_fpc_rtl_branch_keeps_delphi_import_visible(self):
+        source = self.source('src/Portable.pas', """unit Portable;
+interface
+uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
+implementation
+procedure Run;
+begin Writeln(UpperCase('abc')); end;
+end.
+""")
+        self.assertIn('total: 0', self.checker('rtluses'))
+        source.write_text(source.read_text().replace('System.SysUtils', 'System.Classes'))
+        self.assertIn('UpperCase', self.checker('rtluses'))
+
+    def test_fpc_nested_directives_preserve_offsets(self):
+        sys.path.insert(0, str(HERE))
+        from paslex import strip_code
+        source = "{$IFDEF FPC}FpcOnly;{$IF X}Nested;{$ENDIF}{$ELSE}DelphiOnly;{$ENDIF} Tail;"
+        clean, directives = strip_code(source)
+        self.assertEqual(len(source), len(clean))
+        self.assertNotIn('FpcOnly', clean)
+        self.assertNotIn('Nested', clean)
+        self.assertIn('DelphiOnly', clean)
+        self.assertEqual(clean.index('Tail'), source.index('Tail'))
+        self.assertEqual(len(directives), 5)
 
     def test_missing_optional_form_directory_does_not_crash(self):
         for name in ('caption', 'dfm', 'dispatch'):

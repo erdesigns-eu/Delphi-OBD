@@ -17,9 +17,9 @@ program VehicleInfo;
 
 uses
   System.SysUtils,
-  OBD.Types         in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors        in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Service.VIN   in '..\..\src\Service\OBD.Service.VIN.pas';
+  ERD.Types         in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors        in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Service.VIN   in '..\..\src\Service\ERD.Service.VIN.pas';
 
 var
   V: TOBDVIN;

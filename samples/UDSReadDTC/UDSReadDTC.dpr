@@ -15,9 +15,9 @@ program UDSReadDTC;
 
 uses
   System.SysUtils,
-  OBD.Types                    in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                   in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Diagnostics.UDS.ReadDTC  in '..\..\src\Diagnostics\OBD.Diagnostics.UDS.ReadDTC.pas';
+  ERD.Types                    in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                   in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Diagnostics.UDS.ReadDTC  in '..\..\src\Diagnostics\ERD.Diagnostics.UDS.ReadDTC.pas';
 
 procedure DecodeOne(AHi: Byte; ALo: Byte);
 begin

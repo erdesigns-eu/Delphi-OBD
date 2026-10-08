@@ -28,11 +28,11 @@ program FlashDryRun;
 uses
   System.SysUtils,
   System.Classes,
-  OBD.Types in '..\..\src\Core\OBD.Types.pas',
-  OBD.Coding.AuditLog in '..\..\src\Coding\OBD.Coding.AuditLog.pas',
-  OBD.Flash.Phases in '..\..\src\Flashing\OBD.Flash.Phases.pas',
-  OBD.Flash.VoltageGate in '..\..\src\Flashing\OBD.Flash.VoltageGate.pas',
-  OBD.Flash.Pipeline in '..\..\src\Flashing\OBD.Flash.Pipeline.pas';
+  ERD.Types in '..\..\src\Core\ERD.Types.pas',
+  ERD.Coding.AuditLog in '..\..\src\Coding\ERD.Coding.AuditLog.pas',
+  ERD.Flash.Phases in '..\..\src\Flashing\ERD.Flash.Phases.pas',
+  ERD.Flash.VoltageGate in '..\..\src\Flashing\ERD.Flash.VoltageGate.pas',
+  ERD.Flash.Pipeline in '..\..\src\Flashing\ERD.Flash.Pipeline.pas';
 
 procedure DemoSection(const ATitle: string);
 begin

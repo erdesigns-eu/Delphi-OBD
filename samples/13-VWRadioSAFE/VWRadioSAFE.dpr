@@ -18,7 +18,7 @@ program VWRadioSAFE;
 
 uses
   System.SysUtils,
-  OBD.Service.VWRadioSAFE in '..\..\src\Service\OBD.Service.VWRadioSAFE.pas';
+  ERD.Service.VWRadioSAFE in '..\..\src\Service\ERD.Service.VWRadioSAFE.pas';
 
 procedure FakePremiumIVRead(Sender: TObject;
   AAddress: Word; ALength: Byte;

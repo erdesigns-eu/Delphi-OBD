@@ -2,7 +2,7 @@
 //  UDSRoutine
 //
 //  PLAN cross-reference: the dedicated UDS routine surface is
-//  covered by TOBDRoutineControl (src/Coding/OBD.Coding.RoutineControl.pas).
+//  covered by TOBDRoutineControl (src/Coding/ERD.Coding.RoutineControl.pas).
 //  This sample wires the component and demonstrates the safety
 //  contract without driving the bus.
 //
@@ -17,9 +17,9 @@ program UDSRoutine;
 
 uses
   System.SysUtils,
-  OBD.Types                  in '..\..\src\Core\OBD.Types.pas',
-  OBD.Errors                 in '..\..\src\Core\OBD.Errors.pas',
-  OBD.Coding.RoutineControl  in '..\..\src\Coding\OBD.Coding.RoutineControl.pas';
+  ERD.Types                  in '..\..\src\Core\ERD.Types.pas',
+  ERD.Errors                 in '..\..\src\Core\ERD.Errors.pas',
+  ERD.Coding.RoutineControl  in '..\..\src\Coding\ERD.Coding.RoutineControl.pas';
 
 var
   R: TOBDRoutineControl;
