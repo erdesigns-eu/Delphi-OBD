@@ -1,0 +1,35 @@
+{
+  "source": "en",
+  "locales": {
+    "nl": "Dutch",
+    "de": "German",
+    "fr": "French",
+    "es": "neutral international Spanish",
+    "it": "Italian",
+    "pt-BR": "Brazilian Portuguese",
+    "pt-PT": "European Portuguese",
+    "pl": "Polish",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ru": "Russian",
+    "id": "Indonesian",
+    "ms": "Malay",
+    "vi": "Vietnamese",
+    "th": "Thai",
+    "zh-Hans": "Simplified Chinese",
+    "zh-Hant": "Traditional Chinese",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "hi": "Hindi",
+    "el": "Greek",
+    "ro": "Romanian",
+    "sv": "Swedish"
+  },
+  "protected_terms": [
+    "IPTV", "M3U", "M3U8", "EPG", "Xtream Codes", "Stalker Portal",
+    "IPTV-org", "Smart IPTV", "BaZnGa", "DiamondTV", "YouTube", "VLC",
+    "MAC", "URL", "JSON", "HTTP", "HTTPS", "CLI", "tvg-id",
+    "tvg-name", "tvg-logo", "tvg-chno", "tvg-shift", "group-title",
+    "catchup-source", "#EXTM3U", "#EXTINF", "#EXTVLCOPT"
+  ]
+}

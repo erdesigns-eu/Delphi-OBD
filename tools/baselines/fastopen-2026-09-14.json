@@ -1,0 +1,59 @@
+{
+    "openings": 36,
+    "steps": {
+        "stop": {
+            "count": 35,
+            "least": 0,
+            "middle": 0,
+            "most": 32
+        },
+        "bytes": {
+            "count": 34,
+            "least": 329,
+            "middle": 456.0,
+            "most": 2546
+        },
+        "ring": {
+            "count": 36,
+            "least": 0,
+            "middle": 2.0,
+            "most": 7
+        },
+        "tracks": {
+            "count": 34,
+            "least": 329,
+            "middle": 456.0,
+            "most": 2546
+        },
+        "pictures": {
+            "count": 34,
+            "least": 384,
+            "middle": 700.0,
+            "most": 2708
+        },
+        "sound": {
+            "count": 30,
+            "least": 457,
+            "middle": 789.0,
+            "most": 2772
+        },
+        "shown": {
+            "count": 34,
+            "least": 506,
+            "middle": 1009.5,
+            "most": 5615
+        },
+        "playing": {
+            "count": 35,
+            "least": 0,
+            "middle": 934,
+            "most": 2877
+        },
+        "switch": {
+            "count": 34,
+            "least": 506,
+            "middle": 1025.5,
+            "most": 5615
+        }
+    }
+}
