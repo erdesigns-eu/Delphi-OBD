@@ -1,5 +1,10 @@
 # Port-from-v1 backlog
 
+> Historical port inventory and planning context. The current scope is VCL only;
+> FireMonkey is outside scope. For current validation and remaining test work,
+> see [the Delphi handover](delphi-validation.md) and
+> [the cleanup report](cleanup-handover-2026-10-08.md).
+
 Every v1 surface that has been triaged for porting into v2. **Each
 task is a rewrite-with-understanding, not a copy-paste.** The
 contract for every entry in this file:
@@ -67,19 +72,16 @@ none.
 
 ---
 
-### P-A2 — Visual UI components (VCL + FMX)
+### P-A2 — Visual UI components (VCL only)
 
 **v1 source:** `src/Components/` + `src/CustomControls/` on main
-— ~25 controls, both VCL (`.pas`) and FMX (`.FMX.pas`)
+— ~25 legacy controls, originally VCL (`.pas`) and FMX (`.FMX.pas`);
+the v2 scope keeps only the VCL counterparts
 variants, with a render-class framework and theme support.
 
 **v2 rewrite target:**
-- New family `src/UI/ERD.UI.*` (VCL) and `src/UI.FMX/ERD.UI.FMX.*`
-  (FMX). Common rendering split into render classes so a host can
-  swap a `TOBDCircularGauge` for a `TOBDCircularGauge.FMX` without
-  touching the binding code.
-- New "OBD Visual" palette tab — currently reserved-but-empty in
-  the registration unit.
+- VCL controls live in `src/UI/ERD.UI.*`. FireMonkey is outside scope.
+- The "OBD Visual" palette tab is populated in the registration unit.
 - Single `TOBDTheme` controller (palette colours, font defaults,
   light / dark) drawn from the brand palette already established
   by the design-time package.
@@ -99,7 +101,7 @@ variants, with a render-class framework and theme support.
 | P-A2.3 Indicators | TOBDLED, TOBDSegmentedSwitch, TOBDKnob, TOBDMatrixDisplay |
 | P-A2.4 Display surfaces | TOBDTerminal, TOBDLogViewer, TOBDDtcList |
 | P-A2.5 Layout | TOBDHeader, TOBDSubheader, TOBDTouch.Header, TOBDTouch.Statusbar, TOBDTouch.Subheader |
-| P-A2.6 FMX mirrors | One per VCL control above, sharing the render class |
+| P-A2.6 | Removed: FireMonkey is outside scope |
 | P-A2.7 Wizard starter | "Dashboard" starter that drops the visuals onto a form bound to TOBDLiveData / TOBDDTCs |
 
 **Effort:** Largest tier-A item.
@@ -484,7 +486,7 @@ stable-version validation stage; see the merge-priority notes in
            FiatVP, Hyundai, Becker4 (DB), Becker5 (DB).
            Other vendors: OnCalculate stubs.
            See docs/radio-code-algorithms.md.
-[ ] P-A2   Visual UI components VCL + FMX (split A2.1..A2.7)
+[ ] P-A2   Visual UI components VCL only (split A2.1..A2.7)
 [x] P-A3   VIN decoder (vPIC + VINInspector)        (shipped)
 [x] P-A4   Drive-cycle advisor                      (shipped)
 [x] P-A5   EV battery health (15 vendors)           (shipped)

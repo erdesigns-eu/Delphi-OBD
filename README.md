@@ -1,6 +1,6 @@
 # Delphi-OBD
 
-A production-quality, RAD-first, open-source diagnostics
+A RAD-first, open-source diagnostics
 package for Delphi, with a nonvisual Free Pascal runtime.
 
 Drop a `TOBDConnection` on a form, point a `TOBDAdapter` at it,
@@ -9,7 +9,7 @@ in code, press F9.
 
 Units use the `ERD.` namespace. Component classes keep their `TOBD` names.
 For existing applications, update unit imports and rebuild packages and DCUs.
-The UI and IDE integration use Delphi VCL/FMX; FPC supports the nonvisual
+The UI and IDE integration use Delphi VCL; FPC supports the nonvisual
 library. See [compiler targets and validation](docs/fpc-compatibility.md).
 
 ## Quick start
@@ -47,7 +47,7 @@ suite). The wizard scaffolds a full project.
 
 ## Scope
 
-Complete diagnostics, coding, calibration and flashing across
+Components for diagnostics, coding, calibration and flashing across
 modern automotive protocols, plus a handful of speciality
 domains (radio-code recovery, EV battery health, ISOBUS,
 digital tachograph):
@@ -71,7 +71,7 @@ digital tachograph):
 | EV battery health | 15 vendor catalogues (HMG / Nissan / VW / BMW / Renault / Polestar / Ford / GM / + placeholders) — SOC / SOH / cell voltages / pack temps / charging power |
 | Radio-code calculators | 47 vendor components on the **OBD Radio** palette tab. Algorithms bundled where public-domain (Peugeot, Renault, Fiat, Hyundai, Ford-M, Becker4/5, Ford-V); validate-only stubs elsewhere with `OnCalculate` for licensed algos |
 | EEPROM extractors | 3 components (Volvo HU, Opel CD30, Mercedes Becker) — load `.bin` / `.eep`, decode at the documented offset |
-| Signing | BCrypt, OpenSSL, PKCS#11 HSM, post-quantum (Dilithium / Falcon / SPHINCS+ via liboqs) |
+| Signing | BCrypt, OpenSSL, host-supplied HSM driver, post-quantum (Dilithium / Falcon / SPHINCS+ via liboqs) |
 
 All catalogues (PIDs, DTCs, NRCs, DIDs, J1939 PGNs / SPNs /
 FMIs, VIN / vPIC schemas, drive-cycle steps, EV battery rules,
@@ -94,8 +94,8 @@ using flashing on a real vehicle.**
 
 ## Installation
 
-1. Open `packages/DelphiOBD_RT.dpk` in RAD Studio. Build.
-2. Open `packages/DelphiOBD_DT.dpk`. Build, then Install.
+1. Open `packages/DelphiOBD_RT.dproj` in RAD Studio. Build.
+2. Open `packages/DelphiOBD_DT.dproj`. Build, then Install.
 3. The **OBD**, **OBD Services**, **OBD Coding**,
    **OBD Calibration**, **OBD Flashing**, **OBD Radio**,
    **OBD EEPROM**, and **OBD Catalogs** categories appear on
@@ -106,9 +106,14 @@ using flashing on a real vehicle.**
 
 ## Supported Delphi versions
 
-10.3 Rio through 12 Athens. Win32 / Win64 (the runtime package
-is cross-platform clean for everything except the Windows-only
-serial / FTDI / J2534 / Tools-API surface).
+Target: Delphi 10.3 Rio through 12 Athens on Windows, Win32 / Win64.
+The UI and IDE integration are **VCL only**; FireMonkey is outside scope.
+These Delphi targets still require actual RAD Studio build and bench validation.
+The nonvisual FPC Linux profile is documented separately.
+
+Before testing in Delphi, follow [the handover checklist](docs/delphi-validation.md).
+EV catalogue entries describe model-specific data, not brand-wide support; see
+[the generated EV capability matrix](docs/ev-support-matrix.md).
 
 ## Documentation
 
@@ -120,15 +125,15 @@ serial / FTDI / J2534 / Tools-API surface).
 | [`docs/coding-cookbook.md`](docs/coding-cookbook.md) | Per-vendor coding walkthroughs (VAG / BMW / Mercedes / Stellantis / Ford / HMG / Honda / Toyota) |
 | [`docs/radio-code-algorithms.md`](docs/radio-code-algorithms.md) | Per-vendor inventory of which radio-code algorithms ship bundled vs as `OnCalculate` stubs, with public-source citations |
 | [`docs/flashing-safety.md`](docs/flashing-safety.md) | Pre-conditions, voltage requirements, recovery, bricked-ECU playbook |
-| [`samples/`](samples/) | 18 standalone sample projects, each with its own README |
+| [`samples/`](samples/) | Standalone sample projects, each with its own README |
 
-In-flight working docs (kept until visual UI lands, then
-removed):
+Planning and historical comparison docs (use the Delphi handover above for
+current validation status):
 
 | Working doc | Purpose |
 |---|---|
 | [`PLAN.md`](PLAN.md) | Locked architectural decisions and remaining build sequence |
-| [`docs/v2-port-backlog.md`](docs/v2-port-backlog.md) | Remaining backlog items (currently P-A2 visuals) |
+| [`docs/v2-port-backlog.md`](docs/v2-port-backlog.md) | Port inventory and historical backlog |
 | [`docs/v1-vs-v2-gaps.md`](docs/v1-vs-v2-gaps.md) | Coverage delta vs the previous release line |
 | [`docs/migration-from-v1.md`](docs/migration-from-v1.md) | Migration cookbook from the previous class-library API |
 | [`docs/phase-reviews.md`](docs/phase-reviews.md) | Honest reviews of every shipped phase |

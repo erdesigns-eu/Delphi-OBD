@@ -16,7 +16,7 @@ that nothing is wrong.
 
     python tools/pascalcheck/run.py             # one line per checker
     python tools/pascalcheck/run.py -v          # and the findings themselves
-    python tools/pascalcheck/run.py i18n        # only checkers matching a name
+    python tools/pascalcheck/run.py capture        # only checkers matching a name
 
 `run.py` exits non-zero when anything is found, so it can stand in a build
 step. Individual checkers can also be run directly:
@@ -29,48 +29,26 @@ out from the file's own location, so the suite runs from any directory; set
 
 ## Delphi-OBD integration
 
-Discovery includes `src/`, `samples/`, `packages/`, `tests/` and `tools/`,
-plus the original imported layouts. Namespaced units are resolved using
-full names (`ERD.Protocol.Types`, not `Types`). Mutually exclusive compiler
-branches do not count as duplicate declarations. No source files are
-rewritten by the checkers.
+Discovery covers namespaced units under `src/`, `samples/`, `packages/`,
+`tests/` and `tools/`. Conditional FPC/Delphi imports are recognized.
+No source files are rewritten. The default CI run is strict, including
+hint/warning checkers. `--errors-only` is an optional local mode that reports
+private/unused/hidden/inlineunit hints without making those hints fail the run.
+A crash or unreadable checker result always fails.
 
-`python tools/pascalcheck/run.py --errors-only -v` is the CI mode. It still
-runs and reports the hint/warning checkers (`private`, `unused`, `hidden`,
-`inlineunit`), but those do not fail the job. The default command retains
-its original strict exit behaviour. A checker crash or unreadable result
-fails either mode. `-j N` controls independent checker processes.
+Copied media-app translation, branding, HTTP-factory, timezone, teletext,
+release-builder and custom-form policy checks have been removed. The retained
+platform checker now verifies this repo's three tracked Delphi projects.
+There are no missing-input skips or claims of media-app validation.
 
-The copied translation checks (`constkey`, `i18n`, `i18nmissing`,
-`i18norphan`) require `translations/en.json`; `wraparound` requires the
-explicitly listed crypto units from the originating application. They are
-reported as **SKIP** when those inputs do not exist. This is not validation
-of translations or cryptography. Several remaining policy checks still
-refer to concepts from the originating application (Brand.inc, AppInfo,
-NewHttpClient). A zero from such a check does not establish a Delphi-OBD
-policy or a working feature; only generic source checks are useful here.
-
-Run the regression fixtures with:
-
-```sh
-python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
-```
-
-For actual execution of portable codecs, install Free Pascal and run
-`python3 tools/fpc_smoke.py`. It uses `-Mdelphi`, compiles `ERD.Version`
-unmodified, then builds six selected units with only `System.SysUtils`
-and `System.Variants` scope names adapted in temporary copies. It uses the
-real FPC RTL and no Delphi/VCL/API stubs. The 154 runtime checks cover LIN
-parity/checksum goldens, LIN/MOST/FlexRay round trips, corrupt frames and
-trailing bytes. It does not compile the complete package or run DUnitX.
-For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
-`--rtl /path/to/units/x86_64-linux`.
+See [the tool inventory](../README.md) for actual FPC execution and catalogue
+validation. Static analysis is heuristic and does not replace Delphi/FPC
+compilation or hardware tests.
 
 ## What each checker looks for
 
 | checker | finds |
 | --- | --- |
-| `actions` | an action named on the data module that is not declared there |
 | `afterevent` | a cache entry touched again after the event that may have freed it |
 | `args` | a call with an argument count no declaration accepts |
 | `arraylow` | a loop from nought over an array whose first element is not nought |
@@ -91,9 +69,7 @@ For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
 | `reach` | a name used where nothing in scope declares it: the unit it comes from is not in a uses clause, or the name sits in that unit's implementation section (E2003, and the E2250 cascade around the call) |
 | `jsoncast` | a JSON value cast with `as` to a shape nothing checked it has: a server that answers with an array where an object belongs raises EInvalidCast in the middle of the parse |
 | `sections` | a type declaration outside a `type` section (after a routine body, or in a uses/var/const section), and a section keyword with nothing under it |
-| `useragent` | a User-Agent written as a literal where it is sent, instead of coming from `Utilities` where the settings can reach it |
-| `brandliteral` | a shipped unit naming the product in a string literal, instead of taking it from `AppInfo`: a name a white label cannot change, and one the MCP server got wrong in three places |
-| `platforms` | a project the release packages that does not target a platform the studio does: its binaries are silently absent from that platform's installer |
+| `platforms` | missing Delphi projects, incorrect default/declared Windows target platforms |
 | `searchpath` | a uses name or an `$I` a project's unit search path cannot reach, while the file is in this repository: it compiles from the IDE and fails the first time that project is built (F2613, F1026) |
 | `bracecomment` | a `{ }` comment holding another `{`, which ends it at the first `}` and leaves the rest as code |
 | `reservedname` | `private`, `public`, `published` and their kin used as a field or parameter name; any reserved word (`is`, `in`, `type`...) as a routine, parameter, variable or field name |
@@ -121,10 +97,6 @@ For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
 | `forvar` | an assignment to a `for` loop's control variable (E2081) |
 | `fwddecl` | a routine used before it is defined, with no forward declaration |
 | `hidden` | a method hiding a virtual one it inherits (W1010) |
-| `i18n` | catalogs that disagree with English about keys or format specifiers |
-| `i18napply` | a form that can translate itself but never does |
-| `i18nmissing` | a caption on screen that no catalog entry covers |
-| `i18norphan` | a catalog entry for a control that is no longer there |
 | `iface` | a class listing an interface it does not fully implement (E2291) |
 | `ifaceuses` | a type in a unit's interface its own uses clause cannot reach |
 | `ifthen` | `IfThen` on strings with only `System.Math` in scope (E2250) |
@@ -137,7 +109,6 @@ For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
 | `madelater` | a local interface whose first mention is a method called on it, made further down the routine |
 | `members` | a member that does not exist on a fully-known project type |
 | `private` | a private member never used, and a virtual redeclared without `override` |
-| `progress` | a progress page that does not look like the others |
 | `promote` | a promoted property no ancestor declares (E2147) |
 | `queuedfield` | a `TThread.Queue` closure reading a field its caller was handed as a parameter: two calls in one turn of the message pump deliver the second value twice and the first not at all |
 | `propfield` | a property reading or writing through a field that is a class |
@@ -157,8 +128,6 @@ For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
 | `vcltypes` | a VCL or RTL type no uses clause of the unit provides (E2003) |
 | `visibility` | a private or strict-private member reached from another unit (E2361) |
 | `shortcut` | a menu item overriding its action's shortcut, and two actions in one category claiming the same keystroke |
-| `hamming` | the teletext Hamming 8/4 table decoding something other than teletext |
-| `readme` | a unit `README.md` names in no table and no sentence |
 | `saferename` | a file deleted before a rename that does not replace it, so a rename that fails leaves neither |
 | `waitfree` | waiting on a thread that frees itself |
 | `worker` | waiting on the first worker without a count guard |

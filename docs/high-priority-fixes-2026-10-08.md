@@ -71,11 +71,10 @@ FPC-bibliotheken en compileert de oorspronkelijke units, zonder RTL-stubs.
 
 ## Resterende fase
 
-De oorspronkelijke P2-punten (G11/G12/G15/G16: supportmatrix, FMX-claims,
-afbeeldingen/UI/iconen en opgeschoonde tooling) zijn geen onderdeel van deze
-functionele reparatieronde. Nieuwe afbeeldingen, UI-ontwerp en toolingcleanup
-zijn niet uitgevoerd. De compilerprofielen/documentatie zijn wel bijgewerkt
-om de huidige validatie en vereiste hostconfiguratie correct te beschrijven.
+De vervolgronde behandelt VCL-only scope, EV-supportdocumentatie, tooling en
+IDE-resourcecoverage. Zie [de opschoning en Delphi-overdracht](cleanup-handover-2026-10-08.md).
+FMX is op expliciet verzoek buiten scope. Nieuwe artwork en echte VCL-screenshots
+zijn niet nodig voor deze overdracht en vervangen geen Delphi-renderingtest.
 
 Windows-backends, VCL/IDE-installatie, DUnitX-uitvoering, fysieke transports en
 ECU-specifieke flash/security-/recovery-workflows moeten in de afgesproken

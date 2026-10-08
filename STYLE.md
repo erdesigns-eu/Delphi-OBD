@@ -371,14 +371,14 @@ procedure ReadVINAsync;
 
 ## 11. Catalogue files
 
-JSON only. Schemas in `catalogs/_schema/`. Validated by `tools/validate-catalogs`
+JSON only. Schemas in `catalogs/_schema/`. Validated by `python3 tools/validate_catalogs.py --require-coverage`
 in CI.
 
 - One logical entity per file (one Mode, one OEM, one DM family).
 - Stable key order: ID first, then human name, then technical fields, then
   scaling / unit, then notes.
-- UTF-8, LF line endings, two-space indent. The same `tools/lint`
-  sanity-checks JSON.
+- UTF-8, LF line endings, two-space indent. The catalogue validator
+  checks JSON and schemas.
 
 ---
 

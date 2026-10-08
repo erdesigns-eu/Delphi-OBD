@@ -11,7 +11,7 @@ doesn't apply, write "n/a".
 
 - [ ] `tests/DelphiOBD_Tests.dpr` runs green
 - [ ] Manually exercised the affected components / samples
-- [ ] CI hygiene job is green (file headers, VCL/FMX guard, JSON lint)
+- [ ] CI hygiene job is green (file headers, VCL-only dependency guard, JSON lint)
 - [ ] N/A — explain:
 
 ## Documentation

@@ -51,7 +51,7 @@ def main():
         subprocess.run([str(compiler), *flags, '-Fu' + directory, '-FU' + directory,
                         '-FE' + directory, str(target / 'Smoke.dpr')], check=True)
         subprocess.run([str(target / 'Smoke')], check=True)
-    print('Portable codec smoke passed; Delphi/VCL/FMX/DUnitX remain untested by FPC.')
+    print('Portable codec smoke passed; Delphi/VCL/DUnitX remain untested by FPC.')
 
 
 if __name__ == '__main__':

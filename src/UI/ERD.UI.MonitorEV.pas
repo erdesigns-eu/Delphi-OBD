@@ -640,12 +640,16 @@ end;
 
 procedure TOBDCellVoltageHeatmap.SetMinVoltage(AValue: Single);
 begin
+  if IsNan(AValue) or IsInfinite(AValue) then
+    raise EArgumentException.Create('MinVoltage must be finite');
   if SameValue(FMinVoltage, AValue) then Exit;
   FMinVoltage := AValue; Repaint;
 end;
 
 procedure TOBDCellVoltageHeatmap.SetMaxVoltage(AValue: Single);
 begin
+  if IsNan(AValue) or IsInfinite(AValue) then
+    raise EArgumentException.Create('MaxVoltage must be finite');
   if SameValue(FMaxVoltage, AValue) then Exit;
   FMaxVoltage := AValue; Repaint;
 end;
@@ -673,7 +677,9 @@ procedure TOBDCellVoltageHeatmap.SetCell(AIndex: Integer;
   AVoltage: Single);
 begin
   if (AIndex < 0) or (AIndex >= Length(FVoltages)) then Exit;
-  if SameValue(FVoltages[AIndex], AVoltage) then Exit;
+  if not (IsNan(FVoltages[AIndex]) or IsInfinite(FVoltages[AIndex]) or
+          IsNan(AVoltage) or IsInfinite(AVoltage)) then
+    if SameValue(FVoltages[AIndex], AVoltage) then Exit;
   FVoltages[AIndex] := AVoltage;
   NotifyBindings;
   Repaint;
@@ -695,6 +701,8 @@ var
   Span:     Single;
   R, G, B:  Byte;
 begin
+  if IsNan(AVoltage) or IsInfinite(AVoltage) or (AVoltage <= 0) then
+    Exit(Palette.Subtle);
   Span := FMaxVoltage - FMinVoltage;
   if Span <= 0 then
     T := 0.5
@@ -752,7 +760,14 @@ var
   Lab: string;
   TextW, TextH: Integer;
 begin
-  if Length(FVoltages) = 0 then Exit;
+  if Length(FVoltages) = 0 then
+  begin
+    ACanvas.Brush.Style := bsClear;
+    ACanvas.Font := FCellFont;
+    ACanvas.Font.Color := EffectiveForeground;
+    ACanvas.TextOut(ScaleValue(4), ScaleValue(4), 'No cell data');
+    Exit;
+  end;
   Pad := ScaleValue(4);
   RowCount := (Length(FVoltages) + FColumns - 1) div FColumns;
   if RowCount = 0 then Exit;
@@ -798,7 +813,16 @@ begin
     begin
       Row := I div FColumns;
       Col := I mod FColumns;
-      Lab := Format('%.2f', [FVoltages[I]]);
+      if IsNan(FVoltages[I]) or IsInfinite(FVoltages[I]) or (FVoltages[I] <= 0) then
+      begin
+        Lab := 'N/A';
+        ACanvas.Font.Color := EffectiveForeground;
+      end
+      else
+      begin
+        Lab := Format('%.2f', [FVoltages[I]]);
+        ACanvas.Font.Color := clBlack;
+      end;
       TextW := ACanvas.TextWidth(Lab);
       TextH := ACanvas.TextHeight(Lab);
       ACanvas.TextOut(

@@ -1,5 +1,10 @@
 # v1 → v2 gap analysis
 
+> Historical port inventory and planning context. The current scope is VCL only;
+> FireMonkey is outside scope. For current validation and remaining test work,
+> see [the Delphi handover](delphi-validation.md) and
+> [the cleanup report](cleanup-handover-2026-10-08.md).
+
 What v1 (the `main` branch) ships that v2 hasn't yet ported. This is
 an honest inventory after walking the v1 source tree against the
 v2 component matrix.
@@ -76,11 +81,9 @@ animation helpers, theme support. v2 has no visual companions
 (the v2 doc explicitly reserved an "OBD Visual" palette tab and
 left it empty by design).
 
-**Suggested v2 home:** Phase 16 (new), `src/UI/` for VCL components
-and `src/UI.FMX/` for FMX. Keep the render-class split — it lets a
-host swap a TOBDCircularGauge for a TOBDCircularGauge.FMX without
-changing the binding code. Re-use the brand palette established by
-the design-time package (charcoal / silver / orange).
+**Current scope:** `src/UI/` contains Delphi VCL components. The old
+FMX controls are outside the v2 scope; no FMX port is planned. The historical
+inventory above describes the previous release, not current support.
 
 ### A3. VIN decoder
 

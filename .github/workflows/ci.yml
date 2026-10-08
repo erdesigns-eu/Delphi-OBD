@@ -2,8 +2,7 @@
 #  ci.yml — Delphi-OBD continuous integration
 #
 #  Builds DelphiOBD_RT.dpk and DelphiOBD_DT.dpk and runs the DUnitX test
-#  suite on every supported Delphi version. Uploads coverage and JUnit
-#  artefacts.
+#  suite on the intended Delphi matrix when enabled. Uploads NUnit artefacts.
 #
 #  Required runner: a Windows runner with RAD Studio installed. The
 #  default config below assumes self-hosted runners labelled
@@ -31,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: VCL/FMX guard on runtime units
+      - name: VCL-only scope and nonvisual dependency guard
         run: python3 tools/pascalcheck/check_runtime.py
 
       - name: File header presence on .pas files
@@ -68,8 +67,12 @@ jobs:
           python-version: '3.12'
       - name: Install catalog audit dependencies
         run: python3 -m pip install -r tools/requirements-validation.txt
-      - name: Test the offline catalog auditor
-        run: python3 -m unittest discover -s tools -p test_validate_catalogs.py -v
+      - name: Test catalogue and repository tooling
+        run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+      - name: Check generated EV support matrix and IDE resources
+        run: |
+          python3 tools/ev_support_matrix.py
+          python3 tools/designtime_resources.py
       - name: Validate every catalog against its local schema
         run: python3 tools/validate_catalogs.py --require-coverage
       - name: Test the static analyzers
@@ -119,43 +122,15 @@ jobs:
           if (-not $env:BDS -or -not (Test-Path "$env:BDS\Bin\CodeGear.Delphi.Targets")) { throw 'RAD Studio BDS environment is missing' }
           if (-not $env:DUNITX_SOURCE -or -not (Test-Path "$env:DUNITX_SOURCE\DUnitX.TestFramework.pas")) { throw 'Set DUNITX_SOURCE to the DUnitX Source directory' }
 
-      - name: Build runtime package
-        shell: cmd
-        run: |
-          msbuild packages\DelphiOBD_RT.dproj /t:Build ^
-            /p:Config=Release /p:Platform=Win32
-
-      - name: Build design-time package
-        shell: cmd
-        run: |
-          msbuild packages\DelphiOBD_DT.dproj /t:Build ^
-            /p:Config=Release /p:Platform=Win32
-
-      - name: Build & run DUnitX tests
-        shell: cmd
-        run: |
-          msbuild tests\DelphiOBD_Tests.dproj /t:Build ^
-            /p:Config=Release /p:Platform=Win32 /p:DefineConstants=CI
-          tests\Win32\Release\DelphiOBD_Tests.exe ^
-            --xmloutput=tests\nunit-results.xml
+      - name: Rebuild packages and run DUnitX
+        shell: pwsh
+        run: ./tools/validate_delphi.ps1 -Platform Win32 -Config Release
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: nunit-results-${{ matrix.delphi }}
-          path: tests/nunit-results.xml
+          path: tests/nunit-Win32-Release.xml
 
-      - name: Run code-coverage (DelphiCodeCoverage)
-        shell: cmd
-        run: |
-          if exist tools\coverage\run-coverage.cmd (
-            tools\coverage\run-coverage.cmd
-          )
-
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.delphi }}
-          path: tools/coverage/output/
+      # Coverage is not bundled; add a real runner/tool before publishing coverage.

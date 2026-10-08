@@ -27,6 +27,7 @@ type
     [Test] procedure DefaultsClosed;
     [Test] procedure StateRoundTrip;
     [Test] procedure FreeNotificationClearsConnection;
+    [Test] procedure DetachClearsDisplayedConnection;
   end;
 
   [TestFixture]
@@ -89,11 +90,29 @@ begin
   try
     L.Connection := C;
     Assert.IsNotNull(L.Connection);
+    L.State := csOpen;
     C.Free; C := nil;
     Assert.IsNull(L.Connection);
+    Assert.IsTrue(L.State = csClosed);
   finally
     L.Free;
     if C <> nil then C.Free;
+  end;
+end;
+
+procedure TConnectionStateLampTests.DetachClearsDisplayedConnection;
+var L: TOBDConnectionStateLamp; C: TOBDConnection;
+begin
+  C := TOBDConnection.Create(nil);
+  L := TOBDConnectionStateLamp.Create(nil);
+  try
+    L.Connection := C;
+    L.State := csOpen;
+    L.Connection := nil;
+    Assert.IsTrue(L.State = csClosed);
+  finally
+    L.Free;
+    C.Free;
   end;
 end;
 

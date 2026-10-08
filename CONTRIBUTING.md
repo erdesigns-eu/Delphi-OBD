@@ -69,28 +69,14 @@ the registration pattern once Phase 6 lands.
 
 ## Local development
 
-Once the package skeletons compile (Phase 0):
+For Delphi, use the tracked `.dproj` files and the commands in
+[the Delphi validation checklist](docs/delphi-validation.md). Build RT,
+then DT, then run DUnitX from the repository root. VCL is the only UI target.
 
-1. Install RAD Studio 10.3 Rio or newer (12 Athens recommended).
-2. Open `packages/DelphiOBD_RT.dpk` and `packages/DelphiOBD_DT.dpk`. RAD
-   Studio will create the matching `.dproj` files on first open.
-3. Build `RT`, then build and install `DT`.
-4. Run `tests/DelphiOBD_Tests.dpr` for the DUnitX suite.
-
-## Running CI locally
-
-The GitHub Actions workflow uses a Delphi CI image and runs:
-
-- Build of `DelphiOBD_RT.dpk` and `DelphiOBD_DT.dpk` on every supported
-  Delphi version.
-- DUnitX test run.
-- Coverage report via DelphiCodeCoverage (artefact uploaded).
-- Lint pass: `tools/lint.cmd` (style + presence of file headers + XMLDoc
-  on public symbols).
-- VCL/FMX guard: `grep` check that runtime units do not include
-  `Vcl.*` / `FMX.*`.
-
-Run these locally before opening a PR if you can.
+For Python checks and FPC, see [tools/README.md](tools/README.md).
+CI currently runs static analysis, catalogue schemas and both FPC profiles.
+Delphi builds remain disabled until a configured Windows runner is available;
+coverage tooling is not bundled. Report checks that were not run explicitly.
 
 ## Hardware-affecting changes
 

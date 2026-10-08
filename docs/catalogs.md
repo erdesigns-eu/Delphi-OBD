@@ -172,7 +172,7 @@ The fastest way to contribute:
 ### Validation
 
 ```bash
-python tools/validate-catalogs.py     # (when CI lands)
+python3 tools/validate_catalogs.py --require-coverage
 ```
 
 Or open the catalog file in any JSON-Schema-aware editor (VS Code

@@ -6,7 +6,7 @@ project's policy on transient planning docs).
 
 ## Executive summary
 
-- **Target framework:** VCL only. FMX twins deferred.
+- **Target framework:** VCL only. FireMonkey is outside scope.
 - **Surface:** ~100 components (visual + non-visual dyno math).
 - **Delivery:** 12 sequential sub-phases, each its own commit.
 - **Pattern:** Custom-paint on `TCanvas`, no render-class
@@ -103,7 +103,7 @@ this list. A component that doesn't meet the bar doesn't ship.
       a `.dfm` setting `LiveData` before `Protocol` doesn't
       crash.
 - [ ] **Component icon.** 24 × 24 PNG on the palette via the
-      existing brand-asset pipeline (`tools/gen-assets`).
+      tracked design-time resources (`tools/designtime_resources.py`).
 - [ ] **Notification cleanup.** Wires `FreeNotification` on
       every component property reference; `Notification`
       clears the property when the bound component is freed.
@@ -393,7 +393,7 @@ this list. A component that doesn't meet the bar doesn't ship.
 
 | # | Decision | Choice |
 |---|---|---|
-| 1 | Framework | VCL only. FMX twins deferred. |
+| 1 | Framework | VCL only. FireMonkey is outside scope. |
 | 2 | Render approach | Direct paint on `TCanvas`. No render-class indirection. Custom-paint base classes used (`TOBDCustomControl`, `TOBDGraphicControl`). |
 | 3 | Theme strategy | Auto-bind `TOBDTheme` on form / DM colours every Delphi-OBD visual. VCL Styles consulted when Theme not assigned. Explicit colour props override both. |
 | 4 | Live data binding | Both. Direct (set `LiveData` + `PID` properties; visual subscribes itself, applies decoder, updates `Value` on main thread). Decoupled (host writes `Value` from `OnValue` handlers). |

@@ -51,17 +51,6 @@ def main():
         print('no checker matches %r' % args.pattern)
         return 2
 
-    # These imported application-specific checks need inputs this library does
-    # not ship. Report them as skipped, never as a successful validation.
-    requirements = {
-        'constkey': ('translations/en.json',),
-        'i18n': ('translations/en.json',),
-        'i18nmissing': ('translations/en.json',),
-        'i18norphan': ('translations/en.json',),
-        'wraparound': ('units/BigNumbers.pas', 'units/ChaChaPoly.pas',
-                       'units/Curve25519.pas', 'units/SrpClient.pas'),
-    }
-    skipped = []
     found = {}
     unclear = []
     def run_checker(name):
@@ -71,17 +60,8 @@ def main():
     pending = {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         for name in names:
-            label = name[len('check_'):-len('.py')]
-            inputs = requirements.get(label, ())
-            if not inputs or any(os.path.exists(os.path.join(ROOT, p)) for p in inputs):
-                pending[name] = pool.submit(run_checker, name)
+            pending[name] = pool.submit(run_checker, name)
     for name in names:
-        label = name[len('check_'):-len('.py')]
-        inputs = requirements.get(label, ())
-        if inputs and not any(os.path.exists(os.path.join(ROOT, p)) for p in inputs):
-            print('%-18s SKIP (project-specific inputs absent)' % label)
-            skipped.append(label)
-            continue
         r = pending[name].result()
         out = (r.stdout or '') + (r.stderr or '')
         label = name[len('check_'):-len('.py')]
@@ -109,9 +89,7 @@ def main():
         print('%d finding(s) across %d checker(s): %s' %
               (sum(found.values()), len(found), ', '.join(sorted(found))))
     else:
-        print('clean across %d executed checkers' % (len(names) - len(skipped)))
-    if skipped:
-        print('skipped: %s' % ', '.join(skipped))
+        print('clean across %d executed checkers' % (len(names)))
     if unclear:
         print('could not read a total from: %s' % ', '.join(unclear))
     advisory = {'private', 'unused', 'inlineunit', 'hidden'}

@@ -8,7 +8,7 @@ remain `DelphiOBD_RT` and `DelphiOBD_DT`.
 
 | Target | Supported scope | Validation |
 |---|---|---|
-| Delphi | Nonvisual library, VCL/FMX UI and IDE integration | Static analysis; actual RAD Studio builds and DUnitX execution remain deferred |
+| Delphi | Nonvisual library, VCL UI and IDE integration | Static analysis; actual RAD Studio builds and DUnitX execution remain deferred |
 | FPC 3.2.2 | Portable binary codecs, routes, frame parsers and EV request construction | Eleven original units; 185 executable checks |
 | FPC 3.3.1+ on Linux x86-64 | Nonvisual library, managed futures, catalogs, coding/flashing services, TCP/UDP/mock transports, recorder/replayer and native crypto integrations | 273 Linux nonvisual source units compile; 193 runtime checks, 6 native signature checks and 7 TLS handshakes |
 
@@ -20,7 +20,8 @@ We pin the official FPCSource revision
 The core units conditionally import `SysUtils`, `Classes`, etc. on FPC and their
 `System.*` equivalents on Delphi. Every Pascal unit declares Delphi mode on FPC.
 
-FPC does not build the visual controls or IDE package. Built-in Bluetooth/BLE
+FPC does not build the visual controls or IDE package. The Delphi UI is VCL only;
+FireMonkey is outside scope. Built-in Bluetooth/BLE
 providers depend on the Delphi Bluetooth framework; serial, FTDI and J2534
 backends depend on Windows. These eight platform-specific units are explicitly
 outside the Linux build target. Selecting the built-in Bluetooth provider in

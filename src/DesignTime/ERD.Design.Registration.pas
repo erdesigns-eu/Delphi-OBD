@@ -195,7 +195,12 @@ begin
   Stream := TResourceStream.Create(HInstance, AResName, RT_RCDATA);
   try
     Result := TPngImage.Create;
-    Result.LoadFromStream(Stream);
+    try
+      Result.LoadFromStream(Stream);
+    except
+      FreeAndNil(Result);
+      raise;
+    end;
   finally
     Stream.Free;
   end;

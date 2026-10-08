@@ -14,6 +14,7 @@ interface
 
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Graphics,
   DUnitX.TestFramework,
   ERD.Service.DriveCycle.Types,
@@ -48,6 +49,8 @@ type
     [Test] procedure SetVoltagesRoundTrip;
     [Test] procedure SetCellOutOfRangeIgnored;
     [Test] procedure CellAtOutOfBoundsReturnsMinusOne;
+    [Test] procedure NonfiniteScaleIsRejected;
+    [Test] procedure MissingReadingsPaintNeutral;
   end;
 
   [TestFixture]
@@ -59,6 +62,23 @@ type
   end;
 
 implementation
+
+type
+  THeatmapPaintProbe = class(TOBDCellVoltageHeatmap)
+  public
+    procedure Render(ACanvas: TCanvas);
+    function UnavailableColor: TColor;
+  end;
+
+procedure THeatmapPaintProbe.Render(ACanvas: TCanvas);
+begin
+  PaintControl(ACanvas);
+end;
+
+function THeatmapPaintProbe.UnavailableColor: TColor;
+begin
+  Result := Self.Palette.Subtle;
+end;
 
 { TReadinessGridTests ----------------------------------------------------- }
 
@@ -252,6 +272,37 @@ begin
   try
     Assert.AreEqual(-1, H.CellAt(0, 0));    // no cells assigned
   finally H.Free; end;
+end;
+
+procedure TCellVoltageHeatmapTests.NonfiniteScaleIsRejected;
+var H: TOBDCellVoltageHeatmap;
+begin
+  H := TOBDCellVoltageHeatmap.Create(nil);
+  try
+    Assert.WillRaise(procedure begin H.MinVoltage := NaN end, EArgumentException);
+    Assert.WillRaise(procedure begin H.MaxVoltage := Infinity end, EArgumentException);
+  finally H.Free end;
+end;
+
+procedure TCellVoltageHeatmapTests.MissingReadingsPaintNeutral;
+var H: THeatmapPaintProbe; Bmp: TBitmap;
+begin
+  H := THeatmapPaintProbe.Create(nil);
+  Bmp := TBitmap.Create;
+  try
+    H.Width := 120; H.Height := 40; H.Columns := 4;
+    H.ShowText := True;
+    Bmp.SetSize(H.Width, H.Height);
+    H.SetVoltages(TArray<Single>.Create(NaN, Infinity, 0.0, 3.7));
+    H.SetCell(0, NaN);
+    H.SetCell(1, Infinity);
+    H.Render(Bmp.Canvas);
+    Assert.AreEqual(ColorToRGB(H.UnavailableColor), ColorToRGB(Bmp.Canvas.Pixels[7, 7]));
+    Assert.AreEqual(4, H.CellCount);
+  finally
+    Bmp.Free;
+    H.Free;
+  end;
 end;
 
 { TChargingFlowTests ------------------------------------------------------ }

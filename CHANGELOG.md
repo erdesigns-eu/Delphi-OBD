@@ -10,6 +10,17 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+- Confirm Delphi VCL-only UI scope; FireMonkey is outside scope.
+- Remove unused copied media/translation generators and application-specific
+  analyzers; document the repository validation commands and Delphi handover.
+- Publish a catalogue-derived EV model/ECU/field support matrix with honest
+  validation limits and check generated documentation in CI.
+- Make IDE resource generation reproducible from tracked native-size PNGs;
+  provide palette resources for all 229 registered components.
+- Reset connection status on detach/removal, display missing cell voltages as
+  unavailable, reject nonfinite heatmap scales and guard live-test callbacks
+  after the dialog closes.
+
 - Breaking: rename all `OBD.*` units, resource files and references to `ERD.*`;
   component class names remain `TOBD*`.
 - Add direct FPC compilation of the nonvisual runtime using the pinned official

@@ -253,8 +253,6 @@ begin
 end;
 
 procedure TOBDTerminal.DropOldestIfNeeded;
-var
-  Drop: Integer;
 begin
   while FLines.Count > FMaxLines do
   begin
@@ -262,8 +260,6 @@ begin
     if Items.Count > 0 then
       Items.Delete(0);
   end;
-  Drop := 0;
-  Drop := Drop;
 end;
 
 procedure TOBDTerminal.ScrollToTail;

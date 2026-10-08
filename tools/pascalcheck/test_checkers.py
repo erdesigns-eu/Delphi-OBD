@@ -134,6 +134,32 @@ end.
         source.write_text(source.read_text().replace('Vcl.Graphics', 'System.SysUtils'))
         self.assertIn('total: 0', self.checker('runtime'))
 
+    def test_ui_guard_checks_flash_layer_and_rejects_fmx_in_ui(self):
+        source = self.source('src/Flashing/ERD.Flash.Demo.pas',
+                             'unit ERD.Flash.Demo; interface uses Vcl.Graphics; implementation end.')
+        self.assertIn('total: 1', self.checker('runtime'))
+        source.unlink()
+        visual = self.source('src/UI/ERD.UI.Demo.pas',
+                             'unit ERD.UI.Demo; interface uses Vcl.Graphics; implementation end.')
+        self.assertIn('total: 0', self.checker('runtime'))
+        visual.write_text(visual.read_text().replace('Vcl.Graphics', 'FMX.Graphics'))
+        self.assertIn('total: 1', self.checker('runtime'))
+
+    def test_platform_guard_detects_wrong_ide_target(self):
+        for filename, targets in [
+                ('packages/DelphiOBD_RT.dproj', ['Win32', 'Win64']),
+                ('packages/DelphiOBD_DT.dproj', ['Win32']),
+                ('tests/DelphiOBD_Tests.dproj', ['Win32', 'Win64'])]:
+            self.source(filename, '<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">'
+                        '<PropertyGroup><Platform>Win32</Platform></PropertyGroup>'
+                        '<ProjectExtensions><BorlandProject><Platforms>' +
+                        ''.join('<Platform value="' + target + '">True</Platform>' for target in targets) +
+                        '</Platforms></BorlandProject></ProjectExtensions></Project>')
+        self.assertIn('total: 0', self.checker('platforms'))
+        path = self.root / 'packages/DelphiOBD_DT.dproj'
+        path.write_text(path.read_text().replace('value="Win32"', 'value="Win64"'))
+        self.assertIn('total: 1', self.checker('platforms'))
+
     def test_fpc_rtl_branch_keeps_delphi_import_visible(self):
         source = self.source('src/Portable.pas', """unit Portable;
 interface

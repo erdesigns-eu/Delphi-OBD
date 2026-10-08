@@ -15,9 +15,9 @@ project files remain ignored.
 
 To build:
 
-1. Open `DelphiOBD_RT.dpk` in RAD Studio (10.3 Rio or newer).
+1. Open `DelphiOBD_RT.dproj` in RAD Studio (10.3 Rio or newer).
 2. **Build** the runtime package.
-3. Open `DelphiOBD_DT.dpk`.
+3. Open `DelphiOBD_DT.dproj`.
 4. **Build**, then **Install**.
 
 The **OBD** category appears in the component palette when the
@@ -47,3 +47,11 @@ the repository root so relative catalog paths resolve. The Delphi job remains
 disabled until a licensed Windows runner is available and the stable branch is
 ready; these project files have XML validation here, but have not been built
 with Delphi in the Linux environment.
+
+
+Package outputs are isolated by platform and configuration under
+`build/<platform>/<config>/`; RT, DT and test DCUs use separate subfolders.
+The IDE package declares Win32 only; RT and tests declare Win32 and Win64.
+For the full local build/test procedure, use
+[the Delphi handover](../docs/delphi-validation.md) and
+`tools/validate_delphi.ps1`.

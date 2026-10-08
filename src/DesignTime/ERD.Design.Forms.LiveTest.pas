@@ -41,7 +41,8 @@ uses
   Vcl.Forms,
   Vcl.StdCtrls,
   Vcl.ExtCtrls,
-  Vcl.Graphics;
+  Vcl.Graphics,
+  ERD.Async.Task;
 
 type
   TOBDLiveTestStatus = (ltsRunning, ltsOK, ltsFail);
@@ -68,9 +69,13 @@ type
     procedure btnRunClick(Sender: TObject);
   strict private
     FAction: TOBDLiveTestAction;
+    FDispatch: TOBDOwnedTask;
     procedure ApplyStatus(AStatus: TOBDLiveTestStatus);
-    procedure WriteLine(ALine: string);
   public
+    /// <summary>Creates the dialog and its callback lifetime guard.</summary>
+    constructor Create(AOwner: TComponent); override;
+    /// <summary>Invalidates retained callbacks before destroying controls.</summary>
+    destructor Destroy; override;
     /// <summary>Configures the dialog and runs the action once
     /// modally. Title / target are shown in the header; the
     /// action is invoked when the user clicks "Run".</summary>
@@ -84,16 +89,32 @@ implementation
 
 { ---- TOBDLiveTestDlg --------------------------------------------------------- }
 
-procedure TOBDLiveTestDlg.WriteLine(ALine: string);
+constructor TOBDLiveTestDlg.Create(AOwner: TComponent);
 begin
-  if TThread.CurrentThread.ThreadID = MainThreadID then
-    memLog.Lines.Add(ALine)
-  else
-    TThread.Queue(nil,
-      procedure
-      begin
-        memLog.Lines.Add(ALine);
-      end);
+  inherited;
+  FDispatch := TOBDOwnedTask.Create;
+end;
+
+destructor TOBDLiveTestDlg.Destroy;
+begin
+  FreeAndNil(FDispatch);
+  inherited;
+end;
+
+/// <summary>Callbacks can be retained by an action after the dialog closes.
+/// Check the captured token without touching the former dialog first.</summary>
+procedure PostLiveTest(const AToken: IOBDDispatchLifetime; const AAction: TProc);
+var Token: IOBDDispatchLifetime; ActionCopy: TProc;
+begin
+  Token := AToken;
+  ActionCopy := AAction;
+  if Token.IsCancelled then Exit;
+  if TThread.CurrentThread.ThreadID = MainThreadID then ActionCopy()
+  else TThread.Queue(nil,
+    procedure
+    begin
+      if not Token.IsCancelled then ActionCopy();
+    end);
 end;
 
 procedure TOBDLiveTestDlg.ApplyStatus(AStatus: TOBDLiveTestStatus);
@@ -118,26 +139,34 @@ begin
 end;
 
 procedure TOBDLiveTestDlg.btnRunClick(Sender: TObject);
+var Token: IOBDDispatchLifetime; ActionCopy: TOBDLiveTestAction;
 begin
   if not Assigned(FAction) then Exit;
+  Token := FDispatch.Lifetime;
+  ActionCopy := FAction;
   btnRun.Enabled := False;
   try
     memLog.Lines.Clear;
     ApplyStatus(ltsRunning);
-    FAction(WriteLine,
+    ActionCopy(
+      procedure(ALine: string)
+      begin
+        PostLiveTest(Token,
+          procedure
+          begin
+            memLog.Lines.Add(ALine);
+          end);
+      end,
       procedure(AStatus: TOBDLiveTestStatus)
       begin
-        if TThread.CurrentThread.ThreadID = MainThreadID then
-          ApplyStatus(AStatus)
-        else
-          TThread.Queue(nil,
-            procedure
-            begin
-              ApplyStatus(AStatus);
-            end);
+        PostLiveTest(Token,
+          procedure
+          begin
+            ApplyStatus(AStatus);
+          end);
       end);
   finally
-    btnRun.Enabled := True;
+    if not Token.IsCancelled then btnRun.Enabled := True;
   end;
 end;
 

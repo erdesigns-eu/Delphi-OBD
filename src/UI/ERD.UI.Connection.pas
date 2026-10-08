@@ -388,7 +388,10 @@ procedure TOBDConnectionStateLamp.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FConnection) then
+  begin
     FConnection := nil;
+    SetState(csClosed);
+  end;
 end;
 
 procedure TOBDConnectionStateLamp.SetConnection(AValue: TOBDConnection);
@@ -397,7 +400,7 @@ begin
   if FConnection <> nil then FConnection.RemoveFreeNotification(Self);
   FConnection := AValue;
   if FConnection <> nil then FConnection.FreeNotification(Self);
-  Refresh;
+  if FConnection <> nil then Refresh else SetState(csClosed);
 end;
 
 procedure TOBDConnectionStateLamp.SetState(AValue: TOBDConnectionState);
