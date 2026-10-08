@@ -17,8 +17,16 @@ uses
   OBD.UI.Dyno;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; ATimeMs: Cardinal; AHP, ATorqueNm: Double);
+  TTestCallback2 = reference to procedure(Sender: TObject; AElapsedMs: Cardinal; APeakHP, APeakTorqueNm: Double);
+  TTestCallback3 = reference to procedure(Sender: TObject; var ALossFraction: Double);
+
   [TestFixture]
   TDynoCalculatorTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; ATimeMs: Cardinal; AHP, ATorqueNm: Double);
+
   public
     [Test] procedure DefaultsAreSane;
     [Test] procedure PushSampleFiresOnSampleAfterFirstDelta;
@@ -35,6 +43,10 @@ type
 
   [TestFixture]
   TDragRunTests = class
+  strict private
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent2(Sender: TObject; AElapsedMs: Cardinal; APeakHP, APeakTorqueNm: Double);
+
   public
     [Test] procedure ArmThenSpeedAboveStartTriggersRunning;
     [Test] procedure SpeedAboveTargetFiresFinishedAndRecordsPeaks;
@@ -73,6 +85,10 @@ type
 
   [TestFixture]
   TTorqueAtWheelsTests = class
+  strict private
+    FTestCallback3: TTestCallback3;
+    procedure HandleTestEvent3(Sender: TObject; var ALossFraction: Double);
+
   public
     [Test] procedure DefaultLossIsFifteenPercent;
     [Test] procedure HostOverridesLoss;
@@ -102,10 +118,11 @@ begin
   Fired := 0;
   C := TOBDDynoCalculator.Create(nil);
   try
-    C.OnSample :=
+    FTestCallback1 :=
       procedure(Sender: TObject; ATimeMs: Cardinal;
         AHP, ATorqueNm: Double)
       begin Inc(Fired); end;
+    C.OnSample := HandleTestEvent1;
     C.PushSample(0,    0,   0);
     C.PushSample(1000, 50,  3000);
     Assert.AreEqual(2, Fired);
@@ -183,10 +200,11 @@ begin
   Fired := False;
   R := TOBDDragRun.Create(nil);
   try
-    R.OnFinished :=
+    FTestCallback2 :=
       procedure(Sender: TObject; AElapsedMs: Cardinal;
         APeakHP, APeakTorqueNm: Double)
       begin Fired := True; end;
+    R.OnFinished := HandleTestEvent2;
     R.Arm;
     R.PushSample(2.0,   50, 200);
     R.PushSample(50.0, 110, 300);   // peaks update
@@ -344,13 +362,30 @@ var T: TOBDTorqueAtWheels;
 begin
   T := TOBDTorqueAtWheels.Create(nil);
   try
-    T.OnDrivetrainLoss :=
+    FTestCallback3 :=
       procedure(Sender: TObject; var ALossFraction: Double)
       begin ALossFraction := 0.25; end;
+    T.OnDrivetrainLoss := HandleTestEvent3;
     T.PushSample(100, 200);
     Assert.AreEqual(75.0,  T.WheelHP,       0.001);
     Assert.AreEqual(150.0, T.WheelTorqueNm, 0.001);
   finally T.Free; end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TDynoCalculatorTests.HandleTestEvent1(Sender: TObject; ATimeMs: Cardinal; AHP, ATorqueNm: Double);
+begin
+  FTestCallback1(Sender, ATimeMs, AHP, ATorqueNm);
+end;
+
+procedure TDragRunTests.HandleTestEvent2(Sender: TObject; AElapsedMs: Cardinal; APeakHP, APeakTorqueNm: Double);
+begin
+  FTestCallback2(Sender, AElapsedMs, APeakHP, APeakTorqueNm);
+end;
+
+procedure TTorqueAtWheelsTests.HandleTestEvent3(Sender: TObject; var ALossFraction: Double);
+begin
+  FTestCallback3(Sender, ALossFraction);
 end;
 
 initialization

@@ -5,19 +5,19 @@ A missing published field makes the form fail to load at run time with
 """
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import ROOT
+from common import ROOT, dfm_files
 from typemap import all_units
 
 US = all_units()
 problems = []
 
-for f in sorted(os.listdir(os.path.join(ROOT, 'forms'))):
-    if not f.endswith('.dfm'): continue
-    base = f[:-4]
+for path in sorted(dfm_files()):
+    f = os.path.relpath(path, ROOT)
+    base = os.path.basename(path)[:-4]
     u = US.get(base.lower())
     if u is None:
         problems.append((f, '-', 'no matching .pas unit')); continue
-    lines = open(os.path.join(ROOT, 'forms', f), encoding='utf-8', errors='replace').read().split('\n')
+    lines = open(path, encoding='utf-8', errors='replace').read().split('\n')
     m = re.match(r'object (\w+): (\w+)', lines[0].strip())
     if not m: continue
     cls = m.group(2)

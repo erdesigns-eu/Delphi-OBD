@@ -23,6 +23,9 @@ uses
   OBD.UI.Anim;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; AValue: Double);
+  TTestCallback2 = reference to procedure(Sender: TObject; AFinal: Double);
+
   [TestFixture]
   TOBDVisualStyleTests = class
   public
@@ -48,6 +51,12 @@ type
 
   [TestFixture]
   TOBDValueAnimTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent1(Sender: TObject; AValue: Double);
+    procedure HandleTestEvent2(Sender: TObject; AFinal: Double);
+
   public
     [Test] procedure SnapToFiresFrameAndDeactivates;
     [Test] procedure StopJumpsToFinalAndFiresDone;
@@ -238,9 +247,10 @@ begin
   Got := 0;
   A := TOBDValueAnim.Create;
   try
-    A.OnFrame :=
+    FTestCallback1 :=
       procedure (Sender: TObject; AValue: Double)
       begin Fired := True; Got := AValue; end;
+    A.OnFrame := HandleTestEvent1;
     A.SnapTo(42.5);
     Assert.IsTrue(Fired);
     Assert.AreEqual(42.5, Got, 0.001);
@@ -260,9 +270,10 @@ begin
   DoneFinal := 0;
   A := TOBDValueAnim.Create;
   try
-    A.OnDone :=
+    FTestCallback2 :=
       procedure (Sender: TObject; AFinal: Double)
       begin DoneFired := True; DoneFinal := AFinal; end;
+    A.OnDone := HandleTestEvent2;
     A.Animate(0, 100);
     Assert.IsTrue(A.Active);
     A.Stop;
@@ -327,6 +338,17 @@ begin
   finally
     A.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TOBDValueAnimTests.HandleTestEvent1(Sender: TObject; AValue: Double);
+begin
+  FTestCallback1(Sender, AValue);
+end;
+
+procedure TOBDValueAnimTests.HandleTestEvent2(Sender: TObject; AFinal: Double);
+begin
+  FTestCallback2(Sender, AFinal);
 end;
 
 initialization

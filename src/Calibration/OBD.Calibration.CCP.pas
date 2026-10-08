@@ -38,6 +38,7 @@ unit OBD.Calibration.CCP;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   OBD.Types,

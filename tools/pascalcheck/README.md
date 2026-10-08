@@ -27,6 +27,45 @@ Python 3.8 or newer, no third-party packages. The repository root is worked
 out from the file's own location, so the suite runs from any directory; set
 `REPO` to point it at a different checkout.
 
+## Delphi-OBD integration
+
+Discovery includes `src/`, `samples/`, `packages/`, `tests/` and `tools/`,
+plus the original imported layouts. Namespaced units are resolved using
+full names (`OBD.Protocol.Types`, not `Types`). Mutually exclusive compiler
+branches do not count as duplicate declarations. No source files are
+rewritten by the checkers.
+
+`python tools/pascalcheck/run.py --errors-only -v` is the CI mode. It still
+runs and reports the hint/warning checkers (`private`, `unused`, `hidden`,
+`inlineunit`), but those do not fail the job. The default command retains
+its original strict exit behaviour. A checker crash or unreadable result
+fails either mode. `-j N` controls independent checker processes.
+
+The copied translation checks (`constkey`, `i18n`, `i18nmissing`,
+`i18norphan`) require `translations/en.json`; `wraparound` requires the
+explicitly listed crypto units from the originating application. They are
+reported as **SKIP** when those inputs do not exist. This is not validation
+of translations or cryptography. Several remaining policy checks still
+refer to concepts from the originating application (Brand.inc, AppInfo,
+NewHttpClient). A zero from such a check does not establish a Delphi-OBD
+policy or a working feature; only generic source checks are useful here.
+
+Run the regression fixtures with:
+
+```sh
+python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
+```
+
+For actual execution of portable codecs, install Free Pascal and run
+`python3 tools/fpc_smoke.py`. It uses `-Mdelphi`, compiles `OBD.Version`
+unmodified, then builds six selected units with only `System.SysUtils`
+and `System.Variants` scope names adapted in temporary copies. It uses the
+real FPC RTL and no Delphi/VCL/API stubs. The 154 runtime checks cover LIN
+parity/checksum goldens, LIN/MOST/FlexRay round trips, corrupt frames and
+trailing bytes. It does not compile the complete package or run DUnitX.
+For an extracted compiler, pass `--compiler /path/to/ppcx64` and, if needed,
+`--rtl /path/to/units/x86_64-linux`.
+
 ## What each checker looks for
 
 | checker | finds |

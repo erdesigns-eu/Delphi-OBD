@@ -33,6 +33,7 @@ unit OBD.OEM.UdsClient;
 interface
 
 uses
+  OBD.OEM.Types,
   System.SysUtils, System.Classes, System.SyncObjs, System.DateUtils,
   System.Generics.Collections,
   OBD.OEM, OBD.OEM.Catalog.JSON, OBD.OEM.DTC;

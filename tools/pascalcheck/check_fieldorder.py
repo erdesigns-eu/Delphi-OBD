@@ -57,7 +57,7 @@ for path in pas_files():
     i = 0
     while i < len(lines):
         m = OPEN_RE.match(strip_comment(lines[i]))
-        if not m or m.group(2).strip() == ';':
+        if not m or m.group(2).strip() == ';' or m.group(2).strip().endswith(';') or m.group(2).strip().lower().startswith('of '):
             i += 1
             continue
         depth = 1

@@ -154,7 +154,7 @@ end;
 procedure TIso15765ReassemblyTests.RoundTripMultiFrame;
 var
   R: TOBDIso15765Reassembler;
-  FF, CF1, CF2, CF3, Out_: TBytes;
+  FF, CF1, CF2, Out_: TBytes;
   Original: TBytes;
   I: Integer;
 begin

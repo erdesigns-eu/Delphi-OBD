@@ -141,7 +141,7 @@ begin
 end;
 
 function ReadBool(AObj: TJSONObject; const AKey: string;
-  ADef, out AHas: Boolean): Boolean;
+  ADef: Boolean; out AHas: Boolean): Boolean;
 var
   V: TJSONValue;
 begin
@@ -223,7 +223,7 @@ var
   Acc: TList<TOBDOEMPlatform>;
   Has: Boolean;
 begin
-  ADoc := Default(TOBDOEMCatalogDoc);
+  ADoc := System.Default(TOBDOEMCatalogDoc);
   V := ARoot.GetValue('version');
   if not (V is TJSONNumber) or (TJSONNumber(V).AsInt64 <> 1) then
     raise EOBDProtocol.Create('OEM handshake catalogue: version must be 1');
@@ -244,7 +244,7 @@ begin
     begin
       if not (Arr.Items[I] is TJSONObject) then Continue;
       PlatObj := Arr.Items[I] as TJSONObject;
-      Plat := Default(TOBDOEMPlatform);
+      Plat := System.Default(TOBDOEMPlatform);
       Plat.Name := ReadString(PlatObj, 'name', '');
       if Plat.Name = '' then Continue;
       Plat.EcuFamily := ReadString(PlatObj, 'ecu_family', '');

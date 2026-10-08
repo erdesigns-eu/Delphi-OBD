@@ -13,6 +13,7 @@ unit Tests.OBD.Service.DriveCycle;
 interface
 
 uses
+  OBD.Types,
   System.SysUtils, System.Classes, System.IOUtils,
   DUnitX.TestFramework,
   OBD.Service.DriveCycle.Types,

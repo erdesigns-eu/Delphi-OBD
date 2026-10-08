@@ -31,6 +31,12 @@ uses
   OBD.Recorder.Redactor;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; const E: TOBDLogEntry);
+  TTestCallback2 = reference to procedure(Sender: TObject; const E: TOBDLogEntry);
+  TTestCallback3 = reference to procedure(Sender: TObject; const AFrame: TOBDFrame);
+  TTestCallback4 = reference to procedure(Sender: TObject; const AResponse: TOBDResponse);
+  TTestCallback5 = reference to procedure(Sender: TObject; const ARequest: TOBDRequest; ANRC: Byte; const AText: string);
+
   [TestFixture]
   TRecorderTests = class
   public
@@ -41,6 +47,12 @@ type
 
   [TestFixture]
   TReplayerTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent1(Sender: TObject; const E: TOBDLogEntry);
+    procedure HandleTestEvent2(Sender: TObject; const E: TOBDLogEntry);
+
   public
     [Test] procedure PlaysEveryEntry;
     [Test] procedure CancelStopsReplay;
@@ -57,6 +69,14 @@ type
 
   [TestFixture]
   TProtocolMockTests = class
+  strict private
+    FTestCallback3: TTestCallback3;
+    FTestCallback4: TTestCallback4;
+    FTestCallback5: TTestCallback5;
+    procedure HandleTestEvent3(Sender: TObject; const AFrame: TOBDFrame);
+    procedure HandleTestEvent4(Sender: TObject; const AResponse: TOBDResponse);
+    procedure HandleTestEvent5(Sender: TObject; const ARequest: TOBDRequest; ANRC: Byte; const AText: string);
+
   public
     [Test] procedure MockFiresFrameResponseAndNRC;
   end;
@@ -184,11 +204,12 @@ begin
     WriteThree(Tmp);
     Replayer.FileName := Tmp;
     Replayer.Mode := rmAsFastAsPossible;
-    Replayer.OnEntry :=
+    FTestCallback1 :=
       procedure(Sender: TObject; const E: TOBDLogEntry)
       begin
         Visited.Add(E.Kind);
       end;
+    Replayer.OnEntry := HandleTestEvent1;
     Replayer.Play;
     Assert.AreEqual(3, Visited.Count);
     Assert.AreEqual(Ord(leInfo),     Ord(Visited[0]));
@@ -214,12 +235,13 @@ begin
   try
     WriteThree(Tmp);
     Replayer.FileName := Tmp;
-    Replayer.OnEntry :=
+    FTestCallback2 :=
       procedure(Sender: TObject; const E: TOBDLogEntry)
       begin
         Inc(Count);
         if Count = 1 then Replayer.Stop;
       end;
+    Replayer.OnEntry := HandleTestEvent2;
     Replayer.Play;
     Assert.AreEqual(1, Count, 'Stop must halt at next entry boundary');
   finally
@@ -364,21 +386,23 @@ begin
   Mock := TOBDProtocolMock.Create(nil);
   try
     Mock.FileName := Tmp;
-    Mock.OnFrame :=
+    FTestCallback3 :=
       procedure(Sender: TObject; const AFrame: TOBDFrame)
       begin
         Inc(FrameCount);
         Assert.AreEqual(Cardinal($7E8), AFrame.Id);
         Assert.AreEqual(5, Length(AFrame.Payload));
       end;
-    Mock.OnResponse :=
+    Mock.OnFrame := HandleTestEvent3;
+    FTestCallback4 :=
       procedure(Sender: TObject; const AResponse: TOBDResponse)
       begin
         Inc(RespCount);
         Assert.AreEqual($41, Integer(AResponse.ServiceID));
         Assert.AreEqual(Cardinal(12), AResponse.Elapsed);
       end;
-    Mock.OnNRC :=
+    Mock.OnResponse := HandleTestEvent4;
+    FTestCallback5 :=
       procedure(Sender: TObject; const ARequest: TOBDRequest;
         ANRC: Byte; const AText: string)
       begin
@@ -386,6 +410,7 @@ begin
         Assert.AreEqual($22, Integer(ARequest.ServiceID));
         Assert.AreEqual($33, Integer(ANRC));
       end;
+    Mock.OnNRC := HandleTestEvent5;
     Mock.Run;
     Assert.AreEqual(1, FrameCount);
     Assert.AreEqual(1, RespCount);
@@ -453,6 +478,32 @@ begin
     if TFile.Exists(Src) then TFile.Delete(Src);
     if TFile.Exists(Dst) then TFile.Delete(Dst);
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TReplayerTests.HandleTestEvent1(Sender: TObject; const E: TOBDLogEntry);
+begin
+  FTestCallback1(Sender, E);
+end;
+
+procedure TReplayerTests.HandleTestEvent2(Sender: TObject; const E: TOBDLogEntry);
+begin
+  FTestCallback2(Sender, E);
+end;
+
+procedure TProtocolMockTests.HandleTestEvent3(Sender: TObject; const AFrame: TOBDFrame);
+begin
+  FTestCallback3(Sender, AFrame);
+end;
+
+procedure TProtocolMockTests.HandleTestEvent4(Sender: TObject; const AResponse: TOBDResponse);
+begin
+  FTestCallback4(Sender, AResponse);
+end;
+
+procedure TProtocolMockTests.HandleTestEvent5(Sender: TObject; const ARequest: TOBDRequest; ANRC: Byte; const AText: string);
+begin
+  FTestCallback5(Sender, ARequest, ANRC, AText);
 end;
 
 initialization

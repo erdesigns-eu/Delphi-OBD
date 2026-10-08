@@ -55,7 +55,8 @@ begin
   begin
     Writeln(StdErr,
       'Usage: J1939Flash <source-sa-hex> <target-addr-hex> <image.bin>');
-    Halt(2);
+    ExitCode := 2;
+    Exit;
   end;
 
   TargetAddr := StrToInt64('$' + ParamStr(2));

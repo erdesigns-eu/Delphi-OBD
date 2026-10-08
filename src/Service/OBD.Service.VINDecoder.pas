@@ -40,6 +40,7 @@
 //                     re-derived from ISO 3779 / 3780 / SAE J853;
 //                     spec-defined data tables imported from the
 //                     v1 JSON catalogues.
+//    2026-10-08  Validate catalogue JSON shapes before reading objects.
 //------------------------------------------------------------------------------
 
 unit OBD.Service.VINDecoder;
@@ -47,6 +48,7 @@ unit OBD.Service.VINDecoder;
 interface
 
 uses
+  OBD.JSON,
   System.SysUtils,
   System.Classes,
   System.DateUtils,
@@ -714,15 +716,15 @@ var
   Acc: TList<TOBDVINRegion>;
   I: Integer;
 begin
-  Doc := TJSONObject.ParseJSONValue(
+  Doc := ParseOBDJSONObject(
     ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'regions.json'))) as TJSONObject;
+      'regions.json')));
   Acc := TList<TOBDVINRegion>.Create;
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
-      Item := Arr.Items[I] as TJSONObject;
+      Item := RequireOBDJSONObject(Arr.Items[I]);
       R.RangeStart := Item.GetValue<string>('range_start')[1];
       R.RangeEnd   := Item.GetValue<string>('range_end')[1];
       R.Name       := Item.GetValue<string>('name');
@@ -744,15 +746,15 @@ var
   Acc: TList<TOBDVINCountry>;
   I: Integer;
 begin
-  Doc := TJSONObject.ParseJSONValue(
+  Doc := ParseOBDJSONObject(
     ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'countries.json'))) as TJSONObject;
+      'countries.json')));
   Acc := TList<TOBDVINCountry>.Create;
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
-      Item := Arr.Items[I] as TJSONObject;
+      Item := RequireOBDJSONObject(Arr.Items[I]);
       C.RangeStart := Item.GetValue<string>('range_start');
       C.RangeEnd   := Item.GetValue<string>('range_end');
       C.Name       := Item.GetValue<string>('name');
@@ -779,14 +781,14 @@ begin
   if FManufacturers = nil then
     FManufacturers := TDictionary<string, TOBDVINManufacturer>.Create;
   FManufacturers.Clear;
-  Doc := TJSONObject.ParseJSONValue(
+  Doc := ParseOBDJSONObject(
     ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'wmi.json'))) as TJSONObject;
+      'wmi.json')));
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
-      Item := Arr.Items[I] as TJSONObject;
+      Item := RequireOBDJSONObject(Arr.Items[I]);
       M.WMI  := UpperCase(Item.GetValue<string>('wmi'));
       M.Name := Item.GetValue<string>('name');
       FManufacturers.AddOrSetValue(M.WMI, M);
@@ -807,14 +809,14 @@ begin
   if FPlants = nil then
     FPlants := TDictionary<string, TOBDVINPlantLocation>.Create;
   FPlants.Clear;
-  Doc := TJSONObject.ParseJSONValue(
+  Doc := ParseOBDJSONObject(
     ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'plants.json'))) as TJSONObject;
+      'plants.json')));
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
-      Item := Arr.Items[I] as TJSONObject;
+      Item := RequireOBDJSONObject(Arr.Items[I]);
       P.Key     := UpperCase(Item.GetValue<string>('key'));
       P.Code    := Item.GetValue<string>('code')[1];
       P.Name    := Item.GetValue<string>('name');
@@ -861,8 +863,8 @@ begin
     SetLength(FVDSSchemas, 0);
     Exit;
   end;
-  Doc := TJSONObject.ParseJSONValue(
-    ReadCatalogText(Path)) as TJSONObject;
+  Doc := ParseOBDJSONObject(
+    ReadCatalogText(Path));
   if Doc = nil then
   begin
     SetLength(FVDSSchemas, 0);
@@ -880,7 +882,7 @@ begin
     begin
       Schema := Default(TOBDVINVDSSchema);
       Schema.Id := Pair.JsonString.Value;
-      SchemaObj := Pair.JsonValue as TJSONObject;
+      SchemaObj := RequireOBDJSONObject(Pair.JsonValue);
 
       WmiArr := SchemaObj.GetValue<TJSONArray>('wmis');
       WmiList := TList<TOBDVINVDSSchemaWMI>.Create;
@@ -888,7 +890,7 @@ begin
         if WmiArr <> nil then
           for J := 0 to WmiArr.Count - 1 do
           begin
-            WmiObj := WmiArr.Items[J] as TJSONObject;
+            WmiObj := RequireOBDJSONObject(WmiArr.Items[J]);
             WmiEntry := Default(TOBDVINVDSSchemaWMI);
             WmiEntry.WMI := UpperCase(WmiObj.GetValue<string>('wmi'));
             V := WmiObj.GetValue('yearFrom');
@@ -909,7 +911,7 @@ begin
         if PatArr <> nil then
           for J := 0 to PatArr.Count - 1 do
           begin
-            PatObj := PatArr.Items[J] as TJSONObject;
+            PatObj := RequireOBDJSONObject(PatArr.Items[J]);
             Pat := Default(TOBDVINVDSPattern);
             V := PatObj.GetValue('keys');
             if V <> nil then Pat.Keys := V.Value;

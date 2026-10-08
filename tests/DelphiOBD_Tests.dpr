@@ -35,6 +35,8 @@ uses
   OBD.Errors in '..\src\Core\OBD.Errors.pas',
   OBD.Decoders in '..\src\Core\OBD.Decoders.pas',
   OBD.Catalog in '..\src\Core\OBD.Catalog.pas',
+  OBD.JSON in '..\src\Core\OBD.JSON.pas',
+  Tests.OBD.JSON in 'Tests.OBD.JSON.pas',
   OBD.Connection.Types in '..\src\Connection\OBD.Connection.Types.pas',
   OBD.Connection.Settings in '..\src\Connection\OBD.Connection.Settings.pas',
   OBD.Connection.Retry in '..\src\Connection\OBD.Connection.Retry.pas',

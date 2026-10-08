@@ -614,20 +614,21 @@ begin
       begin
         // Non-blocking for connect timeout.
         Mode := 1;
-        ioctlsocket(FSocket, FIONBIO, Mode);
+        ioctlsocket(FSocket, DWORD($8004667E), Mode);
 
         if Winapi.Winsock2.connect(FSocket, Cur.ai_addr^, Cur.ai_addrlen) = 0 then
         begin
           // immediate connect
           Mode := 0;
-          ioctlsocket(FSocket, FIONBIO, Mode);
+          ioctlsocket(FSocket, DWORD($8004667E), Mode);
           Break;
         end;
 
         if WSAGetLastError = WSAEWOULDBLOCK then
         begin
-          FD_ZERO(FdSet);
-          _FD_SET(FSocket, FdSet);
+          FillChar(FdSet, SizeOf(FdSet), 0);
+          FdSet.fd_count := 1;
+          FdSet.fd_array[0] := FSocket;
           TV.tv_sec  := Integer(ATimeoutMs div 1000);
           TV.tv_usec := Integer((ATimeoutMs mod 1000) * 1000);
           RC := select(0, nil, @FdSet, nil, @TV);
@@ -640,7 +641,7 @@ begin
             if SoErr = 0 then
             begin
               Mode := 0;
-              ioctlsocket(FSocket, FIONBIO, Mode);
+              ioctlsocket(FSocket, DWORD($8004667E), Mode);
               Break;
             end;
           end;

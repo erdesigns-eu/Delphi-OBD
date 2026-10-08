@@ -45,6 +45,7 @@ unit OBD.Design.Editors;
 interface
 
 uses
+  OBD.Types,
   System.Classes,
   System.SysUtils,
   Vcl.Dialogs,
@@ -758,7 +759,7 @@ begin
         Proto.Adapter.Connection.Open;
         try
           AWriteLine('Sending ' + ATCommand + '…');
-          Reply := Proto.Adapter.SendCommand(ATCommand).Raw;
+          Reply := Proto.Adapter.SendCommand(ATCommand, Proto.Adapter.CommandTimeoutMs).Raw;
           AWriteLine('Reply        : ' + Reply);
           ASetStatus(ltsOK);
         finally
@@ -1094,7 +1095,6 @@ procedure TOBDDTCsComponentEditor.ExecuteVerb(Index: Integer);
 var
   DTC: TOBDDTCs;
   Entries: TArray<TOBDDtcEntry>;
-  EntryIdx: Integer;
   Confirmed: Integer;
 begin
   DTC := Component as TOBDDTCs;
@@ -1106,6 +1106,8 @@ begin
           'Reads confirmed, pending and permanent DTCs.',
           procedure(const AWriteLine: TProc<string>;
             const ASetStatus: TProc<TOBDLiveTestStatus>)
+          var
+            EntryIdx: Integer;
           begin
             if DTC.Protocol = nil then
             begin

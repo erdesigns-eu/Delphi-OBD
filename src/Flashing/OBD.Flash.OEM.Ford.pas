@@ -19,6 +19,7 @@ unit OBD.Flash.OEM.Ford;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   OBD.Types,
   OBD.Coding.SecurityAccess,

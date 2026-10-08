@@ -11,18 +11,12 @@ one of those comparisons.
 """
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import ROOT, SKIP
+from common import ROOT, SKIP, dfm_files
 
 ACTION_RE = re.compile(
     r"object\s+(\w+):\s+T\w*Action\b(.*?)\n    end\n", re.S)
 EXEC_RE = re.compile(r"OnExecute\s*=\s*(\w+)")
 SENDER_RE = re.compile(r"Sender\s*=\s*(\w+)")
-
-def dfm_files():
-    d = os.path.join(ROOT, 'forms')
-    for f in sorted(os.listdir(d)):
-        if f.lower().endswith('.dfm'):
-            yield os.path.join(d, f)
 
 def body_of(src, name):
     m = re.search(r"^procedure\s+T\w+\.%s\s*\(" % re.escape(name), src, re.M)

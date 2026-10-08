@@ -18,6 +18,7 @@ unit OBD.Flash.OEM.Toyota;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   OBD.Types,
   OBD.Coding.SecurityAccess,

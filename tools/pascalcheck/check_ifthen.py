@@ -10,6 +10,7 @@ A call whose arguments contain a quoted string is taken to want the string one.
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ROOT, SKIP, pas_files
+from typemap import split_args
 
 CALL_RE = re.compile(r'\bIfThen\s*\(', re.I)
 
@@ -50,7 +51,8 @@ for path in pas_files():
         continue
     for m in CALL_RE.finditer(src):
         args = arguments(src, m.end() - 1)
-        if "'" not in args:
+        parts = split_args(args)
+        if not any(re.match(r"^\s*'", x) for x in parts[1:]):
             continue
         line = src[:m.start()].count('\n') + 1
         print('  %s:%d  IfThen over strings' % (rel, line))

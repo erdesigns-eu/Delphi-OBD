@@ -34,6 +34,7 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-10-08  ERD  Add owned async operations and cancellation cleanup.
 //------------------------------------------------------------------------------
 
 unit OBD.Diagnostics.KWP.Routine;
@@ -41,6 +42,7 @@ unit OBD.Diagnostics.KWP.Routine;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
@@ -80,8 +82,15 @@ type
     FAutoExecute: Boolean;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
+    FWorker: TThread;
+    FCancelled: Integer;
+    FOnProgress: TOBDProgressEvent;
     FOnRoutine: TOBDKWPRoutineEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure FireProgress(AIndex: Cardinal; const AName: string);
+    function IsAsyncCancelled: Boolean;
+    procedure BeginAsync(const AAction: TProc);
+    procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     function DoSend(AService: Byte; ALocalID: Byte;
@@ -145,7 +154,29 @@ type
     ///   not match.
     /// </exception>
     function RequestResults(ALocalID: Byte): TBytes;
+    /// <summary>Asynchronous Start; results and errors use main-thread events.</summary>
+    /// <param name="ALocalID">Routine local identifier.</param>
+    /// <param name="AParams">Optional parameters copied before returning.</param>
+    /// <exception cref="EOBDConfig">Another async call is active or caller is
+    /// not on the main thread. Request errors are delivered by OnError.</exception>
+    procedure StartAsync(ALocalID: Byte; const AParams: TBytes = nil);
+    /// <summary>Asynchronous Stop; results and errors use main-thread events.</summary>
+    /// <param name="ALocalID">Routine local identifier.</param>
+    /// <exception cref="EOBDConfig">Another async call is active or caller is
+    /// not on the main thread. Request errors are delivered by OnError.</exception>
+    procedure StopAsync(ALocalID: Byte);
+    /// <summary>Asynchronous RequestResults; results and errors use main-thread events.</summary>
+    /// <param name="ALocalID">Routine local identifier.</param>
+    /// <exception cref="EOBDConfig">Another async call is active or caller is
+    /// not on the main thread. Request errors are delivered by OnError.</exception>
+    procedure RequestResultsAsync(ALocalID: Byte);
+    /// <summary>Cancel delivery and wait for the owned worker. Main thread only.
+    /// An already transmitted ECU request cannot be undone.</summary>
+    /// <exception cref="EOBDConfig">Called outside the main thread.</exception>
+    procedure CancelAsync;
   published
+    /// <summary>Request and response phases on the main thread.</summary>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
@@ -170,6 +201,7 @@ end;
 
 destructor TOBDKWPRoutine.Destroy;
 begin
+  CancelAsync;
   FAsyncLock.Free;
   inherited;
 end;
@@ -178,6 +210,8 @@ procedure TOBDKWPRoutine.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then
     Exit;
+  if FAsyncInFlight then
+    raise EOBDConfig.Create('Cannot replace Protocol during an async request');
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -190,15 +224,104 @@ procedure TOBDKWPRoutine.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    CancelAsync;
     FProtocol := nil;
+  end;
+end;
+
+procedure TOBDKWPRoutine.FireProgress(AIndex: Cardinal; const AName: string);
+var
+  Step: TOBDProgressStep;
+begin
+  if not Assigned(FOnProgress) then
+    Exit;
+  Step := TOBDProgressStep.MakeStep(AIndex, 2, AName, '');
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnProgress(Self, Step)
+  else
+    TThread.Queue(TThread.CurrentThread,
+      procedure
+      begin
+        if not IsAsyncCancelled and
+          Assigned(FOnProgress) then
+          FOnProgress(Self, Step);
+      end);
+end;
+
+function TOBDKWPRoutine.IsAsyncCancelled: Boolean;
+begin
+  Result := TInterlocked.CompareExchange(FCancelled, 0, 0) <> 0;
+end;
+
+procedure TOBDKWPRoutine.BeginAsync(const AAction: TProc);
+var
+  Action: TProc;
+begin
+  Action := AAction;
+  GuardSingleAsync;
+  try
+    FWorker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        try
+          if not IsAsyncCancelled then
+            Action();
+        except
+          on E: Exception do
+            if not IsAsyncCancelled then
+              FireError(oeIO, E.Message);
+        end;
+        TThread.ForceQueue(TThread.CurrentThread,
+          procedure
+          begin
+            FinishAsync;
+          end);
+      end);
+    FWorker.FreeOnTerminate := False;
+    FWorker.Start;
+  except
+    FreeAndNil(FWorker);
+    ReleaseAsync;
+    raise;
+  end;
+end;
+
+procedure TOBDKWPRoutine.FinishAsync;
+begin
+  if IsAsyncCancelled then
+    Exit;
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
+end;
+
+procedure TOBDKWPRoutine.CancelAsync;
+begin
+  if FWorker = nil then
+    Exit;
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPRoutine: async lifecycle requires main thread');
+  TInterlocked.Exchange(FCancelled, 1);
+  FWorker.Terminate;
+  // WaitFor pumps Synchronize on the main thread. Consent checks observe
+  // termination before invoking user code, so teardown cannot send a request.
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
 end;
 
 procedure TOBDKWPRoutine.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPRoutine: async start requires main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDKWPRoutine: async already in flight');
+    TInterlocked.Exchange(FCancelled, 0);
     FAsyncInFlight := True;
   finally
     FAsyncLock.Leave;
@@ -228,6 +351,9 @@ begin
   if Length(AParams) > 0 then
     Move(AParams[0], Req[1], Length(AParams));
 
+  if (FWorker <> nil) and IsAsyncCancelled then
+    raise EOBDConfig.Create('TOBDKWPRoutine: async cancelled');
+  FireProgress(1, 'Request');
   Resp := FProtocol.Request(AService, Req);
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
@@ -245,6 +371,7 @@ begin
     Result := Copy(Resp.Data, 1, Length(Resp.Data) - 1)
   else
     SetLength(Result, 0);
+  FireProgress(2, 'Response');
 end;
 
 function TOBDKWPRoutine.Start(ALocalID: Byte;
@@ -272,6 +399,36 @@ begin
   FireRoutine(rpResults, ALocalID, Result);
 end;
 
+procedure TOBDKWPRoutine.StartAsync(ALocalID: Byte; const AParams: TBytes);
+var
+  Params: TBytes;
+begin
+  Params := Copy(AParams, 0, Length(AParams));
+  BeginAsync(
+    procedure
+    begin
+      Start(ALocalID, Params);
+    end);
+end;
+
+procedure TOBDKWPRoutine.StopAsync(ALocalID: Byte);
+begin
+  BeginAsync(
+    procedure
+    begin
+      Stop(ALocalID);
+    end);
+end;
+
+procedure TOBDKWPRoutine.RequestResultsAsync(ALocalID: Byte);
+begin
+  BeginAsync(
+    procedure
+    begin
+      RequestResults(ALocalID);
+    end);
+end;
+
 procedure TOBDKWPRoutine.FireRoutine(APhase: TOBDKWPRoutinePhase;
   ALocalID: Byte; const AData: TBytes);
 var
@@ -289,10 +446,11 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRoutine(Self_, Phase, LID, Snap)
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnRoutine) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnRoutine) then
           Self_.FOnRoutine(Self_, Phase, LID, Snap);
       end);
 end;
@@ -316,13 +474,14 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       var
         Handled: Boolean;
       begin
         Handled := False;
-        if Assigned(Self_.FOnError) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnError) then
           Self_.FOnError(Self_, Code, Msg, Handled);
       end);
 end;

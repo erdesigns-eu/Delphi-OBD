@@ -13,6 +13,7 @@ unit Tests.OBD.OEM.KeyAdaptation;
 interface
 
 uses
+  OBD.Types,
   System.SysUtils, System.Classes,
   DUnitX.TestFramework,
   OBD.Errors,

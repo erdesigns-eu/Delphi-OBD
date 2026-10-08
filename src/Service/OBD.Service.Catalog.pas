@@ -282,7 +282,7 @@ begin
       begin
         if not (Arr.Items[I] is TJSONObject) then Continue;
         Entry := Arr.Items[I] as TJSONObject;
-        Info := Default(TOBDPIDInfo);
+        Info := System.Default(TOBDPIDInfo);
         Info.PID := ParseHexWord(GetJSONStr(Entry, 'did', '0x0000'));
         Info.Name := GetJSONStr(Entry, 'name', '');
         Info.Description := GetJSONStr(Entry, 'description', '');
@@ -336,7 +336,7 @@ begin
       begin
         if not (Arr.Items[I] is TJSONObject) then Continue;
         Entry := Arr.Items[I] as TJSONObject;
-        Info := Default(TOBDDtcInfo);
+        Info := System.Default(TOBDDtcInfo);
         Info.Code        := UpperCase(Trim(GetJSONStr(Entry, 'code', '')));
         Info.Description := GetJSONStr(Entry, 'description', '');
         Info.Severity    := GetJSONStr(Entry, 'severity', '');

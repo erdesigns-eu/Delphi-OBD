@@ -38,11 +38,17 @@ uses
   OBD.Diagnostics.UDS.DynamicDID;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; APID: Byte; const AData: TBytes);
+
   /// <summary>
   ///   DUnitX fixture for the UDS-diagnostic components.
   /// </summary>
   [TestFixture]
   TUDSDiagnosticsTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; APID: Byte; const AData: TBytes);
+
   public
     [Test] procedure UDS_DefaultsCurrentSessionIsDefault;
     [Test] procedure UDS_DefaultsKeepAliveFalseInterval2000;
@@ -433,13 +439,14 @@ begin
     Hit := 0;
     GotPID := 0;
     GotLen := -1;
-    P.OnSample :=
+    FTestCallback1 :=
       procedure(Sender: TObject; APID: Byte; const AData: TBytes)
       begin
         Inc(Hit);
         GotPID := APID;
         GotLen := Length(AData);
       end;
+    P.OnSample := HandleTestEvent1;
     P.DispatchSample($42, TBytes.Create($AA, $BB, $CC));
     Assert.AreEqual(1, Hit);
     Assert.AreEqual($42, Integer(GotPID));
@@ -471,6 +478,12 @@ begin
   finally
     D.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TUDSDiagnosticsTests.HandleTestEvent1(Sender: TObject; APID: Byte; const AData: TBytes);
+begin
+  FTestCallback1(Sender, APID, AData);
 end;
 
 initialization

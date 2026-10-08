@@ -33,6 +33,7 @@ unit OBD.OEM.ComponentProtection.BMW;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   OBD.Types,

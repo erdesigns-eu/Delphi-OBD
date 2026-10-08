@@ -20,6 +20,7 @@ unit OBD.Flash.OEM.BMW;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   OBD.Types,
   OBD.Coding.SecurityAccess,

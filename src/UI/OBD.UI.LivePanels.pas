@@ -722,7 +722,7 @@ begin
   // Numeric readout.
   ACanvas.Font := FValueFont;
   ACanvas.Font.Color := EffectiveForeground;
-  ValStr := Format('%+.1f %%', [AValue]);
+  ValStr := FormatFloat('+0.0;-0.0;+0.0', AValue) + ' %';
   ValW := ACanvas.TextWidth(ValStr);
   ACanvas.TextOut(
     ARect.Right - ValW - PadX,

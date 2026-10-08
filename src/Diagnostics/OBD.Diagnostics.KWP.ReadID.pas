@@ -32,6 +32,7 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-10-08  ERD  Own, cancel and reap async request workers.
 //------------------------------------------------------------------------------
 
 unit OBD.Diagnostics.KWP.ReadID;
@@ -39,6 +40,7 @@ unit OBD.Diagnostics.KWP.ReadID;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
@@ -72,8 +74,15 @@ type
     FProtocol: TOBDProtocol;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
+    FWorker: TThread;
+    FCancelled: Integer;
+    FOnProgress: TOBDProgressEvent;
     FOnRead: TOBDKWPReadIDEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure FireProgress(AIndex: Cardinal; const AName: string);
+    function IsAsyncCancelled: Boolean;
+    procedure BeginAsync(const AAction: TProc);
+    procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     function DoRead(AService: Byte; const AReq: TBytes;
@@ -154,7 +163,13 @@ type
     ///   Another async read is already in flight.
     /// </exception>
     procedure ReadByCommonIDAsync(ACommonID: Word);
+    /// <summary>Cancel delivery and join the request worker. Active work
+    /// requires the main thread; an ECU request already sent cannot be undone.</summary>
+    /// <exception cref="EOBDConfig">Active worker joined outside main thread.</exception>
+    procedure CancelAsync;
   published
+    /// <summary>Request and response phases delivered on the main thread.</summary>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     /// <summary>Fires after a successful read. Main thread.</summary>
@@ -173,6 +188,7 @@ end;
 
 destructor TOBDKWPReadID.Destroy;
 begin
+  CancelAsync;
   FAsyncLock.Free;
   inherited;
 end;
@@ -181,6 +197,8 @@ procedure TOBDKWPReadID.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then
     Exit;
+  if FAsyncInFlight then
+    raise EOBDConfig.Create('Cannot replace Protocol during an async request');
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -193,15 +211,104 @@ procedure TOBDKWPReadID.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    CancelAsync;
     FProtocol := nil;
+  end;
+end;
+
+procedure TOBDKWPReadID.FireProgress(AIndex: Cardinal; const AName: string);
+var
+  Step: TOBDProgressStep;
+begin
+  if not Assigned(FOnProgress) then
+    Exit;
+  Step := TOBDProgressStep.MakeStep(AIndex, 2, AName, '');
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnProgress(Self, Step)
+  else
+    TThread.Queue(TThread.CurrentThread,
+      procedure
+      begin
+        if not IsAsyncCancelled and
+          Assigned(FOnProgress) then
+          FOnProgress(Self, Step);
+      end);
+end;
+
+function TOBDKWPReadID.IsAsyncCancelled: Boolean;
+begin
+  Result := TInterlocked.CompareExchange(FCancelled, 0, 0) <> 0;
+end;
+
+procedure TOBDKWPReadID.BeginAsync(const AAction: TProc);
+var
+  Action: TProc;
+begin
+  Action := AAction;
+  GuardSingleAsync;
+  try
+    FWorker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        try
+          if not IsAsyncCancelled then
+            Action();
+        except
+          on E: Exception do
+            if not IsAsyncCancelled then
+              FireError(oeIO, E.Message);
+        end;
+        TThread.ForceQueue(TThread.CurrentThread,
+          procedure
+          begin
+            FinishAsync;
+          end);
+      end);
+    FWorker.FreeOnTerminate := False;
+    FWorker.Start;
+  except
+    FreeAndNil(FWorker);
+    ReleaseAsync;
+    raise;
+  end;
+end;
+
+procedure TOBDKWPReadID.FinishAsync;
+begin
+  if IsAsyncCancelled then
+    Exit;
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
+end;
+
+procedure TOBDKWPReadID.CancelAsync;
+begin
+  if FWorker = nil then
+    Exit;
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPReadID: async lifecycle requires main thread');
+  TInterlocked.Exchange(FCancelled, 1);
+  FWorker.Terminate;
+  // Joining may pump main-thread callbacks. Cancellation suppresses their
+  // delivery until all remaining worker-bound callbacks can be removed.
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
 end;
 
 procedure TOBDKWPReadID.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPReadID: async start requires main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDKWPReadID: async already in flight');
+    TInterlocked.Exchange(FCancelled, 0);
     FAsyncInFlight := True;
   finally
     FAsyncLock.Leave;
@@ -225,6 +332,9 @@ var
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDKWPReadID: Protocol not assigned');
+  if (FWorker <> nil) and IsAsyncCancelled then
+    raise EOBDConfig.Create('Async request cancelled');
+  FireProgress(1, 'Request');
   Resp := FProtocol.Request(AService, AReq);
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
@@ -245,6 +355,7 @@ begin
                     Length(Resp.Data) - AEchoBytes)
   else
     SetLength(Result, 0);
+  FireProgress(2, 'Response');
 end;
 
 function TOBDKWPReadID.ReadECUID(AID: Byte): TBytes;
@@ -279,75 +390,30 @@ begin
 end;
 
 procedure TOBDKWPReadID.ReadECUIDAsync(AID: Byte);
-var
-  Self_: TOBDKWPReadID;
-  ID: Byte;
 begin
-  GuardSingleAsync;
-  Self_ := Self;
-  ID := AID;
-  TThread.CreateAnonymousThread(
+  BeginAsync(
     procedure
     begin
-      try
-        try
-          Self_.ReadECUID(ID);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
-        end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      ReadECUID(AID);
+    end);
 end;
 
 procedure TOBDKWPReadID.ReadByLocalIDAsync(ALocalID: Byte);
-var
-  Self_: TOBDKWPReadID;
-  LID: Byte;
 begin
-  GuardSingleAsync;
-  Self_ := Self;
-  LID := ALocalID;
-  TThread.CreateAnonymousThread(
+  BeginAsync(
     procedure
     begin
-      try
-        try
-          Self_.ReadByLocalID(LID);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
-        end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      ReadByLocalID(ALocalID);
+    end);
 end;
 
 procedure TOBDKWPReadID.ReadByCommonIDAsync(ACommonID: Word);
-var
-  Self_: TOBDKWPReadID;
-  CID: Word;
 begin
-  GuardSingleAsync;
-  Self_ := Self;
-  CID := ACommonID;
-  TThread.CreateAnonymousThread(
+  BeginAsync(
     procedure
     begin
-      try
-        try
-          Self_.ReadByCommonID(CID);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
-        end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      ReadByCommonID(ACommonID);
+    end);
 end;
 
 procedure TOBDKWPReadID.FireRead(AKind: Byte; AID: Word;
@@ -367,10 +433,11 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRead(Self_, Kind, IDValue, Snap)
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnRead) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnRead) then
           Self_.FOnRead(Self_, Kind, IDValue, Snap);
       end);
 end;
@@ -394,13 +461,14 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       var
         Handled: Boolean;
       begin
         Handled := False;
-        if Assigned(Self_.FOnError) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnError) then
           Self_.FOnError(Self_, Code, Msg, Handled);
       end);
 end;

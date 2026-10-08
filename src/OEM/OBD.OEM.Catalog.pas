@@ -26,6 +26,7 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-10-08  Validate object entries before consuming catalogue arrays.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Catalog;
@@ -33,6 +34,7 @@ unit OBD.OEM.Catalog;
 interface
 
 uses
+  OBD.JSON,
   System.SysUtils,
   System.Classes,
   System.JSON,
@@ -178,7 +180,7 @@ begin
     Exit;
   for I := 0 to AArray.Count - 1 do
   begin
-    Obj := AArray.Items[I] as TJSONObject;
+    Obj := RequireOBDJSONObject(AArray.Items[I]);
     if AHandler(Obj) then
       Inc(FEntryCount);
   end;
@@ -215,7 +217,7 @@ begin
       'TOBDOEMCatalog: "%s" is not a JSON object', [FFileName]);
   end;
 
-  RootObj := Root as TJSONObject;
+  RootObj := RequireOBDJSONObject(Root);
   try
     UnregisterAndFreeOverlay;
     FEntryCount := 0;

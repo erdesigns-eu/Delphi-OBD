@@ -20,9 +20,12 @@ unit Tests.OBD.Connection.Async;
 interface
 
 uses
-  DUnitX.TestFramework;
+  DUnitX.TestFramework,
+  OBD.Types;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string; var AHandled: Boolean);
+
   /// <summary>
   ///   Coverage for <c>TOBDConnection.OpenAsync</c>.
   /// </summary>
@@ -34,6 +37,10 @@ type
   /// </remarks>
   [TestFixture]
   TConnectionAsyncTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string; var AHandled: Boolean);
+
   public
     /// <summary>OpenAsync returns immediately and does not block on
     /// the connect attempt.</summary>
@@ -58,7 +65,6 @@ uses
   System.Classes,
   System.SyncObjs,
   System.Diagnostics,
-  OBD.Types,
   OBD.Connection.Types,
   OBD.Connection.Settings,
   OBD.Connection.Retry,
@@ -128,7 +134,7 @@ begin
   ErrorEvent := TEvent.Create(nil, True, False, '');
   try
     ConfigureForRefusedConnect(C);
-    C.OnError :=
+    FTestCallback1 :=
       procedure(Sender: TObject; ACode: TOBDErrorCode;
         const AMessage: string; var AHandled: Boolean)
       begin
@@ -136,6 +142,7 @@ begin
         ErrorMsg := AMessage;
         ErrorEvent.SetEvent;
       end;
+    C.OnError := HandleTestEvent1;
     C.OpenAsync;
     Assert.IsTrue(PumpUntilSignaled(ErrorEvent, 5000),
       'OnError did not fire within 5 s');
@@ -222,6 +229,12 @@ begin
     C.Free; // Destructor must cancel + join the worker.
   end;
   Assert.Pass;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TConnectionAsyncTests.HandleTestEvent1(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string; var AHandled: Boolean);
+begin
+  FTestCallback1(Sender, ACode, AMessage, AHandled);
 end;
 
 initialization

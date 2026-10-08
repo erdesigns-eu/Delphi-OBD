@@ -75,6 +75,16 @@ def _main():
                 elif selft:
                     tt, found = member_type(selft, root, u)
                     if found: cur = tt
+                # An exception handler introduces a scoped variable that
+                # shadows a same-named local from an enclosing routine.
+                handler = list(re.finditer(
+                    r'\bon\s+' + re.escape(root) + r'\s*:\s*([\w.]+)\s+do\b',
+                    u.clean[toks[a][2]:p], re.I))
+                if handler:
+                    last = handler[-1]
+                    tail = u.clean[toks[a][2] + last.end():p]
+                    if not re.search(r'\bend\b|;', tail, re.I):
+                        cur = last.group(1)
                 if cur is None:
                     # a unit-level variable, e.g. the form globals reached as
                     # FormSettings.Something from another unit

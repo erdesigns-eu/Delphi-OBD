@@ -68,3 +68,6 @@ Thumbs.db
 *.key
 *.pem
 openai.key
+
+# Python validation tool caches
+__pycache__/

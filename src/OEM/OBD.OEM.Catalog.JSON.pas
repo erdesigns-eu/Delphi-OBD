@@ -18,6 +18,7 @@
 //
 //  History     :
 //    2026-05-12  ERD  Initial implementation.
+//    2026-10-08  Validate string values read from catalogue maps.
 //------------------------------------------------------------------------------
 
 unit OBD.OEM.Catalog.JSON;
@@ -25,6 +26,7 @@ unit OBD.OEM.Catalog.JSON;
 interface
 
 uses
+  OBD.JSON,
   System.SysUtils,
   System.Classes,
   System.IOUtils,
@@ -506,7 +508,7 @@ begin
       for Pair in ValuesObj do
         Result.EnumValues.AddOrSetValue(
           ParseHexOrInt(Pair.JsonString.Value),
-          (Pair.JsonValue as TJSONString).Value);
+          RequireOBDJSONString(Pair.JsonValue));
   end;
 
   if (Result.Kind = dkBitmask) and Assigned(Obj.GetValue('bits')) then
@@ -517,7 +519,7 @@ begin
       for Pair in BitsObj do
         Result.BitNames.AddOrSetValue(
           StrToInt(Pair.JsonString.Value),
-          (Pair.JsonValue as TJSONString).Value);
+          RequireOBDJSONString(Pair.JsonValue));
   end;
 end;
 
@@ -808,7 +810,7 @@ begin
     for Pair in ValuesObj do
       Acc.Add(TPair<Integer, string>.Create(
         Integer(ParseHexOrInt(Pair.JsonString.Value)),
-        (Pair.JsonValue as TJSONString).Value));
+        RequireOBDJSONString(Pair.JsonValue)));
     Result := Acc.ToArray;
   finally
     Acc.Free;
@@ -837,7 +839,7 @@ begin
     for Pair in BitsObj do
       Acc.Add(TPair<Integer, string>.Create(
         StrToIntDef(Pair.JsonString.Value, -1),
-        (Pair.JsonValue as TJSONString).Value));
+        RequireOBDJSONString(Pair.JsonValue)));
     Result := Acc.ToArray;
   finally
     Acc.Free;

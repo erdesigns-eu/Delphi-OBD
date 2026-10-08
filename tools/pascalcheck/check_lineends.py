@@ -1,7 +1,7 @@
 """A source file with a line ending that is not the one Delphi writes.
 
-Every Delphi source and form file in the studio is CRLF throughout, because
-that is what the IDE writes. An edit made from outside the IDE - which is how
+Delphi-OBD accepts homogeneous LF and CRLF source files. Mixed endings,
+bare CR and doubled CR are defects on either platform. An edit made from outside the IDE - which is how
 most of them are made here - can leave three things behind, none of which
 shows up in a diff as anything but a line that looks unchanged:
 
@@ -28,7 +28,7 @@ from common import ROOT, SKIP
 EXT = ('.pas', '.dfm', '.dpr', '.dproj', '.dpk', '.inc')
 
 def files():
-    for base in ('units', 'forms', 'components', 'build', 'packages', 'cli',
+    for base in ('src', 'samples', 'tests', 'units', 'forms', 'components', 'build', 'packages', 'cli',
                  'shell-extension', '.'):
         d = os.path.join(ROOT, base)
         if not os.path.isdir(d):
@@ -42,7 +42,7 @@ def files():
             if base == '.':
                 dn[:] = []
 
-print('=== line endings that are not CRLF ===')
+print('=== mixed or malformed Pascal line endings ===')
 total = 0
 for path in sorted(set(files())):
     body = open(path, 'rb').read()
@@ -51,10 +51,10 @@ for path in sorted(set(files())):
     lone_lf = len(re.findall(rb'(?<!\r)\n', body))
     lone_cr = len(re.findall(rb'\r(?!\n)', body))
     doubled = body.count(b'\r\r')
-    if not (lone_lf or lone_cr or doubled):
+    if not (lone_cr or doubled or (lone_lf and b'\r\n' in body)):
         continue
     said = []
-    if lone_lf:
+    if lone_lf and b'\r\n' in body:
         said.append('%d bare LF' % lone_lf)
     if doubled:
         said.append('%d doubled CR' % doubled)

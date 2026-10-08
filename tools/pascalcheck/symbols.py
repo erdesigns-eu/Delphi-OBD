@@ -140,6 +140,8 @@ class UnitSyms:
                 ti = TypeInfo(tname, tl, self.line(p), self.name)
                 # ancestors
                 j = i + 1
+                if j < b and toks[j][1].lower() in ('abstract', 'sealed'):
+                    j += 1
                 if j < b and toks[j][1] == '(':
                     d = 0
                     cur = []
@@ -162,6 +164,10 @@ class UnitSyms:
                 if tname:
                     self.types.setdefault(tname.lower(), ti)
                     self.globals.setdefault(tname.lower(), ('type', ti.line))
+                # class(Ancestor); declares a complete empty class.
+                if i < b and toks[i][1] == ';':
+                    i += 1
+                    continue
                 stack.append(ti)
                 continue
 
@@ -185,7 +191,7 @@ class UnitSyms:
                 if tl in ('private','protected','public','published','strict','automated','var','const','class','type','case'):
                     i += 1; continue
                 # field:  Name[, Name2] : Type ;
-                if toks[i-1][1] in (';', ',', ':', ')') or prv in (
+                if toks[i-1][1] in (';', ',', ':', ')', ']') or prv in (
                         'private','protected','public','published','var','end',
                         'record','class','object','of','strict','type'):
                     names, j = self.read_names(i, b)

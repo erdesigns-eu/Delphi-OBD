@@ -23,6 +23,7 @@ unit OBD.Flash.OEM.Stellantis;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   OBD.Types,
   OBD.Coding.SecurityAccess,

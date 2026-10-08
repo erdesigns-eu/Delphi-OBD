@@ -39,6 +39,9 @@ uses
   OBD.WWHOBD.Readiness;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; const APayload: TOBDDataSourcePayload);
+  TTestCallback2 = reference to procedure(Sender: TObject; AActive: Boolean);
+
   /// <summary>
   ///   DUnitX fixture for the close-out components.
   /// </summary>
@@ -50,6 +53,12 @@ type
   /// </remarks>
   [TestFixture]
   TServiceExtrasTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent1(Sender: TObject; const APayload: TOBDDataSourcePayload);
+    procedure HandleTestEvent2(Sender: TObject; AActive: Boolean);
+
   public
     [Test] procedure ClearDTC_DefaultsAutoExecuteFalse;
     [Test] procedure ClearDTC_ClearWithoutProtocolRaises;
@@ -265,11 +274,12 @@ begin
   DS := TOBDDataSource.Create(nil);
   try
     Hit := 0;
-    DS.OnDataChange :=
+    FTestCallback1 :=
       procedure(Sender: TObject; const APayload: TOBDDataSourcePayload)
       begin
         Inc(Hit);
       end;
+    DS.OnDataChange := HandleTestEvent1;
     P := Default(TOBDDataSourcePayload);
     P.Kind := dsLiveData;
     P.PID := $0C;
@@ -288,11 +298,12 @@ begin
   DS := TOBDDataSource.Create(nil);
   try
     StateHit := 0;
-    DS.OnStateChange :=
+    FTestCallback2 :=
       procedure(Sender: TObject; AActive: Boolean)
       begin
         Inc(StateHit);
       end;
+    DS.OnStateChange := HandleTestEvent2;
     DS.Active := False;
     DS.Active := True;
     Assert.AreEqual(2, StateHit);
@@ -367,6 +378,17 @@ begin
   finally
     R.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TServiceExtrasTests.HandleTestEvent1(Sender: TObject; const APayload: TOBDDataSourcePayload);
+begin
+  FTestCallback1(Sender, APayload);
+end;
+
+procedure TServiceExtrasTests.HandleTestEvent2(Sender: TObject; AActive: Boolean);
+begin
+  FTestCallback2(Sender, AActive);
 end;
 
 initialization

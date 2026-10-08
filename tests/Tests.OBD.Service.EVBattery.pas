@@ -12,6 +12,7 @@ unit Tests.OBD.Service.EVBattery;
 interface
 
 uses
+  OBD.Types,
   System.SysUtils, System.Classes, System.IOUtils,
   DUnitX.TestFramework,
   OBD.Errors,

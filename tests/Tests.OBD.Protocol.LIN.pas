@@ -37,6 +37,7 @@ type
     [Test] procedure FrameRoundTrip;
     [Test] procedure FrameRejectsCorruptedChecksum;
     [Test] procedure EncoderEnforcesSlotSizeWhenRequested;
+    [Test] procedure FrameRejectsTrailingBytes;
   end;
 
   /// <summary>LDF parser coverage.</summary>
@@ -247,6 +248,20 @@ begin
   Cluster := TOBDLDFParser.Parse(LDF_SAMPLE);
   Assert.AreEqual('slave1', Cluster.Slaves[0]);
   Assert.AreEqual('slave3', Cluster.Slaves[2]);
+end;
+
+procedure TLINFrameTests.FrameRejectsTrailingBytes;
+var
+  Frame, Decoded: TOBDLINFrame;
+  Bytes: TBytes;
+begin
+  Frame := Default(TOBDLINFrame);
+  Frame.FrameID := $12;
+  Frame.Checksum := csEnhanced;
+  Frame.Data := TBytes.Create(1, 2, 3);
+  Bytes := LINEncodeFrame(Frame);
+  SetLength(Bytes, Length(Bytes) + 1);
+  Assert.IsFalse(LINDecodeFrame(Bytes, 3, Decoded));
 end;
 
 initialization

@@ -70,7 +70,7 @@ def classify(name, selft, scope, u):
         if k in ti.methods: return 'routine'
         stack.extend(ti.parents)
     # unit level
-    for un in [u.name.lower()] + [x.split('.')[-1].lower()
+    for un in [u.name.lower()] + [x.lower()
                for x in list(u.iface_uses) + list(u.impl_uses)]:
         o = US.get(un)
         if o and k in o.globals:

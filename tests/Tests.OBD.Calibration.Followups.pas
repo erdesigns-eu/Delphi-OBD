@@ -35,6 +35,14 @@ uses
   OBD.Speciality.Tachograph;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback2 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback3 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback4 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback5 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback6 = reference to procedure(Sender: TObject; const APacket: TBytes);
+  TTestCallback7 = reference to procedure(Sender: TObject; const APacket: TBytes);
+
   /// <summary>A2L follow-up coverage.</summary>
   [TestFixture]
   TA2LFollowupTests = class
@@ -51,6 +59,16 @@ type
   /// through the loopback transport.</summary>
   [TestFixture]
   TXCPFollowupTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    FTestCallback3: TTestCallback3;
+    FTestCallback4: TTestCallback4;
+    procedure HandleTestEvent1(Sender: TObject; const APacket: TBytes);
+    procedure HandleTestEvent2(Sender: TObject; const APacket: TBytes);
+    procedure HandleTestEvent3(Sender: TObject; const APacket: TBytes);
+    procedure HandleTestEvent4(Sender: TObject; const APacket: TBytes);
+
   public
     [Test] procedure FreeDAQEncodes;
     [Test] procedure AllocDAQHonorsByteOrder;
@@ -63,6 +81,14 @@ type
   /// <summary>CCP DAQ follow-up coverage.</summary>
   [TestFixture]
   TCCPFollowupTests = class
+  strict private
+    FTestCallback5: TTestCallback5;
+    FTestCallback6: TTestCallback6;
+    FTestCallback7: TTestCallback7;
+    procedure HandleTestEvent5(Sender: TObject; const APacket: TBytes);
+    procedure HandleTestEvent6(Sender: TObject; const APacket: TBytes);
+    procedure HandleTestEvent7(Sender: TObject; const APacket: TBytes);
+
   public
     [Test] procedure SetDAQPtrEncoding;
     [Test] procedure WriteDAQEncodesBigEndian;
@@ -219,11 +245,12 @@ begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
   Last := nil;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback1 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent1;
   WireConnect(Loop, False);
   Loop.PostFromSlave(TBytes.Create($FF));  // FREE_DAQ ack
   X := TOBDXCP.Create(nil);
@@ -247,11 +274,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback2 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent2;
   WireConnect(Loop, True);                 // Big-endian slave
   Loop.PostFromSlave(TBytes.Create($FF));
   X := TOBDXCP.Create(nil);
@@ -277,11 +305,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback3 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent3;
   WireConnect(Loop, False);
   Loop.PostFromSlave(TBytes.Create($FF));
   X := TOBDXCP.Create(nil);
@@ -334,11 +363,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback4 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent4;
   WireConnect(Loop, True);                 // Big-endian
   Loop.PostFromSlave(TBytes.Create($FF));
   X := TOBDXCP.Create(nil);
@@ -382,11 +412,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback5 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent5;
   Loop.PostFromSlave(TBytes.Create(
     $FF, $00, $00, $00, $00, $00, $00, $00));   // CONNECT ack
   Loop.PostFromSlave(TBytes.Create(
@@ -414,11 +445,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback6 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent6;
   Loop.PostFromSlave(TBytes.Create(
     $FF, $00, $00, $00, $00, $00, $00, $00));
   Loop.PostFromSlave(TBytes.Create(
@@ -446,11 +478,12 @@ var
 begin
   Loop := TOBDXCPLoopbackTransport.Create;
   Iface := Loop;
-  Loop.OnPacketSent :=
-    procedure(Sender: TObject; const APacket: TBytes)
+  FTestCallback7 :=
+      procedure(Sender: TObject; const APacket: TBytes)
     begin
       CapturedLast := Copy(APacket, 0, Length(APacket));
     end;
+    Loop.OnPacketSent := HandleTestEvent7;
   Loop.PostFromSlave(TBytes.Create(
     $FF, $00, $00, $00, $00, $00, $00, $00));
   Loop.PostFromSlave(TBytes.Create(
@@ -602,6 +635,42 @@ begin
   Assert.AreEqual(8000, Integer(Cal.KConstant));
   Assert.AreEqual('1HGCM82633A004352', Cal.VIN);
   Assert.AreEqual(90, Integer(Cal.AuthorisedSpeedKmh));
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TXCPFollowupTests.HandleTestEvent1(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback1(Sender, APacket);
+end;
+
+procedure TXCPFollowupTests.HandleTestEvent2(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback2(Sender, APacket);
+end;
+
+procedure TXCPFollowupTests.HandleTestEvent3(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback3(Sender, APacket);
+end;
+
+procedure TXCPFollowupTests.HandleTestEvent4(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback4(Sender, APacket);
+end;
+
+procedure TCCPFollowupTests.HandleTestEvent5(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback5(Sender, APacket);
+end;
+
+procedure TCCPFollowupTests.HandleTestEvent6(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback6(Sender, APacket);
+end;
+
+procedure TCCPFollowupTests.HandleTestEvent7(Sender: TObject; const APacket: TBytes);
+begin
+  FTestCallback7(Sender, APacket);
 end;
 
 initialization

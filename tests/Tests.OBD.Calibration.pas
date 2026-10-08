@@ -18,6 +18,7 @@ unit Tests.OBD.Calibration;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

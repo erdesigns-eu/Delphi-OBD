@@ -32,6 +32,7 @@ unit OBD.Adapter;
 interface
 
 uses
+  System.StrUtils,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

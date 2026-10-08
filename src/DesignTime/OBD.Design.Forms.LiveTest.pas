@@ -60,7 +60,7 @@ type
   strict private
     FAction: TOBDLiveTestAction;
     procedure ApplyStatus(AStatus: TOBDLiveTestStatus);
-    procedure WriteLine(const ALine: string);
+    procedure WriteLine(ALine: string);
   public
     /// <summary>Configures the dialog and runs the action once
     /// modally. Title / target are shown in the header; the
@@ -75,7 +75,7 @@ implementation
 
 { ---- TOBDLiveTestDlg --------------------------------------------------------- }
 
-procedure TOBDLiveTestDlg.WriteLine(const ALine: string);
+procedure TOBDLiveTestDlg.WriteLine(ALine: string);
 begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     memLog.Lines.Add(ALine)

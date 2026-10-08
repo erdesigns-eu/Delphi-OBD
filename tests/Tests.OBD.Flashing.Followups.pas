@@ -19,6 +19,7 @@ unit Tests.OBD.Flashing.Followups;
 interface
 
 uses
+  OBD.Signature,
   System.SysUtils,
   System.Classes,
   System.IOUtils,

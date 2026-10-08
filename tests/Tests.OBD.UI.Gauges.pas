@@ -25,6 +25,8 @@ uses
   OBD.UI.Gauges.Linear;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; AValue: Double);
+
   [TestFixture]
   TGaugeTypesTests = class
   public
@@ -40,6 +42,10 @@ type
 
   [TestFixture]
   TCircularGaugeTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; AValue: Double);
+
   public
     [Test] procedure DefaultsMinZeroMaxHundred;
     [Test] procedure ValueClampsBelowMin;
@@ -181,9 +187,10 @@ begin
   G := TOBDCircularGauge.Create(nil);
   try
     G.AnimateValueChanges := False;     // synchronous path
-    G.OnValueChanged :=
+    FTestCallback1 :=
       procedure(Sender: TObject; AValue: Double)
       begin Fired := True; Got := AValue; end;
+    G.OnValueChanged := HandleTestEvent1;
     G.Value := 42;
     Assert.IsTrue(Fired);
     Assert.AreEqual(42.0, Got, 0.001);
@@ -299,6 +306,12 @@ begin
     L.Orientation := loVertical;
     Assert.AreEqual(Ord(loVertical), Ord(L.Orientation));
   finally L.Free; end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TCircularGaugeTests.HandleTestEvent1(Sender: TObject; AValue: Double);
+begin
+  FTestCallback1(Sender, AValue);
 end;
 
 initialization

@@ -24,6 +24,7 @@ unit OBD.OEM.ComponentProtection.Mercedes;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   OBD.Types,

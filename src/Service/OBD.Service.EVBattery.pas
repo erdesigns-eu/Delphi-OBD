@@ -108,7 +108,7 @@ type
     FOwner:     TOBDEVBattery;
     FStopEvent: TEvent;
     procedure FireSnapshotSync(const A: TOBDEVBatterySnapshot);
-    procedure FireErrorSync(C: TOBDErrorCode; const M: string);
+    procedure FireErrorSync(C: TOBDErrorCode; M: string);
   protected
     procedure Execute; override;
   public
@@ -458,7 +458,7 @@ begin
 end;
 
 procedure TOBDEVBatteryPollThread.FireErrorSync(C: TOBDErrorCode;
-  const M: string);
+  M: string);
 begin
   if Assigned(FOwner.FOnError) then
     Synchronize(procedure

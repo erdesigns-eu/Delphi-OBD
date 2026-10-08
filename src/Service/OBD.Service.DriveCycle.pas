@@ -177,12 +177,12 @@ type
     FStartedAt:    TDateTime;
     FCurrentStep:  Integer;
     FAccumulatedSec: Cardinal;
-    procedure FireReadinessSync(const A: TArray<TOBDMonitorReadiness>);
+    procedure FireReadinessSync(A: TArray<TOBDMonitorReadiness>);
     procedure FireReadySync(M: TOBDMonitor);
     procedure FireStepSync(const S: TOBDDriveCycleStep;
       Elapsed, Total: Cardinal);
     procedure FireAllReadySync;
-    procedure FireErrorSync(C: TOBDErrorCode; const M: string);
+    procedure FireErrorSync(C: TOBDErrorCode; M: string);
   protected
     procedure Execute; override;
   public
@@ -409,7 +409,7 @@ begin
 end;
 
 procedure TOBDDriveCyclePollThread.FireReadinessSync(
-  const A: TArray<TOBDMonitorReadiness>);
+  A: TArray<TOBDMonitorReadiness>);
 begin
   Synchronize(procedure
   begin
@@ -451,7 +451,7 @@ begin
 end;
 
 procedure TOBDDriveCyclePollThread.FireErrorSync(C: TOBDErrorCode;
-  const M: string);
+  M: string);
 begin
   if Assigned(FAdvisor.FOnError) then
     Synchronize(procedure

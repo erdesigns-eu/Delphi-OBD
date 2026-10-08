@@ -34,6 +34,7 @@ unit OBD.UI.FlashDashboards;
 interface
 
 uses
+  Winapi.Messages,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

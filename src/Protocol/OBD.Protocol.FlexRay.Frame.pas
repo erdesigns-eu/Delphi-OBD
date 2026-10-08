@@ -23,6 +23,7 @@
 //
 //  History     :
 //    2026-05-09  ERD  Initial implementation.
+//    2026-10-08  Reject trailing bytes in complete FlexRay frames.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.FlexRay.Frame;
@@ -328,7 +329,7 @@ begin
 
   PLen := AFrame.Header.PayloadLengthWords * 2;
   Total := FLEXRAY_HEADER_BYTES + PLen + FLEXRAY_FRAME_CRC_BYTES;
-  if Length(ABytes) < Total then Exit;
+  if Length(ABytes) <> Total then Exit;
 
   SetLength(PayloadBytes, PLen);
   if PLen > 0 then

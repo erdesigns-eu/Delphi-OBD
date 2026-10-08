@@ -29,6 +29,7 @@ unit OBD.Service.DriveCycle.Catalog;
 interface
 
 uses
+  OBD.JSON,
   System.SysUtils,
   System.Classes,
   System.IOUtils,
@@ -108,8 +109,8 @@ var
   I, J:   Integer;
 begin
   if not TFile.Exists(AFile) then Exit;
-  Doc := TJSONObject.ParseJSONValue(
-    TFile.ReadAllText(AFile, TEncoding.UTF8)) as TJSONObject;
+  Doc := ParseOBDJSONObject(
+    TFile.ReadAllText(AFile, TEncoding.UTF8));
   if Doc = nil then Exit;
   try
     V := Doc.GetValue('spec');
@@ -118,7 +119,7 @@ begin
     if Arr = nil then Exit;
     for I := 0 to Arr.Count - 1 do
     begin
-      Item := Arr.Items[I] as TJSONObject;
+      Item := RequireOBDJSONObject(Arr.Items[I]);
       if not TryParseMonitor(
         Item.GetValue<string>('monitor'), Mon) then Continue;
 
@@ -141,7 +142,7 @@ begin
         SetLength(Cycle.Steps, Steps.Count);
         for J := 0 to Steps.Count - 1 do
         begin
-          StepObj := Steps.Items[J] as TJSONObject;
+          StepObj := RequireOBDJSONObject(Steps.Items[J]);
           Step := Default(TOBDDriveCycleStep);
           Step.Index := J + 1;
           V := StepObj.GetValue('description');

@@ -30,9 +30,18 @@ uses
   OBD.Flash.Phases;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; V: Double; R: string);
+  TTestCallback2 = reference to procedure(Sender: TObject; V: Double; R: string);
+
   /// <summary>Voltage gate.</summary>
   [TestFixture]
   TVoltageGateTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent1(Sender: TObject; V: Double; R: string);
+    procedure HandleTestEvent2(Sender: TObject; V: Double; R: string);
+
   public
     [Test] procedure RaisesWhenNoSourceConfigured;
     [Test] procedure LatchesAbortAfterHoldTime;
@@ -98,11 +107,12 @@ begin
     G.HoldTimeMs := 60;
     G.SourceFunc := function: Double begin Result := 11.0; end;
     Aborted := False;
-    G.OnAbort :=
+    FTestCallback1 :=
       procedure(Sender: TObject; V: Double; R: string)
       begin
         Aborted := True;
       end;
+    G.OnAbort := HandleTestEvent1;
     G.Start;
     Sleep(250);
     Assert.IsTrue(Aborted, 'OnAbort must latch within HoldTimeMs');
@@ -133,10 +143,11 @@ begin
         // ms so the latch must NOT fire.
         if ReadCount <= 2 then Result := 11.0 else Result := 13.5;
       end;
-    G.OnAbort :=
+    FTestCallback2 :=
       procedure(Sender: TObject; V: Double; R: string) begin
         Aborted := True;
       end;
+    G.OnAbort := HandleTestEvent2;
     G.Start;
     Sleep(150);
     G.Stop;
@@ -348,6 +359,17 @@ begin
     function: Double begin Result := 13.0; end, 12.0);
   Assert.IsTrue(Func(Msg));
   Assert.AreEqual('', Msg);
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TVoltageGateTests.HandleTestEvent1(Sender: TObject; V: Double; R: string);
+begin
+  FTestCallback1(Sender, V, R);
+end;
+
+procedure TVoltageGateTests.HandleTestEvent2(Sender: TObject; V: Double; R: string);
+begin
+  FTestCallback2(Sender, V, R);
 end;
 
 initialization

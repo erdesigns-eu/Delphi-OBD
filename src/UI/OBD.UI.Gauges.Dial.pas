@@ -23,6 +23,7 @@ unit OBD.UI.Gauges.Dial;
 interface
 
 uses
+  System.Types,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
@@ -559,8 +560,6 @@ procedure TOBDComboGauge.PaintExtras(AGraphics: TGPGraphics;
 var
   S: string;
   C: TCanvas;
-  W, H: Integer;
-  Cx, Cy: Integer;
 begin
   // Paint the digital readout via TCanvas (sharper text than
   // GDI+ at small sizes). Get the host canvas via the bitmap

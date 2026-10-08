@@ -20,6 +20,7 @@ importing its declaring unit is one of those, and is left alone.
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import *
+from typemap import unit_level
 import symbols
 
 IDENT_RE = re.compile(r'[A-Za-z_][A-Za-z0-9_]*')
@@ -35,8 +36,9 @@ def impl_cut(u):
 declares = {}
 for name, u in units.items():
     cut = impl_cut(u)
-    for low, t in u.types.items():
-        if t.line < cut:
+    for low, line in unit_level(u)[1].items():
+        kind = u.globals.get(low, ('', 0))[0]
+        if kind == 'type' or low in u.types:
             declares.setdefault(low, set()).add(name)
 
 # First who uses what without importing it, so that a name half the project

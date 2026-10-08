@@ -39,6 +39,7 @@ unit OBD.Coding.Flasher;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

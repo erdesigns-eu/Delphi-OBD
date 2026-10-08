@@ -32,6 +32,7 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-10-08  ERD  Add owned async operations and cancellation cleanup.
 //------------------------------------------------------------------------------
 
 unit OBD.Diagnostics.KWP.IOControl;
@@ -39,6 +40,7 @@ unit OBD.Diagnostics.KWP.IOControl;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
@@ -95,9 +97,16 @@ type
     FAutoExecute: Boolean;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
+    FWorker: TThread;
+    FCancelled: Integer;
+    FOnProgress: TOBDProgressEvent;
     FOnBeforeSend: TOBDKWPIOControlBeforeEvent;
     FOnResult: TOBDKWPIOControlResultEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure FireProgress(AIndex: Cardinal; const AName: string);
+    function IsAsyncCancelled: Boolean;
+    procedure BeginAsync(const AAction: TProc);
+    procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     function DoSend(AKind: TOBDKWPIOIdKind; AID: Word;
@@ -161,7 +170,32 @@ type
     function SendCommon(ACommonID: Word; AControlParam: Byte;
       const AState: TBytes = nil;
       const AControlMask: TBytes = nil): TBytes;
+    /// <summary>Send a local I/O request asynchronously; OnResult/OnError run
+    /// on the main thread. Inputs are copied before returning.</summary>
+    /// <param name="ALocalID">Local identifier.</param>
+    /// <param name="AControlParam">Control parameter.</param>
+    /// <param name="AState">Optional state vector.</param>
+    /// <param name="AControlMask">Optional control mask.</param>
+    /// <exception cref="EOBDConfig">Another async call is active or caller is
+    /// not on the main thread. Request errors are delivered by OnError.</exception>
+    procedure SendLocalAsync(ALocalID: Byte; AControlParam: Byte;
+      const AState: TBytes = nil; const AControlMask: TBytes = nil);
+    /// <summary>Asynchronous common-identifier counterpart of SendCommon.</summary>
+    /// <param name="ACommonID">Common identifier.</param>
+    /// <param name="AControlParam">Control parameter.</param>
+    /// <param name="AState">Optional state vector.</param>
+    /// <param name="AControlMask">Optional control mask.</param>
+    /// <exception cref="EOBDConfig">Another async call is active or caller is
+    /// not on the main thread. Request errors are delivered by OnError.</exception>
+    procedure SendCommonAsync(ACommonID: Word; AControlParam: Byte;
+      const AState: TBytes = nil; const AControlMask: TBytes = nil);
+    /// <summary>Cancel delivery and wait for the owned worker. Main thread only.
+    /// An already transmitted ECU request cannot be undone.</summary>
+    /// <exception cref="EOBDConfig">Called outside the main thread.</exception>
+    procedure CancelAsync;
   published
+    /// <summary>Request and response phases on the main thread.</summary>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
@@ -190,6 +224,7 @@ end;
 
 destructor TOBDKWPIOControl.Destroy;
 begin
+  CancelAsync;
   FAsyncLock.Free;
   inherited;
 end;
@@ -198,6 +233,8 @@ procedure TOBDKWPIOControl.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then
     Exit;
+  if FAsyncInFlight then
+    raise EOBDConfig.Create('Cannot replace Protocol during an async request');
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -210,15 +247,104 @@ procedure TOBDKWPIOControl.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    CancelAsync;
     FProtocol := nil;
+  end;
+end;
+
+procedure TOBDKWPIOControl.FireProgress(AIndex: Cardinal; const AName: string);
+var
+  Step: TOBDProgressStep;
+begin
+  if not Assigned(FOnProgress) then
+    Exit;
+  Step := TOBDProgressStep.MakeStep(AIndex, 2, AName, '');
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnProgress(Self, Step)
+  else
+    TThread.Queue(TThread.CurrentThread,
+      procedure
+      begin
+        if not IsAsyncCancelled and
+          Assigned(FOnProgress) then
+          FOnProgress(Self, Step);
+      end);
+end;
+
+function TOBDKWPIOControl.IsAsyncCancelled: Boolean;
+begin
+  Result := TInterlocked.CompareExchange(FCancelled, 0, 0) <> 0;
+end;
+
+procedure TOBDKWPIOControl.BeginAsync(const AAction: TProc);
+var
+  Action: TProc;
+begin
+  Action := AAction;
+  GuardSingleAsync;
+  try
+    FWorker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        try
+          if not IsAsyncCancelled then
+            Action();
+        except
+          on E: Exception do
+            if not IsAsyncCancelled then
+              FireError(oeIO, E.Message);
+        end;
+        TThread.ForceQueue(TThread.CurrentThread,
+          procedure
+          begin
+            FinishAsync;
+          end);
+      end);
+    FWorker.FreeOnTerminate := False;
+    FWorker.Start;
+  except
+    FreeAndNil(FWorker);
+    ReleaseAsync;
+    raise;
+  end;
+end;
+
+procedure TOBDKWPIOControl.FinishAsync;
+begin
+  if IsAsyncCancelled then
+    Exit;
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
+end;
+
+procedure TOBDKWPIOControl.CancelAsync;
+begin
+  if FWorker = nil then
+    Exit;
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPIOControl: async lifecycle requires main thread');
+  TInterlocked.Exchange(FCancelled, 1);
+  FWorker.Terminate;
+  // WaitFor pumps Synchronize on the main thread. Consent checks observe
+  // termination before invoking user code, so teardown cannot send a request.
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
 end;
 
 procedure TOBDKWPIOControl.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWPIOControl: async start requires main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDKWPIOControl: async already in flight');
+    TInterlocked.Exchange(FCancelled, 0);
     FAsyncInFlight := True;
   finally
     FAsyncLock.Leave;
@@ -287,6 +413,9 @@ begin
   if Length(AControlMask) > 0 then
     Move(AControlMask[0], Req[Off], Length(AControlMask));
 
+  if (FWorker <> nil) and IsAsyncCancelled then
+    raise EOBDConfig.Create('TOBDKWPIOControl: async cancelled');
+  FireProgress(1, 'Request');
   Resp := FProtocol.Request(SID, Req);
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
@@ -319,6 +448,7 @@ begin
                    Length(Resp.Data) - IDBytes - 1)
   else
     SetLength(Result, 0);
+  FireProgress(2, 'Response');
 end;
 
 function TOBDKWPIOControl.SendLocal(ALocalID: Byte; AControlParam: Byte;
@@ -334,6 +464,34 @@ begin
   Result := DoSend(ikCommon, ACommonID, AControlParam, AState,
                    AControlMask);
   FireResult(ikCommon, ACommonID, AControlParam, Result);
+end;
+
+procedure TOBDKWPIOControl.SendLocalAsync(ALocalID: Byte;
+  AControlParam: Byte; const AState: TBytes; const AControlMask: TBytes);
+var
+  State, Mask: TBytes;
+begin
+  State := Copy(AState, 0, Length(AState));
+  Mask := Copy(AControlMask, 0, Length(AControlMask));
+  BeginAsync(
+    procedure
+    begin
+      SendLocal(ALocalID, AControlParam, State, Mask);
+    end);
+end;
+
+procedure TOBDKWPIOControl.SendCommonAsync(ACommonID: Word;
+  AControlParam: Byte; const AState: TBytes; const AControlMask: TBytes);
+var
+  State, Mask: TBytes;
+begin
+  State := Copy(AState, 0, Length(AState));
+  Mask := Copy(AControlMask, 0, Length(AControlMask));
+  BeginAsync(
+    procedure
+    begin
+      SendCommon(ACommonID, AControlParam, State, Mask);
+    end);
 end;
 
 function TOBDKWPIOControl.FireBeforeSend(AKind: TOBDKWPIOIdKind;
@@ -358,10 +516,12 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnBeforeSend(Self_, Kind, IDValue, Param, Snap, Cancel)
   else
-    TThread.Synchronize(nil,
+    TThread.Synchronize(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnBeforeSend) then
+        if (Self_.FWorker <> nil) and Self_.IsAsyncCancelled then
+          Cancel := True
+        else if Assigned(Self_.FOnBeforeSend) then
           Self_.FOnBeforeSend(Self_, Kind, IDValue, Param, Snap, Cancel);
       end);
   Result := not Cancel;
@@ -386,10 +546,11 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnResult(Self_, Kind, IDValue, Param, Snap)
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnResult) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnResult) then
           Self_.FOnResult(Self_, Kind, IDValue, Param, Snap);
       end);
 end;
@@ -413,13 +574,14 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       var
         Handled: Boolean;
       begin
         Handled := False;
-        if Assigned(Self_.FOnError) then
+        if ((Self_.FWorker = nil) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnError) then
           Self_.FOnError(Self_, Code, Msg, Handled);
       end);
 end;

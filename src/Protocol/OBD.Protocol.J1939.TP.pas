@@ -411,7 +411,7 @@ type
     /// than the configured limit. Call from a periodic timer
     /// (every ~250 ms is fine).</summary>
     /// <param name="ANowMs">Reference now-time in milliseconds since
-    /// some monotonic origin (typically <c>GetTickCount64</c>).</param>
+    /// some monotonic origin (typically <c>TThread.GetTickCount64</c>).</param>
     procedure SweepTimeouts(ANowMs: UInt64);
 
     /// <summary>Starts a TX session by sending RTS or BAM and
@@ -574,7 +574,7 @@ end;
 
 function NowMs: UInt64;
 begin
-  Result := UInt64(GetTickCount64);
+  Result := UInt64(TThread.GetTickCount64);
 end;
 
 { ---- TOBDJ1939TPCodec -------------------------------------------------------- }
@@ -752,7 +752,7 @@ begin
       while Self_.FSweepStop.WaitFor(Self_.FSweepIntervalMs) <> wrSignaled do
       begin
         try
-          Self_.SweepTimeouts(UInt64(GetTickCount64));
+          Self_.SweepTimeouts(UInt64(TThread.GetTickCount64));
         except
           // Don't let a transient handler exception kill the sweeper.
         end;

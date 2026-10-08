@@ -17,6 +17,7 @@ unit Tests.OBD.Protocol.Integration;
 interface
 
 uses
+  OBD.Protocol,
   System.SysUtils,
   System.Classes,
   DUnitX.TestFramework,

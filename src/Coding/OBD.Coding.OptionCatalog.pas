@@ -286,7 +286,7 @@ begin
       raise EOBDConfig.CreateFmt(
         'OEM coding catalogue: values[%d] is not an object', [I]);
     Obj := AArr.Items[I] as TJSONObject;
-    Entry := Default(TOBDOptionValueLabel);
+    Entry := System.Default(TOBDOptionValueLabel);
     if not HasJSON(Obj, 'raw') then
       raise EOBDConfig.CreateFmt('values[%d].raw missing', [I]);
     if not HasJSON(Obj, 'label') then
@@ -304,7 +304,7 @@ var
   KindStr: string;
   EndianStr: string;
 begin
-  AInfo := Default(TOBDOptionAddressingInfo);
+  AInfo := System.Default(TOBDOptionAddressingInfo);
   AInfo.Endian := oeBig;
   KindStr := GetJSONStr(AObj, 'kind', '');
   if KindStr = '' then
@@ -407,7 +407,7 @@ var
   Version: Int64;
   TagsAcc: TList<string>;
 begin
-  ADoc := Default(TOBDCodingOptionDoc);
+  ADoc := System.Default(TOBDCodingOptionDoc);
   Version := GetJSONInt(ARoot, 'version', 0);
   if Version <> 1 then
     raise EOBDConfig.CreateFmt('%s: schema version must be 1, got %d',
@@ -434,7 +434,7 @@ begin
         raise EOBDConfig.CreateFmt('%s: options[%d] not an object',
           [AFileName, I]);
       Obj := Arr.Items[I] as TJSONObject;
-      Entry := Default(TOBDOptionEntry);
+      Entry := System.Default(TOBDOptionEntry);
       Entry.Name := GetJSONStr(Obj, 'name', '');
       if Entry.Name = '' then
         raise EOBDConfig.CreateFmt('%s: options[%d].name missing',

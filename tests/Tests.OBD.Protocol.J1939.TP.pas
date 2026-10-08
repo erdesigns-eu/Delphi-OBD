@@ -17,9 +17,13 @@ unit Tests.OBD.Protocol.J1939.TP;
 interface
 
 uses
+  OBD.Protocol.J1939.TP,
+  System.SysUtils,
   DUnitX.TestFramework;
 
 type
+  TTestCallback1 = reference to procedure(const ASession: TJ1939Session; const APayload: TBytes);
+
   /// <summary>TP control-message encoder / decoder coverage.</summary>
   [TestFixture]
   TJ1939TPEncoderTests = class
@@ -72,6 +76,10 @@ type
   /// <summary>Transmitter coverage.</summary>
   [TestFixture]
   TJ1939TransmitterTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(const ASession: TJ1939Session; const APayload: TBytes);
+
   public
     /// <summary>Broadcast send emits BAM CM + N DT frames.</summary>
     [Test] procedure BroadcastEmitsBAMAndDTs;
@@ -106,15 +114,13 @@ type
 implementation
 
 uses
-  System.SysUtils,
   System.Classes,
   System.Diagnostics,
   System.SyncObjs,
   System.Generics.Collections,
   OBD.Types,
   OBD.Protocol.Types,
-  OBD.Protocol.J1939,
-  OBD.Protocol.J1939.TP;
+  OBD.Protocol.J1939;
 
 { ---- TJ1939TPEncoderTests ---------------------------------------------------- }
 
@@ -546,12 +552,13 @@ begin
     Assert.IsTrue(DTCount >= 2, 'Two DT frames should follow CTS');
 
     // Simulate peer EOMA — session should complete.
-    Tx.Manager.OnComplete :=
+    FTestCallback1 :=
       procedure(const ASession: TJ1939Session; const APayload: TBytes)
       begin
         Cap.CompletedSessions.Add(ASession);
         Cap.CompletedPayloads.Add(Copy(APayload));
       end;
+    Tx.Manager.OnComplete := HandleTestEvent1;
     Tx.Manager.FeedTPCM($0A, 5, TOBDJ1939TPCodec.EncodeEOMA($FECA, 14, 2));
     Assert.AreEqual(1, Cap.CompletedSessions.Count);
   finally
@@ -649,7 +656,7 @@ begin
     Assert.AreEqual(1, M.SessionCount);
 
     TThread.Sleep(150);
-    M.SweepTimeouts(UInt64(GetTickCount64));
+    M.SweepTimeouts(UInt64(TThread.GetTickCount64));
 
     Assert.AreEqual(0, M.SessionCount);
     Assert.AreEqual(1, Cap.AbortedSessions.Count);
@@ -706,6 +713,12 @@ begin
   finally
     M.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TJ1939TransmitterTests.HandleTestEvent1(const ASession: TJ1939Session; const APayload: TBytes);
+begin
+  FTestCallback1(ASession, APayload);
 end;
 
 initialization

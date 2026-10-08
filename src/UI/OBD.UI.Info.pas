@@ -32,6 +32,8 @@ unit OBD.UI.Info;
 interface
 
 uses
+  OBD.Types,
+  System.Types,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

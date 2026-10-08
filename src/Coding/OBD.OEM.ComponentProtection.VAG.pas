@@ -35,6 +35,7 @@ unit OBD.OEM.ComponentProtection.VAG;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   OBD.Types,

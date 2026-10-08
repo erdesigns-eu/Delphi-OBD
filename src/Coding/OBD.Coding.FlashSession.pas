@@ -38,6 +38,7 @@ unit OBD.Coding.FlashSession;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

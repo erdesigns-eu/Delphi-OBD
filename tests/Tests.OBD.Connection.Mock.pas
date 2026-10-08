@@ -19,14 +19,32 @@ unit Tests.OBD.Connection.Mock;
 interface
 
 uses
-  DUnitX.TestFramework;
+  OBD.Connection.Types,
+  System.SysUtils,
+  DUnitX.TestFramework,
+  OBD.Types;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; const ABytes: TBytes);
+  TTestCallback2 = reference to procedure(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string);
+  TTestCallback3 = reference to procedure(Sender: TObject; NewState: TOBDConnectionState);
+  TTestCallback4 = reference to procedure(Sender: TObject; const AStep: TOBDProgressStep);
+
   /// <summary>
   ///   Coverage for <c>TOBDMockTransport</c>.
   /// </summary>
   [TestFixture]
   TConnectionMockTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    FTestCallback3: TTestCallback3;
+    FTestCallback4: TTestCallback4;
+    procedure HandleTestEvent1(Sender: TObject; const ABytes: TBytes);
+    procedure HandleTestEvent2(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string);
+    procedure HandleTestEvent3(Sender: TObject; NewState: TOBDConnectionState);
+    procedure HandleTestEvent4(Sender: TObject; const AStep: TOBDProgressStep);
+
   public
     /// <summary>Newly-created mock starts in <c>csClosed</c>.</summary>
     [Test] procedure StartsClosed;
@@ -55,10 +73,7 @@ type
 implementation
 
 uses
-  System.SysUtils,
   System.Classes,
-  OBD.Types,
-  OBD.Connection.Types,
   OBD.Connection.Mock;
 
 procedure TConnectionMockTests.StartsClosed;
@@ -133,11 +148,12 @@ var
 begin
   Mock := TOBDMockTransport.Create;
   try
-    Mock.OnDataReceived :=
+    FTestCallback1 :=
       procedure(Sender: TObject; const ABytes: TBytes)
       begin
         Received := Copy(ABytes);
       end;
+    Mock.OnDataReceived := HandleTestEvent1;
     Mock.SimulateOpen;
     Mock.FeedString('OK>');
     Assert.AreEqual<NativeInt>(3, Length(Received));
@@ -157,12 +173,13 @@ begin
   CapturedCode := oeNone;
   CapturedMsg := '';
   try
-    Mock.OnTransportError :=
+    FTestCallback2 :=
       procedure(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string)
       begin
         CapturedCode := ACode;
         CapturedMsg := AMessage;
       end;
+    Mock.OnTransportError := HandleTestEvent2;
     Mock.SimulateError(oeTimeout, 'timed out');
     Assert.AreEqual(Ord(oeTimeout), Ord(CapturedCode));
     Assert.AreEqual('timed out', CapturedMsg);
@@ -208,12 +225,13 @@ var
 begin
   Mock := TOBDMockTransport.Create;
   try
-    Mock.OnStateChanged :=
+    FTestCallback3 :=
       procedure(Sender: TObject; NewState: TOBDConnectionState)
       begin
         SetLength(States, Length(States) + 1);
         States[High(States)] := NewState;
       end;
+    Mock.OnStateChanged := HandleTestEvent3;
     Mock.SimulateOpen;
     Mock.Close;
     // Expect csOpening, csOpen, csClosing, csClosed.
@@ -243,7 +261,7 @@ begin
   GotDetail := '';
   GotPercent := 0;
   try
-    Mock.OnProgress :=
+    FTestCallback4 :=
       procedure(Sender: TObject; const AStep: TOBDProgressStep)
       begin
         GotIndex := AStep.Index;
@@ -252,6 +270,7 @@ begin
         GotDetail := AStep.Detail;
         GotPercent := AStep.Percent;
       end;
+    Mock.OnProgress := HandleTestEvent4;
     Mock.SimulateProgress(2, 5, 'Connecting', 'host:port');
     Assert.AreEqual<Cardinal>(2, GotIndex);
     Assert.AreEqual<Cardinal>(5, GotCount);
@@ -261,6 +280,27 @@ begin
   finally
     Mock.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TConnectionMockTests.HandleTestEvent1(Sender: TObject; const ABytes: TBytes);
+begin
+  FTestCallback1(Sender, ABytes);
+end;
+
+procedure TConnectionMockTests.HandleTestEvent2(Sender: TObject; ACode: TOBDErrorCode; const AMessage: string);
+begin
+  FTestCallback2(Sender, ACode, AMessage);
+end;
+
+procedure TConnectionMockTests.HandleTestEvent3(Sender: TObject; NewState: TOBDConnectionState);
+begin
+  FTestCallback3(Sender, NewState);
+end;
+
+procedure TConnectionMockTests.HandleTestEvent4(Sender: TObject; const AStep: TOBDProgressStep);
+begin
+  FTestCallback4(Sender, AStep);
 end;
 
 initialization

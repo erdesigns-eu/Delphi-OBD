@@ -22,6 +22,7 @@ unit OBD.Flash.OEM.Mercedes;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   OBD.Types,
   OBD.Coding.SecurityAccess,

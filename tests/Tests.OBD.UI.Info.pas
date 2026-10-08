@@ -19,6 +19,9 @@ uses
   OBD.UI.Info;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; ATrip: Char);
+  TTestCallback2 = reference to procedure(Sender: TObject; ATrip: Char);
+
   [TestFixture]
   TVINCardTests = class
   public
@@ -39,6 +42,12 @@ type
 
   [TestFixture]
   TOdometerTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent1(Sender: TObject; ATrip: Char);
+    procedure HandleTestEvent2(Sender: TObject; ATrip: Char);
+
   public
     [Test] procedure DefaultsZero;
     [Test] procedure TotalClampsNegative;
@@ -201,9 +210,10 @@ begin
   O := TOBDOdometer.Create(nil);
   try
     O.TripA := 123.4;
-    O.OnTripReset :=
+    FTestCallback1 :=
       procedure(Sender: TObject; ATrip: Char)
       begin Got := ATrip; end;
+    O.OnTripReset := HandleTestEvent1;
     O.ResetTripA;
     Assert.AreEqual<Char>('A', Got);
     Assert.AreEqual(0.0, O.TripA, 0.001);
@@ -218,9 +228,10 @@ begin
   Got := #0;
   O := TOBDOdometer.Create(nil);
   try
-    O.OnTripReset :=
+    FTestCallback2 :=
       procedure(Sender: TObject; ATrip: Char)
       begin Got := ATrip; end;
+    O.OnTripReset := HandleTestEvent2;
     O.ResetTripB;
     Assert.AreEqual<Char>('B', Got);
   finally O.Free; end;
@@ -277,6 +288,17 @@ begin
     C.ShowSeconds := False;
     Assert.IsFalse(C.ShowSeconds);
   finally C.Free; end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TOdometerTests.HandleTestEvent1(Sender: TObject; ATrip: Char);
+begin
+  FTestCallback1(Sender, ATrip);
+end;
+
+procedure TOdometerTests.HandleTestEvent2(Sender: TObject; ATrip: Char);
+begin
+  FTestCallback2(Sender, ATrip);
 end;
 
 initialization

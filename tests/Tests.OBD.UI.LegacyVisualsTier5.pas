@@ -27,9 +27,15 @@ uses
   OBD.UI.TrendGraph;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; AValue: Single);
+
   /// <summary>DUnitX fixture for the second-round visual ports.</summary>
   [TestFixture]
   TLegacyVisualsTier5Tests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; AValue: Single);
+
   public
     [Test] procedure Knob_DefaultsMinMaxValueStep;
     [Test] procedure Knob_SetValueClampsToRange;
@@ -87,11 +93,12 @@ begin
   K := TOBDKnob.Create(nil);
   try
     Hits := 0;
-    K.OnChange :=
+    FTestCallback1 :=
       procedure(Sender: TObject; AValue: Single)
       begin
         Inc(Hits);
       end;
+    K.OnChange := HandleTestEvent1;
     K.Value := 25;
     K.Value := 25;                       // same value — no fire
     K.Value := 50;
@@ -236,6 +243,12 @@ begin
   finally
     G.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TLegacyVisualsTier5Tests.HandleTestEvent1(Sender: TObject; AValue: Single);
+begin
+  FTestCallback1(Sender, AValue);
 end;
 
 initialization

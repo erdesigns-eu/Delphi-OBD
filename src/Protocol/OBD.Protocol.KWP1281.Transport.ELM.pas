@@ -92,7 +92,7 @@ type
     FInitMode:     TKWP1281ELMInitMode;
     FElmVersion:   string;
     FByteTimeout:  Integer;
-    procedure HandleBytes(const ABytes: TBytes);
+    procedure HandleBytes(Sender: TObject; const ABytes: TBytes);
     procedure DrainQueue;
     function  ReadUntilPrompt(ATimeoutMs: Integer): string;
     function  SendAt(const ACmd: string; ATimeoutMs: Integer): string;
@@ -157,7 +157,7 @@ begin
   inherited;
 end;
 
-procedure TKWP1281ELMTransport.HandleBytes(const ABytes: TBytes);
+procedure TKWP1281ELMTransport.HandleBytes(Sender: TObject; const ABytes: TBytes);
 var I: Integer;
 begin
   for I := 0 to Length(ABytes) - 1 do

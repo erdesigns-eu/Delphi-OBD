@@ -102,7 +102,7 @@ begin
   FMaxDelayMs := 5000;
   FMultiplier := 2.0;
   FJitterPercent := 10;
-  FRandSeed := Cardinal(GetTickCount);
+  FRandSeed := Cardinal(TThread.GetTickCount);
 end;
 
 procedure TOBDRetryPolicy.Assign(Source: TPersistent);

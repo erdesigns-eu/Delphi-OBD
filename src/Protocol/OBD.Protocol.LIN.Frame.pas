@@ -24,6 +24,7 @@
 //
 //  History     :
 //    2026-05-09  ERD  Initial implementation.
+//    2026-10-08  Reject trailing bytes in complete LIN frames.
 //------------------------------------------------------------------------------
 
 unit OBD.Protocol.LIN.Frame;
@@ -242,7 +243,7 @@ begin
   AFrame := Default(TOBDLINFrame);
   if (ADataLen < 0) or (ADataLen > LIN_MAX_DATA_BYTES) then Exit;
   Need := 1 + ADataLen + 1;
-  if Length(ABytes) < Need then Exit;
+  if Length(ABytes) <> Need then Exit;
 
   AFrame.PID := ABytes[0];
   if not LINDecodePID(AFrame.PID, AFrame.FrameID) then Exit;

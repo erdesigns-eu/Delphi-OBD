@@ -26,6 +26,8 @@ unit OBD.Protocol;
 interface
 
 uses
+  OBD.Connection.Types,
+  System.StrUtils,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

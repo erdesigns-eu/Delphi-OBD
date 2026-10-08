@@ -16,9 +16,9 @@ name: CI
 
 on:
   push:
-    branches: [main, v2, 'v2/**']
+    branches: [main, v2, 'v2/**', 'claude/v2-phase-1']
   pull_request:
-    branches: [v2]
+    branches: [main, v2]
   workflow_dispatch: {}
 
 permissions:
@@ -32,24 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: VCL/FMX guard on runtime units
-        run: |
-          set -e
-          # Runtime units must not depend on Vcl.* or FMX.*. The IDE-only
-          # design-time package is the single exception.
-          dirs="src/Core src/Connection src/Adapter src/Protocol src/Services"
-          violations=""
-          for d in $dirs; do
-            if [ -d "$d" ]; then
-              found=$(grep -RInE 'uses[^;]*\b(Vcl|FMX)\.' "$d" 2>/dev/null || true)
-              if [ -n "$found" ]; then
-                violations="$violations\n$found"
-              fi
-            fi
-          done
-          if [ -n "$violations" ]; then
-            printf "Runtime unit references VCL/FMX:%b\n" "$violations"
-            exit 1
-          fi
+        run: python3 tools/pascalcheck/check_runtime.py
 
       - name: File header presence on .pas files
         run: |
@@ -74,6 +57,30 @@ jobs:
             find catalogs -name '*.json' -print0 \
               | xargs -0 -n1 -I{} python3 -c "import json,sys; json.load(open('{}'))"
           fi
+
+  portable-validation:
+    name: Pascal analysis and portable FPC smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install catalog audit dependencies
+        run: python3 -m pip install -r tools/requirements-validation.txt
+      - name: Test the offline catalog auditor
+        run: python3 -m unittest discover -s tools -p test_validate_catalogs.py -v
+      - name: Test the static analyzers
+        run: python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
+      - name: Check Pascal sources (hints remain visible)
+        run: python3 tools/pascalcheck/run.py --errors-only -v
+      - name: Install Free Pascal and its RTL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fp-compiler fp-units-rtl fp-units-base fp-units-fcl
+      - name: Compile and run portable codec checks
+        run: python3 tools/fpc_smoke.py
+
 
   build:
     name: Build & test (Delphi ${{ matrix.delphi }})

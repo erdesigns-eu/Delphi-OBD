@@ -47,7 +47,7 @@ for name, u in sorted(all_units().items()):
     for tname, kind, mname, line, flags, isclass, tkind in pu.members:
         per[(str(tname).lower(), mname.lower(), bool(isclass))].append((line, flags))
     for (tn, mn, ic), lst in sorted(per.items()):
-        if len(lst) > 1 and not all('overload' in f for _, f in lst):
+        if has_coexisting_lines(u.src, [line for line, _ in lst]) and not all('overload' in f for _, f in lst):
             n1 += 1
             print("  %s  %s.%s at lines %s (overload flags: %s)" %
                   (u.rel, tn, mn, [l for l, _ in lst], [sorted(f) for _, f in lst]))
@@ -62,7 +62,7 @@ for name, u in sorted(all_units().items()):
     for qual, mname, line, kind, flags in pu.impls:
         per[(qual.lower(), mname.lower(), 'classmethod' in flags)].append(line)
     for (q, m, ic), lines in sorted(per.items()):
-        if len(lines) > 1 and not overloaded(u, pu, q, m):
+        if has_coexisting_lines(u.src, lines) and not overloaded(u, pu, q, m):
             n2 += 1
             print("  %s  %s.%s implemented %d times at %s" %
                   (u.rel, q, m, len(lines), lines))
@@ -77,7 +77,7 @@ for name, u in sorted(all_units().items()):
     for tname, fname, line in pu.fields:
         per[(str(tname).lower(), fname.lower())].append(line)
     for (tn, fn), lines in sorted(per.items()):
-        if len(lines) > 1:
+        if has_coexisting_lines(u.src, lines):
             n3 += 1
             print("  %s  %s.%s at lines %s" % (u.rel, tn, fn, lines))
 print("  total:", n3)

@@ -20,6 +20,7 @@ unit OBD.Service.EVBattery.Catalog;
 interface
 
 uses
+  OBD.JSON,
   System.SysUtils,
   System.Classes,
   System.IOUtils,
@@ -87,7 +88,6 @@ var
   RuleObj:  TJSONObject;
   Cat:    TOBDEVBatteryVendorCatalog;
   Rule:   TOBDEVBatteryRule;
-  V:      TJSONValue;
   I:      Integer;
 
   function HexInt(const ASource: TJSONObject;
@@ -137,8 +137,8 @@ var
 
 begin
   if not TFile.Exists(AFile) then Exit;
-  Doc := TJSONObject.ParseJSONValue(
-    TFile.ReadAllText(AFile, TEncoding.UTF8)) as TJSONObject;
+  Doc := ParseOBDJSONObject(
+    TFile.ReadAllText(AFile, TEncoding.UTF8));
   if Doc = nil then Exit;
   try
     Cat := Default(TOBDEVBatteryVendorCatalog);
@@ -167,7 +167,7 @@ begin
       SetLength(Cat.Rules, RulesArr.Count);
       for I := 0 to RulesArr.Count - 1 do
       begin
-        RuleObj := RulesArr.Items[I] as TJSONObject;
+        RuleObj := RequireOBDJSONObject(RulesArr.Items[I]);
         Rule := Default(TOBDEVBatteryRule);
         Rule.FieldName   := StrField(RuleObj, 'field');
         Rule.Field       := FieldKindFromName(Rule.FieldName);

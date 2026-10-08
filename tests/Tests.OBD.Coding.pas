@@ -31,9 +31,16 @@ uses
   OBD.Coding.FlashSession;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; L: Byte; const Sd: TBytes; var K: TBytes);
+  TTestCallback2 = reference to procedure(Sender: TObject; A: UInt64; S: UInt32; var C: Boolean);
+
   /// <summary>SecurityAccess: configuration validation.</summary>
   [TestFixture]
   TSecurityAccessTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; L: Byte; const Sd: TBytes; var K: TBytes);
+
   public
     [Test] procedure UnlockRaisesOnEvenLevel;
     [Test] procedure UnlockRaisesWithoutTransform;
@@ -62,6 +69,10 @@ type
   /// empty image rejection, retry-budget defaults.</summary>
   [TestFixture]
   TFlasherTests = class
+  strict private
+    FTestCallback2: TTestCallback2;
+    procedure HandleTestEvent2(Sender: TObject; A: UInt64; S: UInt32; var C: Boolean);
+
   public
     [Test] procedure FlashRaisesWhenAutoExecuteFalse;
     [Test] procedure FlashRaisesOnEmptyImage;
@@ -135,12 +146,13 @@ begin
   S := TOBDSecurityAccess.Create(nil);
   try
     EventFired := False;
-    S.OnComputeKey :=
+    FTestCallback1 :=
       procedure(Sender: TObject; L: Byte; const Sd: TBytes; var K: TBytes)
       begin
         EventFired := True;
         SetLength(K, 1);
       end;
+    S.OnComputeKey := HandleTestEvent1;
     S.SeedToKey :=
       function(L: Byte; const Sd: TBytes): TBytes
       begin
@@ -295,12 +307,13 @@ begin
   try
     F.AutoExecute := True;
     HandlerFired := False;
-    F.OnBeforeFlash :=
+    FTestCallback2 :=
       procedure(Sender: TObject; A: UInt64; S: UInt32; var C: Boolean)
       begin
         HandlerFired := True;
         C := True; // cancel
       end;
+    F.OnBeforeFlash := HandleTestEvent2;
     Assert.WillRaise(
       procedure begin F.Flash($00100000, TBytes.Create($AA, $BB)); end,
       EOBDConfig);
@@ -451,6 +464,17 @@ begin
   finally
     S.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TSecurityAccessTests.HandleTestEvent1(Sender: TObject; L: Byte; const Sd: TBytes; var K: TBytes);
+begin
+  FTestCallback1(Sender, L, Sd, K);
+end;
+
+procedure TFlasherTests.HandleTestEvent2(Sender: TObject; A: UInt64; S: UInt32; var C: Boolean);
+begin
+  FTestCallback2(Sender, A, S, C);
 end;
 
 initialization

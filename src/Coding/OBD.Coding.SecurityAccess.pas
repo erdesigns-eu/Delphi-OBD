@@ -34,6 +34,7 @@ unit OBD.Coding.SecurityAccess;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

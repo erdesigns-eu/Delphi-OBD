@@ -24,6 +24,7 @@ unit OBD.OEM.ComponentProtection.Stellantis;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   OBD.Types,

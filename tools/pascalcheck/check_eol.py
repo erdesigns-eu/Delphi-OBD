@@ -9,7 +9,9 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ROOT, SKIP
 
-# Only the extensions .gitattributes pins are checked for a specific ending.
+# Extension-specific conventions are checked only when .gitattributes exists.
+# This checkout has no pinned EOL policy and accepts homogeneous LF or CRLF.
+# Mixed endings remain errors on either platform.
 # Everything else is "text=auto", where CRLF in a Windows working tree is
 # correct, so only a mix is a defect there.
 PINNED_CRLF = ('.pas', '.dpr', '.dpk', '.dproj', '.groupproj', '.dfm', '.fmx',
@@ -32,9 +34,9 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
         rel = os.path.relpath(path, ROOT)
         if crlf and bare:
             problems.append((rel, 'mixed: %d CRLF, %d LF' % (crlf, bare)))
-        elif ext in PINNED_CRLF and bare and not crlf:
+        elif os.path.isfile(os.path.join(ROOT, '.gitattributes')) and ext in PINNED_CRLF and bare and not crlf:
             problems.append((rel, 'LF, but .gitattributes pins it to CRLF'))
-        elif ext in PINNED_LF and crlf:
+        elif os.path.isfile(os.path.join(ROOT, '.gitattributes')) and ext in PINNED_LF and crlf:
             problems.append((rel, 'CRLF, but .gitattributes pins it to LF'))
 
 print('=== line endings ===')

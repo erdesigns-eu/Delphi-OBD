@@ -22,6 +22,7 @@ unit OBD.UI.Diag;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

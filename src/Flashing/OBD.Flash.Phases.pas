@@ -195,7 +195,6 @@ var
   Check: TOBDFlashCheck;
   Outcome: TOBDCheckResult;
   Msg: string;
-  Failed: Boolean;
 begin
   Result := True;
   AFirstError := Default(TOBDCheckResult);

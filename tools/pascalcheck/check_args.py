@@ -15,7 +15,7 @@ def lookup(unitobj, owner, name):
     """All known signatures for owner.name, searching unit then its uses."""
     key = ((owner or '').lower(), name.lower())
     sigs = []
-    order = [unitobj.name.lower()] + [x.split('.')[-1].lower()
+    order = [unitobj.name.lower()] + [x.lower()
              for x in list(unitobj.iface_uses) + list(unitobj.impl_uses)]
     for un in order:
         sigs += ARITY.get(un, {}).get(key, [])
@@ -103,7 +103,9 @@ for uname, u in sorted(US.items()):
                         m += 1
                     j = m + 1
                     continue
-                if tt in '([': d += 1
+                if tt in '([':
+                    if d >= 1: seen = True
+                    d += 1
                 elif tt in ')]':
                     d -= 1
                     if d == 0: break

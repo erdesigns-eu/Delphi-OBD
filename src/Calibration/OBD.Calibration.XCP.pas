@@ -35,6 +35,7 @@ unit OBD.Calibration.XCP;
 interface
 
 uses
+  OBD.Protocol.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

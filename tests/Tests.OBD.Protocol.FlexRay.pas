@@ -35,6 +35,7 @@ type
     [Test] procedure FrameRejectsBitFlipInPayload;
     [Test] procedure EncodeRejectsInvalidFrameID;
     [Test] procedure EncodeRejectsCycleOverflow;
+    [Test] procedure FrameRejectsTrailingBytes;
   end;
 
 implementation
@@ -135,6 +136,20 @@ begin
   H := MakeHeader;
   H.CycleCount := 64;
   Assert.WillRaise(procedure begin FlexRayEncodeHeader(H); end, EOBDConfig);
+end;
+
+procedure TFlexRayTests.FrameRejectsTrailingBytes;
+var
+  Frame, Decoded: TOBDFlexRayFrame;
+  Bytes: TBytes;
+begin
+  Frame := Default(TOBDFlexRayFrame);
+  Frame.Header.FrameID := 12;
+  Frame.Header.PayloadLengthWords := 2;
+  Frame.Payload := TBytes.Create(1, 2, 3, 4);
+  Bytes := FlexRayEncodeFrame(Frame);
+  SetLength(Bytes, Length(Bytes) + 1);
+  Assert.IsFalse(FlexRayDecodeFrame(Bytes, Decoded));
 end;
 
 initialization

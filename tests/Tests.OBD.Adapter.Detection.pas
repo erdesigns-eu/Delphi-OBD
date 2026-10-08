@@ -18,6 +18,7 @@ unit Tests.OBD.Adapter.Detection;
 interface
 
 uses
+  System.StrUtils,
   DUnitX.TestFramework;
 
 type

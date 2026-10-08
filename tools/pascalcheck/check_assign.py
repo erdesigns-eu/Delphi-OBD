@@ -11,7 +11,7 @@ US = all_units()
 def visible_globals(u):
     g = set(u.globals)
     for un in list(u.iface_uses) + list(u.impl_uses):
-        o = US.get(un.split('.')[-1].lower())
+        o = US.get(un.lower())
         if o: g |= set(o.globals)
     return g
 

@@ -32,6 +32,7 @@ unit OBD.Design.Forms.StarterPicker;
 interface
 
 uses
+  System.UITypes,
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
@@ -166,8 +167,8 @@ begin
       if Length(FilterCategories) > 0 then
       begin
         var Hit: Boolean := False;
-        for var FCat in FilterCategories do
-          if SameText(FCat, All[I].Category) then begin Hit := True; Break; end;
+        for var FilterCategory in FilterCategories do
+          if SameText(FilterCategory, All[I].Category) then begin Hit := True; Break; end;
         if not Hit then Continue;
       end;
       if (CategoryNode = nil) or (All[I].Category <> CurrentCategory) then

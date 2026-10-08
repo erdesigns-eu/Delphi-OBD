@@ -28,6 +28,7 @@ unit OBD.Flash.ImageApplicability;
 interface
 
 uses
+  System.StrUtils,
   System.SysUtils,
   System.Classes,
   System.IOUtils,

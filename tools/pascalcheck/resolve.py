@@ -147,7 +147,7 @@ def global_type(name, unit):
     if unit is None: return None
     k = name.lower().lstrip('&')
     us = all_units()
-    order = [unit.name.lower()] + [x.split('.')[-1].lower()
+    order = [unit.name.lower()] + [x.lower()
              for x in list(unit.iface_uses) + list(unit.impl_uses)]
     for un in order:
         o = us.get(un)

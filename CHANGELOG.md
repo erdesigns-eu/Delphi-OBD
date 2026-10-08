@@ -10,6 +10,46 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+### KWP merge preparation
+
+- Add an offline catalog schema auditor and five regression fixtures; report
+  unresolved schema coverage separately and forbid network schema retrieval.
+- Run catalog-auditor regression tests in CI and enable CI for PRs to main.
+
+- Repair owned request-worker lifecycle for KWP ReadID, ReadDTC and session
+  hub; add progress events and fifteen further DUnitX regressions.
+- Initialize keepalive before starting its thread; join and remove queued
+  callbacks when stopping or destroying it.
+
+- Add owned, cancellable async I/O-control and routine requests with input
+  snapshots, overlap protection, main-thread events and progress phases.
+- Add ten hardware-free DUnitX regressions for async safety and lifecycle;
+  execution remains deferred to the stable Delphi validation stage.
+- Correct callback-fixture interface imports and reconcile implemented backlog
+  items with still-pending acceptance evidence.
+
+
+### Fixed — branch validation
+- Reject trailing bytes in LIN and FlexRay complete-frame decoders, with
+  executable FPC regressions and matching DUnitX tests.
+- Repair the KWP1281 ELM transport event signature, invalid OEM-catalogue
+  `out` parameter, hidden `Default` intrinsics, missing direct imports,
+  Winsock setup calls and signed fuel-trim formatting.
+- Preserve managed values captured by queued/synchronised callbacks;
+  keep the DTC editor's loop variable local to its callback.
+- Replace 39 incompatible anonymous-method assignments in DUnitX fixtures
+  with fixture-owned callbacks exposed through object-method event handlers.
+- Reject incorrect catalogue JSON shapes with `EOBDConfig`; release malformed
+  roots instead of leaking them during a failed cast.
+
+### Added — repeatable validation
+- Adapted `tools/pascalcheck` discovery, namespaced symbol resolution,
+  conditional-compilation handling, advisory reporting and regression tests.
+- Portable `-Mdelphi` FPC smoke runner: 154 executable codec checks.
+- Linux CI job for analyzer regressions, Pascal error checks and FPC smoke;
+  multiline runtime-framework dependency detection.
+
+
 ### Added — service-mode extras
 - `TOBDClearDTC` (`OBD.ClearDTC`) — single-purpose
   ClearDiagnosticInformation component spanning OBD-II Mode 0x04,

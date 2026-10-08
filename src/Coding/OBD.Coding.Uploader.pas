@@ -41,6 +41,7 @@ unit OBD.Coding.Uploader;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,

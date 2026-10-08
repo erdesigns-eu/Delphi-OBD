@@ -8,6 +8,7 @@
 Exits non-zero when anything was found, so it can stand in a build step.
 """
 import argparse, os, re, subprocess, sys
+from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -35,7 +36,13 @@ def main():
                     help='only run checkers whose name contains this')
     ap.add_argument('-v', '--verbose', action='store_true',
                     help='print the findings, not just the counts')
+    ap.add_argument('-j', '--jobs', type=int, default=min(4, os.cpu_count() or 1),
+                    help='independent checker processes (default up to four)')
+    ap.add_argument('--errors-only', action='store_true',
+                    help='report compiler hints/warnings but fail only on other findings')
     args = ap.parse_args()
+    if args.jobs < 1:
+        ap.error('--jobs must be positive')
 
     names = sorted(f for f in os.listdir(HERE)
                    if f.startswith('check_') and f.endswith('.py')
@@ -44,14 +51,42 @@ def main():
         print('no checker matches %r' % args.pattern)
         return 2
 
+    # These imported application-specific checks need inputs this library does
+    # not ship. Report them as skipped, never as a successful validation.
+    requirements = {
+        'constkey': ('translations/en.json',),
+        'i18n': ('translations/en.json',),
+        'i18nmissing': ('translations/en.json',),
+        'i18norphan': ('translations/en.json',),
+        'wraparound': ('units/BigNumbers.pas', 'units/ChaChaPoly.pas',
+                       'units/Curve25519.pas', 'units/SrpClient.pas'),
+    }
+    skipped = []
     found = {}
     unclear = []
+    def run_checker(name):
+        return subprocess.run([sys.executable, os.path.join(HERE, name)],
+                              capture_output=True, text=True, cwd=ROOT)
+
+    pending = {}
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for name in names:
+            label = name[len('check_'):-len('.py')]
+            inputs = requirements.get(label, ())
+            if not inputs or any(os.path.exists(os.path.join(ROOT, p)) for p in inputs):
+                pending[name] = pool.submit(run_checker, name)
     for name in names:
-        r = subprocess.run([sys.executable, os.path.join(HERE, name)],
-                           capture_output=True, text=True, cwd=ROOT)
+        label = name[len('check_'):-len('.py')]
+        inputs = requirements.get(label, ())
+        if inputs and not any(os.path.exists(os.path.join(ROOT, p)) for p in inputs):
+            print('%-18s SKIP (project-specific inputs absent)' % label)
+            skipped.append(label)
+            continue
+        r = pending[name].result()
         out = (r.stdout or '') + (r.stderr or '')
         label = name[len('check_'):-len('.py')]
-        if r.returncode != 0:
+        n = count(out)
+        if r.returncode != 0 and not (r.returncode == 1 and n is not None and n > 0):
             print('%-18s ERROR' % label)
             print(out.rstrip())
             unclear.append(label)
@@ -74,10 +109,16 @@ def main():
         print('%d finding(s) across %d checker(s): %s' %
               (sum(found.values()), len(found), ', '.join(sorted(found))))
     else:
-        print('clean across %d checkers' % len(names))
+        print('clean across %d executed checkers' % (len(names) - len(skipped)))
+    if skipped:
+        print('skipped: %s' % ', '.join(skipped))
     if unclear:
         print('could not read a total from: %s' % ', '.join(unclear))
-    return 1 if found or unclear else 0
+    advisory = {'private', 'unused', 'inlineunit', 'hidden'}
+    blocking = set(found) - advisory if args.errors_only else set(found)
+    if args.errors_only and set(found) & advisory:
+        print('advisory only: %s' % ', '.join(sorted(set(found) & advisory)))
+    return 1 if blocking or unclear else 0
 
 
 if __name__ == '__main__':

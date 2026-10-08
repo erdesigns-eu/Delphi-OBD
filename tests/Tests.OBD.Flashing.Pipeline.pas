@@ -28,9 +28,15 @@ uses
   OBD.Flash.Pipeline;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; A: UInt64; S: UInt32; var Allow: Boolean);
+
   /// <summary>Pipeline safety surface.</summary>
   [TestFixture]
   TFlashPipelineTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    procedure HandleTestEvent1(Sender: TObject; A: UInt64; S: UInt32; var Allow: Boolean);
+
   public
     [Test] procedure FlashRaisesOnEmptyImage;
     [Test] procedure FlashRaisesWhenProtocolMissing;
@@ -100,12 +106,13 @@ begin
   P := TOBDFlashPipeline.Create(nil);
   try
     Fired := False;
-    P.OnConfirmExecute :=
+    FTestCallback1 :=
       procedure(Sender: TObject; A: UInt64; S: UInt32; var Allow: Boolean)
       begin
         Fired := True;
         Allow := False;
       end;
+    P.OnConfirmExecute := HandleTestEvent1;
     Assert.WillRaise(
       procedure begin
         P.Flash($00100000, TBytes.Create($00, $01));
@@ -147,6 +154,12 @@ begin
   finally
     P.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TFlashPipelineTests.HandleTestEvent1(Sender: TObject; A: UInt64; S: UInt32; var Allow: Boolean);
+begin
+  FTestCallback1(Sender, A, S, Allow);
 end;
 
 initialization

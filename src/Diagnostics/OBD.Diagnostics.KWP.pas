@@ -30,6 +30,7 @@
 //
 //  History     :
 //    2026-05-11  ERD  Initial implementation.
+//    2026-10-08  ERD  Own, cancel and reap async request workers.
 //------------------------------------------------------------------------------
 
 unit OBD.Diagnostics.KWP;
@@ -37,6 +38,7 @@ unit OBD.Diagnostics.KWP;
 interface
 
 uses
+  OBD.Connection.Types,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
@@ -79,9 +81,17 @@ type
     FKeepAliveStop: TEvent;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
+    FWorker: TThread;
+    FCancelled: Integer;
+    FOnProgress: TOBDProgressEvent;
+    FShuttingDown: Boolean;
     FOnSessionChanged: TOBDKWPSessionEvent;
     FOnTesterPresent: TOBDKWPTesterPresentEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure FireProgress(AIndex: Cardinal; const AName: string);
+    function IsAsyncCancelled: Boolean;
+    procedure BeginAsync(const AAction: TProc);
+    procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     procedure DoStartSession(ASubFunction: Byte);
@@ -143,7 +153,13 @@ type
     ///   ECU returned a negative response.
     /// </exception>
     procedure TesterPresent;
+    /// <summary>Cancel delivery and join the request worker. Active work
+    /// requires the main thread; an ECU request already sent cannot be undone.</summary>
+    /// <exception cref="EOBDConfig">Active worker joined outside main thread.</exception>
+    procedure CancelAsync;
   published
+    /// <summary>Request and response phases delivered on the main thread.</summary>
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
@@ -200,11 +216,12 @@ type
 constructor TOBDKWPKeepAliveThread.Create(AHub: TOBDKWP; AStop: TEvent;
   AIntervalMs: Cardinal);
 begin
-  inherited Create(False);
+  inherited Create(True);
   FreeOnTerminate := False;
   FHub := AHub;
   FStop := AStop;
   FIntervalMs := AIntervalMs;
+  Start;
 end;
 
 procedure TOBDKWPKeepAliveThread.Execute;
@@ -236,6 +253,8 @@ end;
 
 destructor TOBDKWP.Destroy;
 begin
+  FShuttingDown := True;
+  CancelAsync;
   StopKeepAliveThread;
   FKeepAliveStop.Free;
   FAsyncLock.Free;
@@ -246,11 +265,16 @@ procedure TOBDKWP.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then
     Exit;
+  if FAsyncInFlight then
+    raise EOBDConfig.Create('Cannot replace Protocol during an async request');
+  StopKeepAliveThread;
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then
     FProtocol.FreeNotification(Self);
+  if FKeepAlive and (FProtocol <> nil) then
+    StartKeepAliveThread;
 end;
 
 procedure TOBDKWP.Notification(AComponent: TComponent;
@@ -259,17 +283,104 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
+    CancelAsync;
     StopKeepAliveThread;
     FProtocol := nil;
   end;
 end;
 
+procedure TOBDKWP.FireProgress(AIndex: Cardinal; const AName: string);
+var
+  Step: TOBDProgressStep;
+begin
+  if not Assigned(FOnProgress) then
+    Exit;
+  Step := TOBDProgressStep.MakeStep(AIndex, 2, AName, '');
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    FOnProgress(Self, Step)
+  else
+    TThread.Queue(TThread.CurrentThread,
+      procedure
+      begin
+        if not IsAsyncCancelled and
+          Assigned(FOnProgress) then
+          FOnProgress(Self, Step);
+      end);
+end;
+
+function TOBDKWP.IsAsyncCancelled: Boolean;
+begin
+  Result := TInterlocked.CompareExchange(FCancelled, 0, 0) <> 0;
+end;
+
+procedure TOBDKWP.BeginAsync(const AAction: TProc);
+var
+  Action: TProc;
+begin
+  Action := AAction;
+  GuardSingleAsync;
+  try
+    FWorker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        try
+          if not IsAsyncCancelled then
+            Action();
+        except
+          on E: Exception do
+            if not IsAsyncCancelled then
+              FireError(oeIO, E.Message);
+        end;
+        TThread.ForceQueue(TThread.CurrentThread,
+          procedure
+          begin
+            FinishAsync;
+          end);
+      end);
+    FWorker.FreeOnTerminate := False;
+    FWorker.Start;
+  except
+    FreeAndNil(FWorker);
+    ReleaseAsync;
+    raise;
+  end;
+end;
+
+procedure TOBDKWP.FinishAsync;
+begin
+  if IsAsyncCancelled then
+    Exit;
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
+end;
+
+procedure TOBDKWP.CancelAsync;
+begin
+  if FWorker = nil then
+    Exit;
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWP: async lifecycle requires main thread');
+  TInterlocked.Exchange(FCancelled, 1);
+  FWorker.Terminate;
+  // Joining may pump main-thread callbacks. Cancellation suppresses their
+  // delivery until all remaining worker-bound callbacks can be removed.
+  FWorker.WaitFor;
+  TThread.RemoveQueuedEvents(FWorker);
+  FreeAndNil(FWorker);
+  ReleaseAsync;
+end;
+
 procedure TOBDKWP.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('TOBDKWP: async start requires main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDKWP: async already in flight');
+    TInterlocked.Exchange(FCancelled, 0);
     FAsyncInFlight := True;
   finally
     FAsyncLock.Leave;
@@ -315,7 +426,9 @@ begin
   T := FKeepAliveThread;
   FKeepAliveThread := nil;
   FKeepAliveStop.SetEvent;
+  T.Terminate;
   T.WaitFor;
+  TThread.RemoveQueuedEvents(T);
   T.Free;
 end;
 
@@ -328,12 +441,16 @@ begin
     raise EOBDConfig.Create('TOBDKWP: Protocol not assigned');
   SetLength(Req, 1);
   Req[0] := ASubFunction;
+  if (FWorker <> nil) and IsAsyncCancelled then
+    raise EOBDConfig.Create('Async request cancelled');
+  FireProgress(1, 'Request');
   Resp := FProtocol.Request(KWP_SID_StartDiagnosticSession, Req);
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt(
       'StartDiagnosticSession (0x%.2x) negative: %s',
       [ASubFunction, Resp.NRCText]);
   FCurrentSession := ASubFunction;
+  FireProgress(2, 'Response');
 end;
 
 procedure TOBDKWP.StartSession(ASubFunction: Byte);
@@ -343,28 +460,12 @@ begin
 end;
 
 procedure TOBDKWP.StartSessionAsync(ASubFunction: Byte);
-var
-  Self_: TOBDKWP;
-  Sub: Byte;
 begin
-  GuardSingleAsync;
-  Self_ := Self;
-  Sub := ASubFunction;
-  TThread.CreateAnonymousThread(
+  BeginAsync(
     procedure
     begin
-      try
-        try
-          Self_.DoStartSession(Sub);
-          Self_.FireSessionChanged(Sub);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
-        end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      StartSession(ASubFunction);
+    end);
 end;
 
 procedure TOBDKWP.StopSession;
@@ -402,38 +503,46 @@ end;
 
 procedure TOBDKWP.FireSessionChanged(ANewSession: Byte);
 var
+  Worker: TThread;
   Self_: TOBDKWP;
   Sess: Byte;
 begin
   if not Assigned(FOnSessionChanged) then
     Exit;
   Self_ := Self;
+  Worker := TThread.CurrentThread;
   Sess := ANewSession;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnSessionChanged(Self_, Sess)
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnSessionChanged) then
+        if not Self_.FShuttingDown and
+          ((Worker <> Self_.FWorker) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnSessionChanged) then
           Self_.FOnSessionChanged(Self_, Sess);
       end);
 end;
 
 procedure TOBDKWP.FireTesterPresent;
 var
+  Worker: TThread;
   Self_: TOBDKWP;
 begin
   if not Assigned(FOnTesterPresent) then
     Exit;
   Self_ := Self;
+  Worker := TThread.CurrentThread;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnTesterPresent(Self_)
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if Assigned(Self_.FOnTesterPresent) then
+        if not Self_.FShuttingDown and
+          ((Worker <> Self_.FWorker) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnTesterPresent) then
           Self_.FOnTesterPresent(Self_);
       end);
 end;
@@ -441,6 +550,7 @@ end;
 procedure TOBDKWP.FireError(ACode: TOBDErrorCode;
   const AMessage: string);
 var
+  Worker: TThread;
   Self_: TOBDKWP;
   Code: TOBDErrorCode;
   Msg: string;
@@ -449,6 +559,7 @@ begin
   if not Assigned(FOnError) then
     Exit;
   Self_ := Self;
+  Worker := TThread.CurrentThread;
   Code := ACode;
   Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
@@ -457,13 +568,15 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    TThread.Queue(TThread.CurrentThread,
       procedure
       var
         Handled: Boolean;
       begin
         Handled := False;
-        if Assigned(Self_.FOnError) then
+        if not Self_.FShuttingDown and
+          ((Worker <> Self_.FWorker) or not Self_.IsAsyncCancelled) and
+          Assigned(Self_.FOnError) then
           Self_.FOnError(Self_, Code, Msg, Handled);
       end);
 end;

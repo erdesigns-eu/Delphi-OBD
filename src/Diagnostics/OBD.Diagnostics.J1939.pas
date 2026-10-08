@@ -105,8 +105,8 @@ type
     FName: array[0..7] of Byte;
     FSessions: TOBDJ1939SessionManager;
     FOnFrame: TOBDJ1939FrameEvent;
-    function GetName(AIndex: Integer): Byte;
-    procedure SetName(AIndex: Integer; AValue: Byte);
+    function GetNAMEByte(AIndex: Integer): Byte;
+    procedure SetNAMEByte(AIndex: Integer; AValue: Byte);
   public
     /// <summary>Constructs the component with NULL source
     /// address and a fresh session manager.</summary>
@@ -179,12 +179,12 @@ type
     /// <param name="ANAME">Big-endian J1939 NAME — caller is
     /// responsible for packing the function / ECU instance / etc.
     /// bit fields per SAE J1939-81 §4.2.1.</param>
-    procedure SetNAME(const ANAME: array of Byte);
+    procedure SetNAME(const ANAME: array of Byte); reintroduce;
 
     /// <summary>Reads back the configured NAME byte at
     /// <c>AIndex</c>.</summary>
     /// <param name="AIndex">Byte index 0..7 (high byte first).</param>
-    property NAME[AIndex: Integer]: Byte read GetName write SetName;
+    property NAME[AIndex: Integer]: Byte read GetNAMEByte write SetNAMEByte;
 
     /// <summary>
     ///   Underlying TP / ETP / BAM session manager. Host wires
@@ -224,7 +224,7 @@ begin
   inherited;
 end;
 
-function TOBDJ1939.GetName(AIndex: Integer): Byte;
+function TOBDJ1939.GetNAMEByte(AIndex: Integer): Byte;
 begin
   if (AIndex < 0) or (AIndex > 7) then
     raise EOBDConfig.CreateFmt(
@@ -232,7 +232,7 @@ begin
   Result := FName[AIndex];
 end;
 
-procedure TOBDJ1939.SetName(AIndex: Integer; AValue: Byte);
+procedure TOBDJ1939.SetNAMEByte(AIndex: Integer; AValue: Byte);
 begin
   if (AIndex < 0) or (AIndex > 7) then
     raise EOBDConfig.CreateFmt(

@@ -300,9 +300,15 @@ broader per-category surface).
 
 ### P-B1 — Wider OEM coverage
 
+**Branch status (2026-10-08):** implementation present in `src/OEM/`;
+keep vendor-by-vendor data provenance, request vectors and bench validation open.
+Do not restart the port based on the historical quick-pick checkbox.
+
 **v1 source:** `src/Services/OBD.OEM.*.pas` — ~50 vendor
-modules. v2 has 8 (BMW, Ford, HMG, Honda, Mercedes, Stellantis,
-Toyota, VAG).
+modules. The current branch contains a much wider OEM implementation
+under `src/OEM/`, including heavy-duty, marine, motorcycles and EV helpers.
+The original eight-vendor baseline is historical; source presence does not
+prove ECU coverage or vendor-data correctness.
 
 **v2 rewrite target:** rebuild each vendor as a coding-flow +
 service-routine helper on top of the v2 component foundation
@@ -329,6 +335,10 @@ some vendors.
 ---
 
 ### P-B2 — Service-mode depth (Modes 05 / 07 / 0A)
+
+**Branch status (2026-10-08):** Mode 07/0A read paths already exist in
+`TOBDDTCs`. The separately named palette components and their wizard starters
+remain proposed work; they are not evidence that these modes cannot be read.
 
 **v1 source:** `src/Services/OBD.Service05.pas`,
 `OBD.Service07.pas`, `OBD.Service0A.pas` on main.
@@ -366,6 +376,11 @@ some vendors.
 
 ### P-B4 — Tachograph signature + workshop
 
+**Branch status (2026-10-08):** Signature, Workshop and PCSC units exist
+under `src/Speciality/`; `tests/Tests.OBD.Tachograph.pas` exists. Known-good
+card captures, real signature validation and workshop bench results still
+need separate evidence.
+
 **v1 source:** `src/Services/OBD.Tachograph.Signature.pas` +
 `OBD.Tachograph.Workshop.pas` on main.
 
@@ -383,6 +398,12 @@ some vendors.
 ---
 
 ### P-B5 — Utilities (logger, secure settings, security helpers)
+
+**Branch status (2026-10-08):** logger/sinks, secure settings, nonce and
+attempt-counter implementations exist under `src/Utilities/`. This branch
+also includes Async and StringHelpers despite the original suggestion to
+skip them; the coding audit log remains under `src/Coding/`. Review the delivered implementation
+and platform/security tests rather than treating these as missing ports.
 
 **v1 source:** `src/Utilities/OBD.Logger.pas` + `Sinks.pas` +
 `SecureSettings.pas` + `Security.AttemptCounter.pas` +
@@ -409,6 +430,10 @@ bring their own logger / settings stack.
 ---
 
 ### P-B6 — Form / DataModule / MainForm IDE wizards
+
+**Branch status (2026-10-08):** `src/DesignTime/OBD.Design.Wizards.NewForms.pas`
+is implemented. Registration, generated-project compilation and a clean IDE
+installation remain unverified; source presence is not an IDE acceptance test.
 
 **v1 source:** `src/Wizards/OBD.Form.Wizard.pas` +
 `OBD.DataModule.Wizard.pas` + `OBD.MainForm.Wizard.pas` on main
@@ -445,6 +470,12 @@ new `P-C*` task here.
 
 ## Quick-pick list
 
+`[~]` means source implementation is present but acceptance evidence is open.
+Historical `(shipped)` labels mean delivered to this branch, not a verified
+production release. Delphi builds and DUnitX execution are deferred until the
+stable-version validation stage; see the merge-priority notes in
+[`branch-validation-2026-10-08.md`](branch-validation-2026-10-08.md).
+
 ```
 [x] P-A1   Radio-code calculators (47 vendors)      (shipped)
 [x]   + KWP1281 stack + VW SAFE + 3 EEPROM extractors (shipped)
@@ -460,12 +491,12 @@ new `P-C*` task here.
 [x] P-A6   Key adaptation (BMW / Ford / HMG / Toyota) (shipped)
 [x] P-A7   Per-category IDE wizards + DM presets +
               polished radio-calc form template     (shipped)
-[ ] P-B1   Wider OEM coverage (split B1.1..B1.8)
+[~] P-B1   Wider OEM coverage: code present; vendor/bench validation open
 [ ] P-B2   Mode 07 / 0A pending + permanent DTC components
 [x] P-B3   VehicleHealth roll-up component          (shipped)
-[ ] P-B4   Tachograph signature + workshop
-[ ] P-B5   Utilities (logger / secure settings / security helpers)
-[ ] P-B6   Form / DataModule / MainForm IDE wizards
+[~] P-B4   Tachograph signature + workshop: code present; card/bench validation open
+[~] P-B5   Utilities: code present; platform/security validation open
+[~] P-B6   IDE wizards: code present; IDE/generated-project validation open
 ```
 
 Tell me which task id to start on (e.g. "let's do P-A3" or "P-A1.1

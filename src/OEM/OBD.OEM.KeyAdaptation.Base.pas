@@ -25,6 +25,7 @@ unit OBD.OEM.KeyAdaptation.Base;
 interface
 
 uses
+  OBD.Types,
   System.SysUtils,
   System.Classes,
   OBD.Errors,

@@ -25,7 +25,7 @@ def find_type(name, ctx=None):
     if ctx is not None:
         if n in ctx.types: return ctx.types[n]
         for un in list(ctx.iface_uses) + list(ctx.impl_uses):
-            u = us.get(un.split('.')[-1].lower())
+            u = us.get(un.lower())
             if u and n in u.types: return u.types[n]
         return None
     for u in us.values():

@@ -32,6 +32,7 @@ unit OBD.UI.Session;
 interface
 
 uses
+  Winapi.Messages,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

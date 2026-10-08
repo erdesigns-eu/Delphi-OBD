@@ -89,7 +89,6 @@ var
   TrackThick: Integer;
   Norm:       Single;
   ColorVal:   TColor;
-  Cap:        string;
   ValStr:     string;
   X1, Y1, X2, Y2: Integer;
   Z:          TOBDGaugeZone;

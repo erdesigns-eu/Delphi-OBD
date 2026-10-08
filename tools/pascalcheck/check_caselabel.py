@@ -72,7 +72,7 @@ def case_statements(toks, src):
                     if expect:
                         if k == 'op' and v == ':':
                             text = fold(re.sub(r'\s+', '', src[cur:toks[j][2]])) if cur is not None else ''
-                            for part in text.split(','):
+                            for part in re.split(r",(?=(?:[^']*'[^']*')*[^']*$)", text):
                                 if part:
                                     labels.append((part, j))
                             cur = None
@@ -127,7 +127,7 @@ for path in pas_files():
     for start, labels in case_statements(toks, src):
         seen = {}
         for text, idx in labels:
-            if text in seen:
+            if text in seen and not mutually_exclusive(src, lineof(starts, toks[idx][2]), lineof(starts, toks[seen[text]][2])):
                 bad.append((rel, lineof(starts, toks[idx][2]), text, lineof(starts, toks[seen[text]][2])))
             else:
                 seen[text] = idx

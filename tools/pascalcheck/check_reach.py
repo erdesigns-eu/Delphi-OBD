@@ -137,7 +137,7 @@ for uname, u in sorted(units.items()):
     toks = u.toks
     used = set()
     for un in list(u.iface_uses) + list(u.impl_uses):
-        n = un.split('.')[-1].lower()
+        n = un.lower()
         if n in units:
             used |= set(TOP[n][1])
     here = set(TOP[uname][0]) | set(u.globals) | set(u.types) | used

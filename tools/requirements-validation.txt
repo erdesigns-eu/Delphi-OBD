@@ -1,0 +1,2 @@
+# Offline JSON Schema validation; schema retrieval is disabled by the tool.
+jsonschema==4.26.0

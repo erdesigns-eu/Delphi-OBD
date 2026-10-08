@@ -52,6 +52,19 @@ def collect(u):
         prv = toks[i-1][1].lower() if i else ''
         nxt = toks[i+1][1].lower() if i+1 < n else ''
         if tl in ('class','object','interface','dispinterface') and prv == '=' and nxt != ';':
+            j = i + 1
+            if toks[j][1].lower() in ('abstract', 'sealed'):
+                j += 1
+            if toks[j][1] == '(':
+                depth = 1
+                j += 1
+                while j < n and depth:
+                    if toks[j][1] == '(': depth += 1
+                    elif toks[j][1] == ')': depth -= 1
+                    j += 1
+                if j < n and toks[j][1] == ';':
+                    i = j + 1
+                    continue
             depth_type.append(_typename(toks, i)); i += 1; continue
         if tl == 'record' and prv in ('=','packed'):
             depth_type.append(_typename(toks, i)); i += 1; continue

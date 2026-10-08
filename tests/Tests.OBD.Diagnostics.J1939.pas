@@ -25,14 +25,30 @@ uses
   OBD.Types,
   OBD.Protocol.J1939,
   OBD.Diagnostics.J1939,
-  OBD.Diagnostics.J1939.DM;
+  OBD.Diagnostics.J1939.DM,
+  OBD.Diagnostics.J1939.DM.DM;
 
 type
+  TTestCallback1 = reference to procedure(Sender: TObject; APriority: Byte; APGN: Cardinal; ASA: Byte; ADA: Byte; const AData: TBytes);
+  TTestCallback2 = reference to procedure(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+  TTestCallback3 = reference to procedure(Sender: TObject; APGN: Cardinal; const AData: TBytes);
+  TTestCallback4 = reference to procedure(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+
   /// <summary>
   ///   DUnitX fixture for the J1939 components.
   /// </summary>
   [TestFixture]
   TJ1939DiagnosticsTests = class
+  strict private
+    FTestCallback1: TTestCallback1;
+    FTestCallback2: TTestCallback2;
+    FTestCallback3: TTestCallback3;
+    FTestCallback4: TTestCallback4;
+    procedure HandleTestEvent1(Sender: TObject; APriority: Byte; APGN: Cardinal; ASA: Byte; ADA: Byte; const AData: TBytes);
+    procedure HandleTestEvent2(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+    procedure HandleTestEvent3(Sender: TObject; APGN: Cardinal; const AData: TBytes);
+    procedure HandleTestEvent4(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+
   public
     [Test] procedure J1939_DefaultsSourceIsNull;
     [Test] procedure J1939_SetNAMECopiesAndPads;
@@ -168,13 +184,14 @@ begin
   try
     Hit := 0;
     GotPGN := 0;
-    J.OnFrame :=
+    FTestCallback1 :=
       procedure(Sender: TObject; APriority: Byte; APGN: Cardinal;
         ASA: Byte; ADA: Byte; const AData: TBytes)
       begin
         Inc(Hit);
         GotPGN := APGN;
       end;
+    J.OnFrame := HandleTestEvent1;
     // Build a CAN ID for a non-TP PGN (DM1) from source 0x42.
     Id := TOBDJ1939Codec.EncodeId(3, J1939_PGN_DM1, $42, $FF);
     J.DispatchInbound(Id,
@@ -229,7 +246,7 @@ begin
     Hit := 0;
     EntryCount := 0;
     MIL := False;
-    DM.OnDTCs :=
+    FTestCallback2 :=
       procedure(Sender: TObject; APGN: Cardinal;
         const ALamps: TOBDJ1939Lamps;
         const AEntries: TArray<TOBDJ1939DtcEntry>)
@@ -238,6 +255,7 @@ begin
         EntryCount := Length(AEntries);
         MIL := ALamps.MIL;
       end;
+    DM.OnDTCs := HandleTestEvent2;
     // Lamps byte 0 = 0x40 (MIL on = 01 in bits 7..6), byte 1 = 0xFF.
     // One DTC record: SPN 0x100 (256), FMI 5.
     //   SPN lo = 0x00, mid = 0x01, byte2 = (0<<5) | 5 = 0x05, byte3 = 0x01.
@@ -260,11 +278,12 @@ begin
   DM := TOBDJ1939DM.Create(nil);
   try
     Hit := 0;
-    DM.OnRaw :=
+    FTestCallback3 :=
       procedure(Sender: TObject; APGN: Cardinal; const AData: TBytes)
       begin
         Inc(Hit);
       end;
+    DM.OnRaw := HandleTestEvent3;
     DM.DispatchDM(J1939_PGN_DM3, TBytes.Create($AA, $BB));
     Assert.AreEqual(1, Hit);
   finally
@@ -281,13 +300,14 @@ begin
   DM := TOBDJ1939DM.Create(nil);
   try
     EntryCount := -1;
-    DM.OnDTCs :=
+    FTestCallback4 :=
       procedure(Sender: TObject; APGN: Cardinal;
         const ALamps: TOBDJ1939Lamps;
         const AEntries: TArray<TOBDJ1939DtcEntry>)
       begin
         EntryCount := Length(AEntries);
       end;
+    DM.OnDTCs := HandleTestEvent4;
     // Lamps both zero + 4-byte all-zero DTC = "no fault".
     Body := TBytes.Create($00, $FF, $00, $00, $00, $00);
     DM.DispatchDM(J1939_PGN_DM1, Body);
@@ -295,6 +315,27 @@ begin
   finally
     DM.Free;
   end;
+end;
+
+// Object-method adapters keep published events compatible with the IDE.
+procedure TJ1939DiagnosticsTests.HandleTestEvent1(Sender: TObject; APriority: Byte; APGN: Cardinal; ASA: Byte; ADA: Byte; const AData: TBytes);
+begin
+  FTestCallback1(Sender, APriority, APGN, ASA, ADA, AData);
+end;
+
+procedure TJ1939DiagnosticsTests.HandleTestEvent2(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+begin
+  FTestCallback2(Sender, APGN, ALamps, AEntries);
+end;
+
+procedure TJ1939DiagnosticsTests.HandleTestEvent3(Sender: TObject; APGN: Cardinal; const AData: TBytes);
+begin
+  FTestCallback3(Sender, APGN, AData);
+end;
+
+procedure TJ1939DiagnosticsTests.HandleTestEvent4(Sender: TObject; APGN: Cardinal; const ALamps: TOBDJ1939Lamps; const AEntries: TArray<TOBDJ1939DtcEntry>);
+begin
+  FTestCallback4(Sender, APGN, ALamps, AEntries);
 end;
 
 initialization

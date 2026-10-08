@@ -147,7 +147,7 @@ var C: TOBDVIN;
 begin
   C := TOBDVIN.Create(nil);
   try
-    Assert.WillRaise(procedure begin C.ReadOBDII end, EOBDConfig);
+    Assert.WillRaise(procedure begin C.Read(vsOBDII) end, EOBDConfig);
   finally
     C.Free;
   end;
@@ -158,7 +158,7 @@ var C: TOBDVIN;
 begin
   C := TOBDVIN.Create(nil);
   try
-    Assert.WillRaise(procedure begin C.ReadUDS end, EOBDConfig);
+    Assert.WillRaise(procedure begin C.Read(vsUDS) end, EOBDConfig);
   finally
     C.Free;
   end;
