@@ -166,12 +166,12 @@ Tools API (`designide` requires). It hosts:
 
 - Palette icons for every component (PNG resources via
   `src/DesignTime/DelphiOBD_DT.res`).
-- Splash + About-box registrations.
 - Property editors (file pickers, COM-port enumerator, init-script
   editor with AT / ST command palette).
 - Component editors with live-test verbs (Test connection, Detect
   adapter, Send ATI, Validate flash configuration).
-- The starter wizard (File → New → Other → Delphi-OBD).
+The design-time package registers components and their editors only. There are
+no project/form wizards, starter generators, About/Splash entries or help hooks.
 
 The runtime package contains no design-time dependencies — the IDE
 build is fully optional.

@@ -41,7 +41,7 @@ Application-specific analyzers were removed or replaced with ERD-specific checks
 there are no missing-input skips. Generic source heuristics remain conservative.
 
 The native palette PNGs were extracted byte-for-byte from the previous tracked
-resource, preserving the existing artwork. Large 256px source icons and branding
-masters remain under `assets/designtime/` for future artwork work. The resource
+resource, preserving the existing artwork. Large 256px source icons and component artwork
+templates remain under `assets/designtime/` for future artwork work. The resource
 manifest documents all shared icons explicitly. Generation needs no API key,
 image service or Windows resource compiler.

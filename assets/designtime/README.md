@@ -1,11 +1,11 @@
 # Design-time artwork and resources
 
-- `icons/`: existing 256px artwork masters; `about.png` and `splash.png`: large branding masters.
+- `icons/`: existing 256px component artwork masters.
 - `palette/`: exact existing native PNG payloads extracted from the prior `.res`;
-  component/Splash icons are 24px, About is 48px. These are the actual IDE assets.
+  202 shared component icons are 24px. These are the actual IDE assets.
 - `resources.json`: resource name, type and PNG path, plus explicit `alias_of`
   for 27 formerly missing component icons. Related components share existing art.
-- `templates/`: existing starter artwork; not part of palette resource generation.
+- `templates/`: component artwork templates; not part of palette resource generation.
 
 Rebuild `src/DesignTime/DelphiOBD_DT.res` using:
 
@@ -15,7 +15,7 @@ python3 tools/designtime_resources.py
 ```
 
 The tool emits Windows `.res` records with named `PNG` resources for registered
-components and `RCDATA` for About/Splash. No image conversion or resampling occurs.
+components only. About/Splash artwork and resources have been removed. No image conversion or resampling occurs.
 CI verifies registrations, resource types, native dimensions and exact output.
 Do not hand-edit the binary resource or claim that a large master is used by the IDE.
 

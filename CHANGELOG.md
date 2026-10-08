@@ -10,6 +10,10 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+- Simplify packages to components and their editors: remove project/form wizards,
+  starter generators, picker UI, IDE help hooks and About/Splash registrations,
+  resources and artwork. Preserve all 229 palette components and their icons.
+
 - Confirm Delphi VCL-only UI scope; FireMonkey is outside scope.
 - Remove unused copied media/translation generators and application-specific
   analyzers; document the repository validation commands and Delphi handover.

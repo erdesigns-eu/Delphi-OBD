@@ -1,5 +1,11 @@
 # Delphi-OBD v2 — Rewrite Plan
 
+> Current package scope (2026-10-08): components and property/component editors
+> only. Project/form wizards, starter generation, IDE help hooks and About/Splash
+> integration have been removed at the user's request. Historical phase entries
+> below describe earlier work, not the current shipped integration.
+
+
 A clean-room rewrite of the Delphi-OBD package, using the existing source as
 reference only. Goal: a production-quality, RAD-first, open-source diagnostics
 package that a Delphi developer can drop on a form and use the way they use

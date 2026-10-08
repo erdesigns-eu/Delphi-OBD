@@ -78,7 +78,7 @@ def build():
     missing = registered - manifest.keys()
     if missing:
         raise ValueError('Missing registered icons: ' + ', '.join(sorted(missing)))
-    if set(manifest) != registered | {'ABOUT', 'SPLASH'}:
+    if set(manifest) != registered:
         raise ValueError('Resource manifest contains missing or unregistered entries')
     result = struct.pack('<IIHHHHIHHII', 0, 32, 0xFFFF, 0, 0xFFFF, 0, 0, 0, 0, 0, 0)
     for name, entry in sorted(manifest.items()):
@@ -86,9 +86,9 @@ def build():
         if ASSETS.resolve() not in path.parents:
             raise ValueError('Resource path escapes assets directory: ' + name)
         raw = path.read_bytes()
-        expected = (24, 24) if name in registered else ((24, 24) if name == 'SPLASH' else (48, 48))
+        expected = (24, 24)
         verify_png(raw, name, expected)
-        expected_kind = 'PNG' if name in registered else 10
+        expected_kind = 'PNG'
         if entry['type'] != expected_kind:
             raise ValueError('Wrong IDE resource type: ' + name)
         if 'alias_of' in entry:
@@ -111,7 +111,7 @@ def main():
             raise ValueError('Design-time .res is stale; run this tool with --write')
     except (ValueError, OSError, KeyError, struct.error, zlib.error) as exc:
         parser.exit(1, f'{exc}\n')
-    print(f'{count} registered component icons and About/Splash resources verified.')
+    print(f'{count} registered component icons verified.')
     return 0
 
 

@@ -59,8 +59,7 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   Vcl.Dialogs,
   DesignEditors,
-  DesignIntf,
-  ToolsAPI;
+  DesignIntf;
 
 type
   /// <summary>Base for string properties that should pop an

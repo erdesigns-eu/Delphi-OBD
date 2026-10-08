@@ -32,24 +32,10 @@
     </DelphiCompile>
     <DCCReference Include="..\src\DesignTime\ERD.Design.Registration.pas" />
     <DCCReference Include="..\src\DesignTime\ERD.Design.Editors.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Help.pas" />
     <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.FlashSafety.pas" />
     <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.InitCommands.pas" />
     <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.PipelineValidate.pas" />
     <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.LiveTest.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Templates.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.ServiceMode.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Coding.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Flashing.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Advanced.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.StarterPicker.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.Starters.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.NewForms.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.NewCategories.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.DataModules.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.RadioPolished.pas" />
-    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.PerCategory.pas" />
   </ItemGroup>
   <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" />
   <ProjectExtensions>

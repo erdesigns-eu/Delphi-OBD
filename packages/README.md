@@ -55,3 +55,8 @@ The IDE package declares Win32 only; RT and tests declare Win32 and Win64.
 For the full local build/test procedure, use
 [the Delphi handover](../docs/delphi-validation.md) and
 `tools/validate_delphi.ps1`.
+
+The DT package contains only component registration, property/component editors
+and their supporting dialogs. Project/form wizards, starter generation,
+About/Splash integration and IDE help hooks are removed. Components are placed
+manually on VCL forms or DataModules.

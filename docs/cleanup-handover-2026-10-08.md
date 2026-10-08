@@ -1,5 +1,11 @@
 # Opschoning en Delphi-overdracht — 2026-10-08
 
+> Scope update: packages now contain components/editors only. Project/form
+> wizards, starter generation, help hooks and About/Splash integration are removed.
+> The DT project has six units; RT and tests are unchanged. The 229 component
+> icons are retained, backed by 202 shared native PNGs.
+
+
 Vervolg op de [P0/P1-reparaties](high-priority-fixes-2026-10-08.md).
 De huidige scope is expliciet **Delphi VCL**, met een **niet-visuele FPC-library**.
 FMX is op verzoek buiten scope; er wordt geen FMX-port toegevoegd.

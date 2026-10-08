@@ -133,7 +133,7 @@ hosts that need raw transfer use this directly.
 ### `TOBDVoltageGate` — `ERD.Flash.VoltageGate`
 Battery-voltage monitor with a `HoldTimeMs` latch. Refuses to allow a
 flash to start if the voltage isn't stable above the threshold for
-the hold window. Pre-wired in the flash starter.
+the hold window. Wire this component explicitly in the host application.
 
 ### `TOBDFlashPipeline` — `ERD.Flash.Pipeline`
 The full safe-by-default reflash orchestrator: pre-flight checks
@@ -347,4 +347,4 @@ human-readable names through the registry.
 | `src/Recorder/ERD.Recorder.*`, `ERD.Replayer.pas` | Recorder / replayer / mock / redactor |
 | `src/OEM/ERD.OEM.*` | Per-vendor coding + component protection |
 | `src/Core/ERD.*` | Cross-cutting: types, errors, decoders, catalog, version |
-| `src/DesignTime/ERD.Design.*` | IDE integration (palette icons, editors, wizard) |
+| `src/DesignTime/ERD.Design.*` | IDE integration (component palette icons and property/component editors) |

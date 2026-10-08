@@ -37,13 +37,10 @@ begin
 end;
 ```
 
-The fastest path to "running tool": **install the design-time
-package and use the wizard** — File → New → Other →
-**Delphi-OBD** → pick a starter (DTC reader, VIN reader,
-live-data dashboard, coding session, flash session, radio-code
-calculator, EEPROM extractor, EV battery dashboard, KWP1281
-session, the catalogue manager DataModule, or the kitchen-sink
-suite). The wizard scaffolds a full project.
+Install the design-time package, create a VCL form or DataModule, and drop the
+components from the OBD palette categories. Configure their properties and wire
+their events in your application. The packages provide components and editors;
+there are no project/form wizards, starter generators or About/Splash entries.
 
 ## Scope
 
@@ -100,9 +97,6 @@ using flashing on a real vehicle.**
    **OBD Calibration**, **OBD Flashing**, **OBD Radio**,
    **OBD EEPROM**, and **OBD Catalogs** categories appear on
    the component palette.
-4. File → New → Other → **Delphi-OBD** is now populated with
-   eleven category-specific wizards plus the all-categories
-   umbrella.
 
 ## Supported Delphi versions
 

@@ -10,8 +10,7 @@
 //  Component categories used:
 //    - "OBD" — non-visual diagnostic and protocol components
 //    - "OBD OEM" — vendor-specific coding helpers
-//    - "OBD Visual" — reserved for future visual companions (currently
-//                     empty by design — v1 is headless)
+//    - "OBD Visual" — Delphi VCL controls and dashboards
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -23,8 +22,7 @@
 //                     / DoIP / SecOC components.
 //    2026-05-10  ERD  Add splash + About-box registration via Tools API.
 //
-//  Future work :
-//    - Property editors for adapter init scripts and SecOC keys.
+//    2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
 //------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;
@@ -52,10 +50,6 @@ implementation
 uses
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  Winapi.Windows,
-  Vcl.Graphics,
-  Vcl.Imaging.PngImage,
-  ToolsAPI,
   ERD.Connection,
   ERD.Adapter,
   ERD.Protocol,
@@ -173,121 +167,7 @@ uses
   ERD.RadioCode.Volvo,
   ERD.RadioCode.FordV,
   ERD.RadioCode.EEPROM,
-  ERD.Design.Editors,
-  ERD.Design.Help,
-  ERD.Design.Wizards.Starters,
-  ERD.Design.Wizards.NewForms,
-  ERD.Design.Starters.NewCategories,
-  ERD.Design.Starters.DataModules,
-  ERD.Design.Starters.RadioPolished,
-  ERD.Design.Wizards.PerCategory;
-
-/// <summary>Loads a PNG (kept transparent) from an RCDATA
-/// resource into a fresh <c>TPngImage</c>. Returns nil when the
-/// resource is missing.</summary>
-function LoadPngResource(const AResName: string): TPngImage;
-var
-  Stream: TResourceStream;
-begin
-  Result := nil;
-  if FindResource(HInstance, PChar(AResName), RT_RCDATA) = 0 then
-    Exit;
-  Stream := TResourceStream.Create(HInstance, AResName, RT_RCDATA);
-  try
-    Result := TPngImage.Create;
-    try
-      Result.LoadFromStream(Stream);
-    except
-      FreeAndNil(Result);
-      raise;
-    end;
-  finally
-    Stream.Free;
-  end;
-end;
-
-/// <summary>The IDE's splash and About-box services accept an
-/// <c>HBITMAP</c>, not a PNG. The splash and About PNGs ship
-/// with their own opaque charcoal backgrounds so we just blit
-/// them onto a fresh <c>TBitmap</c> — no fill required.</summary>
-function PngToBitmap(APng: TPngImage): Vcl.Graphics.TBitmap;
-begin
-  Result := Vcl.Graphics.TBitmap.Create;
-  Result.PixelFormat := pf32bit;
-  Result.SetSize(APng.Width, APng.Height);
-  Result.Canvas.Draw(0, 0, APng);
-end;
-
-/// <summary>Registers the Delphi-OBD splash entry on the RAD
-/// Studio splash screen. No-op when the IDE doesn't expose
-/// <c>SplashScreenServices</c>.</summary>
-procedure RegisterSplash;
-var
-  Png: TPngImage;
-  Bmp: Vcl.Graphics.TBitmap;
-begin
-  if SplashScreenServices = nil then Exit;
-  Png := LoadPngResource('SPLASH');
-  if Png = nil then Exit;
-  try
-    Bmp := PngToBitmap(Png);
-    try
-      SplashScreenServices.AddPluginBitmap(
-        'Delphi-OBD',
-        Bmp.Handle,
-        False,
-        'MIT - diagnostics / coding / flashing / radio / EV battery.',
-        'v2 by ERDesigns - 11 IDE wizards under File > New > Other');
-    finally
-      Bmp.Free;
-    end;
-  finally
-    Png.Free;
-  end;
-end;
-
-/// <summary>Registers the Delphi-OBD About-box entry. No-op
-/// when <c>IOTAAboutBoxServices</c> is unavailable (older IDE
-/// builds or stripped Tools API).</summary>
-procedure RegisterAbout;
-var
-  Png: TPngImage;
-  Bmp: Vcl.Graphics.TBitmap;
-  Svc: IOTAAboutBoxServices;
-begin
-  if not Supports(BorlandIDEServices, IOTAAboutBoxServices, Svc) then Exit;
-  Png := LoadPngResource('ABOUT');
-  if Png = nil then Exit;
-  try
-    Bmp := PngToBitmap(Png);
-    try
-      Svc.AddPluginInfo(
-        'Delphi-OBD',
-        'Vehicle diagnostics, coding, and ECU flashing - MIT licensed.'    + sLineBreak +
-        '(c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors.' + sLineBreak +
-        sLineBreak +
-        'IDE wizards under File > New > Other > Delphi-OBD:'               + sLineBreak +
-        '  - Connection & Diagnostics    (Foundation / Network / Tooling)' + sLineBreak +
-        '  - Service-mode (live data, DTCs, VIN, ...)'                     + sLineBreak +
-        '  - Coding & UDS write-side'                                      + sLineBreak +
-        '  - Calibration (XCP / CCP / IsoBus)'                             + sLineBreak +
-        '  - Flashing & UDS transfer'                                      + sLineBreak +
-        '  - Radio code calculator (polished + minimal)'                   + sLineBreak +
-        '  - EEPROM extractor'                                             + sLineBreak +
-        '  - Catalogue manager DataModule'                                 + sLineBreak +
-        '  - KWP1281 / TP2.0 / J2534 session'                              + sLineBreak +
-        '  - Full kitchen-sink suite'                                      + sLineBreak +
-        '  - Pre-wired DataModules (7 quick-starts)',
-        Bmp.Handle,
-        False,
-        '');
-    finally
-      Bmp.Free;
-    end;
-  finally
-    Png.Free;
-  end;
-end;
+  ERD.Design.Editors;
 
 procedure Register;
 begin
@@ -608,62 +488,8 @@ begin
     TOBDVWRadioSAFE
   ]);
 
-  // Register the splash-screen plugin entry and the About-box
-  // plugin info. Both are best-effort — wrapped so a missing IDE
-  // service or a missing resource never breaks the package
-  // install.
-  try
-    RegisterSplash;
-  except
-    // Swallow — splash registration is decoration only.
-  end;
-  try
-    RegisterAbout;
-  except
-    // Swallow — About-box registration is decoration only.
-  end;
-
-  // Property + component editors. Best-effort for the same
-  // reason — if a host's RAD strips DesignEditors / DesignIntf
-  // unexpectedly, the package install still succeeds.
-  try
-    RegisterDelphiOBDEditors;
-  except
-    // Swallow — editors are ergonomic only.
-  end;
-
-  // Help-keyword registration. Same best-effort guard: keywords
-  // are a usability nicety, not a load-time requirement.
-  try
-    RegisterDelphiOBDHelpKeywords;
-  except
-    // Swallow.
-  end;
-
-  // Project starter wizard (File > New > Other > Delphi-OBD).
-  // Best-effort — the IDE service might be missing in custom
-  // builds.
-  try
-    RegisterDelphiOBDStarterWizard;
-  except
-    // Swallow — wizard is ergonomic only.
-  end;
-
-  // New-form / DM / mainform wizards.
-  try
-    RegisterDelphiOBDFormWizards;
-  except
-    // Swallow — wizards are ergonomic only.
-  end;
-
-  // Per-category wizards. One entry per palette tab so
-  // File > New > Other > Delphi-OBD lists the surface area
-  // the same way the component palette does.
-  try
-    RegisterPerCategoryWizards;
-  except
-    // Swallow.
-  end;
+  // Register only the property and component editors for palette components.
+  RegisterDelphiOBDEditors;
 end;
 
 end.

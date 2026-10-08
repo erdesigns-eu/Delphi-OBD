@@ -1,12 +1,4 @@
 {
-  "ABOUT": {
-    "file": "palette/ABOUT.png",
-    "type": 10
-  },
-  "SPLASH": {
-    "file": "palette/SPLASH.png",
-    "type": 10
-  },
   "TOBDACCELGRAPH": {
     "file": "palette/TOBDACCELGRAPH.png",
     "type": "PNG"

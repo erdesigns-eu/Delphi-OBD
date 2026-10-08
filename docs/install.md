@@ -1,97 +1,37 @@
-# Installing the Delphi-OBD design-time package
+# Installing the component packages
 
-This guide walks through a clean install of `DelphiOBD_DT.bpl`
-into both **RAD Studio 12 Athens** and **RAD Studio 10.3 Rio**.
-The runtime package (`DelphiOBD_RT.bpl`) does not require IDE
-integration — copy the BPL/DCP onto the deployment target and
-the host app links to it. The design-time package is the only
-one that needs the IDE setup below.
+The packages provide Delphi VCL components and their property/component editors.
+There are no project/form wizards, starter generators, IDE help hooks or
+About/Splash entries. The nonvisual library can also be used with the documented
+FPC compiler profile.
 
-## Prerequisites
+## Manual Delphi installation
 
-- RAD Studio 12 Athens or RAD Studio 10.3 Rio (Windows / Win32).
-- Source tree cloned to a path **without spaces** (the RAD
-  package builder can choke on spaces in some configurations).
-- DUnitX search path configured if you also intend to run the
-  test suite.
+1. Open `packages/DelphiOBD_RT.dproj` in RAD Studio and build Win32 Release.
+2. Open `packages/DelphiOBD_DT.dproj`, build Win32 Release, then **Install**.
+3. Ensure the matching runtime BPL is on the IDE's DLL search path. Outputs are
+   under `build/Win32/Release`; do not mix old OBD/ERD binaries or configurations.
+4. Create a VCL form or DataModule. The OBD palette categories contain 229
+   components; drop the components you need and configure their properties/events.
+5. Add the matching `build/<platform>/<config>/rt-dcu` folder to your application's
+   unit search path, or use the source search paths in the tracked projects.
+6. Set `CatalogDir` where needed, or deploy `catalogs/` next to the executable.
 
-## Manual install procedure
+The DT package is for the Win32 IDE. RT and tests target Win32 and Win64.
+For clean builds, DUnitX and validation steps, follow
+[the Delphi checklist](delphi-validation.md). Actual Delphi builds and IDE
+installation are still to be validated on Windows.
 
-1. **Open the run-time package first.**
-   `packages/DelphiOBD_RT.dpk` → File → Open Project, then
-   right-click → **Build**. Both Debug and Release configurations
-   should build clean.
+The component/property editors retain init-command editing, live connection
+checks and flash configuration/safety dialogs. Those are component editing tools,
+not application-generation wizards.
 
-2. **Open the design-time package.**
-   `packages/DelphiOBD_DT.dpk` → File → Open Project, then
-   right-click → **Build**, then right-click → **Install**. The
-   IDE confirms with a dialog listing every newly-registered
-   component:
+## Uninstalling or updating
 
-   > The following components have been registered:
-   > TOBDConnection, TOBDAdapter, TOBDProtocol, …
-   > (47 components across 4 palette tabs)
+Remove/uncheck `DelphiOBD_DT.bpl` under the IDE's installed packages. Close forms
+using these components before removing the package. For an update, close the IDE,
+rebuild matching RT/DT binaries and reinstall DT. Preserve the tracked `.dproj`
+files; only local IDE cache files and generated outputs are disposable.
 
-3. **Verify the palette tabs.** Open a new VCL form and confirm
-   the **OBD**, **OBD Services**, **OBD Coding**, **OBD Calibration**
-   and **OBD Diagnostics** tabs appear on the Tool Palette.
-
-4. **Verify the wizards.** File → New → Other → **Delphi-OBD**
-   should list the starter templates (Connection + adapter,
-   Live data dashboard, DTC reader, Coding workflow, Flash
-   pipeline, …).
-
-5. **Verify the F1 help keywords.** Drop a `TOBDLiveData` on the
-   form, select it, and press **F1**. The IDE help service
-   should attempt to resolve
-   `delphi-obd:TOBDLiveData`. If the host has not yet wired a
-   help collection mapping that keyword to documentation,
-   resolution falls back to RAD Studio's "no help available"
-   stub — see *Help-keyword wiring* below.
-
-## Help-keyword wiring (optional)
-
-`ERD.Design.Help` registers every component class with a
-keyword of the form `delphi-obd:<ClassName>` (e.g.
-`delphi-obd:TOBDFlasher`). Hosts that want F1-help to land on a
-specific page configure a RAD Studio help collection that maps
-those keywords to URLs or local files.
-
-The simplest mapping points each keyword at the corresponding
-anchor in `docs/components.md` shipped alongside the package:
-
-```
-delphi-obd:TOBDLiveData    →  docs/components.md#tobdlivedata
-delphi-obd:TOBDDTCs        →  docs/components.md#tobddtcs
-delphi-obd:TOBDFlasher     →  docs/components.md#tobdflasher
-…
-```
-
-`TOBDDesignHelp.DelphiOBDHelpKeywords` returns the full set of
-keywords at runtime, which a host tooling step can iterate to
-auto-generate the collection.
-
-## Uninstalling
-
-1. **Tools → Manage Components → Packages**.
-2. Locate `DelphiOBD_DT.bpl`, uncheck or remove.
-3. Close every form using a `TOBD*` instance before the next
-   project open (Delphi will silently drop unresolved references
-   otherwise).
-
-## Known install gotchas
-
-- **10.3 Rio:** the IDE's package builder occasionally fails to
-  rebuild a design-time package after a class declaration changes
-  in the runtime package. If a component vanishes from the
-  palette after a runtime change, close the IDE, delete the
-  `__history` and the package `.exe`/`.dproj` cache files, and
-  reopen.
-
-- **12 Athens:** the optional **Delphi-OBD** help collection
-  (see above) must be registered against the IDE help namespace
-  before F1 resolves. Without it the keywords are emitted but
-  the IDE shows the stock "no help available" prompt.
-
-- Both versions: never check in the `.dproj` files generated on
-  first build — they carry per-machine paths.
+Component documentation is available in [the reference](components.md) and source
+XMLDoc, without an IDE help-collection integration.

@@ -35,8 +35,9 @@ DUnitX search path. Record the Delphi version, platform, build log and test XML.
 Install the Win32 DT BPL after RT builds. Ensure the matching RT BPL is on the
 IDE's DLL search path. Add the matching `build/Win32/Release/rt-dcu` folder
 to the host application's unit search path (adjust platform/configuration as
-needed), or use the source search paths from the tracked projects. Check palette registration, property editors, all
-File → New → Other → Delphi-OBD starters and generated project compilation.
+needed), or use the source search paths from the tracked projects. Check palette registration, property/component editors and component placement
+on a new VCL form or DataModule. Project/form wizards and About/Splash entries
+are not part of the packages.
 Use `CatalogDir` pointing at this checkout's `catalogs` folder in examples;
 the default directory is relative to the executable, not the checkout.
 
@@ -50,7 +51,7 @@ Review these scenarios in a real VCL form, with Windows scaling at
 | DTC list | Empty list, active/pending/history entries, descriptions and long codes. |
 | EV view | Empty arrays say no cell data; NaN/infinity/nonpositive cell readings are neutral and show N/A when text is enabled. Valid zero values in other measurements remain valid. |
 | Flash dashboard | Idle, progress, rejected configuration, timeout, cancellation, checkpoint failure and successful completion using a simulator. |
-| Palette / About / Splash | All 229 class icons appear; no default missing-icon boxes. Inspect native 24px icons and IDE scaling at 16/24/32px. |
+| Component palette | All 229 class icons appear; no default missing-icon boxes. Inspect native 24px icons and IDE scaling at 16/24/32px. |
 | Live-test dialog | Close while an action has retained callbacks; late log/status callbacks must not access the freed dialog. |
 
 Save actual Delphi screenshots with the recorded scale/style and surface name

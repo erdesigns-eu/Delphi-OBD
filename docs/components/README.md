@@ -98,7 +98,5 @@ into the same `TOBDProtocol` / `TOBDConnection` / `TOBDAdapter`
 backbone, and the safety-gate / async pattern is shared. A single
 page lets readers see the full picture in one scroll. The
 `<ClassName>` anchor convention keeps each component
-deep-linkable, both from this index and from the help-keyword
-collection registered by `ERD.Design.Help`
-(`delphi-obd:<ClassName>` →
-`docs/components.md#<classname>--<unit>`).
+deep-linkable from this index and application documentation. The packages
+provide component palette registration and editors, without IDE help hooks.

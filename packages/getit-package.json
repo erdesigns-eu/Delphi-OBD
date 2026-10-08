@@ -23,11 +23,10 @@
     "press F9.",
     "",
     "Ships:",
-    "  - 32 design-time components (Connection, Adapter, Protocol,",
+    "  - 229 registered components (Connection, Adapter, Protocol,",
     "    DoIP, SecOC, LiveData, DTCs, VIN, FreezeFrame, OnBoard",
     "    Monitor, Actuator, Coding, Flashing, XCP, CCP, IsoBus,",
     "    Recorder, Replayer, ...).",
-    "  - 26 IDE starter templates (File > New > Other > Delphi-OBD).",
     "  - Full UDS / KWP2000 / J1939 / DoIP / SecOC / LIN / FlexRay /",
     "    MOST surfaces.",
     "  - Production-grade flash pipeline with voltage gate, image",
@@ -71,7 +70,7 @@
   "documentation_url": "https://github.com/erdesigns-eu/Delphi-OBD/tree/v2/docs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erdesigns-eu/Delphi-ERD.git"
+    "url": "https://github.com/erdesigns-eu/Delphi-OBD.git"
   },
   "supported_studios": [
     "Delphi 10.3 Rio",
@@ -94,24 +93,30 @@
       "name": "DelphiOBD_DT",
       "type": "designtime",
       "dpk": "packages/DelphiOBD_DT.dpk",
-      "description": "Delphi-OBD design-time package — palette icons, splash + About registration, property editors, component editors with live-test verbs, IDE starter wizard.",
-      "requires": [ "DelphiOBD_RT" ]
+      "description": "Delphi-OBD design-time package — component palette icons, property editors and component editors with live-test verbs.",
+      "requires": [
+        "DelphiOBD_RT"
+      ]
     }
   ],
   "search_paths": [
-    "src/Core",
-    "src/Connection",
     "src/Adapter",
-    "src/Protocol",
-    "src/Service",
-    "src/Coding",
-    "src/Flashing",
-    "src/UDS",
-    "src/KWP",
     "src/Calibration",
-    "src/Speciality",
+    "src/Coding",
+    "src/Collections",
+    "src/Compat",
+    "src/Connection",
+    "src/Core",
+    "src/Diagnostics",
+    "src/Flashing",
+    "src/OEM",
+    "src/Protocol",
+    "src/RadioCode",
     "src/Recorder",
-    "src/OEM"
+    "src/Service",
+    "src/Speciality",
+    "src/UI",
+    "src/Utilities"
   ],
   "browsing_paths": [
     "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\src"
@@ -134,6 +139,5 @@
       "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\samples"
     }
   ],
-  "icon": "assets/designtime/templates/delphi-obd-mark.png",
-  "splash": "assets/designtime/splash.png"
+  "icon": "assets/designtime/templates/delphi-obd-mark.png"
 }

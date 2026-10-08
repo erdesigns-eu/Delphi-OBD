@@ -37,23 +37,9 @@ requires
 contains
   ERD.Design.Registration in '..\src\DesignTime\ERD.Design.Registration.pas',
   ERD.Design.Editors in '..\src\DesignTime\ERD.Design.Editors.pas',
-  ERD.Design.Help in '..\src\DesignTime\ERD.Design.Help.pas',
   ERD.Design.Forms.FlashSafety in '..\src\DesignTime\ERD.Design.Forms.FlashSafety.pas' {OBDFlashSafetyDlg},
   ERD.Design.Forms.InitCommands in '..\src\DesignTime\ERD.Design.Forms.InitCommands.pas' {OBDInitCommandsDlg},
   ERD.Design.Forms.PipelineValidate in '..\src\DesignTime\ERD.Design.Forms.PipelineValidate.pas' {OBDPipelineValidateDlg},
-  ERD.Design.Forms.LiveTest in '..\src\DesignTime\ERD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg},
-  ERD.Design.Starters in '..\src\DesignTime\ERD.Design.Starters.pas',
-  ERD.Design.Starters.Templates in '..\src\DesignTime\ERD.Design.Starters.Templates.pas',
-  ERD.Design.Starters.ServiceMode in '..\src\DesignTime\ERD.Design.Starters.ServiceMode.pas',
-  ERD.Design.Starters.Coding in '..\src\DesignTime\ERD.Design.Starters.Coding.pas',
-  ERD.Design.Starters.Flashing in '..\src\DesignTime\ERD.Design.Starters.Flashing.pas',
-  ERD.Design.Starters.Advanced in '..\src\DesignTime\ERD.Design.Starters.Advanced.pas',
-  ERD.Design.Forms.StarterPicker in '..\src\DesignTime\ERD.Design.Forms.StarterPicker.pas' {OBDStarterPickerDlg},
-  ERD.Design.Wizards.Starters in '..\src\DesignTime\ERD.Design.Wizards.Starters.pas',
-  ERD.Design.Wizards.NewForms in '..\src\DesignTime\ERD.Design.Wizards.NewForms.pas',
-  ERD.Design.Starters.NewCategories in '..\src\DesignTime\ERD.Design.Starters.NewCategories.pas',
-  ERD.Design.Starters.DataModules in '..\src\DesignTime\ERD.Design.Starters.DataModules.pas',
-  ERD.Design.Starters.RadioPolished in '..\src\DesignTime\ERD.Design.Starters.RadioPolished.pas',
-  ERD.Design.Wizards.PerCategory in '..\src\DesignTime\ERD.Design.Wizards.PerCategory.pas';
+  ERD.Design.Forms.LiveTest in '..\src\DesignTime\ERD.Design.Forms.LiveTest.pas' {OBDLiveTestDlg};
 
 end.
