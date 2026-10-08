@@ -73,6 +73,7 @@ jobs:
         run: |
           python3 tools/ev_support_matrix.py
           python3 tools/designtime_resources.py
+          python3 tools/validate_delphi_projects.py
       - name: Validate every catalog against its local schema
         run: python3 tools/validate_catalogs.py --require-coverage
       - name: Test the static analyzers

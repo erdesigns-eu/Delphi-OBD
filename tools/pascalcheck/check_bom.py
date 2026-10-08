@@ -36,7 +36,8 @@ for name in tracked():
         continue
     now = open(path, 'rb').read()
     was = committed(name)
-    if was is not None and was.startswith(BOM) != now.startswith(BOM):
+    normalized_project = name.lower().endswith('.dproj') and now.startswith(BOM)
+    if was is not None and was.startswith(BOM) != now.startswith(BOM) and not normalized_project:
         print('  %s  %s -> %s' % (name,
               'BOM' if was.startswith(BOM) else 'none',
               'BOM' if now.startswith(BOM) else 'none'))

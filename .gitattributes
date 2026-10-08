@@ -1,0 +1,3 @@
+# Delphi IDE files use CRLF on checkout; Git stores normalized text.
+packages/*.dpk text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.dproj text eol=crlf whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

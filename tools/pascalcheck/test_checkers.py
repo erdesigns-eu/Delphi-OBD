@@ -160,6 +160,31 @@ end.
         path.write_text(path.read_text().replace('value="Win32"', 'value="Win64"'))
         self.assertIn('total: 1', self.checker('platforms'))
 
+    def test_eol_honors_per_file_attributes_without_reclassifying_all_pascal(self):
+        subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
+        self.source('.gitattributes', 'packages/*.dpk text eol=crlf\n')
+        self.source('src/Demo.pas', 'unit Demo; interface implementation end.\n')
+        package = self.source('packages/Demo.dpk', 'package Demo; end.\n')
+        self.assertIn('total: 1', self.checker('eol'))
+        package.write_bytes(b'package Demo; end.\r\n')
+        self.assertIn('total: 0', self.checker('eol'))
+
+    def test_thread_start_inside_constructor_is_rejected(self):
+        source = self.source('src/Worker.pas', """unit Worker;
+interface
+uses System.Classes;
+type TWorker = class(TThread)
+constructor Create;
+end;
+implementation
+constructor TWorker.Create;
+begin inherited Create(True); Start; end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('worker'))
+        source.write_text(source.read_text().replace(' Start;', ''))
+        self.assertIn('total: 0', self.checker('worker'))
+
     def test_fpc_rtl_branch_keeps_delphi_import_visible(self):
         source = self.source('src/Portable.pas', """unit Portable;
 interface

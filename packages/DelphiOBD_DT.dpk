@@ -1,4 +1,4 @@
-package DelphiOBD_DT;
+﻿package DelphiOBD_DT;
 
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
@@ -24,6 +24,7 @@ package DelphiOBD_DT;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Delphi-OBD component editors'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 

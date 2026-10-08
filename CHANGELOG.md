@@ -10,6 +10,13 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+- Start KWP keepalive and OEM UDS async worker threads after their constructors
+  return; add a constructor-start analyzer regression and linked startup tests.
+
+- Complete Delphi IDE personality/package metadata and Base/Debug/Release
+  configuration inheritance; use BOM/CRLF for IDE projects and package sources.
+  Add offline project validation and regressions for missing metadata/configuration.
+
 - Fix full-runtime CI compiler selection: `--source-tree` uses its built FPC
   instead of the FPC 3.2.2 bootstrap on PATH; explicit `--compiler` wins.
 

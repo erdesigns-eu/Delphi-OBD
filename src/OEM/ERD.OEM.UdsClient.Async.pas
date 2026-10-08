@@ -231,7 +231,6 @@ begin
   FLock := TCriticalSection.Create;
   FSignal := TEvent.Create(nil, False {auto-reset}, False, '');
   FreeOnTerminate := False;
-  Start;
 end;
 
 //------------------------------------------------------------------------------
@@ -391,7 +390,10 @@ begin
   FLock.Enter;
   try
     if FWorker = nil then
+    begin
       FWorker := TWorker.Create(FSync);
+      FWorker.Start;
+    end;
   finally
     FLock.Leave;
   end;

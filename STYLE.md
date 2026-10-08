@@ -389,3 +389,6 @@ add it," the change is incomplete. Doc lives in the same PR as the code.
 
 If reading the source from top to bottom does not tell the next contributor
 what they need to know, the source is wrong, not the next contributor.
+
+Delphi IDE `.dproj` files and package `.dpk` files use UTF-8 BOM and CRLF on
+checkout, enforced by `.gitattributes`. Pascal units retain their existing format.

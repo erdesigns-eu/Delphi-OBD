@@ -13,9 +13,10 @@ RAD Studio. All tools return a nonzero status on failed checks.
 | `fpc_smoke.py` | Eleven original portable units → temporary compiler outputs, 185 executable checks | FPC 3.2.2; `--compiler` / `--rtl` overrides |
 | `setup_fpc_runtime.sh <directory>` | Pinned official FPC source → builds compiler and nonvisual packages outside checkout | FPC bootstrap, Git, make, binutils, GCC, OpenSSL |
 | `fpc_runtime.py --source-tree <directory>` | 273 Linux nonvisual units, linked runtime/crypto/TLS regressions → temporary outputs and stdout | Pinned FPC 3.3.1 from setup tool; OpenSSL libraries and CLI |
+| `validate_delphi_projects.py` | IDE metadata/configurations, BOM/CRLF and local references; offline validation | Python standard library |
 | `validate_delphi.ps1` | Rebuild RT, DT and DUnitX, then run from root → build outputs and NUnit XML | Windows, RAD Studio environment/MSBuild, `DUNITX_SOURCE` |
 
-The FPC full runtime currently executes 193 runtime checks, six native signature
+The FPC full runtime currently executes 196 runtime checks, six native signature
 checks and seven native TLS scenarios. UI and Windows-specific transports are
 excluded explicitly. `--runtime-only` is a faster iteration option; it does not
 claim the complete unit compile. See [compiler profiles](../docs/fpc-compatibility.md)
@@ -31,6 +32,7 @@ python3 tools/pascalcheck/run.py -v
 python3 tools/validate_catalogs.py --require-coverage
 python3 tools/ev_support_matrix.py
 python3 tools/designtime_resources.py
+python3 tools/validate_delphi_projects.py
 python3 tools/fpc_smoke.py
 ```
 

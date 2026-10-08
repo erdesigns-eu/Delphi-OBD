@@ -231,7 +231,6 @@ begin
   FHub := AHub;
   FStop := AStop;
   FIntervalMs := AIntervalMs;
-  Start;
 end;
 
 procedure TOBDKWPKeepAliveThread.Execute;
@@ -421,6 +420,7 @@ begin
   FKeepAliveStop.ResetEvent;
   FKeepAliveThread := TOBDKWPKeepAliveThread.Create(Self, FKeepAliveStop,
     FKeepAliveIntervalMs);
+  FKeepAliveThread.Start;
 end;
 
 procedure TOBDKWP.StopKeepAliveThread;

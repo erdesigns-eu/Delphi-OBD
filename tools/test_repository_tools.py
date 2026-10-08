@@ -9,6 +9,8 @@ from unittest.mock import patch
 import designtime_resources as resources
 import ev_support_matrix as matrix
 import fpc_runtime as runtime
+import validate_delphi_projects as projects
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,6 +46,46 @@ class CompilerSelectionTests(unittest.TestCase):
             selected = runtime.select_compiler(None, Path('/missing/fpc-tree'))
         self.assertEqual(selected, '/missing/fpc-tree/compiler/ppcx64')
         lookup.assert_not_called()
+
+
+class DelphiProjectTests(unittest.TestCase):
+    def test_all_tracked_projects_have_complete_ide_metadata(self):
+        for name in projects.PROJECTS:
+            self.assertEqual(projects.inspect(ROOT / name), [])
+
+    def modified(self, change):
+        path = ROOT / 'packages/DelphiOBD_DT.dproj'
+        tree = ET.fromstring(path.read_bytes())
+        change(tree)
+        raw = b'\xef\xbb\xbf' + ET.tostring(tree, encoding='unicode').replace('\n', '\r\n').encode('utf-8')
+        with patch.object(Path, 'read_bytes', return_value=raw):
+            return projects.inspect(path)
+
+    def test_empty_package_type_is_rejected(self):
+        found = self.modified(lambda tree: setattr(tree.find(
+            'm:ProjectExtensions/m:Borland.ProjectType', projects.NS), 'text', ''))
+        self.assertIn('Missing/invalid Borland.ProjectType', found)
+
+    def test_missing_configurations_are_rejected(self):
+        def remove(tree):
+            for group in tree.findall('m:ItemGroup', projects.NS):
+                for config in list(group.findall('m:BuildConfiguration', projects.NS)):
+                    group.remove(config)
+        self.assertIn('Incomplete IDE BuildConfiguration entries', self.modified(remove))
+
+    def test_missing_release_activation_is_rejected(self):
+        def remove(tree):
+            for group in tree.findall('m:PropertyGroup', projects.NS):
+                for child in list(group):
+                    if child.tag.endswith('Cfg_2'):
+                        group.remove(child)
+        self.assertIn('Missing configuration activation group: Cfg_2', self.modified(remove))
+
+    def test_wrong_encoding_is_rejected(self):
+        path = ROOT / 'packages/DelphiOBD_DT.dproj'
+        raw = path.read_bytes().removeprefix(b'\xef\xbb\xbf').replace(b'\r\n', b'\n')
+        with patch.object(Path, 'read_bytes', return_value=raw):
+            self.assertIn('IDE project must use UTF-8 BOM and CRLF', projects.inspect(path))
 
 
 class ResourceTests(unittest.TestCase):

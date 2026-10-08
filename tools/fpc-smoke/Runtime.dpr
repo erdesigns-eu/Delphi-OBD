@@ -10,6 +10,7 @@ uses
   ERD.Protocol, ERD.Protocol.Types, ERD.Coding.DataIdentifierIO, ERD.OEM.SeedKey,
   ERD.Flash.VoltageGate, ERD.Service.EVBattery, ERD.Service.EVBattery.Catalog,
   ERD.Service.EVBattery.Types,
+  ERD.OEM.UdsClient, ERD.OEM.UdsClient.Async, ERD.Diagnostics.KWP,
   ERD.Async.Task, ERD.Service.VehicleHealth, ERD.Async, ERD.Collections.ThreadedQueue, ERD.Types, ERD.JSON,
   ERD.Recorder, ERD.Replayer, ERD.Flash.Checkpoint, ERD.UDS.Transfer, ERD.Flash.Pipeline,
   ERD.Protocol.DoIP.TLS.OpenSSL, ERD.Protocol.J1939,
@@ -71,6 +72,27 @@ begin
   Check(P.IsCancelled, 'Cancellation state');
   try P.Await(0); Check(False, 'Cancelled await must raise')
   except on E: EOBDOperationCancelled do Check(True, 'Cancelled await raises') end;
+end;
+procedure TestDeferredThreadStart;
+var Client: IOBDUdsClientAsync; Future: IOBDFuture<TOBDDecodedValue>;
+  Hub: TOBDKWP; Failed: Boolean; I: Integer;
+begin
+  Client := CreateUdsClientAsync;
+  for I := 1 to 2 do
+  begin
+    Future := Client.ReadDIDAsync('0xF190', nil);
+    Failed := False;
+    try Future.Await(2000)
+    except on E: Exception do Failed := Future.IsFaulted end;
+    Check(Failed, 'UDS worker starts after construction and settles missing-session errors');
+  end;
+  Future := nil; Client := nil;
+  Hub := TOBDKWP.Create(nil);
+  try
+    for I := 1 to 3 do
+    begin Hub.KeepAlive := True; Hub.KeepAlive := False end;
+    Check(not Hub.KeepAlive, 'KWP keepalive starts after construction and can restart/stop');
+  finally Hub.Free end;
 end;
 procedure TestQueue;
 var Q: TOBDThreadedQueue<Integer>; V: Integer; Worker: TThread; Wait: TWaitResult;
@@ -543,7 +565,7 @@ begin
 end;
 
 begin
-  TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
+  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
   Check(J1939_PGN_DM27 = $FD82, 'DM27 all pending PGN');
   Check(J1939_PGN_DM28 = $FD80, 'DM28 permanent PGN');
   Check(J1939_PGN_DM24 = $FDB6, 'DM24 supported SPNs PGN');

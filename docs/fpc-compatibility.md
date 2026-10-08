@@ -10,7 +10,7 @@ remain `DelphiOBD_RT` and `DelphiOBD_DT`.
 |---|---|---|
 | Delphi | Nonvisual library, VCL UI and IDE integration | Static analysis; actual RAD Studio builds and DUnitX execution remain deferred |
 | FPC 3.2.2 | Portable binary codecs, routes, frame parsers and EV request construction | Eleven original units; 185 executable checks |
-| FPC 3.3.1+ on Linux x86-64 | Nonvisual library, managed futures, catalogs, coding/flashing services, TCP/UDP/mock transports, recorder/replayer and native crypto integrations | 273 Linux nonvisual source units compile; 193 runtime checks, 6 native signature checks and 7 TLS handshakes |
+| FPC 3.3.1+ on Linux x86-64 | Nonvisual library, managed futures, catalogs, coding/flashing services, TCP/UDP/mock transports, recorder/replayer and native crypto integrations | 273 Linux nonvisual source units compile; 196 runtime checks, 6 native signature checks and 7 TLS handshakes |
 
 FPC 3.3.1 is a development compiler. The full runtime needs managed anonymous
 functions and the official `vcl-compat` package's **nonvisual** `System.JSON`,

@@ -75,3 +75,28 @@ voltage checks, image verification and ECU-state resume validator configured.
 Verify normal transfer, rejection, disconnect, checkpoint failure and recovery.
 See [flashing safety](flashing-safety.md). These hardware tests are still pending;
 passing FPC tests or a Delphi build does not establish safe ECU flashing.
+
+
+## IDE metadata and package dependencies
+
+Projects now include Delphi personality/type metadata, IDE Base/Debug/Release
+configuration entries and their platform inheritance groups. This follows the
+Delphi project structure found in `main`, retaining only Windows/VCL targets.
+Package sources and IDE projects use UTF-8 BOM and CRLF on checkout; these
+formatting choices alone do not establish the cause of an IDE crash.
+
+`python3 tools/validate_delphi_projects.py` validates metadata, configurations,
+encoding and local references offline. Actual opening/building/installing in
+Delphi remains required. No claim of warning-free Delphi compilation is made.
+
+DT deliberately requires RT so their component units are loaded once in the IDE.
+Both packages have explicit `contains`/DCCReferences; the package analyzer checks
+reachable repository units against the required runtime package. Do not embed the
+same units in DT while also loading RT. A standalone DT arrangement would need a
+separate, mutually exclusive package architecture. PNG and LiveBindings components
+also require `vclimg` and `bindengine`; the minimal dependencies from a different
+component library cannot be copied indiscriminately.
+
+KWP keepalive en de OEM UDS async worker starten nu nadat `Create` terugkeert,
+met constructor-start-analyse en FPC-regressies. De gemelde Delphi-threadfout
+moet daarnaast tijdens de daadwerkelijke Delphi-run worden gecontroleerd.
