@@ -1,6 +1,5 @@
 package DelphiOBD_RT;
 
-{$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -29,9 +28,13 @@ package DelphiOBD_RT;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  vcl,
+  vclimg,
+  bindengine;
 
 contains
+  ERD.Async.Task in '..\src\Utilities\ERD.Async.Task.pas',
   ERD.Collections.ThreadedQueue in '..\src\Collections\ERD.Collections.ThreadedQueue.pas',
   ERD.Version in '..\src\Core\ERD.Version.pas',
   ERD.Types in '..\src\Core\ERD.Types.pas',

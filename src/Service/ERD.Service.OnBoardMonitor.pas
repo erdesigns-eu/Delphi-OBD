@@ -39,6 +39,7 @@ unit ERD.Service.OnBoardMonitor;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -79,6 +80,7 @@ type
   TOBDOnBoardMonitor = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnResults: TOBDMonitorEvent;
@@ -116,10 +118,13 @@ constructor TOBDOnBoardMonitor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDOnBoardMonitor.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -127,6 +132,7 @@ end;
 procedure TOBDOnBoardMonitor.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -137,11 +143,16 @@ procedure TOBDOnBoardMonitor.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDOnBoardMonitor.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -213,24 +224,29 @@ var
   MID: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self; MID := AMID;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Acc: TArray<TOBDMonitorResult>;
-    begin
-      try
+  try
+    Self_ := Self; MID := AMID;
+    FOwnedTask.Start(
+      procedure
+      var
+        Acc: TArray<TOBDMonitorResult>;
+      begin
         try
-          Acc := Self_.DoRead(MID);
-          Self_.FireResults(MID, Acc);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Acc := Self_.DoRead(MID);
+            Self_.FireResults(MID, Acc);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDOnBoardMonitor.FireResults(AMID: Byte;
@@ -250,7 +266,7 @@ begin
     if Assigned(FOnResults) then FOnResults(Self_, MID, Snap);
   end
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       try
         {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
       except
@@ -274,7 +290,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

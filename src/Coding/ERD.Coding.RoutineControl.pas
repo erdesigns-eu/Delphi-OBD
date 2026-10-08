@@ -41,6 +41,7 @@ unit ERD.Coding.RoutineControl;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -75,6 +76,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnRoutine: TOBDRoutineEvent;
@@ -130,11 +132,14 @@ constructor TOBDRoutineControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAutoExecute := False;
 end;
 
 destructor TOBDRoutineControl.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -142,6 +147,7 @@ end;
 procedure TOBDRoutineControl.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -152,11 +158,16 @@ procedure TOBDRoutineControl.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDRoutineControl.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -238,23 +249,28 @@ var
   Self_: TOBDRoutineControl; RID: Word; Params: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; RID := ARoutineID;
-  Params := Copy(AParams, 0, Length(AParams));
-  TThread.CreateAnonymousThread(
-    procedure
-    var R: TOBDRoutineResult;
-    begin
-      try
+  try
+    Self_ := Self; RID := ARoutineID;
+    Params := Copy(AParams, 0, Length(AParams));
+    FOwnedTask.Start(
+      procedure
+      var R: TOBDRoutineResult;
+      begin
         try
-          R := Self_.DoCall(UDS_RC_START, RID, Params);
-          Self_.FireRoutine(R);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            R := Self_.DoCall(UDS_RC_START, RID, Params);
+            Self_.FireRoutine(R);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDRoutineControl.StopAsync(ARoutineID: Word;
@@ -263,23 +279,28 @@ var
   Self_: TOBDRoutineControl; RID: Word; Params: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; RID := ARoutineID;
-  Params := Copy(AParams, 0, Length(AParams));
-  TThread.CreateAnonymousThread(
-    procedure
-    var R: TOBDRoutineResult;
-    begin
-      try
+  try
+    Self_ := Self; RID := ARoutineID;
+    Params := Copy(AParams, 0, Length(AParams));
+    FOwnedTask.Start(
+      procedure
+      var R: TOBDRoutineResult;
+      begin
         try
-          R := Self_.DoCall(UDS_RC_STOP, RID, Params);
-          Self_.FireRoutine(R);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            R := Self_.DoCall(UDS_RC_STOP, RID, Params);
+            Self_.FireRoutine(R);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDRoutineControl.RequestResultsAsync(ARoutineID: Word);
@@ -287,22 +308,27 @@ var
   Self_: TOBDRoutineControl; RID: Word;
 begin
   GuardSingleAsync;
-  Self_ := Self; RID := ARoutineID;
-  TThread.CreateAnonymousThread(
-    procedure
-    var R: TOBDRoutineResult;
-    begin
-      try
+  try
+    Self_ := Self; RID := ARoutineID;
+    FOwnedTask.Start(
+      procedure
+      var R: TOBDRoutineResult;
+      begin
         try
-          R := Self_.DoCall(UDS_RC_RESULTS, RID, nil);
-          Self_.FireRoutine(R);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            R := Self_.DoCall(UDS_RC_RESULTS, RID, nil);
+            Self_.FireRoutine(R);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDRoutineControl.FireRoutine(const AResult: TOBDRoutineResult);
@@ -315,7 +341,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRoutine(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnRoutine) then Self_.FOnRoutine(Self_, Snap);
     end);
 end;
@@ -334,7 +360,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

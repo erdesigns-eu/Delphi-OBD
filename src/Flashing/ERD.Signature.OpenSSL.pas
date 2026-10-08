@@ -53,6 +53,10 @@ type
   end;
 
 implementation
+{$IFNDEF MSWINDOWS}
+uses {$IFDEF FPC}DynLibs{$ELSE}Posix.Dlfcn{$ENDIF};
+type HMODULE = NativeUInt;
+{$ENDIF}
 
 const
 {$IFDEF MSWINDOWS}
@@ -122,7 +126,8 @@ begin
 {$IFDEF MSWINDOWS}
   Result := LoadLibrary(PChar(AName));
 {$ELSE}
-  Result := 0;
+  {$IFDEF FPC}Result := DynLibs.LoadLibrary(AName);{$ELSE}
+  Result := HMODULE(dlopen(PAnsiChar(AnsiString(AName)), RTLD_NOW));{$ENDIF}
 {$ENDIF}
 end;
 
@@ -131,6 +136,9 @@ procedure DoLoad;
   begin
 {$IFDEF MSWINDOWS}
     Pointer(P) := GetProcAddress(GLib, PAnsiChar(AName));
+{$ELSE}
+    {$IFDEF FPC}Pointer(P) := DynLibs.GetProcedureAddress(GLib, AName);{$ELSE}
+    Pointer(P) := dlsym(Pointer(GLib), PAnsiChar(AName));{$ENDIF}
 {$ENDIF}
     if Pointer(P) = nil then
       raise EOBDError.CreateFmt(
@@ -164,10 +172,17 @@ end;
 
 procedure EnsureLoaded;
 begin
-  if GLib <> 0 then Exit;
   GLoadLock.Enter;
-  try DoLoad;
-  finally GLoadLock.Leave; end;
+  try
+    try DoLoad
+    except
+      {$IFDEF MSWINDOWS}if GLib <> 0 then FreeLibrary(GLib);{$ELSE}
+      {$IFDEF FPC}if GLib <> 0 then DynLibs.UnloadLibrary(GLib);{$ELSE}
+      if GLib <> 0 then dlclose(Pointer(GLib));{$ENDIF}{$ENDIF}
+      GLib := 0;
+      raise;
+    end;
+  finally GLoadLock.Leave end;
 end;
 
 class function TOBDSignatureOpenSSL.IsAvailable: Boolean;
@@ -192,7 +207,7 @@ begin
     saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
     saECDSA_P256_SHA256, saECDSA_P384_SHA384,
     saED25519:
-      Result := True;
+      Result := IsAvailable;
   else
     Result := False;
   end;
@@ -312,6 +327,9 @@ initialization
 finalization
 {$IFDEF MSWINDOWS}
   if GLib <> 0 then FreeLibrary(GLib);
+{$ELSE}
+  {$IFDEF FPC}if GLib <> 0 then DynLibs.UnloadLibrary(GLib);{$ELSE}
+  if GLib <> 0 then dlclose(Pointer(GLib));{$ENDIF}
 {$ENDIF}
   GLib := 0;
   GLoadLock.Free;

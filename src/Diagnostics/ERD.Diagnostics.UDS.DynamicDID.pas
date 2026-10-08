@@ -41,6 +41,7 @@ unit ERD.Diagnostics.UDS.DynamicDID;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -92,6 +93,7 @@ type
   TOBDUDSDynamicDID = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnDefined: TOBDUDSDynamicDIDEvent;
@@ -168,10 +170,13 @@ constructor TOBDUDSDynamicDID.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDUDSDynamicDID.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -192,11 +197,16 @@ procedure TOBDUDSDynamicDID.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSDynamicDID.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -292,26 +302,31 @@ var
   I: Integer;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  DID := ADynamicDID;
-  SetLength(SlicesCopy, Length(ASlices));
-  for I := 0 to High(ASlices) do
-    SlicesCopy[I] := ASlices[I];
+  try
+    Self_ := Self;
+    DID := ADynamicDID;
+    SetLength(SlicesCopy, Length(ASlices));
+    for I := 0 to High(ASlices) do
+      SlicesCopy[I] := ASlices[I];
 
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DefineByDID(DID, SlicesCopy);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DefineByDID(DID, SlicesCopy);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSDynamicDID.FireDefined(ASubFunction: Byte;
@@ -329,7 +344,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDefined(Self_, Sub, DID)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnDefined) then
@@ -356,7 +371,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

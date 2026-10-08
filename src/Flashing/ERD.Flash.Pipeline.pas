@@ -50,6 +50,7 @@ unit ERD.Flash.Pipeline;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -92,9 +93,14 @@ type
     FVoltageGate: TOBDVoltageGate;
     FTransfer: TOBDUDSTransfer;
     FChecks: TOBDFlashCheckList;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FCheckpointFile: string;
+    FTargetVendor, FTargetModule, FECUIdentity, FSessionID: string;
+    FResuming: Boolean;
+    FResumeInfo: TOBDFlashCheckpointInfo;
+    FResumeValidator: TOBDResumeValidator;
     FResetAfterFlash: Boolean;
     FAddressFormatBytes: Byte;
     FLengthFormatBytes: Byte;
@@ -105,7 +111,7 @@ type
     FOnError: TOBDConnectionErrorEvent;
     FEnterProgramming: TOBDFlashStepFunc;
     FVerifyStep: TOBDFlashStepFunc;
-    FVoltageGateAborted: Boolean;
+    FVoltageGateAborted: Integer;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     procedure SetProtocol(AValue: TOBDProtocol);
@@ -126,12 +132,14 @@ type
     procedure DoFlash(AAddress: UInt64; const AImage: TBytes);
     procedure WriteCheckpointSafe(AAddress: UInt64;
       const AImage: TBytes; const ACursor: TOBDTransferCursor);
+    procedure HandleBeforeRequest(Sender: TObject);
     procedure HandleProgress(Sender: TObject;
       const ACursor: TOBDTransferCursor);
     function FCurrentImage: TBytes; // for the progress hook
     function FCurrentAddress: UInt64;
     var
       FSavedImage: TBytes;
+      FSavedImageHash: TBytes;
       FSavedAddress: UInt64;
   protected
     procedure Notification(AComponent: TComponent;
@@ -146,6 +154,9 @@ type
     /// failure or voltage-gate abort.</summary>
     procedure Flash(AAddress: UInt64; const AImage: TBytes);
     /// <summary>Non-blocking <see cref="Flash"/>.</summary>
+    /// <summary>Resume with full preflight and image checks, without restarting programming/download. Host confirms the ECU is still in the saved transfer.</summary>
+    procedure ResumeFromCheckpoint(const AFileName: string; const AImage: TBytes;
+      const ASessionID: string; const AConfirmECU: TOBDResumeValidator);
     procedure FlashAsync(AAddress: UInt64; const AImage: TBytes);
 
     /// <summary>The check list. Hosts populate it before
@@ -171,6 +182,9 @@ type
     /// <summary>Optional checkpoint file path. When non-empty, the
     /// pipeline writes a checkpoint after every accepted chunk so
     /// a host can resume after a crash.</summary>
+    property TargetVendor: string read FTargetVendor write FTargetVendor;
+    property TargetModule: string read FTargetModule write FTargetModule;
+    property ECUIdentity: string read FECUIdentity write FECUIdentity;
     property CheckpointFile: string read FCheckpointFile
       write FCheckpointFile;
     /// <summary>Send ECUReset hardReset as the final step.
@@ -203,7 +217,9 @@ constructor TOBDFlashPipeline.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FChecks := TOBDFlashCheckList.Create;
+  FTransfer := TOBDUDSTransfer.Create(Self);
   FResetAfterFlash := True;
   FAddressFormatBytes := 4;
   FLengthFormatBytes := 4;
@@ -211,7 +227,10 @@ end;
 
 destructor TOBDFlashPipeline.Destroy;
 begin
+  if FTransfer <> nil then FTransfer.Cancel;
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   FChecks.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -219,6 +238,7 @@ end;
 procedure TOBDFlashPipeline.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -227,6 +247,7 @@ end;
 procedure TOBDFlashPipeline.SetAuditLog(AValue: TOBDCodingAuditLog);
 begin
   if FAuditLog = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FAuditLog <> nil then FAuditLog.RemoveFreeNotification(Self);
   FAuditLog := AValue;
   if FAuditLog <> nil then FAuditLog.FreeNotification(Self);
@@ -235,6 +256,7 @@ end;
 procedure TOBDFlashPipeline.SetVoltageGate(AValue: TOBDVoltageGate);
 begin
   if FVoltageGate = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FVoltageGate <> nil then FVoltageGate.RemoveFreeNotification(Self);
   FVoltageGate := AValue;
   if FVoltageGate <> nil then FVoltageGate.FreeNotification(Self);
@@ -246,6 +268,8 @@ begin
   inherited;
   if Operation = opRemove then
   begin
+    if (AComponent = FProtocol) or (AComponent = FAuditLog) or (AComponent = FVoltageGate) then
+      if FOwnedTask <> nil then FOwnedTask.Quiesce;
     if AComponent = FProtocol     then FProtocol     := nil;
     if AComponent = FAuditLog     then FAuditLog     := nil;
     if AComponent = FVoltageGate  then FVoltageGate  := nil;
@@ -254,6 +278,8 @@ end;
 
 procedure TOBDFlashPipeline.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -302,7 +328,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnPhaseChange(Self_, P)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnPhaseChange) then
         Self_.FOnPhaseChange(Self_, P);
     end);
@@ -318,7 +344,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnCheckResult(Self_, R)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnCheckResult) then
         Self_.FOnCheckResult(Self_, R);
     end);
@@ -333,7 +359,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
     end);
 end;
@@ -352,7 +378,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
@@ -382,7 +408,7 @@ begin
   else
   begin
     Local := False;
-    TThread.Synchronize(nil, procedure
+    FOwnedTask.Synchronize( procedure
       var L: Boolean;
       begin
         L := False;
@@ -400,6 +426,8 @@ var
   Err: TOBDCheckResult;
   Self_: TOBDFlashPipeline;
 begin
+  if TInterlocked.CompareExchange(FVoltageGateAborted, 0, 0) <> 0 then
+    raise EOBDProtocolErr.Create('Flash aborted by voltage gate');
   Self_ := Self;
   if not FChecks.RunPhase(APhase, Err,
     procedure(R: TOBDCheckResult)
@@ -418,7 +446,8 @@ end;
 procedure TOBDFlashPipeline.HandleVoltageAbort(Sender: TObject;
   AVoltage: Double; AReason: string);
 begin
-  FVoltageGateAborted := True;
+  TInterlocked.Exchange(FVoltageGateAborted, 1);
+  if FTransfer <> nil then FTransfer.Cancel;
   WriteAudit(akError, 'voltage-gate', AReason);
 end;
 
@@ -439,25 +468,34 @@ var
 begin
   if FCheckpointFile = '' then Exit;
   Info := Default(TOBDFlashCheckpointInfo);
-  if FAuditLog <> nil then
-    Info.SessionID := FAuditLog.SessionID
-  else
-    Info.SessionID := '';
-  Info.ImageSha256 := TOBDFlashCheckpoint.ComputeImageHash(AImage);
+  Info.SessionID := FSessionID;
+  Info.Vendor := FTargetVendor;
+  Info.Module := FTargetModule;
+  Info.ECUIdentity := FECUIdentity;
+  Info.ImageSha256 := FSavedImageHash;
   Info.Cursor := ACursor;
   try
     TOBDFlashCheckpoint.Save(FCheckpointFile, Info);
   except
     on E: Exception do
-      WriteAudit(akError, 'checkpoint',
-        'Checkpoint write failed: ' + E.Message);
+    begin
+      WriteAudit(akError, 'checkpoint', 'Checkpoint write failed: ' + E.Message);
+      raise;
+    end;
   end;
+end;
+
+procedure TOBDFlashPipeline.HandleBeforeRequest(Sender: TObject);
+begin
+  FOwnedTask.CheckCancelled;
+  if TInterlocked.CompareExchange(FVoltageGateAborted, 0, 0) <> 0 then
+    raise EOBDProtocolErr.Create('Flash aborted by voltage gate');
 end;
 
 procedure TOBDFlashPipeline.HandleProgress(Sender: TObject;
   const ACursor: TOBDTransferCursor);
 begin
-  if FVoltageGateAborted then
+  if TInterlocked.CompareExchange(FVoltageGateAborted, 0, 0) <> 0 then
     FTransfer.Cancel;
   WriteCheckpointSafe(FCurrentAddress, FCurrentImage, ACursor);
 end;
@@ -465,6 +503,7 @@ end;
 procedure TOBDFlashPipeline.DoFlash(AAddress: UInt64; const AImage: TBytes);
 var
   Resp: TOBDResponse;
+  SessionGUID: TGUID;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDFlashPipeline: Protocol not assigned');
@@ -477,16 +516,22 @@ begin
         'TOBDFlashPipeline: cancelled by OnConfirmExecute / AutoExecute');
   end;
 
-  FSavedImage := AImage;
+  if not FResuming then
+  begin
+    if FAuditLog <> nil then FSessionID := FAuditLog.SessionID
+    else begin CreateGUID(SessionGUID); FSessionID := GUIDToString(SessionGUID) end;
+  end;
+  FSavedImage := Copy(AImage);
+  FSavedImageHash := TOBDFlashCheckpoint.ComputeImageHash(FSavedImage);
   FSavedAddress := AAddress;
-  FVoltageGateAborted := False;
+  TInterlocked.Exchange(FVoltageGateAborted, 0);
 
   if FVoltageGate = nil then
     WriteAudit(akInfo, 'voltage-gate',
       'WARN: no VoltageGate assigned — proceeding without supply monitor')
   else
   begin
-    FVoltageGate.OnAbort := HandleVoltageAbort;
+    FVoltageGate.OnAbortExecutingThread := HandleVoltageAbort;
     FVoltageGate.Start;
   end;
 
@@ -502,18 +547,23 @@ begin
 
     FirePhase(fpEnterProgramming);
     RunChecks(fpEnterProgramming);
-    if Assigned(FEnterProgramming) then FEnterProgramming();
+    if not FResuming and Assigned(FEnterProgramming) then FEnterProgramming();
 
-    if FTransfer = nil then
-      FTransfer := TOBDUDSTransfer.Create(Self);
     FTransfer.Protocol := FProtocol;
     FTransfer.AutoExecute := True;
     FTransfer.AddressFormatBytes := FAddressFormatBytes;
     FTransfer.LengthFormatBytes := FLengthFormatBytes;
-    FTransfer.OnProgress := HandleProgress;
+    FTransfer.OnBeforeRequest := HandleBeforeRequest;
+    FTransfer.OnAcceptedBlock := HandleProgress;
 
     FirePhase(fpTransfer);
-    FTransfer.Run(AAddress, AImage);
+    if FResuming then
+    begin
+      TOBDFlashCheckpoint.ValidateResume(FResumeInfo, FSavedImage, FSessionID,
+        FTargetVendor, FTargetModule, FECUIdentity, FResumeValidator);
+      FTransfer.Resume(FResumeInfo.Cursor, FSavedImage);
+    end
+    else FTransfer.Run(AAddress, FSavedImage);
 
     FirePhase(fpVerify);
     RunChecks(fpVerify);
@@ -546,8 +596,30 @@ begin
   try
     DoFlash(AAddress, AImage);
   finally
-    if FVoltageGate <> nil then FVoltageGate.Stop;
+    if FVoltageGate <> nil then
+    begin
+      FVoltageGate.Stop;
+      FVoltageGate.OnAbortExecutingThread := nil;
+    end;
   end;
+end;
+
+procedure TOBDFlashPipeline.ResumeFromCheckpoint(const AFileName: string;
+  const AImage: TBytes; const ASessionID: string; const AConfirmECU: TOBDResumeValidator);
+begin
+  if FAsyncInFlight or FResuming then
+    raise EOBDConfig.Create('Flash pipeline already in flight');
+  FResumeInfo := TOBDFlashCheckpoint.Load(AFileName);
+  // Local checks must finish before preflight can perform any wire access.
+  TOBDFlashCheckpoint.ValidateResumeLocal(FResumeInfo, AImage, ASessionID,
+    FTargetVendor, FTargetModule, FECUIdentity);
+  if not Assigned(AConfirmECU) then raise EOBDConfig.Create('Resume requires ECU state confirmation');
+  FCheckpointFile := AFileName;
+  FSessionID := ASessionID;
+  FResumeValidator := AConfirmECU;
+  FResuming := True;
+  try Flash(FResumeInfo.Cursor.Address, AImage)
+  finally FResuming := False; FResumeValidator := nil end;
 end;
 
 procedure TOBDFlashPipeline.FlashAsync(AAddress: UInt64;
@@ -558,21 +630,26 @@ var
   Img: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress;
-  Img := Copy(AImage, 0, Length(AImage));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress;
+    Img := Copy(AImage, 0, Length(AImage));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.Flash(Addr, Img);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.Flash(Addr, Img);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 end.

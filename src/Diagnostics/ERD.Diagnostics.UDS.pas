@@ -66,6 +66,7 @@ unit ERD.Diagnostics.UDS;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -128,6 +129,7 @@ type
     FKeepAliveIntervalMs: Cardinal;
     FKeepAliveThread: TThread;
     FKeepAliveStop: TEvent;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnSessionChanged: TOBDUDSSessionEvent;
@@ -338,6 +340,7 @@ constructor TOBDUDS.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FKeepAliveStop := TEvent.Create(nil, True, False, '');
   FCurrentSession := UDS_SESSION_DEFAULT;
   FKeepAliveIntervalMs := 2000;
@@ -345,8 +348,10 @@ end;
 
 destructor TOBDUDS.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   StopKeepAliveThread;
   FKeepAliveStop.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -375,6 +380,8 @@ end;
 
 procedure TOBDUDS.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -457,23 +464,28 @@ var
   Sub: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  Sub := ASubFunction;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    Sub := ASubFunction;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoOpen(Sub);
-          Self_.FireSessionChanged(Sub);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoOpen(Sub);
+            Self_.FireSessionChanged(Sub);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDS.Close;
@@ -565,7 +577,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnSessionChanged(Self_, Sess)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnSessionChanged) then
@@ -583,7 +595,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnTesterPresent(Self_)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnTesterPresent) then
@@ -610,7 +622,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

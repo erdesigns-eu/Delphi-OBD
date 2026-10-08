@@ -39,6 +39,7 @@ unit ERD.WWHOBD.Readiness;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -111,6 +112,7 @@ type
   TOBDWWHReadiness = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnSnapshot: TOBDWWHReadinessEvent;
@@ -172,10 +174,13 @@ constructor TOBDWWHReadiness.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDWWHReadiness.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -196,11 +201,16 @@ procedure TOBDWWHReadiness.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDWWHReadiness.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -284,6 +294,7 @@ begin
       Off := 0;
       while Off + 2 <= Length(GroupBody) do
       begin
+    FOwnedTask.CheckCancelled;
         GroupId := GroupBody[Off];
         G := Default(TOBDWWHGroupReadiness);
         G.GroupId := GroupId;
@@ -305,6 +316,7 @@ begin
       Off := 0;
       while Off + 5 <= Length(CondBody) do
       begin
+    FOwnedTask.CheckCancelled;
         GroupId := CondBody[Off];
         if not GroupMap.TryGetValue(GroupId, G) then
         begin
@@ -347,21 +359,26 @@ var
   Self_: TOBDWWHReadiness;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.Read;
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.Read;
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDWWHReadiness.FireSnapshot(
@@ -377,7 +394,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnSnapshot(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnSnapshot) then
@@ -404,7 +421,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

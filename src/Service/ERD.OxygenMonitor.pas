@@ -47,6 +47,7 @@ unit ERD.OxygenMonitor;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -111,6 +112,7 @@ type
   TOBDOxygenMonitor = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnResults: TOBDOxygenMonitorResultsEvent;
@@ -220,10 +222,13 @@ constructor TOBDOxygenMonitor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDOxygenMonitor.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -244,11 +249,16 @@ procedure TOBDOxygenMonitor.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDOxygenMonitor.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -323,6 +333,7 @@ begin
     Block := OBD_O2_TID_SUPPORTED_BLOCK;
     while True do
     begin
+    FOwnedTask.CheckCancelled;
       SetLength(Req, 1);
       Req[0] := Byte(Block);
       Resp := FProtocol.Request(OBD_MODE_O2_MONITOR, Req);
@@ -404,21 +415,26 @@ var
   Self_: TOBDOxygenMonitor;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.ReadAll;
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadAll;
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDOxygenMonitor.ReadSupportedTIDsAsync;
@@ -426,24 +442,29 @@ var
   Self_: TOBDOxygenMonitor;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      TIDs: TArray<Byte>;
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      var
+        TIDs: TArray<Byte>;
+      begin
         try
-          TIDs := Self_.DoReadSupported;
-          Self_.FireSupported(TIDs);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            TIDs := Self_.DoReadSupported;
+            Self_.FireSupported(TIDs);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDOxygenMonitor.FireResults(
@@ -459,7 +480,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnResults(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnResults) then
@@ -479,7 +500,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnSupported(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnSupported) then
@@ -506,7 +527,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

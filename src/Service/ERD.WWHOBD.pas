@@ -50,6 +50,7 @@ unit ERD.WWHOBD;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -167,6 +168,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FSeverityMask: Byte;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnDTCs: TOBDWWHDtcsEvent;
@@ -329,6 +331,7 @@ constructor TOBDWWHOBD.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FSeverityMask := WWHOBD_SEV_MAINTENANCE_ONLY or
                    WWHOBD_SEV_CHECK_AT_NEXT_HALT or
                    WWHOBD_SEV_CHECK_IMMEDIATELY;
@@ -336,6 +339,8 @@ end;
 
 destructor TOBDWWHOBD.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -356,11 +361,16 @@ procedure TOBDWWHOBD.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDWWHOBD.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -458,6 +468,7 @@ begin
     Off := 2;
     while Off + 6 <= Length(Resp.Data) do
     begin
+    FOwnedTask.CheckCancelled;
       Entry := Default(TOBDWWHDtcEntry);
       Entry.SeverityByte   := Resp.Data[Off + 0];
       Entry.FunctionalUnit := Resp.Data[Off + 1];
@@ -502,6 +513,7 @@ begin
     Off := 4;
     while Off + 5 <= Length(Resp.Data) do
     begin
+    FOwnedTask.CheckCancelled;
       Entry := Default(TOBDWWHDtcEntry);
       Entry.Code := DecodeWWHJ2012(Resp.Data[Off + 0], Resp.Data[Off + 1]);
       Entry.StatusByte := Resp.Data[Off + 3];
@@ -598,21 +610,26 @@ var
   Self_: TOBDWWHOBD;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.ReadBySeverity;
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadBySeverity;
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDWWHOBD.ReadByGroupAsync(AGroupId: Byte);
@@ -621,22 +638,27 @@ var
   GID: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  GID := AGroupId;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    GID := AGroupId;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.ReadByGroup(GID);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadByGroup(GID);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDWWHOBD.ReadMILUsageAsync;
@@ -644,24 +666,29 @@ var
   Self_: TOBDWWHOBD;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Distance: UInt32;
-      Time: UInt32;
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      var
+        Distance: UInt32;
+        Time: UInt32;
+      begin
         try
-          Self_.ReadMILUsage(Distance, Time);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadMILUsage(Distance, Time);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDWWHOBD.FireDTCs(const AEntries: TArray<TOBDWWHDtcEntry>);
@@ -676,7 +703,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDTCs(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnDTCs) then
@@ -698,7 +725,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnMILUsage(Self_, Distance, Time)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnMILUsage) then
@@ -725,7 +752,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

@@ -58,6 +58,7 @@ unit ERD.UDS.Transfer;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -117,13 +118,16 @@ type
     FPendingDelayMs: Cardinal;
     FMaxChunkRetries: Integer;
     FChunkRetryDelayMs: Cardinal;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FState: TOBDTransferState;
     FCursor: TOBDTransferCursor;
-    FCancel: Boolean;
+    FCancel: Integer;
+    FOnBeforeRequest: TNotifyEvent;
     FOnStateChange: TOBDTransferStateEvent;
     FOnProgress: TOBDTransferProgressEvent;
+    FOnAcceptedBlock: TOBDTransferProgressEvent;
     FOnError: TOBDConnectionErrorEvent;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
@@ -195,6 +199,9 @@ type
       write FChunkRetryDelayMs default 20;
     property OnStateChange: TOBDTransferStateEvent read FOnStateChange
       write FOnStateChange;
+    /// <summary>Synchronous acknowledgement hook on the executing thread. Persist the cursor here; exceptions abort before the next block.</summary>
+    property OnBeforeRequest: TNotifyEvent read FOnBeforeRequest write FOnBeforeRequest;
+    property OnAcceptedBlock: TOBDTransferProgressEvent read FOnAcceptedBlock write FOnAcceptedBlock;
     property OnProgress: TOBDTransferProgressEvent read FOnProgress
       write FOnProgress;
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
@@ -206,6 +213,7 @@ constructor TOBDUDSTransfer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAddressFormatBytes := 4;
   FLengthFormatBytes := 4;
   FMaxPendingRetries := 10;
@@ -216,6 +224,9 @@ end;
 
 destructor TOBDUDSTransfer.Destroy;
 begin
+  Cancel;
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -223,6 +234,7 @@ end;
 procedure TOBDUDSTransfer.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -233,11 +245,16 @@ procedure TOBDUDSTransfer.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSTransfer.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -265,7 +282,7 @@ end;
 
 procedure TOBDUDSTransfer.Cancel;
 begin
-  FCancel := True;
+  TInterlocked.Exchange(FCancel, 1);
 end;
 
 function TOBDUDSTransfer.EncodeMSB(AValue: UInt64; ABytes: Byte): TBytes;
@@ -288,15 +305,23 @@ begin
   PendingTries := 0;
   while True do
   begin
+    FOwnedTask.CheckCancelled;
+    if TInterlocked.CompareExchange(FCancel, 0, 0) <> 0 then
+      raise EAbort.Create('Transfer cancelled');
+    if Assigned(FOnBeforeRequest) then FOnBeforeRequest(Self);
     Result := FProtocol.Request(ASid, ABody);
-    if not Result.IsNegative then Exit;
+    if not Result.IsNegative then
+    begin
+      if Result.ServiceID <> ASid + $40 then raise EOBDProtocolErr.Create('Transfer: unexpected positive response SID');
+      Exit;
+    end;
     if Result.NRC <> UDS_NRC_ResponsePending then Exit;
     Inc(PendingTries);
     if PendingTries > FMaxPendingRetries then
       raise EOBDProtocolErr.CreateFmt(
         '%s: NRC 0x78 exceeded %d pending retries',
         [AContext, FMaxPendingRetries]);
-    Sleep(FPendingDelayMs);
+    FOwnedTask.Delay(FPendingDelayMs);
   end;
 end;
 
@@ -335,9 +360,9 @@ begin
   MaxBlock := 0;
   for I := 0 to LenLen - 1 do
     MaxBlock := (MaxBlock shl 8) or Resp.Data[1 + I];
-  if MaxBlock < 3 then
+  if (MaxBlock < 3) or (MaxBlock > UInt64(High(Integer))) then
     raise EOBDProtocolErr.CreateFmt(
-      'RequestDownload: maxNumberOfBlockLength %d too small', [MaxBlock]);
+      'RequestDownload: maxNumberOfBlockLength %d outside supported range', [MaxBlock]);
   FCursor.MaxChunkBytes := UInt32(MaxBlock - 2);
 end;
 
@@ -352,13 +377,13 @@ begin
   Total := Length(AImage);
   if Total = 0 then Exit;
   Bsc := AStartBSC;
-  if Bsc = 0 then Bsc := 1;
   Off := Integer(AStartOffset);
   if Off < 0 then Off := 0;
 
   while Off < Total do
   begin
-    if FCancel then
+    FOwnedTask.CheckCancelled;
+    if (TInterlocked.CompareExchange(FCancel, 0, 0) <> 0) or FOwnedTask.Lifetime.IsCancelled then
       raise EOBDProtocolErr.Create('Transfer: cancelled by host');
     ChunkSize := Total - Off;
     if ChunkSize > Integer(FCursor.MaxChunkBytes) then
@@ -370,6 +395,7 @@ begin
     ChunkAttempt := 0;
     while True do
     begin
+    FOwnedTask.CheckCancelled;
       Resp := RequestWithPending(UDS_SID_TransferData, Body,
         Format('TransferData BSC %d', [Bsc]));
       if not Resp.IsNegative then Break;
@@ -378,18 +404,19 @@ begin
         raise EOBDProtocolErr.CreateFmt(
           'TransferData BSC %d failed after %d retries: %s',
           [Bsc, FMaxChunkRetries, Resp.NRCText]);
-      Sleep(FChunkRetryDelayMs);
+      FOwnedTask.Delay(FChunkRetryDelayMs);
     end;
-    if (Length(Resp.Data) >= 1) and (Resp.Data[0] <> Bsc) then
+    if Length(Resp.Data) < 1 then raise EOBDProtocolErr.Create('TransferData: missing BSC echo');
+    if Resp.Data[0] <> Bsc then
       raise EOBDProtocolErr.CreateFmt(
         'TransferData: BSC echo mismatch (sent %d, got %d)',
         [Bsc, Resp.Data[0]]);
 
     Inc(Off, ChunkSize);
     FCursor.BytesSent := UInt32(Off);
-    Inc(Bsc);
-    if Bsc = 0 then Bsc := 1;
+    Bsc := Byte((Integer(Bsc) + 1) and $FF);
     FCursor.NextBSC := Bsc;
+    if Assigned(FOnAcceptedBlock) then FOnAcceptedBlock(Self, FCursor);
     FireProgress(FCursor);
   end;
 end;
@@ -415,7 +442,7 @@ begin
   if Length(AImage) = 0 then
     raise EOBDConfig.Create('TOBDUDSTransfer: empty image');
 
-  FCancel := False;
+  TInterlocked.Exchange(FCancel, 0);
   FCursor := Default(TOBDTransferCursor);
   FCursor.Address := AAddress;
   FCursor.TotalBytes := UInt32(Length(AImage));
@@ -454,7 +481,7 @@ begin
     raise EOBDConfig.Create('TOBDUDSTransfer.Resume: empty image');
   if ACursor.BytesSent >= ACursor.TotalBytes then
     raise EOBDConfig.Create('TOBDUDSTransfer.Resume: cursor already complete');
-  if ACursor.MaxChunkBytes = 0 then
+  if (ACursor.MaxChunkBytes = 0) or (ACursor.MaxChunkBytes > UInt32(High(Integer) - 1)) then
     raise EOBDConfig.Create(
       'TOBDUDSTransfer.Resume: cursor missing MaxChunkBytes');
   if Length(AImage) <> Integer(ACursor.TotalBytes) then
@@ -462,7 +489,7 @@ begin
       'TOBDUDSTransfer.Resume: image size %d mismatches cursor.TotalBytes %d',
       [Length(AImage), ACursor.TotalBytes]);
 
-  FCancel := False;
+  TInterlocked.Exchange(FCancel, 0);
   FCursor := ACursor;
   // Resume skips RequestDownload — the ECU is mid-transfer.
   try
@@ -490,21 +517,26 @@ var
   Img: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress;
-  Img := Copy(AImage, 0, Length(AImage));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress;
+    Img := Copy(AImage, 0, Length(AImage));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.Run(Addr, Img);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.Run(Addr, Img);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSTransfer.FireStateChange(AOld, ANew: TOBDTransferState);
@@ -517,7 +549,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStateChange(Self_, O, N)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnStateChange) then
         Self_.FOnStateChange(Self_, O, N);
     end);
@@ -533,7 +565,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, C)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, C);
     end);
 end;
@@ -552,7 +584,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

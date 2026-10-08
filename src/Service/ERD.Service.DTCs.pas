@@ -40,6 +40,7 @@ unit ERD.Service.DTCs;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -106,6 +107,7 @@ type
   TOBDDTCs = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnDTCs: TOBDDtcsEvent;
@@ -180,16 +182,21 @@ constructor TOBDDTCs.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDDTCs.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
 
 procedure TOBDDTCs.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -212,6 +219,7 @@ end;
 procedure TOBDDTCs.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -222,7 +230,10 @@ procedure TOBDDTCs.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 class function TOBDDTCs.DecodeJ2012(AHi, ALo: Byte): string;
@@ -391,24 +402,29 @@ var
   Impl: TFunc<TArray<TOBDDtcEntry>>;
 begin
   GuardSingleAsync;
-  Self_ := Self; Kind := AKind; Impl := AImpl;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Entries: TArray<TOBDDtcEntry>;
-    begin
-      try
+  try
+    Self_ := Self; Kind := AKind; Impl := AImpl;
+    FOwnedTask.Start(
+      procedure
+      var
+        Entries: TArray<TOBDDtcEntry>;
+      begin
         try
-          Entries := Impl();
-          Self_.FireDTCs(Kind, Entries);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Entries := Impl();
+            Self_.FireDTCs(Kind, Entries);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDDTCs.ReadConfirmedAsync;
@@ -492,7 +508,7 @@ begin
     if Assigned(FOnDTCs) then FOnDTCs(Self_, Kind, Snap);
   end
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       try
         {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
       except
@@ -515,7 +531,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

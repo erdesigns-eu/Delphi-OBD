@@ -55,7 +55,7 @@ uses
   System.NetEncoding,
   {$IFDEF FPC}fpsha256{$ELSE}System.Hash{$ENDIF},
 {$IFDEF MSWINDOWS}
-  Winapi.Windows,
+  {$IFDEF FPC}Windows{$ELSE}Winapi.Windows{$ENDIF},
 {$ENDIF}
   ERD.Types,
   ERD.UDS.Transfer;
@@ -68,7 +68,11 @@ type
     Cursor: TOBDTransferCursor;
     Vendor: string;
     Module: string;
+    ECUIdentity: string;
   end;
+
+  /// <summary>Host must positively confirm the same ECU is still in this download/session. Called synchronously.</summary>
+  TOBDResumeValidator = reference to function(const AInfo: TOBDFlashCheckpointInfo): Boolean;
 
   /// <summary>File-backed checkpoint store. One file per
   /// session; the host owns the lifetime.</summary>
@@ -93,6 +97,13 @@ type
     /// <summary>Verifies that <c>AImage</c> matches the
     /// checkpoint's <c>ImageSha256</c>. Use before
     /// <see cref="TOBDUDSTransfer.Resume"/>.</summary>
+    /// <summary>Validate identity, hash and cursor before asking the host to confirm ECU-side state. No wire access on local validation failure.</summary>
+    class procedure ValidateResumeLocal(const AInfo: TOBDFlashCheckpointInfo;
+      const AImage: TBytes; const ASession, AVendor, AModule, AECUIdentity: string); static;
+    class procedure ValidateResume(const AInfo: TOBDFlashCheckpointInfo;
+      const AImage: TBytes; const ASession, AVendor, AModule, AECUIdentity: string;
+      const AConfirmECU: TOBDResumeValidator); static;
+
     class function MatchesImage(const AInfo: TOBDFlashCheckpointInfo;
       const AImage: TBytes): Boolean; static;
   end;
@@ -100,16 +111,9 @@ type
 implementation
 
 uses
+  {$IFDEF FPC}{$IFDEF UNIX}BaseUnix, Unix,{$ENDIF}{$ENDIF}
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
-{$IFDEF MSWINDOWS}
-const
-  /// <summary>ReplaceFile flag: write-through (commit before
-  /// returning).</summary>
-  REPLACEFILE_WRITE_THROUGH        = $00000001;
-  /// <summary>ReplaceFile flag: continue when ACL merge fails.</summary>
-  REPLACEFILE_IGNORE_MERGE_ERRORS  = $00000002;
-{$ENDIF}
 
 class function TOBDFlashCheckpoint.ComputeImageHash(
   const AImage: TBytes): TBytes;
@@ -145,13 +149,23 @@ var
   Obj: TJSONObject;
   Json: string;
   TempName: string;
+  TempID: TGUID;
+  Stream: TFileStream;
+  Data: TBytes;
+{$IFDEF FPC}{$IFDEF LINUX}
+  DirectoryFD: Integer;
+{$ENDIF}{$ENDIF}
 begin
   Obj := TJSONObject.Create;
   try
     Obj.AddPair('version', TJSONNumber.Create(1));
     Obj.AddPair('session', AInfo.SessionID);
     Obj.AddPair('image_sha256_hex', HexEncode(AInfo.ImageSha256));
-    Obj.AddPair('address', TJSONNumber.Create(Int64(AInfo.Cursor.Address)));
+    // Official FPC System.JSON narrows unsigned numeric tokens to Int64.
+    // Decimal strings preserve the upper half of UInt64 on both compilers.
+    if AInfo.Cursor.Address > UInt64(High(Int64)) then
+      Obj.AddPair('address', UIntToStr(AInfo.Cursor.Address))
+    else Obj.AddPair('address', TJSONNumber.Create(Int64(AInfo.Cursor.Address)));
     Obj.AddPair('total_bytes',
       TJSONNumber.Create(Int64(AInfo.Cursor.TotalBytes)));
     Obj.AddPair('bytes_sent',
@@ -161,37 +175,44 @@ begin
       TJSONNumber.Create(Int64(AInfo.Cursor.MaxChunkBytes)));
     if AInfo.Vendor <> '' then Obj.AddPair('vendor', AInfo.Vendor);
     if AInfo.Module <> '' then Obj.AddPair('module', AInfo.Module);
+    if AInfo.ECUIdentity <> '' then Obj.AddPair('ecu_identity', AInfo.ECUIdentity);
     Json := Obj.ToJSON;
   finally
     Obj.Free;
   end;
-  TempName := AFileName + '.tmp';
-  TFile.WriteAllText(TempName, Json, TEncoding.UTF8);
-
+  if CreateGUID(TempID) <> 0 then raise EWriteError.Create('Cannot create checkpoint temporary name');
+  TempName := AFileName + '.' + GUIDToString(TempID) + '.tmp';
+  try
+    Data := TEncoding.UTF8.GetBytes(Json);
+    Stream := TFileStream.Create(TempName, fmCreate or fmShareExclusive);
+    try
+      if Length(Data) > 0 then Stream.WriteBuffer(Data[0], Length(Data));
 {$IFDEF MSWINDOWS}
-  // Atomic-replace via ReplaceFile so a crash mid-rename leaves
-  // either the old or the new checkpoint on disk — never neither.
-  // ReplaceFile is documented atomic on NTFS / ReFS; on FAT the
-  // fallback below kicks in.
-  if TFile.Exists(AFileName) then
-  begin
-    if not ReplaceFile(PChar(AFileName), PChar(TempName), nil,
-      REPLACEFILE_WRITE_THROUGH or REPLACEFILE_IGNORE_MERGE_ERRORS,
-      nil, nil) then
-    begin
-      // Filesystem doesn't support ReplaceFile (FAT, network share,
-      // etc.). Fall back to the unlink-then-rename pattern.
-      TFile.Delete(AFileName);
-      TFile.Move(TempName, AFileName);
-    end;
-  end
-  else
-    // First-time write: just rename the temp into place.
-    TFile.Move(TempName, AFileName);
+      if not FlushFileBuffers(Stream.Handle) then RaiseLastOSError;
 {$ELSE}
-  // POSIX rename(2) is atomic.
-  TFile.Move(TempName, AFileName);
+  {$IFDEF FPC}{$IFDEF UNIX}
+      if fpFsync(Stream.Handle) <> 0 then RaiseLastOSError;
+  {$ENDIF}{$ENDIF}
 {$ENDIF}
+    finally Stream.Free end;
+{$IFDEF MSWINDOWS}
+    if not MoveFileEx(PChar(TempName), PChar(AFileName),
+      MOVEFILE_REPLACE_EXISTING or MOVEFILE_WRITE_THROUGH) then RaiseLastOSError;
+{$ELSE}
+    // SysUtils.RenameFile maps to POSIX rename and replaces an existing file.
+    // TFile.Move has a no-overwrite contract and must not be used here.
+    if not RenameFile(TempName, AFileName) then RaiseLastOSError;
+  {$IFDEF FPC}{$IFDEF LINUX}
+    DirectoryFD := fpOpen(PChar(ExtractFileDir(ExpandFileName(AFileName))), O_RDONLY);
+    if DirectoryFD < 0 then RaiseLastOSError;
+    try
+      if fpFsync(DirectoryFD) <> 0 then RaiseLastOSError;
+    finally fpClose(DirectoryFD) end;
+  {$ENDIF}{$ENDIF}
+{$ENDIF}
+  finally
+    if FileExists(TempName) then DeleteFile(TempName);
+  end;
 end;
 
 class function TOBDFlashCheckpoint.Load(
@@ -202,13 +223,21 @@ var
   Obj: TJSONObject;
   V: TJSONValue;
   Version: Int64;
+  function ReadUInt(const AName: string; AMax: UInt64): UInt64;
+  var Item: TJSONValue; N: UInt64;
+  begin
+    Item := Obj.GetValue(AName);
+    if not (Item is TJSONNumber) or not TryStrToUInt64(Item.Value, N) or (N > AMax) then
+      raise EOBDProtocol.Create('checkpoint: invalid ' + AName);
+    Result := N;
+  end;
 begin
   Result := Default(TOBDFlashCheckpointInfo);
   if not TFile.Exists(AFileName) then
     raise EOBDProtocol.CreateFmt(
       'TOBDFlashCheckpoint.Load: file not found: %s', [AFileName]);
   Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
+  Doc := TJSONObject.ParseJSONValue(Json, True, True);
   if not (Doc is TJSONObject) then
   begin
     if Doc <> nil then Doc.Free;
@@ -229,27 +258,50 @@ begin
     V := Obj.GetValue('image_sha256_hex');
     if V is TJSONString then Result.ImageSha256 := HexDecode(V.Value);
     V := Obj.GetValue('address');
-    if V is TJSONNumber then
-      Result.Cursor.Address := UInt64(TJSONNumber(V).AsInt64);
-    V := Obj.GetValue('total_bytes');
-    if V is TJSONNumber then
-      Result.Cursor.TotalBytes := UInt32(TJSONNumber(V).AsInt64);
-    V := Obj.GetValue('bytes_sent');
-    if V is TJSONNumber then
-      Result.Cursor.BytesSent := UInt32(TJSONNumber(V).AsInt64);
-    V := Obj.GetValue('next_bsc');
-    if V is TJSONNumber then
-      Result.Cursor.NextBSC := Byte(TJSONNumber(V).AsInt64 and $FF);
-    V := Obj.GetValue('max_chunk_bytes');
-    if V is TJSONNumber then
-      Result.Cursor.MaxChunkBytes := UInt32(TJSONNumber(V).AsInt64);
+    if not ((V is TJSONNumber) or (V is TJSONString)) or not TryStrToUInt64(V.Value, Result.Cursor.Address) then
+      raise EOBDProtocol.Create('checkpoint: invalid address');
+    Result.Cursor.TotalBytes := ReadUInt('total_bytes', High(UInt32));
+    Result.Cursor.BytesSent := ReadUInt('bytes_sent', High(UInt32));
+    Result.Cursor.NextBSC := ReadUInt('next_bsc', 255);
+    Result.Cursor.MaxChunkBytes := ReadUInt('max_chunk_bytes', High(UInt32));
+    if Result.Cursor.BytesSent > Result.Cursor.TotalBytes then
+      raise EOBDProtocol.Create('checkpoint: bytes_sent exceeds image size');
     V := Obj.GetValue('vendor');
     if V is TJSONString then Result.Vendor := V.Value;
     V := Obj.GetValue('module');
     if V is TJSONString then Result.Module := V.Value;
+    V := Obj.GetValue('ecu_identity');
+    if V is TJSONString then Result.ECUIdentity := V.Value;
   finally
     Doc.Free;
   end;
+end;
+
+class procedure TOBDFlashCheckpoint.ValidateResumeLocal(const AInfo: TOBDFlashCheckpointInfo;
+  const AImage: TBytes; const ASession, AVendor, AModule, AECUIdentity: string);
+begin
+  if (ASession = '') or (AVendor = '') or (AModule = '') or (AECUIdentity = '') or
+     (AInfo.SessionID <> ASession) or (AInfo.Vendor <> AVendor) or
+     (AInfo.Module <> AModule) or (AInfo.ECUIdentity <> AECUIdentity) then
+    raise EOBDConfig.Create('Resume requires matching session, vendor, module and ECU identity');
+  if (Length(AImage) = 0) or not MatchesImage(AInfo, AImage) or
+     (UInt64(Length(AImage)) <> AInfo.Cursor.TotalBytes) then
+    raise EOBDConfig.Create('Resume image hash/size mismatch');
+  if (AInfo.Cursor.BytesSent >= AInfo.Cursor.TotalBytes) or
+     (AInfo.Cursor.MaxChunkBytes = 0) or
+     (AInfo.Cursor.MaxChunkBytes > UInt32(High(Integer) - 1)) then
+    raise EOBDConfig.Create('Resume cursor is invalid or already complete');
+end;
+
+class procedure TOBDFlashCheckpoint.ValidateResume(const AInfo: TOBDFlashCheckpointInfo;
+  const AImage: TBytes; const ASession, AVendor, AModule, AECUIdentity: string;
+  const AConfirmECU: TOBDResumeValidator);
+begin
+  ValidateResumeLocal(AInfo, AImage, ASession, AVendor, AModule, AECUIdentity);
+  if not Assigned(AConfirmECU) then
+    raise EOBDConfig.Create('Resume requires explicit confirmation of ECU transfer state');
+  if not AConfirmECU(AInfo) then
+    raise EOBDConfig.Create('ECU did not confirm the checkpoint transfer/session');
 end;
 
 class function TOBDFlashCheckpoint.MatchesImage(

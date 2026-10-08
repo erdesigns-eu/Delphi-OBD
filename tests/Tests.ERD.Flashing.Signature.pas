@@ -67,7 +67,7 @@ type
     [Test] procedure BCryptSupportsClassicalAlgorithms;
     [Test] procedure OpenSSLSupportsClassicalAlgorithms;
     [Test] procedure PQCSupportsPostQuantumAlgorithms;
-    [Test] procedure HSMSupportsClassicalAlgorithms;
+    [Test] procedure HSMRejectsAlgorithmsWithoutDriver;
     [Test] procedure HSMReportsUnavailableWithoutLibraryPath;
     [Test] procedure AlgorithmNameStrings;
   end;
@@ -182,7 +182,7 @@ begin
     Assert.IsFalse(B.Supports(saRSA_PSS_SHA256));
     {$ENDIF}
   finally
-    B := nil; // interface ref-counted
+    B.Free; // interface ref-counted
   end;
 end;
 
@@ -192,12 +192,12 @@ var
 begin
   B := TOBDSignatureOpenSSL.Create;
   try
-    Assert.IsTrue (B.Supports(saRSA_PSS_SHA256));
-    Assert.IsTrue (B.Supports(saECDSA_P384_SHA384));
-    Assert.IsTrue (B.Supports(saED25519));
+    Assert.AreEqual(TOBDSignatureOpenSSL.IsAvailable, B.Supports(saRSA_PSS_SHA256));
+    Assert.AreEqual(TOBDSignatureOpenSSL.IsAvailable, B.Supports(saECDSA_P384_SHA384));
+    Assert.AreEqual(TOBDSignatureOpenSSL.IsAvailable, B.Supports(saED25519));
     Assert.IsFalse(B.Supports(saDilithium3));
   finally
-    B := nil;
+    B.Free;
   end;
 end;
 
@@ -212,21 +212,21 @@ begin
     Assert.IsTrue (B.Supports(saSPHINCSPlusSHA2_192f));
     Assert.IsFalse(B.Supports(saRSA_PSS_SHA256));
   finally
-    B := nil;
+    B.Free;
   end;
 end;
 
-procedure TSignatureBackendsTests.HSMSupportsClassicalAlgorithms;
+procedure TSignatureBackendsTests.HSMRejectsAlgorithmsWithoutDriver;
 var
   B: TOBDSignatureHSM;
 begin
   B := TOBDSignatureHSM.Create;
   try
-    Assert.IsTrue (B.Supports(saRSA_PSS_SHA256));
-    Assert.IsTrue (B.Supports(saECDSA_P256_SHA256));
+    Assert.IsFalse(B.Supports(saRSA_PSS_SHA256));
+    Assert.IsFalse(B.Supports(saECDSA_P256_SHA256));
     Assert.IsFalse(B.Supports(saDilithium3));
   finally
-    B := nil;
+    B.Free;
   end;
 end;
 
@@ -239,7 +239,7 @@ begin
     B.LibraryPath := '';
     Assert.IsFalse(B.IsAvailable);
   finally
-    B := nil;
+    B.Free;
   end;
 end;
 

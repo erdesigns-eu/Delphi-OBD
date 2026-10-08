@@ -38,6 +38,7 @@ type
     /// <summary>Connect with a bounded timeout on Unix; close owned sockets before destruction.</summary>
     procedure Connect(const AEndpoint: TNetEndpoint; ATimeoutMs: Cardinal = 10000);
     procedure SetTimeouts(ATimeoutMs: Cardinal);
+    procedure SetSendTimeout(ATimeoutMs: Cardinal);
     /// <summary>Transfer descriptor ownership to the caller (used by OpenSSL).</summary>
     function DetachHandle: LongInt;
     procedure Bind(const AEndpoint: TNetEndpoint);
@@ -130,6 +131,17 @@ begin
   CheckSocket(fpSetSockOpt(Handle, SOL_SOCKET, SO_SNDTIMEO, @Time, SizeOf(Time)));
 {$ELSE}
   CheckSocket(fpSetSockOpt(Handle, SOL_SOCKET, SO_RCVTIMEO, @ATimeoutMs, SizeOf(ATimeoutMs)));
+  CheckSocket(fpSetSockOpt(Handle, SOL_SOCKET, SO_SNDTIMEO, @ATimeoutMs, SizeOf(ATimeoutMs)));
+{$ENDIF}
+end;
+procedure TSocket.SetSendTimeout(ATimeoutMs: Cardinal);
+{$IFDEF UNIX}var Time: TTimeVal;{$ENDIF}
+begin
+  if ATimeoutMs = 0 then ATimeoutMs := 1;
+{$IFDEF UNIX}
+  Time.tv_sec := ATimeoutMs div 1000; Time.tv_usec := (ATimeoutMs mod 1000) * 1000;
+  CheckSocket(fpSetSockOpt(Handle, SOL_SOCKET, SO_SNDTIMEO, @Time, SizeOf(Time)));
+{$ELSE}
   CheckSocket(fpSetSockOpt(Handle, SOL_SOCKET, SO_SNDTIMEO, @ATimeoutMs, SizeOf(ATimeoutMs)));
 {$ENDIF}
 end;

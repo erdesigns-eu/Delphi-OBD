@@ -37,6 +37,7 @@ unit ERD.KWP.WriteID;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -56,6 +57,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnWrite: TNotifyEvent;
@@ -93,10 +95,13 @@ constructor TOBDKWPWriteID.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDKWPWriteID.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -104,6 +109,7 @@ end;
 procedure TOBDKWPWriteID.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -114,11 +120,16 @@ procedure TOBDKWPWriteID.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDKWPWriteID.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -165,22 +176,27 @@ var
   Self_: TOBDKWPWriteID; LID: Byte; Data: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; LID := ALocalID;
-  Data := Copy(AData, 0, Length(AData));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; LID := ALocalID;
+    Data := Copy(AData, 0, Length(AData));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoWrite(LID, Data);
-          Self_.FireWrite;
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoWrite(LID, Data);
+            Self_.FireWrite;
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDKWPWriteID.FireWrite;
@@ -192,7 +208,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnWrite(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_);
     end);
 end;
@@ -211,7 +227,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

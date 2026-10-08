@@ -68,8 +68,8 @@ type
   ///   <item><c>vmRequire</c> — fail the handshake if the
   ///   certificate does not chain to a trusted root <i>and</i> the
   ///   hostname does not match. Default. Production setting.</item>
-  ///   <item><c>vmAllowSelfSigned</c> — accept any certificate the
-  ///   peer presents but still require the hostname to match the
+  ///   <item><c>vmAllowSelfSigned</c> — accept a valid self-signed leaf
+  ///   certificate but still require the hostname to match the
   ///   subject / SAN. Useful for in-vehicle ECUs that ship with a
   ///   self-signed leaf.</item>
   ///   <item><c>vmInsecureNone</c> — accept anything. <b>Never</b>
@@ -239,6 +239,7 @@ const
   SSL_ERROR_ZERO_RETURN = 6;
 
   X509_V_OK = 0;
+  X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
 
 type
   // ---- OpenSSL function pointers ----
@@ -268,6 +269,11 @@ type
   TSSL_get_error                = function(ssl: Pointer; ret: Integer): Integer; cdecl;
   TSSL_pending                  = function(ssl: Pointer): Integer; cdecl;
   TSSL_get_verify_result        = function(ssl: Pointer): NativeInt; cdecl;
+
+  TX509_STORE_CTX_get_error = function(ctx: Pointer): Integer; cdecl;
+  TX509_STORE_CTX_get_error_depth = function(ctx: Pointer): Integer; cdecl;
+  TSSL_get0_param = function(ssl: Pointer): Pointer; cdecl;
+  TX509_VERIFY_PARAM_set1_ip_asc = function(param: Pointer; ip: PAnsiChar): Integer; cdecl;
 
   TERR_get_error                = function: NativeUInt; cdecl;
   TERR_error_string_n           = procedure(e: NativeUInt; buf: PAnsiChar; len: NativeUInt); cdecl;
@@ -305,6 +311,10 @@ var
   SSL_pending_F: TSSL_pending;
   SSL_get_verify_result_F: TSSL_get_verify_result;
 
+  X509_STORE_CTX_get_error_F: TX509_STORE_CTX_get_error;
+  X509_STORE_CTX_get_error_depth_F: TX509_STORE_CTX_get_error_depth;
+  SSL_get0_param_F: TSSL_get0_param;
+  X509_VERIFY_PARAM_set1_ip_asc_F: TX509_VERIFY_PARAM_set1_ip_asc;
   ERR_get_error_F: TERR_get_error;
   ERR_error_string_n_F: TERR_error_string_n;
 
@@ -393,6 +403,10 @@ begin
   NeedProc(GLibSSL, SSL_pending_F,            'SSL_pending', 'libssl');
   NeedProc(GLibSSL, SSL_get_verify_result_F,  'SSL_get_verify_result', 'libssl');
 
+  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_F, 'X509_STORE_CTX_get_error', 'libcrypto');
+  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_depth_F, 'X509_STORE_CTX_get_error_depth', 'libcrypto');
+  NeedProc(GLibSSL, SSL_get0_param_F, 'SSL_get0_param', 'libssl');
+  NeedProc(GLibCrypto, X509_VERIFY_PARAM_set1_ip_asc_F, 'X509_VERIFY_PARAM_set1_ip_asc', 'libcrypto');
   NeedProc(GLibCrypto, ERR_get_error_F,       'ERR_get_error', 'libcrypto');
   NeedProc(GLibCrypto, ERR_error_string_n_F,  'ERR_error_string_n', 'libcrypto');
 
@@ -515,6 +529,29 @@ begin
 {$ENDIF}
 end;
 
+function VerifySelfSignedLeaf(APreverified: Integer; AStore: Pointer): Integer; cdecl;
+begin
+  Result := APreverified;
+  if (Result = 0) and
+     (X509_STORE_CTX_get_error_F(AStore) = X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) and
+     (X509_STORE_CTX_get_error_depth_F(AStore) = 0) then Result := 1;
+end;
+
+function IsIPv4Literal(const AHost: string): Boolean;
+var Parts: TArray<string>; Part: string; Value: Integer; C: Char;
+begin
+  Result := False;
+  Parts := AHost.Split(['.']);
+  if Length(Parts) <> 4 then Exit;
+  for Part in Parts do
+  begin
+    if Part = '' then Exit;
+    for C in Part do if not CharInSet(C, ['0'..'9']) then Exit;
+    if not TryStrToInt(Part, Value) or (Value < 0) or (Value > 255) then Exit;
+  end;
+  Result := True;
+end;
+
 procedure TOBDDoIPOpenSSLTransport.ConfigureContext(const AHost: string);
 var
   Method: Pointer;
@@ -542,13 +579,15 @@ begin
     vmRequire:
       VerifyMode := SSL_VERIFY_PEER or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
     vmAllowSelfSigned:
-      VerifyMode := SSL_VERIFY_NONE; // hostname check still runs below
+      VerifyMode := SSL_VERIFY_PEER;
     vmInsecureNone:
       VerifyMode := SSL_VERIFY_NONE;
   else
     VerifyMode := SSL_VERIFY_PEER or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
   end;
-  SSL_CTX_set_verify_F(FCtx, VerifyMode, nil);
+  if FOptions.VerifyMode = vmAllowSelfSigned then
+    SSL_CTX_set_verify_F(FCtx, VerifyMode, @VerifySelfSignedLeaf)
+  else SSL_CTX_set_verify_F(FCtx, VerifyMode, nil);
 
   // CA roots — always populate, even when not strictly verifying,
   // so a host that switches policy doesn't have to re-init.
@@ -737,7 +776,12 @@ begin
   // Hostname verification — covers vmRequire and vmAllowSelfSigned.
   if FOptions.VerifyMode <> vmInsecureNone then
   begin
-    if SSL_set1_host_F(FSsl, PAnsiChar(HostA)) <> 1 then
+    if IsIPv4Literal(AHost) then
+    begin
+      if X509_VERIFY_PARAM_set1_ip_asc_F(SSL_get0_param_F(FSsl), PAnsiChar(HostA)) <> 1 then
+        RaiseSSL('IP certificate verification setup failed', 0);
+    end
+    else if SSL_set1_host_F(FSsl, PAnsiChar(HostA)) <> 1 then
       RaiseSSL('SSL_set1_host failed', 0);
   end;
 
@@ -762,10 +806,9 @@ begin
     RaiseSSL('SSL_connect failed', RC);
   end;
 
-  // Verification result — vmRequire only. vmAllowSelfSigned passes
-  // chain failures but still enforces hostname (set1_host). The
-  // hostname check is performed inside SSL_connect; if it failed,
-  // OpenSSL surfaces it as a verify error, not a separate API.
+  // vmRequire additionally checks the stored verification result. The
+  // self-signed callback accepts only a depth-zero self-signed leaf error;
+  // expiry, unknown issuers and DNS/IP mismatches fail inside SSL_connect.
   if FOptions.VerifyMode = vmRequire then
   begin
     if SSL_get_verify_result_F(FSsl) <> X509_V_OK then

@@ -39,6 +39,7 @@ unit ERD.Coding.Session;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -80,6 +81,7 @@ type
     FVerifyAfterWrite: Boolean;
     FDryRun: Boolean;
     FAuditLog: TOBDCodingAuditLog;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOutcome: TOBDCodingOutcome;
@@ -165,12 +167,15 @@ constructor TOBDCodingSession.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FRollbackOnFail := True;
   FVerifyAfterWrite := True;
 end;
 
 destructor TOBDCodingSession.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -178,6 +183,7 @@ end;
 procedure TOBDCodingSession.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -204,6 +210,8 @@ end;
 
 procedure TOBDCodingSession.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -393,23 +401,28 @@ var
   StepsCopy: TArray<TOBDCodingStep>;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  SetLength(StepsCopy, Length(ASteps));
-  for I := 0 to High(ASteps) do StepsCopy[I] := ASteps[I];
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    SetLength(StepsCopy, Length(ASteps));
+    for I := 0 to High(ASteps) do StepsCopy[I] := ASteps[I];
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.FOutcome := coNotStarted;
-          Self_.DoApply(StepsCopy);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.FOutcome := coNotStarted;
+            Self_.DoApply(StepsCopy);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDCodingSession.FireStepWritten(AIndex, ACount: Integer;
@@ -422,7 +435,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStepWritten(Self_, I, C, S)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnStepWritten) then
         Self_.FOnStepWritten(Self_, I, C, S);
     end);
@@ -438,7 +451,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStepVerified(Self_, I, C, S)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnStepVerified) then
         Self_.FOnStepVerified(Self_, I, C, S);
     end);
@@ -454,7 +467,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRollback(Self_, I, C, S)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnRollback) then
         Self_.FOnRollback(Self_, I, C, S);
     end);
@@ -469,7 +482,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
     end);
 end;
@@ -488,7 +501,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

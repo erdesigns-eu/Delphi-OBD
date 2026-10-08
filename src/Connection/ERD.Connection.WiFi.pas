@@ -62,13 +62,14 @@ type
   end;
 
   /// <summary>TCP transport (Wi-Fi / Ethernet).</summary>
-  TOBDWiFiTransport = class(TOBDBaseTransport)
+  TOBDWiFiTransport = class(TOBDBaseTransport, IOBDTimedStreamTransport)
   strict private
     FSocket: TSocket;
     FReader: TOBDWiFiReadThread;
   public
     /// <summary>Constructs an idle TCP transport.</summary>
     constructor Create;
+    procedure SetWriteTimeout(ATimeoutMs: Cardinal);
     /// <summary>Closes the socket if open.</summary>
     destructor Destroy; override;
 
@@ -179,6 +180,7 @@ begin
     Endpoint := TNetEndpoint.Create(ResolvedAddr, ASettings.Port);
     {$IFDEF FPC}FSocket.Connect(Endpoint, ASettings.ConnectTimeout);{$ELSE}
     FSocket.Connect(Endpoint);{$ENDIF}
+    SetWriteTimeout(5000);
     if ASettings.KeepAlive then
       FSocket.SetKeepAlive(True);
   except
@@ -227,6 +229,14 @@ begin
     Local.Free;
 
   SetState(csClosed);
+end;
+
+procedure TOBDWiFiTransport.SetWriteTimeout(ATimeoutMs: Cardinal);
+begin
+  if FSocket = nil then raise EOBDNotConnected.Create('Wi-Fi socket is closed');
+  if ATimeoutMs = 0 then ATimeoutMs := 1;
+  {$IFDEF FPC}FSocket.SetSendTimeout(ATimeoutMs);{$ELSE}
+  FSocket.SetSocketOpt(TSocketOption.SendTimeout, Integer(ATimeoutMs));{$ENDIF}
 end;
 
 function TOBDWiFiTransport.WriteBytes(const ABytes: TBytes): Integer;

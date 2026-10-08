@@ -254,11 +254,16 @@ type
   ///   marshalling to the main thread.
   ///
   ///   <c>WriteBytes</c> is synchronous from the caller's perspective —
-  ///   either the bytes are queued for transmission and the call
-  ///   returns <c>Length(ABytes)</c>, or the transport is in error and
+  ///   the call returns the number of accepted bytes, which may be
+  ///   less than <c>Length(ABytes)</c>, or the transport is in error and
   ///   the call raises (configuration-shaped) or fires
   ///   <c>OnTransportError</c> and returns 0 (transient).
   /// </remarks>
+  /// <summary>Optional stream capability. Deadline covers one native write; receive stays blocking until close/data.</summary>
+  IOBDTimedStreamTransport = interface
+    ['{2ADDB34B-CBE8-43C4-A84A-4B6EBF060328}']
+    procedure SetWriteTimeout(ATimeoutMs: Cardinal);
+  end;
   IOBDConnectionTransport = interface
     ['{D4E5C7A2-3F1B-4C9E-9D8A-7E6B5C4D3A2F}']
 

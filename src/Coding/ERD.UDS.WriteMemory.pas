@@ -40,6 +40,7 @@ unit ERD.UDS.WriteMemory;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -61,6 +62,7 @@ type
     FAutoExecute: Boolean;
     FAddressFormatBytes: Byte;
     FLengthFormatBytes: Byte;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnWrite: TNotifyEvent;
@@ -104,12 +106,15 @@ constructor TOBDUDSWriteMemory.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAddressFormatBytes := 4;
   FLengthFormatBytes := 4;
 end;
 
 destructor TOBDUDSWriteMemory.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -117,6 +122,7 @@ end;
 procedure TOBDUDSWriteMemory.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -127,11 +133,16 @@ procedure TOBDUDSWriteMemory.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSWriteMemory.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -210,22 +221,27 @@ var
   Data: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress;
-  Data := Copy(AData, 0, Length(AData));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress;
+    Data := Copy(AData, 0, Length(AData));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoWrite(Addr, Data);
-          Self_.FireWrite;
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoWrite(Addr, Data);
+            Self_.FireWrite;
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSWriteMemory.FireWrite;
@@ -237,7 +253,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnWrite(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_);
     end);
 end;
@@ -256,7 +272,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

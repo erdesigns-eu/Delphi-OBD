@@ -42,6 +42,7 @@ unit ERD.OEM.Catalog;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
   ERD.JSON,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -69,6 +70,7 @@ type
   /// </remarks>
   TOBDOEMCatalog = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FFileName: string;
     FOEM: string;
     FAutoLoad: Boolean;
@@ -145,11 +147,14 @@ implementation
 constructor TOBDOEMCatalog.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDOEMCatalog.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   UnregisterAndFreeOverlay;
+  FreeAndNil(FOwnedTask);
   inherited;
 end;
 
@@ -374,7 +379,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnLoaded(Self_, FN, N)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnLoaded) then

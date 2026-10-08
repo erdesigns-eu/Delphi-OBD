@@ -1,26 +1,15 @@
 //------------------------------------------------------------------------------
 //  ERD.Signature.HSM
 //
-//  PKCS#11 HSM-backed signature verifier. Wraps any HSM that
-//  exposes a PKCS#11 v2.40 / v3.0 driver (SoftHSM, YubiHSM,
-//  AWS CloudHSM, Thales / Gemalto, Utimaco, etc).
+//  Host-driver facade for HSM signature verification. Configure Driver with
+//  an IOBDSignatureVerifier backed by the host's PKCS#11 implementation.
+//  Availability, supported algorithms and verification are delegated to that
+//  driver. A library file alone never advertises a usable capability.
 //
-//  Hosts configure the HSM through three properties:
-//
-//    - <c>LibraryPath</c>: path to the vendor's PKCS#11 .dll / .so
-//    - <c>SlotID</c>: which slot to use
-//    - <c>OnRequestPIN</c>: callback returning the user PIN; fires
-//      from the verification thread (not necessarily the main
-//      thread) so the handler must be thread-safe
-//
-//  The verifier resolves the public-key handle by CKA_ID +
-//  CKA_LABEL match. <c>AArgs.PublicKey</c> in
-//  <see cref="TOBDSignatureVerifyArgs"/> carries the CKA_ID bytes.
-//
-//  This unit ships the loader scaffolding and the C_FindObjects /
-//  C_VerifyInit / C_Verify call sequence. Full mechanism tables
-//  per algorithm live in a vendor-tunable enum that hosts can
-//  override via <c>OnResolveMechanism</c> for non-default HSMs.
+//  LibraryPath, SlotID and PINFunc are retained configuration metadata for
+//  compatibility. The host must apply them when constructing its driver;
+//  this unit does not contain a bundled token loader or login implementation.
+//  PublicKey encoding follows the supplied driver's contract.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -72,6 +61,7 @@ type
   TOBDSignatureHSM = class(TOBDSignatureVerifier)
   strict private
     FLibraryPath: string;
+    FDriver: IOBDSignatureVerifier;
     FSlotID: Cardinal;
     FPINFunc: TOBDPKCS11PINFunc;
   strict protected
@@ -79,10 +69,10 @@ type
     function DoSupports(AAlgorithm: TOBDSignatureAlgorithm): Boolean; override;
     function DoName: string; override;
   public
-    /// <summary>True when <c>LibraryPath</c> exists and dynamic-
-    /// loads cleanly. Verification adds the C_Initialize +
-    /// C_OpenSession round trip, which lives inside Verify.</summary>
+    /// <summary>True only when a configured host verifier advertises an available algorithm.</summary>
     function IsAvailable: Boolean;
+    /// <summary>Host-supplied PKCS#11 implementation; availability and algorithms are delegated.</summary>
+    property Driver: IOBDSignatureVerifier read FDriver write FDriver;
     property LibraryPath: string read FLibraryPath write FLibraryPath;
     property SlotID: Cardinal read FSlotID write FSlotID;
     property PINFunc: TOBDPKCS11PINFunc read FPINFunc write FPINFunc;
@@ -91,12 +81,12 @@ type
 implementation
 
 function TOBDSignatureHSM.IsAvailable: Boolean;
+var Algorithm: TOBDSignatureAlgorithm;
 begin
-{$IFDEF MSWINDOWS}
-  Result := (FLibraryPath <> '') and FileExists(FLibraryPath);
-{$ELSE}
-  Result := (FLibraryPath <> '') and FileExists(FLibraryPath);
-{$ENDIF}
+  Result := False;
+  if FDriver = nil then Exit;
+  for Algorithm := Low(TOBDSignatureAlgorithm) to High(TOBDSignatureAlgorithm) do
+    if FDriver.Supports(Algorithm) then Exit(True);
 end;
 
 function TOBDSignatureHSM.DoName: string;
@@ -104,44 +94,13 @@ begin
   Result := 'PKCS#11 HSM';
 end;
 
-function TOBDSignatureHSM.DoSupports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
-begin
-  case AAlgorithm of
-    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
-    saECDSA_P256_SHA256, saECDSA_P384_SHA384,
-    saED25519:
-      Result := True;
-  else
-    Result := False;
-  end;
-end;
+function TOBDSignatureHSM.DoSupports(AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+begin Result := (FDriver <> nil) and FDriver.Supports(AAlgorithm) end;
 
-function TOBDSignatureHSM.DoVerify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignatureHSM.DoVerify(const AArgs: TOBDSignatureVerifyArgs): Boolean;
 begin
-  // Full PKCS#11 plumbing (C_GetFunctionList / C_Initialize /
-  // C_OpenSession / C_Login / C_FindObjectsInit / C_FindObjects /
-  // C_VerifyInit / C_Verify / C_Logout / C_CloseSession /
-  // C_Finalize) is vendor-driver-specific. Hosts that ship their
-  // own PKCS#11 driver typically wire a thin native wrapper
-  // (Vector / Thales / Utimaco SDKs all provide one) and route
-  // through it.
-  //
-  // This unit defines the interface and the property surface so
-  // host code can compile against TOBDSignatureHSM without the
-  // PKCS#11 SDK installed; the Verify call itself raises until
-  // the host plugs a vendor driver.
-  if not IsAvailable then
-    raise EOBDError.CreateFmt(
-      'PKCS#11 HSM: LibraryPath "%s" missing or not loadable',
-      [FLibraryPath]);
-  raise EOBDError.Create(
-    'PKCS#11 HSM: Verify not implemented — provide a vendor driver ' +
-    'shim or use ERD.Signature.OpenSSL with the HSM''s PKCS#11 engine');
-  // Suppress hint:
-  if Length(AArgs.Message) = 0 then ;
-  Result := False;
+  if FDriver = nil then raise EOBDConfig.Create('PKCS#11 verifier driver not configured');
+  Result := FDriver.Verify(AArgs);
 end;
 
 end.

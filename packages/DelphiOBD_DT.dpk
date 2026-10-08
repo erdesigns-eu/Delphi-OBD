@@ -1,6 +1,5 @@
 package DelphiOBD_DT;
 
-{$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -30,6 +29,8 @@ package DelphiOBD_DT;
 
 requires
   rtl,
+  vcl,
+  vclimg,
   designide,
   DelphiOBD_RT;
 

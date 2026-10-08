@@ -253,8 +253,12 @@ begin
   Decoded.Unit_ := ARule.Unit_;
   if ARule.IsArray then
   begin
-    if (ARule.ElementSize <= 0) or (ARule.Offset < 0) or (ARule.Offset >= Length(AData)) then Exit;
-    Cnt := (Length(AData) - ARule.Offset) div ARule.ElementSize;
+    if (ARule.ElementSize <= 0) or (ARule.Offset < 0) or
+      (ARule.Length <= 0) or (ARule.Offset > Length(AData)) or
+      (ARule.Length > Length(AData) - ARule.Offset) or
+      (ARule.Length mod ARule.ElementSize <> 0) then
+      raise EOBDProtocolErr.Create('EV array payload is truncated or misaligned');
+    Cnt := ARule.Length div ARule.ElementSize;
     if Cnt <= 0 then raise EOBDProtocolErr.Create('EV array payload is truncated');
     SetLength(Arr, Cnt);
     for I := 0 to Cnt - 1 do

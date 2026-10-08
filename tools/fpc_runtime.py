@@ -81,10 +81,14 @@ def main():
         if result.returncode:
             raise SystemExit(result.stdout + result.stderr)
         # The peer deliberately sends less than the reader's 1024-byte buffer.
-        with socket.socket() as server, socket.socket(type=socket.SOCK_DGRAM) as udp:
+        with socket.socket() as server, socket.socket() as stalled_server, socket.socket(type=socket.SOCK_DGRAM) as udp:
             udp.bind(('127.0.0.1', 0))
             server.bind(('127.0.0.1', 0))
             server.listen(1)
+            stalled_server.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024)
+            stalled_server.bind(('127.0.0.1', 0))
+            stalled_server.listen(1)
+            stalled_done = threading.Event()
             errors = []
             def peer():
                 try:
@@ -108,16 +112,96 @@ def main():
                     udp.sendto(data, endpoint)
                 except Exception as exc:
                     errors.append(exc)
+            def stalled_peer():
+                try:
+                    stalled_server.settimeout(10)
+                    conn, _ = stalled_server.accept()
+                    with conn:
+                        # Deliberately never drain the TCP receive window.
+                        stalled_done.wait(40)
+                except Exception as exc:
+                    errors.append(exc)
+            stalled_worker = threading.Thread(target=stalled_peer, daemon=True)
+            stalled_worker.start()
             udp_worker = threading.Thread(target=udp_peer, daemon=True)
             udp_worker.start()
             worker = threading.Thread(target=peer, daemon=True)
             worker.start()
-            subprocess.run([str(output / 'Runtime'), directory, str(server.getsockname()[1]), str(udp.getsockname()[1])],
+            subprocess.run([str(output / 'Runtime'), directory, str(server.getsockname()[1]), str(udp.getsockname()[1]), str(ROOT / 'catalogs'), str(stalled_server.getsockname()[1])],
                            check=True, timeout=30)
+            stalled_done.set()
+            stalled_worker.join(timeout=10)
             worker.join(timeout=10)
             udp_worker.join(timeout=10)
-            if worker.is_alive() or udp_worker.is_alive() or errors:
+            if worker.is_alive() or udp_worker.is_alive() or stalled_worker.is_alive() or errors:
                 raise SystemExit('Network fixture failed: ' + repr(errors))
+
+        tls_runner = output / 'TLS.dpr'
+        shutil.copyfile(ROOT / 'tools/fpc-smoke/TLS.dpr', tls_runner)
+        result = subprocess.run([compiler, *flags, '-gl', str(tls_runner)], capture_output=True, text=True)
+        if result.returncode:
+            raise SystemExit(result.stdout + result.stderr)
+        import ssl
+        def openssl(*arguments):
+            subprocess.run(['openssl', *arguments], check=True, capture_output=True)
+        key = output / 'server.key'
+        csr = output / 'server.csr'
+        openssl('req', '-new', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(key),
+                '-out', str(csr), '-subj', '/CN=localhost', '-addext',
+                'subjectAltName=DNS:localhost,IP:127.0.0.1')
+        message, public_key, signature = (output / 'message.bin', output / 'public.pem', output / 'signature.bin')
+        message.write_bytes(b'ERD firmware signature regression')
+        openssl('pkey', '-in', str(key), '-pubout', '-out', str(public_key))
+        openssl('dgst', '-sha256', '-sign', str(key), '-out', str(signature), str(message))
+        crypto_runner = output / 'Crypto.dpr'
+        shutil.copyfile(ROOT / 'tools/fpc-smoke/Crypto.dpr', crypto_runner)
+        result = subprocess.run([compiler, *flags, '-gl', str(crypto_runner)], capture_output=True, text=True)
+        if result.returncode:
+            raise SystemExit(result.stdout + result.stderr)
+        subprocess.run([str(output / 'Crypto'), str(message), str(public_key), str(signature)], check=True, timeout=10)
+        good = output / 'good.pem'
+        expired = output / 'expired.pem'
+        for cert, days in [(good, '1')]:
+            openssl('x509', '-req', '-in', str(csr), '-signkey', str(key),
+                    '-out', str(cert), '-days', days, '-copy_extensions', 'copy')
+        (output / 'index').write_text('')
+        (output / 'serial').write_text('01\n')
+        config = output / 'ca.cnf'
+        config.write_text(f"[ca]\ndefault_ca=local\n[local]\ndatabase={output}/index\nnew_certs_dir={output}\nserial={output}/serial\nprivate_key={key}\ncertificate={good}\ndefault_md=sha256\npolicy=any\ncopy_extensions=copy\n[any]\ncommonName=supplied\n")
+        openssl('ca', '-batch', '-selfsign', '-config', str(config), '-in', str(csr),
+                '-startdate', '20200101000000Z', '-enddate', '20200102000000Z', '-out', str(expired), '-notext')
+        wrong = output / 'wrong.pem'
+        openssl('req', '-x509', '-new', '-key', str(key), '-out', str(wrong),
+                '-days', '1', '-subj', '/CN=wrong.example', '-addext', 'subjectAltName=DNS:wrong.example')
+        cases = [
+            ('allow-self-signed/IP-match', good, '127.0.0.1', 1, '-', 'accept'),
+            ('allow-self-signed/DNS-match', good, 'localhost', 1, '-', 'accept'),
+            ('allow-self-signed/mismatch', wrong, '127.0.0.1', 1, '-', 'reject'),
+            ('allow-self-signed/expired', expired, '127.0.0.1', 1, '-', 'reject'),
+            ('require/untrusted', good, '127.0.0.1', 0, '-', 'reject'),
+            ('require/trusted', good, '127.0.0.1', 0, str(good), 'accept'),
+            ('require/mismatch', wrong, '127.0.0.1', 0, str(wrong), 'reject'),
+        ]
+        for label, cert, host, mode, ca, expected in cases:
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(cert, key)
+            with socket.socket() as listener:
+                listener.bind(('127.0.0.1', 0)); listener.listen(1); listener.settimeout(5)
+                def tls_peer():
+                    try:
+                        conn, _ = listener.accept()
+                        with context.wrap_socket(conn, server_side=True) as secured:
+                            secured.settimeout(3); secured.recv(1)
+                    except (ssl.SSLError, OSError):
+                        pass  # Expected when the client's certificate policy rejects the peer.
+                peer_thread = threading.Thread(target=tls_peer, daemon=True)
+                peer_thread.start()
+                subprocess.run([str(output / 'TLS'), host, str(mode), str(listener.getsockname()[1]), ca, expected],
+                               check=True, timeout=10, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                peer_thread.join(timeout=5)
+                if peer_thread.is_alive():
+                    raise SystemExit('TLS peer failed to close: ' + label)
+                print('TLS regression passed: ' + label)
 
 
 if __name__ == '__main__':

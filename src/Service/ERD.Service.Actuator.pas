@@ -48,6 +48,7 @@ unit ERD.Service.Actuator;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -77,6 +78,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnBeforeSend: TOBDActuatorBeforeEvent;
@@ -135,11 +137,14 @@ constructor TOBDActuator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAutoExecute := False;
 end;
 
 destructor TOBDActuator.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -147,6 +152,7 @@ end;
 procedure TOBDActuator.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -157,11 +163,16 @@ procedure TOBDActuator.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDActuator.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -226,24 +237,29 @@ var
   Data: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; TID := ATID; Data := Copy(AData, 0, Length(AData));
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      ResData: TBytes;
-    begin
-      try
+  try
+    Self_ := Self; TID := ATID; Data := Copy(AData, 0, Length(AData));
+    FOwnedTask.Start(
+      procedure
+      var
+        ResData: TBytes;
+      begin
         try
-          ResData := Self_.DoSend(TID, Data);
-          Self_.FireResult(TID, ResData);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            ResData := Self_.DoSend(TID, Data);
+            Self_.FireResult(TID, ResData);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 function TOBDActuator.FireBeforeSend(ATID: Byte;
@@ -262,7 +278,7 @@ begin
   else
   begin
     Local := False;
-    TThread.Synchronize(nil, procedure
+    FOwnedTask.Synchronize( procedure
       var C: Boolean;
       begin
         C := False;
@@ -288,7 +304,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnResult(Self_, TID, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnResult) then Self_.FOnResult(Self_, TID, Snap);
     end);
 end;
@@ -307,7 +323,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

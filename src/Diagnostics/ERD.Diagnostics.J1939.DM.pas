@@ -48,6 +48,7 @@ unit ERD.Diagnostics.J1939.DM;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
@@ -123,6 +124,7 @@ type
   /// </remarks>
   TOBDJ1939DM = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FOnDTCs: TOBDJ1939DMEvent;
     FOnRaw: TOBDJ1939DMRawEvent;
     function DecodeLamps(const AData: TBytes;
@@ -138,6 +140,7 @@ type
     /// <summary>Constructs the component.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
 
     /// <summary>
     ///   Decodes one J1939 DTC record from <c>AData</c> at
@@ -174,6 +177,14 @@ implementation
 constructor TOBDJ1939DM.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
+end;
+
+destructor TOBDJ1939DM.Destroy;
+begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
+  inherited;
 end;
 
 function TOBDJ1939DM.IsStructuredDM(APGN: Cardinal): Boolean;
@@ -297,7 +308,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDTCs(Self_, PGN, Lamps, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnDTCs) then
@@ -319,7 +330,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRaw(Self_, PGN, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnRaw) then

@@ -34,6 +34,7 @@ unit ERD.Protocol;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
   {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
@@ -92,6 +93,7 @@ type
     FDefaultTimeoutMs: Cardinal;
 
     // async
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncThread: TThread;
 
@@ -277,6 +279,7 @@ begin
   FManual := pidAuto;
   FApplication := apOBD2;
   FDefaultTimeoutMs := 5000;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAsyncLock := TCriticalSection.Create;
   FListenerLock := TCriticalSection.Create;
   FListeners := TDictionary<Integer, TOBDProtocolListener>.Create;
@@ -285,6 +288,7 @@ end;
 
 destructor TOBDProtocol.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   WaitForAsync;
   // inherited Destroy fires opRemove notifications on every
   // component that registered FreeNotification — including
@@ -294,6 +298,7 @@ begin
   inherited;
   FListeners.Free;
   FListenerLock.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
 end;
 
@@ -302,7 +307,10 @@ procedure TOBDProtocol.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FAdapter) then
+  begin
+    Close;
     FAdapter := nil;
+  end;
 end;
 
 procedure TOBDProtocol.SetAdapter(AValue: TOBDAdapter);
@@ -481,7 +489,7 @@ begin
     DispatchResponseListeners(Snapshot);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnResponse) then
@@ -506,7 +514,7 @@ begin
     DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnNRC) then
@@ -534,7 +542,7 @@ begin
     DispatchErrorListeners(Code, Msg);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var Handled: Boolean;
       begin
@@ -557,7 +565,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self, Step)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnProgress) then
@@ -576,7 +584,7 @@ begin
     DispatchFrameListeners(Snapshot);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnFrame) then
@@ -741,7 +749,7 @@ begin
             Self_.FireOnError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           begin
             Self_.FAsyncLock.Enter;

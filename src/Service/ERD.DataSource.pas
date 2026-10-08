@@ -36,6 +36,7 @@ unit ERD.DataSource;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
@@ -128,6 +129,7 @@ type
   /// </remarks>
   TOBDDataSource = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FSource: TComponent;
     FKind: TOBDDataSourceKind;
     FActive: Boolean;
@@ -209,12 +211,15 @@ implementation
 constructor TOBDDataSource.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
   FActive := True;
 end;
 
 destructor TOBDDataSource.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   Unwire;
+  FreeAndNil(FOwnedTask);
   inherited;
 end;
 
@@ -387,7 +392,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDataChange(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnDataChange) then
@@ -407,7 +412,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStateChange(Self_, ActiveNow)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnStateChange) then

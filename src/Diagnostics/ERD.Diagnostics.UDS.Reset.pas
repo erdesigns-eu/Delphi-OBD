@@ -41,6 +41,7 @@ unit ERD.Diagnostics.UDS.Reset;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -92,6 +93,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnReset: TOBDUDSResetEvent;
@@ -161,10 +163,13 @@ constructor TOBDUDSReset.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDUDSReset.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -185,11 +190,16 @@ procedure TOBDUDSReset.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSReset.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -258,25 +268,30 @@ var
   Kind: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  Kind := AResetType;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      PDT: Byte;
-    begin
-      try
+  try
+    Self_ := Self;
+    Kind := AResetType;
+    FOwnedTask.Start(
+      procedure
+      var
+        PDT: Byte;
+      begin
         try
-          PDT := Self_.DoReset(Kind);
-          Self_.FireReset(Kind, PDT);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            PDT := Self_.DoReset(Kind);
+            Self_.FireReset(Kind, PDT);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSReset.FireReset(AResetType: Byte; APowerDownTime: Byte);
@@ -293,7 +308,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnReset(Self_, Kind, PDT)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnReset) then
@@ -320,7 +335,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

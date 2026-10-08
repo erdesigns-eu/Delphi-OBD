@@ -58,6 +58,7 @@ unit ERD.Diagnostics.J1939;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
@@ -109,6 +110,7 @@ type
   /// </remarks>
   TOBDJ1939 = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FSourceAddress: Byte;
     FName: array[0..7] of Byte;
     FSessions: TOBDJ1939SessionManager;
@@ -220,6 +222,7 @@ var
   I: Integer;
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
   FSessions := TOBDJ1939SessionManager.Create;
   FSourceAddress := J1939_NULL_ADDRESS;
   for I := 0 to 7 do
@@ -228,7 +231,9 @@ end;
 
 destructor TOBDJ1939.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   FSessions.Free;
+  FreeAndNil(FOwnedTask);
   inherited;
 end;
 
@@ -330,7 +335,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnFrame(Self_, Prio, PGN, SA, DA, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnFrame) then

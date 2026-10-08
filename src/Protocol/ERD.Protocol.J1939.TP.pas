@@ -533,7 +533,7 @@ type
 implementation
 
 uses
-  Math;
+  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 const
   PADDING_BYTE = $FF;

@@ -38,6 +38,7 @@ unit ERD.Coding.DataIdentifierIO;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -67,6 +68,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnRead: TOBDDIDReadEvent;
@@ -96,7 +98,7 @@ type
     /// <summary>
     ///   Strict-mode read: the caller declares the data length per
     ///   DID, so the response is split deterministically by length
-    ///   instead of heuristically by next-DID-echo. Use this when
+    ///   instead of using separate unknown-length requests. Use this when
     ///   one of your DIDs could legitimately produce payload bytes
     ///   that collide with another requested DID's byte pair.
     /// </summary>
@@ -139,11 +141,14 @@ constructor TOBDDataIdentifierIO.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAutoExecute := False;
 end;
 
 destructor TOBDDataIdentifierIO.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -151,6 +156,7 @@ end;
 procedure TOBDDataIdentifierIO.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -161,11 +167,16 @@ procedure TOBDDataIdentifierIO.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDDataIdentifierIO.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -183,78 +194,27 @@ end;
 
 function TOBDDataIdentifierIO.DoRead(
   const ADIDs: array of Word): TArray<TOBDDIDValue>;
-var
-  Body: TBytes;
-  Resp: TOBDResponse;
-  I, J, Off, Total, NextDIDStart: Integer;
-  Acc: TList<TOBDDIDValue>;
-  Cur: TOBDDIDValue;
-  CurDID: Word;
+var Body: TBytes; Resp: TOBDResponse; I: Integer; Single: TArray<TOBDDIDValue>;
 begin
-  if FProtocol = nil then
-    raise EOBDConfig.Create('TOBDDataIdentifierIO: Protocol not assigned');
-  if Length(ADIDs) = 0 then
-    raise EOBDConfig.Create('TOBDDataIdentifierIO.Read: no DIDs requested');
-
-  SetLength(Body, 2 * Length(ADIDs));
-  for I := 0 to High(ADIDs) do
+  if FProtocol = nil then raise EOBDConfig.Create('Protocol not assigned');
+  if Length(ADIDs) = 0 then raise EOBDConfig.Create('Read: no DIDs');
+  SetLength(Result, Length(ADIDs));
+  if Length(ADIDs) > 1 then
   begin
-    Body[I * 2]     := Hi(ADIDs[I]);
-    Body[I * 2 + 1] := Lo(ADIDs[I]);
-  end;
-  Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Body);
-  if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDataByIdentifier negative: %s', [Resp.NRCText]);
-
-  // Response: <DID HI LO> <data...> repeated. To split, we walk
-  // forward and assume each DID block ends at the next DID byte
-  // pair. In multi-DID requests, the boundary is ambiguous unless
-  // the host knows the lengths per DID; we follow the common
-  // convention used by every OEM tester I've inspected: split on
-  // the requested DIDs in the order they were sent and consume
-  // whatever bytes follow until the next requested DID is seen.
-  Total := Length(Resp.Data);
-  Acc := TList<TOBDDIDValue>.Create;
-  try
-    Off := 0;
+    // Without wire lengths only separate requests can distinguish payload
+    // bytes from DID echoes. ReadStrict provides an efficient known-length batch.
     for I := 0 to High(ADIDs) do
-    begin
-      if Off + 2 > Total then
-        raise EOBDProtocolErr.Create(
-          'ReadDataByIdentifier: response truncated');
-      CurDID := (Word(Resp.Data[Off]) shl 8) or Word(Resp.Data[Off + 1]);
-      if CurDID <> ADIDs[I] then
-        raise EOBDProtocolErr.CreateFmt(
-          'ReadDataByIdentifier: expected DID 0x%4.4X at offset %d, got 0x%4.4X',
-          [ADIDs[I], Off, CurDID]);
-      Inc(Off, 2);
-      if I < High(ADIDs) then
-      begin
-        // Find the next requested DID boundary forward in the buffer.
-        NextDIDStart := Total;
-        for J := Off to Total - 2 do
-          if (Resp.Data[J] = Hi(ADIDs[I + 1])) and
-             (Resp.Data[J + 1] = Lo(ADIDs[I + 1])) then
-          begin
-            NextDIDStart := J;
-            Break;
-          end;
-      end
-      else
-        NextDIDStart := Total;
-      Cur := Default(TOBDDIDValue);
-      Cur.DID := CurDID;
-      SetLength(Cur.Data, NextDIDStart - Off);
-      if Length(Cur.Data) > 0 then
-        Move(Resp.Data[Off], Cur.Data[0], Length(Cur.Data));
-      Acc.Add(Cur);
-      Off := NextDIDStart;
-    end;
-    Result := Acc.ToArray;
-  finally
-    Acc.Free;
+    begin Single := DoRead([ADIDs[I]]); Result[I] := Single[0] end;
+    Exit;
   end;
+  Body := TBytes.Create(Hi(ADIDs[0]), Lo(ADIDs[0]));
+  Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Body);
+  if Resp.IsNegative then raise EOBDProtocolErr.Create('ReadDataByIdentifier: ' + Resp.NRCText);
+  if Resp.ServiceID <> $62 then raise EOBDProtocolErr.Create('ReadDataByIdentifier: unexpected response SID');
+  if (Length(Resp.Data) < 2) or (Resp.Data[0] <> Body[0]) or (Resp.Data[1] <> Body[1]) then
+    raise EOBDProtocolErr.Create('ReadDataByIdentifier: truncated or mismatched DID echo');
+  Result[0].DID := ADIDs[0];
+  Result[0].Data := Copy(Resp.Data, 2, Length(Resp.Data) - 2);
 end;
 
 function TOBDDataIdentifierIO.Read(
@@ -282,6 +242,8 @@ begin
     raise EOBDConfig.Create(
       'ReadStrict: ADIDs and ALengths must have the same length');
 
+  for I := 0 to High(ALengths) do
+    if ALengths[I] < 0 then raise EOBDConfig.Create('ReadStrict: lengths must not be negative');
   SetLength(Body, 2 * Length(ADIDs));
   for I := 0 to High(ADIDs) do
   begin
@@ -293,13 +255,14 @@ begin
     raise EOBDProtocolErr.CreateFmt(
       'ReadStrict negative: %s', [Resp.NRCText]);
 
+  if Resp.ServiceID <> $62 then raise EOBDProtocolErr.Create('ReadStrict: unexpected response SID');
   Total := Length(Resp.Data);
   Acc := TList<TOBDDIDValue>.Create;
   try
     Off := 0;
     for I := 0 to High(ADIDs) do
     begin
-      if Off + 2 + ALengths[I] > Total then
+      if (Total - Off < 2) or (ALengths[I] > Total - Off - 2) then
         raise EOBDProtocolErr.CreateFmt(
           'ReadStrict: response truncated at DID 0x%4.4X (need %d B + 2 B echo, have %d)',
           [ADIDs[I], ALengths[I], Total - Off]);
@@ -317,6 +280,7 @@ begin
       Inc(Off, ALengths[I]);
       Acc.Add(Cur);
     end;
+    if Off <> Total then raise EOBDProtocolErr.Create('ReadStrict: unexpected trailing response bytes');
     Result := Acc.ToArray;
   finally
     Acc.Free;
@@ -342,26 +306,31 @@ var
   I: Integer;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  SetLength(DIDsCopy, Length(ADIDs));
-  for I := 0 to High(ADIDs) do DIDsCopy[I] := ADIDs[I];
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Acc: TArray<TOBDDIDValue>;
-    begin
-      try
+  try
+    Self_ := Self;
+    SetLength(DIDsCopy, Length(ADIDs));
+    for I := 0 to High(ADIDs) do DIDsCopy[I] := ADIDs[I];
+    FOwnedTask.Start(
+      procedure
+      var
+        Acc: TArray<TOBDDIDValue>;
+      begin
         try
-          Acc := Self_.DoRead(DIDsCopy);
-          Self_.FireRead(Acc);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Acc := Self_.DoRead(DIDsCopy);
+            Self_.FireRead(Acc);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDDataIdentifierIO.DoWrite(ADID: Word; const AData: TBytes);
@@ -399,22 +368,27 @@ var
   Data: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; DID := ADID; Data := Copy(AData, 0, Length(AData));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; DID := ADID; Data := Copy(AData, 0, Length(AData));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoWrite(DID, Data);
-          Self_.FireWrite(DID);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoWrite(DID, Data);
+            Self_.FireWrite(DID);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDDataIdentifierIO.FireRead(
@@ -428,7 +402,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRead(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnRead) then Self_.FOnRead(Self_, Snap);
     end);
 end;
@@ -443,7 +417,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnWrite(Self_, DID)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_, DID);
     end);
 end;
@@ -462,7 +436,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

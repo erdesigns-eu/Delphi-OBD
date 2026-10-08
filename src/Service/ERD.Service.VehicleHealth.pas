@@ -40,6 +40,7 @@ unit ERD.Service.VehicleHealth;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -163,6 +164,7 @@ type
     FOnBoardMonitor: TOBDOnBoardMonitor;
     FFreezeFrame:    TOBDFreezeFrame;
     FLivePIDs:       TBytes;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock:      TCriticalSection;
     FAsyncInFlight:  Boolean;
     FOnReady:        TOBDVehicleHealthEvent;
@@ -233,11 +235,14 @@ constructor TOBDVehicleHealth.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FLivePIDs  := TBytes.Create($0C, $0D, $05, $42);
 end;
 
 destructor TOBDVehicleHealth.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -245,6 +250,7 @@ end;
 procedure TOBDVehicleHealth.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -305,6 +311,8 @@ end;
 
 procedure TOBDVehicleHealth.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -335,7 +343,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnReady(Self_, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnReady) then Self_.FOnReady(Self_, Snap);
@@ -503,7 +511,7 @@ procedure TOBDVehicleHealth.ReportError(ACode: TOBDErrorCode; const AMessage: st
 var MessageCopy: string;
 begin
   MessageCopy := AMessage;
-  TThread.Synchronize(nil,
+  FOwnedTask.Post(
     procedure
     var Handled: Boolean;
     begin
@@ -517,28 +525,33 @@ var
   Self_: TOBDVehicleHealth;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Report: TOBDVehicleHealthReport;
-      ErrorText: string;
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      var
+        Report: TOBDVehicleHealthReport;
+        ErrorText: string;
+      begin
         try
-          Report := Self_.Snapshot;
-          Self_.FireReady(Report);
-        except
-          on E: Exception do
-          begin
-            ErrorText := E.Message;
-            Self_.ReportError(oeIO, ErrorText);
+          try
+            Report := Self_.Snapshot;
+            Self_.FireReady(Report);
+          except
+            on E: Exception do
+            begin
+              ErrorText := E.Message;
+              Self_.ReportError(oeIO, ErrorText);
+            end;
           end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 end.

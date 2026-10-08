@@ -1,0 +1,42 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{D88313E4-4735-5CDC-A1E7-44F38831253D}</ProjectGuid>
+    <ProjectVersion>19.3</ProjectVersion>
+    <MainSource>DelphiOBD_DT.dpk</MainSource>
+    <AppType>Package</AppType>
+    <Config Condition="'$(Config)'==''">Release</Config>
+    <Platform Condition="'$(Platform)'==''">Win32</Platform>
+    <DCC_Namespace>System;Winapi;Vcl;Data;Xml;$(DCC_Namespace)</DCC_Namespace>
+    <DCC_UnitSearchPath>..\src;..\src\Adapter;..\src\Calibration;..\src\Coding;..\src\Collections;..\src\Compat;..\src\Connection;..\src\Core;..\src\DesignTime;..\src\Diagnostics;..\src\Flashing;..\src\OEM;..\src\Protocol;..\src\RadioCode;..\src\Recorder;..\src\Service;..\src\Speciality;..\src\UI;..\src\Utilities;..\build\$(Platform);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    <DCC_DcuOutput>..\build\$(Platform)\dcu</DCC_DcuOutput>
+    <DCC_DcpOutput>..\build\$(Platform)</DCC_DcpOutput>
+    <DCC_BplOutput>..\build\$(Platform)</DCC_BplOutput>
+    <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
+    <DCC_Define>$(DCC_Define)</DCC_Define>
+    <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
+  </PropertyGroup>
+  <ItemGroup>
+    <DelphiCompile Include="$(MainSource)"><MainSource>MainSource</MainSource></DelphiCompile>
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Registration.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Editors.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Help.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.FlashSafety.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.InitCommands.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.PipelineValidate.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.LiveTest.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Templates.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.ServiceMode.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Coding.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Flashing.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.Advanced.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.StarterPicker.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.Starters.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.NewForms.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.NewCategories.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.DataModules.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Starters.RadioPolished.pas" />
+    <DCCReference Include="..\src\DesignTime\ERD.Design.Wizards.PerCategory.pas" />
+  </ItemGroup>
+  <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" />
+</Project>

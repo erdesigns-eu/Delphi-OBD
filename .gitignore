@@ -2,12 +2,14 @@
 #  .gitignore — Delphi-OBD
 #
 #  RAD Studio per-developer / per-version artefacts and build outputs are
-#  not committed. The .dpk / .dpr source files ARE committed; the .dproj
-#  XML files are NOT (RAD Studio regenerates them on first open).
+#  not committed. Source and the three reproducible CI projects are tracked.
 #-------------------------------------------------------------------------------
 
 # RAD Studio project files (regenerated per developer / per version)
 *.dproj
+!packages/DelphiOBD_RT.dproj
+!packages/DelphiOBD_DT.dproj
+!tests/DelphiOBD_Tests.dproj
 *.groupproj
 *.identcache
 *.local

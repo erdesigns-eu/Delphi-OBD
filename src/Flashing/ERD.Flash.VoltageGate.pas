@@ -43,6 +43,7 @@ unit ERD.Flash.VoltageGate;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
@@ -79,12 +80,17 @@ type
     FLock: TCriticalSection;
     FStopRequested: Boolean;
     FThread: TThread;
+    FOwnedTask: TOBDOwnedTask;
+    FWake: TEvent;
+    FOnAbortExecutingThread: TOBDVoltageAbortEvent;
     procedure FireReading(AVoltage: Double);
     procedure FireLow(AVoltage: Double);
     procedure FireAbort(AVoltage: Double; const AReason: string);
     function ReadVoltage: Double;
     procedure RunLoop;
   public
+    /// <summary>Synchronous safety hook on the polling thread, before queued UI notification. Handler must be thread-safe and must not free the gate.</summary>
+    property OnAbortExecutingThread: TOBDVoltageAbortEvent read FOnAbortExecutingThread write FOnAbortExecutingThread;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
@@ -139,6 +145,8 @@ uses
 constructor TOBDVoltageGate.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
+  FWake := TEvent.Create(nil, True, False, '');
   FLock := TCriticalSection.Create;
   FMinimumVoltage := 12.0;
   FPollIntervalMs := 200;
@@ -148,6 +156,8 @@ end;
 destructor TOBDVoltageGate.Destroy;
 begin
   Stop;
+  FreeAndNil(FOwnedTask);
+  FWake.Free;
   FLock.Free;
   inherited;
 end;
@@ -215,7 +225,7 @@ begin
         Break;
       end;
     end;
-    Sleep(FPollIntervalMs);
+    if FWake.WaitFor(FPollIntervalMs) = wrSignaled then Break;
   end;
   FRunning := False;
 end;
@@ -225,6 +235,9 @@ var
   Self_: TOBDVoltageGate;
 begin
   if FRunning then Exit;
+  Stop;
+  FOwnedTask.Quiesce;
+  FWake.ResetEvent;
   FRunning := True;
   FStopRequested := False;
   FInLow := False;
@@ -239,8 +252,9 @@ procedure TOBDVoltageGate.Stop;
 var
   T: TThread;
 begin
-  if not FRunning then Exit;
   FStopRequested := True;
+  if FWake <> nil then FWake.SetEvent;
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   T := FThread;
   FThread := nil;
   if T <> nil then
@@ -288,7 +302,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnVoltageLow(Self_, V, Reason)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnVoltageLow) then
         Self_.FOnVoltageLow(Self_, V, Reason);
     end);
@@ -299,12 +313,13 @@ procedure TOBDVoltageGate.FireAbort(AVoltage: Double;
 var
   Self_: TOBDVoltageGate; V: Double; R: string;
 begin
+  if Assigned(FOnAbortExecutingThread) then FOnAbortExecutingThread(Self, AVoltage, AReason);
   if not Assigned(FOnAbort) then Exit;
   Self_ := Self; V := AVoltage; R := AReason;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnAbort(Self_, V, R)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnAbort) then Self_.FOnAbort(Self_, V, R);
     end);
 end;

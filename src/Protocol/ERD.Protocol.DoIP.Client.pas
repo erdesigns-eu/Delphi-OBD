@@ -45,6 +45,7 @@ unit ERD.Protocol.DoIP.Client;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -110,6 +111,7 @@ type
   /// </remarks>
   TOBDDoIPClient = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FTransport: IOBDDoIPTransport;
     FStatus: TOBDDoIPClientStatus;
     FSourceAddress: Word;
@@ -362,6 +364,7 @@ implementation
 constructor TOBDDoIPClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
   FStatus := csDisconnected;
   FSourceAddress := $0E80;
   FTargetAddress := $1000;
@@ -385,6 +388,7 @@ end;
 
 destructor TOBDDoIPClient.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   Disconnect;
   WaitForAsync;
   FPendingDiag.Free;
@@ -397,6 +401,7 @@ begin
   FAsyncLock.Free;
   FOpLock.Free;
   FRxLock.Free;
+  FreeAndNil(FOwnedTask);
   inherited;
 end;
 
@@ -763,7 +768,7 @@ begin
             Self_.FireError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var Worker: TThread;
           begin
@@ -903,7 +908,7 @@ begin
             Self_.FireError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var Worker: TThread;
           begin
@@ -963,7 +968,7 @@ begin
         try Self_.AliveCheck(Eff);
         except on E: Exception do Self_.FireError(oeIO, E.Message); end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var W: TThread;
           begin
@@ -1012,7 +1017,7 @@ begin
         try Self_.RequestEntityStatus(Eff);
         except on E: Exception do Self_.FireError(oeIO, E.Message); end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var W: TThread;
           begin
@@ -1061,7 +1066,7 @@ begin
         try Self_.RequestPowerMode(Eff);
         except on E: Exception do Self_.FireError(oeIO, E.Message); end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var W: TThread;
           begin
@@ -1110,7 +1115,7 @@ begin
         try Self_.RequestVehicleID(Eff);
         except on E: Exception do Self_.FireError(oeIO, E.Message); end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var W: TThread;
           begin
@@ -1140,7 +1145,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStatus(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnStatus) then Self_.FOnStatus(Self_);
     end);
 end;
@@ -1156,7 +1161,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRoutingActivated(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnRoutingActivated) then
         Self_.FOnRoutingActivated(Self_, Snap);
     end);
@@ -1171,7 +1176,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnVehicleAnnouncement(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnVehicleAnnouncement) then
         Self_.FOnVehicleAnnouncement(Self_, Snap);
     end);
@@ -1186,7 +1191,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticMessage(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnDiagnosticMessage) then
         Self_.FOnDiagnosticMessage(Self_, Snap);
     end);
@@ -1200,7 +1205,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticPosAck(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnDiagnosticPosAck) then
         Self_.FOnDiagnosticPosAck(Self_, Snap);
     end);
@@ -1214,7 +1219,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticNegAck(Self_, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnDiagnosticNegAck) then
         Self_.FOnDiagnosticNegAck(Self_, Snap);
     end);
@@ -1231,7 +1236,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnGenericNAck(Self_, R, Txt)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnGenericNAck) then
         Self_.FOnGenericNAck(Self_, R, Txt);
     end);
@@ -1253,7 +1258,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
@@ -1274,7 +1279,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
     end);
 end;

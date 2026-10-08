@@ -10,7 +10,7 @@ remain `DelphiOBD_RT` and `DelphiOBD_DT`.
 |---|---|---|
 | Delphi | Nonvisual library, VCL/FMX UI and IDE integration | Static analysis; actual RAD Studio builds and DUnitX execution remain deferred |
 | FPC 3.2.2 | Portable binary codecs, routes, frame parsers and EV request construction | Eleven original units; 185 executable checks |
-| FPC 3.3.1+ on Linux x86-64 | Nonvisual library, managed futures, catalogs, coding/flashing services, TCP/UDP/mock transports, recorder/replayer and native crypto integrations | 272 Linux nonvisual source units compile; 38 executable runtime checks |
+| FPC 3.3.1+ on Linux x86-64 | Nonvisual library, managed futures, catalogs, coding/flashing services, TCP/UDP/mock transports, recorder/replayer and native crypto integrations | 273 Linux nonvisual source units compile; 191 runtime checks, 6 native signature checks and 7 TLS handshakes |
 
 FPC 3.3.1 is a development compiler. The full runtime needs managed anonymous
 functions and the official `vcl-compat` package's **nonvisual** `System.JSON`,
@@ -32,7 +32,7 @@ callbacks in a console host.
 
 ## Reproduce
 
-Install FPC 3.2.2, make, binutils, GCC and OpenSSL 3 runtime libraries, then:
+Install FPC 3.2.2, make, binutils, GCC and OpenSSL 3 runtime libraries and the `openssl` CLI, then:
 
 ```sh
 python3 tools/fpc_smoke.py
@@ -54,8 +54,21 @@ transport delivers short responses without waiting for a full receive buffer.
 A local UDP peer checks binary datagrams through the actual UDP transport.
 Other regressions cover JSON Unicode/types/defaults, cross-thread futures and
 cancellation, queue capacity/timeouts/shutdown, gzip recording and binary replay,
-a SHA-256 known vector and OpenSSL loading/default verification policy.
-These tests do not establish hardware interoperability or TLS handshakes.
+a SHA-256 known vector, checkpoint replacement/failure, DID wire parsing,
+partial and blocked stream writes, full-cursor flash recovery, block-counter wrap,
+EV catalog/decoder vectors, and real TLS certificate verification. A generated
+RSA signature is verified by the native OpenSSL signature driver and tampered
+messages are rejected. See [the high-priority report](high-priority-fixes-2026-10-08.md)
+for the tested cases and explicit hardware/Delphi limitations.
+
+Async request start and joining an owned request worker require the main thread.
+Configure components before starting work; borrowed-protocol changes quiesce the
+request worker first. Queued events use a separate lifetime token. Host-defined
+I/O, voltage sources and consent handlers must return within a bounded time.
+Full flashing recovery requires explicit session/vendor/module/ECU metadata and
+a host callback that checks the actual ECU transfer state. Unverified seed-key
+providers require an explicit lab opt-in; HSM verification requires a real host
+driver. These tests do not establish hardware interoperability.
 
 ## Runtime repairs
 

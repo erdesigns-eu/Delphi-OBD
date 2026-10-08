@@ -1,5 +1,9 @@
 # Onderzoek naar gaten in claude/v2-phase-1
 
+> Dit rapport beschrijft de oorspronkelijke audit. Zie het
+> [vervolgrapport met de high-priority fixes](high-priority-fixes-2026-10-08.md)
+> voor de huidige implementatie en validatie.
+
 **Datum:** 8 oktober 2026. **Onderzochte commit:** `d8e844af24aed98ab754458caccc9bc129cbf740`.
 **Scope:** implementaties, async-lifecycle, transports, coding/flashing, cryptografie,
 gegevenscatalogi, UI/assets, tooling en validatie. Productiecode is tijdens dit

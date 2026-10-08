@@ -92,7 +92,7 @@ jobs:
       - name: Install bootstrap compiler and build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fp-compiler make binutils gcc libssl-dev
+          sudo apt-get install -y --no-install-recommends fp-compiler make binutils gcc libssl-dev openssl
       - name: Build pinned official FPC 3.3.1 and runtime packages
         run: bash tools/setup_fpc_runtime.sh /tmp/erd-fpc-source
       - name: Compile all Linux nonvisual units and run runtime regressions
@@ -112,6 +112,12 @@ jobs:
         delphi: ['12', '11', '10.4', '10.3']
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check Delphi prerequisites
+        shell: pwsh
+        run: |
+          if (-not $env:BDS -or -not (Test-Path "$env:BDS\Bin\CodeGear.Delphi.Targets")) { throw 'RAD Studio BDS environment is missing' }
+          if (-not $env:DUNITX_SOURCE -or -not (Test-Path "$env:DUNITX_SOURCE\DUnitX.TestFramework.pas")) { throw 'Set DUNITX_SOURCE to the DUnitX Source directory' }
 
       - name: Build runtime package
         shell: cmd

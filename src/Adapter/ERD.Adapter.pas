@@ -40,6 +40,7 @@ unit ERD.Adapter;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.CAN.Route,
   {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -101,6 +102,7 @@ type
     FCurrentCommand: string;
 
     // Async worker
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncThread: TThread;
 
@@ -362,20 +364,24 @@ begin
   FRxLock := TCriticalSection.Create;
   FRxComplete := TEvent.Create(nil, True, False, '');
   FCancelEvent := TEvent.Create(nil, True, False, '');
+  FOwnedTask := TOBDOwnedTask.Create;
   FAsyncLock := TCriticalSection.Create;
 end;
 
 destructor TOBDAdapter.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   // Signal cancel so any in-flight sync caller wakes and exits with
   // EOBDAdapter rather than blocking the destructor on its WaitFor.
   if Assigned(FCancelEvent) then
     FCancelEvent.SetEvent;
+  RemoveFreeNotifications;
   WaitForAsync;
   FExchangeLock.Enter;
   FExchangeLock.Leave;
   UnsubscribeIfNeeded;
   FExchangeLock.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   FCancelEvent.Free;
   FRxComplete.Free;
@@ -396,12 +402,16 @@ procedure TOBDAdapter.Notification(AComponent: TComponent; Operation: TOperation
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FConnection) then
+  begin
+    Close;
     FConnection := nil;
+  end;
 end;
 
 procedure TOBDAdapter.SetConnection(AValue: TOBDConnection);
 begin
   if FConnection = AValue then Exit;
+  Close;
   UnsubscribeIfNeeded;
   if FConnection <> nil then
     FConnection.RemoveFreeNotification(Self);
@@ -608,7 +618,7 @@ begin
   end;
 
   Sw := TStopwatch.StartNew;
-  FConnection.WriteString(ACommand + #13);
+  FConnection.WriteAll(TEncoding.ASCII.GetBytes(ACommand + #13), Effective);
 
   // Poll-loop on FRxComplete + FCancelEvent so an external Close (or
   // destructor) can abort within ~50 ms instead of waiting out the
@@ -666,7 +676,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self, Step)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnProgress) then
@@ -680,7 +690,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnReady(Self)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnReady) then
@@ -698,7 +708,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnIdentityChanged(Self, Snapshot)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnIdentityChanged) then
@@ -715,7 +725,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnATResponse(Self, Snapshot)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnATResponse) then
@@ -739,7 +749,7 @@ begin
     FOnError(Self, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var Handled: Boolean;
       begin
@@ -839,7 +849,7 @@ begin
             Self_.FireOnError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           begin
             Self_.FAsyncLock.Enter;
@@ -899,7 +909,7 @@ begin
             Self_.FireOnError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           begin
             Self_.FAsyncLock.Enter;
@@ -963,7 +973,7 @@ begin
             Self_.FireOnError(oeIO, E.Message);
         end;
       finally
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           begin
             Self_.FAsyncLock.Enter;

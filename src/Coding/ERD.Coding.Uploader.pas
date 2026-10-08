@@ -49,6 +49,7 @@ unit ERD.Coding.Uploader;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -79,6 +80,7 @@ type
     FPendingDelayMs: Cardinal;
     FMaxChunkRetries: Integer;
     FChunkRetryDelayMs: Cardinal;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnBeforeUpload: TOBDUploaderBeforeEvent;
@@ -143,6 +145,7 @@ constructor TOBDUploader.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAddressFormatBytes := 4;
   FLengthFormatBytes := 4;
   FMaxPendingRetries := 10;
@@ -153,6 +156,8 @@ end;
 
 destructor TOBDUploader.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -160,6 +165,7 @@ end;
 procedure TOBDUploader.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -170,11 +176,16 @@ procedure TOBDUploader.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUploader.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -209,6 +220,7 @@ begin
   PendingTries := 0;
   while True do
   begin
+    FOwnedTask.CheckCancelled;
     Result := FProtocol.Request(ASid, ABody);
     if not Result.IsNegative then Exit;
     if Result.NRC <> UDS_NRC_ResponsePending then Exit;
@@ -217,7 +229,7 @@ begin
       raise EOBDProtocolErr.CreateFmt(
         '%s: NRC 0x78 exceeded %d pending retries',
         [AContext, FMaxPendingRetries]);
-    Sleep(FPendingDelayMs);
+    FOwnedTask.Delay(FPendingDelayMs);
   end;
 end;
 
@@ -283,12 +295,14 @@ begin
   ChunkIdx := 0;
   while Off < Integer(ASize) do
   begin
+    FOwnedTask.CheckCancelled;
     SetLength(Body, 1);
     Body[0] := Bsc;
 
     ChunkAttempt := 0;
     while True do
     begin
+    FOwnedTask.CheckCancelled;
       Resp := RequestWithPending(UDS_SID_TransferData, Body,
         Format('TransferData(upload) BSC %d', [Bsc]));
       if not Resp.IsNegative then Break;
@@ -297,7 +311,7 @@ begin
         raise EOBDProtocolErr.CreateFmt(
           'TransferData(upload) BSC %d failed after %d retries: %s',
           [Bsc, FMaxChunkRetries, Resp.NRCText]);
-      Sleep(FChunkRetryDelayMs);
+      FOwnedTask.Delay(FChunkRetryDelayMs);
     end;
     // Response: <BSC echo> <data...>
     if (Length(Resp.Data) < 1) or (Resp.Data[0] <> Bsc) then
@@ -312,8 +326,7 @@ begin
     Inc(ChunkIdx);
     FireProgress(ChunkIdx, ChunkCount, 'TransferData(upload)',
       Format('BSC=%d offset=0x%x', [Bsc, Off]));
-    Inc(Bsc);
-    if Bsc = 0 then Bsc := 1;
+    Bsc := Byte((Integer(Bsc) + 1) and $FF);
   end;
 end;
 
@@ -362,24 +375,29 @@ var
   Sz: UInt32;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress; Sz := ASize;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Img: TBytes;
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress; Sz := ASize;
+    FOwnedTask.Start(
+      procedure
+      var
+        Img: TBytes;
+      begin
         try
-          Img := Self_.DoUpload(Addr, Sz);
-          // Img already delivered via FireComplete inside DoUpload.
-          if Length(Img) = 0 then ; // suppress hint
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Img := Self_.DoUpload(Addr, Sz);
+            // Img already delivered via FireComplete inside DoUpload.
+            if Length(Img) = 0 then ; // suppress hint
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 function TOBDUploader.FireBeforeUpload(AAddress: UInt64;
@@ -398,7 +416,7 @@ begin
   else
   begin
     Local := False;
-    TThread.Synchronize(nil, procedure
+    FOwnedTask.Synchronize( procedure
       var C: Boolean;
       begin
         C := False;
@@ -424,7 +442,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnUploadComplete(Self_, Addr, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnUploadComplete) then
         Self_.FOnUploadComplete(Self_, Addr, Snap);
     end);
@@ -444,7 +462,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
@@ -465,7 +483,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
     end);
 end;

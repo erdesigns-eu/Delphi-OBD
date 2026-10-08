@@ -87,8 +87,8 @@ type
     function Source: string;
     /// <summary>
     ///   True only when matched against an OEM spec or
-    ///   reproducible capture fixture. Production callers filter
-    ///   unverified algorithms out of flashing paths.
+    ///   reproducible capture fixture. ComputeKey excludes unverified
+    ///   providers unless AllowUnverified is explicitly enabled.
     /// </summary>
     function Verified: Boolean;
   end;
@@ -102,12 +102,17 @@ type
   TOBDSeedKeyRegistry = class
   strict private
     FLock: TCriticalSection;
+    FAllowUnverified: Boolean;
     FByLevel: TObjectDictionary<Byte, TList<IOBDSeedKeyAlgorithm>>;
+    function GetAllowUnverified: Boolean;
+    procedure SetAllowUnverified(AValue: Boolean);
     function ListFor(const Level: Byte; CreateIfMissing: Boolean):
       TList<IOBDSeedKeyAlgorithm>;
   public
     constructor Create;
     destructor Destroy; override;
+    /// <summary>Explicit lab-only opt-in. Default False: ComputeKey selects only verified providers.</summary>
+    property AllowUnverified: Boolean read GetAllowUnverified write SetAllowUnverified;
 
     /// <summary>
     ///   Register <c>Algo</c> for <c>Level</c>. Newer registrations
@@ -129,8 +134,8 @@ type
     procedure UnregisterAlgorithm(const Level: Byte); overload;
 
     /// <summary>
-    ///   Convenience: looks up the primary algorithm for
-    ///   <c>Level</c> and computes the key for <c>Seed</c>.
+    ///   Selects the newest eligible algorithm for <c>Level</c> and computes
+    ///   the key. Default policy requires Verified; lab callers can opt in.
     /// </summary>
     /// <exception cref="EOBDSeedKey">No algorithm is registered
     /// for <c>Level</c>.</exception>
@@ -542,15 +547,34 @@ end;
 //------------------------------------------------------------------------------
 // COMPUTE KEY
 //------------------------------------------------------------------------------
+function TOBDSeedKeyRegistry.GetAllowUnverified: Boolean;
+begin
+  FLock.Enter;
+  try Result := FAllowUnverified finally FLock.Leave end;
+end;
+
+procedure TOBDSeedKeyRegistry.SetAllowUnverified(AValue: Boolean);
+begin
+  FLock.Enter;
+  try FAllowUnverified := AValue finally FLock.Leave end;
+end;
+
 function TOBDSeedKeyRegistry.ComputeKey(const Level: Byte;
   const Seed: TBytes): TBytes;
 var
-  Algo: IOBDSeedKeyAlgorithm;
+  Algo, Candidate: IOBDSeedKeyAlgorithm;
+  Candidates: TArray<IOBDSeedKeyAlgorithm>;
+  AllowLab: Boolean;
 begin
-  Algo := Find(Level);
+  AllowLab := GetAllowUnverified;
+  Candidates := FindAll(Level);
+  Algo := nil;
+  for Candidate in Candidates do
+    if AllowLab or Candidate.Verified then
+    begin Algo := Candidate; Break end;
   if Algo = nil then
     raise EOBDSeedKey.CreateFmt(
-      'No seed-key algorithm registered for level 0x%.2X', [Level]);
+      'No eligible seed-key algorithm for level 0x%.2X (unverified providers require explicit lab opt-in)', [Level]);
   Result := Algo.ComputeKey(Seed, Level);
 end;
 

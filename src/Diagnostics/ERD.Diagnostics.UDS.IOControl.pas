@@ -41,6 +41,7 @@ unit ERD.Diagnostics.UDS.IOControl;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -94,6 +95,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnBeforeSend: TOBDUDSIOControlBeforeEvent;
@@ -186,10 +188,13 @@ constructor TOBDUDSIOControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDUDSIOControl.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -210,11 +215,16 @@ procedure TOBDUDSIOControl.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSIOControl.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -306,28 +316,33 @@ var
   MaskCopy: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  DIDValue := ADID;
-  Param := AControlParam;
-  StateCopy := Copy(AState, 0, Length(AState));
-  MaskCopy := Copy(AControlMask, 0, Length(AControlMask));
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Resp: TBytes;
-    begin
-      try
+  try
+    Self_ := Self;
+    DIDValue := ADID;
+    Param := AControlParam;
+    StateCopy := Copy(AState, 0, Length(AState));
+    MaskCopy := Copy(AControlMask, 0, Length(AControlMask));
+    FOwnedTask.Start(
+      procedure
+      var
+        Resp: TBytes;
+      begin
         try
-          Resp := Self_.DoSend(DIDValue, Param, StateCopy, MaskCopy);
-          Self_.FireResult(DIDValue, Param, Resp);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Resp := Self_.DoSend(DIDValue, Param, StateCopy, MaskCopy);
+            Self_.FireResult(DIDValue, Param, Resp);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 function TOBDUDSIOControl.FireBeforeSend(ADID: Word; AControlParam: Byte;
@@ -353,7 +368,7 @@ begin
     Result := not Cancel;
   end
   else
-    TThread.Synchronize(nil,
+    FOwnedTask.Synchronize(
       procedure
       begin
         if Assigned(Self_.FOnBeforeSend) then
@@ -379,7 +394,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnResult(Self_, DIDValue, Param, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnResult) then
@@ -406,7 +421,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

@@ -46,6 +46,7 @@ unit ERD.Diagnostics.UDS.ReadDTC;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -112,6 +113,7 @@ type
   TOBDUDSReadDTC = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnRead: TOBDUDSReadDTCEvent;
@@ -237,10 +239,13 @@ constructor TOBDUDSReadDTC.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDUDSReadDTC.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -261,11 +266,16 @@ procedure TOBDUDSReadDTC.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDUDSReadDTC.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -313,6 +323,7 @@ begin
     // Each record: <DTChi> <DTCmid> <DTClo> <statusOfDTC> — 4 bytes.
     while Off + 4 <= Length(AData) do
     begin
+    FOwnedTask.CheckCancelled;
       E := Default(TOBDUDSDtcEntry);
       E.Code := DecodeJ2012(AData[Off], AData[Off + 1]);
       E.Status := AData[Off + 3];
@@ -409,22 +420,27 @@ var
   Mask: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  Mask := AMask;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    Mask := AMask;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.ReadByStatusMask(Mask);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadByStatusMask(Mask);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSReadDTC.ReadSupportedDTCsAsync;
@@ -432,21 +448,26 @@ var
   Self_: TOBDUDSReadDTC;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.ReadSupportedDTCs;
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            Self_.ReadSupportedDTCs;
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDUDSReadDTC.FireRead(ASubFunction: Byte;
@@ -464,7 +485,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRead(Self_, Sub, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnRead) then
@@ -486,7 +507,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRaw(Self_, Sub, Snap)
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(Self_.FOnRaw) then
@@ -513,7 +534,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;

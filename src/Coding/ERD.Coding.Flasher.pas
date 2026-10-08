@@ -47,6 +47,7 @@ unit ERD.Coding.Flasher;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -81,6 +82,7 @@ type
     FPendingDelayMs: Cardinal;
     FMaxChunkRetries: Integer;
     FChunkRetryDelayMs: Cardinal;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnBeforeFlash: TOBDFlasherBeforeEvent;
@@ -176,6 +178,7 @@ constructor TOBDFlasher.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAutoExecute := False;
   FAddressFormatBytes := 4;
   FLengthFormatBytes := 4;
@@ -188,6 +191,8 @@ end;
 
 destructor TOBDFlasher.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -195,6 +200,7 @@ end;
 procedure TOBDFlasher.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -205,11 +211,16 @@ procedure TOBDFlasher.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDFlasher.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -233,6 +244,7 @@ begin
   PendingTries := 0;
   while True do
   begin
+    FOwnedTask.CheckCancelled;
     Result := FProtocol.Request(ASid, ABody);
     if not Result.IsNegative then Exit;
     if Result.NRC <> UDS_NRC_ResponsePending then Exit;
@@ -241,7 +253,7 @@ begin
       raise EOBDProtocolErr.CreateFmt(
         '%s: NRC 0x78 exceeded %d pending retries',
         [AContext, FMaxPendingRetries]);
-    Sleep(FPendingDelayMs);
+    FOwnedTask.Delay(FPendingDelayMs);
   end;
 end;
 
@@ -325,6 +337,7 @@ begin
   ChunkIdx := 0;
   while Off < Total do
   begin
+    FOwnedTask.CheckCancelled;
     ChunkSize := Total - Off;
     if ChunkSize > Integer(AMaxBlock) then ChunkSize := Integer(AMaxBlock);
     SetLength(Body, 1 + ChunkSize);
@@ -334,6 +347,7 @@ begin
     ChunkAttempt := 0;
     while True do
     begin
+    FOwnedTask.CheckCancelled;
       Resp := RequestWithPending(UDS_SID_TransferData, Body,
         Format('TransferData BSC %d', [Bsc]));
       if not Resp.IsNegative then Break;
@@ -345,7 +359,7 @@ begin
       FireProgress(ChunkIdx, ChunkCount, 'TransferData',
         Format('BSC=%d retry %d/%d (%s)',
           [Bsc, ChunkAttempt, FMaxChunkRetries, Resp.NRCText]));
-      Sleep(FChunkRetryDelayMs);
+      FOwnedTask.Delay(FChunkRetryDelayMs);
     end;
     // Response echoes BSC; refuse on mismatch.
     if (Length(Resp.Data) >= 1) and (Resp.Data[0] <> Bsc) then
@@ -357,8 +371,7 @@ begin
     Inc(ChunkIdx);
     FireProgress(ChunkIdx, ChunkCount, 'TransferData',
       Format('BSC=%d offset=0x%x', [Bsc, Off]));
-    Inc(Bsc);
-    if Bsc = 0 then Bsc := 1; // BSC wraps from 0xFF -> 0x01 per spec
+    Bsc := Byte((Integer(Bsc) + 1) and $FF); // ISO 14229 counter wraps FF -> 00.
   end;
 end;
 
@@ -414,21 +427,26 @@ var
   Img: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress;
-  Img := Copy(AImage, 0, Length(AImage));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress;
+    Img := Copy(AImage, 0, Length(AImage));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoFlash(Addr, Img);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoFlash(Addr, Img);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 function TOBDFlasher.FireBeforeFlash(AAddress: UInt64;
@@ -447,7 +465,7 @@ begin
   else
   begin
     Local := False;
-    TThread.Synchronize(nil, procedure
+    FOwnedTask.Synchronize( procedure
       var C: Boolean;
       begin
         C := False;
@@ -471,7 +489,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnFlashComplete(Self_, Addr, Sz)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnFlashComplete) then
         Self_.FOnFlashComplete(Self_, Addr, Sz);
     end);
@@ -491,7 +509,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
@@ -512,7 +530,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
     end);
 end;

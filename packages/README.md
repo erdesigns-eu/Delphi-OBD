@@ -9,10 +9,9 @@ Two packages, one runtime and one design-time:
 
 ## Building
 
-The `.dpk` file is the canonical Pascal source. RAD Studio generates the
-matching `.dproj` (XML project file) automatically on first open and
-keeps it in sync. The `.dproj` files are gitignored — they are
-per-developer and per-Delphi-version artefacts.
+The `.dpk` file is the canonical Pascal source. The matching `.dproj` files for the two packages and test runner are
+tracked so CI can build without first opening the IDE. Other generated
+project files remain ignored.
 
 To build:
 
@@ -26,14 +25,25 @@ design-time package (`DelphiOBD_DT.bpl`) is installed.
 
 ## Multi-version support
 
-The package source is identical across Delphi 10.3 → 12. RAD Studio
-generates a separate `.dproj` for each version it is opened in. Use a
-sub-folder (`packages/D11/`, `packages/D12/`) if you need to commit
-per-version `.dproj` files for a specific deployment scenario; the
-default is to leave them out of source control.
+The package sources target Delphi 10.3 → 12. Keep IDE-specific local
+settings out of the tracked CI projects; compatibility across these Delphi
+versions must still be verified on the corresponding Windows runners.
 
 ## CI
 
 The GitHub Actions workflow (`.github/workflows/ci.yml`) builds both
-packages on every supported Delphi version using `MSBuild` against a
-freshly-generated `.dproj`.
+packages using `MSBuild` against the tracked projects once the currently
+disabled Windows job is enabled.
+
+### Reproducible Delphi projects
+
+The tracked `DelphiOBD_RT.dproj`, `DelphiOBD_DT.dproj` and
+`tests/DelphiOBD_Tests.dproj` are the actual CI entry points. Initialize RAD
+Studio's command-line environment (`rsvars.bat`, setting `BDS`), and set
+`DUNITX_SOURCE` to DUnitX's `Source` directory. The source search paths and
+package/DCU outputs are defined in the projects. Build RT, then DT, then tests
+with `msbuild /t:Build /p:Config=Release /p:Platform=Win32`. Execute tests from
+the repository root so relative catalog paths resolve. The Delphi job remains
+disabled until a licensed Windows runner is available and the stable branch is
+ready; these project files have XML validation here, but have not been built
+with Delphi in the Linux environment.

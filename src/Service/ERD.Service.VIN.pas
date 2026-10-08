@@ -38,6 +38,7 @@ unit ERD.Service.VIN;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -87,6 +88,7 @@ type
   TOBDVIN = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnVIN: TOBDVINEvent;
@@ -132,16 +134,21 @@ constructor TOBDVIN.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDVIN.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
 
 procedure TOBDVIN.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -164,6 +171,7 @@ end;
 procedure TOBDVIN.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -174,7 +182,10 @@ procedure TOBDVIN.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 function TOBDVIN.ReadOBDII: TOBDVINResult;
@@ -260,28 +271,33 @@ var
   Source: TOBDVINSource;
 begin
   GuardSingleAsync;
-  Self_ := Self; Source := ASource;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      R: TOBDVINResult;
-    begin
-      try
+  try
+    Self_ := Self; Source := ASource;
+    FOwnedTask.Start(
+      procedure
+      var
+        R: TOBDVINResult;
+      begin
         try
-          case Source of
-            vsUDS:    R := Self_.ReadUDS;
-          else
-            R := Self_.ReadOBDII;
+          try
+            case Source of
+              vsUDS:    R := Self_.ReadUDS;
+            else
+              R := Self_.ReadOBDII;
+            end;
+            Self_.FireVIN(R);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
-          Self_.FireVIN(R);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDVIN.FireVIN(const AResult: TOBDVINResult);
@@ -299,7 +315,7 @@ begin
     if Assigned(FOnVIN) then FOnVIN(Self_, Snap);
   end
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       try
         {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
       except
@@ -322,7 +338,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

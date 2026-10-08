@@ -40,6 +40,7 @@ unit ERD.Service.LiveData;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -106,11 +107,13 @@ type
     FPollLock: TCriticalSection;
     FPollThread: TThread;
     FPollStop: Boolean;
+    FPollWake: TEvent;
 
     FOnValue: TOBDPIDValueEvent;
     FOnRaw: TOBDPIDRawEvent;
     FOnError: TOBDConnectionErrorEvent;
 
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
 
@@ -342,13 +345,18 @@ constructor TOBDLiveData.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FPollLock := TCriticalSection.Create;
+  FPollWake := TEvent.Create(nil, True, False, '');
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FSubscribersLock := TCriticalSection.Create;
 end;
 
 destructor TOBDLiveData.Destroy;
 var L: TList<TMethod>;
 begin
+  FPollStop := True;
+  if FPollWake <> nil then FPollWake.SetEvent;
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   PollStop;
   if FSubscribers <> nil then
   begin
@@ -356,13 +364,17 @@ begin
     FSubscribers.Free;
   end;
   FSubscribersLock.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
+  FPollWake.Free;
   FPollLock.Free;
   inherited;
 end;
 
 procedure TOBDLiveData.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -386,6 +398,8 @@ end;
 procedure TOBDLiveData.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  PollStop;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -398,7 +412,11 @@ procedure TOBDLiveData.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    PollStop;
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 function TOBDLiveData.DoRead(APID: Byte): TOBDPIDValue;
@@ -466,32 +484,39 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDLiveData: Protocol not assigned');
   GuardSingleAsync;
-  Self_ := Self;
-  PIDCopy := APID;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      V: TOBDPIDValue;
-    begin
-      try
+  try
+    Self_ := Self;
+    PIDCopy := APID;
+    FOwnedTask.Start(
+      procedure
+      var
+        V: TOBDPIDValue;
+      begin
         try
-          V := Self_.DoRead(PIDCopy);
-          Self_.DispatchValue(V, V.Raw);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            V := Self_.DoRead(PIDCopy);
+            Self_.DispatchValue(V, V.Raw);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDLiveData.DispatchValue(const AValue: TOBDPIDValue;
   const ARaw: TBytes);
+var Token: IOBDDispatchLifetime;
 begin
+  Token := FOwnedTask.Lifetime;
   FireValue(AValue);
-  FireRaw(AValue.PID, ARaw);
+  if not Token.IsCancelled then FireRaw(AValue.PID, ARaw);
 end;
 
 function TOBDLiveData.SupportedPIDs: TBytes;
@@ -557,6 +582,7 @@ begin
   FPollPIDs := Copy(APIDs, 0, Length(APIDs));
   FPollIntervalMs := AIntervalMs;
   FPollStop := False;
+  FPollWake.ResetEvent;
   Self_ := Self;
   PIDCopy := FPollPIDs;
   Interval := AIntervalMs;
@@ -568,6 +594,7 @@ begin
     begin
       while not Self_.FPollStop do
       begin
+    FOwnedTask.CheckCancelled;
         for I := 0 to High(PIDCopy) do
         begin
           if Self_.FPollStop then Break;
@@ -580,7 +607,7 @@ begin
           end;
         end;
         if Self_.FPollStop then Break;
-        Sleep(Interval);
+        if Self_.FPollWake.WaitFor(Interval) = wrSignaled then Break;
       end;
     end);
   FPollThread.FreeOnTerminate := False;
@@ -592,6 +619,7 @@ var
   T: TThread;
 begin
   FPollStop := True;
+  if FPollWake <> nil then FPollWake.SetEvent;
   T := FPollThread;
   FPollThread := nil;
   if T <> nil then
@@ -611,24 +639,26 @@ var
   Self_:   TOBDLiveData;
   Snap:    TOBDPIDValue;
   PIDByte: Byte;
+  Token: IOBDDispatchLifetime;
 begin
   // Always run the fan-out on the main thread so subscribers
   // (and OnValue) can touch the VCL without TThread.Synchronize
   // boilerplate. FOnValue may not be wired, but subscribers may
   // be - hence the unconditional dispatch path.
+  Token := FOwnedTask.Lifetime;
   Self_   := Self;
   Snap    := AValue;
   PIDByte := AValue.PID;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnValue) then FOnValue(Self_, Snap);
-    DispatchSubscribers(PIDByte, Snap);
+    if not Token.IsCancelled then DispatchSubscribers(PIDByte, Snap);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
     begin
       if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Snap);
-      Self_.DispatchSubscribers(PIDByte, Snap);
+      if not Token.IsCancelled then Self_.DispatchSubscribers(PIDByte, Snap);
     end);
 end;
 
@@ -639,7 +669,9 @@ var
   M: TMethod;
   Cb: TOBDPIDValueEvent;
   Snapshot: TArray<TMethod>;
+  Token: IOBDDispatchLifetime;
 begin
+  Token := FOwnedTask.Lifetime;
   if FSubscribers = nil then Exit;
   // Snapshot the list under the lock so subscribers that
   // re-entrantly subscribe / unsubscribe during dispatch
@@ -653,6 +685,7 @@ begin
   end;
   for M in Snapshot do
   begin
+    if Token.IsCancelled then Exit;
     Cb := TOBDPIDValueEvent(M);
     try
       Cb(Self, AValue);
@@ -710,7 +743,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRaw(Self_, PID, Snap)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnRaw) then Self_.FOnRaw(Self_, PID, Snap);
     end);
 end;
@@ -729,7 +762,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

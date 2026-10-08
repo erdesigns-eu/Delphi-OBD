@@ -46,6 +46,7 @@ unit ERD.Coding.FlashSession;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -83,6 +84,7 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FAutoExecute: Boolean;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     // Choreography knobs.
@@ -184,6 +186,7 @@ constructor TOBDFlashSession.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
   FAutoExecute := False;
   FSecurityLevel := $01;
   FEraseRoutineID := $FF00;
@@ -194,9 +197,11 @@ end;
 
 destructor TOBDFlashSession.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   FFlasher.Free;
   FRoutines.Free;
   FSecurity.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
@@ -204,6 +209,7 @@ end;
 procedure TOBDFlashSession.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -217,11 +223,16 @@ procedure TOBDFlashSession.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 procedure TOBDFlashSession.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -359,22 +370,27 @@ var
   Img, Vc: TBytes;
 begin
   GuardSingleAsync;
-  Self_ := Self; Addr := AAddress;
-  Img := Copy(AImage, 0, Length(AImage));
-  Vc  := Copy(AVerifyChecksum, 0, Length(AVerifyChecksum));
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    Self_ := Self; Addr := AAddress;
+    Img := Copy(AImage, 0, Length(AImage));
+    Vc  := Copy(AVerifyChecksum, 0, Length(AVerifyChecksum));
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.DoFlash(Addr, Img, Vc);
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.DoFlash(Addr, Img, Vc);
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 function TOBDFlashSession.FireBeforeSession(AAddress: UInt64;
@@ -393,7 +409,7 @@ begin
   else
   begin
     Local := False;
-    TThread.Synchronize(nil, procedure
+    FOwnedTask.Synchronize( procedure
       var C: Boolean;
       begin
         C := False;
@@ -415,7 +431,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
     end);
 end;
@@ -434,7 +450,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
@@ -455,7 +471,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
     end);
 end;

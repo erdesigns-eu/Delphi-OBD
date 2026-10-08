@@ -39,6 +39,7 @@ unit ERD.Speciality.IsoBus;
 interface
 
 uses
+  ERD.Async.Task,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
@@ -105,6 +106,7 @@ type
   /// </summary>
   TOBDIsoBus = class(TComponent)
   strict private
+    FOwnedTask: TOBDOwnedTask;
     FLock: TCriticalSection;
     FRegistry: TDictionary<Byte, TOBDIsoBusName>;
     FLocalName: TOBDIsoBusName;
@@ -214,6 +216,7 @@ end;
 constructor TOBDIsoBus.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
   FLock := TCriticalSection.Create;
   FRegistry := TDictionary<Byte, TOBDIsoBusName>.Create;
   FLocalAddress := ISOBUS_NULL_ADDRESS;
@@ -221,8 +224,10 @@ end;
 
 destructor TOBDIsoBus.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   FRegistry.Free;
   FLock.Free;
+  FreeAndNil(FOwnedTask);
   inherited;
 end;
 
@@ -336,7 +341,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnClaim(Self_, Addr, N)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnClaim) then Self_.FOnClaim(Self_, Addr, N);
     end);
 end;
@@ -351,7 +356,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnLost(Self_, Addr, N)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnLost) then Self_.FOnLost(Self_, Addr, N);
     end);
 end;

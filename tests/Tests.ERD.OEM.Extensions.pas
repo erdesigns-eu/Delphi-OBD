@@ -204,6 +204,7 @@ var
   Key: TBytes;
 begin
   Reg := TOBDSeedKeyRegistry.Create;
+  Reg.AllowUnverified := True; // Explicit lab/reference algorithm fixture.
   try
     Reg.RegisterAlgorithm($01,
       function(const ASeed: TBytes): TBytes
@@ -231,6 +232,7 @@ var
   Key: TBytes;
 begin
   Reg := TOBDSeedKeyRegistry.Create;
+  Reg.AllowUnverified := True; // Explicit lab/reference algorithm fixture.
   try
     Reg.RegisterAlgorithm($03,
       function(const ASeed: TBytes): TBytes
@@ -316,6 +318,7 @@ begin
       Result := nil;
     end;
   Reg := TOBDSeedKeyRegistry.Create;
+  Reg.AllowUnverified := True; // Explicit lab/reference algorithm fixture.
   try
     Reg.RegisterAlgorithm($05, NoOp);
     Reg.RegisterAlgorithm($01, NoOp);

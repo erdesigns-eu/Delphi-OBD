@@ -34,6 +34,8 @@ unit ERD.Connection;
 interface
 
 uses
+  ERD.Async.Task,
+  System.Diagnostics,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
@@ -79,6 +81,8 @@ type
     // runtime
     FActive: Boolean;
     FTransportImpl: IOBDConnectionTransport;
+    FCustomTransport: IOBDConnectionTransport;
+    FOwnedTask: TOBDOwnedTask;
     FState: TOBDConnectionState;
 
     // async open
@@ -96,6 +100,7 @@ type
     FOnError: TOBDConnectionErrorEvent;
 
     procedure SetActive(AValue: Boolean);
+    procedure SetCustomTransport(const AValue: IOBDConnectionTransport);
     procedure SetTransport(AValue: TOBDTransport);
     procedure SetSerialSettings(AValue: TOBDSerialSettings);
     procedure SetBluetoothSettings(AValue: TOBDBluetoothSettings);
@@ -221,6 +226,11 @@ type
     /// when not active.</summary>
     /// <remarks>For low-level callers (e.g. tests, the async wrapper);
     /// most components should use the public surface above.</remarks>
+    /// <summary>Optional already-open transport supplied by a host or simulator.
+    /// Set only while closed; Close detaches handlers and closes the provider.</summary>
+    property CustomTransport: IOBDConnectionTransport read FCustomTransport write SetCustomTransport;
+    /// <summary>Write a complete stream buffer with a deadline, rejecting stalled/invalid writes.</summary>
+    function WriteAll(const ABytes: TBytes; ATimeoutMs: Cardinal): Integer;
     property TransportImpl: IOBDConnectionTransport read FTransportImpl;
   published
     /// <summary>Open / close. Default False.</summary>
@@ -319,6 +329,7 @@ uses
 constructor TOBDConnection.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FOwnedTask := TOBDOwnedTask.Create;
   FAsyncOpenLock := TCriticalSection.Create;
   FSerialSettings := TOBDSerialSettings.Create;
   FBluetoothSettings := TOBDBluetoothSettings.Create;
@@ -333,8 +344,10 @@ end;
 
 destructor TOBDConnection.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
   // Cancel and wait for any in-flight OpenAsync before tearing down.
   WaitForAsyncOpen;
+  RemoveFreeNotifications;
   if FActive then
   try
     DoClose;
@@ -348,6 +361,7 @@ begin
   FUDPSettings.Free;
   FFTDISettings.Free;
   FRetryPolicy.Free;
+  FreeAndNil(FOwnedTask);
   FAsyncOpenLock.Free;
   inherited;
 end;
@@ -366,6 +380,34 @@ procedure TOBDConnection.SetFTDISettings(AValue: TOBDFTDISettings);
 begin FFTDISettings.Assign(AValue); end;
 procedure TOBDConnection.SetRetryPolicy(AValue: TOBDRetryPolicy);
 begin FRetryPolicy.Assign(AValue); end;
+
+procedure TOBDConnection.SetCustomTransport(const AValue: IOBDConnectionTransport);
+begin
+  if FActive or (FAsyncOpenThread <> nil) then
+    raise EOBDConfig.Create('Close connection before changing custom transport');
+  FCustomTransport := AValue;
+end;
+
+function TOBDConnection.WriteAll(const ABytes: TBytes; ATimeoutMs: Cardinal): Integer;
+var Sent: Integer; Watch: TStopwatch; Remaining: TBytes;
+  Timed: IOBDTimedStreamTransport; Elapsed: Int64;
+begin
+  Result := 0;
+  Watch := TStopwatch.StartNew;
+  while Result < Length(ABytes) do
+  begin
+    Elapsed := Watch.ElapsedMilliseconds;
+    if Elapsed >= ATimeoutMs then
+      raise EOBDError.Create('Connection write deadline expired');
+    if Supports(FTransportImpl, IOBDTimedStreamTransport, Timed) then
+      Timed.SetWriteTimeout(ATimeoutMs - Cardinal(Elapsed));
+    Remaining := Copy(ABytes, Result, Length(ABytes) - Result);
+    Sent := WriteBytes(Remaining);
+    if (Sent <= 0) or (Sent > Length(Remaining)) then
+      raise EOBDError.Create('Transport returned an invalid or stalled write count');
+    Inc(Result, Sent);
+  end;
+end;
 
 procedure TOBDConnection.SetTransport(AValue: TOBDTransport);
 begin
@@ -394,7 +436,12 @@ begin
     Inc(Attempt);
     try
       // Step 1: instantiate the transport per Transport enum.
-      case FTransport of
+      if FCustomTransport <> nil then
+      begin
+        if not FCustomTransport.IsOpen then raise EOBDConfig.Create('Custom transport must already be open');
+        FTransportImpl := FCustomTransport;
+      end
+      else case FTransport of
 {$IFDEF MSWINDOWS}
         otSerial:    FTransportImpl := TOBDSerialTransport.Create;
         otFTDI:      FTransportImpl := TOBDFTDITransport.Create;
@@ -423,7 +470,7 @@ begin
       FTransportImpl.OnProgress       := HandleTransportProgress;
 
       // Step 3: open the transport with the matching settings sub-object.
-      case FTransport of
+      if FCustomTransport = nil then case FTransport of
 {$IFDEF MSWINDOWS}
         otSerial:
           (FTransportImpl as TOBDSerialTransport).Open(FSerialSettings);
@@ -450,6 +497,14 @@ begin
     except
       on E: Exception do
       begin
+        if FTransportImpl <> nil then
+        begin
+          FTransportImpl.SetOnDataReceived(nil);
+          FTransportImpl.SetOnStateChanged(nil);
+          FTransportImpl.SetOnTransportError(nil);
+          FTransportImpl.SetOnProgress(nil);
+          FTransportImpl.Close;
+        end;
         FTransportImpl := nil;
         FreeAndNil(LastError);
         LastError := Exception(AcquireExceptionObject);
@@ -473,13 +528,14 @@ end;
 
 procedure TOBDConnection.FireOnConnect;
 begin
+  if FOwnedTask.Lifetime.IsCancelled then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnConnect) then
       FOnConnect(Self);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnConnect) then
@@ -489,13 +545,14 @@ end;
 
 procedure TOBDConnection.FireOnDisconnect;
 begin
+  if FOwnedTask.Lifetime.IsCancelled then Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnDisconnect) then
       FOnDisconnect(Self);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnDisconnect) then
@@ -510,6 +567,7 @@ var
   MsgCopy: string;
   Handled: Boolean;
 begin
+  if FOwnedTask.Lifetime.IsCancelled then Exit;
   CodeCopy := ACode;
   MsgCopy := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
@@ -519,7 +577,7 @@ begin
       FOnError(Self, CodeCopy, MsgCopy, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;
@@ -568,7 +626,13 @@ begin
   Local := FTransportImpl;
   FTransportImpl := nil;
   if Assigned(Local) then
+  begin
+    Local.OnDataReceived := nil;
+    Local.OnStateChanged := nil;
+    Local.OnTransportError := nil;
+    Local.OnProgress := nil;
     Local.Close;
+  end;
   FActive := False;
   FireOnDisconnect;
 end;
@@ -580,7 +644,7 @@ begin
   if not FActive and (FTransportImpl = nil) then
     Exit;
   Self_ := Self;
-  TThread.CreateAnonymousThread(
+  FOwnedTask.Start(
     procedure
     begin
       try
@@ -591,7 +655,7 @@ begin
         on E: Exception do
           Self_.FireOnError(oeIO, E.Message);
       end;
-    end).Start;
+    end);
 end;
 
 procedure TOBDConnection.OpenAsync;
@@ -643,7 +707,7 @@ begin
         // claims FAsyncOpenThread atomically: either we get to free it
         // here (live worker, no concurrent Wait), or Wait already
         // claimed it (Worker = nil) and we do nothing.
-        TThread.Queue(nil,
+        FOwnedTask.Post(
           procedure
           var
             ToFree: TThread;
@@ -724,7 +788,7 @@ begin
       FOnDataReceived(Self, Snapshot);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnDataReceived) then
@@ -742,7 +806,7 @@ begin
       FOnStateChanged(Self, NewState);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnStateChanged) then
@@ -766,7 +830,7 @@ begin
       FOnError(Self, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       var
         Handled: Boolean;
@@ -789,7 +853,7 @@ begin
       FOnProgress(Self, Snapshot);
   end
   else
-    TThread.Queue(nil,
+    FOwnedTask.Post(
       procedure
       begin
         if Assigned(FOnProgress) then

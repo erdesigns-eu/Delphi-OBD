@@ -38,6 +38,8 @@ unit ERD.Replayer;
 interface
 
 uses
+  ERD.Async.Task,
+  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -49,6 +51,7 @@ uses
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   {$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF},
   ERD.Types,
+  ERD.Protocol.Types,
   ERD.Recorder;
 
 type
@@ -68,12 +71,18 @@ type
     FFileName: string;
     FMode: TOBDReplayMode;
     FStop: Boolean;
+    FStopEvent: TEvent;
+    FMaxDecodedBytes: Int64;
+    FMaxLineBytes: Integer;
+    FMaxEntries: Integer;
     FMaxGapMs: Cardinal;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnEntry: TOBDReplayEntryEvent;
     FOnComplete: TNotifyEvent;
     FOnError: TOBDConnectionErrorEvent;
+    procedure ScanLines(const APath: string; const AConsumer: TProc<string>; ARespectStop: Boolean);
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     procedure FireEntry(const AEntry: TOBDLogEntry);
@@ -83,7 +92,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    /// <summary>Loads <c>FileName</c> into memory and replays
+    /// <summary>Streams <c>FileName</c> with bounded decompression and replays
     /// it synchronously through <c>OnEntry</c>.</summary>
     procedure Play;
     /// <summary>Non-blocking <see cref="Play"/>. Fires
@@ -91,7 +100,7 @@ type
     /// failure.</summary>
     procedure PlayAsync;
     /// <summary>Cooperative cancel; the replayer stops at the
-    /// next entry boundary.</summary>
+    /// next read boundary or interrupted timestamp wait.</summary>
     procedure Stop;
 
     /// <summary>Loads every entry into a flat array. Useful for
@@ -111,6 +120,12 @@ type
     function ParseLine(const ALine: string;
       out AEntry: TOBDLogEntry): Boolean;
   published
+    /// <summary>Maximum decompressed bytes (default 256 MiB); bounded for plain and gzip logs.</summary>
+    property MaxDecodedBytes: Int64 read FMaxDecodedBytes write FMaxDecodedBytes;
+    /// <summary>Maximum bytes per JSONL line (default 1 MiB).</summary>
+    property MaxLineBytes: Integer read FMaxLineBytes write FMaxLineBytes;
+    /// <summary>Maximum nonblank input lines (default one million).</summary>
+    property MaxEntries: Integer read FMaxEntries write FMaxEntries;
     property FileName: string read FFileName write FFileName;
     /// <summary>Playback mode. Default
     /// <c>rmAsFastAsPossible</c>.</summary>
@@ -136,18 +151,28 @@ constructor TOBDReplayer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
+  FStopEvent := TEvent.Create(nil, True, False, '');
   FMaxGapMs := 60000;
+  FMaxDecodedBytes := 256 * 1024 * 1024;
+  FMaxLineBytes := 1024 * 1024;
+  FMaxEntries := 1000000;
 end;
 
 destructor TOBDReplayer.Destroy;
 begin
   Stop;
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
+  FStopEvent.Free;
   FAsyncLock.Free;
   inherited;
 end;
 
 procedure TOBDReplayer.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -166,6 +191,7 @@ end;
 procedure TOBDReplayer.Stop;
 begin
   FStop := True;
+  if FStopEvent <> nil then FStopEvent.SetEvent;
 end;
 
 function ParseHexNumber(const AText: string): UInt64;
@@ -179,61 +205,70 @@ begin
     Result := StrToInt64(S);
 end;
 
-function TOBDReplayer.LoadLines(const APath: string): TStringList;
-const
-  GZIP_WINDOW_BITS = 15 + 16;
-var
-  Old: Integer;
-  FileStream: TFileStream;
-  Decomp: TStream;
-  Chunk: TBytes;
-  Buf: TBytes;
-  N: Integer;
-  Reader: TStringStream;
-begin
-  Result := TStringList.Create;
-  if SameText(ExtractFileExt(APath), '.gz') then
+procedure TOBDReplayer.ScanLines(const APath: string;
+  const AConsumer: TProc<string>; ARespectStop: Boolean);
+var FileStream: TFileStream; Input: TStream; Bytes, LineBytes: TBytes;
+  Count, I, Used, Entries, LineLimit, EntryLimit: Integer; Total, ByteLimit: Int64;
+  Token: IOBDDispatchLifetime;
+  procedure DeliverLine;
+  var Text: string;
   begin
-    FileStream := TFileStream.Create(APath, fmOpenRead or fmShareDenyWrite);
-    try
-{$IFDEF FPC}
-      Decomp := TGZipDecompressionStream.Create(FileStream);
-{$ELSE}
-      Decomp := TZDecompressionStream.Create(FileStream, GZIP_WINDOW_BITS);
-{$ENDIF}
-      try
-        // Drain into a memory buffer, then load as text — simpler
-        // and correct than feeding TStringList.LoadFromStream a
-        // decompression stream (which expects Seek support).
-        SetLength(Buf, 0);
-        SetLength(Chunk, 16 * 1024);
-        repeat
-          N := Decomp.Read(Chunk[0], Length(Chunk));
-          if N > 0 then
-          begin
-            Old := Length(Buf);
-            SetLength(Buf, Old + N);
-            Move(Chunk[0], Buf[Old], N);
-          end;
-        until N <= 0;
-        Reader := TStringStream.Create('', TEncoding.UTF8);
-        try
-          if Length(Buf) > 0 then
-            Reader.WriteBuffer(Buf[0], Length(Buf));
-          Reader.Position := 0;
-          Result.LoadFromStream(Reader);
-        finally
-          Reader.Free;
-        end;
-      finally
-        Decomp.Free;
-      end;
-    finally
-      FileStream.Free;
+    if (Used > 0) and (LineBytes[Used - 1] = 13) then Dec(Used);
+    Text := TEncoding.UTF8.GetString(LineBytes, 0, Used);
+    if Trim(Text) <> '' then
+    begin
+      Inc(Entries);
+      if Entries > EntryLimit then raise EOBDProtocolErr.Create('Replay entry limit exceeded');
+      AConsumer(Text);
     end;
-  end
-  else
-    Result.LoadFromFile(APath, TEncoding.UTF8);
+    Used := 0;
+  end;
+begin
+  Token := FOwnedTask.Lifetime;
+  LineLimit := FMaxLineBytes; EntryLimit := FMaxEntries; ByteLimit := FMaxDecodedBytes;
+  if (LineLimit < 1) or (EntryLimit < 1) or (ByteLimit < 1) then
+    raise EOBDConfig.Create('Replay limits must be positive');
+  FileStream := TFileStream.Create(APath, fmOpenRead or fmShareDenyWrite);
+  try
+    Input := FileStream;
+    if SameText(ExtractFileExt(APath), '.gz') then
+{$IFDEF FPC}
+      Input := TGZipDecompressionStream.Create(FileStream);
+{$ELSE}
+      Input := TZDecompressionStream.Create(FileStream, 31);
+{$ENDIF}
+    try
+      SetLength(Bytes, 16384); SetLength(LineBytes, LineLimit);
+      Used := 0; Entries := 0; Total := 0;
+      repeat
+        if ARespectStop and (Token.IsCancelled or FStop) then Break;
+        Count := Input.Read(Bytes[0], Length(Bytes));
+        Inc(Total, Count);
+        if Total > ByteLimit then raise EOBDProtocolErr.Create('Replay decompressed byte limit exceeded');
+        for I := 0 to Count - 1 do
+        begin
+          if ARespectStop and (Token.IsCancelled or FStop) then Break;
+          if Bytes[I] = 10 then DeliverLine
+          else
+          begin
+            if Used = LineLimit then raise EOBDProtocolErr.Create('Replay line limit exceeded');
+            LineBytes[Used] := Bytes[I]; Inc(Used);
+          end;
+        end;
+      until Count = 0;
+      if (Used > 0) and not Token.IsCancelled and not (ARespectStop and FStop) then DeliverLine;
+    finally if Input <> FileStream then Input.Free end;
+  finally FileStream.Free end;
+end;
+
+function TOBDReplayer.LoadLines(const APath: string): TStringList;
+var Lines: TStringList;
+begin
+  Lines := TStringList.Create;
+  try
+    ScanLines(APath, procedure(Line: string) begin Lines.Add(Line) end, False);
+    Result := Lines;
+  except Lines.Free; raise end;
 end;
 
 function TOBDReplayer.ParseLine(const ALine: string;
@@ -247,7 +282,11 @@ begin
   Result := False;
   AEntry := Default(TOBDLogEntry);
   if Trim(ALine) = '' then Exit;
-  Doc := TJSONObject.ParseJSONValue(ALine);
+  try
+    Doc := TJSONObject.ParseJSONValue(ALine, True, True);
+  except
+    on E: Exception do Exit(False);
+  end;
   if not (Doc is TJSONObject) then
   begin
     if Doc <> nil then Doc.Free;
@@ -312,41 +351,30 @@ begin
 end;
 
 procedure TOBDReplayer.Play;
-var
-  Lines: TStringList;
-  I: Integer;
-  Entry, Prev: TOBDLogEntry;
-  Gap: Int64;
-  HasPrev: Boolean;
+var Prev: TOBDLogEntry; HasPrev: Boolean; Token: IOBDDispatchLifetime;
 begin
-  if FFileName = '' then
-    raise EOBDConfig.Create('TOBDReplayer: FileName not set');
-  if not FileExists(FFileName) then
-    raise EOBDConfig.CreateFmt('TOBDReplayer: file not found "%s"',
-      [FFileName]);
-  FStop := False;
+  if FFileName = '' then raise EOBDConfig.Create('Replayer FileName not set');
+  Token := FOwnedTask.Lifetime;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+  begin FStop := False; FStopEvent.ResetEvent end;
+  if FStop then Exit;
   HasPrev := False;
-  Lines := LoadLines(FFileName);
-  try
-    for I := 0 to Lines.Count - 1 do
+  ScanLines(FFileName,
+    procedure(Line: string)
+    var Entry: TOBDLogEntry; Gap: Int64;
     begin
-      if FStop then Break;
-      if not ParseLine(Lines[I], Entry) then Continue;
+      if not ParseLine(Line, Entry) then raise EOBDProtocolErr.Create('Replay contains malformed JSONL entry');
       if (FMode = rmRealTime) and HasPrev then
       begin
         Gap := MilliSecondsBetween(Entry.Timestamp, Prev.Timestamp);
-        if Gap < 0 then Gap := 0;
         if Gap > Int64(FMaxGapMs) then Gap := FMaxGapMs;
-        if Gap > 0 then Sleep(Gap);
+        if (Gap > 0) and (FStopEvent.WaitFor(Cardinal(Gap)) = wrSignaled) then Exit;
       end;
       FireEntry(Entry);
-      Prev := Entry;
-      HasPrev := True;
-    end;
-  finally
-    Lines.Free;
-  end;
-  if not FStop then FireComplete;
+      if Token.IsCancelled then Exit;
+      Prev := Entry; HasPrev := True;
+    end, True);
+  if not Token.IsCancelled and not FStop then FireComplete;
 end;
 
 procedure TOBDReplayer.PlayAsync;
@@ -354,44 +382,47 @@ var
   Self_: TOBDReplayer;
 begin
   GuardSingleAsync;
-  Self_ := Self;
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      try
+  try
+    FStop := False;
+    FStopEvent.ResetEvent;
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
         try
-          Self_.Play;
-        except
-          on E: Exception do Self_.FireError(oeIO, E.Message);
+          try
+            Self_.Play;
+          except
+            on E: Exception do Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
-class function TOBDReplayer.LoadAll(
-  const AFileName: string): TArray<TOBDLogEntry>;
-var
-  Replayer: TOBDReplayer;
-  Lines: TStringList;
-  I: Integer;
-  Acc: TList<TOBDLogEntry>;
-  Entry: TOBDLogEntry;
+class function TOBDReplayer.LoadAll(const AFileName: string): TArray<TOBDLogEntry>;
+var Replayer: TOBDReplayer; Acc: TList<TOBDLogEntry>;
 begin
   Replayer := TOBDReplayer.Create(nil);
-  Lines := Replayer.LoadLines(AFileName);
-  Acc := TList<TOBDLogEntry>.Create;
   try
-    for I := 0 to Lines.Count - 1 do
-      if Replayer.ParseLine(Lines[I], Entry) then
-        Acc.Add(Entry);
-    Result := Acc.ToArray;
-  finally
-    Acc.Free;
-    Lines.Free;
-    Replayer.Free;
-  end;
+    Acc := TList<TOBDLogEntry>.Create;
+    try
+      Replayer.ScanLines(AFileName,
+        procedure(Line: string)
+        var Entry: TOBDLogEntry;
+        begin
+          if not Replayer.ParseLine(Line, Entry) then
+            raise EOBDProtocolErr.Create('Replay contains malformed JSONL entry');
+          Acc.Add(Entry);
+        end, False);
+      Result := Acc.ToArray;
+    finally Acc.Free end;
+  finally Replayer.Free end;
 end;
 
 procedure TOBDReplayer.FireEntry(const AEntry: TOBDLogEntry);
@@ -404,7 +435,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnEntry(Self_, E)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnEntry) then Self_.FOnEntry(Self_, E);
     end);
 end;
@@ -418,7 +449,7 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
     end);
 end;
@@ -437,7 +468,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;

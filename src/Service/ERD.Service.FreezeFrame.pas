@@ -30,6 +30,7 @@ unit ERD.Service.FreezeFrame;
 interface
 
 uses
+  ERD.Async.Task,
   ERD.Connection,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
@@ -53,6 +54,7 @@ type
   TOBDFreezeFrame = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
+    FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
     FOnValue: TOBDFreezeFrameEvent;
@@ -93,16 +95,21 @@ constructor TOBDFreezeFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
+  FOwnedTask := TOBDOwnedTask.Create;
 end;
 
 destructor TOBDFreezeFrame.Destroy;
 begin
+  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
 end;
 
 procedure TOBDFreezeFrame.GuardSingleAsync;
 begin
+  if TThread.CurrentThread.ThreadID <> MainThreadID then
+    raise EOBDConfig.Create('Async start requires the main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -125,6 +132,7 @@ end;
 procedure TOBDFreezeFrame.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then Exit;
+  if FOwnedTask <> nil then FOwnedTask.Quiesce;
   if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
   if FProtocol <> nil then FProtocol.FreeNotification(Self);
@@ -135,7 +143,10 @@ procedure TOBDFreezeFrame.Notification(AComponent: TComponent;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
+  begin
+    if FOwnedTask <> nil then FOwnedTask.Quiesce;
     FProtocol := nil;
+  end;
 end;
 
 // LiveData's built-in PID decoders are private to that unit; keep
@@ -188,24 +199,29 @@ var
   PID, Frame: Byte;
 begin
   GuardSingleAsync;
-  Self_ := Self; PID := APID; Frame := AFrameIndex;
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      V: TOBDPIDValue;
-    begin
-      try
+  try
+    Self_ := Self; PID := APID; Frame := AFrameIndex;
+    FOwnedTask.Start(
+      procedure
+      var
+        V: TOBDPIDValue;
+      begin
         try
-          V := Self_.DoRead(PID, Frame);
-          Self_.FireValue(Frame, V);
-        except
-          on E: Exception do
-            Self_.FireError(oeIO, E.Message);
+          try
+            V := Self_.DoRead(PID, Frame);
+            Self_.FireValue(Frame, V);
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
         end;
-      finally
-        Self_.ReleaseAsync;
-      end;
-    end).Start;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
 end;
 
 procedure TOBDFreezeFrame.FireValue(AFrameIndex: Byte;
@@ -225,7 +241,7 @@ begin
     if Assigned(FOnValue) then FOnValue(Self_, Frame, Snap);
   end
   else
-    TThread.Queue(nil, procedure begin
+    FOwnedTask.Post( procedure begin
       try
         {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
       except
@@ -248,7 +264,7 @@ begin
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    TThread.Queue(nil, procedure
+    FOwnedTask.Post( procedure
       var Handled: Boolean;
       begin
         Handled := False;
