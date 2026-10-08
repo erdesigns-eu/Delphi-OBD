@@ -1,5 +1,5 @@
 {
-  "$schema": "../_schema/ev-battery.schema.json",
+  "$schema": "../_schema/ev-battery-manifest.schema.json",
   "manifest_version": "1.0.0",
   "generated": "2026-05-10",
   "vendor_files": [

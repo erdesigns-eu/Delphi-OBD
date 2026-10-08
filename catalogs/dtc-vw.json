@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "VW Audi Group DTC starter (P1 / B1 / U1 ranges)",
   "default_source": "VW Group P-codes (VAG TPi-derived community)",

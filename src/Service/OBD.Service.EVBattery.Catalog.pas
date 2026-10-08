@@ -20,6 +20,7 @@ unit OBD.Service.EVBattery.Catalog;
 interface
 
 uses
+  OBD.Types,
   OBD.JSON,
   System.SysUtils,
   System.Classes,
@@ -92,14 +93,33 @@ var
 
   function HexInt(const ASource: TJSONObject;
     const AHexKey, ADecKey: string; ADefault: Integer = 0): Integer;
-  var Hv, Dv: TJSONValue;
+  var Hv, Dv: TJSONValue; Text: string; Value: Int64; C: Char; Limit: Int64;
   begin
     Hv := ASource.GetValue(AHexKey);
-    if Hv <> nil then Exit(StrToIntDef('$' + StringReplace(Hv.Value,
-                                                            '0x', '', [rfIgnoreCase]), ADefault));
     Dv := ASource.GetValue(ADecKey);
-    if Dv <> nil then Exit(StrToIntDef(Dv.Value, ADefault));
-    Result := ADefault;
+    Value := ADefault;
+    if Hv <> nil then
+    begin
+      Text := Hv.Value;
+      if (Length(Text) < 3) or not SameText(Copy(Text, 1, 2), '0x') then
+        raise EOBDConfig.Create('Invalid hexadecimal EV catalog value: ' + AHexKey);
+      Text := Copy(Text, 3, MaxInt);
+      for C in Text do
+        if not CharInSet(C, ['0'..'9', 'A'..'F', 'a'..'f']) then
+          raise EOBDConfig.Create('Invalid hexadecimal EV catalog value: ' + AHexKey);
+      if not TryStrToInt64('$' + Text, Value) then
+        raise EOBDConfig.Create('EV catalog value overflows: ' + AHexKey);
+    end
+    else if (Dv <> nil) and not TryStrToInt64(Dv.Value, Value) then
+      raise EOBDConfig.Create('Invalid integer EV catalog value: ' + ADecKey);
+    Limit := $FFFF;
+    if Pos('request_id', AHexKey) > 0 then Limit := $1FFFFFFF
+    else if Pos('response_id', AHexKey) > 0 then Limit := $1FFFFFFF
+    else if (Pos('extended_', AHexKey) > 0) or (AHexKey = 'service_hex') then Limit := $FF
+    else if AHexKey = 'pid_hex' then Limit := $FF;
+    if (Value < 0) or (Value > Limit) then
+      raise EOBDConfig.Create('EV catalog value outside physical range: ' + AHexKey);
+    Result := Integer(Value);
   end;
 
   function StrField(AObj: TJSONObject; const AKey: string): string;
@@ -116,7 +136,8 @@ var
     W := AObj.GetValue(AKey);
     if W = nil then Exit(ADefault);
     FS := TFormatSettings.Create('en-US');
-    if not TryStrToFloat(W.Value, Result, FS) then Result := ADefault;
+    if not TryStrToFloat(W.Value, Result, FS) then
+      raise EOBDConfig.Create('Invalid EV catalog number: ' + AKey);
   end;
 
   function IntField(AObj: TJSONObject; const AKey: string;
@@ -124,8 +145,9 @@ var
   var W: TJSONValue;
   begin
     W := AObj.GetValue(AKey);
-    if W <> nil then Result := StrToIntDef(W.Value, ADefault)
-    else            Result := ADefault;
+    if W = nil then Exit(ADefault);
+    if not TryStrToInt(W.Value, Result) then
+      raise EOBDConfig.Create('Invalid EV catalog integer: ' + AKey);
   end;
 
   function BoolField(AObj: TJSONObject; const AKey: string): Boolean;
@@ -151,6 +173,19 @@ begin
     begin
       Cat.RequestId  := HexInt(EcuObj, 'request_id_hex',  'request_id',  0);
       Cat.ResponseId := HexInt(EcuObj, 'response_id_hex', 'response_id', 0);
+      Cat.UseExtendedAddressing := SameText(StrField(EcuObj, 'addressing'), 'ISOTP_EXTADR');
+      if (StrField(EcuObj, 'addressing') <> '') and
+        not Cat.UseExtendedAddressing and
+        not SameText(StrField(EcuObj, 'addressing'), 'ISOTP_NORMAL') then
+        raise EOBDConfig.Create('Unsupported EV battery addressing mode');
+      if Cat.UseExtendedAddressing then
+      begin
+        if (EcuObj.GetValue('extended_target_hex') = nil) or
+          (EcuObj.GetValue('extended_tester_hex') = nil) then
+          raise EOBDConfig.Create('Extended EV routing requires destination and tester bytes');
+        Cat.ExtendedTarget := HexInt(EcuObj, 'extended_target_hex', 'extended_target');
+        Cat.ExtendedTester := HexInt(EcuObj, 'extended_tester_hex', 'extended_tester');
+      end;
     end;
 
     Models := Doc.GetValue<TJSONArray>('applicable_models');
@@ -175,6 +210,18 @@ begin
         Rule.DIDOrPID    := HexInt(RuleObj, 'did_hex',     'did',     0);
         if Rule.DIDOrPID = 0 then
           Rule.DIDOrPID  := HexInt(RuleObj, 'pid_hex', 'pid', 0);
+        Rule.RequestId := HexInt(RuleObj, 'ecu_request_id_hex', 'ecu_request_id', Cat.RequestId);
+        Rule.ResponseId := HexInt(RuleObj, 'ecu_response_id_hex', 'ecu_response_id', Cat.ResponseId);
+        Rule.UseExtendedAddressing := Cat.UseExtendedAddressing;
+        Rule.ExtendedTarget := HexInt(RuleObj, 'ecu_extended_target_hex',
+          'ecu_extended_target', Cat.ExtendedTarget);
+        Rule.ExtendedTester := HexInt(RuleObj, 'ecu_extended_tester_hex',
+          'ecu_extended_tester', Cat.ExtendedTester);
+        Rule.MinModelYear := IntField(RuleObj, 'min_model_year', 0);
+        Rule.MaxModelYear := IntField(RuleObj, 'max_model_year', 0);
+        if (Rule.MinModelYear < 0) or (Rule.MaxModelYear < 0) or
+          ((Rule.MaxModelYear > 0) and (Rule.MaxModelYear < Rule.MinModelYear)) then
+          raise EOBDConfig.Create('Invalid EV model-year range');
         Rule.Offset      := IntField(RuleObj, 'offset', 0);
         Rule.Length      := IntField(RuleObj, 'length', 1);
         Rule.Signed      := BoolField(RuleObj, 'signed');
@@ -184,6 +231,10 @@ begin
         Rule.Source      := StrField(RuleObj, 'source');
         Rule.IsArray     := BoolField(RuleObj, 'array');
         Rule.ElementSize := IntField(RuleObj, 'element_size', 1);
+        if (Rule.Offset < 0) or (Rule.Length < 1) or
+          ((not Rule.IsArray) and (Rule.Length > 8)) or
+          (Rule.ElementSize < 1) or (Rule.ElementSize > 8) then
+          raise EOBDConfig.Create('Invalid EV catalog byte slice');
         Cat.Rules[I] := Rule;
       end;
     end;
@@ -208,6 +259,7 @@ var
 begin
   TMonitor.Enter(FLock);
   try
+    FLoaded := False;
     FCatalogs.Clear;
     Dir := TPath.Combine(FCatalogDir, 'ev-battery');
     if TDirectory.Exists(Dir) then
@@ -226,20 +278,27 @@ class function TOBDEVBatteryCatalog.TryGet(const AVendor: string;
   out AOut: TOBDEVBatteryVendorCatalog): Boolean;
 begin
   EnsureLoaded;
-  Result := FCatalogs.TryGetValue(LowerCase(AVendor), AOut);
-  if not Result then AOut := Default(TOBDEVBatteryVendorCatalog);
+  TMonitor.Enter(FLock);
+  try
+    Result := FCatalogs.TryGetValue(LowerCase(AVendor), AOut);
+    if not Result then AOut := Default(TOBDEVBatteryVendorCatalog);
+  finally
+    TMonitor.Exit(FLock);
+  end;
 end;
 
 class function TOBDEVBatteryCatalog.VendorKeys: TArray<string>;
 var Acc: TList<string>; K: string;
 begin
   EnsureLoaded;
+  TMonitor.Enter(FLock);
   Acc := TList<string>.Create;
   try
     for K in FCatalogs.Keys do Acc.Add(K);
     Result := Acc.ToArray;
   finally
     Acc.Free;
+    TMonitor.Exit(FLock);
   end;
 end;
 

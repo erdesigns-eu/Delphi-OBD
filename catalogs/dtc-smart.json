@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "smart Automobile DTC starter (Mercedes-Geely JV)",
   "default_source": "smart XENTRY / Geely diag DTCs",

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/text-catalog.schema.json",
   "version": 1,
   "type": "obd2-dtc",
   "entries": [

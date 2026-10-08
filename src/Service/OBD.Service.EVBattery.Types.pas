@@ -64,7 +64,8 @@ type
     efkAvailableChargePowerKw,
     efkAvailableDischargePowerKw,
     efkCumulativeEnergyChargedKwh,
-    efkCumulativeEnergyDischargedKwh
+    efkCumulativeEnergyDischargedKwh,
+    efkCapacityRemainingAh
   );
 
   TOBDEVChargeState = (
@@ -75,6 +76,14 @@ type
     csDriving,
     csRegenBraking
   );
+
+  /// <summary>Decoded vendor field, including fields without a standard enum.</summary>
+  TOBDEVDecodedField = record
+    Name: string;
+    Unit_: string;
+    Value: Double;
+    Values: TArray<Single>;
+  end;
 
   /// <summary>One BMS poll result. Every field is best-effort:
   /// when the vendor catalogue doesn't define a rule for it,
@@ -87,9 +96,13 @@ type
     /// <summary>Vendor key the rules were loaded from
     /// (e.g. <c>"hmg"</c>, <c>"nissan-leaf"</c>).</summary>
     Vendor:              string;
+    /// <summary>All successfully decoded vendor values with their names and units.</summary>
+    DecodedFields: TArray<TOBDEVDecodedField>;
 
     // Core
     HasSOC:              Boolean;  SOC:               Single;
+    /// <summary>Measured remaining capacity in ampere-hours.</summary>
+    HasCapacityRemainingAh: Boolean; CapacityRemainingAh: Single;
     HasSOH:              Boolean;  SOH:               Single;
     HasPackVoltage:      Boolean;  PackVoltage:       Single;
     HasPackCurrent:      Boolean;  PackCurrent:       Single;
@@ -148,6 +161,17 @@ type
     /// in 16-bit form. The codec emits the right byte width on
     /// the wire.</summary>
     DIDOrPID:     Word;
+    /// <summary>Optional inclusive model-year range; zero means unrestricted.</summary>
+    MinModelYear: Integer;
+    MaxModelYear: Integer;
+    /// <summary>Resolved transmit and receive CAN IDs for this field.</summary>
+    RequestId: Cardinal;
+    ResponseId: Cardinal;
+    /// <summary>Use ISO-TP extended addressing for this field.</summary>
+    UseExtendedAddressing: Boolean;
+    /// <summary>Destination and tester bytes for extended addressing.</summary>
+    ExtendedTarget: Byte;
+    ExtendedTester: Byte;
     /// <summary>0-based byte offset within the response data
     /// payload (after the service / DID echo).</summary>
     Offset:       Integer;
@@ -184,6 +208,10 @@ type
     Label_:           string;
     RequestId:        Cardinal;   // CAN ID for outbound diag req
     ResponseId:       Cardinal;   // CAN ID for inbound diag rsp
+    /// <summary>Default ISO-TP extended-addressing configuration.</summary>
+    UseExtendedAddressing: Boolean;
+    ExtendedTarget: Byte;
+    ExtendedTester: Byte;
     ApplicableModels: TArray<string>;
     Rules:            TArray<TOBDEVBatteryRule>;
   end;
@@ -214,6 +242,7 @@ begin
   if (L = 'pack_voltage') or (L = 'bus_voltage') then Exit(efkPackVoltage);
   if  L = 'pack_current'           then Exit(efkPackCurrent);
   if  L = 'pack_power'             then Exit(efkPackPower);
+  if L = 'capacity_remaining_ah' then Exit(efkCapacityRemainingAh);
   if  L = 'capacity_remaining_kwh' then Exit(efkCapacityRemainingKwh);
   if  L = 'capacity_nominal_kwh'   then Exit(efkCapacityNominalKwh);
 
@@ -265,6 +294,7 @@ begin
   case AField of
     efkSOC:                   Result := 'soc';
     efkSOH:                   Result := 'soh';
+    efkCapacityRemainingAh:   Result := 'capacity_remaining_ah';
     efkPackVoltage:           Result := 'pack_voltage';
     efkPackCurrent:           Result := 'pack_current';
     efkPackPower:             Result := 'pack_power';

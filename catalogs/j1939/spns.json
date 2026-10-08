@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/j1939-spn.json",
   "schema_version": 1,
   "description": "SAE J1939-71 Suspect Parameter Number (SPN) seed catalogue. Covers the most common engine / aftertreatment SPNs encountered in DM1 / DM2 / DM6 broadcasts. Hosts overlay full vendor sets via TOBDOEMCatalog at runtime.",
   "kind": "j1939-spn",

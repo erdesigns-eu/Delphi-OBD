@@ -62,7 +62,6 @@ type
     procedure SetTheme(AValue: TOBDTheme);
     procedure ResolveTheme;
     procedure DetachFromTheme;
-    procedure StyleStorageWriter(Sender: TObject);
     function  GetStyleBackground: TColor;
     function  GetStyleForeground: TColor;
     function  GetStyleAccent:     TColor;
@@ -454,12 +453,6 @@ procedure TOBDCustomControl.ThemeChanged;
 begin
   FBufferDirty := True;
   Invalidate;
-end;
-
-procedure TOBDCustomControl.StyleStorageWriter(Sender: TObject);
-begin
-  // hook left in place in case future revisions need a custom
-  // streaming path for TOBDVisualStyle. Currently unused.
 end;
 
 function TOBDCustomControl.GetStyleBackground: TColor; begin Result := FStyle.Background; end;

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/monitor-id.json",
+  "title": "monitor-id",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "entries"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "version": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "oem": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "tid": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "obdmid": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "did": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "tid"
+            ]
+          },
+          {
+            "required": [
+              "obdmid"
+            ]
+          },
+          {
+            "required": [
+              "did"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

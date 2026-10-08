@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/oem-catalog-v2.json",
   "version": 1,
   "manufacturer_key": "OBD2",
   "display_name": "ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs",

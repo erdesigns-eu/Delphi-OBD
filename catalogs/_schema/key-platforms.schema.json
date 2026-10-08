@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/key-platforms.json",
+  "title": "key-platforms",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "entries",
+    "access_levels"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "version": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "oem": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "access_levels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "display_name",
+          "access"
+        ],
+        "properties": {
+          "chassis_key": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "access": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "platform_key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "chassis_key"
+            ]
+          },
+          {
+            "required": [
+              "platform_key"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

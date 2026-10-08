@@ -22,6 +22,7 @@ unit OBD.Service.EVBattery;
 interface
 
 uses
+  OBD.Service.EVBattery.Request,
   System.SysUtils,
   System.Classes,
   System.SyncObjs,
@@ -29,6 +30,7 @@ uses
   Data.Bind.Components,
   OBD.Errors,
   OBD.Types,
+  OBD.Binary.Value,
   OBD.Connection.Types,
   OBD.Protocol.Types,
   OBD.Protocol,
@@ -45,6 +47,7 @@ type
   strict private
     FProtocol:        TOBDProtocol;
     FVendor:          string;
+    FModelYear: Integer;
     FPollIntervalMs:  Cardinal;
     FThread:          TOBDEVBatteryPollThread;
     FOnSnapshot:      TOBDEVBatterySnapshotEvent;
@@ -91,6 +94,8 @@ type
     /// <summary>Vendor catalogue key (e.g. <c>"hmg"</c>,
     /// <c>"nissan-leaf"</c>, <c>"bmw-i"</c>). Pre-shipped keys
     /// live under <c>catalogs/ev-battery/</c>.</summary>
+    /// <summary>Required for catalog rules with a model-year-dependent layout.</summary>
+    property ModelYear: Integer read FModelYear write FModelYear default 0;
     property Vendor: string read FVendor write FVendor;
 
     /// <summary>Live-mode poll interval. Default 2000 ms.</summary>
@@ -123,29 +128,28 @@ implementation
 
 function SliceUInt(const AData: TBytes; AOffset, ALen: Integer;
   out AOk: Boolean): Int64;
-var I: Integer;
 begin
   AOk := False;
   Result := 0;
-  if (AOffset < 0) or (ALen <= 0) then Exit;
-  if AOffset + ALen > Length(AData) then Exit;
-  for I := 0 to ALen - 1 do
-    Result := (Result shl 8) or AData[AOffset + I];
-  AOk := True;
+  try
+    Result := DecodeIntegerBE(AData, AOffset, ALen, False);
+    AOk := True;
+  except
+    on E: EOBDConfig do AOk := False;
+  end;
 end;
 
 function SliceSignInt(const AData: TBytes; AOffset, ALen: Integer;
   out AOk: Boolean): Int64;
-var
-  Raw: Int64;
-  SignBit: Int64;
 begin
-  Raw := SliceUInt(AData, AOffset, ALen, AOk);
-  if not AOk then Exit(0);
-  SignBit := Int64(1) shl (ALen * 8 - 1);
-  if (Raw and SignBit) <> 0 then
-    Raw := Raw - (Int64(1) shl (ALen * 8));
-  Result := Raw;
+  AOk := False;
+  Result := 0;
+  try
+    Result := DecodeIntegerBE(AData, AOffset, ALen, True);
+    AOk := True;
+  except
+    on E: EOBDConfig do AOk := False;
+  end;
 end;
 
 { ---- TOBDEVBattery ---------------------------------------------------------}
@@ -192,23 +196,9 @@ begin
     Exit;
   end;
   try
-    Req := MakeOBDRequest;
-    Req.ServiceID := ARule.Service;
-    case ARule.Service of
-      $22:
-        Req.Data := TBytes.Create(Hi(ARule.DIDOrPID), Lo(ARule.DIDOrPID));
-      $21, $01:
-        Req.Data := TBytes.Create(Lo(ARule.DIDOrPID));
-    else
-      Req.Data := TBytes.Create(Hi(ARule.DIDOrPID), Lo(ARule.DIDOrPID));
-    end;
+    Req := MakeEVBatteryRequest(ARule);
     Resp := FProtocol.Send(Req);
-    if Resp.IsNegative then
-    begin
-      AError := Format('NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
-      Exit;
-    end;
-    Result := Resp.Data;
+    Result := EVBatteryResponseData(ARule, Resp);
   except
     on E: Exception do
       AError := E.ClassName + ': ' + E.Message;
@@ -224,12 +214,24 @@ var
   Arr:   TArray<Single>;
   I, N:  Integer;
   Cnt:   Integer;
+  Decoded: TOBDEVDecodedField;
+
+  procedure SaveDecoded;
+  var Index: Integer;
+  begin
+    Index := Length(ASnapshot.DecodedFields);
+    SetLength(ASnapshot.DecodedFields, Index + 1);
+    ASnapshot.DecodedFields[Index] := Decoded;
+  end;
 begin
+  Decoded := Default(TOBDEVDecodedField);
+  Decoded.Name := ARule.FieldName;
+  Decoded.Unit_ := ARule.Unit_;
   if ARule.IsArray then
   begin
-    if (ARule.ElementSize <= 0) or (ARule.Offset >= Length(AData)) then Exit;
+    if (ARule.ElementSize <= 0) or (ARule.Offset < 0) or (ARule.Offset >= Length(AData)) then Exit;
     Cnt := (Length(AData) - ARule.Offset) div ARule.ElementSize;
-    if Cnt <= 0 then Exit;
+    if Cnt <= 0 then raise EOBDProtocolErr.Create('EV array payload is truncated');
     SetLength(Arr, Cnt);
     for I := 0 to Cnt - 1 do
     begin
@@ -242,6 +244,8 @@ begin
       if Ok then
         Arr[I] := Raw * ARule.Scale + ARule.OffsetVal;
     end;
+    Decoded.Values := Arr;
+    SaveDecoded;
     case ARule.Field of
       efkCellVoltagesArray:
         begin
@@ -297,10 +301,13 @@ begin
     Raw := SliceSignInt(AData, ARule.Offset, ARule.Length, Ok)
   else
     Raw := SliceUInt(AData, ARule.Offset, ARule.Length, Ok);
-  if not Ok then Exit;
+  if not Ok then raise EOBDProtocolErr.Create('EV scalar payload is truncated or outside integer range');
   Phys := Raw * ARule.Scale + ARule.OffsetVal;
+  Decoded.Value := Phys;
+  SaveDecoded;
 
   case ARule.Field of
+    efkCapacityRemainingAh:  begin ASnapshot.HasCapacityRemainingAh := True; ASnapshot.CapacityRemainingAh := Phys; end;
     efkSOC:                  begin ASnapshot.HasSOC := True;               ASnapshot.SOC := Phys; end;
     efkSOH:                  begin ASnapshot.HasSOH := True;               ASnapshot.SOH := Phys; end;
     efkPackVoltage:          begin ASnapshot.HasPackVoltage := True;       ASnapshot.PackVoltage := Phys; end;
@@ -368,10 +375,14 @@ begin
     raise EOBDConfig.CreateFmt(
       'TOBDEVBattery: vendor catalogue "%s" not loaded - check ' +
       'catalogs/ev-battery/<vendor>.json', [FVendor]);
+  for Rule in Cat.Rules do
+    if ((Rule.MinModelYear > 0) or (Rule.MaxModelYear > 0)) and (FModelYear = 0) then
+      raise EOBDConfig.Create('Set ModelYear before reading model-dependent EV rules');
   Errs := TList<string>.Create;
   try
     for Rule in Cat.Rules do
     begin
+      if not EVBatteryRuleApplies(Rule, FModelYear) then Continue;
       Data := ReadOne(Rule, Err);
       if Err <> '' then
       begin
@@ -381,7 +392,16 @@ begin
             Format('field %s: %s', [Rule.FieldName, Err]));
         Continue;
       end;
-      ApplyDecoded(Rule, Data, Result);
+      try
+        ApplyDecoded(Rule, Data, Result);
+      except
+        on E: EOBDProtocolErr do
+        begin
+          Err := Format('%s: %s', [Rule.FieldName, E.Message]);
+          Errs.Add(Err);
+          if Assigned(FOnError) then FOnError(Self, oeIO, Err);
+        end;
+      end;
     end;
     Result.Errors := Errs.ToArray;
   finally

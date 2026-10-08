@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/monitor-id.json",
   "schema_version": 1,
   "spec": "ISO 15031-5 Annex B Test Identifier list",
   "description": "Mode 06 Test Identifier names. Add OEM-specific TIDs without recompiling.",

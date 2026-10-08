@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/adapter-init.json",
   "version": 1,
   "type": "adapter-init-sequences",
   "description": "Per-family initialisation sequences. Override the in-source built-ins by loading this file.",

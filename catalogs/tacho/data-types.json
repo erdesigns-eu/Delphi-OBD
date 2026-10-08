@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/tachograph-types.json",
   "schema_version": 1,
   "description": "EU 165/2014 Digital Tachograph (smart tacho gen-2) data-type catalogue. Covers the ASN.1-derived field schemas used to decode VU and driver-card transfer records (activity, event, fault, calibration). Sourced from Commission Implementing Regulation (EU) 2016/799 Annex 1C Appendix 1.",
   "kind": "tacho-data-types",
@@ -55,9 +56,9 @@
       "size": 8,
       "encoding": "fixed-point",
       "fields": [
-        { "name": "Latitude",   "bytes": "0..3", "unit": "min/10000",
+        { "name": "Latitude",   "offset": 0, "bytes": 4, "unit": "min/10000",
           "notes": "Signed int32 — north positive." },
-        { "name": "Longitude",  "bytes": "4..7", "unit": "min/10000",
+        { "name": "Longitude",  "offset": 4, "bytes": 4, "unit": "min/10000",
           "notes": "Signed int32 — east positive." }
       ]
     },

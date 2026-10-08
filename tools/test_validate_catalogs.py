@@ -53,12 +53,83 @@ class CatalogAuditTests(unittest.TestCase):
         self.assertEqual(1, len(report['checked']))
         self.assertEqual([], report['violations'])
 
+    def test_non_finite_json_numbers_are_rejected(self):
+        for token in ('NaN', 'Infinity', '-Infinity'):
+            (self.root / 'bad.json').write_text('{"value":' + token + '}')
+            self.assertIn('Non-finite JSON number', audit(self.root)['violations'][0]['message'])
+
+    def test_manifest_references_require_existing_matching_unique_vendors(self):
+        (self.root / 'ev-battery').mkdir()
+        self.write('ev-battery/fixture.json', {'vendor': 'fixture'})
+        manifest = {'vendor_files': [{'vendor': 'fixture', 'file': 'fixture.json'}]}
+        self.write('ev-battery/_manifest.json', manifest)
+        self.assertEqual([], audit(self.root)['violations'])
+        manifest['vendor_files'][0]['vendor'] = 'wrong'
+        self.write('ev-battery/_manifest.json', manifest)
+        self.assertIn('does not match', audit(self.root)['violations'][0]['message'])
+        manifest['vendor_files'][0] = {'vendor': 'fixture', 'file': 'missing.json'}
+        self.write('ev-battery/_manifest.json', manifest)
+        self.assertIn('does not exist', audit(self.root)['violations'][0]['message'])
+        manifest['vendor_files'] = [{'vendor': 'fixture', 'file': 'fixture.json'}] * 2
+        self.write('ev-battery/_manifest.json', manifest)
+        self.assertIn('Duplicate', audit(self.root)['violations'][0]['message'])
+
     def test_external_schema_reference_is_denied(self):
         self.schema['properties']['version'] = {'$ref': 'https://example.invalid/remote.json'}
         self.write('_schema/fixture.json', self.schema)
         self.write('catalog.json', {'$schema': self.schema['$id'], 'version': 2})
         with self.assertRaises(Unresolvable):
             audit(self.root)
+
+
+class CatalogSchemaContractTests(unittest.TestCase):
+    @staticmethod
+    def validator(name):
+        from jsonschema import Draft202012Validator
+        schema = Path(__file__).resolve().parents[1] / 'catalogs' / '_schema' / name
+        return Draft202012Validator(json.loads(schema.read_text()))
+
+    def test_extended_wmi_requires_low_volume_marker_and_valid_alphabet(self):
+        validator = self.validator('vin-vds-rules.schema.json')
+        for wmi, valid in [('1FT', True), ('1F9ABC', True), ('1FTABC', False),
+                           ('1F9AIC', False), ('1F9AB', False)]:
+            with self.subTest(wmi=wmi):
+                value = {'schemas': {'fixture': {'wmis': [{'wmi': wmi}],
+                         'patterns': [{'keys': '*', 'field': 'EngineModel'}]}}}
+                self.assertEqual(valid, validator.is_valid(value))
+
+    def test_manufacturer_prefix_and_exact_wmi_are_distinct_valid_shapes(self):
+        validator = self.validator('vin-wmi.schema.json')
+        for wmi, valid in [('1F', True), ('1FT', True), ('1', False), ('1F9ABC', False)]:
+            with self.subTest(wmi=wmi):
+                value = {'$schema': 'fixture', 'schema_version': 1,
+                         'entries': [{'wmi': wmi, 'name': 'Manufacturer'}]}
+                self.assertEqual(valid, validator.is_valid(value))
+
+    def test_ev_notes_are_typed_documentation(self):
+        validator = self.validator('ev-battery.schema.json')
+        value = {'vendor': 'fixture', 'ecu': {'notes': 'Documentation'},
+                 'fields': [{'field': 'soc', 'notes': 'Documentation'}]}
+        self.assertTrue(validator.is_valid(value))
+        value['fields'][0]['notes'] = {'routing': 'unsupported'}
+        self.assertFalse(validator.is_valid(value))
+
+    def test_ev_routing_fields_have_checked_types(self):
+        validator = self.validator('ev-battery.schema.json')
+        value = {'vendor': 'fixture', 'ecu': {}, 'fields': [
+                 {'field': 'soc', 'ecu_request_id_hex': '0x7E0'}]}
+        self.assertTrue(validator.is_valid(value))
+        value['fields'][0]['ecu_request_id_hex'] = '0x7E0' + chr(13) + 'ATZ'
+        self.assertFalse(validator.is_valid(value))
+
+    def test_manifest_has_its_own_shape_and_disallows_parent_paths(self):
+        validator = self.validator('ev-battery-manifest.schema.json')
+        value = {'manifest_version': '1.0.0', 'generated': '2026-10-08',
+                 'all_sources': [], 'vendor_files': [{'vendor': 'fixture',
+                 'file': 'fixture.json', 'coverage': 'partial', 'primary_source': None}]}
+        self.assertTrue(validator.is_valid(value))
+        value['vendor_files'][0]['file'] = '../fixture.json'
+        self.assertFalse(validator.is_valid(value))
 
 
 if __name__ == '__main__':

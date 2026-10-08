@@ -9,6 +9,10 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = (
     'src/Core/OBD.Types.pas', 'src/Core/OBD.Version.pas',
+    'src/Core/OBD.Binary.Value.pas',
+    'src/Core/OBD.CAN.Route.pas', 'src/Protocol/OBD.Protocol.Types.pas',
+    'src/Service/OBD.Service.EVBattery.Types.pas',
+    'src/Service/OBD.Service.EVBattery.Request.pas',
     'src/Core/OBD.Errors.pas', 'src/Protocol/OBD.Protocol.LIN.Frame.pas',
     'src/Protocol/OBD.Protocol.MOST.Control.pas',
     'src/Protocol/OBD.Protocol.FlexRay.Frame.pas',
@@ -44,7 +48,7 @@ def main():
             original = ROOT / relative
             text = original.read_text(encoding='utf-8')
             # Only unit scope names differ for these portable sources.
-            text = text.replace('System.SysUtils', 'SysUtils').replace('System.Variants', 'Variants')
+            text = text.replace('System.SysUtils', 'SysUtils').replace('System.Variants', 'Variants').replace('System.Classes', 'Classes')
             (target / original.name).write_text(text, encoding='utf-8')
         shutil.copyfile(ROOT / 'tools/fpc-smoke/Smoke.dpr', target / 'Smoke.dpr')
         subprocess.run([str(compiler), *flags, '-Fu' + directory, '-FU' + directory,

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/kwp-identifiers.json",
+  "title": "kwp-identifiers",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ecu_identification",
+    "common_identifiers"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "version": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "oem": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "ecu_identification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "service"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "length": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "common_identifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "service"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string",
+            "pattern": "^(?:0x)?[0-9A-Fa-f]+$"
+          },
+          "length": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

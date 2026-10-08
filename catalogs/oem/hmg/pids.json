@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/oem-overlay.json",
   "schema_version": 1,
   "description": "hmg-specific OBD-II / Mode 06 PID overlay seed.",
   "kind": "obd2-pid",

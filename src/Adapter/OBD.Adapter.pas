@@ -32,6 +32,7 @@ unit OBD.Adapter;
 interface
 
 uses
+  OBD.CAN.Route,
   System.StrUtils,
   System.SysUtils,
   System.Classes,
@@ -84,6 +85,7 @@ type
     FRunning: Boolean;
 
     // Response collector
+    FExchangeLock: TCriticalSection;
     FRxLock: TCriticalSection;
     FRxBuffer: string;
     FRxComplete: TEvent;
@@ -128,6 +130,12 @@ type
     procedure DoDetect;
     procedure DoInit;
   protected
+    /// <summary>Single serialized exchange; overridable for custom adapters.</summary>
+    /// <param name="ACommand">Wire command without carriage return.</param>
+    /// <param name="ATimeoutMs">Response timeout.</param>
+    /// <returns>Adapter response.</returns>
+    function ExecuteCommand(const ACommand: string;
+      ATimeoutMs: Cardinal): TOBDAdapterResponse; virtual;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
@@ -241,6 +249,22 @@ type
     function WriteOBDCommand(const ACommand: string;
       ATimeoutMs: Cardinal = 0): TOBDAdapterResponse;
 
+    /// <summary>Apply a CAN route and exchange the diagnostic command atomically.
+    /// Routing settings remain the current adapter configuration afterwards.</summary>
+    /// <param name="ACommand">Diagnostic hex command.</param>
+    /// <param name="AHeader">Optional CAN transmit ID.</param>
+    /// <param name="AFilter">Optional CAN receive ID.</param>
+    /// <param name="AExtended">Enable extended addressing.</param>
+    /// <param name="ATxAddress">Extended destination address.</param>
+    /// <param name="ARxAddress">Extended tester address.</param>
+    /// <param name="ATimeoutMs">Timeout for each exchange.</param>
+    /// <returns>Diagnostic response.</returns>
+    /// <exception cref="EOBDAdapter">Adapter rejected a routing command.</exception>
+    /// <exception cref="EOBDConfig">Invalid CAN route.</exception>
+    function WriteRoutedOBDCommand(const ACommand, AHeader, AFilter: string;
+      AExtended: Boolean; ATxAddress, ARxAddress: Byte;
+      ATimeoutMs: Cardinal = 0): TOBDAdapterResponse;
+
     /// <summary>Non-blocking variant. Result delivered via
     /// <c>OnATResponse</c>.</summary>
     /// <param name="ACommand">OBD hex command.</param>
@@ -326,6 +350,7 @@ begin
   FCommandTimeoutMs := OBD_ADAPTER_DEFAULT_TIMEOUT;
   FInitCommands := TStringList.Create;
   FIdentity := MakeAdapterIdentity;
+  FExchangeLock := TCriticalSection.Create;
   FRxLock := TCriticalSection.Create;
   FRxComplete := TEvent.Create(nil, True, False, '');
   FCancelEvent := TEvent.Create(nil, True, False, '');
@@ -339,7 +364,10 @@ begin
   if Assigned(FCancelEvent) then
     FCancelEvent.SetEvent;
   WaitForAsync;
+  FExchangeLock.Enter;
+  FExchangeLock.Leave;
   UnsubscribeIfNeeded;
+  FExchangeLock.Free;
   FAsyncLock.Free;
   FCancelEvent.Free;
   FRxComplete.Free;
@@ -527,6 +555,17 @@ begin
 end;
 
 function TOBDAdapter.DoSendCommand(const ACommand: string;
+  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+begin
+  FExchangeLock.Enter;
+  try
+    Result := ExecuteCommand(ACommand, ATimeoutMs);
+  finally
+    FExchangeLock.Leave;
+  end;
+end;
+
+function TOBDAdapter.ExecuteCommand(const ACommand: string;
   ATimeoutMs: Cardinal): TOBDAdapterResponse;
 var
   Sw: TStopwatch;
@@ -961,6 +1000,31 @@ function TOBDAdapter.WriteOBDCommand(const ACommand: string;
   ATimeoutMs: Cardinal): TOBDAdapterResponse;
 begin
   Result := DoSendCommand(ACommand, ATimeoutMs);
+  FireOnATResponse(Result);
+end;
+
+function TOBDAdapter.WriteRoutedOBDCommand(const ACommand, AHeader,
+  AFilter: string; AExtended: Boolean; ATxAddress, ARxAddress: Byte;
+  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+var
+  Commands: TArray<string>;
+  Command: string;
+  Reply: TOBDAdapterResponse;
+begin
+  Commands := CANRouteCommands(AHeader, AFilter, AExtended, ATxAddress, ARxAddress);
+  FExchangeLock.Enter;
+  try
+    for Command in Commands do
+    begin
+      Reply := ExecuteCommand(Command, ATimeoutMs);
+      if Reply.IsError or not SameText(Trim(Reply.Raw), 'OK') then
+        raise EOBDAdapter.CreateFmt('CAN routing rejected: %s (%s)',
+          [Command, Trim(Reply.Raw)]);
+    end;
+    Result := ExecuteCommand(ACommand, ATimeoutMs);
+  finally
+    FExchangeLock.Leave;
+  end;
   FireOnATResponse(Result);
 end;
 

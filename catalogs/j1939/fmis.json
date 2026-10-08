@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/j1939-fmi.json",
   "schema_version": 1,
   "description": "SAE J1939-73 §5.7.13 Failure Mode Identifiers (FMI). 5-bit value packed into byte 2 of every DTC record on DM1/DM2/DM6/DM12/DM23/DM27/DM28.",
   "kind": "j1939-fmi",

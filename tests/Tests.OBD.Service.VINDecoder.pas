@@ -11,6 +11,7 @@
 //
 //  History     :
 //    2026-05-10  ERD  Initial implementation.
+//    2026-10-08  ERD  Isolated extended-WMI and prefix matching regressions.
 //------------------------------------------------------------------------------
 
 unit Tests.OBD.Service.VINDecoder;
@@ -68,7 +69,108 @@ type
     [Test] procedure UnknownWMI_LeavesFeaturesEmpty;
   end;
 
+  /// <summary>Isolated catalog fixtures for extended and generic WMI matching.</summary>
+  [TestFixture]
+  TVINCatalogMatchingTests = class
+  strict private
+    FFixtureDir: string;
+    FSavedDir: string;
+  public
+    [Setup] procedure Setup;
+    [TearDown] procedure TearDown;
+    [Test] procedure ExtendedWMIsWithSamePrefixRemainDistinct;
+    [Test] procedure UnknownExtendedWMIDoesNotUseAnotherManufacturer;
+    [Test] procedure ExactManufacturerTakesPrecedenceOverPrefix;
+    [Test] procedure ManufacturerPrefixFallback;
+  end;
+
 implementation
+
+function FindVINCatalogBase: string;
+var
+  Candidate, Parent: string;
+begin
+  Candidate := TPath.GetDirectoryName(ParamStr(0));
+  while Candidate <> '' do
+  begin
+    if TFile.Exists(TPath.Combine(TPath.Combine(TPath.Combine(Candidate, 'catalogs'),
+      'vin'), 'wmi.json')) then
+      Exit(TPath.Combine(Candidate, 'catalogs'));
+    Parent := TPath.GetDirectoryName(Candidate);
+    if Parent = Candidate then Break;
+    Candidate := Parent;
+  end;
+  raise EOSError.Create('VIN test catalogs not found above test executable');
+end;
+
+procedure TVINCatalogMatchingTests.Setup;
+var
+  VinDir: string;
+begin
+  FSavedDir := TOBDVINDecoder.CatalogDir;
+  if not TDirectory.Exists(TPath.Combine(FSavedDir, 'vin')) then
+    FSavedDir := FindVINCatalogBase;
+  FFixtureDir := TPath.Combine(TPath.GetTempPath, TPath.GetRandomFileName);
+  VinDir := TPath.Combine(FFixtureDir, 'vin');
+  TDirectory.CreateDirectory(VinDir);
+  TFile.WriteAllText(TPath.Combine(VinDir, 'regions.json'), '{"entries":[]}');
+  TFile.WriteAllText(TPath.Combine(VinDir, 'countries.json'), '{"entries":[]}');
+  TFile.WriteAllText(TPath.Combine(VinDir, 'plants.json'), '{"entries":[]}');
+  TFile.WriteAllText(TPath.Combine(VinDir, 'wmi.json'),
+    '{"entries":[{"wmi":"ZZ","name":"Generic"},' +
+    '{"wmi":"ZZ9","name":"Exact"}]}');
+  TFile.WriteAllText(TPath.Combine(VinDir, 'vds-rules.json'),
+    '{"schemas":{' +
+    '"general":{"wmis":[{"wmi":"ZZ9"}],"patterns":[' +
+    '{"keys":"*","field":"BodyClass","value":"Bus"}]},' +
+    '"alpha":{"wmis":[{"wmi":"ZZ9ABC"}],"patterns":[' +
+    '{"keys":"*","field":"EngineModel","value":"Alpha"}]},' +
+    '"beta":{"wmis":[{"wmi":"ZZ9XYZ"}],"patterns":[' +
+    '{"keys":"*","field":"EngineModel","value":"Beta"}]}}}');
+  TOBDVINDecoder.CatalogDir := FFixtureDir;
+  TOBDVINDecoder.LoadCatalogs(FFixtureDir);
+end;
+
+procedure TVINCatalogMatchingTests.TearDown;
+begin
+  TOBDVINDecoder.CatalogDir := FSavedDir;
+  try
+    TOBDVINDecoder.LoadCatalogs(FSavedDir);
+  finally
+    TDirectory.Delete(FFixtureDir, True);
+  end;
+end;
+
+procedure TVINCatalogMatchingTests.ExtendedWMIsWithSamePrefixRemainDistinct;
+var
+  Alpha, Beta: TOBDVINFeatures;
+begin
+  Alpha := TOBDVINDecoder.DetectFeatures('ZZ9AAAAAAAZABC123');
+  Beta := TOBDVINDecoder.DetectFeatures('ZZ9AAAAAAAZXYZ123');
+  Assert.AreEqual('Alpha', Alpha.EngineType);
+  Assert.AreEqual('Beta', Beta.EngineType);
+  Assert.AreEqual(Ord(vtBus), Ord(Alpha.VehicleType));
+  Assert.AreEqual(Ord(vtBus), Ord(Beta.VehicleType));
+end;
+
+procedure TVINCatalogMatchingTests.UnknownExtendedWMIDoesNotUseAnotherManufacturer;
+var
+  Features: TOBDVINFeatures;
+begin
+  Features := TOBDVINDecoder.DetectFeatures('ZZ9AAAAAAAZDEF123');
+  Assert.AreEqual('', Features.EngineType);
+  Assert.AreEqual(Ord(vtBus), Ord(Features.VehicleType));
+end;
+
+procedure TVINCatalogMatchingTests.ExactManufacturerTakesPrecedenceOverPrefix;
+begin
+  Assert.AreEqual('Exact', TOBDVINDecoder.ResolveManufacturer('ZZ9').Name);
+end;
+
+procedure TVINCatalogMatchingTests.ManufacturerPrefixFallback;
+begin
+  Assert.AreEqual('Generic', TOBDVINDecoder.ResolveManufacturer('ZZ1').Name);
+end;
 
 { ---- TVINShapeTests --------------------------------------------------------- }
 
@@ -151,7 +253,7 @@ begin
   // Tests run from the repo root; point the decoder at the
   // catalog files we just shipped.
   TOBDVINDecoder.CatalogDir :=
-    TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..\catalogs');
+    FindVINCatalogBase;
   // Force a fresh load so a previous test's CatalogDir doesn't
   // bleed into this fixture.
   TOBDVINDecoder.LoadCatalogs(TOBDVINDecoder.CatalogDir);
@@ -196,7 +298,7 @@ end;
 procedure TVINFeatureDecodeTests.Setup;
 begin
   TOBDVINDecoder.CatalogDir :=
-    TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..\catalogs');
+    FindVINCatalogBase;
   TOBDVINDecoder.LoadCatalogs(TOBDVINDecoder.CatalogDir);
 end;
 
@@ -236,6 +338,7 @@ begin
 end;
 
 initialization
+  TDUnitX.RegisterTestFixture(TVINCatalogMatchingTests);
   TDUnitX.RegisterTestFixture(TVINShapeTests);
   TDUnitX.RegisterTestFixture(TVINCheckDigitTests);
   TDUnitX.RegisterTestFixture(TVINYearTests);

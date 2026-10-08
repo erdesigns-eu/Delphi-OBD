@@ -10,6 +10,23 @@ The previous v1 release line lives on the
 
 ## [Unreleased]
 
+### Catalog and diagnostic correctness
+
+- Enforce full offline schema coverage for all 248 data catalogs and strict
+  Pascal analysis, including hints, in CI; add manifest-reference validation.
+- Implement atomic CAN header/filter/extended-address routing and EV per-field
+  ECU overrides; validate and remove DID/PID echoes before decoding.
+- Support exact/prefix/extended VIN matching and preserve invalid source records
+  with an explicit normalization receipt.
+- Repair VW e-Up DIDs and generation-dependent cell layouts against OVMS sources;
+  require model year for dependent rules and expose every decoded vendor field.
+- Keep ampere-hour capacity distinct from SOH percentage.
+- Support signed int8 and byte adaptations, checked integer encoding, correct
+  big-endian coding and ASCII widths; validate write response identifiers.
+- Extend the portable FPC smoke to 185 checks and add Delphi regressions for
+  routing, VIN matching, OEM writes/coding and EV catalog configuration.
+
+
 ### KWP merge preparation
 
 - Add an offline catalog schema auditor and five regression fixtures; report

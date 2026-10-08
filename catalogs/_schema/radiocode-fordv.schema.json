@@ -4,18 +4,46 @@
   "title": "Ford V-series radio-code lookup",
   "description": "Ford V-series 4-digit code lookup. Index = serial (0..999998); value = code string.",
   "type": "object",
-  "required": ["schema_version", "format", "count", "codes"],
+  "required": [
+    "schema_version",
+    "format",
+    "count",
+    "codes"
+  ],
   "properties": {
-    "schema_version": { "type": "integer", "const": 1 },
-    "brand":          { "type": "string" },
-    "format":         { "type": "string", "const": "V-series" },
-    "description":    { "type": "string" },
-    "count":          { "type": "integer", "const": 999999 },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "brand": {
+      "type": "string"
+    },
+    "format": {
+      "enum": [
+        "V-series",
+        "ford-v-radio-code-lookup"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "count": {
+      "type": "integer",
+      "const": 999999
+    },
     "codes": {
       "type": "array",
       "minItems": 999999,
       "maxItems": 999999,
-      "items": { "type": "string", "minLength": 4, "maxLength": 4 }
+      "items": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 4,
+        "pattern": "^[0-9]{4}$"
+      }
+    },
+    "$schema": {
+      "type": "string"
     }
   },
   "additionalProperties": false

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "PACCAR DTC starter (Peterbilt / Kenworth / DAF)",
   "default_source": "PACCAR ESA / Davie community SPN/FMI DTCs",

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://erdesigns.eu/schema/dtc-catalog-v2.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 2,
   "name": "ISO 15031-6 / SAE J2012 generic DTCs",
   "default_source": "iso-15031-6",

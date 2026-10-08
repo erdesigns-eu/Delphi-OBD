@@ -651,7 +651,9 @@ begin
   Hex := EncodeRequest(ARequest);
 
   FireOnProgress(2, 3, 'Adapter exchange', Hex);
-  AdapterResp := FAdapter.WriteOBDCommand(Hex, Effective);
+  AdapterResp := FAdapter.WriteRoutedOBDCommand(Hex, ARequest.HeaderOverride,
+    ARequest.ResponseHeaderOverride, ARequest.UseExtendedAddressing,
+    ARequest.ExtendedTarget, ARequest.ExtendedTester, Effective);
 
   // Frame-level fan-out (one TOBDFrame per response line). Done
   // before decoding so subscribers see frames in arrival order

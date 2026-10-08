@@ -33,6 +33,8 @@ unit OBD.OEM.UdsClient;
 interface
 
 uses
+  OBD.Types,
+  OBD.Binary.Value,
   OBD.OEM.Types,
   System.SysUtils, System.Classes, System.SyncObjs, System.DateUtils,
   System.Generics.Collections,
@@ -171,6 +173,13 @@ type
     function  ReadDID(const NameOrHex: string): TOBDDecodedValue;
     function  WriteAdaptation(const ChannelOrHex: string;
                               Value: Int64): Boolean;
+    /// <summary>Write a byte-valued adaptation using an exact payload.</summary>
+    /// <param name="ChannelOrHex">Catalog channel name or hexadecimal DID.</param>
+    /// <param name="Data">Nonempty byte payload.</param>
+    /// <returns>True after a matching positive response.</returns>
+    /// <exception cref="EOBDUdsValidation">Wrong kind or empty data.</exception>
+    function WriteAdaptationBytes(const ChannelOrHex: string;
+      const Data: TBytes): Boolean;
     function  ExecuteRoutine(const NameOrHex: string;
                              const Args: TBytes;
                              RoutineType: Byte = $01): TOBDActuatorResult;
@@ -827,7 +836,7 @@ begin
     Exit(Field.BitWidth);
   case ParseCodingFieldKind(Field.KindStr) of
     cfkBit:      Result := 1;
-    cfkUInt8:    Result := 8;
+    cfkUInt8, cfkInt8: Result := 8;
     cfkUInt16BE: Result := 16;
     cfkUInt32BE: Result := 32;
     cfkInt16BE:  Result := 16;
@@ -851,14 +860,16 @@ end;
 function UnpackBits(const Payload: TBytes;
                     ByteOffset, BitOffset, BitWidth: Integer): Int64;
 var
-  AbsBit, EndBit, B: Integer;
+  AbsBit, EndBit, B: Int64;
   Bit: Boolean;
 begin
   Result := 0;
-  if BitWidth <= 0 then Exit;
-  AbsBit := ByteOffset * 8 + BitOffset;
+  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or
+    (BitWidth < 1) or (BitWidth > 64) then
+    raise EOBDUdsCodingError.Create('Invalid numeric coding field bounds');
+  AbsBit := Int64(ByteOffset) * 8 + BitOffset;
   EndBit := AbsBit + BitWidth;
-  if EndBit > Length(Payload) * 8 then
+  if EndBit > Int64(Length(Payload)) * 8 then
     raise EOBDUdsCodingError.CreateFmt(
       'coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
       [ByteOffset, BitOffset, BitWidth, Length(Payload)]);
@@ -884,13 +895,15 @@ procedure PackBits(var Payload: TBytes;
                    ByteOffset, BitOffset, BitWidth: Integer;
                    Value: Int64);
 var
-  AbsBit, EndBit, B: Integer;
+  AbsBit, EndBit, B: Int64;
   Mask: Byte;
 begin
-  if BitWidth <= 0 then Exit;
-  AbsBit := ByteOffset * 8 + BitOffset;
+  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or
+    (BitWidth < 1) or (BitWidth > 64) then
+    raise EOBDUdsCodingError.Create('Invalid numeric coding field bounds');
+  AbsBit := Int64(ByteOffset) * 8 + BitOffset;
   EndBit := AbsBit + BitWidth;
-  if EndBit > Length(Payload) * 8 then
+  if EndBit > Int64(Length(Payload)) * 8 then
     raise EOBDUdsCodingError.CreateFmt(
       'coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
       [ByteOffset, BitOffset, BitWidth, Length(Payload)]);
@@ -1075,6 +1088,13 @@ type
     function  ReadDID(const NameOrHex: string): TOBDDecodedValue;
     function  WriteAdaptation(const ChannelOrHex: string;
                               Value: Int64): Boolean;
+    /// <summary>Write a byte-valued adaptation using an exact payload.</summary>
+    /// <param name="ChannelOrHex">Catalog channel name or hexadecimal DID.</param>
+    /// <param name="Data">Nonempty byte payload.</param>
+    /// <returns>True after a matching positive response.</returns>
+    /// <exception cref="EOBDUdsValidation">Wrong kind or empty data.</exception>
+    function WriteAdaptationBytes(const ChannelOrHex: string;
+      const Data: TBytes): Boolean;
     function  ExecuteRoutine(const NameOrHex: string;
                              const Args: TBytes;
                              RoutineType: Byte = $01): TOBDActuatorResult;
@@ -1236,18 +1256,27 @@ begin
     raise EOBDUdsValidation.CreateFmt(
       'adaptation %s = %d outside [%d..%d]',
       [Entry.Name, Value, Entry.MinValue, Entry.MaxValue]);
-  // Pack the value per adaptation kind.
-  case Kind of
-    adkUInt8,
-    adkEnum:     Data := [Byte(Value)];
-    adkUInt16BE,
-    adkInt16BE:  Data := [Byte(Value shr 8), Byte(Value)];
-    adkUInt32BE,
-    adkInt32BE:  Data := [Byte(Value shr 24), Byte(Value shr 16),
-                          Byte(Value shr 8),  Byte(Value)];
-  else
-    raise EOBDUdsValidation.CreateFmt(
-      'unknown adaptation kind for %s', [Entry.Name]);
+  // Validate physical width as well as catalog bounds; never truncate.
+  try
+    case Kind of
+      adkUInt8, adkEnum: Data := EncodeIntegerBE(Value, 1, False);
+      adkBool:
+        begin
+          if (Value <> 0) and (Value <> 1) then
+            raise EOBDUdsValidation.Create('Boolean adaptation requires 0 or 1');
+          Data := EncodeIntegerBE(Value, 1, False);
+        end;
+      adkInt8: Data := EncodeIntegerBE(Value, 1, True);
+      adkUInt16BE: Data := EncodeIntegerBE(Value, 2, False);
+      adkInt16BE: Data := EncodeIntegerBE(Value, 2, True);
+      adkUInt32BE: Data := EncodeIntegerBE(Value, 4, False);
+      adkInt32BE: Data := EncodeIntegerBE(Value, 4, True);
+      adkBytes: raise EOBDUdsValidation.Create('Use WriteAdaptationBytes for byte-valued channels');
+    else
+      raise EOBDUdsValidation.CreateFmt('unknown adaptation kind for %s', [Entry.Name]);
+    end;
+  except
+    on E: EOBDConfig do raise EOBDUdsValidation.Create(E.Message);
   end;
 
   if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
@@ -1255,7 +1284,38 @@ begin
   try
     Req := BuildWriteDataByIdentifier(Channel, Data);
     Resp := FTransport.SendReceive(Req, 1500);
-    Result := (Length(Resp) >= 1) and (Resp[0] = $6E);
+    if (Length(Resp) < 3) or (Resp[0] <> $6E) or
+      (Resp[1] <> Hi(Channel)) or (Resp[2] <> Lo(Channel)) then
+      raise EOBDUdsTransportError.Create('Adaptation write response SID/DID mismatch');
+    Result := True;
+  finally
+    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+      FTransport.SetTargetECU(FECUAddress);
+  end;
+end;
+
+function TOBDUdsClient.WriteAdaptationBytes(const ChannelOrHex: string;
+  const Data: TBytes): Boolean;
+var
+  Entry: TOBDAdaptationEntry;
+  Channel: Word;
+  Req, Resp: TBytes;
+begin
+  EnsureOpen;
+  Channel := ResolveAdaptation(FCatalog, ChannelOrHex, Entry);
+  if ParseAdaptationKind(Entry.KindStr) <> adkBytes then
+    raise EOBDUdsValidation.Create('Channel is not a byte-valued adaptation');
+  if Length(Data) = 0 then
+    raise EOBDUdsValidation.Create('Byte-valued adaptation payload is empty');
+  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.EcuAddress);
+  try
+    Req := BuildWriteDataByIdentifier(Channel, Data);
+    Resp := FTransport.SendReceive(Req, 1500);
+    if (Length(Resp) < 3) or (Resp[0] <> $6E) or
+      (Resp[1] <> Hi(Channel)) or (Resp[2] <> Lo(Channel)) then
+      raise EOBDUdsTransportError.Create('Adaptation write response SID/DID mismatch');
+    Result := True;
   finally
     if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
@@ -1325,7 +1385,8 @@ begin
         'coding block %s expected %d bytes, got %d',
         [Block.Name, Block.PayloadSize, Length(Payload)]);
     Result := TOBDCodingValues.Create;
-    Result.Raw := Payload;
+    try
+      Result.Raw := Payload;
     for I := 0 to High(Block.Fields) do
     begin
       Field := Block.Fields[I];
@@ -1334,7 +1395,11 @@ begin
       begin
         var
           S: string := '';
-        for var J := 0 to Field.BitWidth - 1 do
+        if (Field.BitWidth <= 0) or (Field.BitWidth mod 8 <> 0) or
+          (Field.ByteOffset < 0) or
+          (Int64(Field.ByteOffset) + Field.BitWidth div 8 > Length(Payload)) then
+          raise EOBDUdsCodingError.Create('ASCII coding field exceeds payload or has invalid width');
+        for var J := 0 to Field.BitWidth div 8 - 1 do
           if (Field.ByteOffset + J) < Length(Payload) then
             S := S + Char(Payload[Field.ByteOffset + J]);
         Result.SetStr(Field.Name, Trim(S));
@@ -1342,9 +1407,22 @@ begin
       else
       begin
         Width := FieldBitWidth(Field);
-        Value := UnpackBits(Payload, Field.ByteOffset, Field.BitOffset, Width);
+        if (Kind in [cfkUInt16BE, cfkUInt32BE, cfkInt16BE, cfkInt32BE]) and
+          (Field.BitOffset = 0) and (Width mod 8 = 0) then
+          Value := DecodeIntegerBE(Payload, Field.ByteOffset, Width div 8,
+            Kind in [cfkInt16BE, cfkInt32BE])
+        else
+        begin
+          Value := UnpackBits(Payload, Field.ByteOffset, Field.BitOffset, Width);
+          if Kind in [cfkInt8, cfkInt16BE, cfkInt32BE] then
+            Value := SignExtendBits(UInt64(Value), Width);
+        end;
         Result.SetInt(Field.Name, Value);
       end;
+    end;
+    except
+      Result.Free;
+      raise;
     end;
   finally
     if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
@@ -1382,7 +1460,15 @@ begin
     if ParseCodingFieldKind(Field.KindStr) = cfkAscii then
     begin
       S := Values.GetStr(Field.Name);
-      for J := 0 to Field.BitWidth - 1 do
+      if (Field.BitWidth <= 0) or (Field.BitWidth mod 8 <> 0) or
+        (Field.ByteOffset < 0) or
+        (Int64(Field.ByteOffset) + Field.BitWidth div 8 > Length(Payload)) then
+        raise EOBDUdsCodingError.Create('ASCII coding field exceeds payload or has invalid width');
+      if Length(S) > Field.BitWidth div 8 then
+        raise EOBDUdsValidation.Create('ASCII coding value exceeds field width');
+      for var C in S do
+        if Ord(C) > 127 then raise EOBDUdsValidation.Create('Non-ASCII coding character');
+      for J := 0 to Field.BitWidth div 8 - 1 do
       begin
         if (Field.ByteOffset + J) < Length(Payload) then
         begin
@@ -1407,7 +1493,30 @@ begin
         raise EOBDUdsValidation.CreateFmt(
           'coding field %s = %d outside [%d..%d]',
           [Field.Name, V, Field.MinValue, Field.MaxValue]);
-      PackBits(Payload, Field.ByteOffset, Field.BitOffset, Width, V);
+      if (ParseCodingFieldKind(Field.KindStr) in
+        [cfkUInt16BE, cfkUInt32BE, cfkInt16BE, cfkInt32BE]) and
+        (Field.BitOffset = 0) and (Width mod 8 = 0) then
+      begin
+        var Encoded := EncodeIntegerBE(V, Width div 8,
+          ParseCodingFieldKind(Field.KindStr) in [cfkInt16BE, cfkInt32BE]);
+        if (Field.ByteOffset < 0) or (Int64(Field.ByteOffset) + Length(Encoded) > Length(Payload)) then
+          raise EOBDUdsCodingError.Create('Numeric coding field exceeds payload');
+        Move(Encoded[0], Payload[Field.ByteOffset], Length(Encoded));
+      end
+      else
+      begin
+        if (Width < 1) or (Width > 64) then
+          raise EOBDUdsCodingError.Create('Numeric coding width must be 1..64 bits');
+        if ParseCodingFieldKind(Field.KindStr) in [cfkInt8, cfkInt16BE, cfkInt32BE] then
+        begin
+          if (Width < 64) and ((V < -(Int64(1) shl (Width - 1))) or
+            (V >= (Int64(1) shl (Width - 1)))) then
+            raise EOBDUdsValidation.Create('Signed coding value exceeds physical width');
+        end
+        else if (V < 0) or ((Width < 64) and (UInt64(V) >= (UInt64(1) shl Width))) then
+          raise EOBDUdsValidation.Create('Unsigned coding value exceeds physical width');
+        PackBits(Payload, Field.ByteOffset, Field.BitOffset, Width, V);
+      end;
     end;
   end;
   if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
@@ -1415,7 +1524,9 @@ begin
   try
     Req := BuildWriteDataByIdentifier(Block.DataIdentifier, Payload);
     Resp := FTransport.SendReceive(Req, 3000);
-    if (Length(Resp) < 1) or (Resp[0] <> $6E) then
+    if (Length(Resp) < 3) or (Resp[0] <> $6E) or
+      (Resp[1] <> Byte(Block.DataIdentifier shr 8)) or
+      (Resp[2] <> Byte(Block.DataIdentifier and $FF)) then
       raise EOBDUdsTransportError.CreateFmt(
         'WriteDataByIdentifier rejected for coding block %s: %s',
         [Block.Name, HexDump(Resp)]);

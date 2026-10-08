@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "Ferrari DTC starter (SD3 / Leonardo)",
   "default_source": "Ferrari SD3 / Leonardo community DTCs",

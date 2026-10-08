@@ -36,7 +36,8 @@
 //  License     : MIT — see LICENSE
 //
 //  History     :
-//    2026-05-10  ERD  Initial implementation. Algorithm
+//    2026-05-10  ERD  Initial implementation.
+//    2026-10-08  ERD  Match extended low-volume WMIs and manufacturer prefixes. Algorithm
 //                     re-derived from ISO 3779 / 3780 / SAE J853;
 //                     spec-defined data tables imported from the
 //                     v1 JSON catalogues.
@@ -143,7 +144,10 @@ type
     /// characters.</summary>
     class function ResolveCountry(const AFirstTwo: string): TOBDVINCountry; static;
 
-    /// <summary>Looks up the manufacturer for a 3-char WMI.</summary>
+    /// <summary>Looks up an exact three-character WMI, then falls back to
+    /// a catalogued two-character manufacturer prefix.</summary>
+    /// <param name="AWMI">Three-character WMI.</param>
+    /// <returns>Manufacturer match or an empty record.</returns>
     class function ResolveManufacturer(const AWMI: string): TOBDVINManufacturer; static;
 
     /// <summary>Looks up the assembly plant for a WMI + plant
@@ -151,10 +155,11 @@ type
     class function ResolvePlant(const AWMI: string;
       APlantCode: Char): TOBDVINPlantLocation; static;
 
-    /// <summary>Best-effort feature decode from the VDS section.
-    /// Currently a stub — returns
-    /// <c>vtUnknown</c> + empty fields. Future work will populate
-    /// from a per-manufacturer rules catalog.</summary>
+    /// <summary>Best-effort feature decode using VDS catalog rules. For
+    /// low-volume manufacturers, positions 12–14 extend a WMI ending in 9;
+    /// extended rules augment the general three-character WMI rules.</summary>
+    /// <param name="AVIN">VIN; extended matching requires all 17 characters.</param>
+    /// <returns>Matched features or an empty feature record.</returns>
     class function DetectFeatures(const AVIN: string): TOBDVINFeatures; static;
 
     /// <summary>Decodes <c>AVIN</c> end-to-end. Always returns a
@@ -356,7 +361,9 @@ begin
   EnsureCatalogsLoaded;
   Result := Default(TOBDVINManufacturer);
   if Length(AWMI) <> 3 then Exit;
-  if not FManufacturers.TryGetValue(UpperCase(AWMI), Result) then
+  if FManufacturers.TryGetValue(UpperCase(AWMI), Result) then
+    Exit;
+  if not FManufacturers.TryGetValue(UpperCase(Copy(AWMI, 1, 2)), Result) then
     Result := Default(TOBDVINManufacturer);
 end;
 
@@ -596,7 +603,8 @@ end;
 class function TOBDVINDecoder.DetectFeatures(
   const AVIN: string): TOBDVINFeatures;
 var
-  WMI, VDS: string;
+  WMI, VDS, Key: string;
+  Keys: TArray<string>;
   Schema:   TOBDVINVDSSchema;
   Pat:      TOBDVINVDSPattern;
   Year:     Word;
@@ -613,16 +621,26 @@ begin
   VDS  := UpperCase(Copy(AVIN, 4, 6));
   Year := MostLikelyYear(AVIN[10]);
 
-  if not FVDSWMIIndex.TryGetValue(WMI, Bucket) then Exit;
-
-  for Si in Bucket do
+  SetLength(Keys, 1);
+  Keys[0] := WMI;
+  if (Length(AVIN) = 17) and (WMI[3] = '9') then
   begin
-    Schema := FVDSSchemas[Si];
-    if not SchemaApplies(Schema, WMI, Year) then Continue;
-    for Pat in Schema.Patterns do
+    SetLength(Keys, 2);
+    // Extended low-volume identifier: VIN positions 1–3 and 12–14.
+    Keys[1] := WMI + UpperCase(Copy(AVIN, 12, 3));
+  end;
+  for Key in Keys do
+  begin
+    if not FVDSWMIIndex.TryGetValue(Key, Bucket) then Continue;
+    for Si in Bucket do
     begin
-      if not KeysMatchVDS(Pat.Keys, VDS) then Continue;
-      ApplyVPICField(Pat.Field, Pat.Value, Result);
+      Schema := FVDSSchemas[Si];
+      if not SchemaApplies(Schema, Key, Year) then Continue;
+      for Pat in Schema.Patterns do
+      begin
+        if not KeysMatchVDS(Pat.Keys, VDS) then Continue;
+        ApplyVPICField(Pat.Field, Pat.Value, Result);
+      end;
     end;
   end;
 end;
@@ -897,7 +915,8 @@ begin
             if V <> nil then WmiEntry.YearFrom := StrToIntDef(V.Value, 0);
             V := WmiObj.GetValue('yearTo');
             if V <> nil then WmiEntry.YearTo   := StrToIntDef(V.Value, 0);
-            if Length(WmiEntry.WMI) = 3 then
+            if (Length(WmiEntry.WMI) = 3) or
+              ((Length(WmiEntry.WMI) = 6) and (WmiEntry.WMI[3] = '9')) then
               WmiList.Add(WmiEntry);
           end;
         Schema.WMIs := WmiList.ToArray;

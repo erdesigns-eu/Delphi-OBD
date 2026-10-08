@@ -48,12 +48,12 @@ type
   /// <summary>Field-type tag inside a writeable coding block.</summary>
   TOBDCodingFieldKind = (
     cfkUnknown, cfkBit, cfkUInt8, cfkUInt16BE, cfkUInt32BE,
-    cfkInt16BE, cfkInt32BE, cfkAscii, cfkEnum, cfkBitmask);
+    cfkInt16BE, cfkInt32BE, cfkAscii, cfkEnum, cfkBitmask, cfkInt8);
 
   /// <summary>Adaptation-channel value kind (VAG-style).</summary>
   TOBDAdaptationKind = (
     adkUnknown, adkUInt8, adkUInt16BE, adkUInt32BE,
-    adkInt16BE, adkInt32BE, adkEnum);
+    adkInt16BE, adkInt32BE, adkEnum, adkInt8, adkBytes, adkBool);
 
   /// <summary>Expected response shape of an actuator test.</summary>
   TOBDActuatorResponseKind = (

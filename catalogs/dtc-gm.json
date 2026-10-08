@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "GM DTC starter (Tech 2 / GDS-2 common P1 / B / U codes)",
   "default_source": "GM GDS2 / Tech2 community DTCs",

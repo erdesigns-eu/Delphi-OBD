@@ -91,7 +91,6 @@ type
     procedure SetShowValue(AValue: Boolean);
     function ClampValue(AValue: Single): Single;
     function ValueToAngle(AValue: Single): Single;
-    function AngleToValue(AAngle: Single): Single;
     function PointToAngle(const APoint: TPoint): Single;
     procedure CMMouseEnter(var Message: TMessage);
       message CM_MOUSEENTER;
@@ -315,29 +314,6 @@ begin
   else
     Frac := (AValue - FMin) / (FMax - FMin);
   Result := FStartAngle + Frac * FSweepAngle;
-end;
-
-function TOBDKnob.AngleToValue(AAngle: Single): Single;
-var
-  Delta: Single;
-  Frac: Single;
-begin
-  Delta := AAngle - FStartAngle;
-  while Delta < 0 do
-    Delta := Delta + 360;
-  while Delta > 360 do
-    Delta := Delta - 360;
-  if Delta > FSweepAngle then
-  begin
-    // Snap to the nearer endpoint when the user drags past the
-    // arc boundary.
-    if Delta - FSweepAngle > (360 - FSweepAngle) / 2 then
-      Delta := 0
-    else
-      Delta := FSweepAngle;
-  end;
-  Frac := Delta / FSweepAngle;
-  Result := FMin + Frac * (FMax - FMin);
 end;
 
 function TOBDKnob.PointToAngle(const APoint: TPoint): Single;

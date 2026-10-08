@@ -3,49 +3,200 @@
   "$id": "https://delphi-obd.example/schema/ev-battery.json",
   "title": "EV battery BMS decode catalogue (per vendor)",
   "type": "object",
-  "required": ["vendor", "ecu", "fields"],
+  "required": [
+    "vendor",
+    "ecu",
+    "fields"
+  ],
   "additionalProperties": true,
   "properties": {
-    "$schema": { "type": "string" },
-    "vendor":  { "type": "string", "description": "Lowercase vendor key (e.g. \"hmg\", \"nissan-leaf\")." },
-    "label":   { "type": "string", "description": "Human-readable name for UI display." },
+    "$schema": {
+      "type": "string"
+    },
+    "vendor": {
+      "type": "string",
+      "description": "Lowercase vendor key (e.g. \"hmg\", \"nissan-leaf\")."
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable name for UI display."
+    },
     "ecu": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "request_id_hex":  { "type": "string" },
-        "response_id_hex": { "type": "string" },
-        "request_id":      { "type": "integer" },
-        "response_id":     { "type": "integer" }
-      }
+        "request_id_hex": {
+          "type": "string",
+          "pattern": "^0x(?:[0-9A-Fa-f]{1,7}|[01][0-9A-Fa-f]{7})$"
+        },
+        "response_id_hex": {
+          "type": "string",
+          "pattern": "^0x(?:[0-9A-Fa-f]{1,7}|[01][0-9A-Fa-f]{7})$"
+        },
+        "request_id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 536870911
+        },
+        "response_id": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 536870911
+        },
+        "notes": {
+          "type": "string",
+          "description": "Documentation only; does not configure transport routing."
+        },
+        "addressing": {
+          "enum": [
+            "ISOTP_NORMAL",
+            "ISOTP_EXTADR"
+          ]
+        },
+        "extended_target_hex": {
+          "type": "string",
+          "pattern": "^0x[0-9A-Fa-f]{2}$"
+        },
+        "extended_tester_hex": {
+          "type": "string",
+          "pattern": "^0x[0-9A-Fa-f]{2}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "addressing": {
+                "const": "ISOTP_EXTADR"
+              }
+            },
+            "required": [
+              "addressing"
+            ]
+          },
+          "then": {
+            "required": [
+              "request_id_hex",
+              "response_id_hex",
+              "extended_target_hex",
+              "extended_tester_hex"
+            ]
+          }
+        }
+      ]
     },
     "applicable_models": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "fields": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["field"],
+        "required": [
+          "field"
+        ],
         "additionalProperties": false,
         "properties": {
-          "field":         { "type": "string", "description": "Snake-case field name; matched by FieldKindFromName." },
-          "service_hex":   { "type": "string", "description": "UDS service id, e.g. \"0x22\". Falls back to \"service\" decimal if absent." },
-          "service":       { "type": "integer" },
-          "did_hex":       { "type": "string" },
-          "did":           { "type": "integer" },
-          "pid_hex":       { "type": "string" },
-          "pid":           { "type": "integer" },
-          "offset":        { "type": "integer", "description": "0-based byte offset within the response data payload (post-header)." },
-          "length":        { "type": "integer", "description": "Byte length of the slice. Default 1." },
-          "signed":        { "type": "boolean" },
-          "scale":         { "type": "number" },
-          "offset_value":  { "type": "number" },
-          "unit":          { "type": "string" },
-          "source":        { "type": "string", "description": "Citation URL or doc reference." },
-          "array":         { "type": "boolean", "description": "True for repeating arrays (cells / module temps)." },
-          "element_size":  { "type": "integer" }
+          "field": {
+            "type": "string",
+            "description": "Snake-case field name; matched by FieldKindFromName."
+          },
+          "service_hex": {
+            "type": "string",
+            "description": "UDS service id, e.g. \"0x22\". Falls back to \"service\" decimal if absent.",
+            "pattern": "^0x[0-9A-Fa-f]{1,2}$"
+          },
+          "service": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "did_hex": {
+            "type": "string",
+            "pattern": "^0x[0-9A-Fa-f]{1,4}$"
+          },
+          "did": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "pid_hex": {
+            "type": "string",
+            "pattern": "^0x[0-9A-Fa-f]{1,2}$"
+          },
+          "pid": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "offset": {
+            "type": "integer",
+            "description": "0-based byte offset within the response data payload (post-header).",
+            "minimum": 0
+          },
+          "length": {
+            "type": "integer",
+            "description": "Byte length of the slice. Default 1.",
+            "minimum": 1
+          },
+          "signed": {
+            "type": "boolean"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "offset_value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "description": "Citation URL or doc reference."
+          },
+          "array": {
+            "type": "boolean",
+            "description": "True for repeating arrays (cells / module temps)."
+          },
+          "element_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          },
+          "notes": {
+            "type": "string",
+            "description": "Documentation only; does not change the decode rule."
+          },
+          "ecu_request_id_hex": {
+            "type": "string",
+            "pattern": "^0x(?:[0-9A-Fa-f]{1,7}|[01][0-9A-Fa-f]{7})$"
+          },
+          "ecu_response_id_hex": {
+            "type": "string",
+            "pattern": "^0x(?:[0-9A-Fa-f]{1,7}|[01][0-9A-Fa-f]{7})$"
+          },
+          "ecu_extended_target_hex": {
+            "type": "string",
+            "pattern": "^0x[0-9A-Fa-f]{2}$"
+          },
+          "ecu_extended_tester_hex": {
+            "type": "string",
+            "pattern": "^0x[0-9A-Fa-f]{2}$"
+          },
+          "min_model_year": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999
+          },
+          "max_model_year": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999
+          }
         }
       }
     }

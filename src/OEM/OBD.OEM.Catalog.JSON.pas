@@ -704,7 +704,7 @@ end;
 
 function ParseCodingFieldKind(const S: string): TOBDCodingFieldKind;
 const
-  Map: array[0..8] of
+  Map: array[0..9] of
     record Tag: string; Kind: TOBDCodingFieldKind end = (
     (Tag: 'bit';       Kind: cfkBit),
     (Tag: 'uint8';     Kind: cfkUInt8),
@@ -714,7 +714,8 @@ const
     (Tag: 'int32_be';  Kind: cfkInt32BE),
     (Tag: 'ascii';     Kind: cfkAscii),
     (Tag: 'enum';      Kind: cfkEnum),
-    (Tag: 'bitmask';   Kind: cfkBitmask));
+    (Tag: 'bitmask';   Kind: cfkBitmask),
+    (Tag: 'int8';      Kind: cfkInt8));
 var
   I: Integer;
   Lower: string;
@@ -728,14 +729,17 @@ end;
 
 function ParseAdaptationKind(const S: string): TOBDAdaptationKind;
 const
-  Map: array[0..5] of
+  Map: array[0..8] of
     record Tag: string; Kind: TOBDAdaptationKind end = (
     (Tag: 'uint8';     Kind: adkUInt8),
     (Tag: 'uint16_be'; Kind: adkUInt16BE),
     (Tag: 'uint32_be'; Kind: adkUInt32BE),
     (Tag: 'int16_be';  Kind: adkInt16BE),
     (Tag: 'int32_be';  Kind: adkInt32BE),
-    (Tag: 'enum';      Kind: adkEnum));
+    (Tag: 'enum';      Kind: adkEnum),
+    (Tag: 'int8';      Kind: adkInt8),
+    (Tag: 'bytes';     Kind: adkBytes),
+    (Tag: 'bool';      Kind: adkBool));
 var
   I: Integer;
   Lower: string;

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/adapter-capabilities.json",
   "version": 1,
   "type": "adapter-capabilities",
   "description": "Adapter capability registry. Add a new adapter row without recompiling.",

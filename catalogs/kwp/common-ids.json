@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/kwp-identifiers.json",
   "schema_version": 1,
   "description": "KWP2000 (ISO 14230-3) common identifier catalogue. Covers the standard ECU-identification block read via Service 0x1A (ReadECUIdentification) and the well-known LocalIdentifiers / CommonIdentifiers exposed by Service 0x21 / 0x22. OEM-specific identifiers overlay this seed via TOBDOEMCatalog.",
   "kind": "kwp-identifier",

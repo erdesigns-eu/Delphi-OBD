@@ -62,6 +62,8 @@ type
                            const Token: IOBDCancellationToken = nil)
                            : IOBDFuture<TOBDDecodedValue>;
 
+    function WriteAdaptationBytesAsync(const ChannelOrHex: string;
+      const Data: TBytes; const Token: IOBDCancellationToken = nil): IOBDFuture<Boolean>;
     function  WriteAdaptationAsync(const ChannelOrHex: string;
                                    Value: Int64;
                                    const Token: IOBDCancellationToken = nil)
@@ -177,6 +179,8 @@ type
     function  ReadDIDAsync(const NameOrHex: string;
                            const Token: IOBDCancellationToken)
                            : IOBDFuture<TOBDDecodedValue>;
+    function WriteAdaptationBytesAsync(const ChannelOrHex: string;
+      const Data: TBytes; const Token: IOBDCancellationToken = nil): IOBDFuture<Boolean>;
     function  WriteAdaptationAsync(const ChannelOrHex: string;
                                    Value: Int64;
                                    const Token: IOBDCancellationToken)
@@ -489,6 +493,33 @@ begin
     begin
       try
         Promise.SetResult(Sync.WriteAdaptation(LocalChan, LocalValue));
+      except
+        on E: Exception do
+          Promise.SetError(Exception(AcquireExceptionObject));
+      end;
+    end;
+  Item.Drop := procedure begin Promise.SignalCancelled; end;
+  FWorker.Enqueue(Item);
+  Result := Promise;
+end;
+
+function TUdsClientAsync.WriteAdaptationBytesAsync(const ChannelOrHex: string;
+  const Data: TBytes; const Token: IOBDCancellationToken): IOBDFuture<Boolean>;
+var
+  Promise: IOBDPromise<Boolean>;
+  Item: TWorkItem;
+  LocalChan: string;
+  LocalData: TBytes;
+begin
+  EnsureWorker;
+  Promise := NewPromise<Boolean>(Token);
+  LocalChan := ChannelOrHex;
+  LocalData := Copy(Data, 0, Length(Data));
+  Item.Token := Token;
+  Item.Run := procedure(const Sync: IOBDUdsClient)
+    begin
+      try
+        Promise.SetResult(Sync.WriteAdaptationBytes(LocalChan, LocalData));
       except
         on E: Exception do
           Promise.SetError(Exception(AcquireExceptionObject));

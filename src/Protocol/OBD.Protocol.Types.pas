@@ -116,6 +116,14 @@ type
     /// CAN ID. Empty string lets the adapter use its current
     /// setting.</summary>
     HeaderOverride: string;
+    /// <summary>CAN receive filter for a routed request; empty clears filtering.</summary>
+    ResponseHeaderOverride: string;
+    /// <summary>Enable ISO-TP extended addressing for this routed request.</summary>
+    UseExtendedAddressing: Boolean;
+    /// <summary>Extended destination byte sent before the ISO-TP PCI.</summary>
+    ExtendedTarget: Byte;
+    /// <summary>Extended tester byte expected before the reply PCI.</summary>
+    ExtendedTester: Byte;
     /// <summary>Per-request timeout in milliseconds. <c>0</c> uses
     /// the protocol component's default.</summary>
     TimeoutMs: Cardinal;
@@ -243,6 +251,10 @@ begin
   Result.ServiceID := 0;
   Result.Data := nil;
   Result.HeaderOverride := '';
+  Result.ResponseHeaderOverride := '';
+  Result.UseExtendedAddressing := False;
+  Result.ExtendedTarget := 0;
+  Result.ExtendedTester := 0;
   Result.TimeoutMs := 0;
 end;
 

@@ -30,8 +30,42 @@ def unique_object(pairs):
     return result
 
 
+def reject_constant(value):
+    raise ValueError(f"Non-finite JSON number: {value}")
+
+
 def read_json(path: Path):
-    return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+    return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object,
+                      parse_constant=reject_constant)
+
+
+def validate_manifest(root, path, value, report):
+    if path.name != '_manifest.json' or path.parent.name != 'ev-battery':
+        return
+    seen = set()
+    for index, entry in enumerate(value.get('vendor_files', [])):
+        if not isinstance(entry, dict):
+            continue
+        filename, vendor = entry.get('file'), entry.get('vendor')
+        message = None
+        if not isinstance(filename, str) or not isinstance(vendor, str):
+            continue
+        candidate = (path.parent / filename).resolve()
+        if filename in seen:
+            message = 'Duplicate vendor catalog reference'
+        elif not candidate.is_relative_to(path.parent.resolve()) or not candidate.is_file():
+            message = 'Vendor catalog reference does not exist inside ev-battery'
+        else:
+            try:
+                catalog = read_json(candidate)
+                if not isinstance(catalog, dict) or catalog.get('vendor') != vendor:
+                    message = 'Manifest vendor does not match referenced catalog'
+            except (ValueError, OSError) as exc:
+                message = str(exc)
+        seen.add(filename)
+        if message:
+            report['violations'].append({'file': str(path.relative_to(root)),
+                'path': f'/vendor_files/{index}', 'message': message})
 
 
 def audit(root: Path):
@@ -55,6 +89,8 @@ def audit(root: Path):
         except (ValueError, OSError) as exc:
             report["violations"].append({"file": relative, "path": "", "message": str(exc)})
             continue
+        if isinstance(value, dict):
+            validate_manifest(root, path, value, report)
         declaration = value.get("$schema", "") if isinstance(value, dict) else ""
         target = schemas.get(declaration) if isinstance(declaration, str) else None
         if isinstance(declaration, str) and declaration.startswith("."):

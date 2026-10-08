@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/drive-cycle.json",
   "schema_version": 1,
   "spec": "ISO 15031-7",
   "description": "Generic per-monitor drive-cycle steps. Override per-OEM by registering a TDriveCycleResolver.",

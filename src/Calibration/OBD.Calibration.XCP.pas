@@ -291,10 +291,12 @@ begin
     raise EOBDConfig.Create('TOBDXCP: Transport not assigned');
   Effective := ATimeoutMs;
   if Effective = 0 then Effective := FDefaultTimeoutMs;
-  FTransport.SendPacket(ABytes);
+  SendCommand(ABytes);
   Result := FTransport.ReceivePacket(Effective);
   if Length(Result) = 0 then
     raise EOBDProtocolErr.Create('XCP: response timeout');
+  if (Result[0] = XCP_RES_ERR) and (Length(Result) < 2) then
+    raise EOBDProtocolErr.Create('XCP: truncated ERR response');
   if Result[0] = XCP_RES_ERR then
     raise EOBDProtocolErr.CreateFmt('XCP: ERR 0x%2.2X',
       [Result[1]]);

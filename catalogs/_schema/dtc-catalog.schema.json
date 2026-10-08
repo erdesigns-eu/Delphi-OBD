@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/dtc-catalog.json",
+  "title": "dtc-catalog",
+  "type": "object",
+  "required": [
+    "version",
+    "name",
+    "dtcs"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "version": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "spec": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "oem": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "default_source": {
+      "type": "string"
+    },
+    "dtcs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "description"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "possible_causes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "symptoms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repair_guidance": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "monitor_type": {
+            "type": "string"
+          },
+          "freeze_frame_relevant": {
+            "type": "boolean"
+          },
+          "related_dids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "related_routines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oem_bulletin": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

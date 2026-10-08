@@ -4,23 +4,51 @@
   "title": "VIN regions",
   "description": "ISO 3779 VIN region ranges keyed by the first WMI character.",
   "type": "object",
-  "required": ["schema_version", "entries"],
+  "required": [
+    "schema_version",
+    "entries"
+  ],
   "properties": {
-    "schema_version": { "type": "integer", "const": 1 },
-    "spec":           { "type": "string" },
-    "description":    { "type": "string" },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "spec": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
     "entries": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["range_start", "range_end", "name"],
+        "required": [
+          "range_start",
+          "range_end",
+          "name"
+        ],
         "properties": {
-          "range_start": { "type": "string", "minLength": 1, "maxLength": 1 },
-          "range_end":   { "type": "string", "minLength": 1, "maxLength": 1 },
-          "name":        { "type": "string", "minLength": 1 }
+          "range_start": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "range_end": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "additionalProperties": false
       }
+    },
+    "$schema": {
+      "type": "string"
     }
   },
   "additionalProperties": false

@@ -36,6 +36,9 @@ type
     [Test] procedure StubVendorLoadsWithBothRules;
     [Test] procedure UnknownVendorReturnsZeroRecord;
     [Test] procedure RegisterCycleOverridesJSON;
+    [Test] procedure BMWRoutesAndCapacityUnits;
+    [Test] procedure InvalidCatalogAddressIsRejected;
+    [Test] procedure VWCellLayoutAndDIDsMatchEachGeneration;
   end;
 
   [TestFixture]
@@ -48,6 +51,21 @@ type
   end;
 
 implementation
+
+function FindCatalogRoot: string;
+var Current, Parent: string;
+begin
+  Current := TPath.GetDirectoryName(ParamStr(0));
+  while Current <> '' do
+  begin
+    Result := TPath.Combine(Current, 'catalogs');
+    if TFile.Exists(TPath.Combine(TPath.Combine(Result, 'ev-battery'), '_stub-test.json')) then Exit;
+    Parent := TPath.GetDirectoryName(Current);
+    if Parent = Current then Break;
+    Current := Parent;
+  end;
+  raise EOBDConfig.Create('Cannot locate EV catalog fixtures');
+end;
 
 { TEVBatteryTypesTests --------------------------------------------------------}
 
@@ -77,7 +95,7 @@ end;
 procedure TEVBatteryCatalogTests.Setup;
 begin
   TOBDEVBatteryCatalog.CatalogDir :=
-    TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..\catalogs');
+    FindCatalogRoot;
   TOBDEVBatteryCatalog.Reload;
 end;
 
@@ -128,12 +146,83 @@ begin
   TOBDEVBatteryCatalog.Reload;
 end;
 
+procedure TEVBatteryCatalogTests.BMWRoutesAndCapacityUnits;
+var Cat: TOBDEVBatteryVendorCatalog; Rule: TOBDEVBatteryRule;
+  SawCapacity, SawCluster: Boolean;
+begin
+  Assert.IsTrue(TOBDEVBatteryCatalog.TryGet('bmw', Cat));
+  Assert.IsTrue(Cat.UseExtendedAddressing);
+  SawCapacity := False;
+  SawCluster := False;
+  for Rule in Cat.Rules do
+  begin
+    if Rule.FieldName = 'capacity_remaining_ah' then
+    begin
+      SawCapacity := True;
+      Assert.AreEqual(Ord(efkCapacityRemainingAh), Ord(Rule.Field));
+      Assert.AreEqual('Ah', Rule.Unit_);
+      Assert.AreEqual(Cardinal($607), Rule.ResponseId);
+      Assert.AreEqual(Byte($07), Rule.ExtendedTarget);
+    end;
+    if Rule.ResponseId = $612 then
+    begin
+      SawCluster := True;
+      Assert.AreEqual(Byte($12), Rule.ExtendedTarget);
+      Assert.AreEqual(Cardinal($6F1), Rule.RequestId);
+    end;
+  end;
+  Assert.IsTrue(SawCapacity);
+  Assert.IsTrue(SawCluster);
+end;
+
+procedure TEVBatteryCatalogTests.VWCellLayoutAndDIDsMatchEachGeneration;
+var Cat: TOBDEVBatteryVendorCatalog; Rule: TOBDEVBatteryRule;
+  Gen1Cells, Gen2Cells, Gen1Temps, Gen2Temps: Integer;
+begin
+  Assert.IsTrue(TOBDEVBatteryCatalog.TryGet('vw', Cat));
+  Assert.AreEqual(Cardinal($7E5), Cat.RequestId);
+  Gen1Cells := 0; Gen2Cells := 0; Gen1Temps := 0; Gen2Temps := 0;
+  for Rule in Cat.Rules do
+  begin
+    if Rule.Field = efkCellVoltagesArray then
+    begin
+      Assert.IsTrue((Rule.DIDOrPID >= $1E40) and (Rule.DIDOrPID <= $1EA5));
+      if Rule.MinModelYear = 2013 then Inc(Gen1Cells) else Inc(Gen2Cells);
+    end;
+    if Rule.Field = efkModuleTempArray then
+    begin
+      if Rule.MinModelYear = 2013 then Inc(Gen1Temps) else Inc(Gen2Temps);
+    end;
+  end;
+  Assert.AreEqual(102, Gen1Cells); Assert.AreEqual(84, Gen2Cells);
+  Assert.AreEqual(17, Gen1Temps); Assert.AreEqual(14, Gen2Temps);
+end;
+
+procedure TEVBatteryCatalogTests.InvalidCatalogAddressIsRejected;
+var Saved, TempRoot, Folder: string;
+begin
+  Saved := TOBDEVBatteryCatalog.CatalogDir;
+  TempRoot := TPath.Combine(TPath.GetTempPath, 'ev-invalid-' + TGUID.NewGuid.ToString);
+  Folder := TPath.Combine(TempRoot, 'ev-battery');
+  TDirectory.CreateDirectory(Folder);
+  try
+    TFile.WriteAllText(TPath.Combine(Folder, 'invalid.json'),
+      '{"vendor":"invalid","ecu":{"request_id_hex":"0x20000000"},"fields":[]}');
+    TOBDEVBatteryCatalog.CatalogDir := TempRoot;
+    Assert.WillRaise(procedure begin TOBDEVBatteryCatalog.Reload end, EOBDConfig);
+  finally
+    TOBDEVBatteryCatalog.CatalogDir := Saved;
+    TOBDEVBatteryCatalog.Reload;
+    TDirectory.Delete(TempRoot, True);
+  end;
+end;
+
 { TEVBatteryComponentTests ----------------------------------------------------}
 
 procedure TEVBatteryComponentTests.Setup;
 begin
   TOBDEVBatteryCatalog.CatalogDir :=
-    TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), '..\catalogs');
+    FindCatalogRoot;
   TOBDEVBatteryCatalog.Reload;
 end;
 

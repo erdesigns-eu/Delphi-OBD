@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/uds-routines.json",
   "schema_version": 1,
   "description": "Standard UDS routine identifiers (Service 0x31) per ISO 14229-1:2020 §10.10.2.4 — the generic 0x0200..0x02FF range plus the 0xFF00..0xFFFF reserved IDs that every ISO-compliant ECU is expected to recognise. OEM-specific routine IDs overlay this set via TOBDOEMCatalog.",
   "kind": "uds-routine",

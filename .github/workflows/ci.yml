@@ -70,10 +70,12 @@ jobs:
         run: python3 -m pip install -r tools/requirements-validation.txt
       - name: Test the offline catalog auditor
         run: python3 -m unittest discover -s tools -p test_validate_catalogs.py -v
+      - name: Validate every catalog against its local schema
+        run: python3 tools/validate_catalogs.py --require-coverage
       - name: Test the static analyzers
         run: python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
-      - name: Check Pascal sources (hints remain visible)
-        run: python3 tools/pascalcheck/run.py --errors-only -v
+      - name: Check Pascal sources and hints
+        run: python3 tools/pascalcheck/run.py -v
       - name: Install Free Pascal and its RTL
         run: |
           sudo apt-get update

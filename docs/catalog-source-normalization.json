@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-08",
+  "policy": "Preserve invalid upstream records; do not invent corrected manufacturer IDs.",
+  "changes": [
+    {
+      "source_file": "catalogs/vin/vds-rules.json",
+      "source_key": "vPIC.VinSchema.14440",
+      "reason": "WMI contains O, forbidden by the VIN alphabet; unreachable for valid VINs.",
+      "original": {
+        "patterns": [
+          {
+            "field": "BodyClass",
+            "keys": "2",
+            "value": "Trailer"
+          }
+        ],
+        "wmis": [
+          {
+            "wmi": "1OY",
+            "yearFrom": 1984
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "catalogs/vin/vds-rules.json",
+      "source_key": "vPIC.VinSchema.15519",
+      "reason": "WMI contains O, forbidden by the VIN alphabet; unreachable for valid VINs.",
+      "original": {
+        "patterns": [
+          {
+            "field": "GVWR",
+            "keys": "****A",
+            "value": "Class 1A: 3,000 lb or less (1,360 kg or less)"
+          },
+          {
+            "field": "GVWR",
+            "keys": "****B",
+            "value": "Class 1B: 3,001 - 4,000 lb (1,360 - 1,814 kg)"
+          },
+          {
+            "field": "GVWR",
+            "keys": "****C",
+            "value": "Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)"
+          },
+          {
+            "field": "GVWR",
+            "keys": "****D",
+            "value": "Class 1D: 5,001 - 6,000 lb (2,268 - 2,722 kg)"
+          },
+          {
+            "field": "GVWR",
+            "keys": "****E",
+            "value": "Class 2E: 6,001 - 7,000 lb (2,722 - 3,175 kg)"
+          }
+        ],
+        "wmis": [
+          {
+            "wmi": "4OG",
+            "yearFrom": 1986
+          }
+        ]
+      }
+    },
+    {
+      "source_file": "catalogs/vin/wmi.json",
+      "source_key": "2Gx",
+      "reason": "Legacy x wildcard expressed as the two-character General Motors prefix 2G.",
+      "original": {
+        "wmi": "2Gx",
+        "name": "General Motors"
+      },
+      "replacement": "2G"
+    }
+  ],
+  "vw_source_verification": {
+    "source_header": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.h",
+    "source_decoder": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/blob/master/vehicle/OVMS.V3/components/vehicle_vweup/src/vweup_obd.cpp",
+    "retrieved": "2026-10-08",
+    "header_sha256": "c088a5b773f2024ff7ea46a4f8ccbb31188d4668553f5f9898ad7e02fd195252",
+    "decoder_sha256": "ea42639fd2fc423b448169724778aec52364720125cf5b27798f0764658b5ccb",
+    "reason": "Replaced symbolic DIDs and incorrect numeric DIDs, routing, widths and scales with source-defined e-Up requests; distinct Gen1/Gen2 cell order and SOH scaling."
+  }
+}
