@@ -11,9 +11,8 @@
 //  with <c>TOBDLogger.Instance.RegisterSink</c> and receive
 //  every <c>TOBDLogger.Log</c> call automatically. As a
 //  <c>TComponent</c> the viewer is not reference-counted; the
-//  unit hands out a no-op <c>_AddRef</c> / <c>_Release</c>
-//  pair so the logger's interface reference doesn't try to
-//  free a designer-owned control.
+//  inherited interface methods leave ownership with the form
+//  rather than freeing the control when a sink reference is released.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -64,14 +63,6 @@ type
     procedure SetShowLevelTag(AValue: Boolean);
     function DirectionFor(ALevel: TOBDLogLevel): TOBDTerminalDirection;
     function PrefixFor(ALevel: TOBDLogLevel): string;
-  protected
-    // TComponent is not reference-counted; provide a no-op
-    // IInterface so the logger can hold an IOBDLogSink reference
-    // without trying to free the form-owned viewer.
-    function QueryInterface(const IID: TGUID; out Obj): HResult;
-      stdcall; override;
-    function _AddRef: Integer; stdcall;
-    function _Release: Integer; stdcall;
   public
     /// <summary>Constructs the viewer with
     /// <c>ShowLevelTag = True</c>.</summary>
@@ -231,26 +222,6 @@ procedure TOBDLogViewer.Flush;
 begin
   // The viewer renders synchronously into the underlying listbox;
   // nothing pending.
-end;
-
-function TOBDLogViewer.QueryInterface(const IID: TGUID;
-  out Obj): HResult;
-begin
-  if GetInterface(IID, Obj) then
-    Result := S_OK
-  else
-    Result := E_NOINTERFACE;
-end;
-
-function TOBDLogViewer._AddRef: Integer;
-begin
-  // Form-owned control — ref counting is a no-op.
-  Result := -1;
-end;
-
-function TOBDLogViewer._Release: Integer;
-begin
-  Result := -1;
 end;
 
 end.
