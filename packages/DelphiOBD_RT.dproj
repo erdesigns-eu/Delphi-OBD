@@ -1,435 +1,442 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <ProjectGuid>{98256382-4261-55F7-A016-E9CA29961128}</ProjectGuid>
-    <ProjectVersion>19.3</ProjectVersion>
-    <MainSource>DelphiOBD_RT.dpk</MainSource>
-    <AppType>Package</AppType>
-    <Config Condition="'$(Config)'==''">Release</Config>
-    <Platform Condition="'$(Platform)'==''">Win32</Platform>
-    <DCC_Namespace>System;Winapi;Vcl;Data;Xml;$(DCC_Namespace)</DCC_Namespace>
-    <DCC_UnitSearchPath>..\src;..\src\Adapter;..\src\Calibration;..\src\Coding;..\src\Collections;..\src\Compat;..\src\Connection;..\src\Core;..\src\DesignTime;..\src\Diagnostics;..\src\Flashing;..\src\OEM;..\src\Protocol;..\src\RadioCode;..\src\Recorder;..\src\Service;..\src\Speciality;..\src\UI;..\src\Utilities;..\build\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-    <DCC_DcuOutput>..\build\$(Platform)\$(Config)\rt-dcu</DCC_DcuOutput>
-    <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
-    <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
-    <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
-    <DCC_Define>$(DCC_Define)</DCC_Define>
-    <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
-    <FrameworkType>VCL</FrameworkType>
-    <Base>True</Base>
-    <ProjectName>DelphiOBD_RT</ProjectName>
-    <TargetedPlatforms>3</TargetedPlatforms>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
-    <Base_Win32>true</Base_Win32>
-    <CfgParent>Base</CfgParent>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-    <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\Win64</DCC_BplOutput>
-    <Base_Win64>true</Base_Win64>
-    <CfgParent>Base</CfgParent>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
-    <Cfg_1>true</Cfg_1>
-    <CfgParent>Base</CfgParent>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-    <Cfg_1_Win32>true</Cfg_1_Win32>
-    <CfgParent>Cfg_1</CfgParent>
-    <Cfg_1>true</Cfg_1>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-    <Cfg_1_Win64>true</Cfg_1_Win64>
-    <CfgParent>Cfg_1</CfgParent>
-    <Cfg_1>true</Cfg_1>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
-    <Cfg_2>true</Cfg_2>
-    <CfgParent>Base</CfgParent>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
-    <Cfg_2_Win32>true</Cfg_2_Win32>
-    <CfgParent>Cfg_2</CfgParent>
-    <Cfg_2>true</Cfg_2>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-    <Cfg_2_Win64>true</Cfg_2_Win64>
-    <CfgParent>Cfg_2</CfgParent>
-    <Cfg_2>true</Cfg_2>
-    <Base>true</Base>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Cfg_2)'!=''">
-    <DCC_DebugInformation>0</DCC_DebugInformation>
-    <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-    <DCC_Optimize>true</DCC_Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Cfg_1)'!=''">
-    <DCC_DebugInformation>2</DCC_DebugInformation>
-    <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-    <DCC_Optimize>false</DCC_Optimize>
-    <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-  </PropertyGroup>
-  <ItemGroup>
-    <DelphiCompile Include="$(MainSource)">
-      <MainSource>MainSource</MainSource>
-    </DelphiCompile>
-    <DCCReference Include="..\src\Compat\ERD.Compat.Socket.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Async.Task.pas" />
-    <DCCReference Include="..\src\Collections\ERD.Collections.ThreadedQueue.pas" />
-    <DCCReference Include="..\src\Core\ERD.Version.pas" />
-    <DCCReference Include="..\src\Core\ERD.Types.pas" />
-    <DCCReference Include="..\src\Core\ERD.Errors.pas" />
-    <DCCReference Include="..\src\Core\ERD.Decoders.pas" />
-    <DCCReference Include="..\src\Core\ERD.Catalog.pas" />
-    <DCCReference Include="..\src\Core\ERD.JSON.pas" />
-    <DCCReference Include="..\src\Core\ERD.CAN.Route.pas" />
-    <DCCReference Include="..\src\Core\ERD.Binary.Value.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Request.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Types.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Settings.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Retry.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Transport.Base.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Mock.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Bluetooth.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.BLE.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.WiFi.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.UDP.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.Serial.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.FTDI.pas" />
-    <DCCReference Include="..\src\Connection\ERD.Connection.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.Types.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.Capabilities.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.Commands.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.Detection.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.Init.pas" />
-    <DCCReference Include="..\src\Adapter\ERD.Adapter.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.Types.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.ISO15765.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.UDS.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP2000.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.KWP.Catalog.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.Serial.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.ELM.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.CAN.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.TP20.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.TP20.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.ISOTP.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.J2534.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.J2534.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Session.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.TP20.Session.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.J2534.Components.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.ISO9141.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.J1850.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.J1939.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.J1939.TP.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.VIN.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Header.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Messages.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Transport.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Client.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.AES.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.CMAC.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.Keys.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.Freshness.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.LIN.Frame.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.LIN.LDF.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.FlexRay.Frame.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.MOST.Control.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.Protocol.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.Catalog.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.LiveData.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.DTCs.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VIN.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.Types.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VINInspector.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.Catalog.Component.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.FreezeFrame.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.OnBoardMonitor.pas" />
-    <DCCReference Include="..\src\Service\ERD.ClearDTC.pas" />
-    <DCCReference Include="..\src\Service\ERD.OxygenMonitor.pas" />
-    <DCCReference Include="..\src\Service\ERD.PIDList.pas" />
-    <DCCReference Include="..\src\Service\ERD.DataSource.pas" />
-    <DCCReference Include="..\src\Service\ERD.WWHOBD.pas" />
-    <DCCReference Include="..\src\Service\ERD.WWHOBD.Readiness.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.Reset.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadMemory.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.IOControl.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadDID.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadDTC.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.Periodic.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.DynamicDID.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.ReadID.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.ReadDTC.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.IOControl.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.Routine.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.J1939.pas" />
-    <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.J1939.DM.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Registry.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Types.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.SeedKey.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.SecurityAccess.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.DTC.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Session.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Extensions.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Helpers.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.JSON.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.CSV.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.Loader.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.DTC.Loader.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.GoldenCheck.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.HD.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.SCN.Mercedes.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Coding.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.RoutineControl.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.ServiceFunction.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Session.Runner.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VehicleHealth.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Types.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Catalog.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Catalog.Component.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Types.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.EVBattery.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.Component.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.Actuator.pas" />
-    <DCCReference Include="..\src\Service\ERD.Service.VWRadioSAFE.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.SecurityAccess.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.DataIdentifierIO.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.RoutineControl.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Flasher.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Uploader.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.FlashSession.pas" />
-    <DCCReference Include="..\src\Coding\ERD.UDS.WriteMemory.pas" />
-    <DCCReference Include="..\src\Coding\ERD.UDS.WriteDID.pas" />
-    <DCCReference Include="..\src\Coding\ERD.KWP.WriteID.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Diff.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.AuditLog.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Session.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.VAG.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.BMW.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Ford.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.HMG.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Honda.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Mercedes.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Stellantis.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.Toyota.pas" />
-    <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.VAG.pas" />
-    <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.BMW.pas" />
-    <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.Mercedes.pas" />
-    <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.Stellantis.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Types.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Base.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Ford.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.HMG.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.BMW.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Toyota.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Platforms.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.VW.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Bentley.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.BMW.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.MINI.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.RollsRoyce.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Mercedes.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Smart.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Stellantis.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Ford.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.GM.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.JLR.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.AstonMartin.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Tesla.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Lucid.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Rivian.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Polestar.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.HyundaiKia.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Toyota.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Honda.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Mazda.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Nissan.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Mitsubishi.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Subaru.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Suzuki.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Isuzu.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Renault.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Dacia.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Volvo.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Ferrari.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.McLaren.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Porsche.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.BYD.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Geely.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.GreatWall.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.NIO.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Xpeng.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Tata.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Mahindra.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Lada.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Cummins.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.DetroitDiesel.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Iveco.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.MAN.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.PACCAR.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Scania.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.VolvoTrucks.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Agricultural.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Marine.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Motorcycles.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Powersports.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.ServiceRoutines.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.SessionHelper.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.DiagSession.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.UdsClient.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.UdsClient.Async.pas" />
-    <DCCReference Include="..\src\OEM\ERD.OEM.Captures.pas" />
-    <DCCReference Include="..\src\Protocol\ERD.UDS.NRC.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Async.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.OptionCatalog.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.DiffRLE.pas" />
-    <DCCReference Include="..\src\Coding\ERD.Coding.LabelFile.VAG.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.UDS.Transfer.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.J1939.MemoryAccess.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.VoltageGate.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.Checkpoint.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.Phases.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.Pipeline.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.BCrypt.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.OpenSSL.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.HSM.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.PQC.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Common.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.VAG.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.BMW.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Ford.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.HMG.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Mercedes.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Stellantis.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Toyota.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.ImageApplicability.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Signature.HSM.PKCS11.pas" />
-    <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Catalog.pas" />
-    <DCCReference Include="..\src\Calibration\ERD.Calibration.A2L.pas" />
-    <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.Transport.pas" />
-    <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.Loopback.pas" />
-    <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.pas" />
-    <DCCReference Include="..\src\Calibration\ERD.Calibration.CCP.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.VT.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.TC.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.FS.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.GNSS.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.PCSC.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.Signature.pas" />
-    <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.Workshop.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Logger.Sinks.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Logger.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.SecureSettings.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Security.AttemptCounter.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.Security.Nonce.pas" />
-    <DCCReference Include="..\src\Utilities\ERD.StringHelpers.pas" />
-    <DCCReference Include="..\src\Recorder\ERD.Recorder.pas" />
-    <DCCReference Include="..\src\Recorder\ERD.Replayer.pas" />
-    <DCCReference Include="..\src\Recorder\ERD.Recorder.ProtocolMock.pas" />
-    <DCCReference Include="..\src\Recorder\ERD.Recorder.Redactor.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Types.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EuropeanPremium.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.FrenchItalian.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.British.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Asian.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.American.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Aftermarket.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Volvo.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.FordV.pas" />
-    <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EEPROM.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Types.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.GDIP.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Theme.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Control.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Anim.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Types.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Base.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Dial.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Linear.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Variants.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Sparkline.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.DialExtended.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Indicators.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Telltales.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Shift.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Timing.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Gauges.Specialised.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.LivePanels.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.LiveGrids.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Terminal.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.LogViewer.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.DtcList.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Knob.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.TrendGraph.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Info.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.MonitorEV.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Session.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Connection.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Pickers.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.FlashDashboards.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Dyno.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Charts.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Tuning.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Motorsport.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Commercial.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Replay.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Branding.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.CodingEditors.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Diag.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.SessionInspect.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Insights.pas" />
-    <DCCReference Include="..\src\UI\ERD.UI.Logger.pas" />
-    <BuildConfiguration Include="Base">
-      <Key>Base</Key>
-    </BuildConfiguration>
-    <BuildConfiguration Include="Debug">
-      <Key>Cfg_1</Key>
-      <CfgParent>Base</CfgParent>
-    </BuildConfiguration>
-    <BuildConfiguration Include="Release">
-      <Key>Cfg_2</Key>
-      <CfgParent>Base</CfgParent>
-    </BuildConfiguration>
-  </ItemGroup>
-  <ProjectExtensions>
-    <Borland.Personality>Delphi.Personality.12</Borland.Personality>
-    <Borland.ProjectType>Package</Borland.ProjectType>
-    <BorlandProject>
-      <Delphi.Personality>
-        <Source>
-          <Source Name="MainSource">DelphiOBD_RT.dpk</Source>
-        </Source>
-      </Delphi.Personality>
-      <Platforms>
-        <Platform value="Win32">True</Platform>
-        <Platform value="Win64">True</Platform>
-      </Platforms>
-    </BorlandProject>
-    <ProjectFileVersion>12</ProjectFileVersion>
-  </ProjectExtensions>
-  <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" />
+    <PropertyGroup>
+        <ProjectGuid>{98256382-4261-55F7-A016-E9CA29961128}</ProjectGuid>
+        <ProjectVersion>20.2</ProjectVersion>
+        <MainSource>DelphiOBD_RT.dpk</MainSource>
+        <AppType>Package</AppType>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <DCC_Namespace>System;Winapi;Vcl;Data;Xml;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>..\src;..\src\Adapter;..\src\Calibration;..\src\Coding;..\src\Collections;..\src\Compat;..\src\Connection;..\src\Core;..\src\DesignTime;..\src\Diagnostics;..\src\Flashing;..\src\OEM;..\src\Protocol;..\src\RadioCode;..\src\Recorder;..\src\Service;..\src\Speciality;..\src\UI;..\src\Utilities;..\build\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DcuOutput>..\build\$(Platform)\$(Config)\rt-dcu</DCC_DcuOutput>
+        <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
+        <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_Define>$(DCC_Define)</DCC_Define>
+        <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
+        <FrameworkType>VCL</FrameworkType>
+        <Base>True</Base>
+        <ProjectName>DelphiOBD_RT</ProjectName>
+        <TargetedPlatforms>1048579</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">DelphiOBD_RT</ProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Base)'=='true') or '$(Base_Win64x)'!=''">
+        <Base_Win64x>true</Base_Win64x>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <GenDll>true</GenDll>
+        <GenPackage>true</GenPackage>
+        <SanitizedProjectName>DelphiOBD_RT</SanitizedProjectName>
+        <DCC_BplOutput>Z:\Projects\Delphi\OBD\Delphi-OBD\packages\</DCC_BplOutput>
+        <VerInfo_Locale>1043</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64x)'!=''">
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_DebugInformation>2</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Optimize>true</DCC_Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Locale>1043</VerInfo_Locale>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="vclimg.dcp"/>
+        <DCCReference Include="bindengine.dcp"/>
+        <DCCReference Include="bindcomp.dcp"/>
+        <DCCReference Include="..\src\Compat\ERD.Compat.Socket.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Async.Task.pas"/>
+        <DCCReference Include="..\src\Collections\ERD.Collections.ThreadedQueue.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Version.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Types.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Errors.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Decoders.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Catalog.pas"/>
+        <DCCReference Include="..\src\Core\ERD.JSON.pas"/>
+        <DCCReference Include="..\src\Core\ERD.CAN.Route.pas"/>
+        <DCCReference Include="..\src\Core\ERD.Binary.Value.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Request.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Types.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Settings.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Retry.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Transport.Base.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Mock.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Bluetooth.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.BLE.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.WiFi.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.UDP.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.Serial.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.FTDI.pas"/>
+        <DCCReference Include="..\src\Connection\ERD.Connection.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.Types.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.Capabilities.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.Commands.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.Detection.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.Init.pas"/>
+        <DCCReference Include="..\src\Adapter\ERD.Adapter.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.Types.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.ISO15765.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.UDS.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP2000.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.KWP.Catalog.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.Serial.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.ELM.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.CAN.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.TP20.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.TP20.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.ISOTP.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.J2534.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Transport.J2534.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.Session.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.TP20.Session.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.J2534.Components.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.ISO9141.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.J1850.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.J1939.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.J1939.TP.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.VIN.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Header.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Messages.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Transport.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.Client.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.DoIP.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.AES.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.CMAC.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.Keys.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.Freshness.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.SecOC.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.LIN.Frame.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.LIN.LDF.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.FlexRay.Frame.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.MOST.Control.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.Catalog.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.LiveData.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.DTCs.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VIN.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.Types.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VINInspector.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.Catalog.Component.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.FreezeFrame.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.OnBoardMonitor.pas"/>
+        <DCCReference Include="..\src\Service\ERD.ClearDTC.pas"/>
+        <DCCReference Include="..\src\Service\ERD.OxygenMonitor.pas"/>
+        <DCCReference Include="..\src\Service\ERD.PIDList.pas"/>
+        <DCCReference Include="..\src\Service\ERD.DataSource.pas"/>
+        <DCCReference Include="..\src\Service\ERD.WWHOBD.pas"/>
+        <DCCReference Include="..\src\Service\ERD.WWHOBD.Readiness.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.Reset.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadMemory.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.IOControl.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadDID.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.ReadDTC.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.Periodic.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.UDS.DynamicDID.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.ReadID.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.ReadDTC.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.IOControl.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.KWP.Routine.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.J1939.pas"/>
+        <DCCReference Include="..\src\Diagnostics\ERD.Diagnostics.J1939.DM.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Registry.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Types.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.SeedKey.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.SecurityAccess.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.DTC.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Session.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Extensions.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Helpers.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.JSON.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.CSV.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Catalog.Loader.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.DTC.Loader.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.GoldenCheck.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.HD.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.SCN.Mercedes.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Coding.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.RoutineControl.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.ServiceFunction.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Session.Runner.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VehicleHealth.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Types.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Catalog.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.DriveCycle.Catalog.Component.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Types.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.EVBattery.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.Component.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.Actuator.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VWRadioSAFE.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.SecurityAccess.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.DataIdentifierIO.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.RoutineControl.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Flasher.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Uploader.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.FlashSession.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.UDS.WriteMemory.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.UDS.WriteDID.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.KWP.WriteID.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Diff.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.AuditLog.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Session.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.VAG.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.BMW.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Ford.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.HMG.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Honda.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Mercedes.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Stellantis.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.Toyota.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.VAG.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.BMW.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.Mercedes.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.OEM.ComponentProtection.Stellantis.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Types.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Base.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Ford.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.HMG.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.BMW.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Toyota.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.KeyAdaptation.Platforms.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.VW.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Bentley.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.BMW.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.MINI.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.RollsRoyce.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Mercedes.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Smart.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Stellantis.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Ford.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.GM.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.JLR.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.AstonMartin.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Tesla.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Lucid.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Rivian.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Polestar.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.HyundaiKia.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Toyota.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Honda.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Mazda.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Nissan.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Mitsubishi.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Subaru.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Suzuki.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Isuzu.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Renault.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Dacia.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Volvo.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Ferrari.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.McLaren.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Porsche.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.BYD.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Geely.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.GreatWall.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.NIO.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Xpeng.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Tata.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Mahindra.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Lada.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Cummins.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.DetroitDiesel.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Iveco.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.MAN.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.PACCAR.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Scania.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.VolvoTrucks.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Agricultural.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Marine.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Motorcycles.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Powersports.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.ServiceRoutines.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.SessionHelper.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.DiagSession.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.UdsClient.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.UdsClient.Async.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.Captures.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.UDS.NRC.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Async.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.OptionCatalog.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.DiffRLE.pas"/>
+        <DCCReference Include="..\src\Coding\ERD.Coding.LabelFile.VAG.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.UDS.Transfer.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.J1939.MemoryAccess.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.VoltageGate.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.Checkpoint.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.Phases.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.Pipeline.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.BCrypt.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.OpenSSL.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.HSM.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.PQC.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Common.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.VAG.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.BMW.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Ford.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.HMG.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Mercedes.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Stellantis.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Toyota.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.ImageApplicability.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Signature.HSM.PKCS11.pas"/>
+        <DCCReference Include="..\src\Flashing\ERD.Flash.OEM.Catalog.pas"/>
+        <DCCReference Include="..\src\Calibration\ERD.Calibration.A2L.pas"/>
+        <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.Transport.pas"/>
+        <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.Loopback.pas"/>
+        <DCCReference Include="..\src\Calibration\ERD.Calibration.XCP.pas"/>
+        <DCCReference Include="..\src\Calibration\ERD.Calibration.CCP.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.VT.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.TC.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.FS.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.IsoBus.GNSS.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.PCSC.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.Signature.pas"/>
+        <DCCReference Include="..\src\Speciality\ERD.Speciality.Tachograph.Workshop.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Logger.Sinks.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Logger.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.SecureSettings.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Security.AttemptCounter.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.Security.Nonce.pas"/>
+        <DCCReference Include="..\src\Utilities\ERD.StringHelpers.pas"/>
+        <DCCReference Include="..\src\Recorder\ERD.Recorder.pas"/>
+        <DCCReference Include="..\src\Recorder\ERD.Replayer.pas"/>
+        <DCCReference Include="..\src\Recorder\ERD.Recorder.ProtocolMock.pas"/>
+        <DCCReference Include="..\src\Recorder\ERD.Recorder.Redactor.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Types.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EuropeanPremium.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.FrenchItalian.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.British.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Asian.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.American.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Aftermarket.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Volvo.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.FordV.pas"/>
+        <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EEPROM.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Types.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.GDIP.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Theme.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Control.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Anim.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Types.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Base.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Dial.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Linear.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Variants.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Sparkline.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.DialExtended.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Indicators.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Telltales.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Shift.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Timing.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Gauges.Specialised.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.LivePanels.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.LiveGrids.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Terminal.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.LogViewer.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.DtcList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Knob.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.TrendGraph.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Info.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.MonitorEV.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Session.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Connection.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Pickers.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.FlashDashboards.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Dyno.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Charts.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Tuning.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Motorsport.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Commercial.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Replay.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Branding.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.CodingEditors.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Diag.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.SessionInspect.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Insights.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Logger.pas"/>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Package</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">DelphiOBD_RT.dpk</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+                <Platform value="Win64x">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
 </Project>

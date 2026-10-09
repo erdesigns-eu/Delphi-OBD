@@ -1,6 +1,5 @@
 ﻿package DelphiOBD_RT;
 
-{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -23,9 +22,30 @@
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Delphi-OBD runtime components'}
-{$RUNONLY}
 {$IMPLICITBUILD ON}
 
 requires
@@ -315,47 +335,47 @@ contains
   ERD.RadioCode.Volvo in '..\src\RadioCode\ERD.RadioCode.Volvo.pas',
   ERD.RadioCode.FordV in '..\src\RadioCode\ERD.RadioCode.FordV.pas',
   ERD.RadioCode.EEPROM in '..\src\RadioCode\ERD.RadioCode.EEPROM.pas',
-  ERD.UI.Types         in '..\src\UI\ERD.UI.Types.pas',
-  ERD.UI.GDIP          in '..\src\UI\ERD.UI.GDIP.pas',
-  ERD.UI.Theme         in '..\src\UI\ERD.UI.Theme.pas',
-  ERD.UI.Control       in '..\src\UI\ERD.UI.Control.pas',
-  ERD.UI.Anim          in '..\src\UI\ERD.UI.Anim.pas',
-  ERD.UI.Gauges.Types  in '..\src\UI\ERD.UI.Gauges.Types.pas',
-  ERD.UI.Gauges.Base   in '..\src\UI\ERD.UI.Gauges.Base.pas',
-  ERD.UI.Gauges.Dial   in '..\src\UI\ERD.UI.Gauges.Dial.pas',
+  ERD.UI.Types in '..\src\UI\ERD.UI.Types.pas',
+  ERD.UI.GDIP in '..\src\UI\ERD.UI.GDIP.pas',
+  ERD.UI.Theme in '..\src\UI\ERD.UI.Theme.pas',
+  ERD.UI.Control in '..\src\UI\ERD.UI.Control.pas',
+  ERD.UI.Anim in '..\src\UI\ERD.UI.Anim.pas',
+  ERD.UI.Gauges.Types in '..\src\UI\ERD.UI.Gauges.Types.pas',
+  ERD.UI.Gauges.Base in '..\src\UI\ERD.UI.Gauges.Base.pas',
+  ERD.UI.Gauges.Dial in '..\src\UI\ERD.UI.Gauges.Dial.pas',
   ERD.UI.Gauges.Linear in '..\src\UI\ERD.UI.Gauges.Linear.pas',
-  ERD.UI.Gauges.Variants     in '..\src\UI\ERD.UI.Gauges.Variants.pas',
-  ERD.UI.Gauges.Sparkline    in '..\src\UI\ERD.UI.Gauges.Sparkline.pas',
+  ERD.UI.Gauges.Variants in '..\src\UI\ERD.UI.Gauges.Variants.pas',
+  ERD.UI.Gauges.Sparkline in '..\src\UI\ERD.UI.Gauges.Sparkline.pas',
   ERD.UI.Gauges.DialExtended in '..\src\UI\ERD.UI.Gauges.DialExtended.pas',
-  ERD.UI.Indicators          in '..\src\UI\ERD.UI.Indicators.pas',
-  ERD.UI.Telltales           in '..\src\UI\ERD.UI.Telltales.pas',
-  ERD.UI.Shift               in '..\src\UI\ERD.UI.Shift.pas',
-  ERD.UI.Timing              in '..\src\UI\ERD.UI.Timing.pas',
-  ERD.UI.Gauges.Specialised  in '..\src\UI\ERD.UI.Gauges.Specialised.pas',
-  ERD.UI.LivePanels          in '..\src\UI\ERD.UI.LivePanels.pas',
-  ERD.UI.LiveGrids           in '..\src\UI\ERD.UI.LiveGrids.pas',
-  ERD.UI.Terminal            in '..\src\UI\ERD.UI.Terminal.pas',
-  ERD.UI.LogViewer           in '..\src\UI\ERD.UI.LogViewer.pas',
-  ERD.UI.DtcList             in '..\src\UI\ERD.UI.DtcList.pas',
-  ERD.UI.Knob                in '..\src\UI\ERD.UI.Knob.pas',
-  ERD.UI.TrendGraph          in '..\src\UI\ERD.UI.TrendGraph.pas',
-  ERD.UI.Info                in '..\src\UI\ERD.UI.Info.pas',
-  ERD.UI.MonitorEV           in '..\src\UI\ERD.UI.MonitorEV.pas',
-  ERD.UI.Session             in '..\src\UI\ERD.UI.Session.pas',
-  ERD.UI.Connection          in '..\src\UI\ERD.UI.Connection.pas',
-  ERD.UI.Pickers             in '..\src\UI\ERD.UI.Pickers.pas',
-  ERD.UI.FlashDashboards     in '..\src\UI\ERD.UI.FlashDashboards.pas',
-  ERD.UI.Dyno                in '..\src\UI\ERD.UI.Dyno.pas',
-  ERD.UI.Charts              in '..\src\UI\ERD.UI.Charts.pas',
-  ERD.UI.Tuning              in '..\src\UI\ERD.UI.Tuning.pas',
-  ERD.UI.Motorsport          in '..\src\UI\ERD.UI.Motorsport.pas',
-  ERD.UI.Commercial          in '..\src\UI\ERD.UI.Commercial.pas',
-  ERD.UI.Replay              in '..\src\UI\ERD.UI.Replay.pas',
-  ERD.UI.Branding            in '..\src\UI\ERD.UI.Branding.pas',
-  ERD.UI.CodingEditors       in '..\src\UI\ERD.UI.CodingEditors.pas',
-  ERD.UI.Diag                in '..\src\UI\ERD.UI.Diag.pas',
-  ERD.UI.SessionInspect      in '..\src\UI\ERD.UI.SessionInspect.pas',
-  ERD.UI.Insights            in '..\src\UI\ERD.UI.Insights.pas',
-  ERD.UI.Logger              in '..\src\UI\ERD.UI.Logger.pas';
+  ERD.UI.Indicators in '..\src\UI\ERD.UI.Indicators.pas',
+  ERD.UI.Telltales in '..\src\UI\ERD.UI.Telltales.pas',
+  ERD.UI.Shift in '..\src\UI\ERD.UI.Shift.pas',
+  ERD.UI.Timing in '..\src\UI\ERD.UI.Timing.pas',
+  ERD.UI.Gauges.Specialised in '..\src\UI\ERD.UI.Gauges.Specialised.pas',
+  ERD.UI.LivePanels in '..\src\UI\ERD.UI.LivePanels.pas',
+  ERD.UI.LiveGrids in '..\src\UI\ERD.UI.LiveGrids.pas',
+  ERD.UI.Terminal in '..\src\UI\ERD.UI.Terminal.pas',
+  ERD.UI.LogViewer in '..\src\UI\ERD.UI.LogViewer.pas',
+  ERD.UI.DtcList in '..\src\UI\ERD.UI.DtcList.pas',
+  ERD.UI.Knob in '..\src\UI\ERD.UI.Knob.pas',
+  ERD.UI.TrendGraph in '..\src\UI\ERD.UI.TrendGraph.pas',
+  ERD.UI.Info in '..\src\UI\ERD.UI.Info.pas',
+  ERD.UI.MonitorEV in '..\src\UI\ERD.UI.MonitorEV.pas',
+  ERD.UI.Session in '..\src\UI\ERD.UI.Session.pas',
+  ERD.UI.Connection in '..\src\UI\ERD.UI.Connection.pas',
+  ERD.UI.Pickers in '..\src\UI\ERD.UI.Pickers.pas',
+  ERD.UI.FlashDashboards in '..\src\UI\ERD.UI.FlashDashboards.pas',
+  ERD.UI.Dyno in '..\src\UI\ERD.UI.Dyno.pas',
+  ERD.UI.Charts in '..\src\UI\ERD.UI.Charts.pas',
+  ERD.UI.Tuning in '..\src\UI\ERD.UI.Tuning.pas',
+  ERD.UI.Motorsport in '..\src\UI\ERD.UI.Motorsport.pas',
+  ERD.UI.Commercial in '..\src\UI\ERD.UI.Commercial.pas',
+  ERD.UI.Replay in '..\src\UI\ERD.UI.Replay.pas',
+  ERD.UI.Branding in '..\src\UI\ERD.UI.Branding.pas',
+  ERD.UI.CodingEditors in '..\src\UI\ERD.UI.CodingEditors.pas',
+  ERD.UI.Diag in '..\src\UI\ERD.UI.Diag.pas',
+  ERD.UI.SessionInspect in '..\src\UI\ERD.UI.SessionInspect.pas',
+  ERD.UI.Insights in '..\src\UI\ERD.UI.Insights.pas',
+  ERD.UI.Logger in '..\src\UI\ERD.UI.Logger.pas';
 
 end.
