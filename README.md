@@ -12,6 +12,11 @@ For existing applications, update unit imports and rebuild packages and DCUs.
 The UI and IDE integration use Delphi VCL; FPC supports the nonvisual
 library. See [compiler targets and validation](docs/fpc-compatibility.md).
 
+## ⚠️ Development notice
+
+The code in this repository is not complete yet, im currently working on creating visual components. There already are a range of visual components in the repository but these are NOT finished yet.
+Please don't use them since they will change alot and will only introduce issues later. The non-visual components are ready for 90% - expect some issues can still popup. Please open a github issue for bugs that turn up. 
+
 ## Quick start
 
 ```pascal
