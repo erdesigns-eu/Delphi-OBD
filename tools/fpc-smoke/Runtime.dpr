@@ -46,10 +46,16 @@ begin
   except on E: EOBDConfig do Check(True, 'Non-object catalog root rejected and cleaned up') end;
 end;
 procedure TestFutures;
-var P: IOBDPromise<Integer>; Calls: Integer; Worker: TThread; Token: IOBDCancellationToken;
+var P: IOBDPromise<Integer>; Ready: IOBDFuture<Integer>; Calls: Integer; Worker: TThread; Token: IOBDCancellationToken;
 begin
+  Ready := TOBDAsync.FromResult<Integer>(17);
+  Check(Ready.IsCompleted and (Ready.Await(0) = 17), 'Static factory returns completed future');
+  Ready := TOBDAsync.FromError<Integer>(Exception.Create('factory error'));
+  Check(Ready.IsFaulted, 'Static factory returns faulted future');
+  try Ready.Await(0); Check(False, 'Faulted factory must raise')
+  except on E: Exception do Check(E.Message = 'factory error', 'Faulted factory preserves exception') end;
   Calls := 0;
-  P := NewPromise<Integer>;
+  P := TOBDAsync.NewPromise<Integer>();
   P.OnComplete(procedure(F: IOBDFuture<Integer>) begin Inc(Calls); Check(F.Await(0) = 42, 'Future handler value') end);
   P.OnComplete(procedure(F: IOBDFuture<Integer>) begin Inc(Calls) end);
   Worker := TThread.CreateAnonymousThread(procedure begin P.SetResult(42) end);
@@ -60,13 +66,13 @@ begin
     Worker.WaitFor;
     Check(Calls = 2, 'Every future handler runs exactly once');
   finally Worker.Free end;
-  P := NewPromise<Integer>;
+  P := TOBDAsync.NewPromise<Integer>();
   P.SetError(Exception.Create('worker failed'));
   Check(P.IsFaulted, 'Fault state');
   try P.Await(0); Check(False, 'Faulted await must raise')
   except on E: Exception do Check(E.Message = 'worker failed', 'Faulted await preserves error') end;
   Token := NewCancellationToken;
-  P := NewPromise<Integer>(Token);
+  P := TOBDAsync.NewPromise<Integer>(Token);
   Token.Cancel;
   P.SignalCancelled;
   Check(P.IsCancelled, 'Cancellation state');

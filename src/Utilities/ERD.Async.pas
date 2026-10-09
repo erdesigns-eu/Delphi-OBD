@@ -167,16 +167,16 @@ type
 // FACTORIES
 //------------------------------------------------------------------------------
 function NewCancellationToken: IOBDCancellationToken;
-function NewPromise<T>(const Token: IOBDCancellationToken = nil): IOBDPromise<T>;
-
-/// <summary>
-///   Future that's already completed with the given value.
-/// </summary>
-function FromResult<T>(const Value: T): IOBDFuture<T>;
-/// <summary>
-///   Future that's already faulted.
-/// </summary>
-function FromError<T>(E: Exception): IOBDFuture<T>;
+type
+  /// <summary>Generic future factories shared by Delphi and FPC.</summary>
+  TOBDAsync = class
+  public
+    class function NewPromise<T>(const Token: IOBDCancellationToken = nil): IOBDPromise<T>; static;
+    /// <summary>Future already completed with the given value.</summary>
+    class function FromResult<T>(const Value: T): IOBDFuture<T>; static;
+    /// <summary>Future already faulted with the given exception.</summary>
+    class function FromError<T>(E: Exception): IOBDFuture<T>; static;
+  end;
 
 implementation
 
@@ -426,7 +426,7 @@ end;
 //------------------------------------------------------------------------------
 // NEW PROMISE
 //------------------------------------------------------------------------------
-function NewPromise<T>(const Token: IOBDCancellationToken): IOBDPromise<T>;
+class function TOBDAsync.NewPromise<T>(const Token: IOBDCancellationToken): IOBDPromise<T>;
 begin
   Result := TOBDPromise<T>.Create(Token);
 end;
@@ -434,11 +434,11 @@ end;
 //------------------------------------------------------------------------------
 // FROM RESULT
 //------------------------------------------------------------------------------
-function FromResult<T>(const Value: T): IOBDFuture<T>;
+class function TOBDAsync.FromResult<T>(const Value: T): IOBDFuture<T>;
 var
   Promise: IOBDPromise<T>;
 begin
-  Promise := NewPromise<T>;
+  Promise := TOBDAsync.NewPromise<T>();
   Promise.SetResult(Value);
   Result := Promise;
 end;
@@ -446,11 +446,11 @@ end;
 //------------------------------------------------------------------------------
 // FROM ERROR
 //------------------------------------------------------------------------------
-function FromError<T>(E: Exception): IOBDFuture<T>;
+class function TOBDAsync.FromError<T>(E: Exception): IOBDFuture<T>;
 var
   Promise: IOBDPromise<T>;
 begin
-  Promise := NewPromise<T>;
+  Promise := TOBDAsync.NewPromise<T>();
   Promise.SetError(E);
   Result := Promise;
 end;

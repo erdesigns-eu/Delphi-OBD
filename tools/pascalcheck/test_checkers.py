@@ -88,6 +88,28 @@ end.
                           .replace('Value := Source;', 'Value := Source();'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_global_generic_factory_is_not_delphi_compatible(self):
+        source = self.source('src/Factory.pas', """unit Factory;
+interface
+function NewPromise<T>: IPromise<T>;
+implementation
+function NewPromise<T>: IPromise<T>;
+begin end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text("""unit Factory;
+interface
+type TFactory = class
+  class function NewPromise<T>: IPromise<T>; static;
+end;
+implementation
+class function TFactory.NewPromise<T>: IPromise<T>;
+begin end;
+end.
+""")
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

@@ -14,6 +14,12 @@ for path in pas_files():
     def finding(at, why):
         bad.append((rel, src.count('\n', 0, at) + 1, why))
 
+    # Unindented unit-level headers; qualified generic class methods have
+    # a dot after the type parameters and are deliberately excluded.
+    for match in re.finditer(
+            r'^(?:function|procedure)\s+\w+\s*<[^;\n]+>\s*(?=[(:])', src, re.I | re.M):
+        finding(match.start(), 'Delphi requires generic factories to be class methods, not global routines')
+
     for match in re.finditer(r'\bCurrentAdapter\s*\.\s*Activated\b', src, re.I):
         finding(match.start(), 'TBluetoothAdapter has no Activated property')
     for match in re.finditer(

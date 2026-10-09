@@ -59,7 +59,7 @@ var
   Promise: IOBDPromise<Integer>;
   Future: IOBDFuture<Integer>;
 begin
-  Promise := NewPromise<Integer>;
+  Promise := TOBDAsync.NewPromise<Integer>();
   Future := Promise;
   Promise.SetResult(42);
   Assert.AreEqual(42, Future.Await(1000));
@@ -70,7 +70,7 @@ var
   Promise: IOBDPromise<Integer>;
   Future: IOBDFuture<Integer>;
 begin
-  Promise := NewPromise<Integer>;
+  Promise := TOBDAsync.NewPromise<Integer>();
   Future := Promise;
   Promise.SetError(Exception.Create('boom'));
   Assert.WillRaise(
@@ -87,7 +87,7 @@ var
   Future: IOBDFuture<Integer>;
 begin
   Token := NewCancellationToken;
-  Promise := NewPromise<Integer>(Token);
+  Promise := TOBDAsync.NewPromise<Integer>(Token);
   Future := Promise;
   Token.Cancel;
   Assert.WillRaise(
@@ -103,7 +103,7 @@ var
   Promise: IOBDPromise<Integer>;
   Future: IOBDFuture<Integer>;
 begin
-  Promise := NewPromise<Integer>;
+  Promise := TOBDAsync.NewPromise<Integer>();
   Future := Promise;
   Assert.WillRaise(
     procedure
@@ -119,7 +119,7 @@ var
   Future: IOBDFuture<Integer>;
   Fired: Boolean;
 begin
-  Promise := NewPromise<Integer>;
+  Promise := TOBDAsync.NewPromise<Integer>();
   Future := Promise;
   Promise.SetResult(7);
   Fired := False;
@@ -139,7 +139,7 @@ var
   Future: IOBDFuture<Integer>;
   ObservedValue: Integer;
 begin
-  Promise := NewPromise<Integer>;
+  Promise := TOBDAsync.NewPromise<Integer>();
   Future := Promise;
   ObservedValue := 0;
   Future.OnComplete(

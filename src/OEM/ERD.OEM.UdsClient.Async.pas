@@ -467,7 +467,7 @@ var
   LocalName: string;
 begin
   EnsureWorker;
-  Promise := NewPromise<TOBDDecodedValue>(Token);
+  Promise := TOBDAsync.NewPromise<TOBDDecodedValue>(Token);
   LocalName := NameOrHex;
   Item.Token := Token;
   Item.Run := procedure(const Sync: IOBDUdsClient)
@@ -496,7 +496,7 @@ var
   LocalValue: Int64;
 begin
   EnsureWorker;
-  Promise := NewPromise<Boolean>(Token);
+  Promise := TOBDAsync.NewPromise<Boolean>(Token);
   LocalChan := ChannelOrHex;
   LocalValue := Value;
   Item.Token := Token;
@@ -523,7 +523,7 @@ var
   LocalData: TBytes;
 begin
   EnsureWorker;
-  Promise := NewPromise<Boolean>(Token);
+  Promise := TOBDAsync.NewPromise<Boolean>(Token);
   LocalChan := ChannelOrHex;
   LocalData := Copy(Data, 0, Length(Data));
   Item.Token := Token;
@@ -555,7 +555,7 @@ var
   LocalType: Byte;
 begin
   EnsureWorker;
-  Promise := NewPromise<TOBDActuatorResult>(Token);
+  Promise := TOBDAsync.NewPromise<TOBDActuatorResult>(Token);
   LocalName := NameOrHex;
   LocalArgs := Copy(Args);
   LocalType := RoutineType;
@@ -585,7 +585,7 @@ var
   LocalName: string;
 begin
   EnsureWorker;
-  Promise := NewPromise<TOBDCodingValues>(Token);
+  Promise := TOBDAsync.NewPromise<TOBDCodingValues>(Token);
   LocalName := Name;
   Item.Token := Token;
   Item.Run := procedure(const Sync: IOBDUdsClient)
@@ -617,7 +617,7 @@ begin
   EnsureWorker;
   if Values = nil then
     raise EOBDUdsValidation.Create('values is nil');
-  Promise := NewPromise<Boolean>(Token);
+  Promise := TOBDAsync.NewPromise<Boolean>(Token);
   LocalName := Name;
   // Borrow the caller's instance — they retain ownership; we do not
   // free it. This matches the sync API.
@@ -651,7 +651,7 @@ var
   LocalAck: Boolean;
 begin
   EnsureWorker;
-  Promise := NewPromise<TOBDActuatorResult>(Token);
+  Promise := TOBDAsync.NewPromise<TOBDActuatorResult>(Token);
   LocalName := Name;
   LocalAck := AcknowledgeSafetyWarning;
   Item.Token := Token;
@@ -681,7 +681,7 @@ var
   LocalMask: Byte;
 begin
   EnsureWorker;
-  Promise := NewPromise<TDtcs>(Token);
+  Promise := TOBDAsync.NewPromise<TDtcs>(Token);
   LocalMask := StatusMask;
   Item.Token := Token;
   Item.Run := procedure(const Sync: IOBDUdsClient)
