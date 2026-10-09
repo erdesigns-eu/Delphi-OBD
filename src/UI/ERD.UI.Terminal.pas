@@ -103,7 +103,6 @@ type
       Rect: TRect; State: TOwnerDrawState);
   protected
     procedure CreateParams(var Params: TCreateParams); override;
-    procedure Loaded; override;
   public
     /// <summary>Constructs the terminal with sensible defaults.</summary>
     /// <param name="AOwner">Component owner (standard VCL pattern).</param>
@@ -217,21 +216,6 @@ begin
   // Horizontal scroll on long lines without wrapping (terminals are
   // conventionally non-wrapping).
   Params.Style := Params.Style or WS_HSCROLL;
-end;
-
-procedure TOBDTerminal.Loaded;
-begin
-  inherited;
-  if Items.Count = 0 then
-    Items.BeginUpdate;
-  try
-    // Make sure the listbox has a measured-item count matching the
-    // (currently empty) ring buffer — keeps the design-time preview
-    // stable.
-  finally
-    if Items.UpdateCount > 0 then
-      Items.EndUpdate;
-  end;
 end;
 
 procedure TOBDTerminal.SetMaxLines(AValue: Integer);
