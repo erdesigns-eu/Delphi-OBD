@@ -91,7 +91,6 @@ type
     FCommandTimeoutMs: Cardinal;
     FAutoSubscribed: Boolean;
     FInitialized: Boolean;
-    FRunning: Boolean;
 
     // Response collector
     FExchangeLock: TCriticalSection;

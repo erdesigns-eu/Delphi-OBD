@@ -60,6 +60,23 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_kwp_serial_uses_transport_event_signature_and_portable_queue(self):
+        source = self.source('src/KWPSerial.pas', """unit ERD.Protocol.KWP1281.Transport.Serial;
+interface
+var FQueue: TThreadedQueue<Byte>;
+implementation
+procedure HandleBytes(const ABytes: TBytes);
+begin end;
+procedure Open;
+begin FSerial.OnDataReceived := HandleBytes; end;
+end.
+""")
+        self.assertIn('total: 3', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('TThreadedQueue<Byte>', 'TOBDThreadedQueue<Byte>')
+                          .replace('HandleBytes(const', 'HandleBytes(Sender: TObject; const')
+                          .replace('FSerial.OnDataReceived := HandleBytes', 'FSerial.SetOnDataReceived(HandleBytes)'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_winsock_addrinfo_and_sendto_parameter_modes(self):
         source = self.source('src/Native.pas', """unit Native;
 interface

@@ -30,6 +30,19 @@ for path in pas_files():
         for match in re.finditer(r'\bTIPAddress\s*\.\s*Any\s*\.\s*IPv4Address\b', src, re.I):
             finding(match.start(), 'Construct UDP wildcard addresses through TOBDDatagramEndpoint')
 
+    if re.search(r'\bunit\s+ERD\.Protocol\.KWP1281\.Transport\.Serial\s*;', src, re.I):
+        contracts = [
+            (r'\bFSerial\s*\.\s*OnDataReceived\s*:=',
+             'Concrete serial transport exposes SetOnDataReceived, not an event property'),
+            (r'\bTThreadedQueue\s*<',
+             'KWP serial per-read deadlines require TOBDThreadedQueue'),
+            (r'\bprocedure\s+(?:TKWP1281SerialTransport\s*\.\s*)?HandleBytes\s*\(\s*const\s+\w+\s*:\s*TBytes\s*\)',
+             'Serial byte event requires Sender: TObject before the byte buffer'),
+        ]
+        for pattern, why in contracts:
+            for match in re.finditer(pattern, src, re.I):
+                finding(match.start(), why)
+
     declarations = re.finditer(
         r'\b(\w+)\s*:\s*(TBluetoothLEManager|TBluetoothLEDevice|TSocket)\b', src, re.I)
     for declaration in declarations:

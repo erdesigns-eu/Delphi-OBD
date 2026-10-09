@@ -250,7 +250,6 @@ begin
     raise EOBDAdapter.Create('Detect: command sender is nil');
 
   AIdentity := MakeAdapterIdentity;
-  ATIRecognised := False;
 
   // 1/6 Reset
   ReportProgress(AOnProgress, 1, 6, 'Resetting', 'ATZ');

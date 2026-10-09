@@ -31,6 +31,7 @@
 //
 //  History     :
 //    2026-05-10  ERD  Initial Win32 implementation.
+//    2026-10-09  ERD  Match transport callbacks and use portable queue deadlines.
 //------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Transport.Serial;
@@ -50,10 +51,11 @@ unit ERD.Protocol.KWP1281.Transport.Serial;
 interface
 
 uses
+  ERD.Collections.ThreadedQueue,
+  ERD.Connection.Types,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Connection.Settings,
   ERD.Connection.Serial,
   ERD.Protocol.KWP1281;
@@ -77,10 +79,12 @@ type
   strict private
     FSerial:   TOBDSerialTransport;
     FSettings: TOBDSerialSettings;
-    FQueue:    TThreadedQueue<Byte>;
+    FQueue:    TOBDThreadedQueue<Byte>;
     FOwnsSerial: Boolean;
+    FPreviousOnBytes: TOBDBytesEvent;
+    FHandlerInstalled: Boolean;
     FInitTiming: TKWP1281SerialInitTiming;
-    procedure HandleBytes(const ABytes: TBytes);
+    procedure HandleBytes(Sender: TObject; const ABytes: TBytes);
     procedure EnsureOpen;
     procedure DrainQueue;
   public
@@ -115,13 +119,17 @@ implementation
 constructor TKWP1281SerialTransport.Wrap(ASerial: TOBDSerialTransport);
 begin
   inherited Create;
+  if ASerial = nil then
+    raise EKWP1281Error.Create('KWP1281 wrapped serial transport is nil');
   FSerial      := ASerial;
   FOwnsSerial  := False;
-  FQueue       := TThreadedQueue<Byte>.Create(4096, INFINITE, 0);
+  FQueue       := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
   FInitTiming.BitMs      := 200;
   FInitTiming.StopBitMs  := 200;
   FInitTiming.SyncWaitMs := 2000;
-  FSerial.OnDataReceived := HandleBytes;
+  FPreviousOnBytes := FSerial.GetOnDataReceived;
+  FSerial.SetOnDataReceived(HandleBytes);
+  FHandlerInstalled := True;
 end;
 
 constructor TKWP1281SerialTransport.Create(ASettings: TOBDSerialSettings);
@@ -130,22 +138,30 @@ begin
   FSerial     := TOBDSerialTransport.Create;
   FSettings   := ASettings;
   FOwnsSerial := True;
-  FQueue      := TThreadedQueue<Byte>.Create(4096, INFINITE, 0);
+  FQueue      := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
   FInitTiming.BitMs      := 200;
   FInitTiming.StopBitMs  := 200;
   FInitTiming.SyncWaitMs := 2000;
-  FSerial.OnDataReceived := HandleBytes;
+  FPreviousOnBytes := FSerial.GetOnDataReceived;
+  FSerial.SetOnDataReceived(HandleBytes);
+  FHandlerInstalled := True;
 end;
 
 destructor TKWP1281SerialTransport.Destroy;
 begin
-  if FOwnsSerial then
-    FSerial.Free;
+  if FQueue <> nil then FQueue.DoShutDown;
+  if FSerial <> nil then
+  begin
+    if FOwnsSerial then
+      FSerial.Free
+    else if FHandlerInstalled then
+      FSerial.SetOnDataReceived(FPreviousOnBytes);
+  end;
   FQueue.Free;
   inherited;
 end;
 
-procedure TKWP1281SerialTransport.HandleBytes(const ABytes: TBytes);
+procedure TKWP1281SerialTransport.HandleBytes(Sender: TObject; const ABytes: TBytes);
 var I: Integer;
 begin
   for I := 0 to Length(ABytes) - 1 do
@@ -181,9 +197,7 @@ function TKWP1281SerialTransport.ReceiveByte(ATimeoutMs: Integer): Byte;
 var Status: TWaitResult;
 begin
   EnsureOpen;
-  // Re-create queue with the requested timeout per call. Cheaper
-  // alternative: keep one queue with INFINITE timeout and
-  // implement the wait via a TStopwatch loop.
+  // The shared queue accepts a deadline per read on both compilers.
   Status := FQueue.PopItem(Result, ATimeoutMs);
   if Status <> wrSignaled then
     raise EKWP1281Timeout.CreateFmt(
