@@ -110,7 +110,7 @@ type
     /// optional status text in one call.</summary>
     procedure Update(APhase: TOBDFlashPhase;
       AOverallPercent, APhasePercent: Single;
-      const AStatus: string = '');
+      const AStatus: string = ''); reintroduce; overload;
   published
     /// <summary>Current pipeline phase. Default
     /// <c>fpPreflight</c>.</summary>
@@ -216,7 +216,7 @@ type
     /// <summary>One-shot update. <paramref name="ABytesTotal"/>
     /// = 0 leaves the previous total in place.</summary>
     procedure Update(ABytesDone, ABytesTotal: Int64;
-      AKBPerSecond: Double; const ALabel: string = '');
+      AKBPerSecond: Double; const ALabel: string = ''); reintroduce; overload;
   published
     /// <summary>Bytes done so far.</summary>
     property BytesDone: Int64

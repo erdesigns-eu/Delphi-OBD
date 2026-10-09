@@ -42,6 +42,7 @@ unit ERD.UI.Pickers;
 interface
 
 uses
+  System.Math,
   Winapi.Windows,
   Winapi.Messages,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
@@ -249,7 +250,7 @@ type
     /// <summary>Programmatic selection. Updates
     /// <see cref="ItemIndex"/> + fires the binding notify.
     /// </summary>
-    procedure Select(AOEM: TOBDOEM);
+    procedure Select(AOEM: TOBDOEM); reintroduce; overload;
     property SelectedOEM: TOBDOEM read FSelected;
   published
     property Align;
