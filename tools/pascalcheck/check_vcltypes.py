@@ -84,6 +84,7 @@ HOMES = {
     'tbytes': set(), 'tarray': set(),
     'tdatetime': set(),          # System itself, like TObject
     'tcriticalsection': {'system.syncobjs'},
+    'tpointf': {'system.types'},
     'tpoint': {'system.types', 'winapi.windows'},
     'trectf': {'system.types'},
     'trect': {'system.types', 'winapi.windows'},

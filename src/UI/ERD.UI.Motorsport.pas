@@ -30,6 +30,7 @@ unit ERD.UI.Motorsport;
 interface
 
 uses
+  System.Types,
   System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,

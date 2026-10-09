@@ -187,16 +187,16 @@ end.
     def test_rectf_and_inline_color_dependencies_are_explicit(self):
         source = self.source('src/Visual.pas', """unit Visual;
 interface
-procedure Paint(const Bounds: TRectF);
+procedure Paint(const Bounds: TRectF; const Point: TPointF);
 implementation
-procedure Paint(const Bounds: TRectF);
+procedure Paint(const Bounds: TRectF; const Point: TPointF);
 begin
   Color := ColorToARGB(Value);
   Color := PickColor(Value, Fallback);
 end;
 end.
 """)
-        self.assertIn('total: 1', self.checker('vcltypes'))
+        self.assertIn('total: 2', self.checker('vcltypes'))
         self.assertIn('total: 2', self.checker('needsunit'))
         source.write_text(source.read_text().replace('interface\n',
                           'interface\nuses System.Types, System.UITypes;\n'))
