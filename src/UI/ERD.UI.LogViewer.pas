@@ -69,7 +69,7 @@ type
     // IInterface so the logger can hold an IOBDLogSink reference
     // without trying to free the form-owned viewer.
     function QueryInterface(const IID: TGUID; out Obj): HResult;
-      stdcall;
+      stdcall; override;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
   public

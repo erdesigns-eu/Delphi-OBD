@@ -364,7 +364,7 @@ begin
   Canvas.Brush.Color := Color;
   Canvas.FillRect(R);
 
-  Diameter := Min(R.Width, R.Height) - 8;
+  Diameter := System.Math.Min(R.Width, R.Height) - 8;
   CenterX := R.Left + R.Width div 2;
   CenterY := R.Top + R.Height div 2;
   Radius := Diameter div 2;
