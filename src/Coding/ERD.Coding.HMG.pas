@@ -70,7 +70,7 @@ class function TOBDCodingHMG.Parse(
 var
   Off: Integer;
   Slot: TOBDHMGConfigWord;
-  Acc: array of TOBDHMGConfigWord;
+  Acc: TArray<TOBDHMGConfigWord>;
   N, I: Integer;
 begin
   N := 0;

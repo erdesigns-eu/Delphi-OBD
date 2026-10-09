@@ -365,7 +365,6 @@ begin
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     FOnBeforeSend(Self_, DIDValue, Param, Snap, Cancel);
-    Result := not Cancel;
   end
   else
     FOwnedTask.Synchronize(

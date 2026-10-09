@@ -365,7 +365,6 @@ var
   Prev: TBytes;
   ExpectedTag: TBytes;
 begin
-  Result := -1;
   Lines := TStringList.Create;
   try
     Lines.LoadFromFile(AFileName, TEncoding.UTF8);

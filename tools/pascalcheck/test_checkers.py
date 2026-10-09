@@ -29,6 +29,25 @@ class CheckerRegressionTests(unittest.TestCase):
         self.assertIn('total:', result.stdout)
         return result.stdout
 
+    def test_anonymous_dynamic_array_cannot_be_returned_as_tarray(self):
+        source = self.source('src/Arrays.pas', """unit Arrays;
+interface
+implementation
+function Parse: TArray<Integer>;
+var Acc: array of Integer;
+begin
+  SetLength(Acc, 1);
+  Result := Acc;
+end;
+procedure Consume(const Items: array of Integer);
+begin end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('arrayidentity'))
+        source.write_text(source.read_text().replace('Acc: array of Integer',
+                                                    'Acc: TArray<Integer>'))
+        self.assertIn('total: 0', self.checker('arrayidentity'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface
