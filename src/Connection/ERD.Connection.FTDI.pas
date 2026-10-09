@@ -21,6 +21,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
+//    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
 //
 //  Future work :
 //    - 64-bit FTDI EEPROM reading helper for adapter detection.
@@ -351,8 +352,8 @@ begin
   end;
 
   FReader := TOBDFTDIReadThread.Create(Self,
-    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
+    procedure(Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; Msg: string) begin FireError(Code, Msg); end);
 
   FireProgress(4, 4, 'Ready', '');
   SetState(csOpen);

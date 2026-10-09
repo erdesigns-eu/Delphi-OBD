@@ -17,6 +17,7 @@
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
 //    2026-10-09  ERD  Check manager connection state and missing adapters.
+//    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
 //
 //  Future work :
 //    - Pairing / passkey events surfaced through OnTransportError so
@@ -229,8 +230,8 @@ begin
   end;
 
   FReader := TOBDBluetoothReadThread.Create(FSocket,
-    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
+    procedure(Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; Msg: string) begin FireError(Code, Msg); end);
 
   FireProgress(5, 5, 'Ready', '');
   SetState(csOpen);

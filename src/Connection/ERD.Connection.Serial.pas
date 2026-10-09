@@ -23,6 +23,7 @@
 //    2026-05-09  ERD  Initial Win32 implementation.
 //    2026-05-09  ERD  Rebase onto TOBDBaseTransport and add
 //                     step-progress events.
+//    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
 //
 //  Future work :
 //    - POSIX backend (Linux / macOS) using termios.
@@ -311,11 +312,11 @@ begin
   end;
 
   FReader := TOBDSerialReadThread.Create(FHandle,
-    procedure(const Bytes: TBytes)
+    procedure(Bytes: TBytes)
     begin
       FireBytes(Bytes);
     end,
-    procedure(Code: TOBDErrorCode; const Msg: string)
+    procedure(Code: TOBDErrorCode; Msg: string)
     begin
       FireError(Code, Msg);
     end);
