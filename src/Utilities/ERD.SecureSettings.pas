@@ -95,16 +95,17 @@ type
     /// <summary>
     ///   Constructs a store backed by the default per-scope path.
     /// </summary>
-    /// <param name="AAppName">Application name folder.</param>
+    /// <param name="AAppName">Application name, or full path when AExplicitPath is True.</param>
+    /// <param name="AExplicitPath">False uses the default store path; True uses AAppName as a path.</param>
     /// <param name="AScope">DPAPI scope. Default
     /// <c>ssCurrentUser</c>.</param>
     constructor Create(const AAppName: string;
-      AScope: TOBDSecureSettingsScope = ssCurrentUser); overload;
+      AScope: TOBDSecureSettingsScope = ssCurrentUser; AExplicitPath: Boolean = False);
     /// <summary>Constructs a store at the explicit path.</summary>
     /// <param name="AFilePath">Storage file path.</param>
     /// <param name="AScope">DPAPI scope.</param>
-    constructor CreateAt(const AFilePath: string;
-      AScope: TOBDSecureSettingsScope = ssCurrentUser);
+    class function CreateAt(const AFilePath: string;
+      AScope: TOBDSecureSettingsScope = ssCurrentUser): TOBDSecureSettings; static;
     /// <summary>Frees state without writing — call
     /// <see cref="Save"/> first to persist.</summary>
     destructor Destroy; override;
@@ -273,17 +274,20 @@ end;
 
 { TOBDSecureSettings }
 
-constructor TOBDSecureSettings.Create(const AAppName: string;
-  AScope: TOBDSecureSettingsScope);
+class function TOBDSecureSettings.CreateAt(const AFilePath: string;
+  AScope: TOBDSecureSettingsScope): TOBDSecureSettings;
 begin
-  CreateAt(DefaultStorePath(AAppName, AScope), AScope);
+  Result := TOBDSecureSettings.Create(AFilePath, AScope, True);
 end;
 
-constructor TOBDSecureSettings.CreateAt(const AFilePath: string;
-  AScope: TOBDSecureSettingsScope);
+constructor TOBDSecureSettings.Create(const AAppName: string;
+  AScope: TOBDSecureSettingsScope; AExplicitPath: Boolean);
 begin
   inherited Create;
-  FFilePath := AFilePath;
+  if AExplicitPath then
+    FFilePath := AAppName
+  else
+    FFilePath := DefaultStorePath(AAppName, AScope);
   FScope := AScope;
   FLock := TCriticalSection.Create;
   FCache := TDictionary<string, string>.Create;

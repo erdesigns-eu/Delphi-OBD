@@ -248,7 +248,6 @@ type
     FRunning:  Boolean;
     FCurrent:  Integer;
     FRunRect:  TRect;
-    FAbortRect: TRect;
     FFont:     TFont;
     FOnStep:   TOBDActuatorStepEvent;
     procedure SetFontA(AValue: TFont);

@@ -387,7 +387,7 @@ procedure TOBDDigitalCluster.DrawDigit(AGraphics: TGPGraphics;
 var
   Brush: TGPSolidBrush;
   OnCol, OffCol: TColor;
-  SegLen, SegTh: Single;
+  SegTh: Single;
   CY: Single;
 
   procedure Fill(ABit: Byte; const R: TGPRectF);
@@ -414,7 +414,6 @@ var
 begin
   OnCol := ResolveColor(FOnColor, Palette.Accent);
   OffCol := ResolveColor(FOffColor, Palette.NeutralLight);
-  SegLen := AW * 0.7;
   SegTh  := AW * 0.14;
   CY := AY + AH / 2;
 

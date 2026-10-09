@@ -5,7 +5,7 @@ program Runtime;
 {$CODEPAGE UTF8}
 uses
   cthreads, cwstring, SysUtils, Classes, SyncObjs, System.Diagnostics, System.JSON, System.IOUtils,
-  ERD.Compat.Functions, ERD.Compat.Socket,
+  ERD.Compat.Functions, ERD.Compat.Socket, ERD.OEM.Catalog.JSON, ERD.SecureSettings,
   ERD.Connection, ERD.Connection.Mock, ERD.Connection.Types, ERD.Adapter,
   ERD.Protocol, ERD.Protocol.Types, ERD.Coding.DataIdentifierIO, ERD.OEM.SeedKey,
   ERD.Flash.VoltageGate, ERD.Service.EVBattery, ERD.Service.EVBattery.Catalog,
@@ -44,6 +44,34 @@ begin
     Obj := ParseOBDJSONObject('[]'); Obj.Free;
     Check(False, 'Array catalog root accepted');
   except on E: EOBDConfig do Check(True, 'Non-object catalog root rejected and cleaned up') end;
+end;
+procedure TestCatalogFactories;
+const JsonText = '{"display_name":"Factory test"}';
+var Catalog: TOBDOEMJSONCatalog; Settings: TOBDSecureSettings; FileName: string;
+begin
+  FileName := TPath.Combine(ParamStr(1), 'catalog-factory-test.json');
+  Catalog := TOBDOEMJSONCatalog.CreateFromText(JsonText);
+  try Check(Catalog.DisplayName = 'Factory test', 'Text catalog factory parses JSON');
+  finally Catalog.Free end;
+  TFile.WriteAllText(FileName, JsonText, TEncoding.UTF8);
+  try
+    Catalog := TOBDOEMJSONCatalog.Create(FileName);
+    try Check(Catalog.DisplayName = 'Factory test', 'File constructor matches text factory');
+    finally Catalog.Free end;
+  finally SysUtils.DeleteFile(FileName) end;
+  try
+    Catalog := TOBDOEMJSONCatalog.CreateFromText('[]'); Catalog.Free;
+    Check(False, 'Catalog factory accepted array root');
+  except on E: EOBDCatalogError do Check(True, 'Catalog factory rejects array root') end;
+  try
+    Catalog := TOBDOEMJSONCatalog.Create(FileName); Catalog.Free;
+    Check(False, 'Catalog constructor accepted missing file');
+  except on E: EOBDCatalogError do Check(True, 'Missing catalog file safely rejected') end;
+  Settings := TOBDSecureSettings.CreateAt(FileName, ssLocalMachine);
+  try
+    Check(Settings.FilePath = FileName, 'Settings factory preserves explicit path');
+    Check(Settings.Scope = ssLocalMachine, 'Settings factory preserves scope');
+  finally Settings.Free end;
 end;
 procedure TestFutures;
 var P: IOBDPromise<Integer>; Ready: IOBDFuture<Integer>; Calls: Integer; Worker: TThread; Token: IOBDCancellationToken;
@@ -571,7 +599,7 @@ begin
 end;
 
 begin
-  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
+  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestCatalogFactories; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
   Check(J1939_PGN_DM27 = $FD82, 'DM27 all pending PGN');
   Check(J1939_PGN_DM28 = $FD80, 'DM28 permanent PGN');
   Check(J1939_PGN_DM24 = $FDB6, 'DM24 supported SPNs PGN');

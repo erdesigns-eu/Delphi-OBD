@@ -287,14 +287,14 @@ type
     procedure LoadDtcExtended(Arr: TJSONArray);
   public
     /// <summary>Loads a catalogue from disk.</summary>
-    /// <param name="FilePath">Absolute path to the JSON
-    /// file.</param>
+    /// <param name="FilePath">JSON file path, or text when ASourceIsText is True.</param>
+    /// <param name="ASourceIsText">False loads from disk; True parses JSON text.</param>
     /// <exception cref="EOBDCatalogError">File missing or
     /// malformed.</exception>
-    constructor Create(const FilePath: string); overload;
+    constructor Create(const FilePath: string; ASourceIsText: Boolean = False);
     /// <summary>Loads a catalogue from in-memory JSON text.</summary>
     /// <param name="JsonText">JSON object source.</param>
-    constructor CreateFromText(const JsonText: string); overload;
+    class function CreateFromText(const JsonText: string): TOBDOEMJSONCatalog; static;
     /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
@@ -395,20 +395,15 @@ uses
 type
   TIntegerStringPairList = TList<TPair<Integer, string>>;
 
-constructor TOBDOEMJSONCatalog.Create(const FilePath: string);
-var
-  Text: string;
+class function TOBDOEMJSONCatalog.CreateFromText(const JsonText: string): TOBDOEMJSONCatalog;
 begin
-  if not TFile.Exists(FilePath) then
-    raise EOBDCatalogError.CreateFmt(
-      'Catalog file %s not found', [FilePath]);
-  Text := TFile.ReadAllText(FilePath, TEncoding.UTF8);
-  CreateFromText(Text);
+  Result := TOBDOEMJSONCatalog.Create(JsonText, True);
 end;
 
-constructor TOBDOEMJSONCatalog.CreateFromText(const JsonText: string);
+constructor TOBDOEMJSONCatalog.Create(const FilePath: string; ASourceIsText: Boolean);
 var
   Value: TJSONValue;
+  JsonText: string;
 begin
   inherited Create;
   FDIDs := TList<TOBDOEMDIDEntry>.Create;
@@ -421,6 +416,14 @@ begin
   FLivePIDs := TList<TOBDLivePIDEntry>.Create;
   FDtcExtended := TList<TOBDDtcExtendedDataEntry>.Create;
 
+  if ASourceIsText then
+    JsonText := FilePath
+  else
+  begin
+    if not TFile.Exists(FilePath) then
+      raise EOBDCatalogError.CreateFmt('Catalog file %s not found', [FilePath]);
+    JsonText := TFile.ReadAllText(FilePath, TEncoding.UTF8);
+  end;
   Value := TJSONObject.ParseJSONValue(JsonText);
   if not (Value is TJSONObject) then
   begin
@@ -549,7 +552,7 @@ begin
     FDefaultEcuAddress := ParseHexOrInt(
       Root.GetValue<string>('default_ecu_address', '0'));
 
-  WMIArr := Root.GetValue<TJSONArray>('applicable_wmis');
+  WMIArr := Root.GetValue<TJSONArray>('applicable_wmis', nil);
   if Assigned(WMIArr) then
   begin
     SetLength(FApplicableWMIs, WMIArr.Count);
@@ -557,39 +560,39 @@ begin
       FApplicableWMIs[I] := WMIArr.Items[I].Value;
   end;
 
-  Arr := Root.GetValue<TJSONArray>('ecus');
+  Arr := Root.GetValue<TJSONArray>('ecus', nil);
   if Assigned(Arr) then
     LoadECUs(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('dids');
+  Arr := Root.GetValue<TJSONArray>('dids', nil);
   if Assigned(Arr) then
     LoadDIDs(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('routines');
+  Arr := Root.GetValue<TJSONArray>('routines', nil);
   if Assigned(Arr) then
     LoadRoutines(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('dtc_ranges');
+  Arr := Root.GetValue<TJSONArray>('dtc_ranges', nil);
   if Assigned(Arr) then
     LoadDtcRanges(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('coding_blocks');
+  Arr := Root.GetValue<TJSONArray>('coding_blocks', nil);
   if Assigned(Arr) then
     LoadCodingBlocks(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('adaptations');
+  Arr := Root.GetValue<TJSONArray>('adaptations', nil);
   if Assigned(Arr) then
     LoadAdaptations(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('actuator_tests');
+  Arr := Root.GetValue<TJSONArray>('actuator_tests', nil);
   if Assigned(Arr) then
     LoadActuatorTests(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('live_pids');
+  Arr := Root.GetValue<TJSONArray>('live_pids', nil);
   if Assigned(Arr) then
     LoadLivePIDs(Arr);
 
-  Arr := Root.GetValue<TJSONArray>('dtc_extended_data');
+  Arr := Root.GetValue<TJSONArray>('dtc_extended_data', nil);
   if Assigned(Arr) then
     LoadDtcExtended(Arr);
 end;

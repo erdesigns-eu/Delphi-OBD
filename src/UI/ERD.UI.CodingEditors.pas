@@ -340,7 +340,6 @@ begin
   for I := 0 to MaxN - 1 do
   begin
     if Y + RowH > Height then Break;
-    Changed := False;
     if (I < Length(FOld)) and (I < Length(FNew)) then
       Changed := FOld[I] <> FNew[I]
     else

@@ -32,9 +32,11 @@ requires
   rtl,
   vcl,
   vclimg,
-  bindengine;
+  bindengine,
+  bindcomp;
 
 contains
+  ERD.Compat.Socket in '..\src\Compat\ERD.Compat.Socket.pas',
   ERD.Async.Task in '..\src\Utilities\ERD.Async.Task.pas',
   ERD.Collections.ThreadedQueue in '..\src\Collections\ERD.Collections.ThreadedQueue.pas',
   ERD.Version in '..\src\Core\ERD.Version.pas',

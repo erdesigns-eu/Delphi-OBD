@@ -81,6 +81,7 @@
     <DelphiCompile Include="$(MainSource)">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="..\src\Compat\ERD.Compat.Socket.pas" />
     <DCCReference Include="..\src\Utilities\ERD.Async.Task.pas" />
     <DCCReference Include="..\src\Collections\ERD.Collections.ThreadedQueue.pas" />
     <DCCReference Include="..\src\Core\ERD.Version.pas" />
