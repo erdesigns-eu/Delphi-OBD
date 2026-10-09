@@ -10,7 +10,7 @@
     <DCC_UnitSearchPath>..\src;..\src\Adapter;..\src\Calibration;..\src\Coding;..\src\Collections;..\src\Compat;..\src\Connection;..\src\Core;..\src\DesignTime;..\src\Diagnostics;..\src\Flashing;..\src\OEM;..\src\Protocol;..\src\RadioCode;..\src\Recorder;..\src\Service;..\src\Speciality;..\src\UI;..\src\Utilities;..\build\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     <DCC_DcuOutput>..\build\$(Platform)\$(Config)\dt-dcu</DCC_DcuOutput>
     <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
-    <DCC_BplOutput>..\build\$(Platform)\$(Config)</DCC_BplOutput>
+    <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
     <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
     <DCC_Define>$(DCC_Define)</DCC_Define>
     <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>

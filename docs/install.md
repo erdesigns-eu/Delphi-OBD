@@ -9,8 +9,14 @@ FPC compiler profile.
 
 1. Open `packages/DelphiOBD_RT.dproj` in RAD Studio and build Win32 Release.
 2. Open `packages/DelphiOBD_DT.dproj`, build Win32 Release, then **Install**.
-3. Ensure the matching runtime BPL is on the IDE's DLL search path. Outputs are
-   under `build/Win32/Release`; do not mix old OBD/ERD binaries or configurations.
+3. Win32 BPLs are written to Delphi's standard `$(BDSCOMMONDIR)/Bpl` directory
+   so the IDE can find the runtime package when loading DT. Win64 runtime BPLs
+   go to `$(BDSCOMMONDIR)/Bpl/Win64`. DCUs and DCPs remain under
+   `build/<platform>/<config>`. Debug and Release replace the BPL in the standard
+   directory, so rebuild RT and DT with the same configuration. Install only DT.
+   If Windows still reports a missing file while the BPL exists, check its
+   dependent BPLs (including `bindengine` and `bindcomp`) in the RAD Studio `bin`
+   directory; Windows uses the same message for a missing dependency.
 4. Create a VCL form or DataModule. The OBD palette categories contain 229
    components; drop the components you need and configure their properties/events.
 5. Add the matching `build/<platform>/<config>/rt-dcu` folder to your application's
