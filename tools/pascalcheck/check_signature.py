@@ -61,7 +61,7 @@ def tidy(params, result):
             for name in m.group(2).split(','):
                 out.append(' '.join(filter(None, [mode, name.strip() + ':', m.group(3)])))
             continue
-        out.append(one)
+        out.append(re.sub(r'\s*:\s*', ': ', one))
     sig = '; '.join(o for o in out if o)
     return sig + ' : ' + ' '.join((result or '').lower().split())
 

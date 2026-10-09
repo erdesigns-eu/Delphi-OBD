@@ -54,7 +54,8 @@ with Delphi in the Linux environment.
 DCU and DCP outputs are isolated by platform and configuration under
 `build/<platform>/<config>/`; RT, DT and test DCUs use separate subfolders.
 BPLs use Delphi's standard `$(BDSCOMMONDIR)/Bpl` directory.
-The IDE package declares Win32 only; RT and tests declare Win32 and Win64.
+The IDE package declares Win32 and Win64x; select the target matching the IDE.
+RT and tests declare Win32 and Win64.
 For the full local build/test procedure, use
 [the Delphi handover](../docs/delphi-validation.md) and
 `tools/validate_delphi.ps1`.
