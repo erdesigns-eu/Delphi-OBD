@@ -72,6 +72,13 @@ for path in pas_files():
                     continue  # Copying the callback reference is intentional.
             finding(match.start(), 'Invoke zero-argument anonymous functions with () in value expressions')
 
+    procedure_names = set(re.findall(r'\b(\w+)\s*:\s*TProc\s*(?=[;)])', src, re.I))
+    for name in procedure_names:
+        pattern = r'(?:\b(?:begin|try|then|do)|;)\s*(?:\w+\s*\.\s*)?' + \
+                  re.escape(name) + r'\s*;'
+        for match in re.finditer(pattern, src, re.I):
+            finding(match.start(), 'Invoke parameterless TProc callbacks explicitly with ()')
+
     declarations = re.finditer(
         r'\b(\w+)\s*:\s*(TBluetoothLEManager|TBluetoothLEDevice|TSocket)\b', src, re.I)
     for declaration in declarations:

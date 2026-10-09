@@ -419,7 +419,7 @@ var
   procedure SafeBlock(AAction: TProc; var AError: string);
   begin
     try
-      AAction;
+      AAction();
     except
       on E: Exception do
         AError := E.ClassName + ': ' + E.Message;

@@ -110,6 +110,22 @@ end.
 """)
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_tproc_statement_requires_explicit_invocation(self):
+        source = self.source('src/Work.pas', """unit Work;
+interface
+type TWork = record Drop: TProc; end;
+implementation
+procedure Drain(const Item: TWork);
+begin
+  if Assigned(Item.Drop) then
+    try Item.Drop; except end;
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('try Item.Drop;', 'try Item.Drop();'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

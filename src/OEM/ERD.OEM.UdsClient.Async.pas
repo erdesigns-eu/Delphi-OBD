@@ -264,7 +264,7 @@ begin
   if Refused then
   begin
     if Assigned(Item.Drop) then
-      try Item.Drop; except end;
+      try Item.Drop(); except end;
     Exit;
   end;
   FSignal.SetEvent;
@@ -302,7 +302,7 @@ begin
       if Assigned(Item.Token) and Item.Token.IsCancelled then
       begin
         if Assigned(Item.Drop) then
-          try Item.Drop; except end;
+          try Item.Drop(); except end;
         Continue;
       end;
 
@@ -333,7 +333,7 @@ begin
     begin
       Item := FQueue.Dequeue;
       if Assigned(Item.Drop) then
-        try Item.Drop; except end;
+        try Item.Drop(); except end;
     end;
   finally
     FLock.Leave;
