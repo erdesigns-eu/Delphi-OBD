@@ -126,20 +126,6 @@ EV catalogue entries describe model-specific data, not brand-wide support; see
 | [`docs/flashing-safety.md`](docs/flashing-safety.md) | Pre-conditions, voltage requirements, recovery, bricked-ECU playbook |
 | [`samples/`](samples/) | Standalone sample projects, each with its own README |
 
-Planning and historical comparison docs (use the Delphi handover above for
-current validation status):
-
-| Working doc | Purpose |
-|---|---|
-| [`PLAN.md`](PLAN.md) | Locked architectural decisions and remaining build sequence |
-| [`docs/v2-port-backlog.md`](docs/v2-port-backlog.md) | Port inventory and historical backlog |
-| [`docs/v1-vs-v2-gaps.md`](docs/v1-vs-v2-gaps.md) | Coverage delta vs the previous release line |
-| [`docs/migration-from-v1.md`](docs/migration-from-v1.md) | Migration cookbook from the previous class-library API |
-| [`docs/phase-reviews.md`](docs/phase-reviews.md) | Honest reviews of every shipped phase |
-
-XMLDoc on every public symbol — the source itself is the
-canonical reference. The markdown above is the on-ramp.
-
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) and
