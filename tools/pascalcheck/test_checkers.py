@@ -29,6 +29,64 @@ class CheckerRegressionTests(unittest.TestCase):
         self.assertIn('total:', result.stdout)
         return result.stdout
 
+    def test_qualified_rtl_type_does_not_require_unrelated_repository_homonym(self):
+        self.source('src/Compat.pas', 'unit Compat;\ninterface\ntype TSocket = class end;\nimplementation\nend.')
+        consumer = self.source('src/Consumer.pas', 'unit Consumer;\ninterface\nuses Winapi.Winsock2;\nvar Socket: Winapi.Winsock2.TSocket;\nimplementation\nend.')
+        self.assertIn('total: 0', self.checker('impluses'))
+        consumer.write_text(consumer.read_text().replace('Socket: Winapi.Winsock2.TSocket', 'Socket: TSocket'))
+        self.assertIn('total: 1', self.checker('impluses'))
+
+    def test_platform_api_checker_rejects_known_delphi_mismatches(self):
+        source = self.source('src/Platform.pas', """unit Platform;
+interface
+uses System.Net.Socket, System.Bluetooth;
+type TPassThruOpen = function(Name: PAnsiChar): Integer; cdecl;
+var Socket: TSocket; Manager: TBluetoothLEManager; Device: TBluetoothLEDevice;
+implementation
+procedure Run;
+begin
+  Socket.SetKeepAlive(True);
+  Manager.GetPairedDevices;
+  Device.GetCharacteristic(Service, Guid);
+  GetProcAddress(Lib, PChar(Name));
+end;
+end.
+""")
+        self.assertIn('total: 5', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('cdecl', 'stdcall')
+                          .replace('System.Net.Socket', 'ERD.Compat.Socket')
+                          .replace('Manager.GetPairedDevices', 'Manager.LastDiscoveredDevices')
+                          .replace('Device.GetCharacteristic(Service, Guid)', 'Service.Characteristics')
+                          .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_tproc_reader_literals_require_matching_value_parameter_modes(self):
+        source = self.source('src/Reader.pas', """unit Reader;
+interface
+type TReader = class(TThread)
+  FOnBytes: TProc<TBytes>;
+  FOnError: TProc<TOBDErrorCode, string>;
+end;
+implementation
+procedure Open;
+begin
+  Reader := TReader.Create(Socket,
+    procedure(const Bytes: TBytes) begin FireBytes(Bytes); end,
+    procedure(Code: TOBDErrorCode; const Msg: string) begin FireError(Code, Msg); end);
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('procedure(const Bytes:', 'procedure(Bytes:')
+                          .replace('; const Msg:', '; Msg:'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+        # A const callback declared as a custom reference remains valid.
+        source.write_text(source.read_text().replace('TProc<TBytes>', 'TConstBytesCallback')
+                          .replace('TProc<TOBDErrorCode, string>', 'TConstErrorCallback')
+                          .replace('procedure(Bytes:', 'procedure(const Bytes:')
+                          .replace('; Msg:', '; const Msg:'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_namespaced_exports_are_visible_and_missing_import_is_found(self):
         self.source('src/Core/ERD.Values.pas', '''unit ERD.Values;
 interface

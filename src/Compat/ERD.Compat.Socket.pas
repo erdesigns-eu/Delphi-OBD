@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  ERD.Compat.Socket
-//  IPv4 TCP/UDP sockets for FPC, backed by native socket calls.
+//  IPv4 TCP/UDP sockets for FPC and native Windows options for Delphi.
 //  Author: ERDesigns and Delphi-OBD contributors
 //  License: MIT — see LICENSE
 //------------------------------------------------------------------------------
@@ -37,6 +37,10 @@ type
     destructor Destroy; override;
     /// <summary>Connect with a bounded timeout on Unix; close owned sockets before destruction.</summary>
     procedure Connect(const AEndpoint: TNetEndpoint; ATimeoutMs: Cardinal = 10000);
+    /// <summary>Connect with a timeout through the common Delphi/FPC API.</summary>
+    /// <param name="AEndpoint">Remote address and port.</param>
+    /// <param name="ATimeoutMs">Maximum connect wait in milliseconds.</param>
+    procedure ConnectWithTimeout(const AEndpoint: TNetEndpoint; ATimeoutMs: Cardinal);
     procedure SetTimeouts(ATimeoutMs: Cardinal);
     procedure SetSendTimeout(ATimeoutMs: Cardinal);
     /// <summary>Transfer descriptor ownership to the caller (used by OpenSSL).</summary>
@@ -51,8 +55,119 @@ type
       AFlags: TSocketFlags; ACount: Integer): Integer;
     procedure Close;
   end;
+{$ELSE}
+uses System.SysUtils, System.Classes, System.SyncObjs, System.Net.Socket;
+type
+  /// <summary>Delphi socket types exposed through the shared transport layer.</summary>
+  TSocket = System.Net.Socket.TSocket;
+  /// <summary>Transport kind supported by Delphi's socket implementation.</summary>
+  TSocketType = System.Net.Socket.TSocketType;
+  /// <summary>IP address resolved by Delphi's socket implementation.</summary>
+  TIPAddress = System.Net.Socket.TIPAddress;
+  /// <summary>Address and port passed to Delphi's socket implementation.</summary>
+  TNetEndpoint = System.Net.Socket.TNetEndpoint;
+  /// <summary>Portable socket option used for UDP discovery.</summary>
+  TSocketOption = (Broadcast);
+  /// <summary>Native Windows options absent from Delphi's TSocket API.</summary>
+  TOBDSocketOptions = class helper for System.Net.Socket.TSocket
+  public
+    /// <summary>Bound a blocking Delphi connect and join its worker before returning.</summary>
+    /// <param name="AEndpoint">Remote address and port.</param>
+    /// <param name="ATimeoutMs">Maximum connect wait in milliseconds.</param>
+    procedure ConnectWithTimeout(const AEndpoint: TNetEndpoint; ATimeoutMs: Cardinal);
+    /// <summary>Enable or disable TCP keep-alive on the native socket.</summary>
+    /// <param name="AEnabled">True enables keep-alive.</param>
+    procedure SetKeepAlive(AEnabled: Boolean);
+    /// <summary>Bound a native send call using SO_SNDTIMEO.</summary>
+    /// <param name="ATimeoutMs">Timeout in milliseconds; zero is clamped to one.</param>
+    procedure SetSendTimeout(ATimeoutMs: Cardinal);
+    /// <summary>Enable or disable UDP broadcast on the native socket.</summary>
+    /// <param name="AOption">The broadcast option.</param>
+    /// <param name="AValue">Zero disables broadcast; nonzero enables it.</param>
+    procedure SetSocketOpt(AOption: TSocketOption; AValue: Integer);
+  end;
 {$ENDIF}
 implementation
+{$IFNDEF FPC}
+uses Winapi.Winsock2;
+
+procedure SetNativeSocketOption(AHandle: Winapi.Winsock2.TSocket;
+  AOption: Integer; AValue: Cardinal);
+begin
+  if Winapi.Winsock2.setsockopt(AHandle, SOL_SOCKET, AOption,
+     PAnsiChar(@AValue), SizeOf(AValue)) = SOCKET_ERROR then
+    raise EOSError.CreateFmt('Socket option %d failed (Winsock error %d)',
+      [AOption, WSAGetLastError]);
+end;
+
+procedure TOBDSocketOptions.ConnectWithTimeout(const AEndpoint: TNetEndpoint;
+  ATimeoutMs: Cardinal);
+var
+  Done: TEvent;
+  Worker: TThread;
+  Socket: System.Net.Socket.TSocket;
+  Endpoint: TNetEndpoint;
+  ErrorMessage: string;
+  TimedOut: Boolean;
+begin
+  if ATimeoutMs = 0 then ATimeoutMs := 1;
+  Socket := Self;
+  Endpoint := AEndpoint;
+  ErrorMessage := '';
+  Worker := nil;
+  Done := TEvent.Create(nil, True, False, '');
+  try
+    Worker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        try
+          try
+            Socket.Connect(Endpoint);
+          except
+            on E: Exception do ErrorMessage := E.Message;
+          end;
+        finally
+          Done.SetEvent;
+        end;
+      end);
+    Worker.FreeOnTerminate := False;
+    Worker.Start;
+    TimedOut := Done.WaitFor(ATimeoutMs) <> wrSignaled;
+    if TimedOut then
+      Socket.Close; // Interrupt Winsock connect before joining the worker.
+    Worker.WaitFor;
+    if TimedOut then
+      raise EOSError.Create('TCP connect timed out');
+    if ErrorMessage <> '' then
+      raise EOSError.Create('TCP connect failed: ' + ErrorMessage);
+  finally
+    if Worker <> nil then
+    begin
+      Worker.WaitFor;
+      Worker.Free;
+    end;
+    Done.Free;
+  end;
+end;
+
+procedure TOBDSocketOptions.SetKeepAlive(AEnabled: Boolean);
+begin
+  SetNativeSocketOption(Handle, SO_KEEPALIVE, Ord(AEnabled));
+end;
+
+procedure TOBDSocketOptions.SetSendTimeout(ATimeoutMs: Cardinal);
+begin
+  if ATimeoutMs = 0 then ATimeoutMs := 1;
+  SetNativeSocketOption(Handle, SO_SNDTIMEO, ATimeoutMs);
+end;
+
+procedure TOBDSocketOptions.SetSocketOpt(AOption: TSocketOption; AValue: Integer);
+begin
+  case AOption of
+    Broadcast: SetNativeSocketOption(Handle, SO_BROADCAST, Ord(AValue <> 0));
+  end;
+end;
+{$ENDIF}
 {$IFDEF FPC}
 procedure CheckSocket(AResult: LongInt);
 begin if AResult < 0 then raise EOSError.CreateFmt('Socket error %d', [SocketError]) end;
@@ -122,6 +237,12 @@ begin
   CheckSocket(fpConnect(Handle, @Address, SizeOf(Address)));
 {$ENDIF}
 end;
+procedure TSocket.ConnectWithTimeout(const AEndpoint: TNetEndpoint;
+  ATimeoutMs: Cardinal);
+begin
+  Connect(AEndpoint, ATimeoutMs);
+end;
+
 procedure TSocket.SetTimeouts(ATimeoutMs: Cardinal);
 {$IFDEF UNIX}var Time: TTimeVal;{$ENDIF}
 begin

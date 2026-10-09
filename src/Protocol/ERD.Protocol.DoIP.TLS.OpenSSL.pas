@@ -132,7 +132,7 @@ type
     FCtx: Pointer;          // SSL_CTX*
     FSsl: Pointer;          // SSL*
 {$IFDEF MSWINDOWS}
-    FSocket: TSocket;
+    FSocket: Winapi.Winsock2.TSocket;
 {$ELSE}
     FSocket: NativeInt;
 {$ENDIF}

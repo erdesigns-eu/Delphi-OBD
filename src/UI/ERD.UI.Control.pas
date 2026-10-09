@@ -367,7 +367,7 @@ begin
   if TStyleManager.IsCustomStyleActive then
   begin
     Result.Background     := StyleColor(scWindow,     Result.Background);
-    Result.ForegroundText := StyleColor(scWindowText, Result.ForegroundText);
+    Result.ForegroundText := StyleServices.GetSystemColor(clWindowText);
   end;
 end;
 

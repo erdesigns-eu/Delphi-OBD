@@ -41,6 +41,17 @@ for name, u in units.items():
         if kind == 'type' or low in u.types:
             declares.setdefault(low, set()).add(name)
 
+def type_identifiers(u, reachable):
+    """Respect explicit RTL/project qualification instead of matching a homonym."""
+    for match in IDENT_RE.finditer(u.clean):
+        prefix = u.clean[max(0, match.start() - 128):match.start()]
+        qualifier = re.search(r'((?:[A-Za-z_]\w*\s*\.\s*)+)$', prefix)
+        if qualifier:
+            provider = re.sub(r'\s+', '', qualifier.group(1)).rstrip('.').lower()
+            if provider in reachable:
+                continue
+        yield match
+
 # First who uses what without importing it, so that a name half the project
 # uses that way can be recognised as the RTL's rather than reported everywhere.
 SHARED_NAME = 3
@@ -49,7 +60,7 @@ for name in sorted(units):
     u = units[name]
     reachable = {name} | {n.lower() for n in u.iface_uses} | \
                 {n.lower() for n in u.impl_uses}
-    for low in set(m.group(0).lower() for m in IDENT_RE.finditer(u.clean)):
+    for low in set(m.group(0).lower() for m in type_identifiers(u, reachable)):
         if low in u.types or low in u.globals or low not in declares:
             continue
         if len(declares[low]) != 1 or (declares[low] & reachable):
@@ -63,7 +74,7 @@ for name in sorted(units):
     reachable = {name} | {n.lower() for n in u.iface_uses} | \
                 {n.lower() for n in u.impl_uses}
     seen = set()
-    for m in IDENT_RE.finditer(u.clean):
+    for m in type_identifiers(u, reachable):
         low = m.group(0).lower()
         if low in u.types or low in u.globals or low not in declares:
             continue

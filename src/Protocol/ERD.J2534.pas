@@ -41,6 +41,7 @@
 //
 //  History     :
 //    2026-05-10  ERD  Initial v04.04 + v05.00 implementation.
+//    2026-10-09  ERD  Match PassThru DLL exports to the Windows stdcall ABI.
 //------------------------------------------------------------------------------
 
 unit ERD.J2534;
@@ -138,47 +139,47 @@ type
   // ---- DLL function pointer types (subset shown - full set
   // declared in TJ2534Driver) ---------------------------------
   TPassThruOpen          = function(pName: PAnsiChar;
-    var pDeviceID: TJ2534DeviceId): Integer; cdecl;
-  TPassThruClose         = function(DeviceID: TJ2534DeviceId): Integer; cdecl;
+    var pDeviceID: TJ2534DeviceId): Integer; stdcall;
+  TPassThruClose         = function(DeviceID: TJ2534DeviceId): Integer; stdcall;
   TPassThruConnect       = function(DeviceID: TJ2534DeviceId;
     ProtocolID, Flags, BaudRate: Cardinal;
-    var pChannelID: TJ2534ChannelId): Integer; cdecl;
-  TPassThruDisconnect    = function(ChannelID: TJ2534ChannelId): Integer; cdecl;
+    var pChannelID: TJ2534ChannelId): Integer; stdcall;
+  TPassThruDisconnect    = function(ChannelID: TJ2534ChannelId): Integer; stdcall;
   TPassThruReadMsgs      = function(ChannelID: TJ2534ChannelId;
     pMsg: PJ2534Msg; var pNumMsgs: Cardinal;
-    Timeout: Cardinal): Integer; cdecl;
+    Timeout: Cardinal): Integer; stdcall;
   TPassThruWriteMsgs     = function(ChannelID: TJ2534ChannelId;
     pMsg: PJ2534Msg; var pNumMsgs: Cardinal;
-    Timeout: Cardinal): Integer; cdecl;
+    Timeout: Cardinal): Integer; stdcall;
   TPassThruStartPeriodicMsg = function(ChannelID: TJ2534ChannelId;
     pMsg: PJ2534Msg; var pMsgID: Cardinal;
-    TimeInterval: Cardinal): Integer; cdecl;
+    TimeInterval: Cardinal): Integer; stdcall;
   TPassThruStopPeriodicMsg  = function(ChannelID: TJ2534ChannelId;
-    MsgID: Cardinal): Integer; cdecl;
+    MsgID: Cardinal): Integer; stdcall;
   TPassThruStartMsgFilter   = function(ChannelID: TJ2534ChannelId;
     FilterType: Cardinal;
     pMaskMsg, pPatternMsg, pFlowControlMsg: PJ2534Msg;
-    var pFilterID: TJ2534FilterId): Integer; cdecl;
+    var pFilterID: TJ2534FilterId): Integer; stdcall;
   TPassThruStopMsgFilter    = function(ChannelID: TJ2534ChannelId;
-    FilterID: TJ2534FilterId): Integer; cdecl;
+    FilterID: TJ2534FilterId): Integer; stdcall;
   TPassThruSetProgrammingVoltage = function(DeviceID: TJ2534DeviceId;
-    PinNumber, Voltage: Cardinal): Integer; cdecl;
+    PinNumber, Voltage: Cardinal): Integer; stdcall;
   TPassThruReadVersion   = function(DeviceID: TJ2534DeviceId;
-    pFirmwareVersion, pDLLVersion, pAPIVersion: PAnsiChar): Integer; cdecl;
-  TPassThruGetLastError  = function(pErrorDescription: PAnsiChar): Integer; cdecl;
+    pFirmwareVersion, pDLLVersion, pAPIVersion: PAnsiChar): Integer; stdcall;
+  TPassThruGetLastError  = function(pErrorDescription: PAnsiChar): Integer; stdcall;
   TPassThruIoctl         = function(ChannelID: TJ2534ChannelId;
-    IoctlID: Cardinal; pInput, pOutput: Pointer): Integer; cdecl;
+    IoctlID: Cardinal; pInput, pOutput: Pointer): Integer; stdcall;
   // v05 additions
-  TPassThruScanForDevices  = function(var pDeviceCount: Cardinal): Integer; cdecl;
-  TPassThruGetNextDevice   = function(pDevice: PJ2534SDevice): Integer; cdecl;
+  TPassThruScanForDevices  = function(var pDeviceCount: Cardinal): Integer; stdcall;
+  TPassThruGetNextDevice   = function(pDevice: PJ2534SDevice): Integer; stdcall;
   TPassThruLogicalConnect  = function(PhysicalChannelID: TJ2534ChannelId;
     ProtocolID, Flags: Cardinal; pDescriptor: Pointer;
-    var pChannelID: TJ2534ChannelId): Integer; cdecl;
-  TPassThruLogicalDisconnect = function(ChannelID: TJ2534ChannelId): Integer; cdecl;
+    var pChannelID: TJ2534ChannelId): Integer; stdcall;
+  TPassThruLogicalDisconnect = function(ChannelID: TJ2534ChannelId): Integer; stdcall;
   TPassThruSelect          = function(pSChannelSet: Pointer;
-    SelectType: Cardinal; Timeout: Cardinal): Integer; cdecl;
+    SelectType: Cardinal; Timeout: Cardinal): Integer; stdcall;
   TPassThruQueueMsgs       = function(ChannelID: TJ2534ChannelId;
-    pMsg: PJ2534Msg; var pNumMsgs: Cardinal): Integer; cdecl;
+    pMsg: PJ2534Msg; var pNumMsgs: Cardinal): Integer; stdcall;
 
   /// <summary>Wraps a vendor PassThru DLL. One instance per
   /// loaded DLL; multiple devices per instance via
@@ -355,27 +356,27 @@ begin
     raise EOBDJ2534Error.Create(-1,
       'TJ2534Driver: could not load PassThru DLL "' + ADllPath + '"');
 
-  FOpen          := Resolve('PassThruOpen');
-  FClose         := Resolve('PassThruClose');
-  FConnect       := Resolve('PassThruConnect');
-  FDisconnect    := Resolve('PassThruDisconnect');
-  FReadMsgs      := Resolve('PassThruReadMsgs');
-  FWriteMsgs     := Resolve('PassThruWriteMsgs');
-  FStartPeriodic := Resolve('PassThruStartPeriodicMsg', False);
-  FStopPeriodic  := Resolve('PassThruStopPeriodicMsg', False);
-  FStartFilter   := Resolve('PassThruStartMsgFilter');
-  FStopFilter    := Resolve('PassThruStopMsgFilter');
-  FSetProgVoltage := Resolve('PassThruSetProgrammingVoltage', False);
-  FReadVersion   := Resolve('PassThruReadVersion', False);
-  FGetLastError  := Resolve('PassThruGetLastError');
-  FIoctl         := Resolve('PassThruIoctl', False);
+  FOpen          := TPassThruOpen(Resolve('PassThruOpen'));
+  FClose         := TPassThruClose(Resolve('PassThruClose'));
+  FConnect       := TPassThruConnect(Resolve('PassThruConnect'));
+  FDisconnect    := TPassThruDisconnect(Resolve('PassThruDisconnect'));
+  FReadMsgs      := TPassThruReadMsgs(Resolve('PassThruReadMsgs'));
+  FWriteMsgs     := TPassThruWriteMsgs(Resolve('PassThruWriteMsgs'));
+  FStartPeriodic := TPassThruStartPeriodicMsg(Resolve('PassThruStartPeriodicMsg', False));
+  FStopPeriodic  := TPassThruStopPeriodicMsg(Resolve('PassThruStopPeriodicMsg', False));
+  FStartFilter   := TPassThruStartMsgFilter(Resolve('PassThruStartMsgFilter'));
+  FStopFilter    := TPassThruStopMsgFilter(Resolve('PassThruStopMsgFilter'));
+  FSetProgVoltage := TPassThruSetProgrammingVoltage(Resolve('PassThruSetProgrammingVoltage', False));
+  FReadVersion   := TPassThruReadVersion(Resolve('PassThruReadVersion', False));
+  FGetLastError  := TPassThruGetLastError(Resolve('PassThruGetLastError'));
+  FIoctl         := TPassThruIoctl(Resolve('PassThruIoctl', False));
 
-  FScanForDevices := Resolve('PassThruScanForDevices', False);
-  FGetNextDevice  := Resolve('PassThruGetNextDevice',  False);
-  FLogicalConnect := Resolve('PassThruLogicalConnect', False);
-  FLogicalDisconnect := Resolve('PassThruLogicalDisconnect', False);
-  FSelect         := Resolve('PassThruSelect',         False);
-  FQueueMsgs      := Resolve('PassThruQueueMsgs',      False);
+  FScanForDevices := TPassThruScanForDevices(Resolve('PassThruScanForDevices', False));
+  FGetNextDevice  := TPassThruGetNextDevice(Resolve('PassThruGetNextDevice',  False));
+  FLogicalConnect := TPassThruLogicalConnect(Resolve('PassThruLogicalConnect', False));
+  FLogicalDisconnect := TPassThruLogicalDisconnect(Resolve('PassThruLogicalDisconnect', False));
+  FSelect         := TPassThruSelect(Resolve('PassThruSelect',         False));
+  FQueueMsgs      := TPassThruQueueMsgs(Resolve('PassThruQueueMsgs',      False));
   FHasV05 := Assigned(FScanForDevices) or
              Assigned(FLogicalConnect);
 end;
@@ -390,7 +391,7 @@ end;
 function TJ2534Driver.Resolve(const AName: string;
   ARequired: Boolean): Pointer;
 begin
-  Result := GetProcAddress(FHandle, PChar(AName));
+  Result := GetProcAddress(FHandle, PAnsiChar(AnsiString(AName)));
   if (Result = nil) and ARequired then
     raise EOBDJ2534Error.Create(-1,
       'TJ2534Driver: required export "' + AName + '" missing in DLL');
@@ -580,10 +581,15 @@ var
   N: Cardinal;
 begin
   AData := nil;
+  FillChar(M, SizeOf(M), 0);
   N := 1;
   Result := FDriver.ReadMsgs(FChannelId, @M, N, ATimeoutMs);
   if not Result then Exit;
   if N = 0 then Exit(False);
+  if (N <> 1) or (M.DataSize > Cardinal(SizeOf(M.Data))) or
+     (M.ExtraDataIdx > M.DataSize) then
+    raise EOBDJ2534Error.Create(J2534_ERR_INVALID_MSG,
+      'PassThruReadMsgs returned invalid message bounds');
   SetLength(AData, M.DataSize);
   if M.DataSize > 0 then
     Move(M.Data[0], AData[0], M.DataSize);

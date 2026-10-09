@@ -24,6 +24,7 @@
 //    2026-05-09  ERD  Rebase onto TOBDBaseTransport and add
 //                     step-progress events.
 //    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
+//    2026-10-09  ERD  Configure parity, DTR and RTS handshake flags correctly.
 //
 //  Future work :
 //    - POSIX backend (Linux / macOS) using termios.
@@ -254,10 +255,15 @@ begin
   DCB.StopBits := StopBitsToWin(ASettings.StopBits);
 
   DCB.Flags := 0;
-  DCB.Flags := DCB.Flags or $00000001;          // fBinary
+  DCB.Flags := $00000001                     // fBinary
+               or (1 shl 4)                 // fDtrControl = ENABLE
+               or (1 shl 12);               // fRtsControl = ENABLE
+  if ASettings.Parity <> paNone then
+    DCB.Flags := DCB.Flags or $00000002;      // fParity
   if ASettings.FlowControl = fcHardware then
-    DCB.Flags := DCB.Flags or $00000004        // fOutxCtsFlow
-                            or (1 shl 12);     // fRtsControl = HANDSHAKE
+    DCB.Flags := (DCB.Flags and not (3 shl 12))
+                 or $00000004               // fOutxCtsFlow
+                 or (2 shl 12);             // fRtsControl = HANDSHAKE
   if ASettings.FlowControl = fcSoftware then
     DCB.Flags := DCB.Flags or $00000100        // fOutX
                             or $00000200;      // fInX
@@ -288,6 +294,7 @@ begin
   if Trim(ASettings.Port) = '' then
     raise EOBDConfig.Create('Serial port name is empty');
 
+  Close;
   SetState(csOpening);
 
   FireProgress(1, 3, 'Opening port', ASettings.Port);
@@ -342,6 +349,9 @@ begin
   if Assigned(FReader) then
   begin
     FReader.Terminate;
+    // ReadFile runs synchronously on the reader; cancel that thread's I/O
+    // as well as any requests associated with the port handle.
+    CancelSynchronousIo(FReader.Handle);
     if H <> INVALID_HANDLE_VALUE then
       CancelIoEx(H, nil);
     FReader.WaitFor;

@@ -194,6 +194,7 @@ begin
   if Trim(ASettings.ServiceUUID) = '' then
     raise EOBDConfig.Create('Bluetooth service UUID is empty');
 
+  Close;
   SetState(csOpening);
   try
     FireProgress(1, 5, 'Adapter check', '');

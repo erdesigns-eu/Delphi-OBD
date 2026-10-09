@@ -203,10 +203,10 @@ begin
   if TStyleManager.IsCustomStyleActive then
   begin
     Built.Background     := StyleColor(scWindow,        Built.Background);
-    Built.ForegroundText := StyleColor(scWindowText,    Built.ForegroundText);
+    Built.ForegroundText := StyleServices.GetSystemColor(clWindowText);
     Built.NeutralLight   := StyleColor(scPanel,         Built.NeutralLight);
-    Built.NeutralDark    := StyleColor(scWindowText,    Built.NeutralDark);
-    Built.Subtle         := StyleColor(scGenericGrayed, Built.Subtle);
+    Built.NeutralDark    := StyleServices.GetSystemColor(clWindowText);
+    Built.Subtle         := StyleServices.GetSystemColor(clGrayText);
   end;
 
   Result := Built;

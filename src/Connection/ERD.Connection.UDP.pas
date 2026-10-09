@@ -12,6 +12,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
+//    2026-10-09  ERD  Route native socket options through the shared wrapper.
 //------------------------------------------------------------------------------
 
 unit ERD.Connection.UDP;
@@ -31,7 +32,7 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}ERD.Compat.Socket{$ELSE}System.Net.Socket{$ENDIF},
+  ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Settings,
@@ -157,6 +158,7 @@ begin
   if ASettings = nil then
     raise EOBDConfig.Create('UDP settings are nil');
 
+  Close;
   SetState(csOpening);
   FSocket := TSocket.Create(TSocketType.UDP, TEncoding.ASCII);
   try

@@ -287,6 +287,7 @@ begin
   if ASettings = nil then
     raise EOBDConfig.Create('FTDI settings are nil');
 
+  Close;
   SetState(csOpening);
   try
     FireProgress(1, 4, 'Loading D2XX', '');

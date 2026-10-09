@@ -5,7 +5,7 @@
 //  clones at 192.168.0.10:35000, ESP-Link ECU bridges, DoIP TCP
 //  channels).
 //
-//  Cross-platform via <c>{$IFDEF FPC}ERD.Compat.Socket{$ELSE}System.Net.Socket{$ENDIF}</c>.
+//  Cross-platform via <c>ERD.Compat.Socket</c>.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
@@ -15,6 +15,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
+//    2026-10-09  ERD  Route native socket options through the shared wrapper.
 //------------------------------------------------------------------------------
 
 unit ERD.Connection.WiFi;
@@ -34,7 +35,7 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}ERD.Compat.Socket{$ELSE}System.Net.Socket{$ENDIF},
+  ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Settings,
@@ -169,6 +170,7 @@ begin
   if ASettings.Port = 0 then
     raise EOBDConfig.Create('Wi-Fi port is zero');
 
+  Close;
   SetState(csOpening);
   FSocket := TSocket.Create(TSocketType.TCP, TEncoding.ASCII);
   try
@@ -178,8 +180,7 @@ begin
     FireProgress(2, 3, 'Connecting',
       Format('%s:%d', [ASettings.Host, ASettings.Port]));
     Endpoint := TNetEndpoint.Create(ResolvedAddr, ASettings.Port);
-    {$IFDEF FPC}FSocket.Connect(Endpoint, ASettings.ConnectTimeout);{$ELSE}
-    FSocket.Connect(Endpoint);{$ENDIF}
+    FSocket.ConnectWithTimeout(Endpoint, ASettings.ConnectTimeout);
     SetWriteTimeout(5000);
     if ASettings.KeepAlive then
       FSocket.SetKeepAlive(True);
@@ -235,8 +236,7 @@ procedure TOBDWiFiTransport.SetWriteTimeout(ATimeoutMs: Cardinal);
 begin
   if FSocket = nil then raise EOBDNotConnected.Create('Wi-Fi socket is closed');
   if ATimeoutMs = 0 then ATimeoutMs := 1;
-  {$IFDEF FPC}FSocket.SetSendTimeout(ATimeoutMs);{$ELSE}
-  FSocket.SetSocketOpt(TSocketOption.SendTimeout, Integer(ATimeoutMs));{$ENDIF}
+  FSocket.SetSendTimeout(ATimeoutMs);
 end;
 
 function TOBDWiFiTransport.WriteBytes(const ABytes: TBytes): Integer;
