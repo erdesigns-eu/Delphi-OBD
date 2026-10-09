@@ -45,7 +45,7 @@ procedure Register;
 
 implementation
 
-{$R DelphiOBD_DT.res}
+{$R ERD.Design.Icons.res}
 
 uses
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},

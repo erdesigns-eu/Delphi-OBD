@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'assets/designtime'
-TARGET = ROOT / 'src/DesignTime/DelphiOBD_DT.res'
+TARGET = ROOT / 'src/DesignTime/ERD.Design.Icons.res'
 
 
 def align(data):

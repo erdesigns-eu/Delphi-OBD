@@ -9,7 +9,7 @@ RAD Studio. All tools return a nonzero status on failed checks.
 | `pascalcheck/run.py -v` | Pascal/DFM/project sources; findings on stdout, no rewrites | Python standard library |
 | `validate_catalogs.py --require-coverage` | Every catalogue against local schemas and manifest references; report on stdout, no remote schema downloads | `pip install -r tools/requirements-validation.txt` |
 | `ev_support_matrix.py` | Vendor catalogues/manifest → checks `docs/ev-support-matrix.md`; `--write` regenerates it | Python standard library |
-| `designtime_resources.py` | Tracked native PNGs/manifest and registrations → checks `DelphiOBD_DT.res`; `--write` rebuilds it without image conversion | Python standard library |
+| `designtime_resources.py` | Tracked native PNGs/manifest and registrations → checks `ERD.Design.Icons.res`; `--write` rebuilds it without image conversion | Python standard library |
 | `fpc_smoke.py` | Eleven original portable units → temporary compiler outputs, 185 executable checks | FPC 3.2.2; `--compiler` / `--rtl` overrides |
 | `setup_fpc_runtime.sh <directory>` | Pinned official FPC source → builds compiler and nonvisual packages outside checkout | FPC bootstrap, Git, make, binutils, GCC, OpenSSL |
 | `fpc_runtime.py --source-tree <directory>` | 273 Linux nonvisual units, linked runtime/crypto/TLS regressions → temporary outputs and stdout | Pinned FPC 3.3.1 from setup tool; OpenSSL libraries and CLI |
