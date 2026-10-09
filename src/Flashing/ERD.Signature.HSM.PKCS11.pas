@@ -399,7 +399,6 @@ begin
       Template[0].type_ := CKA_CLASS;
       Template[0].pValue := @ObjClass;
       Template[0].ulValueLen := SizeOf(ObjClass);
-      TemplateCount := 1;
 
       KeyID := ParseHexBytes(FKeyLabelOrID);
       if (Length(KeyID) > 0) and

@@ -234,7 +234,6 @@ var
   P: PByte;
   Len: Integer;
 begin
-  Result := nil;
   if LooksLikePEM(AKeyBytes) then
   begin
     Bio := BIO_new_mem_buf_F(@AKeyBytes[0], Length(AKeyBytes));

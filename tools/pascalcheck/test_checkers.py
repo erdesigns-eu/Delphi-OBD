@@ -145,6 +145,27 @@ end.
                           .replace('  DeleteFile(TempName);', '  System.SysUtils.DeleteFile(TempName);'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_style_color_and_rgb_helpers_require_declaring_units(self):
+        source = self.source('src/Colors.pas', """unit Colors;
+interface
+uses Vcl.Graphics, Vcl.Themes;
+function Color(Slot: TStyleColor): TColor;
+implementation
+function Color(Slot: TStyleColor): TColor;
+begin
+  R := GetRValue(Value);
+  G := GetGValue(Value);
+  B := GetBValue(Value);
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('vcltypes'))
+        self.assertIn('total: 3', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('Vcl.Graphics, Vcl.Themes;',
+                          'Vcl.Graphics, Vcl.Themes, System.UITypes, Winapi.Windows;'))
+        self.assertIn('total: 0', self.checker('vcltypes'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

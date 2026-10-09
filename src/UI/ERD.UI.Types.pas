@@ -25,6 +25,8 @@ interface
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+  System.UITypes,
+  Winapi.Windows,
   Vcl.Graphics;
 
 type
