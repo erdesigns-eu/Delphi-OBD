@@ -7,13 +7,16 @@ FPC compiler profile.
 
 ## Manual Delphi installation
 
-1. Open `packages/DelphiOBD_RT.dproj` in RAD Studio and build Win32 Release.
+1. Uninstall the comparison package `TEST_DESIGNTIME` if it is installed: it
+   registers the same component classes as the production design-time package.
 2. Open `packages/DelphiOBD_DT.dproj`, build Win32 Release, then **Install**.
+   DT includes all component source units and does not require `DelphiOBD_RT.bpl`.
+   Build RT separately only when your applications use the runtime package.
 3. Win32 BPLs are written to Delphi's standard `$(BDSCOMMONDIR)/Bpl` directory
-   so the IDE can find the runtime package when loading DT. Win64 runtime BPLs
+   for IDE installation. Win64 runtime BPLs
    go to `$(BDSCOMMONDIR)/Bpl/Win64`. DCUs and DCPs remain under
    `build/<platform>/<config>`. Debug and Release replace the BPL in the standard
-   directory, so rebuild RT and DT with the same configuration. Install only DT.
+   directory, so select the configuration you intend to install. Install only DT.
    If Windows still reports a missing file while the BPL exists, check its
    dependent BPLs (including `bindengine` and `bindcomp`) in the RAD Studio `bin`
    directory; Windows uses the same message for a missing dependency.
@@ -22,6 +25,10 @@ FPC compiler profile.
 5. Add the matching `build/<platform>/<config>/rt-dcu` folder to your application's
    unit search path, or use the source search paths in the tracked projects.
 6. Set `CatalogDir` where needed, or deploy `catalogs/` next to the executable.
+
+Do not load RT or TEST_DESIGNTIME alongside DT in the IDE: the standalone DT
+package owns the same component units. Applications can compile from source or
+use RT separately.
 
 The DT package is for the Win32 IDE. RT and tests target Win32 and Win64.
 For clean builds, DUnitX and validation steps, follow

@@ -15,10 +15,12 @@ project files remain ignored.
 
 To build:
 
-1. Open `DelphiOBD_RT.dproj` in RAD Studio (10.3 Rio or newer).
-2. **Build** the runtime package.
-3. Open `DelphiOBD_DT.dproj`.
-4. **Build**, then **Install**.
+1. Remove the comparison package `TEST_DESIGNTIME` from the IDE if installed.
+2. Open `DelphiOBD_DT.dproj` in RAD Studio.
+3. **Build** Win32, then **Install**. DT contains all component source units;
+   installation does not require the runtime BPL.
+4. Build `DelphiOBD_RT.dproj` separately for applications using runtime packages.
+   Do not load RT alongside standalone DT in the IDE.
 
 The **OBD** category appears in the component palette when the
 design-time package (`DelphiOBD_DT.bpl`) is installed.
@@ -49,14 +51,15 @@ ready; these project files have XML validation here, but have not been built
 with Delphi in the Linux environment.
 
 
-Package outputs are isolated by platform and configuration under
+DCU and DCP outputs are isolated by platform and configuration under
 `build/<platform>/<config>/`; RT, DT and test DCUs use separate subfolders.
+BPLs use Delphi's standard `$(BDSCOMMONDIR)/Bpl` directory.
 The IDE package declares Win32 only; RT and tests declare Win32 and Win64.
 For the full local build/test procedure, use
 [the Delphi handover](../docs/delphi-validation.md) and
 `tools/validate_delphi.ps1`.
 
-The DT package contains only component registration, property/component editors
-and their supporting dialogs. Project/form wizards, starter generation,
+The standalone DT package contains the component source units, registration,
+property/component editors and their supporting dialogs. Project/form wizards, starter generation,
 About/Splash integration and IDE help hooks are removed. Components are placed
 manually on VCL forms or DataModules.

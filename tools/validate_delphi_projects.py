@@ -35,7 +35,10 @@ def inspect(path):
         if not any(g.findtext('m:' + key, namespaces=NS) == 'true' for g in groups):
             problems.append('Missing configuration activation group: ' + key)
     for el in project.findall('m:ItemGroup/m:DCCReference', NS):
-        if not (path.parent / el.attrib['Include'].replace('\\', '/')).is_file():
+        reference = el.attrib['Include']
+        if reference.lower().endswith('.dcp'):
+            continue  # Delphi resolves installed package references on its library path.
+        if not (path.parent / reference.replace('\\', '/')).is_file():
             problems.append('Missing DCCReference: ' + el.attrib['Include'])
     return problems
 

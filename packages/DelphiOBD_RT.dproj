@@ -17,14 +17,15 @@
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <ProjectName>DelphiOBD_RT</ProjectName>
-        <TargetedPlatforms>1048579</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <ProjectName Condition="'$(ProjectName)'==''">DelphiOBD_RT</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Base)'=='true') or '$(Base_Win64x)'!=''">
-        <Base_Win64x>true</Base_Win64x>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\Win64</DCC_BplOutput>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -48,10 +49,9 @@
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
         <SanitizedProjectName>DelphiOBD_RT</SanitizedProjectName>
-        <DCC_BplOutput>Z:\Projects\Delphi\OBD\Delphi-OBD\packages\</DCC_BplOutput>
         <VerInfo_Locale>1043</VerInfo_Locale>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64x)'!=''">
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -431,7 +431,6 @@
             <Platforms>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
-                <Platform value="Win64x">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
