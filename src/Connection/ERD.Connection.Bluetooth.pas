@@ -3,9 +3,8 @@
 //
 //  Bluetooth Classic (RFCOMM / SPP) transport via System.Bluetooth.
 //
-//  The Bluetooth shared <c>TBluetoothManager</c> is reference-counted
-//  internally by the RTL; this transport claims a reference on Open
-//  and releases it on Close. SPP service UUID defaults to the canonical
+//  The shared <c>TBluetoothManager.Current</c> is owned by the RTL;
+//  this transport does not free it. SPP service UUID defaults to the canonical
 //  <c>00001101-0000-1000-8000-00805F9B34FB</c>; ELM327 BT clones use
 //  the same UUID.
 //
@@ -17,6 +16,7 @@
 //    2026-05-09  ERD  Initial implementation.
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
+//    2026-10-09  ERD  Check manager connection state and missing adapters.
 //
 //  Future work :
 //    - Pairing / passkey events surfaced through OnTransportError so
@@ -197,8 +197,12 @@ begin
   try
     FireProgress(1, 5, 'Adapter check', '');
     FManager := TBluetoothManager.Current;
-    if (FManager = nil) or not FManager.CurrentAdapter.Activated then
-      raise EOBDError.Create('Bluetooth adapter is not available or activated');
+    if FManager = nil then
+      raise EOBDError.Create('Bluetooth manager is not available');
+    if FManager.CurrentAdapter = nil then
+      raise EOBDError.Create('Bluetooth adapter is not available');
+    if FManager.ConnectionState <> TBluetoothConnectionState.Connected then
+      raise EOBDError.Create('Bluetooth adapter is not connected');
 
     FireProgress(2, 5, 'Locating device', ASettings.DeviceAddress);
     FDevice := FindDevice(ASettings.DeviceAddress);

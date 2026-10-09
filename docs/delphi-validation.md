@@ -89,6 +89,17 @@ formatting choices alone do not establish the cause of an IDE crash.
 encoding and local references offline. Actual opening/building/installing in
 Delphi remains required. No claim of warning-free Delphi compilation is made.
 
+Pascal units, program sources, includes, VCL forms and project groups now also
+use CRLF through `.gitattributes`. After pulling into an existing checkout, run
+`python tools/normalize_delphi_eol.py` once: Git may leave unchanged files in their
+previous LF format. This conversion preserves source edits and existing BOMs;
+it does not reset files. New checkouts receive CRLF automatically.
+
+The classic Bluetooth transport checks `TBluetoothManager.ConnectionState`
+against `TBluetoothConnectionState.Connected`, as in Embarcadero's Delphi 12
+Classic Bluetooth sample. It also checks for a missing manager or adapter before
+using the adapter. The unsupported `CurrentAdapter.Activated` reference is removed.
+
 DT deliberately requires RT so their component units are loaded once in the IDE.
 Both packages have explicit `contains`/DCCReferences; the package analyzer checks
 reachable repository units against the required runtime package. Do not embed the

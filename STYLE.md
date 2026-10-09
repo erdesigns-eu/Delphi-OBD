@@ -207,7 +207,8 @@ Avoid abbreviations except those that are universal in the domain (`PID`,
   prefer omitting the final one in a block.
 - **Blank line** between top-level routines and between `interface` /
   `implementation` blocks.
-- **No trailing whitespace.** No mixed line endings (LF only).
+- **No trailing whitespace.** No mixed line endings. Delphi source files use
+  CRLF on checkout; Markdown and Python use LF.
 - **Line length:** soft limit 100 columns, hard limit 120. Wrap parameters
   one per line when the call exceeds.
 
@@ -391,4 +392,7 @@ If reading the source from top to bottom does not tell the next contributor
 what they need to know, the source is wrong, not the next contributor.
 
 Delphi IDE `.dproj` files and package `.dpk` files use UTF-8 BOM and CRLF on
-checkout, enforced by `.gitattributes`. Pascal units retain their existing format.
+checkout, enforced by `.gitattributes`. Pascal `.pas`, `.dpr`, `.inc`, VCL `.dfm`
+and `.groupproj` files also use CRLF on checkout. Preserve their existing encoding
+and BOM. For an existing checkout, run `python3 tools/normalize_delphi_eol.py`;
+it changes only line endings and preserves local source edits.
