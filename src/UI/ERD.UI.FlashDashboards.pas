@@ -211,7 +211,6 @@ type
     procedure SetMaxRows(AValue: Integer);
     procedure NotifyBindings;
     function  KindText(AKind: TOBDAuditKind): string;
-    function  KindColor(AKind: TOBDAuditKind): TColor;
   protected
     procedure CreateWnd; override;
   public
@@ -767,24 +766,14 @@ end;
 function TOBDFlashAuditTail.KindText(AKind: TOBDAuditKind): string;
 begin
   case AKind of
-    akSessionStart: Result := 'start';
+    akInfo:        Result := 'info';
+    akSnapshot:    Result := 'snapshot';
     akWrite:        Result := 'write';
     akVerify:       Result := 'verify';
     akRollback:     Result := 'rollback';
     akError:        Result := 'error';
   else
     Result := 'event';
-  end;
-end;
-
-function TOBDFlashAuditTail.KindColor(AKind: TOBDAuditKind): TColor;
-begin
-  case AKind of
-    akError:    Result := clRed;
-    akRollback: Result := $0000A8FF;     // amber (BGR)
-    akWrite:    Result := clBlack;
-  else
-    Result := clBlack;
   end;
 end;
 

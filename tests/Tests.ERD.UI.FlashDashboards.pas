@@ -220,7 +220,7 @@ begin
   try
     E := Default(TOBDAuditEntry);
     E.Timestamp := Now;
-    E.Kind      := akSessionStart;
+    E.Kind      := akSnapshot;
     T.PushEntry(E);
     T.ClearTail;
     Assert.AreEqual(0, T.Items.Count);
