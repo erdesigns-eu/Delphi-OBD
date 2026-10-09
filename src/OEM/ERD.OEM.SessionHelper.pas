@@ -275,7 +275,7 @@ begin
   finally
     // 5. Always attempt to close. Close failure does not demote a
     // successful run, but is captured if we were already failing.
-    if not Callbacks.CloseSession then
+    if not Callbacks.CloseSession() then
       if Result.Success then
       begin
         Result.Success := False;

@@ -247,7 +247,7 @@ begin
     begin
       if not Assigned(ARPMSource) then
         raise EOBDConfig.Create('EngineOff: RPM source missing');
-      Rpm := ARPMSource;
+      Rpm := ARPMSource();
       Result := Rpm < 50.0;
       if not Result then
         AMessage := Format('Engine running (%.0f RPM)', [Rpm])
@@ -266,7 +266,7 @@ begin
     begin
       if not Assigned(AVoltageSource) then
         raise EOBDConfig.Create('VoltageFloor: voltage source missing');
-      V := AVoltageSource;
+      V := AVoltageSource();
       Result := V >= AMinVolts;
       if not Result then
         AMessage := Format('Voltage %.2f V below floor %.2f V',
@@ -287,7 +287,7 @@ begin
     begin
       if not Assigned(ATempSource) then
         raise EOBDConfig.Create('AmbientTemperature: source missing');
-      T := ATempSource;
+      T := ATempSource();
       Result := (T >= AMinC) and (T <= AMaxC);
       if not Result then
         AMessage := Format('Ambient %.1f °C outside [%.1f, %.1f]',
@@ -305,7 +305,7 @@ begin
     begin
       if not Assigned(AIgnitionSource) then
         raise EOBDConfig.Create('IgnitionOn: source missing');
-      Result := AIgnitionSource;
+      Result := AIgnitionSource();
       if not Result then
         AMessage := 'Ignition not in RUN'
       else

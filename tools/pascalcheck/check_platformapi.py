@@ -50,6 +50,22 @@ for path in pas_files():
             r':=\s*\w+\s*\.\s*GetOn(?:DataReceived|StateChanged|TransportError|Progress)\s*;', src, re.I):
         finding(match.start(), 'Call event-returning transport getters explicitly with ()')
 
+    # These variables hold anonymous functions, rather than parameterless
+    # methods. In a value expression Delphi requires an explicit invocation.
+    callback_names = set(re.findall(
+        r'\b(\w+)\s*:\s*(?:TFunc\s*<[^,<>]+>|TOBDSessionCloseCallback\b|'
+        r'TOBDVoltageSourceFunc\b|TOBDPKCS11PINFunc\b)', src, re.I))
+    for name in callback_names:
+        value = r'(?:\w+\s*\.\s*)?' + re.escape(name) + r'\b'
+        pattern = r'(?:\b(?:if|while|until)\s+(?:not\s+)?' + value + \
+                  r'\s*(?:then|do|;)|:=\s*(?:not\s+)?' + value + r'\s*;)'
+        for match in re.finditer(pattern, src, re.I):
+            if match.group().startswith(':='):
+                target = re.search(r'\b(\w+)\s*$', src[:match.start()])
+                if target and target.group(1).lower() in {n.lower() for n in callback_names}:
+                    continue  # Copying the callback reference is intentional.
+            finding(match.start(), 'Invoke zero-argument anonymous functions with () in value expressions')
+
     declarations = re.finditer(
         r'\b(\w+)\s*:\s*(TBluetoothLEManager|TBluetoothLEDevice|TSocket)\b', src, re.I)
     for declaration in declarations:

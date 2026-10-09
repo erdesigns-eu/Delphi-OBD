@@ -67,6 +67,27 @@ end.
                                    "IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask, 'fixture')));"))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_zero_argument_callback_value_requires_explicit_invocation(self):
+        source = self.source('src/Callbacks.pas', """unit Callbacks;
+interface
+type TOBDSessionCloseCallback = reference to function: Boolean;
+     TCallbacks = record CloseSession: TOBDSessionCloseCallback; end;
+implementation
+procedure Run(const Source: TFunc<Double>; const Callbacks: TCallbacks);
+var SourceCopy: TFunc<Double>;
+begin
+  if not Callbacks.CloseSession then Fail;
+  Value := Source;
+  SourceCopy := Source;
+  if Assigned(Source) then Pass;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('CloseSession then', 'CloseSession() then')
+                          .replace('Value := Source;', 'Value := Source();'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface
