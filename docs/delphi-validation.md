@@ -111,3 +111,13 @@ component library cannot be copied indiscriminately.
 KWP keepalive en de OEM UDS async worker starten nu nadat `Create` terugkeert,
 met constructor-start-analyse en FPC-regressies. De gemelde Delphi-threadfout
 moet daarnaast tijdens de daadwerkelijke Delphi-run worden gecontroleerd.
+
+The BLE transport uses Delphi 12 LE discovery (`StartDiscovery`,
+`LastDiscoveredDevices`, `DiscoverServices`) and searches the selected service's
+`Characteristics` by UUID. Device and service discovery share `ConnectTimeout`;
+main-thread synchronization is serviced during synchronous opens. Discovery
+handlers are restored after each operation, and the read handler is restored on
+close or failed subscription. Bluetooth short UUIDs are expanded to valid
+128-bit UUIDs. This flow follows Embarcadero's Delphi 12 ExploreDevicesLE and
+BLE_BeaconScanner samples. Compilation and operation with a BLE adapter still
+require testing in Delphi on Windows.

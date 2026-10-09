@@ -121,8 +121,8 @@ type
     /// <param name="Source">Source instance.</param>
     procedure Assign(Source: TPersistent); override;
   published
-    /// <summary>BLE MAC or device name. Empty enables scanning on
-    /// connect.</summary>
+    /// <summary>Required BLE MAC or device name to select during
+    /// discovery on connect.</summary>
     property DeviceAddress: string read FDeviceAddress write FDeviceAddress;
     /// <summary>Custom service UUID. Default <c>FFE0</c> (the de-facto
     /// ELM327-BLE clone profile).</summary>
