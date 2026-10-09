@@ -27,6 +27,16 @@ type
     class function Create(const AAddress: TIPAddress; APort: Word): TNetEndpoint; overload; static;
     class function Create(const AAddress: in_addr; APort: Word): TNetEndpoint; overload; static;
   end;
+  /// <summary>IPv4 address and port for the portable datagram API.</summary>
+  TOBDDatagramEndpoint = record
+  private
+    FEndpoint: TNetEndpoint;
+  public
+    /// <summary>Resolve a host; an empty host binds the IPv4 wildcard.</summary>
+    /// <param name="AHost">IPv4 literal or DNS name; empty means 0.0.0.0.</param>
+    /// <param name="APort">UDP port.</param>
+    class function Create(const AHost: string; APort: Word): TOBDDatagramEndpoint; static;
+  end;
   TSocket = class
   private
     FHandle: LongInt;
@@ -46,6 +56,20 @@ type
     /// <summary>Transfer descriptor ownership to the caller (used by OpenSSL).</summary>
     function DetachHandle: LongInt;
     procedure Bind(const AEndpoint: TNetEndpoint);
+    /// <summary>Bind the socket to a portable IPv4 datagram endpoint.</summary>
+    /// <param name="AEndpoint">Local address and port.</param>
+    procedure BindDatagram(const AEndpoint: TOBDDatagramEndpoint);
+    /// <summary>Receive one datagram into the supplied buffer.</summary>
+    /// <param name="ABytes">Preallocated destination buffer.</param>
+    /// <param name="ACount">Maximum bytes to receive.</param>
+    /// <returns>Bytes received, including zero for an empty datagram.</returns>
+    function ReceiveDatagram(var ABytes: TBytes; ACount: Integer): Integer;
+    /// <summary>Send one datagram to a portable IPv4 endpoint.</summary>
+    /// <param name="AEndpoint">Remote address and port.</param>
+    /// <param name="ABytes">Datagram payload.</param>
+    /// <returns>Bytes sent.</returns>
+    function SendDatagram(const AEndpoint: TOBDDatagramEndpoint; const ABytes: TBytes): Integer;
+
     procedure SetKeepAlive(AEnabled: Boolean);
     procedure SetSocketOpt(AOption: TSocketOption; AValue: Integer);
     function Send(const ABytes: TBytes): Integer;
@@ -56,7 +80,8 @@ type
     procedure Close;
   end;
 {$ELSE}
-uses System.SysUtils, System.Classes, System.SyncObjs, System.Net.Socket;
+uses System.SysUtils, System.Classes, System.SyncObjs, System.Net.Socket,
+  Winapi.Winsock2;
 type
   /// <summary>Delphi socket types exposed through the shared transport layer.</summary>
   TSocket = System.Net.Socket.TSocket;
@@ -68,9 +93,33 @@ type
   TNetEndpoint = System.Net.Socket.TNetEndpoint;
   /// <summary>Portable socket option used for UDP discovery.</summary>
   TSocketOption = (Broadcast);
+  /// <summary>IPv4 address and port for the portable datagram API.</summary>
+  TOBDDatagramEndpoint = record
+  private
+    FAddress: Winapi.Winsock2.TSockAddrIn;
+  public
+    /// <summary>Resolve a host; an empty host binds the IPv4 wildcard.</summary>
+    /// <param name="AHost">IPv4 literal or DNS name; empty means 0.0.0.0.</param>
+    /// <param name="APort">UDP port.</param>
+    class function Create(const AHost: string; APort: Word): TOBDDatagramEndpoint; static;
+  end;
   /// <summary>Native Windows options absent from Delphi's TSocket API.</summary>
   TOBDSocketOptions = class helper for System.Net.Socket.TSocket
   public
+    /// <summary>Bind the socket to a portable IPv4 datagram endpoint.</summary>
+    /// <param name="AEndpoint">Local address and port.</param>
+    procedure BindDatagram(const AEndpoint: TOBDDatagramEndpoint);
+    /// <summary>Receive one datagram into the supplied buffer.</summary>
+    /// <param name="ABytes">Preallocated destination buffer.</param>
+    /// <param name="ACount">Maximum bytes to receive.</param>
+    /// <returns>Bytes received, including zero for an empty datagram.</returns>
+    function ReceiveDatagram(var ABytes: TBytes; ACount: Integer): Integer;
+    /// <summary>Send one datagram to a portable IPv4 endpoint.</summary>
+    /// <param name="AEndpoint">Remote address and port.</param>
+    /// <param name="ABytes">Datagram payload.</param>
+    /// <returns>Bytes sent.</returns>
+    function SendDatagram(const AEndpoint: TOBDDatagramEndpoint; const ABytes: TBytes): Integer;
+
     /// <summary>Bound a blocking Delphi connect and join its worker before returning.</summary>
     /// <param name="AEndpoint">Remote address and port.</param>
     /// <param name="ATimeoutMs">Maximum connect wait in milliseconds.</param>
@@ -89,7 +138,68 @@ type
 {$ENDIF}
 implementation
 {$IFNDEF FPC}
-uses Winapi.Winsock2;
+
+class function TOBDDatagramEndpoint.Create(const AHost: string;
+  APort: Word): TOBDDatagramEndpoint;
+var
+  Hints: TAddrInfoW;
+  Res: PAddrInfoW;
+  Host, Port: string;
+  RC: Integer;
+begin
+  Result := Default(TOBDDatagramEndpoint);
+  Host := Trim(AHost);
+  if Host = '' then Host := '0.0.0.0';
+  Port := IntToStr(APort);
+  Hints := Default(TAddrInfoW);
+  Hints.ai_family := AF_INET;
+  Hints.ai_socktype := SOCK_DGRAM;
+  Hints.ai_protocol := IPPROTO_UDP;
+  Res := nil;
+  RC := GetAddrInfoW(PWideChar(Host), PWideChar(Port), @Hints, Res);
+  if RC <> 0 then
+    raise EOSError.CreateFmt('Cannot resolve UDP host %s (error %d)', [Host, RC]);
+  try
+    if (Res = nil) or (Res.ai_addrlen < SizeOf(Result.FAddress)) then
+      raise EOSError.Create('No IPv4 address returned for UDP host ' + Host);
+    Move(Res.ai_addr^, Result.FAddress, SizeOf(Result.FAddress));
+  finally
+    FreeAddrInfoW(Res);
+  end;
+end;
+
+procedure TOBDSocketOptions.BindDatagram(const AEndpoint: TOBDDatagramEndpoint);
+begin
+  if Winapi.Winsock2.bind(Handle, PSockAddr(@AEndpoint.FAddress)^,
+     SizeOf(AEndpoint.FAddress)) = SOCKET_ERROR then
+    raise EOSError.CreateFmt('UDP bind failed (Winsock error %d)', [WSAGetLastError]);
+end;
+
+function TOBDSocketOptions.ReceiveDatagram(var ABytes: TBytes;
+  ACount: Integer): Integer;
+var
+  Origin: TSockAddrIn;
+  OriginSize: Integer;
+begin
+  if (ACount < 1) or (ACount > Length(ABytes)) then
+    raise ERangeError.Create('Invalid UDP receive size');
+  Origin := Default(TSockAddrIn);
+  OriginSize := SizeOf(Origin);
+  Result := Winapi.Winsock2.recvfrom(Handle, ABytes[0], ACount, 0,
+    PSockAddr(@Origin)^, OriginSize);
+  if Result = SOCKET_ERROR then
+    raise EOSError.CreateFmt('UDP receive failed (Winsock error %d)', [WSAGetLastError]);
+end;
+
+function TOBDSocketOptions.SendDatagram(const AEndpoint: TOBDDatagramEndpoint;
+  const ABytes: TBytes): Integer;
+begin
+  if Length(ABytes) = 0 then Exit(0);
+  Result := Winapi.Winsock2.sendto(Handle, ABytes[0], Length(ABytes), 0,
+    PSockAddr(@AEndpoint.FAddress)^, SizeOf(AEndpoint.FAddress));
+  if Result = SOCKET_ERROR then
+    raise EOSError.CreateFmt('UDP send failed (Winsock error %d)', [WSAGetLastError]);
+end;
 
 procedure SetNativeSocketOption(AHandle: Winapi.Winsock2.TSocket;
   AOption: Integer; AValue: Cardinal);
@@ -169,6 +279,33 @@ begin
 end;
 {$ENDIF}
 {$IFDEF FPC}
+class function TOBDDatagramEndpoint.Create(const AHost: string;
+  APort: Word): TOBDDatagramEndpoint;
+begin
+  if Trim(AHost) = '' then
+    Result.FEndpoint := TNetEndpoint.Create(TIPAddress.Any, APort)
+  else
+    Result.FEndpoint := TNetEndpoint.Create(TIPAddress.LookupName(AHost), APort);
+end;
+
+procedure TSocket.BindDatagram(const AEndpoint: TOBDDatagramEndpoint);
+begin
+  Bind(AEndpoint.FEndpoint);
+end;
+
+function TSocket.ReceiveDatagram(var ABytes: TBytes; ACount: Integer): Integer;
+var
+  Origin: TNetEndpoint;
+begin
+  Result := ReceiveFrom(ABytes, Origin, [], ACount);
+end;
+
+function TSocket.SendDatagram(const AEndpoint: TOBDDatagramEndpoint;
+  const ABytes: TBytes): Integer;
+begin
+  Result := SendTo(AEndpoint.FEndpoint, ABytes);
+end;
+
 procedure CheckSocket(AResult: LongInt);
 begin if AResult < 0 then raise EOSError.CreateFmt('Socket error %d', [SocketError]) end;
 class function TIPAddress.LookupName(const AHost: string): TIPAddress;

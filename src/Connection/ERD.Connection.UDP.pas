@@ -13,6 +13,7 @@
 //    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
 //                     and instrumented with step-progress events.
 //    2026-10-09  ERD  Route native socket options through the shared wrapper.
+//    2026-10-09  ERD  Adapt UDP I/O and IPv4 endpoints for both compilers.
 //------------------------------------------------------------------------------
 
 unit ERD.Connection.UDP;
@@ -63,7 +64,7 @@ type
   TOBDUDPTransport = class(TOBDBaseTransport)
   strict private
     FSocket: TSocket;
-    FRemote: TNetEndpoint;
+    FRemote: TOBDDatagramEndpoint;
     FReader: TOBDUDPReadThread;
   public
     /// <summary>Constructs an idle UDP transport.</summary>
@@ -114,13 +115,12 @@ const
 var
   Buffer: TBytes;
   Got: Integer;
-  Origin: TNetEndpoint;
 begin
   SetLength(Buffer, ChunkSize);
   while not Terminated do
   begin
     try
-      Got := FSocket.ReceiveFrom(Buffer, Origin, [], ChunkSize);
+      Got := FSocket.ReceiveDatagram(Buffer, ChunkSize);
       if Terminated then Break;
       if Got > 0 then
       begin
@@ -153,7 +153,7 @@ end;
 
 procedure TOBDUDPTransport.Open(const ASettings: TOBDUDPSettings);
 var
-  Local: TNetEndpoint;
+  Local: TOBDDatagramEndpoint;
 begin
   if ASettings = nil then
     raise EOBDConfig.Create('UDP settings are nil');
@@ -166,17 +166,16 @@ begin
       Format('local-port=%d', [ASettings.LocalPort]));
     if ASettings.BindLocal then
     begin
-      Local := TNetEndpoint.Create(TIPAddress.Any.IPv4Address,
+      Local := TOBDDatagramEndpoint.Create('',
         ASettings.LocalPort);
-      FSocket.Bind(Local);
+      FSocket.BindDatagram(Local);
     end;
     if ASettings.Broadcast then
       FSocket.SetSocketOpt(TSocketOption.Broadcast, 1);
     if Trim(ASettings.Host) <> '' then
-      FRemote := TNetEndpoint.Create(
-        TIPAddress.LookupName(ASettings.Host), ASettings.Port)
+      FRemote := TOBDDatagramEndpoint.Create(ASettings.Host, ASettings.Port)
     else
-      FRemote := TNetEndpoint.Create(TIPAddress.Any.IPv4Address,
+      FRemote := TOBDDatagramEndpoint.Create('',
         ASettings.Port);
   except
     on E: Exception do
@@ -232,7 +231,7 @@ begin
   if Length(ABytes) = 0 then
     Exit(0);
   try
-    Result := FSocket.SendTo(FRemote, ABytes);
+    Result := FSocket.SendDatagram(FRemote, ABytes);
   except
     on E: Exception do
     begin

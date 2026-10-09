@@ -57,3 +57,20 @@ betreffende adapters. ECU-flashing en hardwaretokens blijven aparte hardwaretest
 Een volgende compilerfout kan dus nog een ongedekte Delphi-API of overload
 blootleggen; alle mogelijke Delphi-fouten zijn pas uitgesloten voor de
 daadwerkelijk gebouwde en geteste configuratie.
+
+## Aanvulling: UDP-overloads
+
+De daaropvolgende Delphi-build vond vier UDP-fouten: `ReceiveFrom`/`SendTo`
+accepteerden de FPC-argumentvolgorde niet, en Delphi's `TIPAddress` heeft geen
+`IPv4Address`-property. De UDP-transportcode gebruikt nu
+`TOBDDatagramEndpoint` plus `BindDatagram`, `ReceiveDatagram` en `SendDatagram`.
+FPC vertaalt die naar zijn bestaande implementatie. Delphi resolveert een
+IPv4-endpoint met `GetAddrInfoW` en gebruikt native Winsock bind/recvfrom/sendto.
+Daarmee hoeft de transportcode de verschillende externe overloads niet te kennen.
+
+Na deze wijziging: 98 statische checkers schoon, 17 analyzerfixtures geslaagd,
+projectreferenties/regeleinden geldig. Een runtime-only FPC-run compileerde de
+regressierunner en zijn afhankelijkheden en slaagde voor 196 checks, waaronder
+de UDP-binaire roundtrip, 6 signaturechecks en 7 TLS-scenario's. De volledige
+273-unit-compilatie hierboven dateert van de voorafgaande platformreview.
+De nieuwe Delphi/Winsock-tak moet nog daadwerkelijk in Delphi worden gebouwd.

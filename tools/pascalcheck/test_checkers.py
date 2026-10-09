@@ -60,6 +60,26 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_udp_transport_cannot_leak_fpc_only_endpoint_and_overloads(self):
+        source = self.source('src/UDP.pas', """unit ERD.Connection.UDP;
+interface
+uses ERD.Compat.Socket;
+implementation
+procedure Run;
+begin
+  Local := TNetEndpoint.Create(TIPAddress.Any.IPv4Address, 0);
+  Got := FSocket.ReceiveFrom(Buffer, Origin, [], 2048);
+  Sent := FSocket.SendTo(Remote, Buffer);
+end;
+end.
+""")
+        self.assertIn('total: 3', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('TNetEndpoint.Create(TIPAddress.Any.IPv4Address, 0)', "TOBDDatagramEndpoint.Create('', 0)")
+                          .replace('ReceiveFrom(Buffer, Origin, [], 2048)', 'ReceiveDatagram(Buffer, 2048)')
+                          .replace('SendTo(Remote, Buffer)', 'SendDatagram(Remote, Buffer)'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_tproc_reader_literals_require_matching_value_parameter_modes(self):
         source = self.source('src/Reader.pas', """unit Reader;
 interface

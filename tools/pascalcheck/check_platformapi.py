@@ -24,6 +24,12 @@ for path in pas_files():
     for match in re.finditer(r'\b(scWindowText|scGenericGrayed)\b', src):
         finding(match.start(), 'Use StyleServices.GetSystemColor for window/gray text colors')
 
+    if re.search(r'\bunit\s+ERD\.Connection\.UDP\s*;', src, re.I):
+        for match in re.finditer(r'\bFSocket\s*\.\s*(ReceiveFrom|SendTo)\s*\(', src, re.I):
+            finding(match.start(), 'UDP transport must use the shared datagram adapter, not compiler-specific overloads')
+        for match in re.finditer(r'\bTIPAddress\s*\.\s*Any\s*\.\s*IPv4Address\b', src, re.I):
+            finding(match.start(), 'Construct UDP wildcard addresses through TOBDDatagramEndpoint')
+
     declarations = re.finditer(
         r'\b(\w+)\s*:\s*(TBluetoothLEManager|TBluetoothLEDevice|TSocket)\b', src, re.I)
     for declaration in declarations:
