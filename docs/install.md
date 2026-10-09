@@ -30,7 +30,9 @@ Do not load RT or TEST_DESIGNTIME alongside DT in the IDE: the standalone DT
 package owns the same component units. Applications can compile from source or
 use RT separately.
 
-The DT package is for the Win32 IDE. RT and tests target Win32 and Win64.
+DT targets Win32 and Win64x. Install the build matching the IDE architecture;
+Win64x requires a Delphi version with that target and a compatible 64-bit IDE.
+RT and tests target Win32 and Win64.
 For clean builds, DUnitX and validation steps, follow
 [the Delphi checklist](delphi-validation.md). Actual Delphi builds and IDE
 installation are still to be validated on Windows.

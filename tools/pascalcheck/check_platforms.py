@@ -7,7 +7,7 @@ from common import ROOT
 NS = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}
 PROJECTS = {
     'packages/DelphiOBD_RT.dproj': {'Win32', 'Win64'},
-    'packages/DelphiOBD_DT.dproj': {'Win32'},
+    'packages/DelphiOBD_DT.dproj': {'Win32', 'Win64x'},
     'tests/DelphiOBD_Tests.dproj': {'Win32', 'Win64'},
 }
 

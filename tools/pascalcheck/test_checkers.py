@@ -464,10 +464,25 @@ end.
         visual.write_text(visual.read_text().replace('Vcl.Graphics', 'FMX.Graphics'))
         self.assertIn('total: 1', self.checker('runtime'))
 
+    def test_signature_guard_ignores_spacing_around_parameter_colon(self):
+        path = self.source('src/SignatureSpacing.pas', """unit SignatureSpacing;
+interface
+type TDemo = class
+  procedure Run(const A: string);
+end;
+implementation
+procedure TDemo.Run(const A : string);
+begin end;
+end.
+""")
+        self.assertIn('total: 0', self.checker('signature'))
+        path.write_text(path.read_text().replace('const A : string', 'const B : string'))
+        self.assertIn('total: 1', self.checker('signature'))
+
     def test_platform_guard_detects_wrong_ide_target(self):
         for filename, targets in [
                 ('packages/DelphiOBD_RT.dproj', ['Win32', 'Win64']),
-                ('packages/DelphiOBD_DT.dproj', ['Win32']),
+                ('packages/DelphiOBD_DT.dproj', ['Win32', 'Win64x']),
                 ('tests/DelphiOBD_Tests.dproj', ['Win32', 'Win64'])]:
             self.source(filename, '<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">'
                         '<PropertyGroup><Platform>Win32</Platform></PropertyGroup>'

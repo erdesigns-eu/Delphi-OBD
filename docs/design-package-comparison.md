@@ -18,8 +18,8 @@ avoid W1033 warnings and matching DCCReference entries keep the IDE consistent.
 
 The uploaded projects also contain an absolute Z-drive BPL output override,
 which supersedes the earlier standard output directory. This override is removed.
-Win64x was enabled by the IDE; platform scope is restored to Win32 for DT and
-Win32/Win64 for RT. Resource files and other IDE-generated metadata are retained.
+DT supports Win32 and Win64x; RT supports Win32/Win64. The CI platform guard
+accepts the Win64x design-time target. Resource files and other IDE-generated metadata are retained.
 
 Before installing DT, uninstall TEST_DESIGNTIME. Do not load RT alongside the
 standalone DT in the IDE because both contain the same component units.
