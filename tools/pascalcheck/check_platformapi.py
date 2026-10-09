@@ -14,6 +14,11 @@ for path in pas_files():
     def finding(at, why):
         bad.append((rel, src.count('\n', 0, at) + 1, why))
 
+    rect_names = set(re.findall(r'\b(\w+)\s*:\s*TRectF\b', src, re.I))
+    for name in rect_names:
+        for match in re.finditer(r'\b' + re.escape(name) + r'\s*\.\s*[XY]\b', src, re.I):
+            finding(match.start(), 'TRectF uses Left/Top; X/Y belong to TGPRectF')
+
     # Unindented unit-level headers; qualified generic class methods have
     # a dot after the type parameters and are deliberately excluded.
     for match in re.finditer(

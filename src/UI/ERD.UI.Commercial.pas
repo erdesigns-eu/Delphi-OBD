@@ -206,8 +206,8 @@ begin
   S := Format('%.1f h', [FHours]);
   W := C.TextWidth(S);
   C.TextOut(
-    Round(ABounds.X + (ABounds.Width  - W) / 2),
-    Round(ABounds.Y + ABounds.Height * 0.78),
+    Round(ABounds.Left + (ABounds.Width  - W) / 2),
+    Round(ABounds.Top + ABounds.Height * 0.78),
     S);
 end;
 

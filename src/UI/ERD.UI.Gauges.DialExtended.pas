@@ -167,8 +167,8 @@ begin
   // Clamp into Min..Max so the needle never escapes the dial.
   ClampedSP := Clamp(FSetpointValue);
 
-  Cx := ABounds.X + ABounds.Width  / 2;
-  Cy := ABounds.Y + ABounds.Height / 2;
+  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cy := ABounds.Top + ABounds.Height / 2;
   R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   // Shorter than the primary needle to keep the two visually
   // distinct even when they overlap.
@@ -276,8 +276,8 @@ begin
   ObserveSample(DisplayValue);
   if not FShowMinMax or not FHaveStats then Exit;
 
-  Cx := ABounds.X + ABounds.Width  / 2;
-  Cy := ABounds.Y + ABounds.Height / 2;
+  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cy := ABounds.Top + ABounds.Height / 2;
   R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   // Sit the markers just inside the bezel, outside the tick band.
   RIn  := R - ScaleValue(6);

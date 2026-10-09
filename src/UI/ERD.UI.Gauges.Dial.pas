@@ -195,9 +195,9 @@ var
   S:        Integer;
 begin
   // Compute a square bounds centred in the client rect.
-  S := Min(Width, Height);
-  Bounds.X := (Width  - S) / 2;
-  Bounds.Y := (Height - S) / 2;
+  S := System.Math.Min(Width, Height);
+  Bounds.Left := (Width  - S) / 2;
+  Bounds.Top := (Height - S) / 2;
   Bounds.Width  := S;
   Bounds.Height := S;
 
@@ -235,8 +235,8 @@ begin
   // Face fill.
   Brush := TGPSolidBrush.Create(ColorToARGB(FaceCol));
   try
-    Inner.X := ABounds.X;
-    Inner.Y := ABounds.Y;
+    Inner.X := ABounds.Left;
+    Inner.Y := ABounds.Top;
     Inner.Width  := ABounds.Width;
     Inner.Height := ABounds.Height;
     AGraphics.FillEllipse(Brush, Inner);
@@ -266,8 +266,8 @@ begin
   // Zones paint as thin coloured arcs just inside the bezel.
   if Length(Zones) = 0 then Exit;
   Inset := ScaleValue(6);
-  Rect.X := ABounds.X + Inset;
-  Rect.Y := ABounds.Y + Inset;
+  Rect.X := ABounds.Left + Inset;
+  Rect.Y := ABounds.Top + Inset;
   Rect.Width  := ABounds.Width  - Inset * 2;
   Rect.Height := ABounds.Height - Inset * 2;
   for Z in Zones do
@@ -303,8 +303,8 @@ begin
   if Cfg.MajorInterval <= 0 then Exit;
   if SameValue(Min, Max) then Exit;
 
-  Cx := ABounds.X + ABounds.Width  / 2;
-  Cy := ABounds.Y + ABounds.Height / 2;
+  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cy := ABounds.Top + ABounds.Height / 2;
   R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   ROut := R - ScaleValue(10);
   RIn  := R - ScaleValue(20);
@@ -377,8 +377,8 @@ var
   Color: TColor;
   Hub:   TGPRectF;
 begin
-  Cx := ABounds.X + ABounds.Width  / 2;
-  Cy := ABounds.Y + ABounds.Height / 2;
+  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cy := ABounds.Top + ABounds.Height / 2;
   R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   NLen := R - ScaleValue(18);
   Angle := DegToRad(ValueToAngle(DisplayValue));
@@ -425,8 +425,8 @@ begin
   ACanvas.Font := Self.Font;
   ACanvas.Font.Color := EffectiveForeground;
   TextW := ACanvas.TextWidth(S);
-  Cx := Round(ABounds.X + ABounds.Width / 2 - TextW / 2);
-  Cy := Round(ABounds.Y + ABounds.Height * 0.66);
+  Cx := Round(ABounds.Left + ABounds.Width / 2 - TextW / 2);
+  Cy := Round(ABounds.Top + ABounds.Height * 0.66);
   ACanvas.TextOut(Cx, Cy, S);
 end;
 
@@ -592,8 +592,8 @@ begin
     Format.SetLineAlignment(StringAlignmentCenter);
     S := FormatValue(DisplayValue);
     var R: TGPRectF;
-    R.X := ABounds.X;
-    R.Y := ABounds.Y + ABounds.Height * 0.30;
+    R.X := ABounds.Left;
+    R.Y := ABounds.Top + ABounds.Height * 0.30;
     R.Width  := ABounds.Width;
     R.Height := ABounds.Height * 0.30;
     AGraphics.DrawString(S, Length(S), GdiFont, R, Format, Brush);

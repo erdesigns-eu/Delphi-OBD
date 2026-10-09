@@ -44,6 +44,7 @@ interface
 uses
   Winapi.Windows,
   Winapi.Messages,
+  System.UITypes,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},

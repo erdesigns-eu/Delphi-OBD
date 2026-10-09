@@ -167,6 +167,23 @@ end.
         self.assertIn('total: 0', self.checker('vcltypes'))
         self.assertIn('total: 0', self.checker('needsunit'))
 
+    def test_rtl_rect_uses_left_top_and_gdiplus_rect_uses_xy(self):
+        source = self.source('src/Rectangles.pas', """unit Rectangles;
+interface
+implementation
+procedure Draw(const Bounds: TRectF; const GDI: TGPRectF);
+begin
+  CenterX := Bounds.X;
+  CenterY := Bounds.Y;
+  Other := GDI.X + GDI.Y;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('Bounds.X', 'Bounds.Left')
+                          .replace('Bounds.Y', 'Bounds.Top'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface
