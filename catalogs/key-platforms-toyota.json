@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/key-platforms.json",
   "schema_version": 1,
   "description": "Toyota/Lexus chassis-code smart-key applicability table.",
   "access_levels": [
@@ -11,7 +12,7 @@
       "chassis_key": "zre182",
       "display_name": "Toyota Auris ZRE182",
       "access": "master_key",
-      "notes": "Master-key timing dance documented; smart key adds via OBD."
+      "notes": "Master-key timing dance documented; smart key adds via ERD."
     },
     {
       "chassis_key": "asv50",

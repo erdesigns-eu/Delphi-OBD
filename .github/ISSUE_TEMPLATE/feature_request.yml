@@ -1,12 +1,20 @@
 name: Feature request
-description: Propose a new feature or extension.
-labels: ["enhancement"]
+description: Suggest a new feature, component, or catalogue addition
+title: "[feat] "
+labels: ["enhancement", "triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening, please skim [`PLAN.md`](../PLAN.md). If the feature
+        is already in scope for v1, tick the relevant box in your PR; if
+        it's a scope change, this issue is the right place to discuss it.
+
   - type: textarea
     id: problem
     attributes:
       label: What problem does this solve?
-      description: Describe the use case before the proposed solution.
+      description: User story shape — "as a developer building X I want Y so that Z".
     validations:
       required: true
 
@@ -14,9 +22,7 @@ body:
     id: proposal
     attributes:
       label: Proposed solution
-      description: |
-        How should it work from a user's perspective? Pseudocode,
-        component sketches, API examples — whatever helps.
+      description: Component name, properties, events, methods if applicable.
     validations:
       required: true
 
@@ -24,16 +30,23 @@ body:
     id: alternatives
     attributes:
       label: Alternatives considered
+    validations:
+      required: false
 
   - type: dropdown
-    id: roadmap
+    id: scope
     attributes:
-      label: Does this fit an existing roadmap milestone?
+      label: Scope impact
       options:
-        - "v2.1 Foundation"
-        - "v2.2 Components"
-        - "v2.3 Async & Logging"
-        - "v2.4 Distribution & Docs"
-        - "v2.5 Hardening"
-        - "v3.0 FMX & Mobile"
-        - "Backlog / not sure"
+        - "Within v1 scope (already in PLAN.md)"
+        - "Adds to v1 scope"
+        - "Post-1.0"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: input
+    id: spec
+    attributes:
+      label: Spec / standard reference
+      description: ISO / SAE / OEM document that backs the request, if any.

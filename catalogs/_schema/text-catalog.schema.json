@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/text-catalog.schema.json",
+  "title": "Code → text catalogue (v2)",
+  "description": "Used for DTC text, UDS NRCs, J1939 PGN/SPN/FMI labels.",
+  "type": "object",
+  "required": ["version", "type", "entries"],
+  "properties": {
+    "version": { "const": 1 },
+    "type": {
+      "enum": [
+        "obd2-dtc",
+        "uds-nrc",
+        "j1939-pgn",
+        "j1939-spn",
+        "j1939-fmi"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/textEntry" }
+    }
+  },
+  "$defs": {
+    "textEntry": {
+      "type": "object",
+      "required": ["code", "text"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Numeric code (hex with 0x prefix, hex without prefix, or decimal)."
+        },
+        "text": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/j1939-pgn.json",
   "schema_version": 1,
   "spec": "SAE J1939-71/73/75/81/21",
   "description": "Named PGN catalog. Add OEM-specific or trade-secret PGNs here without recompiling.",

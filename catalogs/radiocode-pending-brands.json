@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/radio-pending-brands.json",
   "schema_version": 1,
   "description": "Data-pending radio-code brands. Each entry installs a stub calculator that raises EOBDRadioCodeDataMissing on Calculate, surfacing the data gap to UIs.",
   "entries": [

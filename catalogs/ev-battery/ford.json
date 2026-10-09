@@ -1,0 +1,14 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "ford",
+  "label": "Ford Mustang Mach-E / F-150 Lightning / E-Transit",
+  "ecu": { "request_id_hex": "0x7E4", "response_id_hex": "0x7EC", "notes": "Mach-E BECM uses standard 11-bit ISO-15765 against header 0x7E4. Several DIDs known via FORScan / FDRS but no consolidated public byte-level table." },
+  "applicable_models": ["Ford Mustang Mach-E", "Ford F-150 Lightning", "Ford E-Transit"],
+  "fields": [
+    { "field": "hvb_soc",          "service_hex": "0x22", "did_hex": "0x4801", "offset": 0, "length": 2, "scale": 0.002, "offset_value": 0, "unit": "%", "notes": "Reported by community FORScan profiles for Mach-E. Verify against your BECM build. Raw uint16 / 500.", "source": "https://www.macheforum.com/site/threads/ford-mach-e-12v-lvb-5a-discharging-charging-cycles-recorded-bms-lin-voltage-soc-and-obdii-pin-voltage.13994/" },
+    { "field": "hvb_voltage_variation","service_hex": "0x22", "did_hex": "0x4910", "offset": 0, "length": 2, "scale": 0.001, "offset_value": 0, "unit": "V", "notes": "HVB Voltage Variation Battery Modules (FORScan).", "source": "https://www.f150lightningforum.com/forum/threads/elevated-hvb-module-variation-whats-yours-solved-post-26.35165/" }
+  ],
+  "unavailable_fields": {
+    "soh_pack_voltage_pack_current_per_cell_full_temperatures_range_odo_charging_state": "Most decoded fields ship inside FDRS / FORScan databases, not in any open-source repository. Field not documented at byte-level in any open public source."
+  }
+}

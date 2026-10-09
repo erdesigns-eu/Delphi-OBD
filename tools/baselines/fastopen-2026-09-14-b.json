@@ -1,0 +1,59 @@
+{
+    "openings": 56,
+    "steps": {
+        "stop": {
+            "count": 55,
+            "least": 0,
+            "middle": 0,
+            "most": 78
+        },
+        "bytes": {
+            "count": 52,
+            "least": 309,
+            "middle": 426.0,
+            "most": 1563
+        },
+        "ring": {
+            "count": 56,
+            "least": 0,
+            "middle": 2.0,
+            "most": 26
+        },
+        "tracks": {
+            "count": 52,
+            "least": 309,
+            "middle": 426.0,
+            "most": 1563
+        },
+        "pictures": {
+            "count": 52,
+            "least": 374,
+            "middle": 677.0,
+            "most": 2019
+        },
+        "sound": {
+            "count": 47,
+            "least": 449,
+            "middle": 743,
+            "most": 2172
+        },
+        "shown": {
+            "count": 52,
+            "least": 519,
+            "middle": 821.5,
+            "most": 2489
+        },
+        "playing": {
+            "count": 49,
+            "least": 697,
+            "middle": 1316,
+            "most": 2578
+        },
+        "switch": {
+            "count": 52,
+            "least": 519,
+            "middle": 832.0,
+            "most": 2489
+        }
+    }
+}

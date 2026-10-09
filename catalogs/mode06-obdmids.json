@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/monitor-id.json",
   "schema_version": 1,
   "spec": "ISO 15031-5 Annex B OBDMID list",
   "description": "Mode 06 OBDMID names. Add OEM-specific OBDMIDs without recompiling.",

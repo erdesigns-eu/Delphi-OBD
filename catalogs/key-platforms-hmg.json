@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/key-platforms.json",
   "schema_version": 1,
   "description": "Hyundai/Kia/Genesis smart-key platform applicability table.",
   "access_levels": [
@@ -41,7 +42,7 @@
       "platform_key": "genesis_g80",
       "display_name": "Genesis G80 (RG3)",
       "access": "certificate_required",
-      "notes": "Requires Genesis-only certificate; out of scope for OBD."
+      "notes": "Requires Genesis-only certificate; out of scope for ERD."
     }
   ]
 }

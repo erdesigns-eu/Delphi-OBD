@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/oem-catalog-v2.json",
   "version": 2,
   "manufacturer_key": "VOLVOTR",
   "display_name": "Volvo Group (Volvo Trucks / Mack / Renault Trucks)",

@@ -1,0 +1,34 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "_stub-test",
+  "label": "Synthetic test vendor (do not use against a real vehicle)",
+  "ecu": {
+    "request_id_hex": "0x7E4",
+    "response_id_hex": "0x7EC"
+  },
+  "applicable_models": [],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0x0001",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": 0,
+      "unit": "%",
+      "source": "synthetic-test"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x0002",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.1,
+      "offset_value": 0,
+      "unit": "V",
+      "source": "synthetic-test"
+    }
+  ]
+}

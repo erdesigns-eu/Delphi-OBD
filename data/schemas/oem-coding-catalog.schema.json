@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erdesigns-eu/Delphi-OBD/schemas/oem-coding-catalog.schema.json",
+  "title": "Delphi-OBD OEM coding-option catalogue",
+  "description": "Maps an OEM coding model (VAG long-coding, BMW CAFD, Ford AsBuilt, HMG configuration words, Mercedes variant coding, Stellantis Proxi, Toyota customisation menu, Honda customisation array) to human-readable option names and enumerated value labels. The package ships only the schema; option content is dealer / workshop-database material that hosts populate themselves.",
+  "type": "object",
+  "required": ["version", "vendor", "module", "options"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Schema version. Must be 1 for this schema document.",
+      "type": "integer",
+      "const": 1
+    },
+    "vendor": {
+      "description": "Vendor key. Matches the unit name suffix of the OEM coder it applies to.",
+      "type": "string",
+      "enum": [
+        "vag", "bmw", "ford", "hmg", "honda",
+        "mercedes", "stellantis", "toyota"
+      ]
+    },
+    "module": {
+      "description": "Module / ECU identifier this catalogue applies to. Free-form vendor identifier (e.g. 'engine_control', 'cluster_F30', '17_instruments').",
+      "type": "string",
+      "minLength": 1
+    },
+    "module_version": {
+      "description": "Optional firmware / build version this catalogue was produced against.",
+      "type": "string"
+    },
+    "source": {
+      "description": "Free-form provenance text. Workshops typically point at the dealer-database revision the host pulled from.",
+      "type": "string"
+    },
+    "options": {
+      "description": "Catalogue entries. One entry per addressable option.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/option" }
+    }
+  },
+  "$defs": {
+    "option": {
+      "type": "object",
+      "required": ["name", "addressing"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Short human-readable option name.",
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "description": "Longer description of what the option does.",
+          "type": "string"
+        },
+        "addressing": {
+          "$ref": "#/$defs/addressing"
+        },
+        "values": {
+          "description": "Optional enumerated value labels. When omitted the option is read as a raw scalar.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/valueLabel" }
+        },
+        "default_raw": {
+          "description": "Optional vendor / market default value for the option.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "tags": {
+          "description": "Optional free-form tag list (e.g. 'comfort', 'safety', 'workshop-only').",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "addressing": {
+      "description": "How to locate the option's bytes inside the binary coding buffer that the OEM coder unit reads / writes.",
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "byte_bit",
+            "byte_field",
+            "byte_range",
+            "tlv_id",
+            "config_word",
+            "asbuilt_section",
+            "menu_index"
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "title": "byte_bit",
+          "properties": {
+            "kind": { "const": "byte_bit" },
+            "byte": { "type": "integer", "minimum": 0 },
+            "bit":  { "type": "integer", "minimum": 0, "maximum": 7 }
+          },
+          "required": ["kind", "byte", "bit"],
+          "additionalProperties": false
+        },
+        {
+          "title": "byte_field",
+          "properties": {
+            "kind":  { "const": "byte_field" },
+            "byte":  { "type": "integer", "minimum": 0 },
+            "shift": { "type": "integer", "minimum": 0, "maximum": 7 },
+            "width": { "type": "integer", "minimum": 1, "maximum": 8 }
+          },
+          "required": ["kind", "byte", "shift", "width"],
+          "additionalProperties": false
+        },
+        {
+          "title": "byte_range",
+          "properties": {
+            "kind":   { "const": "byte_range" },
+            "offset": { "type": "integer", "minimum": 0 },
+            "length": { "type": "integer", "minimum": 1 },
+            "endian": { "type": "string", "enum": ["big", "little"], "default": "big" }
+          },
+          "required": ["kind", "offset", "length"],
+          "additionalProperties": false
+        },
+        {
+          "title": "tlv_id (BMW CAFD / Stellantis Proxi)",
+          "properties": {
+            "kind": { "const": "tlv_id" },
+            "id":   { "type": "integer", "minimum": 0 },
+            "bit":  { "type": "integer", "minimum": 0 }
+          },
+          "required": ["kind", "id"],
+          "additionalProperties": false
+        },
+        {
+          "title": "config_word (HMG / Toyota)",
+          "properties": {
+            "kind":  { "const": "config_word" },
+            "id":    { "type": "integer", "minimum": 0 },
+            "width": { "type": "integer", "enum": [1, 2, 4] }
+          },
+          "required": ["kind", "id", "width"],
+          "additionalProperties": false
+        },
+        {
+          "title": "asbuilt_section (Ford)",
+          "properties": {
+            "kind":    { "const": "asbuilt_section" },
+            "section": { "type": "string", "minLength": 1 },
+            "offset":  { "type": "integer", "minimum": 0 },
+            "bit":     { "type": "integer", "minimum": 0, "maximum": 7 }
+          },
+          "required": ["kind", "section", "offset"],
+          "additionalProperties": false
+        },
+        {
+          "title": "menu_index (Honda)",
+          "properties": {
+            "kind":  { "const": "menu_index" },
+            "index": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["kind", "index"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "valueLabel": {
+      "type": "object",
+      "required": ["raw", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "raw":   { "type": "integer", "minimum": 0 },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

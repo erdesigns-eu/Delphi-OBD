@@ -1,0 +1,28 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "gm",
+  "label": "GM Chevrolet Bolt EV / Bolt EUV (LBJ HV battery via 7E4/7EC). Lyriq/Equinox EV (Ultium) - per-byte decode not publicly published.",
+  "ecu": {
+    "request_id_hex": "0x7E4",
+    "response_id_hex": "0x7EC"
+  },
+  "applicable_models": [
+    "Chevrolet Bolt EV (2017-2023)",
+    "Chevrolet Bolt EUV (2022-2023)"
+  ],
+  "fields": [
+    { "field": "soc_raw_bms",     "service_hex": "0x22", "did_hex": "0x4369", "offset": 0, "length": 1, "scale": 0.4,    "offset_value": 0, "unit": "%",  "notes": "Raw SOC reported by BMS. Documented in allev.info Bolt PIDs page.", "source": "https://allev.info/boltpids/" },
+    { "field": "soc_display",     "service_hex": "0x22", "did_hex": "0x4368", "offset": 0, "length": 1, "scale": 0.4,    "offset_value": 0, "unit": "%",  "notes": "Display SOC.", "source": "https://allev.info/boltpids/" },
+    { "field": "pack_voltage",    "service_hex": "0x22", "did_hex": "0x4348", "offset": 0, "length": 2, "scale": 0.0625, "offset_value": 0, "unit": "V",  "source": "https://allev.info/boltpids/" },
+    { "field": "pack_current",    "service_hex": "0x22", "did_hex": "0x434F", "offset": 0, "length": 2, "scale": 0.05,   "offset_value": -1600, "unit": "A", "signed": true, "source": "https://allev.info/boltpids/" },
+    { "field": "max_cell_voltage","service_hex": "0x22", "did_hex": "0x8334", "offset": 0, "length": 2, "scale": 0.00007, "offset_value": 0, "unit": "V", "source": "https://allev.info/boltpids/" },
+    { "field": "min_cell_voltage","service_hex": "0x22", "did_hex": "0x8335", "offset": 0, "length": 2, "scale": 0.00007, "offset_value": 0, "unit": "V", "source": "https://allev.info/boltpids/" },
+    { "field": "pack_max_temp",   "service_hex": "0x22", "did_hex": "0x434E", "offset": 0, "length": 1, "scale": 1,      "offset_value": -40, "unit": "C", "source": "https://allev.info/boltpids/" },
+    { "field": "pack_min_temp",   "service_hex": "0x22", "did_hex": "0x4349", "offset": 0, "length": 1, "scale": 1,      "offset_value": -40, "unit": "C", "source": "https://allev.info/boltpids/" }
+  ],
+  "unavailable_fields": {
+    "per_cell_voltages_array": "Bolt exposes 96 individual cell voltages via DIDs 0x4181..0x41E0 (per allev.info). Each is uint16 with same 0.00007 V scale; enumerate sequentially.",
+    "range_km": "Cluster ECU 0x7E2/0x7EA exposes range; PID not in a public single-source table.",
+    "lyriq_ultium_decode": "Cadillac Lyriq / Hummer EV / Silverado EV (Ultium) - no public byte-level decode table found."
+  }
+}

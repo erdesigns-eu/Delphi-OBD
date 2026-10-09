@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erdesigns-eu/Delphi-OBD/schemas/flash-image-applicability.schema.json",
+  "title": "Delphi-OBD flash-image applicability descriptor",
+  "description": "Sidecar JSON paired with a firmware binary that declares which ECUs the image is allowed to flash. The host loads it, reads the corresponding identifying DIDs from the live ECU, and asserts every constraint passes before fpTransfer. Constraints are AND-combined; an empty array means \"applies everywhere\" — only useful for sandbox / bench builds.",
+  "type": "object",
+  "required": ["version", "image_sha256_hex"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Schema version. Must be 1 for this schema document.",
+      "type": "integer",
+      "const": 1
+    },
+    "image_sha256_hex": {
+      "description": "Lowercase hex SHA-256 of the firmware bytes the descriptor applies to. Mismatching the image hash hard-fails the cross-check.",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{64}$"
+    },
+    "vendor": {
+      "type": "string",
+      "enum": [
+        "vag", "bmw", "ford", "hmg", "honda",
+        "mercedes", "stellantis", "toyota"
+      ]
+    },
+    "vendor_module": {
+      "description": "Vendor's display name for the target module (free-form; e.g. 'MED17.5.20' / 'F15 ZGW' / 'Sync 4').",
+      "type": "string"
+    },
+    "image_part_number": {
+      "description": "Calibration / strategy part number embedded in the image (FORD CSE strategy ID, BMW SVK, VAG SW number).",
+      "type": "string"
+    },
+    "constraints": {
+      "description": "Identifying-DID constraints. Every entry must pass for the image to be accepted.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/constraint" }
+    }
+  },
+  "$defs": {
+    "constraint": {
+      "type": "object",
+      "required": ["did", "match"],
+      "additionalProperties": false,
+      "properties": {
+        "did": {
+          "description": "16-bit UDS Data Identifier (decimal or 0xHHHH).",
+          "type": ["integer", "string"]
+        },
+        "name": {
+          "description": "Free-form description of what the DID returns (e.g. 'ECU_HW_PartNumber', 'SystemSupplierIdentifier').",
+          "type": "string"
+        },
+        "match": {
+          "description": "Match rule.",
+          "type": "object",
+          "required": ["kind"],
+          "oneOf": [
+            {
+              "title": "exact",
+              "properties": {
+                "kind":  { "const": "exact" },
+                "value": { "type": "string", "minLength": 1 }
+              },
+              "required": ["kind", "value"],
+              "additionalProperties": false
+            },
+            {
+              "title": "any-of",
+              "properties": {
+                "kind":   { "const": "any_of" },
+                "values": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+              },
+              "required": ["kind", "values"],
+              "additionalProperties": false
+            },
+            {
+              "title": "regex",
+              "properties": {
+                "kind":  { "const": "regex" },
+                "value": { "type": "string", "minLength": 1 }
+              },
+              "required": ["kind", "value"],
+              "additionalProperties": false
+            },
+            {
+              "title": "hex-prefix",
+              "properties": {
+                "kind":  { "const": "hex_prefix" },
+                "value": { "type": "string", "pattern": "^[0-9a-fA-F ]+$" }
+              },
+              "required": ["kind", "value"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "polestar",
+  "label": "Polestar 2 / Volvo XC40 Recharge / C40 / EX40 / EX30 (CMA & SPA2 platforms via BECM)",
+  "ecu": {
+    "request_id_hex": "0x18DA52F1",
+    "response_id_hex": "0x18DAF152",
+    "notes": "BECM (Battery Energy Control Module) on extended 29-bit ISO-TP. Forum posts cite the BECM target address as 0x52 (response 0x1DD01635 also seen as a broadcast)."
+  },
+  "applicable_models": [
+    "Polestar 2",
+    "Volvo XC40 Recharge",
+    "Volvo C40 Recharge",
+    "Volvo EX40 / EC40",
+    "Volvo EX30 (note: EX30 is on Geely SEA platform - decode may differ)"
+  ],
+  "fields": [
+    { "field": "soh",             "service_hex": "0x22", "did_hex": "0x496D", "offset": 0, "length": 1, "scale": 1, "offset_value": 0, "unit": "%", "notes": "BMS HV battery SOH; confirmed via Car Scanner community.", "source": "https://www.polestar-forum.com/threads/howto-read-bms-soh-with-car-scanner-elm327.19509/" }
+  ],
+  "unavailable_fields": {
+    "soc_pack_voltage_pack_current_per_cell_temperatures_range_odo_charging_state": "Per-byte map for these fields is bundled in commercial Car Scanner profile; not republished in any open-source repo. Field not documented for this vendor at byte-resolution."
+  }
+}

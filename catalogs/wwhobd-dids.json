@@ -1,4 +1,5 @@
 {
+  "$schema": "https://erdesigns.eu/schema/monitor-id.json",
   "schema_version": 1,
   "spec": "ISO 27145-3 + UN GTR No.5 Annex A",
   "description": "Universal WWH-OBD Data Identifiers. Add OEM-specific DIDs without recompiling.",

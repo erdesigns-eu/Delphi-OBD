@@ -1,0 +1,945 @@
+{
+  "TOBDACCELGRAPH": {
+    "file": "palette/TOBDACCELGRAPH.png",
+    "type": "PNG"
+  },
+  "TOBDACTUATOR": {
+    "file": "palette/TOBDACTUATOR.png",
+    "type": "PNG"
+  },
+  "TOBDACTUATORTESTPANEL": {
+    "file": "palette/TOBDACTUATORTESTPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDADAPTATIONEDITOR": {
+    "file": "palette/TOBDADAPTATIONEDITOR.png",
+    "type": "PNG"
+  },
+  "TOBDADAPTER": {
+    "file": "palette/TOBDADAPTER.png",
+    "type": "PNG"
+  },
+  "TOBDADAPTERPANEL": {
+    "file": "palette/TOBDADAPTERPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDADBLUELEVEL": {
+    "file": "palette/TOBDADBLUELEVEL.png",
+    "type": "PNG"
+  },
+  "TOBDAFRGAUGE": {
+    "file": "palette/TOBDAFRGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDARCGAUGE": {
+    "file": "palette/TOBDARCGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDBARSEGMENTGAUGE": {
+    "file": "palette/TOBDBARSEGMENTGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDBLUETOOTHSIGNAL": {
+    "file": "palette/TOBDBLUETOOTHSIGNAL.png",
+    "type": "PNG"
+  },
+  "TOBDBOOSTGAUGE": {
+    "file": "palette/TOBDBOOSTGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDCANIDEDIT": {
+    "file": "palette/TOBDCANIDEDIT.png",
+    "type": "PNG"
+  },
+  "TOBDCCP": {
+    "file": "palette/TOBDCCP.png",
+    "type": "PNG"
+  },
+  "TOBDCELLVOLTAGEHEATMAP": {
+    "file": "palette/TOBDCELLVOLTAGEHEATMAP.png",
+    "type": "PNG"
+  },
+  "TOBDCHARGEPORTINDICATOR": {
+    "file": "palette/TOBDCHARGEPORTINDICATOR.png",
+    "type": "PNG"
+  },
+  "TOBDCHARGINGFLOW": {
+    "file": "palette/TOBDCHARGINGFLOW.png",
+    "type": "PNG"
+  },
+  "TOBDCIRCULARGAUGE": {
+    "file": "palette/TOBDCIRCULARGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDCLEARDTC": {
+    "alias_of": "TOBDMODE04CONFIRM",
+    "file": "palette/TOBDMODE04CONFIRM.png",
+    "type": "PNG"
+  },
+  "TOBDCLOCK": {
+    "file": "palette/TOBDCLOCK.png",
+    "type": "PNG"
+  },
+  "TOBDCODINGAUDITLOG": {
+    "file": "palette/TOBDCODINGAUDITLOG.png",
+    "type": "PNG"
+  },
+  "TOBDCODINGDIFFVIEWER": {
+    "file": "palette/TOBDCODINGDIFFVIEWER.png",
+    "type": "PNG"
+  },
+  "TOBDCODINGSESSION": {
+    "file": "palette/TOBDCODINGSESSION.png",
+    "type": "PNG"
+  },
+  "TOBDCODINGSESSIONPANEL": {
+    "file": "palette/TOBDCODINGSESSIONPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDCOMBOGAUGE": {
+    "file": "palette/TOBDCOMBOGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDCOMPONENTPROTECTIONBMW": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONBMW.png",
+    "type": "PNG"
+  },
+  "TOBDCOMPONENTPROTECTIONMERCEDES": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONMERCEDES.png",
+    "type": "PNG"
+  },
+  "TOBDCOMPONENTPROTECTIONSTELLANTIS": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONSTELLANTIS.png",
+    "type": "PNG"
+  },
+  "TOBDCOMPONENTPROTECTIONVAG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONVAG.png",
+    "type": "PNG"
+  },
+  "TOBDCONNECTION": {
+    "file": "palette/TOBDCONNECTION.png",
+    "type": "PNG"
+  },
+  "TOBDCONNECTIONSTATELAMP": {
+    "file": "palette/TOBDCONNECTIONSTATELAMP.png",
+    "type": "PNG"
+  },
+  "TOBDDASHLAMP": {
+    "file": "palette/TOBDDASHLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDDATAIDENTIFIERIO": {
+    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "type": "PNG"
+  },
+  "TOBDDATASOURCE": {
+    "alias_of": "TOBDLIVEDATA",
+    "file": "palette/TOBDLIVEDATA.png",
+    "type": "PNG"
+  },
+  "TOBDDELTAGAUGE": {
+    "file": "palette/TOBDDELTAGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDDIGITALCLUSTER": {
+    "file": "palette/TOBDDIGITALCLUSTER.png",
+    "type": "PNG"
+  },
+  "TOBDDIGITALGAUGE": {
+    "file": "palette/TOBDDIGITALGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDDOIPCLIENT": {
+    "file": "palette/TOBDDOIPCLIENT.png",
+    "type": "PNG"
+  },
+  "TOBDDOIPNODEPICKER": {
+    "file": "palette/TOBDDOIPNODEPICKER.png",
+    "type": "PNG"
+  },
+  "TOBDDOIPSTATUSPANEL": {
+    "file": "palette/TOBDDOIPSTATUSPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDDPFSTATUS": {
+    "file": "palette/TOBDDPFSTATUS.png",
+    "type": "PNG"
+  },
+  "TOBDDRAGRUN": {
+    "file": "palette/TOBDDRAGRUN.png",
+    "type": "PNG"
+  },
+  "TOBDDRAGTIMER": {
+    "file": "palette/TOBDDRAGTIMER.png",
+    "type": "PNG"
+  },
+  "TOBDDRIVECYCLEADVISOR": {
+    "file": "palette/TOBDDRIVECYCLEADVISOR.png",
+    "type": "PNG"
+  },
+  "TOBDDRIVECYCLECATALOGCOMP": {
+    "file": "palette/TOBDDRIVECYCLECATALOGCOMP.png",
+    "type": "PNG"
+  },
+  "TOBDDRIVECYCLEPROGRESS": {
+    "file": "palette/TOBDDRIVECYCLEPROGRESS.png",
+    "type": "PNG"
+  },
+  "TOBDDRIVERSCOREWIDGET": {
+    "file": "palette/TOBDDRIVERSCOREWIDGET.png",
+    "type": "PNG"
+  },
+  "TOBDDTCBADGE": {
+    "file": "palette/TOBDDTCBADGE.png",
+    "type": "PNG"
+  },
+  "TOBDDTCLIST": {
+    "alias_of": "TOBDDTCS",
+    "file": "palette/TOBDDTCS.png",
+    "type": "PNG"
+  },
+  "TOBDDTCS": {
+    "file": "palette/TOBDDTCS.png",
+    "type": "PNG"
+  },
+  "TOBDDUALNEEDLEGAUGE": {
+    "file": "palette/TOBDDUALNEEDLEGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDDYNOCALCULATOR": {
+    "file": "palette/TOBDDYNOCALCULATOR.png",
+    "type": "PNG"
+  },
+  "TOBDDYNOCHART": {
+    "file": "palette/TOBDDYNOCHART.png",
+    "type": "PNG"
+  },
+  "TOBDDYNOCONDITIONS": {
+    "file": "palette/TOBDDYNOCONDITIONS.png",
+    "type": "PNG"
+  },
+  "TOBDECOSCOREWIDGET": {
+    "file": "palette/TOBDECOSCOREWIDGET.png",
+    "type": "PNG"
+  },
+  "TOBDEMISSIONSESTIMATOR": {
+    "file": "palette/TOBDEMISSIONSESTIMATOR.png",
+    "type": "PNG"
+  },
+  "TOBDEVBATTERY": {
+    "file": "palette/TOBDEVBATTERY.png",
+    "type": "PNG"
+  },
+  "TOBDEVBATTERYCATALOGCOMP": {
+    "file": "palette/TOBDEVBATTERYCATALOGCOMP.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHAUDITTAIL": {
+    "file": "palette/TOBDFLASHAUDITTAIL.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHCHECKPOINTTIMELINE": {
+    "file": "palette/TOBDFLASHCHECKPOINTTIMELINE.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHER": {
+    "file": "palette/TOBDFLASHER.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHPIPELINE": {
+    "file": "palette/TOBDFLASHPIPELINE.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHPROGRESS": {
+    "file": "palette/TOBDFLASHPROGRESS.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHSAFETYDASHBOARD": {
+    "file": "palette/TOBDFLASHSAFETYDASHBOARD.png",
+    "type": "PNG"
+  },
+  "TOBDFLASHSESSION": {
+    "file": "palette/TOBDFLASHSESSION.png",
+    "type": "PNG"
+  },
+  "TOBDFRAMEINSPECTOR": {
+    "file": "palette/TOBDFRAMEINSPECTOR.png",
+    "type": "PNG"
+  },
+  "TOBDFREEZEFRAME": {
+    "file": "palette/TOBDFREEZEFRAME.png",
+    "type": "PNG"
+  },
+  "TOBDFREEZEFRAMETABLE": {
+    "file": "palette/TOBDFREEZEFRAMETABLE.png",
+    "type": "PNG"
+  },
+  "TOBDFUELECONOMYMETER": {
+    "file": "palette/TOBDFUELECONOMYMETER.png",
+    "type": "PNG"
+  },
+  "TOBDFUELTRIMDISPLAY": {
+    "file": "palette/TOBDFUELTRIMDISPLAY.png",
+    "type": "PNG"
+  },
+  "TOBDGEARINDICATOR": {
+    "file": "palette/TOBDGEARINDICATOR.png",
+    "type": "PNG"
+  },
+  "TOBDGFORCEVISUALISER": {
+    "file": "palette/TOBDGFORCEVISUALISER.png",
+    "type": "PNG"
+  },
+  "TOBDGPSACCURACY": {
+    "file": "palette/TOBDGPSACCURACY.png",
+    "type": "PNG"
+  },
+  "TOBDINERTIALBRAKE": {
+    "file": "palette/TOBDINERTIALBRAKE.png",
+    "type": "PNG"
+  },
+  "TOBDISOBUS": {
+    "file": "palette/TOBDISOBUS.png",
+    "type": "PNG"
+  },
+  "TOBDJ1939": {
+    "alias_of": "TOBDPROTOCOL",
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDJ1939DM": {
+    "alias_of": "TOBDPROTOCOL",
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDJ2534CHANNEL": {
+    "file": "palette/TOBDJ2534CHANNEL.png",
+    "type": "PNG"
+  },
+  "TOBDJ2534DEVICE": {
+    "file": "palette/TOBDJ2534DEVICE.png",
+    "type": "PNG"
+  },
+  "TOBDJ2534DEVICELIST": {
+    "file": "palette/TOBDJ2534DEVICELIST.png",
+    "type": "PNG"
+  },
+  "TOBDKEYADAPTATIONBMW": {
+    "file": "palette/TOBDKEYADAPTATIONBMW.png",
+    "type": "PNG"
+  },
+  "TOBDKEYADAPTATIONFORD": {
+    "file": "palette/TOBDKEYADAPTATIONFORD.png",
+    "type": "PNG"
+  },
+  "TOBDKEYADAPTATIONHMG": {
+    "file": "palette/TOBDKEYADAPTATIONHMG.png",
+    "type": "PNG"
+  },
+  "TOBDKEYADAPTATIONTOYOTA": {
+    "file": "palette/TOBDKEYADAPTATIONTOYOTA.png",
+    "type": "PNG"
+  },
+  "TOBDKNOB": {
+    "alias_of": "TOBDCANIDEDIT",
+    "file": "palette/TOBDCANIDEDIT.png",
+    "type": "PNG"
+  },
+  "TOBDKWP": {
+    "alias_of": "TOBDPROTOCOL",
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDKWP1281SESSION": {
+    "file": "palette/TOBDKWP1281SESSION.png",
+    "type": "PNG"
+  },
+  "TOBDKWP1281SESSIONINSPECTOR": {
+    "file": "palette/TOBDKWP1281SESSIONINSPECTOR.png",
+    "type": "PNG"
+  },
+  "TOBDKWPIOCONTROL": {
+    "alias_of": "TOBDACTUATOR",
+    "file": "palette/TOBDACTUATOR.png",
+    "type": "PNG"
+  },
+  "TOBDKWPREADDTC": {
+    "alias_of": "TOBDDTCS",
+    "file": "palette/TOBDDTCS.png",
+    "type": "PNG"
+  },
+  "TOBDKWPREADID": {
+    "alias_of": "TOBDDATAIDENTIFIERIO",
+    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "type": "PNG"
+  },
+  "TOBDKWPROUTINE": {
+    "alias_of": "TOBDROUTINECONTROL",
+    "file": "palette/TOBDROUTINECONTROL.png",
+    "type": "PNG"
+  },
+  "TOBDKWPWRITEID": {
+    "file": "palette/TOBDKWPWRITEID.png",
+    "type": "PNG"
+  },
+  "TOBDLABELFILEEDITOR": {
+    "file": "palette/TOBDLABELFILEEDITOR.png",
+    "type": "PNG"
+  },
+  "TOBDLAPTIMER": {
+    "file": "palette/TOBDLAPTIMER.png",
+    "type": "PNG"
+  },
+  "TOBDLAPTRACKMAP": {
+    "file": "palette/TOBDLAPTRACKMAP.png",
+    "type": "PNG"
+  },
+  "TOBDLED": {
+    "file": "palette/TOBDLED.png",
+    "type": "PNG"
+  },
+  "TOBDLINEARGAUGE": {
+    "file": "palette/TOBDLINEARGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDLIVEDATA": {
+    "file": "palette/TOBDLIVEDATA.png",
+    "type": "PNG"
+  },
+  "TOBDLIVEGRIDCHART": {
+    "file": "palette/TOBDLIVEGRIDCHART.png",
+    "type": "PNG"
+  },
+  "TOBDLOGGERCONTROL": {
+    "file": "palette/TOBDLOGGERCONTROL.png",
+    "type": "PNG"
+  },
+  "TOBDLOGGEREXPLORER": {
+    "file": "palette/TOBDLOGGEREXPLORER.png",
+    "type": "PNG"
+  },
+  "TOBDLOGVIEWER": {
+    "alias_of": "TOBDLOGGEREXPLORER",
+    "file": "palette/TOBDLOGGEREXPLORER.png",
+    "type": "PNG"
+  },
+  "TOBDLONGCODINGEDITOR": {
+    "file": "palette/TOBDLONGCODINGEDITOR.png",
+    "type": "PNG"
+  },
+  "TOBDMAINTENANCECARD": {
+    "file": "palette/TOBDMAINTENANCECARD.png",
+    "type": "PNG"
+  },
+  "TOBDMARINETACH": {
+    "file": "palette/TOBDMARINETACH.png",
+    "type": "PNG"
+  },
+  "TOBDMATRIXDISPLAY": {
+    "file": "palette/TOBDMATRIXDISPLAY.png",
+    "type": "PNG"
+  },
+  "TOBDMILLAMP": {
+    "file": "palette/TOBDMILLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDMINMAXGAUGE": {
+    "file": "palette/TOBDMINMAXGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDMODE04CONFIRM": {
+    "file": "palette/TOBDMODE04CONFIRM.png",
+    "type": "PNG"
+  },
+  "TOBDMODE06VIEWER": {
+    "file": "palette/TOBDMODE06VIEWER.png",
+    "type": "PNG"
+  },
+  "TOBDMODE07VIEWER": {
+    "file": "palette/TOBDMODE07VIEWER.png",
+    "type": "PNG"
+  },
+  "TOBDMODE0AVIEWER": {
+    "file": "palette/TOBDMODE0AVIEWER.png",
+    "type": "PNG"
+  },
+  "TOBDMULTIPIDGRID": {
+    "file": "palette/TOBDMULTIPIDGRID.png",
+    "type": "PNG"
+  },
+  "TOBDODOMETER": {
+    "file": "palette/TOBDODOMETER.png",
+    "type": "PNG"
+  },
+  "TOBDOEMBADGE": {
+    "file": "palette/TOBDOEMBADGE.png",
+    "type": "PNG"
+  },
+  "TOBDOEMCATALOG": {
+    "alias_of": "TOBDOEMPICKER",
+    "file": "palette/TOBDOEMPICKER.png",
+    "type": "PNG"
+  },
+  "TOBDOEMPICKER": {
+    "file": "palette/TOBDOEMPICKER.png",
+    "type": "PNG"
+  },
+  "TOBDONBOARDMONITOR": {
+    "file": "palette/TOBDONBOARDMONITOR.png",
+    "type": "PNG"
+  },
+  "TOBDOXYGENMONITOR": {
+    "alias_of": "TOBDONBOARDMONITOR",
+    "file": "palette/TOBDONBOARDMONITOR.png",
+    "type": "PNG"
+  },
+  "TOBDPIDPANEL": {
+    "file": "palette/TOBDPIDPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDPIDPICKER": {
+    "file": "palette/TOBDPIDPICKER.png",
+    "type": "PNG"
+  },
+  "TOBDPLAYBACKSCRUBBER": {
+    "file": "palette/TOBDPLAYBACKSCRUBBER.png",
+    "type": "PNG"
+  },
+  "TOBDPLAYBACKTIMELINE": {
+    "file": "palette/TOBDPLAYBACKTIMELINE.png",
+    "type": "PNG"
+  },
+  "TOBDPOWERCURVE": {
+    "file": "palette/TOBDPOWERCURVE.png",
+    "type": "PNG"
+  },
+  "TOBDPOWERCURVEGRAPH": {
+    "file": "palette/TOBDPOWERCURVEGRAPH.png",
+    "type": "PNG"
+  },
+  "TOBDPREDICTIVELAP": {
+    "file": "palette/TOBDPREDICTIVELAP.png",
+    "type": "PNG"
+  },
+  "TOBDPROTOCOL": {
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDPTOMETER": {
+    "file": "palette/TOBDPTOMETER.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEACURA": {
+    "file": "palette/TOBDRADIOCODEACURA.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEALFAROMEO": {
+    "file": "palette/TOBDRADIOCODEALFAROMEO.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEALPINE": {
+    "file": "palette/TOBDRADIOCODEALPINE.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEAUDICONCERT": {
+    "file": "palette/TOBDRADIOCODEAUDICONCERT.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEBECKER4": {
+    "file": "palette/TOBDRADIOCODEBECKER4.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEBECKER5": {
+    "file": "palette/TOBDRADIOCODEBECKER5.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEBLAUPUNKT": {
+    "file": "palette/TOBDRADIOCODEBLAUPUNKT.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEBMW": {
+    "file": "palette/TOBDRADIOCODEBMW.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODECHRYSLER": {
+    "file": "palette/TOBDRADIOCODECHRYSLER.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODECITROEN": {
+    "file": "palette/TOBDRADIOCODECITROEN.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODECLARION": {
+    "file": "palette/TOBDRADIOCODECLARION.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEEEPROM_MERCEDESBECKER": {
+    "file": "palette/TOBDRADIOCODEEEPROM_MERCEDESBECKER.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEEEPROM_OPELCD30": {
+    "file": "palette/TOBDRADIOCODEEEPROM_OPELCD30.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEEEPROM_VOLVOHU": {
+    "file": "palette/TOBDRADIOCODEEEPROM_VOLVOHU.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEFIATDAIICHI": {
+    "file": "palette/TOBDRADIOCODEFIATDAIICHI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEFIATVP": {
+    "file": "palette/TOBDRADIOCODEFIATVP.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEFORDM": {
+    "file": "palette/TOBDRADIOCODEFORDM.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEFORDV": {
+    "file": "palette/TOBDRADIOCODEFORDV.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEGM": {
+    "file": "palette/TOBDRADIOCODEGM.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEHONDA": {
+    "file": "palette/TOBDRADIOCODEHONDA.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEHYUNDAI": {
+    "file": "palette/TOBDRADIOCODEHYUNDAI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEINFINITI": {
+    "file": "palette/TOBDRADIOCODEINFINITI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEJAGUAR": {
+    "file": "palette/TOBDRADIOCODEJAGUAR.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODELANDROVER": {
+    "file": "palette/TOBDRADIOCODELANDROVER.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODELEXUS": {
+    "file": "palette/TOBDRADIOCODELEXUS.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEMASERATI": {
+    "file": "palette/TOBDRADIOCODEMASERATI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEMAZDA": {
+    "file": "palette/TOBDRADIOCODEMAZDA.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEMERCEDES": {
+    "file": "palette/TOBDRADIOCODEMERCEDES.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEMINI": {
+    "file": "palette/TOBDRADIOCODEMINI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEMITSUBISHI": {
+    "file": "palette/TOBDRADIOCODEMITSUBISHI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODENISSAN": {
+    "file": "palette/TOBDRADIOCODENISSAN.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEOPEL": {
+    "file": "palette/TOBDRADIOCODEOPEL.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEPEUGEOT": {
+    "file": "palette/TOBDRADIOCODEPEUGEOT.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEPORSCHE": {
+    "file": "palette/TOBDRADIOCODEPORSCHE.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODERENAULT": {
+    "file": "palette/TOBDRADIOCODERENAULT.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESAAB": {
+    "file": "palette/TOBDRADIOCODESAAB.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESEAT": {
+    "file": "palette/TOBDRADIOCODESEAT.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESKODA": {
+    "file": "palette/TOBDRADIOCODESKODA.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESMART": {
+    "file": "palette/TOBDRADIOCODESMART.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESUBARU": {
+    "file": "palette/TOBDRADIOCODESUBARU.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODESUZUKI": {
+    "file": "palette/TOBDRADIOCODESUZUKI.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODETOYOTA": {
+    "file": "palette/TOBDRADIOCODETOYOTA.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEVISTEON": {
+    "file": "palette/TOBDRADIOCODEVISTEON.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEVOLVO": {
+    "file": "palette/TOBDRADIOCODEVOLVO.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOCODEVW": {
+    "file": "palette/TOBDRADIOCODEVW.png",
+    "type": "PNG"
+  },
+  "TOBDREADINESSGRID": {
+    "file": "palette/TOBDREADINESSGRID.png",
+    "type": "PNG"
+  },
+  "TOBDREADINESSLAMP": {
+    "file": "palette/TOBDREADINESSLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDRECORDER": {
+    "file": "palette/TOBDRECORDER.png",
+    "type": "PNG"
+  },
+  "TOBDRECORDERTOOLBAR": {
+    "file": "palette/TOBDRECORDERTOOLBAR.png",
+    "type": "PNG"
+  },
+  "TOBDREGENINDICATOR": {
+    "file": "palette/TOBDREGENINDICATOR.png",
+    "type": "PNG"
+  },
+  "TOBDREPLAYER": {
+    "file": "palette/TOBDREPLAYER.png",
+    "type": "PNG"
+  },
+  "TOBDROUTINECONTROL": {
+    "file": "palette/TOBDROUTINECONTROL.png",
+    "type": "PNG"
+  },
+  "TOBDROUTINECONTROLLAUNCHER": {
+    "file": "palette/TOBDROUTINECONTROLLAUNCHER.png",
+    "type": "PNG"
+  },
+  "TOBDRUNRECORDER": {
+    "file": "palette/TOBDRUNRECORDER.png",
+    "type": "PNG"
+  },
+  "TOBDSECOCCODEC": {
+    "file": "palette/TOBDSECOCCODEC.png",
+    "type": "PNG"
+  },
+  "TOBDSECOCSTATUSLAMP": {
+    "file": "palette/TOBDSECOCSTATUSLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDSECURITYACCESS": {
+    "file": "palette/TOBDSECURITYACCESS.png",
+    "type": "PNG"
+  },
+  "TOBDSECURITYACCESSLAMP": {
+    "file": "palette/TOBDSECURITYACCESSLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDSEEDKEYDEBUGGER": {
+    "file": "palette/TOBDSEEDKEYDEBUGGER.png",
+    "type": "PNG"
+  },
+  "TOBDSERVICEHISTORYTIMELINE": {
+    "file": "palette/TOBDSERVICEHISTORYTIMELINE.png",
+    "type": "PNG"
+  },
+  "TOBDSHIFTLIGHT": {
+    "file": "palette/TOBDSHIFTLIGHT.png",
+    "type": "PNG"
+  },
+  "TOBDSHIFTLIGHTBAR": {
+    "file": "palette/TOBDSHIFTLIGHTBAR.png",
+    "type": "PNG"
+  },
+  "TOBDSPARKLINE": {
+    "file": "palette/TOBDSPARKLINE.png",
+    "type": "PNG"
+  },
+  "TOBDSTATEOFCHARGEBAR": {
+    "file": "palette/TOBDSTATEOFCHARGEBAR.png",
+    "type": "PNG"
+  },
+  "TOBDSTRIPCHART": {
+    "file": "palette/TOBDSTRIPCHART.png",
+    "type": "PNG"
+  },
+  "TOBDTACHOMETER": {
+    "file": "palette/TOBDTACHOMETER.png",
+    "type": "PNG"
+  },
+  "TOBDTERMINAL": {
+    "alias_of": "TOBDFRAMEINSPECTOR",
+    "file": "palette/TOBDFRAMEINSPECTOR.png",
+    "type": "PNG"
+  },
+  "TOBDTHEME": {
+    "file": "palette/TOBDTHEME.png",
+    "type": "PNG"
+  },
+  "TOBDTORQUEATWHEELS": {
+    "file": "palette/TOBDTORQUEATWHEELS.png",
+    "type": "PNG"
+  },
+  "TOBDTORQUERPMMAP": {
+    "file": "palette/TOBDTORQUERPMMAP.png",
+    "type": "PNG"
+  },
+  "TOBDTP20CHANNELPANEL": {
+    "file": "palette/TOBDTP20CHANNELPANEL.png",
+    "type": "PNG"
+  },
+  "TOBDTP20SESSION": {
+    "file": "palette/TOBDTP20SESSION.png",
+    "type": "PNG"
+  },
+  "TOBDTRENDGRAPH": {
+    "alias_of": "TOBDSTRIPCHART",
+    "file": "palette/TOBDSTRIPCHART.png",
+    "type": "PNG"
+  },
+  "TOBDTRIPSUMMARYCARD": {
+    "file": "palette/TOBDTRIPSUMMARYCARD.png",
+    "type": "PNG"
+  },
+  "TOBDUDS": {
+    "alias_of": "TOBDPROTOCOL",
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDUDSDYNAMICDID": {
+    "alias_of": "TOBDDATAIDENTIFIERIO",
+    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "type": "PNG"
+  },
+  "TOBDUDSIOCONTROL": {
+    "alias_of": "TOBDACTUATOR",
+    "file": "palette/TOBDACTUATOR.png",
+    "type": "PNG"
+  },
+  "TOBDUDSREADBYPERIODIC": {
+    "alias_of": "TOBDLIVEDATA",
+    "file": "palette/TOBDLIVEDATA.png",
+    "type": "PNG"
+  },
+  "TOBDUDSREADDID": {
+    "alias_of": "TOBDDATAIDENTIFIERIO",
+    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "type": "PNG"
+  },
+  "TOBDUDSREADDTC": {
+    "alias_of": "TOBDDTCS",
+    "file": "palette/TOBDDTCS.png",
+    "type": "PNG"
+  },
+  "TOBDUDSREADMEMORY": {
+    "alias_of": "TOBDDATAIDENTIFIERIO",
+    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "type": "PNG"
+  },
+  "TOBDUDSRESET": {
+    "alias_of": "TOBDROUTINECONTROL",
+    "file": "palette/TOBDROUTINECONTROL.png",
+    "type": "PNG"
+  },
+  "TOBDUDSTRANSFER": {
+    "file": "palette/TOBDUDSTRANSFER.png",
+    "type": "PNG"
+  },
+  "TOBDUDSWRITEDID": {
+    "alias_of": "TOBDKWPWRITEID",
+    "file": "palette/TOBDKWPWRITEID.png",
+    "type": "PNG"
+  },
+  "TOBDUDSWRITEMEMORY": {
+    "file": "palette/TOBDUDSWRITEMEMORY.png",
+    "type": "PNG"
+  },
+  "TOBDUPLOADER": {
+    "file": "palette/TOBDUPLOADER.png",
+    "type": "PNG"
+  },
+  "TOBDVEHICLEHEALTH": {
+    "file": "palette/TOBDVEHICLEHEALTH.png",
+    "type": "PNG"
+  },
+  "TOBDVIN": {
+    "file": "palette/TOBDVIN.png",
+    "type": "PNG"
+  },
+  "TOBDVINCARD": {
+    "file": "palette/TOBDVINCARD.png",
+    "type": "PNG"
+  },
+  "TOBDVINCATALOG": {
+    "file": "palette/TOBDVINCATALOG.png",
+    "type": "PNG"
+  },
+  "TOBDVINEDIT": {
+    "file": "palette/TOBDVINEDIT.png",
+    "type": "PNG"
+  },
+  "TOBDVININSPECTOR": {
+    "file": "palette/TOBDVININSPECTOR.png",
+    "type": "PNG"
+  },
+  "TOBDVOLTAGEGATE": {
+    "file": "palette/TOBDVOLTAGEGATE.png",
+    "type": "PNG"
+  },
+  "TOBDVWRADIOSAFE": {
+    "file": "palette/TOBDVWRADIOSAFE.png",
+    "type": "PNG"
+  },
+  "TOBDWIFISIGNAL": {
+    "file": "palette/TOBDWIFISIGNAL.png",
+    "type": "PNG"
+  },
+  "TOBDWWHOBD": {
+    "alias_of": "TOBDPROTOCOL",
+    "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDWWHREADINESS": {
+    "alias_of": "TOBDREADINESSGRID",
+    "file": "palette/TOBDREADINESSGRID.png",
+    "type": "PNG"
+  },
+  "TOBDXCP": {
+    "file": "palette/TOBDXCP.png",
+    "type": "PNG"
+  },
+  "TOBDXCPPROGRESSBAR": {
+    "file": "palette/TOBDXCPPROGRESSBAR.png",
+    "type": "PNG"
+  },
+  "TOBDXYHEATMAP": {
+    "file": "palette/TOBDXYHEATMAP.png",
+    "type": "PNG"
+  }
+}

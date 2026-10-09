@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/erdesigns-eu/Delphi-OBD/schema/dtc-catalog-v1.json",
+  "$schema": "https://erdesigns.eu/schema/dtc-catalog.json",
   "version": 1,
   "name": "Scania DTC starter (J1939 SPN-FMI + SDP3)",
   "default_source": "Scania SDP3 community SPN/FMI DTCs",
