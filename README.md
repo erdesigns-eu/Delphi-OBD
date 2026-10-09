@@ -7,8 +7,7 @@ Drop a `TOBDConnection` on a form, point a `TOBDAdapter` at it,
 point a `TOBDLiveData` at the protocol, pick the PIDs you want
 in code, press F9.
 
-Units use the `ERD.` namespace. Component classes keep their `TOBD` names.
-For existing applications, update unit imports and rebuild packages and DCUs.
+Units use the `ERD.` namespace. Component classes use `TOBD` names.
 The UI and IDE integration use Delphi VCL; FPC supports the nonvisual
 library. See [compiler targets and validation](docs/fpc-compatibility.md).
 
@@ -105,12 +104,10 @@ using flashing on a real vehicle.**
 
 ## Supported Delphi versions
 
-Target: Delphi 10.3 Rio through 12 Athens on Windows, Win32 / Win64.
-The UI and IDE integration are **VCL only**; FireMonkey is outside scope.
-These Delphi targets still require actual RAD Studio build and bench validation.
-The nonvisual FPC Linux profile is documented separately.
+Target: Delphi 10.3 Rio through 13.1 on Windows, Win32 / Win64.
+The UI and IDE integration are **VCL only**; FireMonkey is outside scope (for now).
+These Delphi targets are build and validated with RAD Studio 12.
 
-Before testing in Delphi, follow [the handover checklist](docs/delphi-validation.md).
 EV catalogue entries describe model-specific data, not brand-wide support; see
 [the generated EV capability matrix](docs/ev-support-matrix.md).
 
