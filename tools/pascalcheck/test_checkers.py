@@ -126,6 +126,25 @@ end.
         source.write_text(source.read_text().replace('try Item.Drop;', 'try Item.Drop();'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_delphi_binary_hash_and_delete_file_contracts(self):
+        source = self.source('src/Checkpoint.pas', """unit Checkpoint;
+interface
+uses System.Hash, System.SysUtils, Winapi.Windows;
+implementation
+procedure Save(const Image: TBytes; const TempName: string);
+begin
+  Digest := THashSHA2.GetHashBytes(Image, THashSHA2.TSHA2Version.SHA256);
+  DeleteFile(TempName);
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('THashSHA2.GetHashBytes(Image, THashSHA2.TSHA2Version.SHA256)',
+                                   'Hash.HashAsBytes()')
+                          .replace('  DeleteFile(TempName);', '  System.SysUtils.DeleteFile(TempName);'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

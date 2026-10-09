@@ -117,9 +117,18 @@ uses
 
 class function TOBDFlashCheckpoint.ComputeImageHash(
   const AImage: TBytes): TBytes;
+{$IFNDEF FPC}
+var
+  Hash: THashSHA2;
+{$ENDIF}
 begin
-  {$IFDEF FPC}TSHA256.DigestBytes(AImage, Result);{$ELSE}
-  Result := THashSHA2.GetHashBytes(AImage, THashSHA2.TSHA2Version.SHA256);{$ENDIF}
+{$IFDEF FPC}
+  TSHA256.DigestBytes(AImage, Result);
+{$ELSE}
+  Hash := THashSHA2.Create(THashSHA2.TSHA2Version.SHA256);
+  Hash.Update(AImage);
+  Result := Hash.HashAsBytes();
+{$ENDIF}
 end;
 
 function HexEncode(const AData: TBytes): string;
@@ -211,7 +220,8 @@ begin
   {$ENDIF}{$ENDIF}
 {$ENDIF}
   finally
-    if FileExists(TempName) then DeleteFile(TempName);
+    if FileExists(TempName) then
+      {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}.DeleteFile(TempName);
   end;
 end;
 

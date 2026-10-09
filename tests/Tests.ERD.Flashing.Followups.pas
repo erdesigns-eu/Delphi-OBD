@@ -81,6 +81,21 @@ type
 
 implementation
 
+function BinarySHA256(const AData: TBytes): TBytes;
+var
+  Stream: TMemoryStream;
+begin
+  Stream := TMemoryStream.Create;
+  try
+    if Length(AData) > 0 then
+      Stream.WriteBuffer(AData[0], Length(AData));
+    Stream.Position := 0;
+    Result := THashSHA2.GetHashBytes(Stream, THashSHA2.TSHA2Version.SHA256);
+  finally
+    Stream.Free;
+  end;
+end;
+
 { ---- Checkpoint atomic ----------------------------------------------------- }
 
 procedure TCheckpointAtomicTests.SaveOverwriteSurvivesExistingFile;
@@ -135,7 +150,7 @@ var
   H: TBytes;
   I: Integer;
 begin
-  H := THashSHA2.GetHashBytes(ABytes, THashSHA2.TSHA2Version.SHA256);
+  H := BinarySHA256(ABytes);
   Result := '';
   for I := 0 to High(H) do
     Result := Result + LowerCase(IntToHex(H[I], 2));
@@ -227,9 +242,9 @@ begin
   Desc := Default(TOBDApplicabilityDescriptor);
   Desc.ImageSha256Hex := HashHex(Image);
   Assert.IsTrue (TOBDFlashImageApplicability.MatchesImage(Desc,
-    THashSHA2.GetHashBytes(Image, THashSHA2.TSHA2Version.SHA256)));
+    BinarySHA256(Image)));
   Assert.IsFalse(TOBDFlashImageApplicability.MatchesImage(Desc,
-    THashSHA2.GetHashBytes(Tampered, THashSHA2.TSHA2Version.SHA256)));
+    BinarySHA256(Tampered)));
 end;
 
 { ---- PKCS#11 shim ---------------------------------------------------------- }

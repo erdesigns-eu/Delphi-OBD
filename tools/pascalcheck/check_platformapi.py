@@ -22,6 +22,16 @@ for path in pas_files():
 
     for match in re.finditer(r'\bCurrentAdapter\s*\.\s*Activated\b', src, re.I):
         finding(match.start(), 'TBluetoothAdapter has no Activated property')
+
+    byte_buffers = set(re.findall(r'\b(\w+)\s*:\s*TBytes\b', src, re.I))
+    for match in re.finditer(r'\bTHashSHA2\s*\.\s*GetHashBytes\s*\(\s*(\w+)\s*[,)]', src, re.I):
+        if match.group(1).lower() in {n.lower() for n in byte_buffers}:
+            finding(match.start(), 'Hash binary buffers with a THashSHA2 instance and Update, not the string/stream factory')
+
+    if re.search(r'\bWinapi\.Windows\b', src, re.I):
+        for match in re.finditer(r'(?<![\w.])DeleteFile\s*\(\s*(\w+)\s*\)', src, re.I):
+            if re.search(r'\b' + re.escape(match.group(1)) + r'\s*:\s*string\b', src, re.I):
+                finding(match.start(), 'Qualify SysUtils.DeleteFile for string filenames when Windows is imported')
     for match in re.finditer(
             r'\bRegisterAlgorithm\s*\([^,]+,\s*TOBDSeedKey\w+\s*\.\s*Create\b', src, re.I):
         finding(match.start(), 'Cast concrete seed-key providers to IOBDSeedKeyAlgorithm to select the interface overload')
